@@ -4635,34 +4635,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Duplicate handler removed - keeping the first registration around line 1592
-
-	// Force open AskAI window handler (fallback for Dynamic Island)
-	ipcMain.handle('force-open-askai-window', async () => {
-		try {
-			log.info('Force opening AskAI window...');
-
-			// Try to create and show the window
-			windowHelper.createAskAIWindow();
-			await new Promise((resolve) => setTimeout(resolve, 500));
-
-			windowHelper.showAskAIWindow();
-			await new Promise((resolve) => setTimeout(resolve, 500));
-
-			const askAIWindow = windowHelper.getAskAIWindow();
-			if (askAIWindow && !askAIWindow.isDestroyed() && askAIWindow.isVisible()) {
-				log.info('AskAI window opened successfully');
-				return { success: true };
-			} else {
-				log.error('Failed to open AskAI window');
-				return { success: false, error: 'Window not available or visible' };
-			}
-		} catch (error) {
-			log.error('Error forcing open AskAI window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
 	// Show screen recording permission help
 	ipcMain.handle('show-screen-recording-permission-help', async () => {
 		try {
