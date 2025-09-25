@@ -1,4 +1,5 @@
 // preload.js
+// TODO: PERFORMANCE - This file exposes 100+ IPC methods - consider batching or lazy loading
 const { contextBridge, ipcRenderer } = require('electron/renderer');
 
 // Helper
@@ -72,6 +73,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// In preload.js, inside contextBridge.exposeInMainWorld('electronApi', { ... })
 
+	// TODO: PERFORMANCE - Event listener management could be optimized with cleanup tracking
 	// ✅ Safe way to listen to any allowed channel
 	on: (channel, callback) => {
 		const validChannels = [

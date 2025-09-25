@@ -3,6 +3,8 @@ const path = require('path');
 const log = require('electron-log');
 const { execSync } = require('child_process');
 
+// TODO: PERFORMANCE - Python process spawning could be optimized with process pooling
+// TODO: PERFORMANCE - Consider implementing process health monitoring and auto-restart
 class WakeWordService {
 	constructor() {
 		this.process = null;
@@ -33,6 +35,7 @@ class WakeWordService {
 			];
 		}
 
+		// TODO: PERFORMANCE - Multiple execSync calls with 5s timeout each could block startup
 		// Try each command to see which one works
 		for (const cmd of pythonCommands) {
 			try {

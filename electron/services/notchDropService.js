@@ -5,6 +5,8 @@ const { BrowserWindow } = require('electron');
 
 let NotchDropAddonWrapper;
 
+// TODO: PERFORMANCE - This service has complex initialization with multiple async operations
+// TODO: PERFORMANCE - Consider implementing initialization state machine for better error handling
 class NotchDropService {
 	constructor() {
 		this.notchDropAddon = null;
@@ -53,12 +55,14 @@ class NotchDropService {
 				return false;
 			}
 
+			// TODO: PERFORMANCE - Multiple require() attempts with fallback paths could be optimized
 			// Enhanced module resolution for both dev and packaged environments
 			let NotchDropAddonWrapper;
 			try {
 				// Try module resolution first (works in packaged apps)
 				NotchDropAddonWrapper = require('notchdrop-addon');
 			} catch (moduleError) {
+				// TODO: PERFORMANCE - Consider caching successful paths to avoid repeated attempts
 				// Enhanced fallback paths for development and packaged environments
 				const fallbackPaths = [
 					// Development paths

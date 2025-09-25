@@ -2,6 +2,8 @@ const { BrowserWindow, globalShortcut, screen, app } = require('electron');
 const log = require('electron-log');
 const path = require('node:path');
 
+// TODO: PERFORMANCE - This class manages multiple windows but lacks proper cleanup patterns
+// TODO: PERFORMANCE - Consider implementing WeakMap for window references to prevent memory leaks
 class WindowHelper {
 	constructor(applyContentProtectionCallback = null) {
 		this.overlayWindow = null;
@@ -497,6 +499,7 @@ class WindowHelper {
 	setupWindowListeners() {
 		if (!this.overlayWindow) return;
 
+		// TODO: PERFORMANCE - Multiple timeout variables could cause memory leaks if not properly cleaned up
 		// Simple drag detection: Hide Dynamic Island during drag, show when stopped
 		let isDragging = false;
 		let dragEndTimeout;
