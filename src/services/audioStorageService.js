@@ -444,6 +444,17 @@ class AudioStorageService {
 				throw new Error('No audio recording found for this meeting');
 			}
 
+			// Check if already uploaded to prevent duplicates
+			const metadataResult = await this.getAudioMetadata(meetingId);
+			if (metadataResult.success && metadataResult.metadata.assemblyaiUploadUrl) {
+				console.log('⚠️ Audio already uploaded to AssemblyAI, skipping duplicate upload');
+				return {
+					success: true,
+					uploadUrl: metadataResult.metadata.assemblyaiUploadUrl,
+					skipped: true
+				};
+			}
+
 			// Get the audio file path
 			const audioFilePath = this.getAudioFilePath(meetingId);
 
@@ -467,30 +478,34 @@ class AudioStorageService {
 					await window.electronApi.fs.writeFile(metadataPath, metadataJson);
 				}
 
-				// Automatically send to workspace API after successful upload
-				console.log('🚀 Automatically sending to workspace API...');
-				const jwtToken = localStorage.getItem('usertoken');
-				if (jwtToken) {
-					try {
-						const workspaceResult = await assemblyAIService.sendToWorkspaceAPI(
-							meetingId,
-							uploadResult.uploadUrl,
-							jwtToken,
-						);
-
-						if (workspaceResult.success) {
-							console.log('✅ Successfully sent to workspace API automatically!');
-						} else {
-							console.error(
-								'❌ Failed to send to workspace API:',
-								workspaceResult.error,
+				// Automatically send to workspace API after successful upload (only if not skipped)
+				if (!uploadResult.skipped) {
+					console.log('🚀 Automatically sending to workspace API...');
+					const jwtToken = localStorage.getItem('usertoken');
+					if (jwtToken) {
+						try {
+							const workspaceResult = await assemblyAIService.sendToWorkspaceAPI(
+								meetingId,
+								uploadResult.uploadUrl,
+								jwtToken,
 							);
+
+							if (workspaceResult.success) {
+								console.log('✅ Successfully sent to workspace API automatically!');
+							} else {
+								console.error(
+									'❌ Failed to send to workspace API:',
+									workspaceResult.error,
+								);
+							}
+						} catch (error) {
+							console.error('❌ Error calling workspace API:', error);
 						}
-					} catch (error) {
-						console.error('❌ Error calling workspace API:', error);
+					} else {
+						console.warn('⚠️ No JWT token found - cannot send to workspace API');
 					}
 				} else {
-					console.warn('⚠️ No JWT token found - cannot send to workspace API');
+					console.log('⚠️ Skipping workspace API call - upload was skipped (already exists)');
 				}
 			}
 
