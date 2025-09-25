@@ -603,7 +603,8 @@ struct ChatTextAreaView: View {
             // TextEditor (multi-line text input)
             TextEditor(text: $chatInput)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(DynamicIslandTheme.textPrimary)
+                .foregroundColor(DynamicIslandTheme.white)
+                .accentColor(DynamicIslandTheme.white) // Ensure cursor and selection are white
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .background(Color.clear)
