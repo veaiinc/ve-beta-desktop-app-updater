@@ -112,10 +112,8 @@ export const ChatStreamState = () => {
 			}
 
 			currentSessionIdRef.current = sessionId;
-			if (
-				socketRefs.current[sessionId] &&
-				socketRefs.current[sessionId].readyState === WebSocket.OPEN
-			) {
+
+			if (socketRefs.current[sessionId]) {
 				return;
 			}
 
