@@ -3997,34 +3997,44 @@ const GalleryPage = () => {
 				return;
 			}
 
-			// Now fetch signed URLs (same as before)
+			// Fetch signed URLs with 500ms delay between each API call
 			const batchSize = 10;
 			const allItems = [];
 
-			const fetchPromises = [];
+			// Process batches sequentially with 500ms delay between each
 			for (let i = 0; i < imageIds.length; i += batchSize) {
-				fetchPromises.push(
-					(async () => {
-						const batchIds = imageIds.slice(i, i + batchSize);
-						const payload = { image_ids: batchIds, imageType: 'original' };
-						try {
-							const result = await getSignedUrlsForImages(payload, galleryId);
-							if (Array.isArray(result)) {
-								allItems.push(
-									...result.map((item) => ({
-										url: item.url,
-										filename: item.filename || `${item.imageId}.jpg`,
-									})),
-								);
-							}
-						} catch (err) {
-							console.error('Failed to get signed URLs:', err);
-						}
-					})(),
-				);
-			}
+				const batchIds = imageIds.slice(i, i + batchSize);
+				const payload = { image_ids: batchIds, imageType: 'original' };
 
-			await Promise.all(fetchPromises);
+				try {
+					console.log(
+						`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(
+							imageIds.length / batchSize,
+						)} (${batchIds.length} images)`,
+					);
+
+					const result = await getSignedUrlsForImages(payload, galleryId);
+					if (Array.isArray(result)) {
+						allItems.push(
+							...result.map((item) => ({
+								url: item.url,
+								filename: item.filename || `${item.imageId}.jpg`,
+							})),
+						);
+					}
+
+					console.log(
+						`Completed batch. Total URLs collected: ${allItems.length}/${imageIds.length}`,
+					);
+				} catch (err) {
+					console.error('Failed to get signed URLs:', err);
+				}
+
+				// 500ms delay between each API call (except for the last one)
+				if (i + batchSize < imageIds.length) {
+					await new Promise((resolve) => setTimeout(resolve, 500));
+				}
+			}
 
 			if (allItems.length === 0) {
 				showMessage('error', 'No valid URLs generated');
