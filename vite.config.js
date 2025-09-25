@@ -105,6 +105,7 @@ export default defineConfig({
 				areYouThere: './areYouThere.html',
 				dynamicIsland: './dynamic-island.html',
 				permission: './permission.html',
+				errorFallback: './error-fallback.html',
 			},
 		},
 	},

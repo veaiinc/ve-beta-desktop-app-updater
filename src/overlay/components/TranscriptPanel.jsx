@@ -105,8 +105,17 @@ const TranscriptPanel = ({
 						<Clock size={16} />
 						<span>Show Live Intelligence</span>
 					</button>
-					{/* <button className="transcript-panel-header-action" title="Expand">
-						<Expand size={16} />
+					{/* <button
+						className="transcript-panel-header-action"
+						onClick={() => {
+							// Toggle debug mode by setting a global flag
+							window.echoDebugMode = !window.echoDebugMode;
+							console.log('🔧 Echo debug mode:', window.echoDebugMode ? 'ENABLED' : 'DISABLED');
+						}}
+						title="Toggle Echo Debug Mode"
+						style={{ fontSize: '12px' }}
+					>
+						🔧
 					</button> */}
 					<button
 						className="transcript-panel-header-action"
