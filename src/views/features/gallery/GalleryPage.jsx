@@ -4023,12 +4023,6 @@ const GalleryPage = () => {
 				const payload = { image_ids: batchIds, imageType: 'original' };
 
 				try {
-					console.log(
-						`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(
-							imageIds.length / batchSize,
-						)} (${batchIds.length} images)`,
-					);
-
 					const result = await getSignedUrlsForImages(payload, galleryId);
 					if (Array.isArray(result)) {
 						allItems.push(
@@ -4038,10 +4032,6 @@ const GalleryPage = () => {
 							})),
 						);
 					}
-
-					console.log(
-						`Completed batch. Total URLs collected: ${allItems.length}/${imageIds.length}`,
-					);
 				} catch (err) {
 					console.error('Failed to get signed URLs:', err);
 				}
