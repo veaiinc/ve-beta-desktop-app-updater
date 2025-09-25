@@ -194,13 +194,20 @@ export const AuthState = () => {
 					return [true, { hasWorkspaces: false, isOnboard: false }];
 				}
 
-				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
+				const { isOnboard, workspaceId, region } = accessibleWorkspaces?.[0];
 
 				localStorage.setItem('isOnboard', isOnboard);
 				Cookies.set('isOnboard', isOnboard, {
 					sameSite: 'Lax',
 					domain: host,
 				});
+				if (region) {
+					localStorage.setItem('region', region);
+					Cookies.set('region', region, {
+						sameSite: 'Lax',
+						domain: host,
+					});
+				}
 				if (hasWorkspaces)
 					localStorage.setItem(
 						'accessibleWorkspaces',
