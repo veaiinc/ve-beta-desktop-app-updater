@@ -96,6 +96,8 @@
 		background: var(--popup);
 		cursor: pointer;
 		position: relative;
+		box-shadow: 0 4px 16px 0 #0a12170d;
+		border: 1px solid var(--dividers);
 
 		.tooltip-content {
 			flex-grow: 1;

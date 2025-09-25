@@ -1,7 +1,7 @@
 import { CitationsTooltip } from '../../views/components/modalsV2/chat/CitationsTooltip';
 import Service from '../../services/index';
 
-export const handleDeepSearchChainOfThought = (chainOfThought) => {
+export const handleChainOfThought = (chainOfThought) => {
 	const cot = [];
 
 	for (let i = 0; i < chainOfThought?.length; i++) {
@@ -219,7 +219,7 @@ export const handleCombinedChainOfThought = (chainOfThought) => {
 
 	deepSearchesArray = deepSearchesArray?.map((deepSearch) => {
 		const chainOfThought = deepSearch?.chainOfThought || [];
-		return handleDeepSearchChainOfThought(chainOfThought);
+		return handleChainOfThought(chainOfThought);
 	});
 
 	deepResearchesArray = deepResearchesArray?.map((deepResearch) => {
@@ -249,33 +249,6 @@ export const handleBrowserData = (chainOfThought) => {
 		}
 	}
 	return { browserTools, browserPlan };
-};
-
-export const getBrowserUrls = async (sessionId, handleGlobalChatMessages) => {
-	const workspaceId = localStorage.getItem('workspaceId');
-	const usertoken = localStorage.getItem('usertoken');
-
-	try {
-		const response = await Service.fetchGet(
-			`/api/browser/${workspaceId}/${sessionId}/debug-url`,
-			usertoken,
-			'browser_api',
-		);
-
-		const { success } = response?.[1] || {};
-
-		if (response?.[0] && success === true) {
-			handleGlobalChatMessages({
-				sessionId: sessionId,
-				browserTabsInfo: response?.[1],
-				updateExtraInfo: true,
-			});
-			return;
-		}
-	} catch (error) {
-		console.error('error==>getBrowserUrls', error);
-		return;
-	}
 };
 
 export const getFileType = (file) => {
