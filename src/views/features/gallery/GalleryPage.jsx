@@ -736,22 +736,38 @@ const GalleryPage = () => {
 			}));
 		}
 
-		// Only set the active album if it's not already set
-		if (tenantAlbums && galleryId) {
-			setInfo((prev) => ({
-				...prev,
-				albumName: tenantAlbums?.albums?.[0]?.title,
-				activeAlbumId: tenantAlbums?.albums?.[0]?._id,
-				activeAlbum: tenantAlbums?.albums?.[0],
-				tenantAlbums: tenantAlbums?.albums,
-				albumSlug: tenantAlbums?.albums?.[0]?.slug,
-				isPublished: tenantAlbums?.isPublished,
-				isOnline: tenantAlbums?.isPublished,
-				videosList: tenantAlbums?.embeddedVideos,
-				selectVideo: info?.videoUploaded
-					? tenantAlbums?.embeddedVideos?.[tenantAlbums?.embeddedVideos?.length - 1]
-					: tenantAlbums?.embeddedVideos?.[0],
-			}));
+		// Only set the active album if it's not already set and no album is specified in URL
+		if (tenantAlbums && galleryId && !info.activeAlbumId) {
+			const searchParams = new URLSearchParams(location.search);
+			const albumIdFromParams = searchParams.get('albumId');
+
+			// If there's an albumId in URL, find that album; otherwise use first album
+			let targetAlbum = tenantAlbums?.albums?.[0]; // default to first album
+			if (albumIdFromParams) {
+				const albumFromUrl = tenantAlbums.albums.find(
+					(album) => album._id === albumIdFromParams,
+				);
+				if (albumFromUrl) {
+					targetAlbum = albumFromUrl;
+				}
+			}
+
+			if (targetAlbum) {
+				setInfo((prev) => ({
+					...prev,
+					albumName: targetAlbum.title,
+					activeAlbumId: targetAlbum._id,
+					activeAlbum: targetAlbum,
+					tenantAlbums: tenantAlbums?.albums,
+					albumSlug: targetAlbum.slug,
+					isPublished: tenantAlbums?.isPublished,
+					isOnline: tenantAlbums?.isPublished,
+					videosList: tenantAlbums?.embeddedVideos,
+					selectVideo: info?.videoUploaded
+						? tenantAlbums?.embeddedVideos?.[tenantAlbums?.embeddedVideos?.length - 1]
+						: tenantAlbums?.embeddedVideos?.[0],
+				}));
+			}
 		}
 		if (tenantAlbums && galleryId && !info?.selectVideo) {
 			setInfo((prev) => ({
