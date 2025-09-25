@@ -615,7 +615,8 @@ struct ChatTextAreaView: View {
             // TextEditor (multi-line text input)
             TextEditor(text: $chatInput)
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(DynamicIslandTheme.textPrimary)
+                .foregroundColor(DynamicIslandTheme.white)
+                .accentColor(DynamicIslandTheme.white) // Ensure cursor and selection are white
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .padding(.trailing, 40) // Add space for arrow icon
@@ -683,16 +684,35 @@ struct ChatTextAreaView: View {
                 }
                 .onChange(of: isChatInputFocused) { oldValue, newValue in
                     handleFocusChange(newValue)
+                    // Sync focus state with view model
+                    vm.isChatInputFocused = newValue
                 }
                 .onChange(of: vm.isChatMode) { oldValue, newValue in
                     // When chat mode is turned off (back button pressed), remove focus
                     if !newValue && isChatInputFocused {
                         isChatInputFocused = false
                     }
+                    // When chat mode is turned ON, focus the text input
+                    else if newValue && !oldValue {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isChatInputFocused = true
+                            vm.isChatInputFocused = true
+                            print("🎯 Auto-focusing TextEditor when chat mode activated")
+                        }
+                    }
                 }
                 .onAppear {
                     // Calculate width based on available space in the dynamic island
                     calculateTextEditorWidth()
+                    
+                    // Auto-focus when TextEditor appears
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        if vm.isChatMode {
+                            isChatInputFocused = true
+                            vm.isChatInputFocused = true
+                            print("🎯 Auto-focusing TextEditor on appear")
+                        }
+                    }
                 }
                 .onChange(of: vm.isRecording) { oldValue, newValue in
                     // When recording starts, disable chat mode to keep width at 400px
@@ -711,30 +731,39 @@ struct ChatTextAreaView: View {
         .onTapGesture {
             print("🎯 Chat area tapped - attempting to focus text input")
             
-            // Ensure window is key first
-            if let window = NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
-                if !window.isKeyWindow {
-                    window.makeKey()
+            // Find the NotchDrop window specifically
+            var notchWindow: NSWindow?
+            for window in NSApp.windows {
+                if window.isVisible && window.className.contains("NotchDropPanel") {
+                    notchWindow = window
+                    break
                 }
-                // Force the window to become key and order front
-                window.makeKeyAndOrderFront(nil)
             }
             
-            // Set focus with proper timing to ensure cursor appears
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                isChatInputFocused = true
-                isTextFieldActive = true
-                // Only enable chat mode if NOT in meeting mode (recording)
-                if !vm.isRecording {
-                    vm.isChatMode = true
-                }
+            // Ensure window is key first
+            if let window = notchWindow ?? NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
+                print("🎯 Making window key: \(window.className)")
+                window.makeKeyAndOrderFront(nil)
                 
-                // Force the window to become first responder after a short delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                    if let window = NSApp.keyWindow {
-                        window.makeFirstResponder(window.firstResponder)
+                // Set focus with proper timing to ensure cursor appears
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isChatInputFocused = true
+                    isTextFieldActive = true
+                    // Only enable chat mode if NOT in meeting mode (recording)
+                    if !vm.isRecording {
+                        vm.isChatMode = true
+                        vm.isChatInputFocused = true
+                    }
+                    
+                    // Force the window to become first responder after a short delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        if let window = NSApp.keyWindow {
+                            window.makeFirstResponder(window.firstResponder)
+                        }
                     }
                 }
+            } else {
+                print("🎯 No suitable window found for focus")
             }
         }
         .zIndex(2) // Ensure chat input is above the background overlay
@@ -1383,12 +1412,9 @@ struct VoiceModeButton: View {
     
     var body: some View {
         Button(action: {
-            print("🎯 Voice Mode button clicked - enabling chat mode")
-            // Focus chat input and expand to 510px when voice mode button is clicked
-            vm.isChatMode = true
-            // Ensure voice interface is not shown
-            vm.showVoiceInterface = false
-            onFocusChat()
+            print("🎤 Voice Mode button clicked - connecting to voice assistant")
+            // Connect to voice assistant instead of just enabling chat mode
+            vm.connectVoiceAssistant()
         }) {
             ZStack {
                 // Main circle with CSS properties

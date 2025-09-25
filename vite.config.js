@@ -104,6 +104,7 @@ export default defineConfig({
 				askAI: './askAI.html',
 				areYouThere: './areYouThere.html',
 				dynamicIsland: './dynamic-island.html',
+				errorFallback: './error-fallback.html',
 			},
 		},
 	},

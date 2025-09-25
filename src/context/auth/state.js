@@ -5,9 +5,10 @@ import service from '../../services/';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../helpers';
 import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
-import { auth_Api as authBaseUrl } from '../../services/config.live';
+import getBaseUrl from '../../services/baseUrls';
 import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
 import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
+import logout from '../../helpers/logout';
 
 export const initialState = {
 	currentPlanAddOns: null,
@@ -119,16 +120,12 @@ export const AuthState = () => {
 	};
 
 	const verifyEmailVerificationCode = async (email, verificationCode, emailVerified) => {
-		// console.log('[Verify] Starting verification process...');
 		const path = emailVerified ? '/login-with-otp' : '/verify-signup-email';
-		// console.log('[Verify] Using API path:', path);
 
 		// let permission;
 		// try {
 		// 	permission = await requestPushNotificationPermission();
-		// 	console.log('[Verify] Push notification permission:', permission);
 		// } catch (err) {
-		// 	console.error('[Verify] Failed while requesting push notification permission:', err);
 		// 	return [
 		// 		false,
 		// 		{
@@ -137,38 +134,28 @@ export const AuthState = () => {
 		// 		},
 		// 	];
 		// }
-
 		// if (permission === 'error') {
-		// 	console.warn('[Verify] Permission returned error');
 		// 	return [false, { message: 'An unexpected error occurred. Please try again!' }];
 		// }
 
 		// const fcmToken = permission === 'granted' ? await generateFCMToken() : '';
-		// console.log('[Verify] Generated FCM token:', fcmToken || 'No token generated');
-
 		// if (fcmToken) {
 		// 	localStorage.setItem('fcmToken', fcmToken);
 		// 	Cookies.set('fcmToken', fcmToken, {
 		// 		sameSite: 'lax',
 		// 		domain: fetchDomainName(),
 		// 	});
-		// 	console.log('[Verify] Stored FCM token in localStorage and cookies');
 		// }
 
-		// const body = emailVerified
-		// 	? fcmToken
-		// 		? { email, otp: verificationCode, fcmToken }
-		// 		: { email, otp: verificationCode }
-		// 	: { email, verificationCode };
-
-		const body = emailVerified ? { email, otp: verificationCode } : { email, verificationCode };
-
-		// console.log('[Verify] Request body prepared:', body);
-
+		const body =
+			// emailVerified
+			// ? fcmToken
+			// 	? { email, otp: verificationCode, fcmToken }
+			// 	: { email, otp: verificationCode }
+			// :
+			{ email, otp: verificationCode };
 		try {
-			console.log('[Verify] Sending API request...');
 			const response = await service?.fetchPost(path, body, null, 'auth');
-			console.log('[Verify] API Response:', response);
 
 			const host = fetchDomainName();
 
@@ -202,14 +189,28 @@ export const AuthState = () => {
 				}
 
 				if (!hasWorkspaces) {
-					console.log('[Verify] No workspaces found');
 					localStorage.setItem('isOnboard', false);
+					Cookies.set('isOnboard', false, {
+						sameSite: 'Lax',
+						domain: host,
+					});
 					return [true, { hasWorkspaces: false, isOnboard: false }];
 				}
 
-				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
-				localStorage.setItem('isOnboard', JSON.stringify(isOnboard));
-				localStorage.setItem('workspaceId', workspaceId);
+				const { isOnboard, workspaceId, region } = accessibleWorkspaces?.[0];
+
+				localStorage.setItem('isOnboard', isOnboard);
+				Cookies.set('isOnboard', isOnboard, {
+					sameSite: 'Lax',
+					domain: host,
+				});
+				if (region) {
+					localStorage.setItem('region', region);
+					Cookies.set('region', region, {
+						sameSite: 'Lax',
+						domain: host,
+					});
+				}
 				if (hasWorkspaces)
 					localStorage.setItem(
 						'accessibleWorkspaces',
@@ -219,11 +220,16 @@ export const AuthState = () => {
 					sameSite: 'Lax',
 					domain: host,
 				});
-				console.log('[Verify] Workspace data stored in localStorage and cookies');
+				if (workspaceId) {
+					localStorage.setItem('workspaceId', workspaceId);
+					Cookies.set('workspaceId', workspaceId, {
+						sameSite: 'Lax',
+						domain: host,
+					});
+				}
 
 				return [true, { hasWorkspaces, isOnboard, workspaceId }];
 			} else {
-				console.warn('[Verify] Verification failed with message:', response?.[1]?.message);
 				return [false, { message: response?.[1]?.message?.trim() }];
 			}
 		} catch (error) {
@@ -518,16 +524,10 @@ export const AuthState = () => {
 	const getNewAccessToken = async () => {
 		try {
 			const path = '/refresh-token';
-
-			const currentAccessToken =
-				localStorage.getItem('usertoken') || Cookies.get('usertoken');
-			const refreshToken =
-				localStorage.getItem('refreshToken') || Cookies.get('refreshToken');
-			const body = {
-				refreshToken,
-			};
-
-			const response = await service.fetchPost(path, body, currentAccessToken, 'auth');
+			const token = localStorage.getItem('usertoken') || Cookies.get('usertoken');
+			const response = await service.fetchPost(path, null, token, 'auth');
+			const responseStatus = response?.[2];
+			if (responseStatus === 401 || responseStatus === 403) logout();
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
 			} else {
