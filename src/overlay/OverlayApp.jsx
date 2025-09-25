@@ -21,6 +21,9 @@ const OverlayApp = () => {
 	// State to control whether to show ShortcutBar (false when controlled by Dynamic Island)
 	const [showShortcutBar, setShowShortcutBar] = useState(false);
 	const [isDynamicIslandControlled, setIsDynamicIslandControlled] = useState(false);
+	
+	// Track seen thread count for badge
+	const [lastSeenThreadCount, setLastSeenThreadCount] = useState(0);
 
 	// Custom notification system
 	const notification = useOverlayNotification();
@@ -621,6 +624,11 @@ const OverlayApp = () => {
 		} else {
 			// Open live intelligence panel and start recording automatically
 			setActivePanel('live-intelligence');
+			
+			// Mark current threads as seen when opening live intelligence
+			const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
+			setLastSeenThreadCount(currentThreadCount);
+			console.log('👁️ Opening live intelligence via Listen - marking threads as seen:', currentThreadCount);
 
 			// Always clear previous transcriptions and data when starting fresh
 
@@ -638,6 +646,11 @@ const OverlayApp = () => {
 
 		// Always open live intelligence panel when triggered from Dynamic Island
 		setActivePanel('live-intelligence');
+		
+		// Mark current threads as seen when opening live intelligence via Dynamic Island
+		const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
+		setLastSeenThreadCount(currentThreadCount);
+		console.log('👁️ Opening live intelligence via Dynamic Island - marking threads as seen:', currentThreadCount);
 
 		if (!isRecording) {
 			await handleStartTranscription(data);
@@ -660,6 +673,11 @@ const OverlayApp = () => {
 	};
 
 	const handleShowLiveIntelligence = () => {
+		// Mark current threads as seen when switching to live intelligence
+		const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
+		setLastSeenThreadCount(currentThreadCount);
+		console.log('👁️ Switching to live intelligence - marking threads as seen:', currentThreadCount);
+		
 		setActivePanel('live-intelligence');
 	};
 
@@ -824,6 +842,8 @@ const OverlayApp = () => {
 						onStopTranscription={handleStopTranscription}
 						// onMuteAudio={muteAudio}
 						// onUnmuteAudio={unmuteAudio}
+						liveIntelligenceData={info?.liveIntelligenceData}
+						lastSeenThreadCount={lastSeenThreadCount}
 					/>
 				</div>
 			)}

@@ -20,6 +20,13 @@ extension NotchViewModel {
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
                 switch status {
                 case .opened:
+                    // If chat input is focused or we're in chat mode, don't interfere with clicks in the notch area
+                    if isChatInputFocused || (isChatMode && notchOpenedRect.contains(mouseLocation)) {
+                        // Let SwiftUI handle the click for text input
+                        print("🎯 Chat input focused or click in chat area - allowing SwiftUI to handle")
+                        return
+                    }
+                    
                     // touch outside, close
                     if !notchOpenedRect.contains(mouseLocation) {
                         notchClose()
@@ -129,5 +136,28 @@ extension NotchViewModel {
     func destroy() {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
+    }
+    
+    // Helper method to check if a click is within the chat input area
+    private func isClickInChatInputArea(_ mouseLocation: NSPoint) -> Bool {
+        // Calculate the chat input area bounds within the opened notch
+        let notchRect = notchOpenedRect
+        
+        // Chat input area is positioned in the lower part of the opened notch
+        // Based on the SwiftUI layout: padding(vm.spacing) + main content area
+        let chatAreaHeight: CGFloat = 120 // Approximate height of chat input area
+        let chatAreaWidth: CGFloat = 480 // Fixed width as defined in SwiftUI
+        
+        let chatInputRect = CGRect(
+            x: notchRect.origin.x + (notchRect.width - chatAreaWidth) / 2,
+            y: notchRect.origin.y + notchRect.height - chatAreaHeight - spacing,
+            width: chatAreaWidth,
+            height: chatAreaHeight
+        )
+        
+        let isInChatArea = chatInputRect.contains(mouseLocation)
+        print("🎯 Mouse at: \(mouseLocation), Chat area: \(chatInputRect), Contains: \(isInChatArea)")
+        
+        return isInChatArea
     }
 }

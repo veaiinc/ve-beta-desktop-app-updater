@@ -118,6 +118,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var timer: Int = 0
     @Published var isChatMode: Bool = false
     @Published var chatInput: String = ""
+    @Published var isChatInputFocused: Bool = false // Track when chat input has focus
     @Published var isSendingMessage: Bool = false
     @Published var isAuthenticated: Bool = false
     @Published var controlledByDynamicIsland: Bool = false

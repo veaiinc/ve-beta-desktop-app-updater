@@ -162,6 +162,9 @@ class WindowHelper {
 		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
 		this.currentY = 0 + dynamicIslandHeight + gapFromDynamicIsland;
 
+		// Initialize window position for future position persistence
+		this.windowPosition = { x: this.currentX, y: this.currentY };
+
 		const windowSettings = {
 			width: this.windowSize.width,
 			height: this.windowSize.height,
@@ -299,8 +302,11 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: false, // Disable resizing - keep only movable functionality
+			resizable: true, // Enable resizing for user customization
 			movable: true, // Explicitly enable window movement
+			minWidth: 400, // Minimum width for usability
+			minHeight: 300, // Minimum height for usability
+			// maxWidth and maxHeight removed to allow full screen expansion
 			devTools: true,
 		};
 
@@ -319,6 +325,10 @@ class WindowHelper {
 		}
 
 		this.askAIWindow = new BrowserWindow(windowSettings);
+
+		// Store initial position for proper tracking
+		this.askAIWindowPosition = { x: askAIX, y: askAIY };
+		this.askAIWindowSize = { width: this.askAIWindowSize.width, height: this.askAIWindowSize.height };
 
 		// Apply content protection to Ask AI window
 		this.applyContentProtection(this.askAIWindow);
@@ -480,19 +490,45 @@ class WindowHelper {
 		// Simple drag detection: Hide Dynamic Island during drag, show when stopped
 		let isDragging = false;
 		let dragEndTimeout;
+		let constraintTimeout;
+		let isApplyingConstraints = false;
 
 		// Listen for when window starts moving (drag start)
 		this.overlayWindow.on('will-move', () => {
 			if (!isDragging) {
 				isDragging = true;
-				log.info('🎯 DRAG START: Hiding Dynamic Island for smooth dragging');
+				log.info('🎯 OVERLAY DRAG START: Hiding Dynamic Island for smooth dragging');
 				this.hideDynamicIslandForDrag();
 			}
 		});
 
 		this.overlayWindow.on('move', () => {
-			if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+			if (this.overlayWindow && !this.overlayWindow.isDestroyed() && !isApplyingConstraints) {
 				const bounds = this.overlayWindow.getBounds();
+				
+				// Apply drag constraints to keep overlay window always accessible
+				const constrainedBounds = this.constrainOverlayWindowPosition(bounds);
+				
+				// Only apply constraints if the window is actually outside bounds
+				// and we're not already in the middle of applying constraints
+				if ((constrainedBounds.x !== bounds.x || constrainedBounds.y !== bounds.y)) {
+					// Clear any pending constraint application
+					clearTimeout(constraintTimeout);
+					
+					// Apply constraints with a small delay to prevent bouncing
+					constraintTimeout = setTimeout(() => {
+						if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+							isApplyingConstraints = true;
+							this.overlayWindow.setBounds(constrainedBounds);
+							
+							// Allow new moves after constraint is applied
+							setTimeout(() => {
+								isApplyingConstraints = false;
+							}, 50);
+						}
+					}, 10); // Small delay to smooth out the constraint application
+				}
+				
 				this.windowPosition = { x: bounds.x, y: bounds.y };
 				this.currentX = bounds.x;
 				this.currentY = bounds.y;
@@ -502,7 +538,7 @@ class WindowHelper {
 					clearTimeout(dragEndTimeout);
 					dragEndTimeout = setTimeout(() => {
 						isDragging = false;
-						log.info('🎯 DRAG END: Showing Dynamic Island again');
+						log.info('🎯 OVERLAY DRAG END: Showing Dynamic Island again');
 						this.showDynamicIslandAfterDrag();
 					}, 100); // 100ms after last move event
 				}
@@ -517,6 +553,9 @@ class WindowHelper {
 			// CRITICAL FIX: Reset readiness state when window closes
 			this.overlayWindowReady = false;
 			this.pendingOverlayActions = [];
+			// Clear any pending timeouts
+			clearTimeout(constraintTimeout);
+			clearTimeout(dragEndTimeout);
 		});
 
 		// CRITICAL FIX: Wait for complete loading before marking as ready
@@ -539,6 +578,8 @@ class WindowHelper {
 		// Same drag detection for Ask AI window: Hide Dynamic Island during drag, show when stopped
 		let isDragging = false;
 		let dragEndTimeout;
+		let constraintTimeout;
+		let isApplyingConstraints = false;
 
 		// Listen for when Ask AI window starts moving (drag start)
 		this.askAIWindow.on('will-move', () => {
@@ -550,8 +591,32 @@ class WindowHelper {
 		});
 
 		this.askAIWindow.on('move', () => {
-			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed() && !isApplyingConstraints) {
 				const bounds = this.askAIWindow.getBounds();
+				
+				// Check if constraints need to be applied
+				const constrainedBounds = this.constrainAskAIWindowPosition(bounds);
+				
+				// Only apply constraints if the window is actually outside bounds
+				// and we're not already in the middle of applying constraints
+				if ((constrainedBounds.x !== bounds.x || constrainedBounds.y !== bounds.y)) {
+					// Clear any pending constraint application
+					clearTimeout(constraintTimeout);
+					
+					// Apply constraints with a small delay to prevent bouncing
+					constraintTimeout = setTimeout(() => {
+						if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+							isApplyingConstraints = true;
+							this.askAIWindow.setBounds(constrainedBounds);
+							
+							// Allow new moves after constraint is applied
+							setTimeout(() => {
+								isApplyingConstraints = false;
+							}, 50);
+						}
+					}, 10); // Small delay to smooth out the constraint application
+				}
+				
 				this.askAIWindowPosition = { x: bounds.x, y: bounds.y };
 
 				// Reset the drag end timeout since we're still moving
@@ -566,12 +631,170 @@ class WindowHelper {
 			}
 		});
 
-		// Resize event listener removed - resizing is disabled
+		// Listen for resize events to update our internal size tracking
+		this.askAIWindow.on('resize', () => {
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				const bounds = this.askAIWindow.getBounds();
+				this.askAIWindowSize = { width: bounds.width, height: bounds.height };
+				log.info('🎯 ASK AI RESIZE: Updated size tracking', this.askAIWindowSize);
+			}
+		});
 
 		this.askAIWindow.on('closed', () => {
 			this.askAIWindow = null;
 			this.isAskAIVisible = false;
+			// Clear any pending timeouts
+			clearTimeout(constraintTimeout);
+			clearTimeout(dragEndTimeout);
 		});
+	}
+
+	/**
+	 * Constrains Ask AI window position to ensure it NEVER goes inside other windows - must stay 100% visible
+	 * @param {Object} bounds - Current window bounds {x, y, width, height}
+	 * @returns {Object} Constrained bounds
+	 */
+	constrainAskAIWindowPosition(bounds) {
+		const displays = screen.getAllDisplays();
+		let constrainedBounds = { ...bounds };
+		
+		// Get the display where the window is currently located
+		const currentDisplay = screen.getDisplayMatching(bounds) || screen.getPrimaryDisplay();
+		const workArea = currentDisplay.workArea;
+		
+		// Add a small tolerance to prevent micro-adjustments from triggering constraints
+		const tolerance = 2; // 2px tolerance
+		
+		// STRICT CONSTRAINT: The ENTIRE window must be visible - no part can go off-screen
+		// Left edge constraint - window cannot go past left edge
+		if (bounds.x < workArea.x - tolerance) {
+			constrainedBounds.x = workArea.x;
+		}
+		
+		// Right edge constraint - window cannot go past right edge  
+		if (bounds.x + bounds.width > workArea.x + workArea.width + tolerance) {
+			constrainedBounds.x = workArea.x + workArea.width - bounds.width;
+		}
+		
+		// Top edge constraint - window cannot go past top edge
+		// Add extra buffer on macOS for menu bar
+		const topBuffer = process.platform === 'darwin' ? 25 : 0;
+		if (bounds.y < workArea.y + topBuffer - tolerance) {
+			constrainedBounds.y = workArea.y + topBuffer;
+		}
+		
+		// Bottom edge constraint - window cannot go past bottom edge
+		if (bounds.y + bounds.height > workArea.y + workArea.height + tolerance) {
+			constrainedBounds.y = workArea.y + workArea.height - bounds.height;
+		}
+		
+		// Multi-monitor support: If dragging between displays, ensure it stays within the target display
+		for (const display of displays) {
+			const displayBounds = display.bounds;
+			const displayWorkArea = display.workArea;
+			
+			// Check if window center is within this display
+			const windowCenterX = bounds.x + bounds.width / 2;
+			const windowCenterY = bounds.y + bounds.height / 2;
+			
+			if (windowCenterX >= displayBounds.x && windowCenterX < displayBounds.x + displayBounds.width &&
+				windowCenterY >= displayBounds.y && windowCenterY < displayBounds.y + displayBounds.height) {
+				
+				// Apply constraints for this specific display with tolerance
+				const displayTopBuffer = process.platform === 'darwin' ? 25 : 0;
+				
+				if (bounds.x < displayWorkArea.x - tolerance) {
+					constrainedBounds.x = displayWorkArea.x;
+				}
+				if (bounds.x + bounds.width > displayWorkArea.x + displayWorkArea.width + tolerance) {
+					constrainedBounds.x = displayWorkArea.x + displayWorkArea.width - bounds.width;
+				}
+				if (bounds.y < displayWorkArea.y + displayTopBuffer - tolerance) {
+					constrainedBounds.y = displayWorkArea.y + displayTopBuffer;
+				}
+				if (bounds.y + bounds.height > displayWorkArea.y + displayWorkArea.height + tolerance) {
+					constrainedBounds.y = displayWorkArea.y + displayWorkArea.height - bounds.height;
+				}
+				
+				break;
+			}
+		}
+		
+		return constrainedBounds;
+	}
+
+	/**
+	 * Constrains Overlay window position to ensure it NEVER goes inside other windows - must stay 100% visible
+	 * @param {Object} bounds - Current window bounds {x, y, width, height}
+	 * @returns {Object} Constrained bounds
+	 */
+	constrainOverlayWindowPosition(bounds) {
+		const displays = screen.getAllDisplays();
+		let constrainedBounds = { ...bounds };
+		
+		// Get the display where the window is currently located
+		const currentDisplay = screen.getDisplayMatching(bounds) || screen.getPrimaryDisplay();
+		const workArea = currentDisplay.workArea;
+		
+		// Add a small tolerance to prevent micro-adjustments from triggering constraints
+		const tolerance = 2; // 2px tolerance
+		
+		// STRICT CONSTRAINT: The ENTIRE window must be visible - no part can go off-screen
+		// Left edge constraint - window cannot go past left edge
+		if (bounds.x < workArea.x - tolerance) {
+			constrainedBounds.x = workArea.x;
+		}
+		
+		// Right edge constraint - window cannot go past right edge  
+		if (bounds.x + bounds.width > workArea.x + workArea.width + tolerance) {
+			constrainedBounds.x = workArea.x + workArea.width - bounds.width;
+		}
+		
+		// Top edge constraint - window cannot go past top edge
+		// Add extra buffer on macOS for menu bar
+		const topBuffer = process.platform === 'darwin' ? 25 : 0;
+		if (bounds.y < workArea.y + topBuffer - tolerance) {
+			constrainedBounds.y = workArea.y + topBuffer;
+		}
+		
+		// Bottom edge constraint - window cannot go past bottom edge
+		if (bounds.y + bounds.height > workArea.y + workArea.height + tolerance) {
+			constrainedBounds.y = workArea.y + workArea.height - bounds.height;
+		}
+		
+		// Multi-monitor support: If dragging between displays, ensure it stays within the target display
+		for (const display of displays) {
+			const displayBounds = display.bounds;
+			const displayWorkArea = display.workArea;
+			
+			// Check if window center is within this display
+			const windowCenterX = bounds.x + bounds.width / 2;
+			const windowCenterY = bounds.y + bounds.height / 2;
+			
+			if (windowCenterX >= displayBounds.x && windowCenterX < displayBounds.x + displayBounds.width &&
+				windowCenterY >= displayBounds.y && windowCenterY < displayBounds.y + displayBounds.height) {
+				
+				// Apply constraints for this specific display with tolerance
+				const displayTopBuffer = process.platform === 'darwin' ? 25 : 0;
+				
+				if (bounds.x < displayWorkArea.x - tolerance) {
+					constrainedBounds.x = displayWorkArea.x;
+				}
+				if (bounds.x + bounds.width > displayWorkArea.x + displayWorkArea.width + tolerance) {
+					constrainedBounds.x = displayWorkArea.x + displayWorkArea.width - bounds.width;
+				}
+				if (bounds.y < displayWorkArea.y + displayTopBuffer - tolerance) {
+					constrainedBounds.y = displayWorkArea.y + displayTopBuffer;
+				}
+				if (bounds.y + bounds.height > displayWorkArea.y + displayWorkArea.height + tolerance) {
+					constrainedBounds.y = displayWorkArea.y + displayWorkArea.height - bounds.height;
+				}
+				
+				break;
+			}
+		}
+		
+		return constrainedBounds;
 	}
 
 	setupAreYouThereWindowListeners() {
@@ -750,44 +973,64 @@ class WindowHelper {
 		const primaryDisplay = screen.getPrimaryDisplay();
 		const workArea = primaryDisplay.workAreaSize;
 
-		// Add proper spacing from Dynamic Island with platform-specific positioning
-		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		// Check if we have a saved position from previous hide/show cycle
+		const hasValidSavedPosition = this.windowPosition && 
+			typeof this.windowPosition.x === 'number' && 
+			typeof this.windowPosition.y === 'number' &&
+			this.windowPosition.x >= 0 && this.windowPosition.y >= 0 &&
+			// Ensure position is within screen bounds
+			this.windowPosition.x < workArea.width && this.windowPosition.y < workArea.height;
 
-		// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
-		let dynamicIslandY;
-		if (process.platform === 'win32') {
-			dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
+		let overlayX, overlayY;
+
+		if (hasValidSavedPosition) {
+			// Use saved position
+			overlayX = this.windowPosition.x;
+			overlayY = this.windowPosition.y;
+			log.info(`📍 Overlay: Restoring saved position (${overlayX}, ${overlayY})`);
 		} else {
-			dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
-		}
+			// Calculate default position (existing logic)
+			// Add proper spacing from Dynamic Island with platform-specific positioning
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
 
-		const topY = dynamicIslandY;
+			// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
+			let dynamicIslandY;
+			if (process.platform === 'win32') {
+				dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
+			} else {
+				dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
+			}
 
-		// Position overlay to allow space for ask AI on the right
-		let overlayX;
-		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-			// Position overlay to the left to make room for ask AI on the right
-			const gap = 30; // Gap between windows
-			const totalWidth = this.windowSize.width + this.askAIWindowSize.width + gap;
-			const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
-			overlayX = startX;
-		} else {
-			// Center overlay when ask AI is not visible
-			overlayX = Math.floor(workArea.width / 2) - Math.floor(this.windowSize.width / 2);
+			overlayY = dynamicIslandY;
+
+			// Position overlay to allow space for ask AI on the right
+			if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				// Position overlay to the left to make room for ask AI on the right
+				const gap = 30; // Gap between windows
+				const totalWidth = this.windowSize.width + this.askAIWindowSize.width + gap;
+				const startX = Math.floor(workArea.width / 2) - Math.floor(totalWidth / 2);
+				overlayX = startX;
+			} else {
+				// Center overlay when ask AI is not visible
+				overlayX = Math.floor(workArea.width / 2) - Math.floor(this.windowSize.width / 2);
+			}
+
+			// Store the calculated position for future use
+			this.windowPosition = { x: overlayX, y: overlayY };
+			log.info(`📍 Overlay: Using calculated position (${overlayX}, ${overlayY})`);
 		}
 
 		this.overlayWindow.setBounds({
 			x: overlayX,
-			y: topY,
+			y: overlayY,
 			width: this.windowSize.width,
 			height: this.windowSize.height,
 		});
 
 		// Update current position tracking
 		this.currentX = overlayX;
-		this.currentY = topY;
-		this.windowPosition = { x: overlayX, y: topY };
+		this.currentY = overlayY;
 
 		// Ensure window properties for all desktops/spaces on macOS
 		if (process.platform === 'darwin') {
@@ -825,33 +1068,46 @@ class WindowHelper {
 		// 	this.hideOverlayWindow();
 		// }
 
-		// Position Ask AI window to the right of overlay with gap
-		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;
-		const gap = 20; // Gap between windows
-
 		let askAIX, askAIY;
-		if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-			// Position ask AI to the right of overlay
-			askAIX = this.currentX + this.windowSize.width + gap;
-			askAIY = 80; // Same Y level as overlay
+
+		// Check if we have a saved position from previous hide/show cycle
+		const hasValidSavedPosition = this.askAIWindowPosition && 
+			typeof this.askAIWindowPosition.x === 'number' && 
+			typeof this.askAIWindowPosition.y === 'number' &&
+			this.askAIWindowPosition.x !== 0 && this.askAIWindowPosition.y !== 0;
+
+		if (hasValidSavedPosition) {
+			// Use the saved position (user's last position)
+			askAIX = this.askAIWindowPosition.x;
+			askAIY = this.askAIWindowPosition.y;
 		} else {
-			// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
-			askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
+			// Calculate default position for first-time show or when no saved position
+			const primaryDisplay = screen.getPrimaryDisplay();
+			const workArea = primaryDisplay.workAreaSize;
+			const gap = 20; // Gap between windows
 
-			// Add proper spacing from Dynamic Island with platform-specific positioning
-			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-
-			// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
-			let dynamicIslandY;
-			if (process.platform === 'win32') {
-				dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
+			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+				// Position ask AI to the right of overlay
+				askAIX = this.currentX + this.windowSize.width + gap;
+				askAIY = 80; // Same Y level as overlay
 			} else {
-				dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
-			}
+				// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
+				askAIX = Math.floor(workArea.width / 2) - Math.floor(this.askAIWindowSize.width / 2);
 
-			askAIY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
+				// Add proper spacing from Dynamic Island with platform-specific positioning
+				const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+				const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+
+				// Platform-specific Dynamic Island Y position - eliminate gap with menu bar
+				let dynamicIslandY;
+				if (process.platform === 'win32') {
+					dynamicIslandY = 0; // At absolute top on Windows to eliminate any gap
+				} else {
+					dynamicIslandY = -8; // Slightly above screen edge on Mac/Linux to eliminate menu bar gap
+				}
+
+				askAIY = dynamicIslandY + dynamicIslandHeight + gapFromDynamicIsland;
+			}
 		}
 
 		this.askAIWindow.setBounds({
@@ -1045,11 +1301,25 @@ class WindowHelper {
 		const { screen } = require('electron');
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
-		const newWidth = width; // Allow up to 600px width
-		const newHeight = Math.min(height, workArea.height); // Max height 500px
+		// Apply min constraints that match the window creation settings
+		const minWidth = 400;
+		const minHeight = 300;
+
+		// Get current bounds to preserve dimensions when not specified
+		const currentBounds = this.askAIWindow.getBounds();
+		
+		// Check if this is an expand operation that should bypass height constraints
+		const isExpanding = position && position.isExpanding === true;
+		
+		// Only update dimensions that are explicitly provided (not null/undefined)
+		const newWidth = width !== null && width !== undefined 
+			? Math.max(minWidth, Math.min(width, workArea.width)) // No maxWidth constraint
+			: currentBounds.width;
+		const newHeight = height !== null && height !== undefined
+			? Math.max(minHeight, Math.min(height, workArea.height)) // No maxHeight constraint
+			: currentBounds.height;
 
 		// Get current window position to preserve user's manual positioning
-		const currentBounds = this.askAIWindow.getBounds();
 		const currentX = position.x ?? currentBounds.x;
 		const currentY = position.y ?? currentBounds.y;
 
