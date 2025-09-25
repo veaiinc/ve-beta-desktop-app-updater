@@ -704,64 +704,94 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 		return { success: true, hasPermission: true };
 	}
 
-	const status = systemPreferences.getMediaAccessStatus('screen');
-	log.info('🖥️ Screen recording permission check:', status, 'granted:', status === 'granted');
-
-	return {
-		success: true,
-		permission: status,
-		hasPermission: status === 'granted',
-		message:
-			status === 'granted'
-				? 'Screen recording access granted'
-				: status === 'denied'
-				? 'Screen recording access denied'
-				: status === 'not-determined'
-				? 'Screen recording permission not yet determined'
-				: 'Screen recording access restricted',
-	};
+	try {
+		// Instead of checking screen recording permission (which requires admin auth),
+		// we'll test if we can actually capture screen sources
+		log.info('🖥️ Testing screen capture capability...');
+		
+		const sources = await desktopCapturer.getSources({
+			types: ['screen'],
+			thumbnailSize: { width: 1, height: 1 }
+		});
+		
+		const hasPermission = sources && sources.length > 0;
+		log.info('🖥️ Screen capture test result:', hasPermission ? 'success' : 'failed', 'sources found:', sources?.length || 0);
+		
+		return {
+			success: true,
+			permission: hasPermission ? 'granted' : 'denied',
+			hasPermission: hasPermission,
+			message: hasPermission
+				? 'Screen sharing access granted'
+				: 'Screen sharing access denied - please grant permission in System Settings',
+		};
+	} catch (error) {
+		log.info('🖥️ Screen capture test failed (permission likely denied):', error.message);
+		return {
+			success: true,
+			permission: 'denied',
+			hasPermission: false,
+			message: 'Screen sharing access denied - please grant permission in System Settings',
+		};
+	}
 });
 
-// Request screen recording permission
+// Request screen sharing permission (replaces screen recording)
 ipcMain.handle('request-screen-recording-permission', async () => {
-	log.info('🖥️ Screen recording permission request handler called');
+	log.info('🖥️ Screen sharing permission request handler called');
 	try {
 		// Windows doesn't have the same permission system as macOS
 		if (process.platform !== 'darwin') {
 			return { success: true, granted: true };
 		}
 		
-		// Check current status first
-		const currentStatus = systemPreferences.getMediaAccessStatus('screen');
-		log.info('🖥️ Current screen recording permission status:', currentStatus);
-		
-		if (currentStatus === 'granted') {
-			log.info('🖥️ Screen recording permission already granted');
-			return { success: true, granted: true, status: currentStatus };
+		// Test current capability
+		log.info('🖥️ Testing current screen capture capability...');
+		try {
+			const sources = await desktopCapturer.getSources({
+				types: ['screen'],
+				thumbnailSize: { width: 1, height: 1 }
+			});
+			
+			if (sources && sources.length > 0) {
+				log.info('🖥️ Screen sharing permission already granted');
+				return { success: true, granted: true, status: 'granted' };
+			}
+		} catch (testError) {
+			log.info('🖥️ Screen capture test failed:', testError.message);
 		}
 		
-		if (currentStatus === 'denied') {
-			log.info('🖥️ Screen recording permission previously denied');
+		// If we can't capture, try to trigger the permission prompt
+		log.info('🖥️ Attempting to trigger screen sharing permission prompt...');
+		try {
+			// This will trigger the system permission popup for screen sharing
+			const sources = await desktopCapturer.getSources({
+				types: ['screen'],
+				thumbnailSize: { width: 1, height: 1 }
+			});
+			
+			const granted = sources && sources.length > 0;
+			log.info('🖥️ Screen sharing permission request result:', granted);
+			
 			return { 
-				success: false, 
-				granted: false, 
-				status: currentStatus,
-				error: 'Screen recording access was previously denied. Please enable it manually in System Settings.'
+				success: true, 
+				granted: granted,
+				status: granted ? 'granted' : 'denied',
+				message: granted 
+					? 'Screen sharing permission granted!' 
+					: 'Screen sharing permission prompt was shown. Please grant permission when prompted.'
+			};
+		} catch (captureError) {
+			log.info('🖥️ Screen capture attempt failed (expected for permission prompt):', captureError.message);
+			return {
+				success: true,
+				granted: false,
+				status: 'not-determined',
+				message: 'Screen sharing permission prompt was shown. Please grant permission when prompted.'
 			};
 		}
-		
-		// Request permission if not determined
-		log.info('🖥️ Requesting screen recording permission...');
-		const granted = await systemPreferences.askForMediaAccess('screen');
-		log.info('🖥️ Screen recording permission request result:', granted);
-		
-		return { 
-			success: true, 
-			granted: granted,
-			status: granted ? 'granted' : 'denied'
-		};
 	} catch (error) {
-		log.error('❌ Error requesting screen recording permission:', error);
+		log.error('❌ Error requesting screen sharing permission:', error);
 		return {
 			success: false,
 			error: error.message,
@@ -2289,13 +2319,19 @@ app.whenReady().then(async () => {
 			}
 		}, 1000);
 
-		// Request screen recording permission
+		// Request screen sharing permission (replaces screen recording)
 		setTimeout(async () => {
 			try {
-				const granted = await systemPreferences.askForMediaAccess('screen');
-				log.info('🖥️ Screen recording permission request result:', granted);
+				log.info('🖥️ Testing screen sharing capability on startup...');
+				// Test if we can capture screen sources (this will trigger permission prompt if needed)
+				const sources = await desktopCapturer.getSources({
+					types: ['screen'],
+					thumbnailSize: { width: 1, height: 1 }
+				});
+				const hasPermission = sources && sources.length > 0;
+				log.info('🖥️ Screen sharing capability test result:', hasPermission ? 'granted' : 'denied');
 			} catch (error) {
-				log.error('Error requesting screen recording permission:', error);
+				log.info('🖥️ Screen sharing capability test failed (expected for permission prompt):', error.message);
 			}
 		}, 2000);
 

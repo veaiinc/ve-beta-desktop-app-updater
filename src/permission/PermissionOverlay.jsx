@@ -277,19 +277,21 @@ const PermissionOverlay = () => {
 
 	const handleScreenAction = async () => {
 		try {
-			console.log('🖥️ Requesting screen recording permission...');
+			console.log('🖥️ Requesting screen sharing permission...');
 			
 			// First, try to request the permission from macOS
 			const requestResult = await window.electronApi.permission.requestScreenPermission();
-			console.log('🖥️ Screen recording permission request result:', requestResult);
+			console.log('🖥️ Screen sharing permission request result:', requestResult);
 			
 			if (requestResult.success && requestResult.granted) {
-				console.log('✅ Screen recording permission granted!');
+				console.log('✅ Screen sharing permission granted!');
+				setPermissionRequestMessage('🎉 Screen sharing permission granted!');
+				setTimeout(() => setPermissionRequestMessage(''), 3000);
 				// Re-check permissions immediately
 				checkPermissions();
 			} else if (requestResult.success && !requestResult.granted) {
-				console.log('❌ Screen recording permission denied by user');
-				setPermissionRequestMessage('❌ Screen recording permission denied. Please enable it manually in System Settings.');
+				console.log('❌ Screen sharing permission denied by user');
+				setPermissionRequestMessage('❌ Screen sharing permission denied. Please enable it manually in System Settings.');
 				setTimeout(() => setPermissionRequestMessage(''), 5000);
 				// Still re-check to update the UI
 				checkPermissions();
@@ -298,23 +300,23 @@ const PermissionOverlay = () => {
 				// Fallback: open system settings
 				const result = await window.electronApi.openScreenSettings();
 				if (result.success) {
-					console.log('✅ Screen recording settings opened successfully');
+					console.log('✅ Screen sharing settings opened successfully');
 					// Start more frequent checking after opening settings
 					setTimeout(() => {
 						console.log('🔄 Re-checking permissions after opening screen settings...');
 						checkPermissions();
 					}, 1000);
 				} else {
-					console.error('❌ Failed to open screen recording settings:', result.error);
+					console.error('❌ Failed to open screen sharing settings:', result.error);
 				}
 			}
 		} catch (error) {
-			console.error('❌ Error requesting screen recording permission:', error);
+			console.error('❌ Error requesting screen sharing permission:', error);
 			// Fallback: try to open system settings
 			try {
 				const result = await window.electronApi.openScreenSettings();
 				if (result.success) {
-					console.log('✅ Screen recording settings opened as fallback');
+					console.log('✅ Screen sharing settings opened as fallback');
 					setTimeout(() => {
 						checkPermissions();
 					}, 1000);
@@ -550,9 +552,9 @@ const PermissionOverlay = () => {
 							</div>
 						) : (
 							<p className="subtitle">
-								We'll need permission to access your screen, microphone, and camera.
+								We'll need permission to share your screen, access your microphone, and camera.
 								{finalIsMac &&
-									' Click the buttons below to open system settings, then return here.'}
+									' Click the buttons below to grant permissions, then return here.'}
 							</p>
 						)}
 						{isCheckingPermissions && (
@@ -646,7 +648,7 @@ const PermissionOverlay = () => {
 							</div>
 						</div>
 
-						{/* Screen Recording Permission */}
+						{/* Screen Sharing Permission */}
 						{finalIsMac && (
 							<div className="permission-item">
 								<div className="permission-info">
@@ -654,9 +656,9 @@ const PermissionOverlay = () => {
 										<Monitor size={20} />
 									</div>
 									<div className="permission-details">
-										<h3 className="permission-title">Screen Recording</h3>
+										<h3 className="permission-title">Screen Sharing</h3>
 										<p className="permission-description">
-											Allow Ve to access your screen
+											Allow Ve to share your screen content
 										</p>
 										<div className="permission-status">
 											{/* <span
