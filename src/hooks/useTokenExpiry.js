@@ -38,7 +38,6 @@ const useTokenExpiry = () => {
 						sameSite: 'lax',
 						domain: host,
 					});
-
 					Cookies.set('accessTokenExpiry', newAccessTokenExpiry, {
 						sameSite: 'lax',
 						domain: host,
