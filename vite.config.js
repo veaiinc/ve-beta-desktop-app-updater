@@ -11,9 +11,6 @@ export default defineConfig({
 		target: 'es2015',
 		sourcemap: true,
 		reportCompressedSize: false,
-		rollupOptions: {
-			external: ['plotly.js-basic-dist'],
-		},
 	},
 	plugins: [
 		react(),
