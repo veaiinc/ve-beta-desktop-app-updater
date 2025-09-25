@@ -53,7 +53,6 @@
 		"release:auto": "bash scripts/release-dmg.sh"
 	},
 	"dependencies": {
-		"dotenv": "^17.2.2",
 		"@apollo/client": "^3.13.5",
 		"@blocknote/core": "0.30.0",
 		"@blocknote/mantine": "0.30.0",
@@ -71,6 +70,7 @@
 		"@pipedream/platform": "^3.1.0",
 		"@pipedream/sdk": "^1.6.9",
 		"@xyflow/react": "^12.3.6",
+		"@zubridge/electron": "^2.0.0",
 		"active-win": "^8.2.1",
 		"antd": "^5.24.5",
 		"archiver": "^7.0.1",
@@ -79,6 +79,7 @@
 		"cross-spawn": "^7.0.6",
 		"currency-symbol-map": "^5.1.0",
 		"dayjs": "^1.11.13",
+		"dotenv": "^17.2.2",
 		"electron-log": "^5.4.2",
 		"electron-updater": "^6.6.2",
 		"emoji-mart": "^5.6.0",
@@ -148,7 +149,8 @@
 		"unsplash-js": "^7.0.19",
 		"validator": "^13.12.0",
 		"vite-plugin-electron": "^0.29.0",
-		"web-vitals": "^2.1.4"
+		"web-vitals": "^2.1.4",
+		"zustand": "^5.0.8"
 	},
 	"build": {
 		"npmRebuild": false,

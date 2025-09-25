@@ -39,6 +39,10 @@ const {
 	ipcMainHandleRestartApp,
 } = require('./helpers/autoUpdateHelper');
 
+// Add these after your existing requires
+const { createBridge } = require('./bridge.js');
+const { createStore } = require('./store.js');
+
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
@@ -71,6 +75,10 @@ let mainWindow = null;
 let windowHelper = null;
 let dynamicIslandHelper = null;
 let pendingNotificationAction = null;
+
+// Add these after your existing global variables
+let store = null;
+let bridge = null;
 
 // Windows-specific variables
 let tray = null;
@@ -1081,11 +1089,16 @@ function createWindow(restoreState = false) {
 			devTools: true, // Enable developer tools in production
 			webSecurity: true,
 			allowRunningInsecureContent: false,
+			sandbox: false,
 		},
 	});
 
 	if (notchDropService) {
 		notchDropService.setMainWindow(mainWindow);
+	}
+
+	if (bridge) {
+		bridge.subscribe([mainWindow]);
 	}
 
 	// Add context menu support for copy/paste functionality
@@ -1433,6 +1446,10 @@ app.whenReady().then(async () => {
 		app.setAppUserModelId('com.veai.dashboard');
 	}
 
+	// Initialize store and bridge (ADD THIS SECTION)
+	store = createStore();
+	bridge = createBridge(store);
+
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
@@ -1598,6 +1615,32 @@ app.whenReady().then(async () => {
 	windowHelper.registerGlobalShortcuts(mainWindow);
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
 
+	// Subscribe all windows to bridge when they're created (ADD THIS)
+	if (bridge && windowHelper) {
+		const subscribeWindowToBridge = (window) => {
+			if (window && !window.isDestroyed()) {
+				bridge.subscribe([window]);
+			}
+		};
+
+		const overlayWindow = windowHelper.getOverlayWindow();
+		if (overlayWindow) {
+			subscribeWindowToBridge(overlayWindow);
+		}
+		const askAIWindow = windowHelper.getAskAIWindow();
+		if (askAIWindow) {
+			subscribeWindowToBridge(askAIWindow);
+		}
+		const areYouThereWindow = windowHelper.getAreYouThereWindow();
+		if (areYouThereWindow) {
+			subscribeWindowToBridge(areYouThereWindow);
+		}
+
+		// Hook into window creation events if windowHelper exposes them
+		// You may need to modify WindowHelper to emit events when windows are created
+		// For now, we'll subscribe windows as they're accessed
+	}
+
 	// Simple Content Protection IPC handlers
 	ipcMain.handle('toggle-content-protection', () => {
 		const newStatus = toggleContentProtection();
@@ -1736,6 +1779,42 @@ app.whenReady().then(async () => {
 		} catch (error) {
 			log.error('Error minimizing main window:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('get-window-info', (event) => {
+		try {
+			const sender = event.sender;
+			const window = BrowserWindow.fromWebContents(sender);
+
+			// Determine window type based on your existing window structure
+			let windowType = 'main';
+			let windowId = 1;
+
+			if (window === mainWindow) {
+				windowType = 'main';
+				windowId = 1;
+			} else if (windowHelper && window === windowHelper.getAskAIWindow()) {
+				windowType = 'askAI';
+				windowId = 2;
+			} else if (windowHelper && window === windowHelper.getOverlayWindow()) {
+				windowType = 'overlay';
+				windowId = 3;
+			} else if (
+				dynamicIslandHelper &&
+				window === dynamicIslandHelper.getDynamicIslandWindow()
+			) {
+				windowType = 'dynamicIsland';
+				windowId = 4;
+			}
+
+			return {
+				type: windowType,
+				id: windowId,
+			};
+		} catch (error) {
+			log.error('Error getting window info:', error);
+			return { type: 'main', id: 1 };
 		}
 	});
 
@@ -4289,6 +4368,16 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 
 const handleCleanupAndQuit = () => {
 	isQuitting = true;
+
+	// Cleanup bridge (ADD THIS)
+	if (bridge) {
+		try {
+			bridge.cleanup?.(); // If your bridge has a cleanup method
+		} catch (error) {
+			log.error('Error cleaning up bridge:', error);
+		}
+	}
+
 	cleanupAndQuit({
 		dynamicIslandHelper,
 		windowHelper,

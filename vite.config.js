@@ -48,10 +48,14 @@ export default defineConfig({
 							external: [],
 							input: {
 								main: 'electron/main',
+								bridge: 'electron/bridge.js',
+								store: 'electron/store.js',
+								featuresIndex: 'electron/features/index.js',
+								featuresMeetingIndex: 'electron/features/meeting/index.js',
 								windowHelper: 'electron/helpers/windowHelper.js',
 								galleryHelper: 'electron/galleryHelper.js',
 								overlayWindowHelper: 'electron/overlayWindowHelper.js',
-								windowsCompatibility: 'electron/windowsCompatibility.js', // Add this line
+								windowsCompatibility: 'electron/windowsCompatibility.js',
 								notchDropService: 'electron/services/notchDropService.js',
 								notificationHelper: 'electron/notificationHelper.js',
 								dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
@@ -70,6 +74,12 @@ export default defineConfig({
 									}
 									if (chunkInfo.name === 'notchDropService') {
 										return 'services/[name].js';
+									}
+									if (chunkInfo.name === 'featuresIndex') {
+										return 'features/index.js';
+									}
+									if (chunkInfo.name === 'featuresMeetingIndex') {
+										return 'features/meeting/index.js';
 									}
 									return '[name].js';
 								},
