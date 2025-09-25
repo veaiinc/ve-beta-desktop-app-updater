@@ -255,55 +255,55 @@ class AssemblyAIService {
 				console.log('📦 AudioStorageService imported successfully');
 
 				const audioResult = await audioStorageService.getAudio(meetingId);
-				console.log('🎵 Audio result from storage:', {
-					success: audioResult.success,
-					hasAudioBlob: !!audioResult.audioBlob,
-					audioBlobSize: audioResult.audioBlob ? audioResult.audioBlob.size : 0,
-					audioBlobType: audioResult.audioBlob ? audioResult.audioBlob.type : 'N/A',
-				});
+				// console.log('🎵 Audio result from storage:', {
+				// 	success: audioResult.success,
+				// 	hasAudioBlob: !!audioResult.audioBlob,
+				// 	audioBlobSize: audioResult.audioBlob ? audioResult.audioBlob.size : 0,
+				// 	audioBlobType: audioResult.audioBlob ? audioResult.audioBlob.type : 'N/A',
+				// });
 
 				if (audioResult.success && audioResult.audioBlob) {
-					console.log('🎵 Attempting to get audio duration...');
-					console.log('🎵 Audio blob size:', audioResult.audioBlob.size, 'bytes');
-					console.log('🎵 Audio blob type:', audioResult.audioBlob.type);
+					// console.log('🎵 Attempting to get audio duration...');
+					// console.log('🎵 Audio blob size:', audioResult.audioBlob.size, 'bytes');
+					// console.log('🎵 Audio blob type:', audioResult.audioBlob.type);
 
 					// Method 1: Try to estimate duration from file size (fallback)
 					const estimatedDuration = audioResult.audioBlob.size / 16000; // Rough estimate: 16KB per second for WebM
-					console.log(
-						'📊 Estimated duration from file size:',
-						estimatedDuration,
-						'seconds',
-					);
+					// console.log(
+					// 	'📊 Estimated duration from file size:',
+					// 	estimatedDuration,
+					// 	'seconds',
+					// );
 
 					// Method 2: Try to get actual duration using Web Audio API
 					try {
-						console.log('🎵 Trying Web Audio API approach...');
+						// console.log('🎵 Trying Web Audio API approach...');
 						const audioContext = new (window.AudioContext ||
 							window.webkitAudioContext)();
 						const arrayBuffer = await audioResult.audioBlob.arrayBuffer();
-						console.log('📊 Audio array buffer size:', arrayBuffer.byteLength);
+						// console.log('📊 Audio array buffer size:', arrayBuffer.byteLength);
 
 						try {
 							const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 							audioDurationSeconds = audioBuffer.duration;
-							console.log(
-								'✅ Got duration from Web Audio API:',
-								audioDurationSeconds,
-								'seconds',
-							);
+							// console.log(
+							// 	'✅ Got duration from Web Audio API:',
+							// 	audioDurationSeconds,
+							// 	'seconds',
+							// );
 							audioContext.close();
 						} catch (decodeError) {
 							console.warn('⚠️ Web Audio API decode failed:', decodeError.message);
 							audioContext.close();
 
 							// Method 3: Use the exact same approach as AudioPlayback that works
-							console.log('🎵 Using AudioPlayback-style approach...');
+							// console.log('🎵 Using AudioPlayback-style approach...');
 							const audio = new Audio();
 							audio.preload = 'metadata'; // EXACT AudioPlayback setting
 							audio.crossOrigin = 'anonymous'; // EXACT AudioPlayback setting
 
 							const blobUrl = URL.createObjectURL(audioResult.audioBlob);
-							console.log('🎵 Created blob URL:', blobUrl);
+							// console.log('🎵 Created blob URL:', blobUrl);
 
 							audioDurationSeconds = await new Promise((resolve) => {
 								let resolved = false;
@@ -322,15 +322,16 @@ class AssemblyAIService {
 								};
 
 								const checkAndSetDuration = (source) => {
-									console.log(
-										`📊 Checking duration from ${source}:`,
-										audio.duration,
-									);
+									// console.log(
+									// 	`📊 Checking duration from ${source}:`,
+									// 	audio.duration,
+									// );
+									/*
 									console.log(`📊 Duration type:`, typeof audio.duration);
 									console.log(`📊 Is NaN:`, isNaN(audio.duration));
 									console.log(`📊 Is Finite:`, isFinite(audio.duration));
 									console.log(`📊 Is > 0:`, audio.duration > 0);
-
+									*/
 									// Use the EXACT same validation as AudioPlayback
 									if (
 										audio.duration &&
@@ -362,9 +363,9 @@ class AssemblyAIService {
 
 								// Add forceDurationDetection function EXACTLY like AudioPlayback
 								const forceDurationDetection = () => {
-									console.log(
-										'🎵 Forcing duration detection by playing briefly (AudioPlayback method)',
-									);
+									// console.log(
+									// 	'🎵 Forcing duration detection by playing briefly (AudioPlayback method)',
+									// );
 
 									// Set a very small current time and play briefly (EXACT AudioPlayback approach)
 									audio.currentTime = 0.01;
@@ -408,11 +409,11 @@ class AssemblyAIService {
 
 								// Method 1: Try metadata first (exactly like AudioPlayback)
 								audio.addEventListener('loadedmetadata', () => {
-									console.log('📊 Metadata loaded, duration:', audio.duration);
+									// console.log('📊 Metadata loaded, duration:', audio.duration);
 									if (!checkAndSetDuration('metadata')) {
-										console.log(
-											'⚠️ Metadata duration invalid, forcing detection...',
-										);
+										// console.log(
+										// 	'⚠️ Metadata duration invalid, forcing detection...',
+										// );
 										// Use the same approach as AudioPlayback
 										setTimeout(forceDurationDetection, 100);
 									}
@@ -420,18 +421,18 @@ class AssemblyAIService {
 
 								// Method 2: Duration change event
 								audio.addEventListener('durationchange', () => {
-									console.log('📊 Duration changed to:', audio.duration);
+									// console.log('📊 Duration changed to:', audio.duration);
 									checkAndSetDuration('durationchange');
 								});
 
 								// Method 3: Seeked event (this is what works in AudioPlayback)
 								audio.addEventListener('seeked', () => {
-									console.log('📊 Seeked completed, duration:', audio.duration);
+									// console.log('📊 Seeked completed, duration:', audio.duration);
 									if (checkAndSetDuration('seeked')) {
 										gotDurationFromSeek = true;
 									} else {
 										// If seek didn't work, try playing briefly
-										console.log('⚠️ Seek failed, trying brief play...');
+										// console.log('⚠️ Seek failed, trying brief play...');
 										audio.currentTime = 0;
 										const playPromise = audio.play();
 										if (playPromise) {
@@ -461,7 +462,7 @@ class AssemblyAIService {
 
 								// Method 4: Can play event (exactly like AudioPlayback)
 								audio.addEventListener('canplay', () => {
-									console.log('📊 Can play, duration:', audio.duration);
+									// console.log('📊 Can play, duration:', audio.duration);
 									if (audio.duration > 0) {
 										checkAndSetDuration('canplay');
 									}
@@ -469,7 +470,7 @@ class AssemblyAIService {
 
 								// Error handling
 								audio.addEventListener('error', (e) => {
-									console.error('❌ Audio error:', e);
+									// console.error('❌ Audio error:', e);
 									cleanup();
 									resolve(estimatedDuration);
 								});
@@ -496,19 +497,19 @@ class AssemblyAIService {
 								}, 10000);
 
 								// Set source and start duration detection (EXACT AudioPlayback approach)
-								console.log('🎵 Setting audio source and starting load...');
+								// console.log('🎵 Setting audio source and starting load...');
 								audio.src = blobUrl;
 								audio.load();
 							});
 						}
 					} catch (webAudioError) {
-						console.warn('⚠️ Web Audio API not available:', webAudioError.message);
+						// console.warn('⚠️ Web Audio API not available:', webAudioError.message);
 						// Use estimated duration as final fallback
 						audioDurationSeconds = estimatedDuration;
-						console.log(
-							'📊 Using estimated duration as fallback:',
-							audioDurationSeconds,
-						);
+						// console.log(
+						// 	'📊 Using estimated duration as fallback:',
+						// 	audioDurationSeconds,
+						// );
 					}
 
 					console.log('✅ Final calculated duration:', audioDurationSeconds, 'seconds');
@@ -524,7 +525,7 @@ class AssemblyAIService {
 					stack: durationError.stack,
 				});
 			}
-
+			/*
 			console.log('🎯 ===== FINAL AUDIO DURATION RESULT =====');
 			console.log('🎯 Final audioDurationSeconds value:', audioDurationSeconds);
 			console.log('🎯 Type of audioDurationSeconds:', typeof audioDurationSeconds);
@@ -533,20 +534,23 @@ class AssemblyAIService {
 			console.log('🎯 Is > 0:', audioDurationSeconds > 0);
 			console.log('🎯 Exact value:', audioDurationSeconds);
 			console.log('🎯 =====================================');
-
+			*/
 			const meetingSummaryApiUrl = getBaseUrl({ type: 'meeting_summary_api' });
 			const apiUrl = `${meetingSummaryApiUrl}/${workspaceId}/generate_meeting_analytics`;
 
+			/*
 			console.log('🏗️ ===== BUILDING PAYLOAD =====');
 			console.log('🏗️ meeting_id:', meetingId);
 			console.log('🏗️ audio_url:', audioUrl);
 			console.log('🏗️ audio_duration_seconds (before assignment):', audioDurationSeconds);
-
+			*/
 			const payload = {
 				meeting_id: meetingId,
 				audio_url: audioUrl,
 				audio_duration_seconds: audioDurationSeconds,
 			};
+
+			/*
 
 			console.log('🏗️ ===== PAYLOAD CREATED =====');
 			console.log('🏗️ payload.audio_duration_seconds:', payload.audio_duration_seconds);
@@ -555,6 +559,7 @@ class AssemblyAIService {
 			console.log('🏗️ =============================');
 
 			console.log(payload, 'payloaduday');
+
 
 			console.log('🚀 ===== MEETING SUMMARY API PAYLOAD =====');
 			console.log('📋 Payload Details:', JSON.stringify(payload, null, 2));
@@ -567,6 +572,7 @@ class AssemblyAIService {
 				payload,
 			});
 			console.log('🚀 ========================================');
+			*/
 
 			// Send to meeting summary API endpoint
 			const response = await fetch(apiUrl, {
@@ -578,7 +584,7 @@ class AssemblyAIService {
 				body: JSON.stringify(payload),
 			});
 
-			console.log('📡 Meeting Summary API response status:', response.status);
+			// console.log('📡 Meeting Summary API response status:', response.status);
 
 			if (!response.ok) {
 				const errorText = await response.text();
@@ -587,7 +593,7 @@ class AssemblyAIService {
 			}
 
 			const result = await response.json();
-			console.log('✅ Meeting Summary API success:', result);
+			// console.log('✅ Meeting Summary API success:', result);
 
 			return {
 				success: true,

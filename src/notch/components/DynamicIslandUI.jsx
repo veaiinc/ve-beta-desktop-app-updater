@@ -973,7 +973,7 @@ const DynamicIslandUI = () => {
 		if (window.electronApi?.askAI?.camera?.requestPermission) {
 			try {
 				const permissionResult = await window.electronApi.askAI.camera.requestPermission();
-				console.log('Camera permission result:', permissionResult);
+				// console.log('Camera permission result:', permissionResult);
 
 				if (!permissionResult.success || !permissionResult.granted) {
 					setCameraError(
@@ -1266,7 +1266,7 @@ const DynamicIslandUI = () => {
 	const handleStopRecording = async () => {
 		console.log('⏹️ Stop recording clicked - triggering overlay');
 		if (!window.electronApi?.overlay?.stopRecording) {
-			console.error('Overlay stopRecording API not available');
+			// console.error('Overlay stopRecording API not available');
 			return;
 		}
 		try {

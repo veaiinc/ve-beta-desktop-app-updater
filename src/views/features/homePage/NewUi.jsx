@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import {
 	handleDeepResearchChainOfThought,
-	handleDeepSearchChainOfThought,
+	handleChainOfThought,
 } from '../../../helpers/chat/chatHelpers';
 import { ReactComponent as ArrowUpRightSvg } from '../../../assets/svg/sidebar/arrowupright.svg';
 import { getGreeting } from '../../../helpers';
@@ -291,11 +291,11 @@ const NewUi = ({ handleActiveChatChange }) => {
 						}
 
 						if (processing === 'Deep Search') {
-							cot = handleDeepSearchChainOfThought(chainOfThought);
+							cot = handleChainOfThought(chainOfThought);
 						} else if (processing === 'Deep Research') {
 							deepResearch = handleDeepResearchChainOfThought(chainOfThought);
 						} else if (processing === 'Normal Search') {
-							cot = handleDeepSearchChainOfThought(chainOfThought);
+							cot = handleChainOfThought(chainOfThought);
 						}
 					}
 

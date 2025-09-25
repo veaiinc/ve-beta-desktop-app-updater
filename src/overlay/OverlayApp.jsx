@@ -1,7 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
-import { Track } from 'livekit-client';
-import { useTrackTranscription } from '@livekit/components-react';
-// import { GripHorizontal } from 'lucide-react';
 import Context from '../context/context';
 // import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
 import useRecallStream from '../hooks/useRecallStream';
@@ -14,7 +11,6 @@ import LiveIntelligencePanel from './components/LiveIntelligencePanel';
 import TranscriptPanel from './components/TranscriptPanel';
 import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
-import { transcription_socket } from '../services/config.live';
 import useAssemblyTranscription from './hooks/useAssemblyTranscription';
 
 const OverlayApp = () => {
@@ -25,6 +21,9 @@ const OverlayApp = () => {
 	// State to control whether to show ShortcutBar (false when controlled by Dynamic Island)
 	const [showShortcutBar, setShowShortcutBar] = useState(false);
 	const [isDynamicIslandControlled, setIsDynamicIslandControlled] = useState(false);
+
+	// Track seen thread count for badge
+	const [lastSeenThreadCount, setLastSeenThreadCount] = useState(0);
 
 	// Custom notification system
 	const notification = useOverlayNotification();
@@ -294,6 +293,57 @@ const OverlayApp = () => {
 		}
 	}, []);
 
+	const calculateDynamicDimensions = useCallback(() => {
+		if (!containerRef.current) return { width: 600, height: 50 };
+
+		let calculatedWidth = 560;
+		let calculatedHeight = 450;
+
+		return {
+			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
+			height: calculatedHeight, // Max 80% of screen height
+		};
+	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
+
+	useEffect(() => {
+		// Update window dimensions when content changes
+		const updateDimensions = () => {
+			if (containerRef.current) {
+				// Use a small delay to allow CSS transitions to complete
+				setTimeout(() => {
+					const { width, height } = calculateDynamicDimensions();
+
+					window?.electronApi.overlay.updateDimensions({ width, height });
+				}, 50);
+			}
+		};
+
+		// Initial dimension update
+		updateDimensions();
+
+		// ResizeObserver removed - resizing is disabled, only content changes trigger updates
+
+		// Set up MutationObserver to watch for DOM changes
+		const mutationObserver = new MutationObserver(() => {
+			updateDimensions();
+		});
+
+		if (containerRef.current) {
+			mutationObserver.observe(containerRef.current, {
+				childList: true,
+				subtree: true,
+				attributes: true,
+				characterData: true,
+				attributeOldValue: true,
+				characterDataOldValue: true,
+			});
+		}
+
+		return () => {
+			mutationObserver.disconnect();
+		};
+	}, [calculateDynamicDimensions]);
+
 	const handleStartTranscription = async (data = {}) => {
 		// Reset stopping flag
 		isStoppingRef.current = false;
@@ -512,14 +562,14 @@ const OverlayApp = () => {
 		// );
 
 		if (window.electronApi?.overlay?.onCommand) {
-			console.log('✅ Setting up overlay command listener');
+			// console.log('✅ Setting up overlay command listener');
 			window.electronApi.overlay.onCommand(handleOverlayCommand);
 		} else {
 			console.error('❌ Overlay command listener not available');
-			console.log(
-				'Available overlay methods:',
-				Object.keys(window.electronApi?.overlay || {}),
-			);
+			// console.log(
+			// 	'Available overlay methods:',
+			// 	Object.keys(window.electronApi?.overlay || {}),
+			// );
 		}
 
 		return () => {
@@ -575,6 +625,11 @@ const OverlayApp = () => {
 			// Open live intelligence panel and start recording automatically
 			setActivePanel('live-intelligence');
 
+			// Mark current threads as seen when opening live intelligence
+			const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
+			setLastSeenThreadCount(currentThreadCount);
+			// console.log('👁️ Opening live intelligence via Listen - marking threads as seen:', currentThreadCount);
+
 			// Always clear previous transcriptions and data when starting fresh
 
 			if (!isRecording) {
@@ -591,6 +646,11 @@ const OverlayApp = () => {
 
 		// Always open live intelligence panel when triggered from Dynamic Island
 		setActivePanel('live-intelligence');
+
+		// Mark current threads as seen when opening live intelligence via Dynamic Island
+		const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
+		setLastSeenThreadCount(currentThreadCount);
+		// console.log('👁️ Opening live intelligence via Dynamic Island - marking threads as seen:', currentThreadCount);
 
 		if (!isRecording) {
 			await handleStartTranscription(data);
@@ -613,6 +673,11 @@ const OverlayApp = () => {
 	};
 
 	const handleShowLiveIntelligence = () => {
+		// Mark current threads as seen when switching to live intelligence
+		const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
+		setLastSeenThreadCount(currentThreadCount);
+		// console.log('👁️ Switching to live intelligence - marking threads as seen:', currentThreadCount);
+
 		setActivePanel('live-intelligence');
 	};
 
@@ -637,57 +702,6 @@ const OverlayApp = () => {
 		// Open Ask AI window via electron API
 		window?.electronApi.askAI.toggleWindow();
 	};
-
-	const calculateDynamicDimensions = useCallback(() => {
-		if (!containerRef.current) return { width: 600, height: 50 };
-
-		let calculatedWidth = 560;
-		let calculatedHeight = 450;
-
-		return {
-			width: Math.min(calculatedWidth, window.screen.width * 0.8), // Max 80% of screen width
-			height: calculatedHeight, // Max 80% of screen height
-		};
-	}, [activePanel, showShortcutBar, isDynamicIslandControlled]);
-
-	useEffect(() => {
-		// Update window dimensions when content changes
-		const updateDimensions = () => {
-			if (containerRef.current) {
-				// Use a small delay to allow CSS transitions to complete
-				setTimeout(() => {
-					const { width, height } = calculateDynamicDimensions();
-
-					window?.electronApi.overlay.updateDimensions({ width, height });
-				}, 50);
-			}
-		};
-
-		// Initial dimension update
-		updateDimensions();
-
-		// ResizeObserver removed - resizing is disabled, only content changes trigger updates
-
-		// Set up MutationObserver to watch for DOM changes
-		const mutationObserver = new MutationObserver(() => {
-			updateDimensions();
-		});
-
-		if (containerRef.current) {
-			mutationObserver.observe(containerRef.current, {
-				childList: true,
-				subtree: true,
-				attributes: true,
-				characterData: true,
-				attributeOldValue: true,
-				characterDataOldValue: true,
-			});
-		}
-
-		return () => {
-			mutationObserver.disconnect();
-		};
-	}, [calculateDynamicDimensions]);
 
 	// Send state updates to Dynamic Island when recording state changes
 	useEffect(() => {
@@ -828,6 +842,8 @@ const OverlayApp = () => {
 						onStopTranscription={handleStopTranscription}
 						// onMuteAudio={muteAudio}
 						// onUnmuteAudio={unmuteAudio}
+						liveIntelligenceData={info?.liveIntelligenceData}
+						lastSeenThreadCount={lastSeenThreadCount}
 					/>
 				</div>
 			)}

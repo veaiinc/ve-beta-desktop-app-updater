@@ -197,8 +197,14 @@ export const AiSetupState = () => {
 			const type = 'ai_assistant_api';
 
 			const generateParams = (filters) => {
-				const { page = 1, limit = 10, title = '', agentType = [] } = filters;
-				let str = `?page=${page}&limit=${limit}&title=${title}`;
+				const {
+					page = 1,
+					limit = 10,
+					title = '',
+					agentType = [],
+					exclude = false,
+				} = filters;
+				let str = `?page=${page}&limit=${limit}&title=${title}&excludeAgentType=${exclude}`;
 				if (agentType?.length > 0) {
 					agentType?.forEach((type) => {
 						str += `&agentType[]=${type}`;
@@ -216,7 +222,7 @@ export const AiSetupState = () => {
 					hasMore: response?.[1]?.hasNextPage,
 					currentPage: response?.[1]?.currentPage,
 					reset,
-					filters: { agentType: filters?.agentType?.[0] },
+					filters: { agentType: 'knowledge_agent', exclude: filters?.exclude ?? false },
 				};
 				dispatch({
 					type: Actions?.SET_AI_CHAT_SESSIONS,

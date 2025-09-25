@@ -101,7 +101,7 @@ const ActiveChatIndication = ({ activeChatData }) => {
 	const fetchChats = useCallback(() => {
 		getAiChatSessions?.({
 			reset,
-			filters: { agentType: ['multi_agent'], page, limit },
+			filters: { agentType: ['knowledge_agent'], page, limit, exclude: true },
 		});
 		updateAiSetupStateValues({ aiChatSessionsFilters: { agentType: 'multi_agent' } });
 	}, []);
@@ -111,7 +111,7 @@ const ActiveChatIndication = ({ activeChatData }) => {
 			const nextPage = currentPage + 1;
 			getAiChatSessions?.({
 				reset: !reset,
-				filters: { agentType: ['multi_agent'], page: nextPage, limit },
+				filters: { agentType: ['knowledge_agent'], page: nextPage, limit, exclude: true },
 			});
 		}
 	};
