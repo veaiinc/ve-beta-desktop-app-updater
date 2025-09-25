@@ -1,40 +1,20 @@
-/**
- * Creates action handlers for counter operations in basic mode
- * In basic mode, these handlers are attached directly to the store state
- *
- * const
- */
-
 const meetingActions = {
-	INCREMENT: 'COUNTER:INCREMENT',
-	DECREMENT: 'COUNTER:DECREMENT',
-	SET: 'COUNTER:SET',
-	RESET: 'COUNTER:RESET',
+	SET_PAST_MEETINGS: 'SET_PAST_MEETINGS',
 };
 
 const meetingInitialState = {
-	counter: 0,
+	pastMeetings: null,
 };
 
 const createMeetingHandlers = (store) => {
 	return {
-		incrementMeeting: () => {
+		[meetingActions.SET_PAST_MEETINGS]: (meetings) => {
 			console.log('[Basic] Incrementing counter');
 			store.setState((state) => ({
 				...state,
 				meeting: {
 					...state.meeting,
-					counter: state.meeting.counter + 1,
-				},
-			}));
-		},
-		decrementMeeting: () => {
-			console.log('[Basic] Decrementing counter');
-			store.setState((state) => ({
-				...state,
-				meeting: {
-					...state.meeting,
-					counter: state.meeting.counter - 1,
+					pastMeetings: meetings,
 				},
 			}));
 		},
