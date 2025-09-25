@@ -70,15 +70,10 @@ const processResponse = async (response, requestInit, endpoint, type, isPublicCh
 
 					// update tokens
 					localStorage.setItem('usertoken', tokens.accessToken);
-					localStorage.setItem('refreshToken', tokens.refreshToken);
 					localStorage.setItem('accessTokenExpiry', tokens.accessTokenExpiry);
 					localStorage.setItem('refreshTokenExpiry', tokens.refreshTokenExpiry);
 
 					Cookies.set('usertoken', tokens.accessToken, { sameSite: 'lax', domain: host });
-					Cookies.set('refreshToken', tokens.refreshToken, {
-						sameSite: 'lax',
-						domain: host,
-					});
 					Cookies.set('accessTokenExpiry', tokens.accessTokenExpiry, {
 						sameSite: 'lax',
 						domain: host,
