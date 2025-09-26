@@ -21,9 +21,7 @@ const logoutAPI = async () => {
 		}
 		localStorage.clear();
 		Cookies.remove('usertoken');
-		Cookies.remove('refreshToken');
 		Cookies.remove('accessTokenExpiry');
-		Cookies.remove('refreshTokenExpiry');
 		Cookies.remove('region');
 		Cookies.remove('workspaceId');
 		Cookies.remove('isOnboard');
@@ -58,8 +56,11 @@ const logout = async () => {
 			Cookies.set('theme', cookieTheme, { expires: 365 });
 		}
 
-		window.location.replace('/');
+		window.location.hash = '/';
+		reloadApp();
+
 		logoutAPI();
+
 		window.electronApi.sendMessageFrmVeApp('loggedout');
 		return true;
 	} catch (err) {
