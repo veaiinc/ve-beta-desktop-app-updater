@@ -22,6 +22,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
 	restartApp: () => ipcRenderer.invoke('restart-app'),
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
+	openSystemSettings: () => ipcRenderer.invoke('open-system-settings'),
+	openMicrophoneSettings: () => ipcRenderer.invoke('open-microphone-settings'),
+	// openScreenRecordingSettings: () => ipcRenderer.invoke('open-screen-recording-settings'),
+	// openScreenSharingSettings: () => ipcRenderer.invoke('open-screen-sharing-settings'),
+	openScreenSettings: () => ipcRenderer.invoke('open-screen-settings'),
+
+	openCameraSettings: () => ipcRenderer.invoke('open-camera-settings'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {
@@ -218,6 +225,31 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.invoke('get-transcription-detection-state'),
 	},
 
+	// Permission window APIs
+	permission: {
+		toggleWindow: () => ipcRenderer.invoke('toggle-permission-window'),
+		showWindow: () => ipcRenderer.invoke('show-permission-window'),
+		hideWindow: () => ipcRenderer.invoke('hide-permission-window'),
+		isWindowVisible: () => ipcRenderer.invoke('is-permission-window-visible'),
+		closeWindow: () => ipcRenderer.invoke('hide-permission-window'),
+		checkAuthAndShowOverlay: () => ipcRenderer.invoke('check-auth-and-show-permission-overlay'),
+		// Permission checking and requesting
+		checkMicrophonePermission: () => ipcRenderer.invoke('check-microphone-permission'),
+		requestMicrophonePermission: () => ipcRenderer.invoke('request-microphone-permission'),
+		showMicrophonePermissionHelp: () => ipcRenderer.invoke('show-microphone-permission-help'),
+		checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
+		requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
+		showScreenPermissionHelp: () => ipcRenderer.invoke('show-screen-recording-permission-help'),
+		// Camera permission APIs
+		checkCameraPermission: () => ipcRenderer.invoke('check-camera-permission'),
+		requestCameraPermission: () => ipcRenderer.invoke('request-camera-permission'),
+		showCameraPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
+		// System settings opener
+		openSystemSettings: (section) => ipcRenderer.invoke('open-system-settings', section),
+		// Debug permissions
+		debugPermissions: () => ipcRenderer.invoke('debug-permissions'),
+	},
+
 	// Home icon click handler (cross-platform)
 	home: {
 		restoreMainWindow: () => ipcRenderer.invoke('restore-main-window'),
@@ -256,6 +288,15 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// Developer tools API for WebSocket debugging
 	openDevTools: (options) => ipcRenderer.invoke('open-dev-tools', options),
+
+	// Platform information
+	platform: {
+		name: process.platform,
+		arch: process.arch,
+		isMac: process.platform === 'darwin',
+		isWindows: process.platform === 'win32',
+		isLinux: process.platform === 'linux',
+	},
 
 	// Download progress listener
 	onDownloadProgress: (callback) => {

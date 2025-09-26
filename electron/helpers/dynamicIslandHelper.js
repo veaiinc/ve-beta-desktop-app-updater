@@ -119,7 +119,10 @@ module.exports = class DynamicIslandHelper {
 			return;
 		}
 
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+			/\/$/,
+			'',
+		);
 		// Force the Dynamic Island React app mode so it renders the island UI
 		const query = '?mode=dynamic-island';
 
