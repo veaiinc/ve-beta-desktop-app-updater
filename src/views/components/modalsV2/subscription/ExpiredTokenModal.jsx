@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext } from 'react';
+import { memo, useCallback, useContext, useRef, useState, useEffect } from 'react';
 import '../../../../assets/scss/subscriptions/exoiredSubscriptionModal.scss';
 import ReactModal from '../index';
 import Context from '../../../../context/context';
@@ -8,13 +8,34 @@ import logout from '../../../../helpers/logout';
 import useBroadcastChannel from '../../../../hooks/useBroadcastChannel';
 
 const ExpiredTokenModal = () => {
+	const intervalRef = useRef(null);
 	const channel = useBroadcastChannel();
 	const {
 		subscriptionInfo: { updateTokenExpiryState, expiredTokenModal },
 	} = useContext(Context);
+
+	const [info, setInfo] = useState({
+		countDown: 3,
+	});
+
 	const closeModal = useCallback(() => {
 		updateTokenExpiryState({ expiredTokenModal: false });
 	}, []);
+
+	useEffect(() => {
+		if (expiredTokenModal) {
+			intervalRef.current = setInterval(() => {
+				if (info.countDown === 0) {
+					logout();
+					channel.postMessage('reload');
+					closeModal();
+				} else {
+					setInfo((prev) => ({ ...prev, countDown: prev.countDown - 1 }));
+				}
+			}, 1000);
+			return () => clearInterval(intervalRef.current);
+		}
+	}, [expiredTokenModal, info.countDown]);
 
 	return (
 		<ReactModal
@@ -25,7 +46,7 @@ const ExpiredTokenModal = () => {
 			<div className="expiredSubscriptionParentContainerModal">
 				<div className="expiredSubscriptionModalHeader">
 					<span className="expiredModalHeaderText">
-						Your token has been <br></br>Expired !
+						Your session has <br></br>Expired !
 					</span>
 					<span className="closeExpiredModalWrapper" onClick={closeModal}>
 						<Close />
@@ -36,7 +57,7 @@ const ExpiredTokenModal = () => {
 				</span>
 				<div className="expiredActionBtnContainer">
 					<div className="renewSubscriptionContainer">
-						Logging Out in 5s
+						Logging Out in {info.countDown}s
 						<Spinner width={'16px'} height={'16px'} />
 					</div>
 					<div
