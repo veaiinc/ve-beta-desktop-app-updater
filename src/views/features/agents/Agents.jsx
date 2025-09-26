@@ -161,9 +161,9 @@ const Agents = () => {
 		}
 	}, [info?.totalCards, info?.currentIndex]);
 
-	useEffect(() => {
-		getProactiveHeadings({ module: 'agent' });
-	}, []);
+	// useEffect(() => {
+	// 	getProactiveHeadings({ module: 'agent' });
+	// }, []);
 
 	const handleLeft = useCallback(() => {
 		const index =
