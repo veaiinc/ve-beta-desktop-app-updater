@@ -1,4 +1,6 @@
 // galleryUtils.js
+// TODO: PERFORMANCE - Image processing operations could benefit from worker thread optimization
+// TODO: PERFORMANCE - Consider implementing image processing queue with priority levels
 
 // Conditional sharp import - only load when needed to prevent Windows crashes
 let sharp = null;
@@ -42,6 +44,7 @@ const safeExecute = (fn, fallback) => {
 // 🔧 Shared Utilities
 // ———————————————————————
 
+// TODO: PERFORMANCE - HTTP agents should be configured based on system resources
 const keepAliveAgent = {
 	http: new http.Agent({ keepAlive: true, maxSockets: 100, maxFreeSockets: 50 }),
 	https: new https.Agent({ keepAlive: true, maxSockets: 100, maxFreeSockets: 50 }),

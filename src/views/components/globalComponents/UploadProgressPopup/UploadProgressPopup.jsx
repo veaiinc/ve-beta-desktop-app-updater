@@ -458,7 +458,6 @@ const UploadProgressPopup = () => {
 			// Process and upload each batch SEQUENTIALLY
 			for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
 				const currentBatch = batches[batchIndex];
-				console.log(`Starting Batch ${batchIndex + 1} of ${batches.length}`);
 
 				// Step 1: Get FRESH upload policies for THIS batch
 				// This is crucial to avoid expiry

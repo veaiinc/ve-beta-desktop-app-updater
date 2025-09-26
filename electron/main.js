@@ -1,4 +1,6 @@
 // main.js
+// TODO: PERFORMANCE - This file is 5097 lines and handles too many responsibilities
+// TODO: PERFORMANCE - Break into modular services: WindowService, IPCService, NotificationService, etc.
 const {
 	app,
 	BrowserWindow,
@@ -67,6 +69,8 @@ let galleryHelper = null;
 const runStartupDiagnostics = () => {
 	log.info('🔍 Running startup diagnostics...');
 
+	// TODO: PERFORMANCE - Multiple synchronous fs.existsSync() calls block main thread
+	// TODO: PERFORMANCE - Move to async fs.promises.access() or batch operations
 	// Check critical paths
 	const criticalPaths = [
 		{ name: 'App path', path: app.getAppPath() },
@@ -96,6 +100,8 @@ const runStartupDiagnostics = () => {
 		log.info(`📁 Build directory: ${buildPath}`);
 		log.info(`📄 Index file: ${indexPath}`);
 
+		// TODO: PERFORMANCE - Multiple synchronous fs operations block startup
+		// TODO: PERFORMANCE - Use fs.promises.readdir() and fs.promises.stat() for async operations
 		if (fs.existsSync(buildPath)) {
 			try {
 				const buildFiles = fs.readdirSync(buildPath);
@@ -265,6 +271,7 @@ const shouldInitDynamicIsland = (() => {
 	);
 })();
 
+// TODO: PERFORMANCE - Lazy loading is good, but consider using dynamic imports for better memory management
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
 		try {
