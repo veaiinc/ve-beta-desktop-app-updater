@@ -182,14 +182,15 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 				{loadingState ? (
 					<div className="skeleton-loader-container">
 						{skeletonLoaders?.map((skeletonId) => (
-							<Skeleton
-								key={skeletonId}
-								width="211px"
-								height="46px"
-								borderRadius="12px"
-								baseColor="var(--card)"
-								highlightColor="gray"
-							/>
+							<div key={skeletonId} className="skeleton-loader-item">
+								<Skeleton
+									width="100%"
+									height="35px"
+									borderRadius="8px"
+									highlightColor="var(--card-over-card)"
+									baseColor="var(--card)"
+								/>
+							</div>
 						))}
 					</div>
 				) : emptyChatsState ? (
