@@ -43,11 +43,6 @@ const formatTimestamp = (timestamp) => {
 };
 
 const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration }) => {
-	console.log('jeevan==>', connectedIntegration);
-	const [info, setInfo] = useState({
-		isSyncModalOpen: false,
-		isconnectingLoader: false,
-	});
 	const [searchQuery, setSearchQuery] = useState('');
 	const [disconnectingAccountId, setDisconnectingAccountId] = useState(null);
 
