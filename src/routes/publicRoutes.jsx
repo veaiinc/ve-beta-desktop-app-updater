@@ -5,14 +5,19 @@ import Public from '../views/layouts/Public';
 
 // pages
 import LandingPage from '../views/features/landingScreen/LandingPage';
-import LoginPage from '../views/features/loginPage/LoginPage';
-import Onboarding from '../views/features/onboarding/Onboarding';
-import LiveIntelligence from '../views/features/onboarding/LiveIntelligence';
-import TermsOfService from '../views/features/signin/TermsOfService';
-import CookiePolicy from '../views/features/signin/CookiePolicy';
-import PrivacyPolicy from '../views/features/signin/PrivacyPolicy';
-import ChageLog from '../views/features/signin/ChageLog';
-import OauthVerify from '../views/features/signin/oauth/OauthVerify';
+
+// lazy loaded pages
+const LoginPage = lazy(() => import('../views/features/loginPage/LoginPage'));
+const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
+const TermsOfService = lazy(() => import('../views/features/signin/TermsOfService'));
+const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'));
+const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
+const ChageLog = lazy(() => import('../views/features/signin/ChageLog'));
+const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
+
+// components
+import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import PricingPageWebsite from '../views/features/pricingPlans/PricingPageWebsite';
 
 const publicRoutes = [
 	{
@@ -93,6 +98,26 @@ const publicRoutes = [
 		element: (
 			<Public>
 				<LoginPage />
+			</Public>
+		),
+	},
+	{
+		path: '/pricing',
+		element: (
+			<Public>
+				<Suspense fallback={<SuspenseFallback />}>
+					<LoginPage />
+				</Suspense>
+			</Public>
+		),
+	},
+	{
+		path: '/pricing',
+		element: (
+			<Public>
+				<Suspense fallback={<SuspenseFallback />}>
+					<PricingPageWebsite />
+				</Suspense>
 			</Public>
 		),
 	},

@@ -65,7 +65,7 @@ const refreshAccessTokenAndRetry = async (requestData) => {
 		const { endpoint, method, headers, body } = requestData;
 		const resp = await fetch(endpoint, { method, headers, body });
 		return await processResponse(resp, requestData, true);
-	} else if (response.status === 401) {
+	} else if (response.status === 401 || response.status === 403) {
 		logout();
 		return [false, {}, response.status];
 	} else {
@@ -80,7 +80,7 @@ const processResponse = async (response, requestData, shouldExit = false) => {
 	const responseStatus = response.status;
 	if (responseStatus >= 200 && responseStatus < 300) {
 		return [true, jsonData, responseStatus];
-	} else if (responseStatus === 401) {
+	} else if (responseStatus === 401 || responseStatus === 403) {
 		return await refreshAccessTokenAndRetry(requestData);
 	} else if (responseStatus === 500) {
 		internalServerEmitter.emit('serverError', jsonData);

@@ -1,0 +1,44 @@
+.opportunityCard {
+	position: absolute;
+	bottom: clamp(80px, 22vh, 225px);
+	right: clamp(16px, 37vw, 400px);
+	width: min(92vw, 567px);
+	display: flex;
+	flex-direction: column;
+	gap: clamp(10px, 2vh, 16px);
+}
+
+.opportunityHeader {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 16px;
+	width: fit-content;
+}
+
+.glowCircle {
+	width: clamp(12px, 2.4vw, 18px);
+	height: clamp(12px, 2.4vw, 18px);
+	background: #79ecc9;
+	border-radius: 50%;
+	box-shadow: 0px 0px 30px 0px rgba(121, 236, 201, 1);
+}
+
+.headerText {
+	font-family: var(--primary-font-family);
+	font-weight: 500;
+	font-size: clamp(16px, 2.4vw, 24px);
+	line-height: 1.35em;
+	text-transform: uppercase;
+	color: rgba(121, 236, 201, 0.5);
+	width: fit-content;
+}
+
+.opportunityDescription {
+	font-family: var(--primary-font-family);
+	font-weight: 500;
+	font-size: clamp(18px, 3.6vw, 34px);
+	line-height: 1.235em;
+	color: #79ecc9;
+	width: 100%;
+}
