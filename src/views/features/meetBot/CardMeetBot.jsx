@@ -368,11 +368,19 @@ const CardMeetBot = () => {
 														? 'var(--popup)'
 														: 'var(--background-color)',
 												}}
-												onClick={() =>
-													navigate(
-														`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
-													)
-												}
+												onClick={() => {
+													if (
+														activeMeetingId &&
+														activeMeetingId === meeting?._id &&
+														window.electronApi
+													) {
+														window.electronApi.minimizeMainWindow();
+													} else {
+														navigate(
+															`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
+														);
+													}
+												}}
 											>
 												<div className={styles.cardMeetBot_header}>
 													{position === 0 &&
