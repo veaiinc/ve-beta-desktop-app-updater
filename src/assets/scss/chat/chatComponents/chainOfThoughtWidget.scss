@@ -37,7 +37,7 @@
 				font-family: var(--chat-primary-font-family);
 				font-size: 15px;
 				font-style: normal;
-				font-weight: 400;
+				font-weight: 500;
 				line-height: normal;
 
 				&.animate {
@@ -79,10 +79,6 @@
 		gap: 36px;
 		align-self: stretch;
 		flex-shrink: 0;
-		width: 100%;
-		.content-container {
-			width: 100%;
-		}
 
 		.loader-container {
 			display: flex;

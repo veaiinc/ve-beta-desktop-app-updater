@@ -12,47 +12,41 @@ const Sources = ({ sources = [] }) => {
 	return (
 		<div className="sources">
 			{sources?.map?.((source, index) => {
-				const { type, name, title } = source;
+				const { type, name } = source;
+				if (name?.length === 0) return null;
 				return (
-					<button
+					<div
 						className="source"
 						key={index}
 						onClick={() => {
 							redirectTo?.(type, source?.[redirectTypeMapper?.[type]]);
 						}}
 					>
-						<div className="left-container">
-							<div className="icon">
-								{type === 'url' ? (
-									getFaviconUrl(name) ? (
-										<img
-											src={getFaviconUrl(name)}
-											alt="favicon"
-											className="favicon-image"
-										/>
-									) : (
-										<div className="company-icon">
-											{getWebsiteName(name)?.charAt(0)}
-										</div>
-									)
+						<div className="icon">
+							{type === 'url' ? (
+								getFaviconUrl(name) ? (
+									<img
+										src={getFaviconUrl(name)}
+										alt="favicon"
+										className="favicon-image"
+									/>
 								) : (
 									<div className="company-icon">
-										{type === 's3_key'
-											? fileTypeIcons[name?.match(/\.(\w+)$/)?.[1]]
-											: fileTypeIcons[type]}
+										{getWebsiteName(name)?.charAt(0)}
 									</div>
-								)}
-							</div>
-
-							<div className="source-title">{title ?? ''}</div>
+								)
+							) : (
+								<div className="company-icon">
+									{type === 's3_key'
+										? fileTypeIcons[name?.match(/\.(\w+)$/)?.[1]]
+										: fileTypeIcons[type]}
+								</div>
+							)}
 						</div>
-
-						<div className="right-container">
-							<div className="website-name">
-								{type === 'url' ? getWebsiteName(name) : name}
-							</div>
+						<div className="website-name">
+							{type === 'url' ? getWebsiteName(name) : name}
 						</div>
-					</button>
+					</div>
 				);
 			})}
 		</div>

@@ -13,4 +13,4 @@ const Spinner = ({ width, height, color, cssstyle = {}, borderTopColor, borderWi
 	return <div style={style}></div>;
 };
 
-export default memo(Spinner);
+export default Spinner;

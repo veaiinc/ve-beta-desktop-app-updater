@@ -212,7 +212,11 @@ class Header extends Component {
 				{/* <div className="h-center">{this.renderModules()}</div> */}
 				<div className="h-right">
 					<div className="device-view">
-						<Tooltip title="Desktop View" placement="bottom">
+						<Tooltip
+							title="Desktop View"
+							placement="bottom"
+							overlayStyle={{ background: '#202123', borderRadius: '8px' }}
+						>
 							<span
 								onClick={(e) => this.handlePreview(false, 'd')}
 								className={` tooltip ${
@@ -226,7 +230,11 @@ class Header extends Component {
 								<Desktop />
 							</span>
 						</Tooltip>
-						<Tooltip title="Mobile View" placement="bottom">
+						<Tooltip
+							title="Mobile View"
+							placement="bottom"
+							overlayStyle={{ background: '#202123', borderRadius: '8px' }}
+						>
 							<span
 								onClick={(e) => this.handlePreview(true, 'm')}
 								className={`tooltip ${
@@ -265,7 +273,14 @@ class Header extends Component {
 							<Divider />
 							<div className="page-settings">
 								<span className="h-right-icons">
-									<Tooltip title="Manage Pages" placement="bottom">
+									<Tooltip
+										title="Manage Pages"
+										placement="bottom"
+										overlayStyle={{
+											background: '#202123',
+											borderRadius: '8px',
+										}}
+									>
 										<span
 											className="h-right-pages no-path-fill"
 											onClick={(e) => {
@@ -283,7 +298,13 @@ class Header extends Component {
 									</Tooltip>
 								</span>
 								<span className="h-right-icons">
-									<Tooltip title="Theme Settings">
+									<Tooltip
+										title="Theme Settings"
+										overlayStyle={{
+											background: '#202123',
+											borderRadius: '8px',
+										}}
+									>
 										<span
 											className="h-right-pages no-path-fill"
 											onClick={this.props?.showThemeSettings}

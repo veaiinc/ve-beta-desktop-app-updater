@@ -1,3 +1,6 @@
+$font-general-sans: 'General Sans', sans-serif;
+$font-inter: 'Inter', sans-serif;
+
 .testing {
 	.ant-drawer-content-wrapper {
 		height: calc(100% - 74px);
@@ -14,6 +17,7 @@
 	background: #161618;
 	height: 100%;
 	min-width: 400px;
+	width: 50%;
 	// padding: 5rem 5rem 0 5rem; // Remove bottom padding to accommodate footer
 	overflow-y: auto;
 
@@ -29,22 +33,30 @@
 			cursor: pointer;
 			color: var(--primary-font, #f2f2f3);
 			text-align: center;
-			font-family: Inter;
+			font-family: $font-general-sans;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
 			line-height: 20px; /* 142.857% */
+			&:hover {
+				opacity: 0.7;
+				cursor: pointer;
+			}
 		}
 		.back-arrow {
 			cursor: pointer;
 			width: 16px;
 			height: 16px;
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: $font-inter;
 			font-size: 14px;
 			font-style: normal;
 			font-weight: 400;
 			line-height: 20px; /* 142.857% */
+			&:hover {
+				opacity: 0.7;
+				cursor: pointer;
+			}
 		}
 
 		@media (max-width: 1024px) {
@@ -64,16 +76,49 @@
 		overflow-y: auto;
 		padding-top: 50px; // Add space for footer
 		position: relative;
+		width: 80%;
+		margin: auto;
+		scrollbar-width: none !important; /* Firefox */
+		-ms-overflow-style: none !important;
 
 		/* Hide scrollbar for Chrome, Safari and Opera */
 		&::-webkit-scrollbar {
-			display: none;
+			display: none !important;
 		}
 
 		/* Hide scrollbar for IE, Edge and Firefox */
 		-ms-overflow-style: none; /* IE and Edge */
 		scrollbar-width: none; /* Firefox */
 
+		.getSummeryButton {
+			display: flex;
+			width: fit-content;
+			height: 38px;
+			padding: 8px 14px;
+			justify-content: center;
+			align-items: center;
+			gap: 4px;
+			border-radius: 100px;
+			background: var(--primary-button, #79ecc9);
+			color: var(--background-color, #121212);
+			font-family: $font-general-sans;
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: 22px; /* 157.143% */
+			cursor: pointer;
+			margin: 25px;
+
+			&:hover {
+				// background: #bbee00;
+				opacity: 0.8;
+			}
+
+			svg {
+				width: 16px;
+				height: 16px;
+			}
+		}
 		.summaryOverlay {
 			position: absolute;
 			top: 0;
@@ -103,12 +148,12 @@
 
 			.doc-header-title-container-text {
 				color: var(--secondary-font, #7a7e85);
-				font-family: var(--primary-font);
+				font-family: $font-general-sans;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 400;
-				line-height: 18px;
 				font-weight: 600;
+				line-height: 18px;
 			}
 		}
 	}
@@ -120,7 +165,7 @@
 		align-self: stretch;
 		color: var(--primary-font, #f2f2f3);
 		text-align: center;
-		font-family: Inter;
+		font-family: $font-inter;
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -129,7 +174,7 @@
 		span {
 			color: var(--primary-font, #f2f2f3);
 			text-align: center;
-			font-family: Inter;
+			font-family: $font-inter;
 			font-size: 18px;
 			font-style: normal;
 			font-weight: 500;
@@ -154,13 +199,11 @@
 			font-size: 18px;
 			font-weight: 500;
 			cursor: pointer;
-			flex: 1;
+			flex: 1 1 0%;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
-			transition: border-bottom 0.2s;
-			width: 260px;
-			text-align: left;
+			font-family: $font-general-sans;
 		}
 		.edit-icon {
 			cursor: pointer;
@@ -210,7 +253,7 @@
 		padding: 8px;
 		.workflow-warnings-container {
 			color: var(--primary-font, #f2f2f3);
-			font-family: Inter;
+			font-family: $font-inter;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -226,60 +269,354 @@
 		transition: margin 0.3s ease;
 	}
 
+	// .smartFileSidebarFooter {
+	// 	margin: 0;
+
+	// 	width: 100%;
+	// 	height: 80px;
+	// 	flex-shrink: 0;
+	// 	background: var(--card, #1b1c1d);
+	// 	display: flex;
+	// 	flex-direction: row;
+	// 	align-items: center;
+	// 	justify-content: center;
+	// 	font-family: "General Sans Variable'";
+	// 	position: relative;
+	// 	.progress {
+	// 		position: absolute;
+	// 		top: 0%;
+	// 		// right: auto;
+	// 		display: flex;
+	// 		width: 100%;
+	// 		height: 4px;
+	// 		// padding-right: 547px;
+	// 		align-items: center;
+	// 		flex-shrink: 0;
+	// 		border-radius: 10px;
+	// 		background: var(--stroke, #2c2d2e);
+	// 		.progress-active {
+	// 			width: 25%;
+	// 			height: 4px;
+	// 			flex-shrink: 0;
+	// 			// background-color: var(--primary-button, #79ecc9);
+	// 			background: linear-gradient(135deg, #79ecc9 0%, #7de0d4 50%, #81d4df 100%);
+	// 			transition: width 0.5s ease-in-out;
+	// 			// background: linear-gradient(to right, #79ecc9, #a879ec);
+	// 		}
+	// 	}
+	// 	.createdoc-inner-footer {
+	// 		display: flex;
+	// 		width: 100%;
+	// 		gap: 15%;
+	// 		// padding: 0px 20px;
+	// 		justify-content: space-around;
+	// 		align-items: center;
+	// 		// background-color: red;
+
+	// 		.createdoc-footer-section {
+	// 			display: flex;
+	// 			flex-direction: column;
+	// 			align-items: center;
+	// 			text-align: center;
+	// 			gap: 2px;
+	// 			color: var(--secondary-font, #94989e);
+	// 			font-family: 'General Sans Variable';
+	// 			font-size: 12px;
+	// 			font-style: normal;
+	// 			font-weight: 500;
+	// 			line-height: 18px; /* 150% */
+	// 			// .active {
+	// 			// }
+	// 			.step-text {
+	// 				color: var(--primary-button, #79ecc9);
+	// 				text-align: center;
+	// 				font-family: 'General Sans Variable';
+	// 				font-size: 10px;
+	// 				font-style: normal;
+	// 				font-weight: 400;
+	// 				line-height: 15px; /* 150% */
+	// 			}
+	// 			.details-text {
+	// 				color: var(--primary-font, #f2f2f3);
+	// 				text-align: center;
+	// 				font-family: 'General Sans Variable';
+	// 				font-size: 12px;
+	// 				font-style: normal;
+	// 				font-weight: 500;
+	// 				line-height: 18px; /* 150% */
+	// 			}
+	// 		}
+	// 	}
+	// }
+
 	.smartFileSidebarFooter {
-		position: sticky;
-		bottom: 0;
-		left: 0;
-		right: 0;
 		display: flex;
-		justify-content: flex-end;
+		width: 100%;
+		flex-direction: column;
+		justify-content: center;
 		align-items: center;
-		gap: 16px;
-		padding: 24px;
-		background-color: #171819;
-		border-top: 1px solid #333334;
+		background: var(--card, #1b1c1d);
+		transition: all 0.3s ease;
 
-		.goBackButton {
-			padding: 8px 16px;
-			border-radius: 100px;
-			background: var(--card-over-card-hover, #27282b);
-			background: var(--card-over-card-hover, color(display-p3 0.1529 0.1569 0.1686));
-			color: #f2f2f3;
-			border: none;
-			cursor: pointer;
-			font-family: Inter;
-			font-size: 14px;
-			font-weight: 500;
-			transition: background 0.3s ease;
+		.progress {
+			display: flex;
+			justify-content: space-between;
+			width: 100%;
+			position: relative;
+			height: 4px;
+			background: var(--card, #1b1c1d);
+			margin: 0 20px;
+			border-radius: 4px;
+			overflow: hidden;
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 
-			&:hover {
-				background: #3c3d3e;
+			span {
+				flex: 1;
+				background-color: transparent;
+				position: relative;
+				transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+				transform: scaleX(0);
+				transform-origin: left;
+
+				&.progress-active {
+					background: linear-gradient(135deg, #79ecc9, #7de0d4 50%, #81d4df);
+					transform: scaleX(1);
+					transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+					// Shimmer effect
+					&::after {
+						content: '';
+						position: absolute;
+						top: 0;
+						left: -100%;
+						width: 100%;
+						height: 100%;
+						background: linear-gradient(
+							90deg,
+							transparent,
+							rgba(255, 255, 255, 0.4),
+							transparent
+						);
+						animation: shimmer 2s ease-in-out infinite;
+					}
+
+					// Pulse glow effect
+					&::before {
+						content: '';
+						position: absolute;
+						top: -2px;
+						left: -2px;
+						right: -2px;
+						bottom: -2px;
+						background: linear-gradient(135deg, #79ecc9, #7de0d4 50%, #81d4df);
+						border-radius: 6px;
+						opacity: 0.3;
+						z-index: -1;
+						animation: pulse-glow 2s ease-in-out infinite alternate;
+					}
+				}
+
+				// Add spacing between steps visually
+				// &:not(:last-child) {
+				// 	margin-right: 4px;
+				// }
 			}
 		}
 
-		.getSummeryButton {
-			padding: 8px 16px;
-			border-radius: 100px;
-			background: #c2ff00;
-			background: color(display-p3 0.8118 1 0.2824);
-			color: #000000;
-			border: none;
-			cursor: pointer;
-			font-family: Inter;
-			font-size: 14px;
-			font-weight: 500;
+		.createdoc-inner-footer {
 			display: flex;
-			align-items: center;
-			gap: 8px;
-			transition: background 0.3s ease;
+			justify-content: space-between;
+			// margin-top: 12px;
+			padding: 15px;
+			width: 100%;
+			.createdoc-footer-section {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				text-align: center;
+				flex: 1;
+				position: relative;
+				transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+				transform: translateY(0);
+				color: var(--secondary-font, #94989e);
+				text-align: center;
+				font-family: $font-general-sans;
+				font-size: 10px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 15px; /* 150% */
 
-			&:hover {
-				background: #bbee00;
+				// Hover effect for interactivity
+				&:hover {
+					transform: translateY(-2px);
+
+					.step-text {
+						transform: scale(1.05);
+					}
+				}
+
+				// Active state animation
+				&.active {
+					.step-text {
+						color: var(--primary-button, #79ecc9);
+						text-align: center;
+						font-family: $font-general-sans;
+						font-size: 10px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: 15px; /* 150% */
+					}
+
+					.details-text {
+						color: var(--primary-font, #f2f2f3);
+						text-align: center;
+						font-family: $font-general-sans;
+						font-size: 12px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: 18px; /* 150% */
+					}
+
+					// Add a subtle indicator dot
+					&::before {
+						content: '';
+						position: absolute;
+						top: -8px;
+						left: 50%;
+						transform: translateX(-50%);
+						width: 6px;
+						height: 6px;
+						background: linear-gradient(135deg, #79ecc9, #5b69ff);
+						border-radius: 50%;
+						opacity: 0;
+						animation: dot-appear 0.5s ease-out 0.2s forwards;
+					}
+				}
+
+				.step-text {
+					color: var(--primary-button, #79ecc9);
+					text-align: center;
+					font-family: $font-general-sans;
+					font-size: 10px;
+					font-style: normal;
+					font-weight: 400;
+					line-height: 15px; /* 150% */
+				}
+
+				.details-text {
+					color: var(--primary-font, #f2f2f3);
+					text-align: center;
+					font-family: $font-general-sans;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: 18px; /* 150% */
+				}
+
+				// For non-active states - smooth fade
+				// &:not(.active) {
+				// 	.step-text {
+				// 		color: var(--primary-button, #79ecc9);
+				// 	}
+
+				// 	.details-text {
+				// 		color: var(--primary-font, #f2f2f3);
+				// 	}
+				// }
+			}
+		}
+	}
+
+	// Keyframe animations
+	@keyframes shimmer {
+		0% {
+			left: -100%;
+		}
+		100% {
+			left: 100%;
+		}
+	}
+
+	@keyframes pulse-glow {
+		0% {
+			opacity: 0.2;
+			transform: scale(1);
+		}
+		100% {
+			opacity: 0.4;
+			transform: scale(1.02);
+		}
+	}
+
+	@keyframes text-glow {
+		0% {
+			text-shadow: 0 0 5px rgba(91, 105, 255, 0.2);
+		}
+		100% {
+			text-shadow: 0 0 12px rgba(91, 105, 255, 0.4);
+		}
+	}
+
+	@keyframes dot-appear {
+		0% {
+			opacity: 0;
+			transform: translateX(-50%) scale(0);
+		}
+		50% {
+			opacity: 1;
+			transform: translateX(-50%) scale(1.2);
+		}
+		100% {
+			opacity: 1;
+			transform: translateX(-50%) scale(1);
+		}
+	}
+
+	// Enhanced responsive behavior
+	@media (max-width: 768px) {
+		.smartFileSidebarFooter {
+			.progress {
+				margin: 0 15px;
+				height: 3px;
 			}
 
-			svg {
-				width: 16px;
-				height: 16px;
+			.createdoc-inner-footer {
+				padding: 0 15px;
+
+				.createdoc-footer-section {
+					.step-text {
+						font-size: 11px;
+					}
+
+					.details-text {
+						font-size: 9px;
+					}
+				}
+			}
+		}
+	}
+
+	@media (max-width: 480px) {
+		.smartFileSidebarFooter {
+			width: 100%;
+			.progress {
+				margin: 0 15px;
+				height: 3px;
+				width: 100%;
+			}
+			.createdoc-inner-footer {
+				width: 100%;
+			}
+		}
+	}
+
+	// Reduced motion preference
+	@media (prefers-reduced-motion: reduce) {
+		.smartFileSidebarFooter {
+			* {
+				animation-duration: 0.01ms !important;
+				animation-iteration-count: 1 !important;
+				transition-duration: 0.01ms !important;
 			}
 		}
 	}
@@ -324,7 +661,7 @@
 	border: none;
 	color: var(--secondary-font, #787e87);
 	color: var(--secondary-font, color(display-p3 0.4784 0.4941 0.5216));
-	font-family: Inter;
+	font-family: $font-inter;
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 500;
@@ -337,7 +674,7 @@
 		align-self: stretch;
 		color: var(--primary-font, #f2f2f3);
 		color: var(--primary-font, color(display-p3 0.949 0.949 0.9529));
-		font-family: Inter;
+		font-family: $font-inter;
 		font-size: 16px;
 		font-style: normal;
 		font-weight: 500;
@@ -414,7 +751,7 @@
 .smartFileSideBarParentContainer .workflow-warnings .workflow-warning-item p {
 	color: #ffb300 !important;
 	font-size: 13px !important;
-	font-family: Inter, sans-serif !important;
+	font-family: $font-inter, sans-serif !important;
 	font-weight: 500 !important;
 	line-height: 1.5 !important;
 	background: none !important;

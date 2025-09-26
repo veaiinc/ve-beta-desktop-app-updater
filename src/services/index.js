@@ -3,8 +3,6 @@ import Cookies from 'js-cookie';
 
 // const x_access_key = import.meta.env.VITE_APP_X_ACCESS_KEY || 'QWxsb3dBY2Nlc3NUb0ZlZWRiYWNrQVBJ';
 import getBaseUrl from './baseUrls.js';
-import logout from '../helpers/logout.js';
-import { fetchDomainName } from '../helpers/index.jsx';
 
 const authBearerTypes = new Set([
 	'form',
@@ -37,88 +35,17 @@ const handleHeaders = (token, type, isPublicChat = false) => {
 
 export const internalServerEmitter = mitt();
 
-let isRefreshing = false;
-let refreshPromise = null;
-
-const processResponse = async (response, requestInit, endpoint, type, isPublicChat) => {
-	try {
-		const jsonData = await response.json();
-
-		if (response.status >= 200 && response.status < 300) {
-			return [true, jsonData];
-		} else if (response.status === 401) {
-			try {
-				// ensure only one refresh at a time
-				if (!isRefreshing) {
-					isRefreshing = true;
-					refreshPromise = getNewAccessToken()
-						.then((res) => {
-							isRefreshing = false;
-							return res;
-						})
-						.catch((err) => {
-							isRefreshing = false;
-							throw err;
-						});
-				}
-
-				const [success, data] = await refreshPromise;
-
-				if (success) {
-					const { tokens } = data;
-					const host = fetchDomainName();
-
-					// update tokens
-					localStorage.setItem('usertoken', tokens.accessToken);
-					localStorage.setItem('refreshToken', tokens.refreshToken);
-					localStorage.setItem('accessTokenExpiry', tokens.accessTokenExpiry);
-					localStorage.setItem('refreshTokenExpiry', tokens.refreshTokenExpiry);
-
-					Cookies.set('usertoken', tokens.accessToken, { sameSite: 'lax', domain: host });
-					Cookies.set('refreshToken', tokens.refreshToken, {
-						sameSite: 'lax',
-						domain: host,
-					});
-					Cookies.set('accessTokenExpiry', tokens.accessTokenExpiry, {
-						sameSite: 'lax',
-						domain: host,
-					});
-					Cookies.set('refreshTokenExpiry', tokens.refreshTokenExpiry, {
-						sameSite: 'lax',
-						domain: host,
-					});
-
-					// retry original request with new token
-					const retryHeaders = handleHeaders(tokens.accessToken, type, isPublicChat);
-					const retryResponse = await fetch(endpoint, {
-						...requestInit,
-						headers: retryHeaders,
-					});
-					return await processResponse(
-						retryResponse,
-						requestInit,
-						endpoint,
-						type,
-						isPublicChat,
-					);
-				} else {
-					await logout();
-					return [false, { message: 'Session expired. Please log in again.' }];
-				}
-			} catch (refreshError) {
-				console.error('Token refresh failed:', refreshError);
-				await logout();
-				return [false, { message: 'Session expired. Please log in again.' }];
-			}
-		} else if (response.status === 500) {
-			internalServerEmitter.emit('serverError', jsonData);
-			return [false, jsonData];
-		} else {
-			return [response.status, jsonData];
-		}
-	} catch (error) {
-		console.error('processResponse failed:', error);
-		return [false, { message: error.message || 'Unexpected error' }];
+const processResponse = async (response) => {
+	const jsonData = await response.json();
+	if (response.status >= 200 && response.status < 300) {
+		return [true, jsonData];
+	} else if (response.status === 401) {
+		return [false, jsonData];
+	} else if (response.status === 500) {
+		internalServerEmitter.emit('serverError', jsonData);
+		return [false, jsonData];
+	} else {
+		return [response.status, jsonData];
 	}
 };
 
@@ -158,7 +85,7 @@ const apiFetch = async (url, method, body, token, type, isPublicChat = false) =>
 				? { method, headers, body, credentials: 'include' }
 				: { method, headers, body };
 		const response = await fetch(endpoint, requestInit);
-		return await processResponse(response, requestInit, endpoint, type, isPublicChat);
+		return await processResponse(response);
 	} catch (error) {
 		console.log('Api Failed: ' + error.message);
 		return [false];
