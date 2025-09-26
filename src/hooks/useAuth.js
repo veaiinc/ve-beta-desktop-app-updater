@@ -8,6 +8,10 @@ const useAuth = () => {
 	const navigate = useNavigate();
 	const channel = useBroadcastChannel();
 
+	const {
+		subscriptionInfo: { updateTokenExpiryState },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		authLoading: true,
 	});
@@ -28,7 +32,7 @@ const useAuth = () => {
 			authLoading: false,
 		}));
 		if (statusCode === 401) {
-			logout();
+			updateTokenExpiryState({ expiredTokenModal: true });
 			channel.postMessage('reload');
 		}
 	};
