@@ -1,3 +1,5 @@
+import { autoUpdater } from 'electron';
+
 const log = require('electron-log'); // Import electron-log
 
 export const checkUpdates = (mainWindow) => {

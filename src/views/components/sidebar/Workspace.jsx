@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import Context from '../../../context/context';
 import { fetchDomainName } from '../../../helpers';
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
+import { reloadApp } from '../../../hooks/useBroadcastChannel';
 
 const workspaceOpenStyle = {
 	position: 'fixed',
@@ -118,11 +119,7 @@ const WorkspaceListComponent = ({
 				});
 			}
 			window.location.hash = '/home';
-			if (window.api && typeof window.api.reloadApp === 'function') {
-				window.api.reloadApp();
-			} else {
-				window.location.reload();
-			}
+			reloadApp();
 		},
 		[userWorkSpaceList],
 	);

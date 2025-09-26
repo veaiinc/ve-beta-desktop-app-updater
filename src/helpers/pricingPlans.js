@@ -59,6 +59,7 @@ export const pricingPlansData = {
 			defaultUsers: 1,
 			minUsers: 1,
 			recommended: true,
+			isTrialAvailable: true,
 		},
 		enterprise: {
 			name: 'Enterprise',

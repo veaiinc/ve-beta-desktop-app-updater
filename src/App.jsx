@@ -313,7 +313,7 @@ const App = () => {
 					Test Permission Overlay
 				</button>
 			)} */}
-				<button
+			{/* <button
 					onClick={() => window.electronApi?.permission?.showWindow()}
 					style={{
 						position: 'fixed',
@@ -332,7 +332,7 @@ const App = () => {
 					}}
 				>
 					Test Permission Overlay
-				</button>
+				</button> */}
 
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (

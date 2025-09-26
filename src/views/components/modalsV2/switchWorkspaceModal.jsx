@@ -8,6 +8,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import useLogout from '../../../hooks/useLogout';
 import { fetchDomainName, getBuisnessName } from '../../../helpers/index';
+import { reloadApp } from '../../../hooks/useBroadcastChannel';
 const customStyles = {
 	content: {
 		top: '50%',
@@ -65,11 +66,7 @@ const SwitchWorkspaceModal = ({ open, closeModal, accessibleWorkspaces, activeWo
 		if (salesId) {
 			window.location.hash = '/home';
 		}
-		if (window.api && typeof window.api.reloadApp === 'function') {
-			window.api.reloadApp();
-		} else {
-			window.location.reload();
-		}
+		reloadApp();
 	}, []);
 
 	return (

@@ -55,22 +55,17 @@ const refreshAccessTokenAndRetry = async (requestData) => {
 	if (response.status === 200) {
 		const jsonData = await parseJson(response);
 		const { tokens } = jsonData;
-		const { accessToken, accessTokenExpiry, refreshTokenExpiry } = tokens;
+		const { accessToken, accessTokenExpiry } = tokens;
 		const host = fetchDomainName();
 		Cookies.set('usertoken', accessToken, { sameSite: 'lax', domain: host });
 		Cookies.set('accessTokenExpiry', accessTokenExpiry, { sameSite: 'lax', domain: host });
-		Cookies.set('refreshTokenExpiry', refreshTokenExpiry, {
-			sameSite: 'lax',
-			domain: host,
-		});
 		localStorage.setItem('usertoken', accessToken);
 		localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
-		localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry);
 
 		const { endpoint, method, headers, body } = requestData;
 		const resp = await fetch(endpoint, { method, headers, body });
 		return await processResponse(resp, requestData, true);
-	} else if (response.status === 401 || response.status === 403) {
+	} else if (response.status === 401) {
 		logout();
 		return [false, {}, response.status];
 	} else {
@@ -85,7 +80,7 @@ const processResponse = async (response, requestData, shouldExit = false) => {
 	const responseStatus = response.status;
 	if (responseStatus >= 200 && responseStatus < 300) {
 		return [true, jsonData, responseStatus];
-	} else if (responseStatus === 401 || responseStatus === 403) {
+	} else if (responseStatus === 401) {
 		return await refreshAccessTokenAndRetry(requestData);
 	} else if (responseStatus === 500) {
 		internalServerEmitter.emit('serverError', jsonData);
