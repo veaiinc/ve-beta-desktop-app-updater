@@ -9,6 +9,16 @@
 		justify-content: flex-start;
 		align-items: center;
 		gap: 12px;
+		.settingsSidebarOptionsTitle {
+			color: var(--secondary-font, #a3a3a3);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			margin-bottom: 8px;
+			margin-left: 12px;
+		}
 		.settingsSidebarEachOption {
 			display: flex;
 			padding: 12px;
@@ -50,6 +60,16 @@
 		flex-direction: column;
 		width: 190px;
 		gap: 2px;
+		.settingsSidebarOptionsTitle {
+			color: var(--secondary-font, #a3a3a3);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			margin-bottom: 8px;
+			margin-left: 12px;
+		}
 		.settingsSidebarEachOption {
 			display: flex;
 			padding: 12px;

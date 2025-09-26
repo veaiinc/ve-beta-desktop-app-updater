@@ -1614,6 +1614,14 @@ export const TemplatesState = (props) => {
 					path: `/outlookmail/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'microsoft_integration_api',
 				},
+				outlookcalendar: {
+					path: `/outlookcalendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
+					apiType: 'microsoft_integration_api',
+				},
+				outlookmail: {
+					path: `/outlookmail/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
+					apiType: 'microsoft_integration_api',
+				},
 			};
 
 			const config = authConfig[connectType] || {
@@ -1680,6 +1688,53 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('error==>disconnectThirdParty', error);
+		}
+	};
+	const syncUserAccount = async (connectType, id) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			let path, response, apiType;
+
+			const connectUserAccountConfig = {
+				gmail: {
+					path: `/auth/gmail/${workspaceId}/${id}/sync-data`,
+					apiType: 'calendar_api',
+				},
+				'google-calendar': {
+					path: `/google-calendar/${workspaceId}/${id}/sync-data`,
+					apiType: 'calendar_api',
+				},
+				slack: {
+					path: `/slack/${workspaceId}/${id}/sync-data`,
+					apiType: 'third_party_integrations_api',
+				},
+				'outlook-calendar': {
+					path: `/outlookcalendar/${workspaceId}/${id}/sync-data`,
+					apiType: 'microsoft_integration_api',
+				},
+				outlookMail: {
+					path: `/outlookmail/${workspaceId}/${id}/sync-data`,
+					apiType: 'microsoft_integration_api',
+				},
+			};
+
+			let config = connectUserAccountConfig[connectType] || {
+				path: `/${connectType}/${workspaceId}/${id}/sync-data`,
+				apiType: 'third_party_integrations_api',
+			};
+			path = config.path;
+			apiType = config.apiType;
+			console.log('path==>', path, apiType);
+			response = await Service?.fetchPost(path, null, token, apiType);
+
+			if (response?.[0]) {
+				return response;
+			} else {
+				return response;
+			}
+		} catch (error) {
+			console.log('error==>syncUserAccount', error);
 		}
 	};
 
@@ -3166,5 +3221,6 @@ export const TemplatesState = (props) => {
 		getAuthUrlForThirdParty,
 		disconnectThirdParty,
 		handleResetBrowserInactivityState,
+		syncUserAccount,
 	};
 };
