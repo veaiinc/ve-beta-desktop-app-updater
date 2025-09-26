@@ -64,8 +64,10 @@ const useSubscription = () => {
 	}, []);
 
 	useEffect(() => {
-		getCurrentSubscriptionPlan();
-	}, [location.pathname]);
+		if (!currentPlan) {
+			getCurrentSubscriptionPlan();
+		}
+	}, [location.pathname, currentPlan]);
 
 	useEffect(() => {
 		if (reFetchSubscription) {
