@@ -8,6 +8,7 @@ import moment from 'moment';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 // import ObjectID from 'bson-objectid';
 import Spinner from '../../loaders/Spinner';
+import ObjectID from 'bson-objectid';
 
 const infiniteScrollStyle = {
 	display: 'flex',
@@ -212,6 +213,12 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 						// scrollableTarget="chatsScroll"
 						height={'100%'}
 					>
+						<button
+							className="new-chat-btn"
+							onClick={() => navigate(`/chat/${ObjectID()?.toString()}`)}
+						>
+							New Chat
+						</button>
 						{chats?.map((chat, index) => {
 							const dateGroup = getChatDateGroup(chat.createdAt);
 							const showGroupHeader =
@@ -223,7 +230,9 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 									{showGroupHeader && (
 										<div
 											className="chat-group-header"
-											style={{ marginTop: `${index !== 0 ? '20px' : '0'}` }}
+											style={{
+												marginTop: `${index !== 0 ? '20px' : '0'}`,
+											}}
 										>
 											{dateGroup}
 										</div>

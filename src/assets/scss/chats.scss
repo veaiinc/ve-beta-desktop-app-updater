@@ -119,6 +119,25 @@
 			}
 		}
 
+		.new-chat-btn {
+			border: none;
+			color: var(--primary-font);
+			font-family: var(--chat-primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+			padding: 10px;
+			border-radius: 8px;
+			background: transparent;
+			border: 1px solid var(--stroke);
+			margin-bottom: 8px;
+			&:hover {
+				background: var(--card-over-card-hover, #2e2f33);
+			}
+		}
+
 		.chat-container-wrapper {
 			display: flex;
 			flex-direction: column;
