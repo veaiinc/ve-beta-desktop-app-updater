@@ -52,7 +52,7 @@ const getMacArchitecture = async () => {
 // Function to get the appropriate desktop app download URL
 const getDesktopAppDownloadUrl = async () => {
 	if (!isMac) return null;
-	
+
 	try {
 		const isMacArm64 = await getMacArchitecture();
 		return isMacArm64
@@ -386,19 +386,10 @@ const Settings = ({
 				</button>
 			</div>
 
-			{!info?.isDesktop && (
+			{!info?.isDesktop && isMac && (
 				<button className={s.downloadMacAppButton} onClick={handleInstallOrOpen}>
-					{isMac ? (
-						<>
-							<DownloadMacSvg />
-							<span>Download Mac App</span>
-						</>
-					) : (
-						<>
-							<DownloadWindowsSvg />
-							<span>Download Windows App</span>
-						</>
-					)}
+					<DownloadMacSvg />
+					<span>Download Mac App</span>
 				</button>
 			)}
 			{workspacesMoreThanOne && (
