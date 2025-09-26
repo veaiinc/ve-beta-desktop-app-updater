@@ -160,33 +160,33 @@
 						max-height: none !important; /* Remove any height restrictions */
 						height: 100% !important; /* Take full available height */
 						position: relative; /* Ensure proper positioning */
-						
+
 						/* Ensure scrollbar is visible and functional */
 						&::-webkit-scrollbar {
 							width: 8px;
 							background: transparent;
 						}
-						
+
 						&::-webkit-scrollbar-track {
 							background: rgba(255, 255, 255, 0.1);
 							border-radius: 4px;
 							margin: 4px 0;
 						}
-						
+
 						&::-webkit-scrollbar-thumb {
 							background: rgba(255, 255, 255, 0.4);
 							border-radius: 4px;
 							border: 1px solid rgba(255, 255, 255, 0.1);
 						}
-						
+
 						&::-webkit-scrollbar-thumb:hover {
 							background: rgba(255, 255, 255, 0.6);
 						}
-						
+
 						&::-webkit-scrollbar-thumb:active {
 							background: rgba(255, 255, 255, 0.8);
 						}
-						
+
 						/* Ensure content can be scrolled */
 						.chatContent {
 							min-height: 100%;
@@ -214,8 +214,9 @@
 		padding: 0 20px 20px 20px; /* Match the chat content padding */
 		background: transparent;
 		border-top: 1px solid rgba(255, 255, 255, 0.1);
-		margin-top: 10px;
-		
+		margin: 10px 16px 15px 16px;
+		position: relative;
+
 		/* Ensure the chat input is properly styled */
 		.chatBoxWrapper {
 			display: block !important; /* Show the chat input */

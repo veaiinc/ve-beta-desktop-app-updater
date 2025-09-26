@@ -67,7 +67,7 @@ const LiveIntelligencePanel = ({
 
 	// Handle tab click - only change active tab, don't send content to Ask AI
 	const handleTabClick = (tabKey) => {
-		setActiveTab(tabKey);
+		// setActiveTab(tabKey);
 		// Removed the content sending logic - tabs should only change the view
 		// Individual thread items will handle sending content to Ask AI
 	};
@@ -197,8 +197,8 @@ const LiveIntelligencePanel = ({
 								return (
 									<div
 										key={thread.reference_id || thread.id || index}
-										className={`thread-item ${
-											thread.entity === 'user' ? 'ask-user-item' : 'clickable'
+										className={`thread-item clickable ${ ""
+											// thread.entity === 'user' ? 'ask-user-item' : 'clickable' 
 										}`}
 										onClick={() =>
 											handleThreadItemClick(
@@ -394,7 +394,7 @@ const LiveIntelligencePanel = ({
 						}}
 						style={{ pointerEvents: 'auto' }}
 					>
-						<span className="live-intelligence-panel__control-button-text">
+						<span>
 							View Transcriptions
 						</span>
 					</button>
@@ -416,7 +416,7 @@ const LiveIntelligencePanel = ({
 			<div className="live-intelligence-panel__divider-line" />
 
 			{/* Tabs */}
-			<div className="live-intelligence-panel__tabs">
+			{/* <div className="live-intelligence-panel__tabs">
 				{tabs.map((tab) => (
 					<button
 						key={tab.key}
@@ -429,7 +429,7 @@ const LiveIntelligencePanel = ({
 						{tab.count > 0 && <span className="tab-badge">{tab.count}</span>}
 					</button>
 				))}
-			</div>
+			</div> */}
 
 			{/* Tab Content */}
 			<div className="live-intelligence-panel__content" ref={contentRef}>

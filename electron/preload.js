@@ -2,6 +2,16 @@
 // TODO: PERFORMANCE - This file exposes 100+ IPC methods - consider batching or lazy loading
 const { contextBridge, ipcRenderer } = require('electron/renderer');
 
+const { preloadBridge } = require('@zubridge/electron/preload');
+
+console.log('[Preload] Script initializing');
+
+// Get handlers from the preload bridge
+const { handlers } = preloadBridge();
+
+// Expose Zubridge handlers directly without wrapping
+contextBridge.exposeInMainWorld('zubridge', handlers);
+
 // Helper
 
 contextBridge.exposeInMainWorld('electronApi', {
