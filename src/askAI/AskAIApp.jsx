@@ -34,12 +34,12 @@ const AskAIApp = () => {
 			for (let entry of entries) {
 				// Skip auto-resize if chat is expanded
 				if (expandChatRef.current) return;
-				
+
 				// Skip if user is manually resizing the window
 				if (userResizingRef.current) return;
 
 				const { height } = entry.contentRect;
-				
+
 				// Only auto-resize if the content height is significantly different
 				// and smaller than current window height (content shrinking)
 				if (lastWindowHeightRef.current !== null) {
@@ -54,12 +54,12 @@ const AskAIApp = () => {
 
 				// Only auto-adjust height for content changes, not user resize
 				// This prevents interference with manual window resizing
-				window?.electronApi?.askAI?.updateDimensions({ 
+				window?.electronApi?.askAI?.updateDimensions({
 					width: null, // Don't override width - let user control it
 					height: updatedHeight,
-					position: { isExpanding: false } // Not an expand operation
+					position: { isExpanding: false }, // Not an expand operation
 				});
-				
+
 				lastWindowHeightRef.current = updatedHeight;
 			}
 		});
@@ -80,15 +80,15 @@ const AskAIApp = () => {
 	// Track window resize events to prevent ResizeObserver interference
 	useEffect(() => {
 		let resizeTimeout;
-		
+
 		const handleWindowResize = () => {
 			userResizingRef.current = true;
-			
+
 			// Clear any existing timeout
 			if (resizeTimeout) {
 				clearTimeout(resizeTimeout);
 			}
-			
+
 			// Reset the flag after a delay to allow content-based resizing again
 			resizeTimeout = setTimeout(() => {
 				userResizingRef.current = false;
@@ -295,7 +295,7 @@ const AskAIApp = () => {
 		setInfo((prev) => {
 			const newExpandState = !prev?.expandChat;
 			expandChatRef.current = newExpandState;
-			
+
 			// If collapsing from expanded state, reset to normal size
 			if (!newExpandState && prev?.expandChat) {
 				window?.electronApi?.askAI?.updateDimensions({
@@ -303,11 +303,11 @@ const AskAIApp = () => {
 					height: 600, // Reset to default height
 					position: { isExpanding: false }, // Keep current position but set expanding flag
 				});
-				
+
 				// Update height reference to prevent ResizeObserver conflicts
 				lastWindowHeightRef.current = 600;
 			}
-			
+
 			return { ...prev, expandChat: newExpandState };
 		});
 	}, []);
@@ -317,7 +317,7 @@ const AskAIApp = () => {
 		if (!workarea) {
 			workarea = await window?.electronApi?.askAI?.getWorkArea();
 		}
-		
+
 		window?.electronApi?.askAI?.updateDimensions({
 			width: 600,
 			height: workarea.height,
@@ -341,14 +341,14 @@ const AskAIApp = () => {
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
 			try {
-				await sendMessage({ 
-					data, 
-					sessionId: info?.sessionId, 
+				await sendMessage({
+					data,
+					sessionId: info?.sessionId,
 					onMessageFunc: (event, currentSessionId) => {
 						// Handle incoming messages
 						let { data: messageData = '' } = event || {};
 						messageData = JSON?.parse(messageData);
-						
+
 						if (messageData?.stream_end) {
 							handleGlobalChatMessages({
 								sessionId: info?.sessionId,
@@ -358,7 +358,7 @@ const AskAIApp = () => {
 								latestStreamMessage: messageData,
 							});
 						}
-						
+
 						if (messageData?.message_chunk_id) {
 							handleGlobalChatMessages({
 								payload: messageData,
@@ -367,17 +367,17 @@ const AskAIApp = () => {
 								updateExtraInfo: false,
 							});
 						}
-					}, 
-					isPublicChat: false, 
-					agentType: 'multi_agent' 
+					},
+					isPublicChat: false,
+					agentType: 'multi_agent',
 				});
-				
+
 				handleGlobalChatMessages({
 					sessionId: info?.sessionId,
 					lastQuery,
 					updateExtraInfo: true,
 				});
-				
+
 				// Auto-scroll after sending message
 				setTimeout(() => {
 					scrollToBottom();
@@ -391,7 +391,7 @@ const AskAIApp = () => {
 				});
 			}
 		},
-		[sendMessage, info?.sessionId, handleGlobalChatMessages]
+		[sendMessage, info?.sessionId, handleGlobalChatMessages],
 	);
 
 	// Auto-scroll functionality for Ask AI overlay
@@ -407,19 +407,19 @@ const AskAIApp = () => {
 				containerStyle: {
 					overflow: chatBodyContainer.style.overflow,
 					height: chatBodyContainer.style.height,
-					position: chatBodyContainer.style.position
-				}
+					position: chatBodyContainer.style.position,
+				},
 			});
-			
+
 			// Ensure the container is properly configured for scrolling
 			chatBodyContainer.style.overflowY = 'auto';
 			chatBodyContainer.style.height = '100%';
-			
+
 			// Force scroll to bottom
 			requestAnimationFrame(() => {
 				chatBodyContainer.scrollTo({
 					top: chatBodyContainer.scrollHeight,
-					behavior: 'smooth'
+					behavior: 'smooth',
 				});
 			});
 		} else {
@@ -430,7 +430,7 @@ const AskAIApp = () => {
 	// Auto-scroll when new messages are added (Ask AI specific)
 	useEffect(() => {
 		if (!info?.sessionId) return;
-		
+
 		const messages = globalChatMessages?.[info.sessionId]?.messages;
 		if (!messages || !messages.length) return;
 
@@ -439,7 +439,7 @@ const AskAIApp = () => {
 		if (!lastMessage) return;
 
 		// Auto-scroll for AI responses or when stream ends
-		const shouldAutoScroll = 
+		const shouldAutoScroll =
 			lastMessage?.type?.toLowerCase() === 'ai' || // AI response
 			lastMessage?.stream_end || // Stream finished
 			lastMessage?.contentType === 'loading'; // Loading state
@@ -447,19 +447,21 @@ const AskAIApp = () => {
 		if (shouldAutoScroll) {
 			// Use multiple attempts to ensure DOM has updated and scroll works
 			const attemptScroll = (attempts = 3) => {
-				const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+				const chatBodyContainer = document.querySelector(
+					'.ask-ai-app .chatBodyParentContainer',
+				);
 				if (!chatBodyContainer && attempts > 0) {
 					setTimeout(() => attemptScroll(attempts - 1), 50);
 					return;
 				}
-				
+
 				if (!chatBodyContainer) return;
 
 				// Force layout recalculation before checking scroll position
 				chatBodyContainer.style.height = 'auto';
 				requestAnimationFrame(() => {
 					chatBodyContainer.style.height = '';
-					
+
 					const { scrollTop, scrollHeight, clientHeight } = chatBodyContainer;
 					const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
 					const isNearBottom = distanceFromBottom < 100; // Auto-scroll if within 100px of bottom
@@ -469,7 +471,7 @@ const AskAIApp = () => {
 						scrollHeight,
 						clientHeight,
 						distanceFromBottom,
-						isNearBottom
+						isNearBottom,
 					});
 
 					// Only auto-scroll if user is near the bottom (to not interrupt manual scrolling)
@@ -478,7 +480,7 @@ const AskAIApp = () => {
 					}
 				});
 			};
-			
+
 			setTimeout(() => attemptScroll(), 100);
 		}
 	}, [globalChatMessages?.[info?.sessionId]?.messages?.length, info?.sessionId, scrollToBottom]);
@@ -486,7 +488,7 @@ const AskAIApp = () => {
 	// Auto-scroll when user sends a message
 	useEffect(() => {
 		if (!info?.sessionId) return;
-		
+
 		const messages = globalChatMessages?.[info.sessionId]?.messages;
 		if (!messages || !messages.length) return;
 
@@ -503,18 +505,20 @@ const AskAIApp = () => {
 	useEffect(() => {
 		const handleResize = () => {
 			console.log('🔄 Ask AI window resized, recalculating layout...');
-			
+
 			// Force layout recalculation by temporarily changing and restoring a style
-			const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+			const chatBodyContainer = document.querySelector(
+				'.ask-ai-app .chatBodyParentContainer',
+			);
 			if (chatBodyContainer) {
 				// Force a reflow to recalculate dimensions
 				const originalHeight = chatBodyContainer.style.height;
 				chatBodyContainer.style.height = 'auto';
-				
+
 				// Use requestAnimationFrame to ensure the change is applied
 				requestAnimationFrame(() => {
 					chatBodyContainer.style.height = originalHeight;
-					
+
 					// Trigger a scroll to bottom to ensure everything is working
 					setTimeout(() => {
 						scrollToBottom();
@@ -525,7 +529,7 @@ const AskAIApp = () => {
 
 		// Listen for window resize events
 		window.addEventListener('resize', handleResize);
-		
+
 		// Also listen for Electron window resize events
 		if (window.electronApi?.askAI?.onWindowResize) {
 			window.electronApi.askAI.onWindowResize(handleResize);
@@ -539,16 +543,16 @@ const AskAIApp = () => {
 				for (let entry of entries) {
 					console.log('📏 Chat container resized:', {
 						width: entry.contentRect.width,
-						height: entry.contentRect.height
+						height: entry.contentRect.height,
 					});
-					
+
 					// Force scroll recalculation when container size changes
 					setTimeout(() => {
 						scrollToBottom();
 					}, 50);
 				}
 			});
-			
+
 			resizeObserver.observe(chatBodyContainer);
 		}
 
@@ -564,23 +568,25 @@ const AskAIApp = () => {
 	// Initialize scroll container when component mounts
 	useEffect(() => {
 		const initializeScrollContainer = () => {
-			const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+			const chatBodyContainer = document.querySelector(
+				'.ask-ai-app .chatBodyParentContainer',
+			);
 			if (chatBodyContainer) {
 				console.log('🔧 Initializing scroll container...');
-				
+
 				// Ensure proper scroll configuration
 				chatBodyContainer.style.overflowY = 'auto';
 				chatBodyContainer.style.overflowX = 'hidden';
 				chatBodyContainer.style.height = '100%';
 				chatBodyContainer.style.position = 'relative';
-				
+
 				// Force a layout recalculation
 				chatBodyContainer.offsetHeight;
-				
+
 				console.log('✅ Scroll container initialized:', {
 					scrollHeight: chatBodyContainer.scrollHeight,
 					clientHeight: chatBodyContainer.clientHeight,
-					canScroll: chatBodyContainer.scrollHeight > chatBodyContainer.clientHeight
+					canScroll: chatBodyContainer.scrollHeight > chatBodyContainer.clientHeight,
 				});
 			}
 		};
@@ -597,11 +603,13 @@ const AskAIApp = () => {
 			console.log('🧪 Testing Ask AI scroll manually...');
 			scrollToBottom();
 		};
-		
+
 		// Add a function to force layout recalculation
 		window.forceAskAILayout = () => {
 			console.log('🔧 Forcing Ask AI layout recalculation...');
-			const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+			const chatBodyContainer = document.querySelector(
+				'.ask-ai-app .chatBodyParentContainer',
+			);
 			if (chatBodyContainer) {
 				chatBodyContainer.style.height = 'auto';
 				requestAnimationFrame(() => {
@@ -610,10 +618,12 @@ const AskAIApp = () => {
 				});
 			}
 		};
-		
+
 		// Add a function to check scroll status
 		window.checkAskAIScroll = () => {
-			const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
+			const chatBodyContainer = document.querySelector(
+				'.ask-ai-app .chatBodyParentContainer',
+			);
 			if (chatBodyContainer) {
 				console.log('📊 Ask AI scroll status:', {
 					element: chatBodyContainer,
@@ -624,12 +634,12 @@ const AskAIApp = () => {
 					computedStyle: {
 						overflow: window.getComputedStyle(chatBodyContainer).overflow,
 						height: window.getComputedStyle(chatBodyContainer).height,
-						position: window.getComputedStyle(chatBodyContainer).position
-					}
+						position: window.getComputedStyle(chatBodyContainer).position,
+					},
 				});
 			}
 		};
-		
+
 		// Cleanup
 		return () => {
 			delete window.testAskAIScroll;
@@ -683,7 +693,7 @@ const AskAIApp = () => {
 						showChatBox={false} // Disable ChatBox in RecentChat to prevent duplicate messages
 					/>
 				</div>
-				
+
 				{/* Separate chat input outside the scrollable area */}
 				<div className="ask-ai-chat-input-wrapper">
 					<ChatBox
@@ -710,9 +720,9 @@ const AskAIApp = () => {
 					/>
 				</div>
 			</div>
-			
+
 			{/* Note: Window resizing is handled natively by Electron since resizable: true is set */}
-			
+
 			<CustomToast />
 		</div>
 	);

@@ -176,7 +176,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [audioBlob, meetingId]);
 
-
 	// Start audio recording when meeting starts (for live meetings)
 	const initializeAudioRecording = useCallback(async () => {
 		console.log(
@@ -924,10 +923,10 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 				{history && (
 					<div className="chatbox-wrapper">
-						<button className="resume-meeting-button" onClick={handleResumeMeeting}>
+						{/* <button className="resume-meeting-button" onClick={handleResumeMeeting}>
 							<StepForward size={18} />
 							Resume
-						</button>
+						</button> */}
 						{!chat && (
 							<div className="chatbox-container">
 								<ChatBox

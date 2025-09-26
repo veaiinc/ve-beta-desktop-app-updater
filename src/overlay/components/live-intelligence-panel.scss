@@ -74,28 +74,24 @@
 			app-region: no-drag;
 
 			.live-intelligence-panel__control-button {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+				background: none;
 				color: #fff;
-				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				background-color: transparent;
 				border: none;
-				cursor: pointer;
-				padding: 0;
-				margin: 0;
-				outline: none;
-				box-shadow: none;
-				color: #fff;
-				cursor: pointer;
+				border-radius: 4px;
+				padding: 6px 8px;
 				font-family: var(--primary-font-family);
-				font-size: 12px;
-				font-style: normal;
+				font-size: 11px;
 				font-weight: 500;
-				line-height: normal;
-				-webkit-app-region: no-drag; /* Prevent dragging on control buttons */
-				app-region: no-drag;
+				cursor: pointer;
+				transition: background-color 0.2s;
+				position: relative;
+
+				&:hover {
+					background: rgba(255, 255, 255, 0.15);
+				}
 				/* Standard property for non-draggable regions */
 				.live-intelligence-panel__control-button-text {
 					align-items: center;
