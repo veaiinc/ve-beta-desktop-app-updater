@@ -1,5 +1,0 @@
-import {
-  require_asmatmel
-} from "./chunk-PTEYVGEL.js";
-import "./chunk-LK32TJAX.js";
-export default require_asmatmel();
