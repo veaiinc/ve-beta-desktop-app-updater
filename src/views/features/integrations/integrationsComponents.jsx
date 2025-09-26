@@ -87,7 +87,7 @@ export const ConnectedIntegrationTable = memo(({ connectedPlatforms, onViewAccou
 										platform.isActive ? 'Active' : 'Inactive'
 									}`}
 								>
-									{platform.isActive ? 'Active' : 'Inactive'}
+									{platform.isActive ? 'Active' : 'Disconnected'}
 								</span>
 							</div>
 							<div className="table-cell assets-cell">

@@ -1,7 +1,8 @@
-import { memo, useMemo, useCallback } from 'react';
+import { memo, useMemo, useCallback, act, useState } from 'react';
 import '../../../assets/scss/settings/settingsPageSidebar.scss';
 import { settingsItems } from '../topNavbar/components/settings/Settings';
 import { useNavigate, useParams } from 'react-router-dom';
+import TypedInputNumber from 'antd/es/input-number';
 
 // Memoized settings item component to prevent unnecessary re-renders
 const SettingsItem = memo(({ item, isActive, onItemClick }) => {
@@ -44,7 +45,7 @@ const SettingsCategory = memo(({ title, items, activeType, onItemClick }) => (
 			<SettingsItem
 				key={item.value}
 				item={item}
-				isActive={activeType === item.value}
+				isActive={activeType === item.label}
 				onItemClick={onItemClick}
 			/>
 		))}
@@ -55,7 +56,10 @@ SettingsCategory.displayName = 'SettingsCategory';
 
 const SettingsPageSidebar = ({ toggleSidebar }) => {
 	const navigate = useNavigate();
-	const { type } = useParams();
+	// const { type } = useParams();
+	const [info, setInfo] = useState({
+		activeType: '',
+	});
 
 	// Memoize filtered items to prevent unnecessary recalculations
 	const categorizedItems = useMemo(() => {
@@ -67,6 +71,10 @@ const SettingsPageSidebar = ({ toggleSidebar }) => {
 	// Memoize click handler to prevent unnecessary re-renders
 	const handleItemClick = useCallback(
 		(item) => {
+			setInfo((prev) => ({
+				...prev,
+				activeType: item.label,
+			}));
 			if (item.route) {
 				navigate(item.route);
 			} else if (item.handleClick) {
@@ -88,13 +96,13 @@ const SettingsPageSidebar = ({ toggleSidebar }) => {
 				<SettingsCategory
 					title="Account"
 					items={categorizedItems.accountItems}
-					activeType={type}
+					activeType={info.activeType}
 					onItemClick={handleItemClick}
 				/>
 				<SettingsCategory
 					title="Workspace"
 					items={categorizedItems.workspaceItems}
-					activeType={type}
+					activeType={info.activeType}
 					onItemClick={handleItemClick}
 				/>
 			</div>
