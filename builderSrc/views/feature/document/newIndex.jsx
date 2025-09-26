@@ -1279,7 +1279,7 @@ const CreateDocument = () => {
 																		height="16px"
 																		width="16px"
 																	/> */}
-																	<CustomSpinner size="small" />
+																	{/* <CustomSpinner size="small" /> */}
 																	<span
 																		style={{
 																			marginLeft: '8px',
