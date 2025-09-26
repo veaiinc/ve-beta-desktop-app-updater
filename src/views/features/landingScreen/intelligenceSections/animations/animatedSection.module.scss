@@ -11,6 +11,11 @@
 	transform: translateZ(0);
 	contain: layout style paint;
 	background: #000938;
+
+	// Hide on mobile devices
+	@media (max-width: 768px) {
+		display: none;
+	}
 }
 
 .introSection {
