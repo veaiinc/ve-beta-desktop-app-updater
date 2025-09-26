@@ -29,7 +29,7 @@ const TranscriptionItem = memo(({ text, timestamp, source }) => {
 					}}
 				>
 					<span className="transcript-item-speaker">
-						{source === 'mic' ? 'You' : 'Screen'}
+						{source === 'mic' ? 'You' : 'Speaker'}
 					</span>
 					<span className="transcript-item-time">
 						{moment(timestamp).format('HH:mm')}

@@ -209,10 +209,9 @@ const CardMeetBot = () => {
 			searchInputRef.current.focus();
 		}
 	}, [info.searchOpen]);
-
-	useEffect(() => {
-		getProactiveHeadings({ module: 'meeting' });
-	}, []);
+	// useEffect(() => {
+	// 	getProactiveHeadings({ module: 'meeting' });
+	// }, []);
 
 	// Search open/close toggle handler
 	const handleSearchToggle = () => {

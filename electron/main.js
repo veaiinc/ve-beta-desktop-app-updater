@@ -169,6 +169,12 @@ let lastWindowState = {
 	windowBounds: null, // Store window size and position
 };
 
+// Authentication state management
+let userAuthenticationStatus = {
+	isLoggedIn: false,
+	shouldShowPermissionOverlay: true, // Show by default until we know auth status
+};
+
 // Recording timer variables for Are You There functionality
 let recordingStartTime = null;
 let areYouThereTimer = null;
@@ -512,6 +518,179 @@ ipcMain.handle('reposition-dynamic-island', () => {
 	return { success: false, error: 'Dynamic Island helper not available' };
 });
 
+// System Settings handler
+// ipcMain.handle('open-system-settings', async () => {
+// 	const platform = os.platform();
+
+// 	try {
+// 		if (platform === 'darwin') {
+// 			// macOS System Settings (modern approach)
+// 			exec('open "x-apple.systempreferences:"', (error) => {
+// 				if (error) {
+// 					log.error('Failed to open macOS System Settings:', error);
+// 				}
+// 			});
+// 		} else if (platform === 'win32') {
+// 			// Windows Settings
+// 			exec('start ms-settings:', (error) => {
+// 				if (error) {
+// 					log.error('Failed to open Windows Settings:', error);
+// 				}
+// 			});
+// 		} else {
+// 			log.warn('Unsupported platform for system settings:', platform);
+// 			return { success: false, error: 'Unsupported platform' };
+// 		}
+// 		return { success: true, platform };
+// 	} catch (error) {
+// 		log.error('Error opening system settings:', error);
+// 		return { success: false, error: error.message };
+// 	}
+// });
+
+// Generic system settings
+
+ipcMain.handle('open-camera-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			// macOS: Opens Privacy > Camera
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"',
+				(error) => {
+					if (error) {
+						console.error('Failed to open macOS Camera Settings:', error);
+					}
+				},
+			);
+		} else if (platform === 'win32') {
+			// Windows: Opens Camera privacy settings
+			exec('start ms-settings:privacy-webcam', (error) => {
+				if (error) {
+					console.error('Failed to open Windows Camera Settings:', error);
+				}
+			});
+		} else {
+			console.warn('Unsupported platform for camera settings:', platform);
+			return { success: false, error: 'Unsupported platform' };
+		}
+		return { success: true, platform };
+	} catch (error) {
+		console.error('Error opening camera settings:', error);
+		return { success: false, error: error.message };
+	}
+});
+ipcMain.handle('open-screen-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			// macOS: Opens Privacy > Screen Recording
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"',
+				(error) => {
+					if (error) {
+						console.error('Failed to open Screen Recording Settings (macOS):', error);
+					}
+				},
+			);
+		} else if (platform === 'win32') {
+			// Windows: No direct screen recording permission
+			console.warn('Screen recording permission not required or configurable on Windows.');
+			return {
+				success: true,
+				message: 'Screen recording permissions are not required on Windows.',
+				platform,
+			};
+		} else {
+			return { success: false, error: 'Unsupported platform' };
+		}
+		return { success: true, platform };
+	} catch (error) {
+		console.error('Error opening screen recording settings:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+ipcMain.handle('open-system-settings', async () => {
+	const platform = os.platform();
+	try {
+		if (platform === 'darwin') {
+			exec('open "x-apple.systempreferences:"', (error) => {
+				if (error) console.error('Failed to open macOS System Settings:', error);
+			});
+		} else if (platform === 'win32') {
+			exec('start ms-settings:', (error) => {
+				if (error) console.error('Failed to open Windows Settings:', error);
+			});
+		} else {
+			console.warn('Unsupported platform for system settings:', platform);
+			return { success: false, error: 'Unsupported platform' };
+		}
+		return { success: true, platform };
+	} catch (error) {
+		console.error('Error opening system settings:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// 🎤 Microphone privacy settings
+ipcMain.handle('open-microphone-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			// macOS: Open Microphone privacy settings
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"',
+				(error) => {
+					if (error) {
+						console.error('❌ Failed to open Microphone Settings on macOS:', error);
+					}
+				},
+			);
+			return { success: true, platform: 'macOS' };
+		} else if (platform === 'win32') {
+			// Windows: Open Microphone privacy settings
+			exec('start ms-settings:privacy-microphone', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Microphone Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
+		} else {
+			console.warn('⚠️ Unsupported platform for microphone settings:', platform);
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (err) {
+		console.error('❌ Error opening microphone settings:', err);
+		return { success: false, error: err.message };
+	}
+});
+
+// 🖥️ Screen Recording privacy settings
+// ipcMain.handle('open-screen-recording-settings', async () => {
+// 	if (os.platform() === 'darwin') {
+// 		exec(
+// 			"open 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording'",
+// 		);
+// 	} else {
+// 		console.warn('Screen recording settings not supported on this platform');
+// 	}
+// });
+
+// 📡 Screen Sharing (optional)
+// ipcMain.handle('open-screen-sharing-settings', async () => {
+// 	if (os.platform() === 'darwin') {
+// 		exec(
+// 			"open 'x-apple.systempreferences:com.apple.preference.sharing?Services_ScreenSharing'",
+// 		);
+// 	} else {
+// 		console.warn('Screen sharing settings not supported on this platform');
+// 	}
+// });
+
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
 		const sources = await desktopCapturer.getSources({
@@ -540,24 +719,110 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 		return { success: true, hasPermission: true };
 	}
 
-	const status = systemPreferences.getMediaAccessStatus('screen');
+	try {
+		// Instead of checking screen recording permission (which requires admin auth),
+		// we'll test if we can actually capture screen sources
+		log.info('🖥️ Testing screen capture capability...');
 
-	return {
-		success: true,
-		permission: status,
-		hasPermission: status === 'granted',
-	};
+		const sources = await desktopCapturer.getSources({
+			types: ['screen'],
+			thumbnailSize: { width: 1, height: 1 },
+		});
+
+		const hasPermission = sources && sources.length > 0;
+		log.info(
+			'🖥️ Screen capture test result:',
+			hasPermission ? 'success' : 'failed',
+			'sources found:',
+			sources?.length || 0,
+		);
+
+		return {
+			success: true,
+			permission: hasPermission ? 'granted' : 'denied',
+			hasPermission: hasPermission,
+			message: hasPermission
+				? 'Screen sharing access granted'
+				: 'Screen sharing access denied - please grant permission in System Settings',
+		};
+	} catch (error) {
+		log.info('🖥️ Screen capture test failed (permission likely denied):', error.message);
+		return {
+			success: true,
+			permission: 'denied',
+			hasPermission: false,
+			message: 'Screen sharing access denied - please grant permission in System Settings',
+		};
+	}
 });
 
-// Request screen recording permission
+// Request screen sharing permission (replaces screen recording)
 ipcMain.handle('request-screen-recording-permission', async () => {
-	// Windows doesn't have the same permission system as macOS
-	if (process.platform !== 'darwin') {
-		return { success: true, granted: true };
-	}
-	const granted = await systemPreferences.askForMediaAccess('screen');
+	log.info('🖥️ Screen sharing permission request handler called');
+	try {
+		// Windows doesn't have the same permission system as macOS
+		if (process.platform !== 'darwin') {
+			return { success: true, granted: true };
+		}
 
-	return { success: true, granted };
+		// Test current capability
+		log.info('🖥️ Testing current screen capture capability...');
+		try {
+			const sources = await desktopCapturer.getSources({
+				types: ['screen'],
+				thumbnailSize: { width: 1, height: 1 },
+			});
+
+			if (sources && sources.length > 0) {
+				log.info('🖥️ Screen sharing permission already granted');
+				return { success: true, granted: true, status: 'granted' };
+			}
+		} catch (testError) {
+			log.info('🖥️ Screen capture test failed:', testError.message);
+		}
+
+		// If we can't capture, try to trigger the permission prompt
+		log.info('🖥️ Attempting to trigger screen sharing permission prompt...');
+		try {
+			// This will trigger the system permission popup for screen sharing
+			const sources = await desktopCapturer.getSources({
+				types: ['screen'],
+				thumbnailSize: { width: 1, height: 1 },
+			});
+
+			const granted = sources && sources.length > 0;
+			log.info('🖥️ Screen sharing permission request result:', granted);
+
+			return {
+				success: true,
+				granted: granted,
+				status: granted ? 'granted' : 'denied',
+				message: granted
+					? 'Screen sharing permission granted!'
+					: 'Screen sharing permission prompt was shown. Please grant permission when prompted.',
+			};
+		} catch (captureError) {
+			log.info(
+				'🖥️ Screen capture attempt failed (expected for permission prompt):',
+				captureError.message,
+			);
+			return {
+				success: true,
+				granted: false,
+				status: 'not-determined',
+				message:
+					'Screen sharing permission prompt was shown. Please grant permission when prompted.',
+			};
+		}
+	} catch (error) {
+		log.error('❌ Error requesting screen sharing permission:', error);
+		return {
+			success: false,
+			error: error.message,
+			granted: false,
+			status: 'error',
+		};
+	}
 });
 // Window state management functions
 function saveWindowState() {
@@ -734,6 +999,24 @@ function createMenuBar() {
 									}
 								} catch (error) {
 									log.error('Error toggling main window dev tools:', error);
+								}
+							},
+						},
+						{
+							label: 'Permission Window (permission.html)',
+							accelerator: 'CmdOrCtrl+Shift+k',
+							click: () => {
+								try {
+									const permissionWindow = windowHelper?.getPermissionWindow();
+									if (permissionWindow && !permissionWindow.isDestroyed()) {
+										permissionWindow.webContents.openDevTools({
+											mode: 'detach',
+										});
+									} else {
+										log.warn('Permission window not available for dev tools');
+									}
+								} catch (error) {
+									log.error('Error toggling Permission window dev tools:', error);
 								}
 							},
 						},
@@ -1128,6 +1411,32 @@ function createWindow(restoreState = false) {
 		notchDropService.setMainWindow(mainWindow);
 	}
 
+	// Add focus event handler to show permission overlay if needed
+	mainWindow.on('focus', async () => {
+		log.info('Main window focused');
+		// Emit focus event to renderer
+		mainWindow.webContents.send('window-focus');
+
+		// Check if permissions are missing and show overlay if needed
+		try {
+			const permissionsGranted = await checkAllPermissions();
+			if (!permissionsGranted.allGranted) {
+				log.info(
+					'🔍 Main window focused but permissions missing, showing permission overlay',
+				);
+				setTimeout(() => {
+					try {
+						windowHelper?.showPermissionWindow();
+					} catch (error) {
+						log.error('❌ Error showing permission overlay on focus:', error);
+					}
+				}, 500);
+			}
+		} catch (error) {
+			log.error('❌ Error checking permissions on window focus:', error);
+		}
+	});
+
 	if (bridge) {
 		bridge.subscribe([mainWindow]);
 	}
@@ -1204,9 +1513,25 @@ function createWindow(restoreState = false) {
 	ipcMain.on('veAppMsg', async (event, msg) => {
 		// log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
 
-		// Handle logout message - notify Dynamic Island
-		if (msg === 'loggedout') {
-			log.info('🔓 User logged out - notifying Dynamic Island');
+		// Handle authentication status messages
+		if (msg === 'authorized') {
+			log.info('✅ User authenticated - hiding permission overlay if visible');
+			userAuthenticationStatus.isLoggedIn = true;
+			userAuthenticationStatus.shouldShowPermissionOverlay = false;
+
+			// Hide permission overlay if it's currently visible
+			if (windowHelper?.isPermissionVisible) {
+				windowHelper.hidePermissionWindow();
+			}
+		} else if (msg === 'unauthorized') {
+			log.info('🔓 User not authenticated - permission overlay may be needed');
+			userAuthenticationStatus.isLoggedIn = false;
+			userAuthenticationStatus.shouldShowPermissionOverlay = true;
+		} else if (msg === 'loggedout') {
+			log.info('🔓 User logged out - updating auth status and notifying Dynamic Island');
+			userAuthenticationStatus.isLoggedIn = false;
+			userAuthenticationStatus.shouldShowPermissionOverlay = true;
+
 			const dynamicIslandWindow = dynamicIslandHelper?.dynamicIslandWindow;
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				dynamicIslandWindow.webContents.send('user-logout');
@@ -1237,12 +1562,9 @@ function createWindow(restoreState = false) {
 			log.info('🚀 Starting main window load process...');
 
 			if (process.env.VITE_DEV_SERVER_URL) {
-				log.info(
-					'🔗 Development mode: Loading server URL:',
-					process.env.VITE_DEV_SERVER_URL,
-				);
-				await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
-				log.info('✅ Development server loaded successfully');
+				const cleanURL = process.env.VITE_DEV_SERVER_URL.replace(/\/$/, '');
+				log.info('🔗 Loading development server URL:', cleanURL);
+				await mainWindow.loadURL(cleanURL);
 			} else {
 				// Production mode - comprehensive file checking
 				const buildPath = path.join(__dirname, '..', 'build', 'index.html');
@@ -1803,6 +2125,90 @@ if (!gotTheLock) {
 	});
 }
 
+// Function to check if user is authenticated by checking renderer localStorage
+async function checkUserAuthenticationStatus() {
+	try {
+		if (!mainWindow || mainWindow.isDestroyed()) {
+			log.warn('⚠️ Main window not available for auth check');
+			return false;
+		}
+
+		// Execute script in renderer to check localStorage
+		const isAuthenticated = await mainWindow.webContents.executeJavaScript(`
+			(function() {
+				try {
+					const usertoken = localStorage.getItem('usertoken');
+					const workspaceId = localStorage.getItem('workspaceId');
+					const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+					
+					// User is considered authenticated if they have token, workspace, and are onboarded
+					const authenticated = !!(usertoken && workspaceId && isOnboard);
+					console.log('🔍 Auth check - token:', !!usertoken, 'workspace:', !!workspaceId, 'onboard:', isOnboard, 'result:', authenticated);
+					return authenticated;
+				} catch (error) {
+					console.error('❌ Error checking auth status:', error);
+					return false;
+				}
+			})()
+		`);
+
+		userAuthenticationStatus.isLoggedIn = isAuthenticated;
+		userAuthenticationStatus.shouldShowPermissionOverlay = !isAuthenticated;
+
+		log.info(
+			`🔐 Authentication check result: ${
+				isAuthenticated ? 'authenticated' : 'not authenticated'
+			}`,
+		);
+		return isAuthenticated;
+	} catch (error) {
+		log.error('❌ Error checking user authentication status:', error);
+		// Default to not authenticated on error
+		userAuthenticationStatus.isLoggedIn = false;
+		userAuthenticationStatus.shouldShowPermissionOverlay = true;
+		return false;
+	}
+}
+
+// Function to check all required permissions
+async function checkAllPermissions() {
+	try {
+		const results = {
+			microphone: false,
+			screen: false,
+			camera: false,
+			allGranted: false,
+		};
+
+		// Check microphone permission
+		if (isMacRuntime) {
+			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+			results.microphone = micStatus === 'granted';
+
+			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
+			results.screen = screenStatus === 'granted';
+
+			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+			results.camera = cameraStatus === 'granted';
+		} else {
+			// On non-macOS platforms, assume permissions are handled by system
+			results.microphone = true;
+			results.screen = true;
+			results.camera = true;
+		}
+
+		// All permissions must be granted (for macOS) or we're on non-macOS
+		results.allGranted = results.microphone && results.camera;
+		// Note: screen is optional for now, only require mic and screen
+
+		log.info('🔍 Permission check results:', results);
+		return results;
+	} catch (error) {
+		log.error('❌ Error checking all permissions:', error);
+		return { allGranted: false, microphone: false, screen: false, camera: false };
+	}
+}
+
 // App lifecycle
 app.whenReady().then(async () => {
 	log.info('🚀 App is ready - starting initialization...');
@@ -1897,21 +2303,48 @@ app.whenReady().then(async () => {
 		// console.log('Camera status:', cameraStatus);
 	}
 
-	// ✅ Request screen recording permission (macOS only)
+	// ✅ Request all permissions on startup (macOS only)
 	if (isMacRuntime) {
+		// Request microphone permission
 		setTimeout(async () => {
 			try {
-				const granted = await systemPreferences.askForMediaAccess('screen-recording');
+				const granted = await systemPreferences.askForMediaAccess('microphone');
+				log.info('🎤 Microphone permission request result:', granted);
 			} catch (error) {
-				log.error('Error requesting screen recording permission:', error);
-				// This is expected in some cases, not a critical error
+				log.error('Error requesting microphone permission:', error);
+			}
+		}, 1000);
+
+		// Request screen sharing permission (replaces screen recording)
+		setTimeout(async () => {
+			try {
+				log.info('🖥️ Testing screen sharing capability on startup...');
+				// Test if we can capture screen sources (this will trigger permission prompt if needed)
+				const sources = await desktopCapturer.getSources({
+					types: ['screen'],
+					thumbnailSize: { width: 1, height: 1 },
+				});
+				const hasPermission = sources && sources.length > 0;
+				log.info(
+					'🖥️ Screen sharing capability test result:',
+					hasPermission ? 'granted' : 'denied',
+				);
+			} catch (error) {
+				log.info(
+					'🖥️ Screen sharing capability test failed (expected for permission prompt):',
+					error.message,
+				);
 			}
 		}, 2000);
 
-		// Also request camera permission
+		// Request camera permission
 		setTimeout(async () => {
-			await systemPreferences.askForMediaAccess('camera');
-			// log.info('Camera permission result:', cameraGranted);
+			try {
+				const granted = await systemPreferences.askForMediaAccess('camera');
+				log.info('📷 Camera permission request result:', granted);
+			} catch (error) {
+				log.error('Error requesting camera permission:', error);
+			}
 		}, 3000);
 	}
 
@@ -2107,12 +2540,77 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Microphone permission check handler - REGISTERED EARLY to avoid timing issues
+	log.info('📋 Registering microphone permission check handler EARLY');
+	ipcMain.handle('check-microphone-permission', async () => {
+		log.info('🎤 Microphone permission check handler called');
+		try {
+			if (isMacRuntime) {
+				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
+				log.info(
+					'🎤 Microphone permission check:',
+					microphoneStatus,
+					'granted:',
+					microphoneStatus === 'granted',
+				);
+
+				return {
+					success: true,
+					permission: microphoneStatus,
+					hasPermission: microphoneStatus === 'granted',
+					message:
+						microphoneStatus === 'granted'
+							? 'Microphone access granted'
+							: microphoneStatus === 'denied'
+							? 'Microphone access denied'
+							: microphoneStatus === 'not-determined'
+							? 'Microphone permission not yet determined'
+							: 'Microphone access restricted',
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					permission: 'granted',
+					hasPermission: true,
+					message: 'Microphone access available',
+				};
+			}
+		} catch (error) {
+			log.error('Error checking microphone permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
 	windowHelper = new WindowHelper(applyContentProtectionToWindow);
 	windowHelper.registerGlobalShortcuts(mainWindow);
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
+
+	// Check authentication status and show permission overlay only for unauthenticated users
+	setTimeout(async () => {
+		try {
+			const isAuthenticated = await checkUserAuthenticationStatus();
+
+			if (!isAuthenticated) {
+				windowHelper.showPermissionWindow();
+				log.info('📋 Permission overlay shown for unauthenticated user');
+			} else {
+				log.info('👤 User is authenticated - skipping permission overlay');
+			}
+		} catch (error) {
+			log.error('❌ Error checking authentication or showing permission overlay:', error);
+			// Show overlay on error to be safe
+			windowHelper.showPermissionWindow();
+		}
+	}, 2000); // Delay to ensure main window is ready
 
 	// Subscribe all windows to bridge when they're created (ADD THIS)
 	if (bridge && windowHelper) {
@@ -2252,6 +2750,66 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Register Permission window IPC handlers
+	ipcMain.handle('toggle-permission-window', async () => {
+		try {
+			windowHelper?.togglePermissionWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error toggling Permission window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('show-permission-window', async () => {
+		try {
+			windowHelper?.showPermissionWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing Permission window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('hide-permission-window', async () => {
+		try {
+			windowHelper?.hidePermissionWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error hiding Permission window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// IPC handler to check and show permission overlay based on auth status
+	ipcMain.handle('check-auth-and-show-permission-overlay', async () => {
+		try {
+			const isAuthenticated = await checkUserAuthenticationStatus();
+
+			if (!isAuthenticated) {
+				windowHelper?.showPermissionWindow();
+				log.info('📋 Permission overlay shown after auth check');
+				return { success: true, shown: true, authenticated: false };
+			} else {
+				log.info('👤 User is authenticated - permission overlay not needed');
+				return { success: true, shown: false, authenticated: true };
+			}
+		} catch (error) {
+			log.error('❌ Error checking auth and showing permission overlay:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('is-permission-window-visible', async () => {
+		try {
+			const isVisible = windowHelper?.isPermissionWindowVisible();
+			return { success: true, isVisible };
+		} catch (error) {
+			log.error('Error checking Permission window visibility:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// Handler to hide all windows (overlay and ask AI)
 	ipcMain.handle('hide-all-windows', async () => {
 		try {
@@ -2322,6 +2880,8 @@ app.whenReady().then(async () => {
 	} catch (error) {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
+
+	// Permission overlay is now shown by default above, so we don't need conditional checking
 
 	// Initialize NotchDrop asynchronously to prevent blocking main window
 	const initializeNotchDropAsync = async () => {
@@ -2753,6 +3313,12 @@ app.whenReady().then(async () => {
 		try {
 			if (isMacRuntime) {
 				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+				log.info(
+					'📷 Camera permission check:',
+					cameraStatus,
+					'granted:',
+					cameraStatus === 'granted',
+				);
 
 				return {
 					success: true,
@@ -2783,6 +3349,43 @@ app.whenReady().then(async () => {
 				error: error.message,
 				hasPermission: false,
 				permission: 'error',
+			};
+		}
+	});
+
+	// Debug permission handler - for troubleshooting
+	ipcMain.handle('debug-permissions', async () => {
+		try {
+			const debugInfo = {
+				platform: process.platform,
+				isMacRuntime,
+				permissions: {},
+			};
+
+			if (isMacRuntime) {
+				debugInfo.permissions = {
+					microphone: systemPreferences.getMediaAccessStatus('microphone'),
+					screen: systemPreferences.getMediaAccessStatus('screen'),
+					camera: systemPreferences.getMediaAccessStatus('camera'),
+				};
+			} else {
+				debugInfo.permissions = {
+					microphone: 'granted (non-macOS)',
+					screen: 'granted (non-macOS)',
+					camera: 'granted (non-macOS)',
+				};
+			}
+
+			log.info('🔍 Debug permissions info:', debugInfo);
+			return {
+				success: true,
+				debugInfo,
+			};
+		} catch (error) {
+			log.error('Error in debug permissions:', error);
+			return {
+				success: false,
+				error: error.message,
 			};
 		}
 	});
@@ -4523,31 +5126,55 @@ app.whenReady().then(async () => {
 		return helper.createZipFromUrls(event, data);
 	});
 
-	// Microphone permission check handler
-	ipcMain.handle('check-microphone-permission', async () => {
+	// Request camera permission handler
+	ipcMain.handle('request-camera-permission', async () => {
+		log.info('📷 Camera permission request handler called');
 		try {
 			if (isMacRuntime) {
-				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
+				// Check current status first
+				const currentStatus = systemPreferences.getMediaAccessStatus('camera');
+				log.info('📷 Current camera permission status:', currentStatus);
+
+				if (currentStatus === 'granted') {
+					log.info('📷 Camera permission already granted');
+					return { success: true, granted: true, status: currentStatus };
+				}
+
+				if (currentStatus === 'denied') {
+					log.info('📷 Camera permission previously denied');
+					return {
+						success: false,
+						granted: false,
+						status: currentStatus,
+						error: 'Camera access was previously denied. Please enable it manually in System Settings.',
+					};
+				}
+
+				// Request camera access (this will show the system dialog)
+				log.info('📷 Requesting camera permission...');
+				const granted = await systemPreferences.askForMediaAccess('camera');
+				log.info('📷 Camera permission request result:', granted);
 
 				return {
 					success: true,
-					permission: microphoneStatus,
-					hasPermission: microphoneStatus === 'granted',
+					granted: granted,
+					status: granted ? 'granted' : 'denied',
 				};
 			} else {
 				// For non-macOS platforms, assume permission is available
 				return {
 					success: true,
-					permission: 'granted',
-					hasPermission: true,
+					granted: true,
+					status: 'granted',
 				};
 			}
 		} catch (error) {
-			log.error('Error checking microphone permission:', error);
+			log.error('Error requesting camera permission:', error);
 			return {
 				success: false,
 				error: error.message,
-				hasPermission: false,
+				granted: false,
+				status: 'error',
 			};
 		}
 	});
@@ -4555,13 +5182,14 @@ app.whenReady().then(async () => {
 	// Show camera permission help dialog
 	ipcMain.handle('show-camera-permission-help', async () => {
 		try {
+			log.info('🔧 show-camera-permission-help handler called');
 			if (isMacRuntime) {
 				const result = await dialog.showMessageBox(mainWindow, {
 					type: 'info',
 					title: 'Camera Permission Required',
 					message: 'Camera access is needed for webcam functionality',
-					detail: 'To enable camera access:\n\n1. Go to System Preferences > Security & Privacy > Privacy\n2. Select "Camera" from the left sidebar\n3. Check the box next to this app\n4. Restart the app if needed',
-					buttons: ['Open System Preferences', 'Cancel'],
+					detail: 'To enable camera access:\n\n1. Go to System Settings > Privacy & Security > Camera\n2. Enable access for this app\n3. Restart the app if needed',
+					buttons: ['Open System Settings', 'Cancel'],
 					defaultId: 0,
 					cancelId: 1,
 				});
@@ -4587,22 +5215,81 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Request microphone permission handler
-	ipcMain.handle('request-microphone-permission', async () => {
+	// Show microphone permission help dialog
+	ipcMain.handle('show-microphone-permission-help', async () => {
 		try {
 			if (isMacRuntime) {
+				const result = await dialog.showMessageBox(mainWindow, {
+					type: 'info',
+					title: 'Microphone Permission Required',
+					message: 'Microphone access is needed for audio features',
+					detail: 'To enable microphone access:\n\n1. Go to System Settings > Privacy & Security > Microphone\n2. Enable access for this app\n3. Restart the app if needed',
+					buttons: ['Open System Settings', 'Cancel'],
+					defaultId: 0,
+					cancelId: 1,
+				});
+
+				if (result.response === 0) {
+					// Open System Settings to Microphone section
+					exec(
+						'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"',
+					);
+				}
+
+				return { success: true, openedSystemPrefs: result.response === 0 };
+			} else {
+				return {
+					success: true,
+					openedSystemPrefs: false,
+					message: 'Microphone permissions handled by system',
+				};
+			}
+		} catch (error) {
+			log.error('Error showing microphone permission help:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Request microphone permission handler
+	ipcMain.handle('request-microphone-permission', async () => {
+		log.info('🎤 Microphone permission request handler called');
+		try {
+			if (isMacRuntime) {
+				// Check current status first
+				const currentStatus = systemPreferences.getMediaAccessStatus('microphone');
+				log.info('🎤 Current microphone permission status:', currentStatus);
+
+				if (currentStatus === 'granted') {
+					log.info('🎤 Microphone permission already granted');
+					return { success: true, granted: true, status: currentStatus };
+				}
+
+				if (currentStatus === 'denied') {
+					log.info('🎤 Microphone permission previously denied');
+					return {
+						success: false,
+						granted: false,
+						status: currentStatus,
+						error: 'Microphone access was previously denied. Please enable it manually in System Settings.',
+					};
+				}
+
 				// Request microphone access (this will show the system dialog)
+				log.info('🎤 Requesting microphone permission...');
 				const granted = await systemPreferences.askForMediaAccess('microphone');
+				log.info('🎤 Microphone permission request result:', granted);
 
 				return {
 					success: true,
 					granted: granted,
+					status: granted ? 'granted' : 'denied',
 				};
 			} else {
 				// For non-macOS platforms, assume permission is available
 				return {
 					success: true,
 					granted: true,
+					status: 'granted',
 				};
 			}
 		} catch (error) {
@@ -4611,6 +5298,7 @@ app.whenReady().then(async () => {
 				success: false,
 				error: error.message,
 				granted: false,
+				status: 'error',
 			};
 		}
 	});
@@ -4661,6 +5349,12 @@ app.whenReady().then(async () => {
 				window = windowHelper?.getOverlayWindow();
 			} else if (targetWindow === 'askAI') {
 				window = windowHelper?.getAskAIWindow();
+			} else if (targetWindow === 'permission') {
+				window = windowHelper?.getPermissionWindow();
+			} else if (targetWindow === 'areYouThere') {
+				window = windowHelper?.getAreYouThereWindow();
+			} else if (targetWindow === 'dynamicIsland') {
+				window = dynamicIslandHelper?.getDynamicIslandWindow();
 			}
 
 			if (window && !window.isDestroyed()) {

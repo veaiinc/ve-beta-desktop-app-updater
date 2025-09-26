@@ -8,6 +8,10 @@ const useAuth = () => {
 	const navigate = useNavigate();
 	const channel = useBroadcastChannel();
 
+	const {
+		subscriptionInfo: { updateTokenExpiryState },
+	} = useContext(Context);
+
 	const [info, setInfo] = useState({
 		authLoading: true,
 	});
@@ -28,7 +32,7 @@ const useAuth = () => {
 			authLoading: false,
 		}));
 		if (statusCode === 401) {
-			logout();
+			updateTokenExpiryState({ expiredTokenModal: true });
 			window.electronApi.sendMessageFrmVeApp('unauthorized');
 			channel.postMessage('reload');
 		}
@@ -37,7 +41,8 @@ const useAuth = () => {
 
 	const checkUserAuthState = useCallback(() => {
 		if (!localStorage.getItem('usertoken')) {
-			window.location.replace('/');
+			window.location.hash = '/';
+			window.location.reload();
 		}
 		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
 

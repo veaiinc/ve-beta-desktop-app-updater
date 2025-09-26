@@ -13,8 +13,8 @@ import ShareAndEarnModal from '../../features/shareAndEarn/ShareAndEarnModal';
 import { Tooltip } from 'antd';
 
 // svg icons
-import { ReactComponent as LightMode } from './assets/light-mode.svg';
-import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
+// import { ReactComponent as LightMode } from './assets/light-mode.svg';
+// import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
 import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
 import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
 import { ReactComponent as MenuSvg } from '../../../assets/svg/mobile/menu.svg';
@@ -34,13 +34,15 @@ const tooltipStyle = {
 const baseLeftContainerItems = [
 	{
 		id: 1,
-		label: 'Priority',
+		label: 'Proactive AI',
 		route: '/home',
+		showBetaBadge: true,
 	},
 	{
 		id: 2,
 		label: 'Meetings',
 		route: '/meet',
+		showBetaBadge: false,
 	},
 	{
 		id: 3,
@@ -50,6 +52,7 @@ const baseLeftContainerItems = [
 			</>
 		),
 		route: '/chats',
+		showBetaBadge: false,
 	},
 	{
 		id: 4,
@@ -66,7 +69,7 @@ const baseLeftContainerItems = [
 	{
 		id: 6,
 		label: 'Tools',
-		route: '/home',
+		route: '/tools',
 		showBetaBadge: true,
 	},
 ];
@@ -138,7 +141,7 @@ const TopNavbar = () => {
 				(item) =>
 					item.label !== 'Vault' &&
 					item.label !== 'Tools' &&
-					item.label !== 'Priority' &&
+					item.label !== 'Proactive AI' &&
 					item.label !== 'Agents',
 			);
 		}
@@ -442,9 +445,7 @@ const TopNavbar = () => {
 													filesTooltipOpen: false,
 												}));
 											}}
-											className={`${s.navItem} ${s.profileItem} ${
-												pathname.includes('/tools') ? s.active : ''
-											}`}
+											className={`${s.navItem} ${s.profileItem}`}
 										>
 											{navItem.label}{' '}
 											{navItem.showBetaBadge && (
