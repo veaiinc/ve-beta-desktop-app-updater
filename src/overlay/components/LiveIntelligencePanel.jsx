@@ -44,12 +44,12 @@ const LiveIntelligencePanel = ({
 				const scrollHeight = scrollContainer.scrollHeight;
 				const clientHeight = scrollContainer.clientHeight;
 
-				console.log('🔄 Auto-scrolling to latest item:', {
-					activeTab,
-					scrollHeight,
-					clientHeight,
-					canScroll: scrollHeight > clientHeight,
-				});
+				// console.log('🔄 Auto-scrolling to latest item:', {
+				// 	activeTab,
+				// 	scrollHeight,
+				// 	clientHeight,
+				// 	canScroll: scrollHeight > clientHeight,
+				// });
 
 				// Only scroll if content is actually scrollable
 				if (scrollHeight > clientHeight) {
@@ -88,37 +88,16 @@ const LiveIntelligencePanel = ({
 			isNeedHelp,
 		};
 
-		// Check if window is already visible, if not, show it
+		// Send message to Ask AI - the main process will handle window creation and visibility
 		try {
-			if (window.electronApi?.askAI?.isWindowVisible) {
-				const result = await window.electronApi.askAI.isWindowVisible();
-				if (!result.success || !result.isVisible) {
-					// Window is not visible, show it
-					await window?.electronApi.askAI.showWindow();
-					// Wait for window to be ready after opening
-					setTimeout(() => {
-						window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
-					}, 0);
-				} else {
-					// Window is already visible, send content immediately
-					window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
-				}
-			} else {
-				// Fallback to toggle if new API not available
-				window?.electronApi.askAI.toggleWindow();
-
-				setTimeout(() => {
-					window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
-				}, 0);
+			const result = await window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
+			if (!result.success) {
+				console.error('Failed to send message to Ask AI:', result.error);
+				// Show user feedback if needed
 			}
 		} catch (error) {
-			console.error('Error checking/showing Ask AI window:', error);
-			// Fallback to toggle if there's an error
-			window?.electronApi.askAI.toggleWindow();
-
-			setTimeout(() => {
-				window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
-			}, 0);
+			console.error('Error sending message to Ask AI:', error);
+			// Show user feedback if needed
 		}
 	};
 
@@ -271,7 +250,7 @@ const LiveIntelligencePanel = ({
 								<div
 									key={item.reference_id || item.id || index}
 									className="thread-item ask-user-item"
-									//onClick={() => handleThreadItemClick(item, 'ask-user')}
+									onClick={() => handleThreadItemClick(item, 'ask-user')}
 									title="Click to ask AI about this question"
 								>
 									{/* <div className="thread-category">Ask user</div> */}

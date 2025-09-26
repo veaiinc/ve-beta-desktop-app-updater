@@ -215,6 +215,7 @@ const DynamicIslandUI = () => {
 				// Enhanced: Explicitly add to notifications array if not already handled
 				showNotification(notification);
 			});
+
 		}
 
 		return () => {
@@ -254,12 +255,19 @@ const DynamicIslandUI = () => {
 
 	// Monitor voice connection status changes
 	useEffect(() => {
+		console.log('🔍 Voice integration hook status changed:', { shouldConnect, tokenLength: token?.length });
+		
 		if (shouldConnect && token) {
+			console.log('✅ Voice integration hook connected with token');
 			setVoiceConnectionStatus('connected');
 			setIsVoiceModeActive(true);
 			setVoiceError(null);
 			setShowVoiceInterface(true);
+		} else if (shouldConnect && !token) {
+			console.log('⏳ Voice integration connecting but no token yet...');
+			setVoiceConnectionStatus('connecting');
 		} else if (!shouldConnect) {
+			console.log('🔌 Voice integration hook disconnected');
 			setVoiceConnectionStatus('disconnected');
 			setIsVoiceModeActive(false);
 			setShowVoiceInterface(false);
@@ -268,17 +276,57 @@ const DynamicIslandUI = () => {
 
 	// Monitor voice integration data from context
 	useEffect(() => {
-		if (voiceIntegrationData?.shouldConnect) {
+		console.log('🔍 Voice integration context data changed:', voiceIntegrationData);
+		
+		if (voiceIntegrationData?.shouldConnect && voiceIntegrationData?.token) {
+			console.log('✅ Voice integration context connected with token');
 			setVoiceConnectionStatus('connected');
 			setIsVoiceModeActive(true);
 			setVoiceError(null);
 			setShowVoiceInterface(true);
+		} else if (voiceIntegrationData?.shouldConnect && !voiceIntegrationData?.token) {
+			console.log('⏳ Voice integration context connecting but no token yet...');
+			setVoiceConnectionStatus('connecting');
 		} else if (!voiceIntegrationData?.shouldConnect) {
-			setVoiceConnectionStatus('disconnected');
-			setIsVoiceModeActive(false);
-			setShowVoiceInterface(false);
+			console.log('🔌 Voice integration context disconnected');
+			// Only update status if we're not already in a connecting state from the hook
+			if (voiceConnectionStatus !== 'connecting') {
+				setVoiceConnectionStatus('disconnected');
+				setIsVoiceModeActive(false);
+				setShowVoiceInterface(false);
+			}
 		}
-	}, [voiceIntegrationData]);
+	}, [voiceIntegrationData, voiceConnectionStatus]);
+
+	// Listen for voice mode trigger events from various sources
+	useEffect(() => {
+		// Listen for voice mode trigger events from Electron/NotchDrop
+		const handleVoiceModeTrigger = () => {
+			console.log('🎤 Voice mode trigger received from external source');
+			// Trigger voice mode if not already active
+			if (!isVoiceModeActive && voiceConnectionStatus !== 'connecting') {
+				console.log('🚀 Auto-triggering voice mode from external event');
+				handleVoiceModeClick();
+			} else {
+				console.log('🔄 Voice mode already active or connecting, ignoring trigger');
+			}
+		};
+
+		// Listen for custom DOM events
+		window.addEventListener('trigger-voice-mode', handleVoiceModeTrigger);
+
+		// Listen for Electron IPC events if available
+		if (window.electronApi?.dynamicIsland?.onVoiceModeTrigger) {
+			window.electronApi.dynamicIsland.onVoiceModeTrigger(handleVoiceModeTrigger);
+		}
+
+		return () => {
+			window.removeEventListener('trigger-voice-mode', handleVoiceModeTrigger);
+			if (window.electronApi?.dynamicIsland?.removeVoiceModeTriggerListener) {
+				window.electronApi.dynamicIsland.removeVoiceModeTriggerListener();
+			}
+		};
+	}, [isVoiceModeActive, voiceConnectionStatus, handleVoiceModeClick]);
 
 	// Reset audio click processing state when recording starts
 	useEffect(() => {
@@ -687,18 +735,34 @@ const DynamicIslandUI = () => {
 				setCurrentVoiceStatus('Listening');
 				setIsMicrophoneMuted(false);
 
+				// Show voice interface immediately for better UX
+				setShowVoiceInterface(true);
+
 				await handleConnect();
 
 				// Don't show external voice widget, we'll show it inline
 				updateAiSetupState({ showVoiceWidget: false });
 
-				// The useEffect will handle the status update when shouldConnect changes
+				// Force immediate status update - the useEffect should handle this but ensure it happens
+				setTimeout(() => {
+					if (shouldConnect || voiceIntegrationData?.shouldConnect) {
+						setVoiceConnectionStatus('connected');
+						setIsVoiceModeActive(true);
+						console.log('✅ Voice assistant connection confirmed');
+					} else {
+						console.warn('⚠️ Voice connection attempt may have failed - no shouldConnect flag');
+						setVoiceConnectionStatus('error');
+						setVoiceError('Failed to establish voice connection');
+					}
+				}, 1000);
+
 				console.log('Voice assistant connection initiated');
 			}
 		} catch (error) {
 			console.error('Error in voice mode:', error);
 			setVoiceConnectionStatus('error');
 			setVoiceError(error.message || 'Failed to connect to voice assistant');
+			setShowVoiceInterface(false);
 		}
 	};
 

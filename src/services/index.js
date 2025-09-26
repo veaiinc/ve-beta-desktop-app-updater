@@ -1,223 +1,161 @@
 import mitt from 'mitt';
-const DEV_ENVIRONMENT = import.meta.env.VITE_APP_DEV_ENVIRONMENT || 'development';
+import Cookies from 'js-cookie';
+import { fetchDomainName } from '../helpers';
+import getBaseUrl from './baseUrls.js';
+import logout from '../helpers/logout.js';
 
-async function loadConfig() {
-	if (DEV_ENVIRONMENT === 'production') {
-		return await import('./config.live.js');
-	} else {
-		return await import('./config.dev.js');
-	}
-}
+const authBearerTypes = new Set([
+	'form',
+	'ai_setup',
+	'ai_predictions',
+	'calendar_chat',
+	'slack_api',
+	'elastic_search_api',
+	'microsoft_integration_api',
+	'meeting_summary_api',
+	'generate_voice_agent_token_api',
+]);
 
-let cachedConfig = null;
-async function getConfig() {
-	if (!cachedConfig) {
-		cachedConfig = await loadConfig();
-	}
-	return cachedConfig;
-}
-export { getConfig };
-
-const handleHeaders = (token, body, type, isPublicChat = false) => {
+const handleHeaders = (token, type) => {
 	const headers = { 'Content-Type': 'application/json' };
-	const x_access_key = 'QWxsb3dBY2Nlc3NUb0ZlZWRiYWNrQVBJ';
 
 	if (token) {
 		headers['x-access-token'] = token;
-		if (
-			type === 'form' ||
-			type === 'ai_setup' ||
-			type === 'ai_predictions' ||
-			type === 'calendar_chat' ||
-			type === 'slack_api' ||
-			type === 'elastic_search_api' ||
-			type === 'microsoft_integration_api' ||
-			type === 'meeting_summary_api' ||
-			type === 'generate_voice_agent_token_api'
-		) {
+		if (authBearerTypes.has(type)) {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
-	}
-
-	if (isPublicChat && type === 'ai_assistant_api') {
-		headers['x-access-key'] = x_access_key;
 	}
 
 	return headers;
 };
 
+const parseJson = async (resp) => {
+	try {
+		return await resp.json();
+	} catch {
+		return {};
+	}
+};
+
 export const internalServerEmitter = mitt();
 
-const processResponse = async (response) => {
-	const jsonData = await response.json();
-	if (response.status >= 200 && response.status < 300) {
-		return [true, jsonData];
-	} else if (response.status === 401) {
-		// onUserKickedOut();
-		return [false, jsonData];
-	} else if (response.status === 500) {
-		internalServerEmitter.emit('serverError', jsonData);
-		return [false, jsonData];
+const refreshAccessTokenAndRetry = async (requestData) => {
+	const token = Cookies.get('usertoken') ?? localStorage.getItem('usertoken');
+	const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
+	const baseUrl = getBaseUrl({ type: 'auth', region });
+	const endpoint = baseUrl + '/refresh-token';
+	const response = await fetch(endpoint, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'x-access-token': token,
+		},
+		credentials: 'include',
+	});
+	if (response.status === 200) {
+		const jsonData = await parseJson(response);
+		const { tokens } = jsonData;
+		const { accessToken, accessTokenExpiry, refreshTokenExpiry } = tokens;
+		const host = fetchDomainName();
+		Cookies.set('usertoken', accessToken, { sameSite: 'lax', domain: host });
+		Cookies.set('accessTokenExpiry', accessTokenExpiry, { sameSite: 'lax', domain: host });
+		Cookies.set('refreshTokenExpiry', refreshTokenExpiry, {
+			sameSite: 'lax',
+			domain: host,
+		});
+		localStorage.setItem('usertoken', accessToken);
+		localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
+		localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry);
+
+		const { endpoint, method, headers, body } = requestData;
+		const resp = await fetch(endpoint, { method, headers, body });
+		return await processResponse(resp, requestData, true);
+	} else if (response.status === 401 || response.status === 403) {
+		logout();
+		return [false, {}, response.status];
 	} else {
-		return [response.status, jsonData];
+		const jsonData = await parseJson(response);
+		return [false, jsonData, response.status];
+	}
+};
+
+const processResponse = async (response, requestData, shouldExit = false) => {
+	if (shouldExit) logout();
+	const jsonData = await parseJson(response);
+	const responseStatus = response.status;
+	if (responseStatus >= 200 && responseStatus < 300) {
+		return [true, jsonData, responseStatus];
+	} else if (responseStatus === 401 || responseStatus === 403) {
+		return await refreshAccessTokenAndRetry(requestData);
+	} else if (responseStatus === 500) {
+		internalServerEmitter.emit('serverError', jsonData);
+		return [false, jsonData, responseStatus];
+	} else {
+		return [false, jsonData, responseStatus];
 	}
 };
 
 const handleParams = (params) => {
-	let subUrl = '';
-	if (Object.keys(params)?.length) {
-		subUrl += '?';
-		const keys = Object.keys(params);
-		for (let i = 0; i < keys.length; i++) {
-			subUrl += `${keys[i]}=${encodeURIComponent(params[keys[i]])}&`;
-		}
-	}
-	return subUrl;
+	const query = new URLSearchParams(params).toString();
+	return query ? `?${query}` : '';
 };
 
-const onFailure = async (res, url) => {
-	console.log('API FAILED ' + url);
-};
-
-const onUserKickedOut = async (res, url) => {
-	localStorage.clear();
-	window.location.reload();
-};
-
-const apiFetch = async (url, method, body, token, type, isPublicChat = false) => {
+const apiFetch = async (url, method, body, token, type, abortSignal = null) => {
 	try {
-		const config = await getConfig();
+		const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
+		const baseUrl = getBaseUrl({ type, region });
 
-		const {
-			tenant_users_api,
-			tenant_api,
-			proposals_api,
-			auth_Api,
-			auth_Api_US,
-			tenant_users_api_US,
-			tenant_api_US,
-			proposals_api_US,
-			galleries,
-			ai_assistant_api,
-			ai_assistant_api_US,
-			galleries_api_US,
-			ai_predictions_US,
-			ai_predictions,
-			calendar_api,
-			calendar_api_US,
-			third_party_integrations_api,
-			third_party_integrations_api_US,
-			microsoft_integration_api,
-			microsoft_integration_api_US,
-			slack_api,
-			slack_api_US,
-			workflows_Api,
-			workflows_Api_US,
-			multi_agent_chat,
-			multi_agent_chat_US,
-			automation_builder_api,
-			automation_builder_api_US,
-			elastic_search_api,
-			elastic_search_api_US,
-			workspace_images_api,
-			workspace_images_api_US,
-			custom_domain_api,
-			custom_domain_api_US,
-			browser_api,
-			browser_api_US,
-			meeting_summary_api,
-			meeting_summary_api_US,
-			generate_voice_agent_token_api,
-		} = config;
+		if (!baseUrl) {
+			console.error(`No base URL found for type: ${type} and region: ${region}`);
+			return [
+				false,
+				{ message: `No base URL found for type: ${type} and region: ${region}` },
+				404,
+			];
+		}
 
-		const apiEndpoints = {
-			tenant_users_api,
-			tenant: tenant_api,
-			'tenant-users': tenant_users_api,
-			proposals_api,
-			auth: auth_Api,
-			galleries,
-			ai_assistant_api,
-			ai_predictions,
-			calendar_chat: ai_predictions,
-			calendar_api,
-			third_party_integrations_api,
-			microsoft_integration_api,
-			slack_api,
-			workflow: workflows_Api,
-			multi_agent_chat,
-			automation_builder_api,
-			elastic_search_api,
-			workspace_images_api,
-			custom_domain_api,
-			browser_api,
-			meeting_summary_api,
-			generate_voice_agent_token_api,
-		};
+		const endpoint = baseUrl + url;
 
-		const apiEndpointsUS = {
-			tenant_users_api: tenant_users_api_US,
-			tenant: tenant_api_US,
-			'tenant-users': tenant_users_api_US,
-			proposals_api: proposals_api_US,
-			auth: auth_Api_US,
-			ai_assistant_api: ai_assistant_api_US,
-			galleries: galleries_api_US,
-			ai_predictions: ai_predictions_US,
-			calendar_chat: ai_predictions_US,
-			calendar_api: calendar_api_US,
-			third_party_integrations_api: third_party_integrations_api_US,
-			microsoft_integration_api: microsoft_integration_api_US,
-			slack_api: slack_api_US,
-			workflow: workflows_Api_US,
-			multi_agent_chat: multi_agent_chat_US,
-			automation_builder_api: automation_builder_api_US,
-			elastic_search_api: elastic_search_api_US,
-			workspace_images_api: workspace_images_api_US,
-			custom_domain_api: custom_domain_api_US,
-			browser_api: browser_api_US,
-			meeting_summary_api: meeting_summary_api_US,
-			generate_voice_agent_token_api,
-		};
+		const headers = handleHeaders(token, type);
 
-		const region = localStorage.getItem('region') || 'us-east-1';
-		const endpoint =
-			(region === 'ap-south-1' ? apiEndpoints[type] : apiEndpointsUS?.[type]) + url;
+		let options = { method, headers };
+		if (body) {
+			options.body = JSON.stringify(body);
+		}
+		if (type === 'auth') {
+			options.credentials = 'include';
+		}
+		if (abortSignal) {
+			options.signal = abortSignal;
+		}
 
-		const headers = handleHeaders(token, body, type, isPublicChat);
-
-		body && (body = JSON.stringify(body));
-
-		const requestInit =
-			type === 'auth'
-				? { method, headers, body, credentials: 'include' }
-				: { method, headers, body };
-		const response = await fetch(endpoint, requestInit);
-		return await processResponse(response);
+		const response = await fetch(endpoint, options);
+		const requestData = { endpoint, ...options };
+		const [success, data, status] = await processResponse(response, requestData);
+		return [success, data, status];
 	} catch (error) {
-		onFailure('network', url);
 		console.log('Api Failed: ' + error.message);
-		return [false];
+		return [false, { message: error.message }, 500];
 	}
 };
 
 const Service = {
-	fetchGet: async (url, token = null, type = null, params = {}) => {
+	fetchGet: async (url, token = null, type = null, params = {}, abortSignal = null) => {
 		let completeUrl = url;
-		if (Object.keys(params)?.length) {
+		if (Object.keys(params)?.length > 0) {
 			completeUrl += handleParams(params);
 		}
-		return await apiFetch(completeUrl, 'GET', null, token, type);
+		return await apiFetch(completeUrl, 'GET', null, token, type, abortSignal);
 	},
 
-	fetchPost: async (url, body, token = null, type = null) =>
-		await apiFetch(url, 'POST', body, token, type),
+	fetchPost: async (url, body, token = null, type = null, abortSignal = null) =>
+		await apiFetch(url, 'POST', body, token, type, abortSignal),
 
-	fetchPut: async (url, body, token = null, type = null, isPublicChat = false) =>
-		await apiFetch(url, 'PUT', body, token, type, isPublicChat),
+	fetchPut: async (url, body, token = null, type = null, abortSignal = null) =>
+		await apiFetch(url, 'PUT', body, token, type, abortSignal),
 
-	fetchDelete: async (url, token = null, body = null, type = null) =>
-		await apiFetch(url, 'DELETE', body, token, type),
+	fetchDelete: async (url, token = null, body = null, type = null, abortSignal = null) =>
+		await apiFetch(url, 'DELETE', body, token, type, abortSignal),
 };
 
 export default Service;

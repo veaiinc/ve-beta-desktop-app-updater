@@ -1,4 +1,5 @@
 // preload.js
+// TODO: PERFORMANCE - This file exposes 100+ IPC methods - consider batching or lazy loading
 const { contextBridge, ipcRenderer } = require('electron/renderer');
 
 // Helper
@@ -79,6 +80,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// In preload.js, inside contextBridge.exposeInMainWorld('electronApi', { ... })
 
+	// TODO: PERFORMANCE - Event listener management could be optimized with cleanup tracking
 	// ✅ Safe way to listen to any allowed channel
 	on: (channel, callback) => {
 		const validChannels = [
@@ -108,8 +110,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Send chat message from Dynamic Island to Ask AI
 		sendChatMessageToAskAI: (chatMessage) =>
 			ipcRenderer.invoke('send-chat-message-to-askai', chatMessage),
-		// Force open AskAI window
-		forceOpenAskAIWindow: () => ipcRenderer.invoke('force-open-askai-window'),
 		// New methods for Dynamic Island integration
 		startRecording: (data) => ipcRenderer.invoke('overlay-start-recording', data),
 		stopRecording: () => ipcRenderer.invoke('overlay-stop-recording'),

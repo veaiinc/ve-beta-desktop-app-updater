@@ -1,4 +1,6 @@
 // main.js
+// TODO: PERFORMANCE - This file is 5097 lines and handles too many responsibilities
+// TODO: PERFORMANCE - Break into modular services: WindowService, IPCService, NotificationService, etc.
 const {
 	app,
 	BrowserWindow,
@@ -67,6 +69,8 @@ let galleryHelper = null;
 const runStartupDiagnostics = () => {
 	log.info('🔍 Running startup diagnostics...');
 
+	// TODO: PERFORMANCE - Multiple synchronous fs.existsSync() calls block main thread
+	// TODO: PERFORMANCE - Move to async fs.promises.access() or batch operations
 	// Check critical paths
 	const criticalPaths = [
 		{ name: 'App path', path: app.getAppPath() },
@@ -96,6 +100,8 @@ const runStartupDiagnostics = () => {
 		log.info(`📁 Build directory: ${buildPath}`);
 		log.info(`📄 Index file: ${indexPath}`);
 
+		// TODO: PERFORMANCE - Multiple synchronous fs operations block startup
+		// TODO: PERFORMANCE - Use fs.promises.readdir() and fs.promises.stat() for async operations
 		if (fs.existsSync(buildPath)) {
 			try {
 				const buildFiles = fs.readdirSync(buildPath);
@@ -271,6 +277,7 @@ const shouldInitDynamicIsland = (() => {
 	);
 })();
 
+// TODO: PERFORMANCE - Lazy loading is good, but consider using dynamic imports for better memory management
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
 		try {
@@ -3114,11 +3121,6 @@ app.whenReady().then(async () => {
 			// If Ask AI window doesn't exist or is destroyed, create it
 			if (!askAIWindow || askAIWindow.isDestroyed()) {
 				windowHelper.createAskAIWindow();
-
-				// Wait for window to be created and ready
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-
-				// Get the window reference again after creating it
 				askAIWindow = windowHelper.getAskAIWindow();
 			}
 
@@ -3126,12 +3128,30 @@ app.whenReady().then(async () => {
 			if (askAIWindow && !askAIWindow.isDestroyed()) {
 				if (!askAIWindow.isVisible()) {
 					windowHelper.showAskAIWindow();
-					// Wait a bit for the window to be fully visible
-					await new Promise((resolve) => setTimeout(resolve, 500));
 				}
+
+				// Wait for window to be fully ready before sending message
+				await new Promise((resolve, reject) => {
+					const timeout = setTimeout(() => {
+						reject(new Error('Window ready timeout'));
+					}, 3000); // 3 second timeout
+
+					const checkWindowReady = () => {
+						if (windowHelper.isAskAIWindowReady()) {
+							clearTimeout(timeout);
+							resolve();
+						} else {
+							setTimeout(checkWindowReady, 100);
+						}
+					};
+
+					// Start checking immediately
+					checkWindowReady();
+				});
 
 				// Send the chat message to Ask AI window
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				log.info('Successfully sent chat message to Ask AI window');
 				return { success: true };
 			} else {
 				log.error('Ask AI window not available after creation attempts');
@@ -5287,34 +5307,6 @@ app.whenReady().then(async () => {
 			}
 		} catch (error) {
 			log.error('Error opening dev tools:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	// Duplicate handler removed - keeping the first registration around line 1592
-
-	// Force open AskAI window handler (fallback for Dynamic Island)
-	ipcMain.handle('force-open-askai-window', async () => {
-		try {
-			log.info('Force opening AskAI window...');
-
-			// Try to create and show the window
-			windowHelper.createAskAIWindow();
-			await new Promise((resolve) => setTimeout(resolve, 500));
-
-			windowHelper.showAskAIWindow();
-			await new Promise((resolve) => setTimeout(resolve, 500));
-
-			const askAIWindow = windowHelper.getAskAIWindow();
-			if (askAIWindow && !askAIWindow.isDestroyed() && askAIWindow.isVisible()) {
-				log.info('AskAI window opened successfully');
-				return { success: true };
-			} else {
-				log.error('Failed to open AskAI window');
-				return { success: false, error: 'Window not available or visible' };
-			}
-		} catch (error) {
-			log.error('Error forcing open AskAI window:', error);
 			return { success: false, error: error.message };
 		}
 	});

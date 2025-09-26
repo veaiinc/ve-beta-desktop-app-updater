@@ -94,7 +94,11 @@ const actionHandlers = {
 					sessions?.filter(
 						(session) =>
 							session?.isNewSession &&
-							(filters?.agentType ? session?.agentType === filters?.agentType : true),
+							(filters?.agentType
+								? session?.agentType === filters?.agentType &&
+								  filters?.agentType === 'knowledge_agent' &&
+								  !filters?.exclude
+								: true),
 					) || [];
 				sessions = [...sessions, ...data];
 			} else {
