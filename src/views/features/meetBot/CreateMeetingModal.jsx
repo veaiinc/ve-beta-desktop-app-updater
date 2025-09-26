@@ -85,7 +85,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 
 			const isSuccess = response?.[0];
 			if (!isSuccess) {
-				message.error('Invalid meeting link');
+				message.error('Error creating meeting');
 				return; // Do not close modal
 			}
 

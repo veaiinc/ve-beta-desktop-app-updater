@@ -352,6 +352,10 @@ const OverlayApp = () => {
 			// console.log('Meeting created successfully:', meetingData);
 
 			// Store meeting data and ID for later use
+			dispatch({
+				type: meetingActions.SET_ACTIVE_MEETING_ID,
+				payload: meetingData._id,
+			});
 
 			meetingIdRef.current = meetingData._id;
 			// console.log('OverlayApp: Stored meeting ID in ref:', meetingData._id);
@@ -425,6 +429,10 @@ const OverlayApp = () => {
 		sessionIdRef.current = null;
 
 		stopRecording({ meetingId: info?.meetingData?._id });
+		dispatch({
+			type: meetingActions.SET_ACTIVE_MEETING_ID,
+			payload: null,
+		});
 		// closeLiveIntelligenceConnection();
 		// closeRecallConnection();
 

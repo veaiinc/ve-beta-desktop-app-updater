@@ -43,7 +43,11 @@ const CardMeetBot = () => {
 	const searchInputRef = useRef(null);
 
 	const dispatch = useDispatch();
-	const { pastMeetings, actions: meetingActions } = useStore((state) => state.meeting);
+	const {
+		pastMeetings,
+		activeMeetingId,
+		actions: meetingActions,
+	} = useStore((state) => state.meeting);
 
 	const meetings = useMemo(() => pastMeetings?.data || [], [pastMeetings?.data]);
 	const loadingMeetings = pastMeetings?.data ? false : true;
@@ -371,6 +375,16 @@ const CardMeetBot = () => {
 												}
 											>
 												<div className={styles.cardMeetBot_header}>
+													{position === 0 &&
+														activeMeetingId === meeting?._id && (
+															<span
+																className={
+																	styles.cardMeetBot_liveBadge
+																}
+															>
+																Live
+															</span>
+														)}
 													<div className={styles.cardMeetBot_cardTitle}>
 														{meeting.title}
 													</div>
