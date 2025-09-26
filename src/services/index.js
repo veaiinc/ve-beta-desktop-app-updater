@@ -55,17 +55,12 @@ const refreshAccessTokenAndRetry = async (requestData) => {
 	if (response.status === 200) {
 		const jsonData = await parseJson(response);
 		const { tokens } = jsonData;
-		const { accessToken, accessTokenExpiry, refreshTokenExpiry } = tokens;
+		const { accessToken, accessTokenExpiry } = tokens;
 		const host = fetchDomainName();
 		Cookies.set('usertoken', accessToken, { sameSite: 'lax', domain: host });
 		Cookies.set('accessTokenExpiry', accessTokenExpiry, { sameSite: 'lax', domain: host });
-		Cookies.set('refreshTokenExpiry', refreshTokenExpiry, {
-			sameSite: 'lax',
-			domain: host,
-		});
 		localStorage.setItem('usertoken', accessToken);
 		localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
-		localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry);
 
 		const { endpoint, method, headers, body } = requestData;
 		const resp = await fetch(endpoint, { method, headers, body });
