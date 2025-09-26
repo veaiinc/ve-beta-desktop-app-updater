@@ -19,7 +19,7 @@ class NotchViewModel: NSObject, ObservableObject {
     }
 
     let animation: Animation = DynamicIslandTheme.expansionAnimation
-    // Dynamic opened size matches React spec; width adjusts when recording or chat expanded, height stays constant
+    // Fixed size - no width expansion functionality
     var notchOpenedSize: CGSize {
         // When showing notification, use notification-specific dimensions matching Figma
         if showNotificationOverlay {
@@ -27,29 +27,10 @@ class NotchViewModel: NSObject, ObservableObject {
                 width: 370,  // Figma design width
                 height: 100   // Figma design height
             )
-        } else if isRecording && isChatExpanded {
-            // Recording + Chat expanded: Use the larger width for better chat experience
-            let expandedWidth = max(DynamicIslandTheme.recordingExpandedWidth, DynamicIslandTheme.chatExpandedWidth)
-            return .init(
-                width: expandedWidth,
-                height: DynamicIslandTheme.recordingExpandedHeight
-            )
-        } else if isRecording {
-            // Recording only
-            return .init(
-                width: DynamicIslandTheme.recordingExpandedWidth,
-                height: DynamicIslandTheme.recordingExpandedHeight
-            )
-        } else if isChatExpanded {
-            // Chat expanded only (when not recording)
-            return .init(
-                width: DynamicIslandTheme.chatExpandedWidth,
-                height: DynamicIslandTheme.expandedHeight
-            )
         }
-        // Default compact size when not expanded
+        // Always use fixed compact width - no expansion for any state
         return .init(
-            width: DynamicIslandTheme.compactWidth,
+            width: 550, // Increased width to accommodate new UI layout
             height: DynamicIslandTheme.expandedHeight
         )
     }
@@ -118,6 +99,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var timer: Int = 0
     @Published var isChatMode: Bool = false
     @Published var chatInput: String = ""
+    @Published var isChatInputFocused: Bool = false // Track when chat input has focus
     @Published var isSendingMessage: Bool = false
     @Published var isAuthenticated: Bool = false
     @Published var controlledByDynamicIsland: Bool = false
@@ -125,7 +107,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var isStealthModeEnabled: Bool = false
     
     // Chat expansion state
-    @Published var isChatExpanded: Bool = false
+    @Published var isChatExpanded: Bool = false // Deprecated - no longer used for width expansion
     @Published var chatTextHeight: CGFloat = 100
 
     // Voice UI state (UI parity with React)
@@ -257,11 +239,14 @@ class NotchViewModel: NSObject, ObservableObject {
     
     // Dynamic Island UI functions
     func startRecording() {
-        isConnecting = true
-        // isRecording = true
-        // isPaused = false
-        // timer = 0
-        // startTimer()
+        isConnecting = false // Set to false immediately to show recording state
+        isRecording = true
+        isPaused = false
+        timer = 0
+        startTimer()
+        
+        // Ensure voice interface is not shown when recording
+        showVoiceInterface = false
         
         // Emit action for JavaScript
         swiftActionSender.send(.startRecording)
@@ -299,17 +284,31 @@ class NotchViewModel: NSObject, ObservableObject {
         swiftActionSender.send(.resumeRecording)
     }
 
+    private var lastToggleTime: Date = Date.distantPast
+    
     func toggleStealthMode() {
-        print("🏴‍☠️ Swift requested stealth mode toggle")
+        print("🏴‍☠️ Swift requested stealth mode toggle - current: \(isStealthModeEnabled)")
+        // Toggle immediately for instant UI feedback
+        isStealthModeEnabled.toggle()
+        lastToggleTime = Date() // Record when we toggled
+        print("🏴‍☠️ Stealth mode toggled to: \(isStealthModeEnabled)")
+        // Also send to JavaScript for synchronization
         swiftActionSender.send(.toggleStealthMode)
     }
 
     func updateStealthModeState(_ isEnabled: Bool) {
         DispatchQueue.main.async {
-            if self.isStealthModeEnabled != isEnabled {
-                print("🏴‍☠️ Stealth mode state updated: \(isEnabled ? "ENABLED" : "DISABLED")")
+            // Ignore updates that come within 500ms of a manual toggle to prevent race conditions
+            let timeSinceToggle = Date().timeIntervalSince(self.lastToggleTime)
+            if timeSinceToggle < 0.5 {
+                print("🏴‍☠️ Ignoring stealth mode update from JS (recent toggle: \(timeSinceToggle)s ago)")
+                return
             }
-            self.isStealthModeEnabled = isEnabled
+            
+            if self.isStealthModeEnabled != isEnabled {
+                print("🏴‍☠️ Stealth mode state updated from JS: \(isEnabled ? "ENABLED" : "DISABLED")")
+                self.isStealthModeEnabled = isEnabled
+            }
         }
     }
     
@@ -759,12 +758,12 @@ class NotchViewModel: NSObject, ObservableObject {
                     self?.isCameraActive = true
                     self?.cameraStatus = "active"
                     self?.cameraPermission = "granted"
-                    print("📹 Webcam started successfully with real camera access")
+                    // print("📹 Webcam started successfully with real camera access")
                 } else {
                     self?.cameraStatus = "error"
                     self?.cameraPermission = "denied"
                     self?.cameraError = "Camera access denied"
-                    print("📹 Webcam failed to start - camera access denied")
+                    // print("📹 Webcam failed to start - camera access denied")
                 }
             }
         }
@@ -802,7 +801,7 @@ class NotchViewModel: NSObject, ObservableObject {
         // Emit action for JavaScript integration
         swiftActionSender.send(.stopWebcam)
         
-        print("📹 Webcam stopped")
+        // print("📹 Webcam stopped")
     }
     
     /// Check camera permission status
@@ -825,7 +824,7 @@ class NotchViewModel: NSObject, ObservableObject {
     func updateCameraPermission(_ permission: String) {
         DispatchQueue.main.async {
             self.cameraPermission = permission
-            print("📹 Camera permission updated: \(permission)")
+            // print("📹 Camera permission updated: \(permission)")
         }
     }
     
@@ -834,7 +833,7 @@ class NotchViewModel: NSObject, ObservableObject {
         DispatchQueue.main.async {
             self.cameraError = error
             if let error = error {
-                print("📹 Camera error: \(error)")
+                // print("📹 Camera error: \(error)")
             }
         }
     }
@@ -867,5 +866,10 @@ class NotchViewModel: NSObject, ObservableObject {
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
         return String(format: "%d:%02d", minutes, remainingSeconds)
+    }
+    
+    func toggleVoiceMode() {
+        // Toggle voice mode UI appearance only
+        showVoiceInterface.toggle()
     }
 }

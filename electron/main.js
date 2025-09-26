@@ -1,4 +1,6 @@
 // main.js
+// TODO: PERFORMANCE - This file is 5097 lines and handles too many responsibilities
+// TODO: PERFORMANCE - Break into modular services: WindowService, IPCService, NotificationService, etc.
 const {
 	app,
 	BrowserWindow,
@@ -47,11 +49,7 @@ const { createStore } = require('./store.js');
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Import Windows compatibility fixes
-const {
-	loadSharpModule,
-	safeProcessImageWithSharp,
-	safeExtractImageMetadata,
-} = require('./windowsCompatibility');
+const { safeExtractImageMetadata } = require('./windowsCompatibility');
 
 const {
 	processImageWithSharp,
@@ -70,6 +68,75 @@ const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
 
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
+
+// Startup diagnostic function
+const runStartupDiagnostics = () => {
+	log.info('🔍 Running startup diagnostics...');
+
+	// TODO: PERFORMANCE - Multiple synchronous fs.existsSync() calls block main thread
+	// TODO: PERFORMANCE - Move to async fs.promises.access() or batch operations
+	// Check critical paths
+	const criticalPaths = [
+		{ name: 'App path', path: app.getAppPath() },
+		{ name: 'User data path', path: app.getPath('userData') },
+		{ name: 'Current working directory', path: process.cwd() },
+		{ name: 'Main script directory', path: __dirname },
+	];
+
+	criticalPaths.forEach(({ name, path }) => {
+		try {
+			if (fs.existsSync(path)) {
+				log.info(`✅ ${name}: ${path} (exists)`);
+			} else {
+				log.warn(`⚠️ ${name}: ${path} (does not exist)`);
+			}
+		} catch (error) {
+			log.error(`❌ ${name}: ${path} (error checking: ${error.message})`);
+		}
+	});
+
+	// Check build files in production
+	if (!process.env.VITE_DEV_SERVER_URL) {
+		const buildPath = path.join(__dirname, '..', 'build');
+		const indexPath = path.join(buildPath, 'index.html');
+
+		log.info('🔍 Checking production build files...');
+		log.info(`📁 Build directory: ${buildPath}`);
+		log.info(`📄 Index file: ${indexPath}`);
+
+		// TODO: PERFORMANCE - Multiple synchronous fs operations block startup
+		// TODO: PERFORMANCE - Use fs.promises.readdir() and fs.promises.stat() for async operations
+		if (fs.existsSync(buildPath)) {
+			try {
+				const buildFiles = fs.readdirSync(buildPath);
+				log.info(
+					`📋 Build directory contains ${buildFiles.length} files:`,
+					buildFiles.slice(0, 10),
+				);
+
+				if (fs.existsSync(indexPath)) {
+					const stats = fs.statSync(indexPath);
+					log.info(`📄 index.html size: ${stats.size} bytes, modified: ${stats.mtime}`);
+				} else {
+					log.error('❌ index.html not found in build directory');
+				}
+			} catch (error) {
+				log.error('❌ Error reading build directory:', error.message);
+			}
+		} else {
+			log.error('❌ Build directory does not exist');
+		}
+	}
+
+	// Check environment variables
+	log.info('🔍 Environment variables:');
+	log.info(`NODE_ENV: ${process.env.NODE_ENV || 'undefined'}`);
+	log.info(`VITE_DEV_SERVER_URL: ${process.env.VITE_DEV_SERVER_URL || 'undefined'}`);
+	log.info(`VE_FORCE_PLATFORM: ${process.env.VE_FORCE_PLATFORM || 'undefined'}`);
+	log.info(`VE_FORCE_ARCH: ${process.env.VE_FORCE_ARCH || 'undefined'}`);
+
+	log.info('✅ Startup diagnostics completed');
+};
 
 let mainWindow = null;
 let windowHelper = null;
@@ -212,6 +279,7 @@ const shouldInitDynamicIsland = (() => {
 	);
 })();
 
+// TODO: PERFORMANCE - Lazy loading is good, but consider using dynamic imports for better memory management
 const loadGalleryHelper = () => {
 	if (!galleryHelper) {
 		try {
@@ -500,7 +568,7 @@ function saveWindowState() {
 			timestamp: Date.now(),
 			windowBounds: mainWindow.getBounds(), // Save window size and position
 		};
-		log.info('Window state saved:', lastWindowState);
+		// log.info('Window state saved:', lastWindowState);
 	}
 }
 
@@ -538,45 +606,8 @@ function createMenuBar() {
 						label: 'Notch',
 						submenu: [
 							{
-								label: 'Open Notch',
-								accelerator: 'CmdOrCtrl+N',
-								click: async () => {
-									try {
-										if (notchDropService) {
-											const result = await notchDropService.enable();
-											if (result) {
-												log.info('✅ NotchDrop opened from menu');
-												updateMenuBarState();
-											}
-										}
-									} catch (error) {
-										log.error('❌ Failed to open NotchDrop from menu:', error);
-									}
-								},
-							},
-							{
-								label: 'Close Notch',
-								accelerator: 'CmdOrCtrl+Shift+N',
-								click: async () => {
-									try {
-										if (notchDropService) {
-											const result = await notchDropService.disable();
-											if (result) {
-												log.info('✅ NotchDrop closed from menu');
-												updateMenuBarState();
-											}
-										}
-									} catch (error) {
-										log.error('❌ Failed to close NotchDrop from menu:', error);
-									}
-								},
-							},
-							{
-								type: 'separator',
-							},
-							{
 								label: 'Toggle Notch',
-								accelerator: 'CmdOrCtrl+T',
+								accelerator: 'CmdOrCtrl+Shift+M',
 								click: async () => {
 									try {
 										if (notchDropService) {
@@ -1064,7 +1095,7 @@ function createWindow(restoreState = false) {
 	}
 
 	// Log the icon path being used
-	log.info('🎨 Using icon:', iconPath);
+	// log.info('🎨 Using icon:', iconPath);
 
 	// Use saved window bounds if available, otherwise use defaults
 	const defaultBounds = { width: 1366, height: 768, x: undefined, y: undefined };
@@ -1200,32 +1231,312 @@ function createWindow(restoreState = false) {
 		}
 	});
 
-	// Enhanced file loading with error handling and verification
+	// Enhanced file loading with comprehensive error handling and debugging
 	const loadMainWindow = async () => {
 		try {
+			log.info('🚀 Starting main window load process...');
+
 			if (process.env.VITE_DEV_SERVER_URL) {
-				log.info('🔗 Loading development server URL:', process.env.VITE_DEV_SERVER_URL);
+				log.info(
+					'🔗 Development mode: Loading server URL:',
+					process.env.VITE_DEV_SERVER_URL,
+				);
 				await mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL);
+				log.info('✅ Development server loaded successfully');
 			} else {
-				// Verify build file exists before loading
+				// Production mode - comprehensive file checking
 				const buildPath = path.join(__dirname, '..', 'build', 'index.html');
-				if (fs.existsSync(buildPath)) {
-					log.info('📁 Loading production build file:', buildPath);
-					await mainWindow.loadFile(buildPath);
-				} else {
-					log.error('❌ Build file not found:', buildPath);
-					// Show error page or fallback
-					mainWindow.loadURL(
-						'data:text/html,<html><body style="background:#1a1a1a;color:#fff;font-family:Arial;padding:20px;"><h1>Ve.AI</h1><p>Application is loading...</p><p>If this persists, please restart the application.</p></body></html>',
+				const buildDir = path.join(__dirname, '..', 'build');
+
+				log.info('📁 Production mode: Checking build files...');
+				log.info('🔍 Build directory:', buildDir);
+				log.info('🔍 Build file path:', buildPath);
+				log.info('🔍 Current working directory:', process.cwd());
+				log.info('🔍 __dirname:', __dirname);
+
+				// Check if build directory exists
+				if (!fs.existsSync(buildDir)) {
+					log.error('❌ Build directory does not exist:', buildDir);
+					await showErrorPage(
+						'Build directory not found',
+						`The build directory is missing: ${buildDir}`,
 					);
+					return;
 				}
+
+				// Check if index.html exists
+				if (!fs.existsSync(buildPath)) {
+					log.error('❌ Build file not found:', buildPath);
+					await showErrorPage(
+						'Build file not found',
+						`The main application file is missing: ${buildPath}`,
+					);
+					return;
+				}
+
+				// Check if build directory has content
+				const buildFiles = fs.readdirSync(buildDir);
+				log.info('📋 Build directory contents:', buildFiles);
+
+				if (buildFiles.length === 0) {
+					log.error('❌ Build directory is empty');
+					await showErrorPage(
+						'Empty build directory',
+						'The build directory exists but contains no files. Please rebuild the application.',
+					);
+					return;
+				}
+
+				// Try to load the file
+				log.info('📁 Loading production build file:', buildPath);
+				await mainWindow.loadFile(buildPath);
+				log.info('✅ Production build loaded successfully');
 			}
 		} catch (error) {
-			log.error('❌ Failed to load main window:', error);
-			// Show error page
-			mainWindow.loadURL(
-				'data:text/html,<html><body style="background:#1a1a1a;color:#fff;font-family:Arial;padding:20px;"><h1>Ve.AI</h1><p>Failed to load application.</p><p>Please restart the application.</p></body></html>',
-			);
+			log.error('❌ Critical error loading main window:', error);
+			log.error('❌ Error stack:', error.stack);
+			await showErrorPage('Failed to load application', `Error: ${error.message}`);
+		}
+	};
+
+	// Function to show a user-friendly error page using file-based approach
+	const showErrorPage = async (title, message) => {
+		try {
+			log.info('🚨 Showing error page:', title);
+
+			// Create error page HTML file
+			const errorHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Application Error</title>
+	<style>
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			background: #1a1a1a;
+			color: #ffffff;
+			margin: 0;
+			padding: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 100vh;
+			text-align: center;
+		}
+		.error-container {
+			max-width: 600px;
+			padding: 40px;
+			background: #2a2a2a;
+			border-radius: 12px;
+			box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+		}
+		.error-icon {
+			font-size: 48px;
+			margin-bottom: 20px;
+		}
+		.error-title {
+			font-size: 24px;
+			font-weight: 600;
+			margin-bottom: 16px;
+			color: #ff6b6b;
+		}
+		.error-message {
+			font-size: 16px;
+			line-height: 1.5;
+			margin-bottom: 24px;
+			color: #cccccc;
+		}
+		.error-details {
+			background: #1a1a1a;
+			padding: 16px;
+			border-radius: 8px;
+			font-family: 'Monaco', 'Menlo', monospace;
+			font-size: 14px;
+			color: #888888;
+			text-align: left;
+			white-space: pre-wrap;
+			word-break: break-all;
+		}
+		.retry-button {
+			background: #007AFF;
+			color: white;
+			border: none;
+			padding: 12px 24px;
+			border-radius: 8px;
+			font-size: 16px;
+			cursor: pointer;
+			margin-top: 20px;
+		}
+		.retry-button:hover {
+			background: #0056CC;
+		}
+		.actions {
+			display: flex;
+			gap: 12px;
+			justify-content: center;
+			margin-top: 20px;
+		}
+		.action-button {
+			background: #333;
+			color: white;
+			border: none;
+			padding: 8px 16px;
+			border-radius: 6px;
+			font-size: 14px;
+			cursor: pointer;
+		}
+		.action-button:hover {
+			background: #555;
+		}
+	</style>
+</head>
+<body>
+	<div class="error-container">
+		<div class="error-icon">⚠️</div>
+		<div class="error-title">${title}</div>
+		<div class="error-message">
+			The application failed to start properly. This usually happens on first installation or after reinstalling the app.
+		</div>
+		<div class="error-details">${message}</div>
+		<div class="actions">
+			<button class="retry-button" onclick="retryLoad()">Retry</button>
+			<button class="action-button" onclick="showDiagnostics()">Show Diagnostics</button>
+			<button class="action-button" onclick="openDevTools()">Open DevTools</button>
+		</div>
+	</div>
+	<script>
+		console.error('Application Error:', '${title}', '${message}');
+		
+		function retryLoad() {
+			console.log('Retrying application load...');
+			window.location.reload();
+		}
+		
+		function showDiagnostics() {
+			if (window.electronApi && window.electronApi.getDiagnosticInfo) {
+				window.electronApi.getDiagnosticInfo().then(info => {
+					console.log('Diagnostic Information:', info);
+					alert('Diagnostic information logged to console. Press F12 to view.');
+				}).catch(err => {
+					console.error('Failed to get diagnostic info:', err);
+					alert('Failed to get diagnostic information. Check console for details.');
+				});
+			} else {
+				alert('Diagnostic API not available. Check console for details.');
+			}
+		}
+		
+		function openDevTools() {
+			if (window.electronApi && window.electronApi.openDevTools) {
+				window.electronApi.openDevTools();
+			} else {
+				alert('DevTools API not available. Use Ctrl+Shift+I or Cmd+Option+I to open DevTools.');
+			}
+		}
+		
+		// Auto-retry after 10 seconds
+		setTimeout(() => {
+			console.log('Auto-retrying application load...');
+			retryLoad();
+		}, 10000);
+	</script>
+</body>
+</html>`;
+
+			// Write error page to a temporary file
+			const errorPagePath = path.join(__dirname, 'error-page.html');
+			fs.writeFileSync(errorPagePath, errorHtml);
+
+			// Load the error page from file
+			await mainWindow.loadFile(errorPagePath);
+			log.info('✅ Error page displayed to user');
+
+			// Clean up the temporary file after a delay
+			setTimeout(() => {
+				try {
+					if (fs.existsSync(errorPagePath)) {
+						fs.unlinkSync(errorPagePath);
+						log.info('🧹 Cleaned up temporary error page file');
+					}
+				} catch (cleanupError) {
+					log.warn('⚠️ Failed to clean up error page file:', cleanupError.message);
+				}
+			}, 30000); // Clean up after 30 seconds
+		} catch (errorPageError) {
+			log.error('❌ Failed to show error page:', errorPageError);
+
+			// Try to use the static fallback error page
+			try {
+				const fallbackPath = path.join(__dirname, 'error-fallback.html');
+				if (fs.existsSync(fallbackPath)) {
+					const errorUrl = `file://${fallbackPath}?title=${encodeURIComponent(
+						title,
+					)}&message=${encodeURIComponent(message)}`;
+					await mainWindow.loadURL(errorUrl);
+					log.info('✅ Fallback error page loaded');
+				} else {
+					throw new Error('Fallback error page not found');
+				}
+			} catch (fallbackError) {
+				log.error('❌ Failed to load fallback error page:', fallbackError);
+
+				// Last resort - try to inject error message into existing content
+				try {
+					await mainWindow.webContents.executeJavaScript(`
+						document.body.innerHTML = \`
+							<div style="
+								padding: 40px; 
+								text-align: center; 
+								font-family: Arial, sans-serif; 
+								color: white; 
+								background: #1a1a1a; 
+								height: 100vh; 
+								display: flex; 
+								align-items: center; 
+								justify-content: center;
+								flex-direction: column;
+							">
+								<div style="background: #2a2a2a; padding: 40px; border-radius: 12px; max-width: 600px;">
+									<div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+									<h1 style="color: #ff6b6b; margin-bottom: 16px;">${title}</h1>
+									<p style="color: #cccccc; margin-bottom: 24px;">
+										The application failed to start properly. This usually happens on first installation or after reinstalling the app.
+									</p>
+									<div style="
+										background: #1a1a1a; 
+										padding: 16px; 
+										border-radius: 8px; 
+										font-family: monospace; 
+										font-size: 14px; 
+										color: #888888; 
+										text-align: left; 
+										white-space: pre-wrap; 
+										word-break: break-all;
+										margin-bottom: 20px;
+									">${message}</div>
+									<button onclick="window.location.reload()" style="
+										background: #007AFF; 
+										color: white; 
+										border: none; 
+										padding: 12px 24px; 
+										border-radius: 8px; 
+										font-size: 16px; 
+										cursor: pointer;
+									">Retry</button>
+								</div>
+							</div>
+						\`;
+					`);
+					log.info('✅ Error message injected into existing content');
+				} catch (injectionError) {
+					log.error('❌ Failed to inject error message:', injectionError);
+					// Final fallback - just log the error
+					log.error('🚨 CRITICAL: Unable to display error to user. Error details:', {
+						title,
+						message,
+					});
+				}
+			}
 		}
 	};
 
@@ -1234,46 +1545,99 @@ function createWindow(restoreState = false) {
 
 	// Enhanced ready-to-show with better error handling
 	mainWindow.once('ready-to-show', () => {
-		log.info('✅ Main window ready to show');
+		// log.info('✅ Main window ready to show');
 		mainWindow.show();
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
 			setTimeout(() => {
 				mainWindow.webContents.send('restore-window-state', lastWindowState);
-				log.info('Window state restoration message sent:', lastWindowState);
+				// log.info('Window state restoration message sent:', lastWindowState);
 			}, 1000); // Wait a bit for the app to fully load
 		}
 	});
 
-	// Add error handling for failed loads
+	// Enhanced error handling for failed loads
 	mainWindow.webContents.on(
 		'did-fail-load',
-		(event, errorCode, errorDescription, validatedURL) => {
-			log.error(
-				'❌ Failed to load URL:',
-				validatedURL,
-				'Error:',
-				errorCode,
-				errorDescription,
-			);
+		async (event, errorCode, errorDescription, validatedURL) => {
+			log.error('❌ Failed to load URL:', validatedURL);
+			log.error('❌ Error code:', errorCode);
+			log.error('❌ Error description:', errorDescription);
 
-			// Show user-friendly error page
-			mainWindow.loadURL(
-				'data:text/html,<html><body style="background:#1a1a1a;color:#fff;font-family:Arial;padding:20px;text-align:center;"><h1>Ve.AI</h1><p>Application failed to load.</p><p>Error: ' +
-					errorDescription +
-					'</p><p>Please restart the application.</p></body></html>',
-			);
+			// Map error codes to user-friendly messages
+			let userMessage = errorDescription;
+			let errorType = 'Unknown Error';
+
+			switch (errorCode) {
+				case -2:
+					userMessage =
+						'The requested file was not found. The build files may be missing or corrupted.';
+					errorType = 'File Not Found';
+					break;
+				case -3:
+					userMessage =
+						'The connection was refused. This usually means the development server is not running.';
+					errorType = 'Connection Refused';
+					break;
+				case -6:
+					userMessage =
+						'The connection was reset. This often happens when loading local files fails. Try rebuilding the application.';
+					errorType = 'Connection Reset';
+					break;
+				case -7:
+					userMessage =
+						'The connection was aborted. This may indicate a file system or permission issue.';
+					errorType = 'Connection Aborted';
+					break;
+				case -8:
+					userMessage =
+						'The connection timed out. This may indicate a file system issue or corrupted build files.';
+					errorType = 'Connection Timeout';
+					break;
+				case -21:
+					userMessage =
+						'The network connection was lost. For local files, this may indicate a file system issue.';
+					errorType = 'Network Connection Lost';
+					break;
+				default:
+					userMessage = `Error (${errorCode}): ${errorDescription}`;
+					errorType = `Error ${errorCode}`;
+			}
+
+			// Add additional context for local file errors
+			if (validatedURL && validatedURL.startsWith('file://')) {
+				userMessage +=
+					'\n\nThis appears to be a local file loading issue. Common solutions:\n';
+				userMessage += '• Run "npm run build" to rebuild the application\n';
+				userMessage += '• Check that build files exist and are not corrupted\n';
+				userMessage += '• Verify file permissions on the build directory\n';
+				userMessage += '• Try running "npm run clean:build" then "npm run build"';
+			}
+
+			await showErrorPage('Failed to load application', userMessage);
 		},
 	);
 
-	// Add loading progress tracking
-	mainWindow.webContents.on('did-start-loading', () => {
-		log.info('🔄 Started loading main window');
+	// Add error handling for renderer process crashes
+	mainWindow.webContents.on('render-process-gone', async (event, details) => {
+		log.error('❌ Renderer process crashed:', details);
+		await showErrorPage(
+			'Application crashed',
+			`The application process crashed unexpectedly. Reason: ${
+				details.reason || 'Unknown'
+			}. Please restart the application.`,
+		);
 	});
 
-	mainWindow.webContents.on('did-finish-load', () => {
-		log.info('✅ Finished loading main window');
+	// Add error handling for unresponsive renderer
+	mainWindow.webContents.on('unresponsive', () => {
+		log.warn('⚠️ Renderer process became unresponsive');
+		// Don't show error page immediately, just log it
+	});
+
+	mainWindow.webContents.on('responsive', () => {
+		log.info('✅ Renderer process became responsive again');
 	});
 
 	// Save window state before closing (cross-platform)
@@ -1441,8 +1805,22 @@ if (!gotTheLock) {
 
 // App lifecycle
 app.whenReady().then(async () => {
+	log.info('🚀 App is ready - starting initialization...');
+	log.info('🔍 Platform:', process.platform);
+	log.info('🔍 Architecture:', process.arch);
+	log.info('🔍 Node version:', process.version);
+	log.info('🔍 Electron version:', process.versions.electron);
+	log.info('🔍 Chrome version:', process.versions.chrome);
+	log.info('🔍 Working directory:', process.cwd());
+	log.info('🔍 App path:', app.getAppPath());
+	log.info('🔍 User data path:', app.getPath('userData'));
+
+	// Run startup diagnostics
+	runStartupDiagnostics();
+
 	// Set application branding for Windows
 	if (process.platform === 'win32') {
+		log.info('🪟 Setting Windows app user model ID');
 		app.setAppUserModelId('com.veai.dashboard');
 	}
 
@@ -1482,19 +1860,19 @@ app.whenReady().then(async () => {
 	// Configure automatic screen capture without dialog
 	session.defaultSession.setDisplayMediaRequestHandler(
 		(request, callback) => {
-			log.info('📺 Display media requested - providing automatic whole screen capture');
+			// log.info('📺 Display media requested - providing automatic whole screen capture');
 			desktopCapturer
 				.getSources({ types: ['screen'] })
 				.then((sources) => {
 					if (sources && sources.length > 0) {
 						// Automatically select the first (primary) screen
-						log.info(`🎯 Auto-selecting primary screen: ${sources[0].name}`);
+						// log.info(`🎯 Auto-selecting primary screen: ${sources[0].name}`);
 						callback({
 							video: sources[0],
 							audio: 'loopback', // Include system audio
 						});
 					} else {
-						log.warn('⚠️ No screen sources available for automatic capture');
+						// log.warn('⚠️ No screen sources available for automatic capture');
 						callback({});
 					}
 				})
@@ -1512,11 +1890,11 @@ app.whenReady().then(async () => {
 		const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
 		const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 
-		log.info('macOS Microphone permission status:', microphoneStatus);
-		log.info('macOS Camera permission status:', cameraStatus);
+		// log.info('macOS Microphone permission status:', microphoneStatus);
+		// log.info('macOS Camera permission status:', cameraStatus);
 
-		console.log('Microphone status:', microphoneStatus);
-		console.log('Camera status:', cameraStatus);
+		// console.log('Microphone status:', microphoneStatus);
+		// console.log('Camera status:', cameraStatus);
 	}
 
 	// ✅ Request screen recording permission (macOS only)
@@ -1532,8 +1910,8 @@ app.whenReady().then(async () => {
 
 		// Also request camera permission
 		setTimeout(async () => {
-			const cameraGranted = await systemPreferences.askForMediaAccess('camera');
-			log.info('Camera permission result:', cameraGranted);
+			await systemPreferences.askForMediaAccess('camera');
+			// log.info('Camera permission result:', cameraGranted);
 		}, 3000);
 	}
 
@@ -1561,18 +1939,139 @@ app.whenReady().then(async () => {
 			dynamicIslandHelper = null;
 		}
 	} else {
-		log.info(
-			'Skipping Dynamic Island initialization on Apple Silicon Mac (using NotchDrop instead)',
-		);
+		// log.info(
+		// 	'Skipping Dynamic Island initialization on Apple Silicon Mac (using NotchDrop instead)',
+		// );
 	}
 
 	// THEN: Create main window after dynamic island
-	createWindow();
+	log.info('🏗️ Creating main window...');
+	try {
+		createWindow();
+		log.info('✅ Main window created successfully');
+	} catch (error) {
+		log.error('❌ Failed to create main window:', error);
+		log.error('❌ Error stack:', error.stack);
+		// Try to show error page even without main window
+		const errorWindow = new BrowserWindow({
+			width: 800,
+			height: 600,
+			show: true,
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+			},
+		});
+
+		const errorHtml = `
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<title>Critical Error</title>
+				<style>
+					body { font-family: Arial; padding: 40px; background: #1a1a1a; color: white; }
+					.error { background: #2a2a2a; padding: 20px; border-radius: 8px; }
+				</style>
+			</head>
+			<body>
+				<div class="error">
+					<h1>Critical Error</h1>
+					<p>Failed to create main window: ${error.message}</p>
+					<p>Please restart the application.</p>
+				</div>
+			</body>
+			</html>
+		`;
+
+		await errorWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorHtml)}`);
+		return; // Exit early if window creation fails
+	}
 
 	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
 	ipcMain.handle('extract-image-metadata', extractImageMetadata);
 	ipcMain.handle('download-album-zip', downloadAlbumZip);
 	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
+
+	// Diagnostic IPC handler
+	ipcMain.handle('get-diagnostic-info', () => {
+		const diagnosticInfo = {
+			platform: process.platform,
+			arch: process.arch,
+			nodeVersion: process.version,
+			electronVersion: process.versions.electron,
+			chromeVersion: process.versions.chrome,
+			workingDirectory: process.cwd(),
+			appPath: app.getAppPath(),
+			userDataPath: app.getPath('userData'),
+			mainScriptDir: __dirname,
+			environment: {
+				NODE_ENV: process.env.NODE_ENV,
+				VITE_DEV_SERVER_URL: process.env.VITE_DEV_SERVER_URL,
+				VE_FORCE_PLATFORM: process.env.VE_FORCE_PLATFORM,
+				VE_FORCE_ARCH: process.env.VE_FORCE_ARCH,
+			},
+			buildFiles: null,
+		};
+
+		// Check build files in production
+		if (!process.env.VITE_DEV_SERVER_URL) {
+			const buildPath = path.join(__dirname, '..', 'build');
+			const indexPath = path.join(buildPath, 'index.html');
+
+			try {
+				if (fs.existsSync(buildPath)) {
+					const buildFiles = fs.readdirSync(buildPath);
+					const indexExists = fs.existsSync(indexPath);
+					const indexStats = indexExists ? fs.statSync(indexPath) : null;
+
+					diagnosticInfo.buildFiles = {
+						buildPath,
+						indexPath,
+						buildDirExists: true,
+						indexFileExists: indexExists,
+						fileCount: buildFiles.length,
+						files: buildFiles.slice(0, 20), // Limit to first 20 files
+						indexFileSize: indexStats ? indexStats.size : null,
+						indexFileModified: indexStats ? indexStats.mtime : null,
+					};
+				} else {
+					diagnosticInfo.buildFiles = {
+						buildPath,
+						indexPath,
+						buildDirExists: false,
+						indexFileExists: false,
+						fileCount: 0,
+						files: [],
+					};
+				}
+			} catch (error) {
+				diagnosticInfo.buildFiles = {
+					error: error.message,
+					buildPath,
+					indexPath,
+				};
+			}
+		}
+
+		return diagnosticInfo;
+	});
+
+	// DevTools IPC handler
+	ipcMain.handle('open-dev-tools', () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.webContents.openDevTools();
+				log.info('🔧 DevTools opened');
+				return { success: true };
+			} else {
+				log.warn('⚠️ Cannot open DevTools - main window not available');
+				return { success: false, error: 'Main window not available' };
+			}
+		} catch (error) {
+			log.error('❌ Failed to open DevTools:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {
@@ -1827,7 +2326,7 @@ app.whenReady().then(async () => {
 	// Initialize NotchDrop asynchronously to prevent blocking main window
 	const initializeNotchDropAsync = async () => {
 		if (isAppleSiliconMac) {
-			log.info('Initializing NotchDrop service for Apple Silicon Mac (async)');
+			// log.info('Initializing NotchDrop service for Apple Silicon Mac (async)');
 			notchDropService = new NotchDropService();
 			notchDropService.setMainWindow(mainWindow);
 			notchDropService.setMainWindowFactory((restoreState = false) =>
@@ -1842,7 +2341,7 @@ app.whenReady().then(async () => {
 			// Initialize NotchDrop in background without blocking main window
 			try {
 				await notchDropService.initialize();
-				log.info('✅ NotchDrop service initialized successfully');
+				// log.info('✅ NotchDrop service initialized successfully');
 			} catch (error) {
 				log.error('❌ NotchDrop service initialization failed:', error);
 				// Continue without NotchDrop - app should still work
@@ -1871,7 +2370,7 @@ app.whenReady().then(async () => {
 		if (notchDropService && notchDropService.isInitialized) {
 			try {
 				const status = notchDropService.getStatus();
-				log.info('✅ NotchDrop service status check:', status);
+				// log.info('✅ NotchDrop service status check:', status);
 			} catch (error) {
 				log.warn('⚠️ NotchDrop service status check failed:', error.message);
 			}
@@ -2124,11 +2623,6 @@ app.whenReady().then(async () => {
 			// If Ask AI window doesn't exist or is destroyed, create it
 			if (!askAIWindow || askAIWindow.isDestroyed()) {
 				windowHelper.createAskAIWindow();
-
-				// Wait for window to be created and ready
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-
-				// Get the window reference again after creating it
 				askAIWindow = windowHelper.getAskAIWindow();
 			}
 
@@ -2136,12 +2630,30 @@ app.whenReady().then(async () => {
 			if (askAIWindow && !askAIWindow.isDestroyed()) {
 				if (!askAIWindow.isVisible()) {
 					windowHelper.showAskAIWindow();
-					// Wait a bit for the window to be fully visible
-					await new Promise((resolve) => setTimeout(resolve, 500));
 				}
+
+				// Wait for window to be fully ready before sending message
+				await new Promise((resolve, reject) => {
+					const timeout = setTimeout(() => {
+						reject(new Error('Window ready timeout'));
+					}, 3000); // 3 second timeout
+
+					const checkWindowReady = () => {
+						if (windowHelper.isAskAIWindowReady()) {
+							clearTimeout(timeout);
+							resolve();
+						} else {
+							setTimeout(checkWindowReady, 100);
+						}
+					};
+
+					// Start checking immediately
+					checkWindowReady();
+				});
 
 				// Send the chat message to Ask AI window
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				log.info('Successfully sent chat message to Ask AI window');
 				return { success: true };
 			} else {
 				log.error('Ask AI window not available after creation attempts');
@@ -2448,9 +2960,9 @@ app.whenReady().then(async () => {
 			})();
 
 			if (isAppleSiliconMac && !shouldForceShowDynamicIsland) {
-				log.info(
-					'🍎 Skipping Dynamic Island recording on Apple Silicon Mac (using NotchDrop)',
-				);
+				// log.info(
+				// 	'🍎 Skipping Dynamic Island recording on Apple Silicon Mac (using NotchDrop)',
+				// );
 				return { success: false, error: 'Use NotchDrop on Apple Silicon Mac' };
 			}
 
@@ -3181,8 +3693,8 @@ app.whenReady().then(async () => {
 	});
 
 	ipcMain.handle('notchdrop:triggerOverlayStopRecording', async () => {
+		// this one is being used for stop recording
 		try {
-			log.info('⏹️ NotchDrop requested overlay stop recording');
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
 				overlayWindow.webContents.send('overlay-command', {
@@ -3295,11 +3807,6 @@ app.whenReady().then(async () => {
 					action: 'startRecording',
 					data: data,
 				});
-				log.info(
-					`✅ SMART QUEUE: StartRecording command ${
-						commandSent ? 'sent immediately' : 'queued'
-					}`,
-				);
 
 				// Also trigger focus and bring to front
 				overlayWindow.focus();
@@ -3322,6 +3829,9 @@ app.whenReady().then(async () => {
 		try {
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
+				if (overlayWindow.isVisible()) {
+					overlayWindow.hide();
+				}
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'stopRecording',
 				});
@@ -4170,34 +4680,6 @@ app.whenReady().then(async () => {
 			}
 		} catch (error) {
 			log.error('Error opening dev tools:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	// Duplicate handler removed - keeping the first registration around line 1592
-
-	// Force open AskAI window handler (fallback for Dynamic Island)
-	ipcMain.handle('force-open-askai-window', async () => {
-		try {
-			log.info('Force opening AskAI window...');
-
-			// Try to create and show the window
-			windowHelper.createAskAIWindow();
-			await new Promise((resolve) => setTimeout(resolve, 500));
-
-			windowHelper.showAskAIWindow();
-			await new Promise((resolve) => setTimeout(resolve, 500));
-
-			const askAIWindow = windowHelper.getAskAIWindow();
-			if (askAIWindow && !askAIWindow.isDestroyed() && askAIWindow.isVisible()) {
-				log.info('AskAI window opened successfully');
-				return { success: true };
-			} else {
-				log.error('Failed to open AskAI window');
-				return { success: false, error: 'Window not available or visible' };
-			}
-		} catch (error) {
-			log.error('Error forcing open AskAI window:', error);
 			return { success: false, error: error.message };
 		}
 	});

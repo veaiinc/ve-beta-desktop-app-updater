@@ -4,9 +4,10 @@ $font-family: 'GeneralSans';
 	color: white;
 	width: 100%;
 	// background: #0b0c0e;
-	min-height: 100vh;
+	height: fit-content;
 	padding: 24px;
 	font-family: $font-family;
+	margin-bottom: 100px;
 
 	// Header Section
 	.header {
@@ -801,6 +802,7 @@ $font-family: 'GeneralSans';
 		flex-direction: column;
 		gap: 12px;
 		padding: 16px 0;
+		min-height: 200px;
 
 		.questionItem {
 			display: flex;

@@ -218,7 +218,6 @@ const useAssemblyTranscription = ({
 
 		if (meetingIdRef.current) {
 			const meetingId = meetingIdRef.current;
-			await initializeMeetingSummary({ meeting_id: meetingId });
 			setTimeout(() => {
 				if (window?.electronApi?.navigateMainWindow) {
 					window?.electronApi?.navigateMainWindow({
@@ -600,6 +599,136 @@ const useAssemblyTranscription = ({
 		return rms > threshold;
 	}, []);
 
+	// Automatic echo cancellation and source separation
+	const audioEchoCancellationRef = useRef({
+		screenAudioHistory: [], // Store recent screen audio for comparison
+		micAudioHistory: [], // Store recent mic audio for comparison
+		echoThreshold: 0.2, // Much more aggressive threshold
+		historySize: 8, // More history for better detection
+		lastScreenTime: 0,
+		lastMicTime: 0,
+		consecutiveEchoCount: 0, // Track consecutive echoes
+		maxConsecutiveEchoes: 2, // If we detect echoes, be more aggressive
+		lastUniqueVoiceTime: 0, // Track when we last heard unique voice
+		micSilenceCount: 0, // Track consecutive silent mic chunks
+		debugMode: false, // Set to true to disable echo cancellation for testing
+		screenAudioActive: false, // Track if screen audio is currently active
+	});
+
+	// Advanced echo detection using cross-correlation and timing analysis
+	const isEchoAudio = useCallback((micAudioData, screenAudioData) => {
+		if (!micAudioData || !screenAudioData || micAudioData.length !== screenAudioData.length) {
+			return false;
+		}
+
+		// Method 1: Direct correlation (immediate echo)
+		let correlation = 0;
+		let norm1 = 0;
+		let norm2 = 0;
+
+		for (let i = 0; i < micAudioData.length; i++) {
+			correlation += micAudioData[i] * screenAudioData[i];
+			norm1 += micAudioData[i] * micAudioData[i];
+			norm2 += screenAudioData[i] * screenAudioData[i];
+		}
+
+		const directCorrelation = Math.abs(correlation) / (Math.sqrt(norm1) * Math.sqrt(norm2));
+
+		// Method 2: Check against recent screen audio history (delayed echo)
+		let maxHistoricalCorrelation = 0;
+		for (const historicalScreenAudio of audioEchoCancellationRef.current.screenAudioHistory) {
+			if (historicalScreenAudio.length === micAudioData.length) {
+				let histCorrelation = 0;
+				let histNorm1 = 0;
+				let histNorm2 = 0;
+
+				for (let i = 0; i < micAudioData.length; i++) {
+					histCorrelation += micAudioData[i] * historicalScreenAudio[i];
+					histNorm1 += micAudioData[i] * micAudioData[i];
+					histNorm2 += historicalScreenAudio[i] * historicalScreenAudio[i];
+				}
+
+				const histNormalizedCorrelation =
+					Math.abs(histCorrelation) / (Math.sqrt(histNorm1) * Math.sqrt(histNorm2));
+				maxHistoricalCorrelation = Math.max(
+					maxHistoricalCorrelation,
+					histNormalizedCorrelation,
+				);
+			}
+		}
+
+		// Method 3: Timing analysis - if mic audio comes shortly after screen audio
+		const timeDiff = Date.now() - audioEchoCancellationRef.current.lastScreenTime;
+		const isTimingEcho = timeDiff > 50 && timeDiff < 500; // 50ms-500ms delay typical for echo
+
+		// Method 4: Frequency domain analysis for better echo detection
+		const micRMS = Math.sqrt(norm1 / micAudioData.length);
+		const screenRMS = Math.sqrt(norm2 / screenAudioData.length);
+		const rmsRatio = Math.min(micRMS, screenRMS) / Math.max(micRMS, screenRMS);
+
+		// Method 5: Check if mic audio is significantly quieter than screen audio (typical of echo)
+		const isQuieterEcho = micRMS < screenRMS * 0.8 && directCorrelation > 0.2;
+
+		// Method 6: Check for very high correlation (obvious echo)
+		const isObviousEcho = directCorrelation > 0.4;
+
+		// Method 7: Check if both audio sources have similar energy patterns
+		const energySimilarity = rmsRatio > 0.3 && directCorrelation > 0.2;
+
+		// Method 8: If screen audio is active, be much more aggressive
+		const isScreenActive = audioEchoCancellationRef.current.screenAudioActive;
+		const isScreenActiveEcho = isScreenActive && directCorrelation > 0.15;
+
+		// Method 9: Check for similar content patterns (like "influence money" appearing in both)
+		const isContentSimilar = directCorrelation > 0.1 && rmsRatio > 0.2;
+
+		// Combine methods - be much more aggressive when screen audio is active
+		const isEcho =
+			isObviousEcho ||
+			directCorrelation > audioEchoCancellationRef.current.echoThreshold ||
+			maxHistoricalCorrelation > 0.3 ||
+			(isTimingEcho && directCorrelation > 0.2) ||
+			energySimilarity ||
+			isScreenActiveEcho ||
+			(isContentSimilar && isScreenActive);
+
+		// if (isEcho) {
+		// 	log(
+		// 		`🎯 Echo detected: direct=${directCorrelation.toFixed(
+		// 			3,
+		// 		)}, historical=${maxHistoricalCorrelation.toFixed(
+		// 			3,
+		// 		)}, timing=${isTimingEcho}, quieter=${isQuieterEcho}, rmsRatio=${rmsRatio.toFixed(
+		// 			3,
+		// 		)}, energy=${energySimilarity}, screenActive=${isScreenActive}, contentSimilar=${isContentSimilar}`,
+		// 	);
+		// }
+
+		return isEcho;
+	}, []);
+
+	// Store audio history for echo detection
+	const storeAudioHistory = useCallback((audioData, source) => {
+		const history =
+			source === 'screen'
+				? audioEchoCancellationRef.current.screenAudioHistory
+				: audioEchoCancellationRef.current.micAudioHistory;
+
+		history.push([...audioData]);
+
+		// Keep only recent history
+		if (history.length > audioEchoCancellationRef.current.historySize) {
+			history.shift();
+		}
+
+		// Update timing
+		if (source === 'screen') {
+			audioEchoCancellationRef.current.lastScreenTime = Date.now();
+		} else {
+			audioEchoCancellationRef.current.lastMicTime = Date.now();
+		}
+	}, []);
+
 	const startAudioCapture = useCallback(async () => {
 		try {
 			log('Starting audio capture...');
@@ -661,15 +790,15 @@ const useAssemblyTranscription = ({
 
 			// Skip Electron API screen permission checking for now to avoid timing issues
 			// We'll rely on the browser's built-in permission system
-			log('Using browser permission system for screen capture...');
+			// log('Using browser permission system for screen capture...');
 
 			// Get screen capture using Electron's automatic whole screen selection
-			log('Requesting automatic whole screen capture...');
+			// log('Requesting automatic whole screen capture...');
 			let screenStream;
 
 			try {
 				// Electron will automatically select the primary screen without showing a dialog
-				log('Starting automatic screen capture (no dialog)...');
+				// log('Starting automatic screen capture (no dialog)...');
 
 				screenStream = await withTimeout(
 					navigator.mediaDevices.getDisplayMedia({
@@ -691,37 +820,37 @@ const useAssemblyTranscription = ({
 				);
 
 				screenStreamRef.current = screenStream;
-				log('✅ Automatic whole screen capture successful - no dialog shown');
+				// log('✅ Automatic whole screen capture successful - no dialog shown');
 			} catch (screenCaptureError) {
 				log('❌ Screen capture failed:', screenCaptureError.message);
 
 				// Continue with microphone only - don't fail the entire recording
-				log('📱 Proceeding with microphone-only recording...');
+				// log('📱 Proceeding with microphone-only recording...');
 				screenStream = null;
 				screenStreamRef.current = null;
 			}
 
 			// Create audio context
-			log('Creating audio context...');
+			// log('Creating audio context...');
 			const audioContext = new (window.AudioContext || window.webkitAudioContext)({
 				sampleRate: 16000,
 			});
 			audioContextRef.current = audioContext;
-			log(`Audio context created with sample rate: ${audioContext.sampleRate}Hz`);
+			// log(`Audio context created with sample rate: ${audioContext.sampleRate}Hz`);
 
 			// Handle suspended audio context
 			if (audioContext.state === 'suspended') {
-				log('Audio context suspended, resuming...');
+				// log('Audio context suspended, resuming...');
 				try {
 					await audioContext.resume();
-					log('Audio context resumed successfully');
+					// log('Audio context resumed successfully');
 				} catch (e) {
 					log(`Error resuming audio context: ${e.message}`);
 				}
 			}
 
 			// Set up microphone audio processing
-			log('Setting up microphone audio processing...');
+			// log('Setting up microphone audio processing...');
 			const micSource = audioContext.createMediaStreamSource(micStream);
 			micSourceRef.current = micSource;
 
@@ -742,9 +871,9 @@ const useAssemblyTranscription = ({
 				if (!isMountedRef.current) return;
 
 				micProcessingCount++;
-				if (micProcessingCount % 100 === 0) {
-					log(`Mic audio processing active (${micProcessingCount} calls)`);
-				}
+				// if (micProcessingCount % 100 === 0) {
+				// 	log(`Mic audio processing active (${micProcessingCount} calls)`);
+				// }
 
 				try {
 					const inputData = e.inputBuffer.getChannelData(0);
@@ -770,10 +899,47 @@ const useAssemblyTranscription = ({
 
 							// Use Voice Activity Detection to determine if we should send this chunk
 							if (hasAudioSignal(micBufferRef.current, 'mic')) {
-								log(`Sending mic audio chunk: ${audioData.length} samples`);
-								sendAudioData(audioData, 'mic');
+								// Check if this mic audio is echo from screen audio
+								let isEcho = false;
+
+								// Debug mode: disable echo cancellation for testing
+								if (
+									audioEchoCancellationRef.current.debugMode ||
+									window.echoDebugMode
+								) {
+									// log(`🔧 DEBUG MODE: Echo cancellation disabled - sending all mic audio`);
+									isEcho = false;
+								} else {
+									// SIMPLE APPROACH: If screen audio is active, temporarily disable mic transcription
+									if (audioEchoCancellationRef.current.screenAudioActive) {
+										// log(`🔇 Screen audio active - temporarily disabling mic transcription to prevent echo`);
+										isEcho = true; // Block all mic audio when screen is active
+									} else {
+										// Only allow mic audio when screen audio is not active
+										isEcho = false;
+										// log(`🎤 Screen audio inactive - allowing mic transcription`);
+									}
+								}
+
+								if (!isEcho) {
+									// log(`🎤 Sending mic audio chunk: ${audioData.length} samples (unique voice)`);
+									sendAudioData(audioData, 'mic');
+									// Reset consecutive echo count and update last unique voice time
+									audioEchoCancellationRef.current.consecutiveEchoCount = 0;
+									audioEchoCancellationRef.current.lastUniqueVoiceTime =
+										Date.now();
+									audioEchoCancellationRef.current.micSilenceCount = 0;
+								} else {
+									// log(`🔇 Filtering echo from mic audio (YouTube/screen audio detected in microphone)`);
+									// Increment consecutive echo count for more aggressive filtering
+									audioEchoCancellationRef.current.consecutiveEchoCount++;
+								}
+
+								// Store mic audio history for echo detection
+								storeAudioHistory(micBufferRef.current, 'mic');
 							} else {
-								log('Skipping silent mic audio chunk');
+								// log('Skipping silent mic audio chunk');
+								audioEchoCancellationRef.current.micSilenceCount++;
 							}
 						}
 
@@ -788,13 +954,13 @@ const useAssemblyTranscription = ({
 
 			micSource.connect(micProcessor);
 			micProcessor.connect(audioContext.destination);
-			log('Microphone audio processing connected');
+			// log('Microphone audio processing connected');
 
 			// Set up screen audio processing (if available)
 			if (screenStream && screenStream.getAudioTracks) {
 				const screenAudioTracks = screenStream.getAudioTracks();
 				if (screenAudioTracks.length > 0) {
-					log('Setting up screen audio processing...');
+					// log('Setting up screen audio processing...');
 					const screenAudioStream = new MediaStream(screenAudioTracks);
 					const screenSource = audioContext.createMediaStreamSource(screenAudioStream);
 					screenSourceRef.current = screenSource;
@@ -816,9 +982,9 @@ const useAssemblyTranscription = ({
 						if (!isMountedRef.current) return;
 
 						screenProcessingCount++;
-						if (screenProcessingCount % 100 === 0) {
-							log(`Screen audio processing active (${screenProcessingCount} calls)`);
-						}
+						// if (screenProcessingCount % 100 === 0) {
+						// 	log(`Screen audio processing active (${screenProcessingCount} calls)`);
+						// }
 
 						try {
 							const inputData = e.inputBuffer.getChannelData(0);
@@ -849,12 +1015,21 @@ const useAssemblyTranscription = ({
 
 									// Use Voice Activity Detection to determine if we should send this chunk
 									if (hasAudioSignal(screenBufferRef.current, 'screen')) {
-										log(
-											`Sending screen audio chunk: ${audioData.length} samples`,
-										);
+										// log(`📺 Sending screen audio chunk: ${audioData.length} samples`);
 										sendAudioData(audioData, 'screen');
+
+										// Mark screen audio as active
+										audioEchoCancellationRef.current.screenAudioActive = true;
+
+										// Store screen audio history for echo detection
+										storeAudioHistory(screenBufferRef.current, 'screen');
 									} else {
-										log('Skipping silent screen audio chunk');
+										// log('Skipping silent screen audio chunk');
+										// If screen audio is silent for a while, mark it as inactive
+										if (audioEchoCancellationRef.current.screenAudioActive) {
+											audioEchoCancellationRef.current.screenAudioActive = false;
+											// log('📺 Screen audio marked as inactive');
+										}
 									}
 								}
 
@@ -869,12 +1044,12 @@ const useAssemblyTranscription = ({
 
 					screenSource.connect(screenProcessor);
 					screenProcessor.connect(audioContext.destination);
-					log('Screen audio processing connected');
+					// log('Screen audio processing connected');
 				} else {
-					log('No screen audio tracks available');
+					// log('No screen audio tracks available');
 				}
 			} else {
-				log('No screen stream available, proceeding with microphone only');
+				// log('No screen stream available, proceeding with microphone only');
 			}
 
 			if (isMountedRef.current) {
@@ -884,9 +1059,9 @@ const useAssemblyTranscription = ({
 				startTimer();
 			}
 
-			log('Audio capture setup completed successfully');
+			// log('Audio capture setup completed successfully');
 		} catch (error) {
-			log(`Error starting recording: ${error.message}`);
+			// log(`Error starting recording: ${error.message}`);
 
 			// Determine which permission failed based on error context
 			let errorTitle = 'Permission Error';
@@ -939,13 +1114,13 @@ const useAssemblyTranscription = ({
 
 	const startRecording = useCallback(
 		async ({ tenantId, sessionId, meetingId, jwtToken, isAiIntelligenceEnabled }) => {
-			log('startRecording called with params:', {
-				tenantId: !!tenantId,
-				sessionId: !!sessionId,
-				meetingId: !!meetingId,
-				jwtToken: !!jwtToken,
-				isAiIntelligenceEnabled,
-			});
+			// log('startRecording called with params:', {
+			// 	tenantId: !!tenantId,
+			// 	sessionId: !!sessionId,
+			// 	meetingId: !!meetingId,
+			// 	jwtToken: !!jwtToken,
+			// 	isAiIntelligenceEnabled,
+			// });
 
 			try {
 				// Reset all states
@@ -972,7 +1147,7 @@ const useAssemblyTranscription = ({
 				});
 
 				// Then start audio capture
-				log('Starting audio capture...');
+				// log('Starting audio capture...');
 				await startAudioCapture();
 			} catch (error) {
 				log(`Failed to start recording: ${error.message}`);
@@ -987,7 +1162,7 @@ const useAssemblyTranscription = ({
 		setIsMuted(newMutedState);
 		muteRef.current = newMutedState;
 
-		log(`${newMutedState ? 'Muting' : 'Unmuting'} microphone`);
+		// log(`${newMutedState ? 'Muting' : 'Unmuting'} microphone`);
 
 		// FREEZE TIMER WHEN MUTING
 		if (newMutedState) {
@@ -1006,7 +1181,7 @@ const useAssemblyTranscription = ({
 	const pauseRecording = useCallback(() => {
 		if (!isRecording || isPaused) return;
 
-		log('Pausing recording...');
+		// log('Pausing recording...');
 		setIsPaused(true);
 
 		// Pause timer
@@ -1023,7 +1198,7 @@ const useAssemblyTranscription = ({
 	const resumeRecording = useCallback(() => {
 		if (!isRecording || !isPaused) return;
 
-		log('Resuming recording...');
+		// log('Resuming recording...');
 		setIsPaused(false);
 
 		// Resume mic audio processing
@@ -1042,30 +1217,30 @@ const useAssemblyTranscription = ({
 	}, []);
 
 	// Handle audio context state changes
-	useEffect(() => {
-		const handleVisibilityChange = () => {
-			if (document.hidden && audioContextRef.current) {
-				// Page hidden - suspend audio context to save resources
-				if (audioContextRef.current.state === 'running') {
-					audioContextRef.current.suspend().catch((e) => {
-						log(`Error suspending audio context: ${e.message}`);
-					});
-				}
-			} else if (!document.hidden && audioContextRef.current && isRecording) {
-				// Page visible - resume audio context
-				if (audioContextRef.current.state === 'suspended') {
-					audioContextRef.current.resume().catch((e) => {
-						log(`Error resuming audio context: ${e.message}`);
-					});
-				}
-			}
-		};
+	// useEffect(() => {
+	// 	const handleVisibilityChange = () => {
+	// 		if (document.hidden && audioContextRef.current) {
+	// 			// Page hidden - suspend audio context to save resources
+	// 			if (audioContextRef.current.state === 'running') {
+	// 				audioContextRef.current.suspend().catch((e) => {
+	// 					log(`Error suspending audio context: ${e.message}`);
+	// 				});
+	// 			}
+	// 		} else if (!document.hidden && audioContextRef.current && isRecording) {
+	// 			// Page visible - resume audio context
+	// 			if (audioContextRef.current.state === 'suspended') {
+	// 				audioContextRef.current.resume().catch((e) => {
+	// 					log(`Error resuming audio context: ${e.message}`);
+	// 				});
+	// 			}
+	// 		}
+	// 	};
 
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-		return () => {
-			document.removeEventListener('visibilitychange', handleVisibilityChange);
-		};
-	}, [isRecording, log]);
+	// 	document.addEventListener('visibilitychange', handleVisibilityChange);
+	// 	return () => {
+	// 		document.removeEventListener('visibilitychange', handleVisibilityChange);
+	// 	};
+	// }, [isRecording, log]);
 
 	// Timer anomaly detection
 	useEffect(() => {
@@ -1079,14 +1254,14 @@ const useAssemblyTranscription = ({
 				const actualChange = timer - lastTimerValue;
 
 				if (Math.abs(actualChange - expectedChange) > 2) {
-					log('Timer anomaly detected:', {
-						expected: expectedChange,
-						actual: actualChange,
-						hasInterval: !!timerIntervalRef.current,
-						isRecording,
-						isPaused,
-						isMuted,
-					});
+					// log('Timer anomaly detected:', {
+					// 	expected: expectedChange,
+					// 	actual: actualChange,
+					// 	hasInterval: !!timerIntervalRef.current,
+					// 	isRecording,
+					// 	isPaused,
+					// 	isMuted,
+					// });
 					// Auto-fix: restart timer
 					stopTimer();
 					if (isRecording && !isPaused && !isMuted) {

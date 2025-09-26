@@ -79,6 +79,7 @@ const useWorkspaceMode = () => {
 				const response = await getTenantSettings();
 				const success = response[0] === true;
 				if (!success) {
+					console.log('response', response);
 					const { code } = response[1];
 					if (code === 401) {
 						logout();

@@ -27,38 +27,38 @@ const NotchDropVoiceActivator = () => {
 
 		// Listen for NotchDrop voice activation events
 		const handleNotchDropVoiceActivation = async (event) => {
-			console.log('🎤 NotchDrop Voice Activator: Received activation event:', event.detail);
-			console.log('🎤 NotchDrop Voice Activator: Current shouldConnect:', shouldConnect);
-			console.log(
-				'🎤 NotchDrop Voice Activator: Current voiceIntegrationData:',
-				voiceIntegrationData,
-			);
+			// console.log('🎤 NotchDrop Voice Activator: Received activation event:', event.detail);
+			// console.log('🎤 NotchDrop Voice Activator: Current shouldConnect:', shouldConnect);
+			// console.log(
+			// 	'🎤 NotchDrop Voice Activator: Current voiceIntegrationData:',
+			// 	voiceIntegrationData,
+			// );
 
 			// Trigger LiveKit voice integration
 			if (!shouldConnect && !voiceIntegrationData?.shouldConnect) {
-				console.log('🚀 NotchDrop Voice Activator: Starting LiveKit voice integration...');
+				// console.log('🚀 NotchDrop Voice Activator: Starting LiveKit voice integration...');
 
 				// AUTO-EXPAND DYNAMIC ISLAND when Hey Ve is detected
-				console.log('🏝️ AUTO-EXPANDING Dynamic Island for Hey Ve...');
+				// console.log('🏝️ AUTO-EXPANDING Dynamic Island for Hey Ve...');
 				if (window.electronApi?.dynamicIsland?.expand) {
 					try {
 						await window.electronApi.dynamicIsland.expand();
-						console.log('✅ Dynamic Island expanded for Hey Ve');
-						
+						// console.log('✅ Dynamic Island expanded for Hey Ve');
+
 						// Also trigger voice mode in Dynamic Island
 						setTimeout(() => {
 							if (window.electronApi?.dynamicIsland?.setChatMode) {
 								window.electronApi.dynamicIsland.setChatMode(true);
-								console.log('✅ Dynamic Island voice mode activated');
+								// console.log('✅ Dynamic Island voice mode activated');
 							}
-							
+
 							// Trigger voice mode event for Dynamic Island UI
 							window.dispatchEvent(
 								new CustomEvent('trigger-voice-mode', {
-									detail: { source: 'hey_ve_detection' }
-								})
+									detail: { source: 'hey_ve_detection' },
+								}),
 							);
-							console.log('✅ Voice mode trigger event dispatched');
+							// console.log('✅ Voice mode trigger event dispatched');
 						}, 500);
 					} catch (error) {
 						console.error('❌ Failed to expand Dynamic Island:', error);
@@ -82,18 +82,18 @@ const NotchDropVoiceActivator = () => {
 				// Use the voice integration hook to handle connection
 				await handleConnect();
 
-				console.log('✅ NotchDrop Voice Activator: LiveKit voice integration triggered');
+				// console.log('✅ NotchDrop Voice Activator: LiveKit voice integration triggered');
 			} else {
 				console.log('🔄 NotchDrop Voice Activator: Voice integration already active');
 			}
 		};
 
 		const handleNotchDropVoiceDeactivation = (event) => {
-			console.log('🔌 NotchDrop Voice Activator: Received deactivation event:', event.detail);
+			// console.log('🔌 NotchDrop Voice Activator: Received deactivation event:', event.detail);
 
 			// Deactivate LiveKit voice integration
 			if (shouldConnect || voiceIntegrationData?.shouldConnect) {
-				console.log('🛑 NotchDrop Voice Activator: Stopping LiveKit voice integration...');
+				// console.log('🛑 NotchDrop Voice Activator: Stopping LiveKit voice integration...');
 
 				// Use the voice integration hook to handle disconnection
 				voiceIntegrationDisconnect();
@@ -111,15 +111,15 @@ const NotchDropVoiceActivator = () => {
 					}),
 				);
 
-				console.log('✅ NotchDrop Voice Activator: Voice deactivated');
+				// console.log('✅ NotchDrop Voice Activator: Voice deactivated');
 			}
 		};
 
 		const handleNotchDropMicrophoneToggle = (event) => {
-			console.log(
-				'🔇 NotchDrop Voice Activator: Received microphone toggle event:',
-				event.detail,
-			);
+			// console.log(
+			// 	 '🔇 NotchDrop Voice Activator: Received microphone toggle event:',
+			// 	 event.detail,
+			// );
 
 			// Dispatch a custom event that the LiveKit components can listen to
 			window.dispatchEvent(
@@ -131,7 +131,7 @@ const NotchDropVoiceActivator = () => {
 				}),
 			);
 
-			console.log('✅ NotchDrop Voice Activator: LiveKit microphone toggle event dispatched');
+			// console.log('✅ NotchDrop Voice Activator: LiveKit microphone toggle event dispatched');
 		};
 
 		// Listen for custom events from NotchDrop
@@ -142,12 +142,12 @@ const NotchDropVoiceActivator = () => {
 		// Listen for IPC events from NotchDrop (fallback)
 		if (window.electronApi && window.electronApi.ipcRenderer) {
 			const handleIpcVoiceActivation = (event, data) => {
-				console.log('📞 NotchDrop Voice Activator: Received IPC activation:', data);
+				// console.log('📞 NotchDrop Voice Activator: Received IPC activation:', data);
 				handleNotchDropVoiceActivation({ detail: data });
 			};
 
 			const handleIpcVoiceDeactivation = (event, data) => {
-				console.log('📞 NotchDrop Voice Activator: Received IPC deactivation:', data);
+				// console.log('📞 NotchDrop Voice Activator: Received IPC deactivation:', data);
 				handleNotchDropVoiceDeactivation({ detail: data });
 			};
 

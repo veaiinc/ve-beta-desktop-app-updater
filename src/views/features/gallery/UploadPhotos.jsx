@@ -56,7 +56,7 @@ const UploadPhotos = () => {
 		uploadLimit: navigator.hardwareConcurrency || 5, // Dynamic upload limit based on CPU cores
 		currentUpload: 1,
 		recentImageInitiated: null,
-		isSkipDuplicates: false,
+		isSkipDuplicates: true,
 		uploadBatchID: randomize('Aa0', 10),
 		selectedGalleryTags: [],
 		duplciatesFound: 0,

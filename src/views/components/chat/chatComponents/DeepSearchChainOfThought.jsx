@@ -2,6 +2,7 @@ import { memo, useEffect, useState } from 'react';
 import '../../../../assets/scss/chat/chatComponents/deepSearchChainOfThought.scss';
 import WebSvg from '../../../../assets/svg/ai_agents/webSvg';
 import { ReactComponent as CurveSvg } from '../../../../assets/svg/ai_agents/curve.svg';
+import { ReactComponent as SearchSvg } from '../../../../assets/svg/workflow/search.svg';
 import BookSvg from '../../../../assets/svg/ai_agents/bookSvg';
 import Sources from './Sources';
 // import SmoothExpand from './SmoothExpand';
@@ -69,30 +70,30 @@ const DeepSearchChainOfThought = ({
 																<div className="tool-container">
 																	{tool === 'search_web' ? (
 																		<div className="search">
-																			<div className="svg">
+																			<div className="tool-svg">
 																				<WebSvg />
 																			</div>
 																			<div className="search-text">
-																				Searched Web For :
+																				Searching the web
 																			</div>
 																		</div>
 																	) : tool ===
 																	  'search_knowledge_base' ? (
 																		<div className="search">
-																			<div className="svg">
+																			<div className="tool-svg">
 																				<BookSvg
 																					selected={false}
 																				/>
 																			</div>
 																			<div className="search-text">
-																				Searched Knowledge
-																				Base For :
+																				Searching the
+																				knowledge base
 																			</div>
 																		</div>
 																	) : (
 																		<div className="search">
 																			<div className="search-text">
-																				Searched For :
+																				Searching
 																			</div>
 																		</div>
 																	)}
@@ -104,8 +105,8 @@ const DeepSearchChainOfThought = ({
 																			className="query-container"
 																			key={idx}
 																		>
-																			<div className="query-link">
-																				<CurveSvg />
+																			<div className="query-svg">
+																				<SearchSvg />
 																			</div>
 																			<div
 																				key={idx}
@@ -122,7 +123,7 @@ const DeepSearchChainOfThought = ({
 														{sources?.length > 0 && (
 															<div className="sources-container">
 																<div className="source-text">
-																	Reading
+																	{`Reviewing sources · ${sources?.length}`}
 																</div>
 																<Sources sources={sources} />
 															</div>

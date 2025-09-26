@@ -1,578 +1,555 @@
-$font-family: 'GeneralSans';
+// Main container
 .meetSummaryContainer {
 	width: 100%;
 	height: 100vh;
-	// background-color: #1a1a1a;
+	// background-color: #0a0a0a;
 	color: #ffffff;
-	font-family: $font-family, sans-serif;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 	overflow-y: auto;
 	position: relative;
+	line-height: 1.5;
+}
 
-	// Header Section
-	.header {
-		padding: 24px 32px 16px;
-		border-bottom: 1px solid #333333;
-		background-color: #1a1a1a;
-		position: sticky;
-		top: 0;
-		z-index: 100;
+// Header Section
+.header {
+	padding: 24px 32px 0;
+	background-color: #0a0a0a;
+	border-bottom: none;
+	position: sticky;
+	top: 0;
+	z-index: 100;
+}
+
+.titleSection {
+	margin-bottom: 24px;
+}
+
+.title {
+	font-size: 24px;
+	font-weight: 600;
+	color: #ffffff;
+	margin: 0 0 8px 0;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+}
+
+.date {
+	font-size: 14px;
+	color: #9ca3af;
+	margin: 0;
+	font-weight: 400;
+}
+
+// Tabs
+.tabs {
+	display: flex;
+	gap: 0;
+	border-bottom: 1px solid #1f2937;
+}
+
+.tab {
+	background: none;
+	border: none;
+	color: #9ca3af;
+	font-size: 14px;
+	font-weight: 500;
+	padding: 12px 0;
+	margin-right: 32px;
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+	transition: all 0.2s ease;
+
+	&:hover {
+		color: #ffffff;
 	}
 
-	.titleSection {
-		margin-bottom: 16px;
+	&.active {
+		color: #22b6f0;
+		border-bottom-color: #22b6f0;
+	}
+}
+
+// Content Section
+.content {
+	padding: 32px 32px 64px;
+	max-width: 800px;
+	margin: 0;
+}
+
+// Summary Section
+.summarySection {
+	margin-bottom: 32px;
+}
+
+.summaryText {
+	font-size: 14px;
+	line-height: 1.6;
+	color: #e5e7eb;
+	margin: 0;
+	font-weight: 400;
+}
+
+// Strengths and Growth Areas Sections
+.strengthsSection,
+.growthSection {
+	margin-bottom: 32px;
+}
+
+.sectionHeader {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+
+	h3 {
+		font-size: 16px;
+		font-weight: 600;
+		color: #ffffff;
+		margin: 0;
+		line-height: 1.3;
+	}
+}
+
+.greenBullet {
+	width: 6px;
+	height: 6px;
+	background-color: #10b981;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.orangeBullet {
+	width: 6px;
+	height: 6px;
+	background-color: #f59e0b;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.bulletList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.bulletItem {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin-bottom: 8px;
+	font-size: 14px;
+	line-height: 1.5;
+	color: #e5e7eb;
+
+	span {
+		flex: 1;
+	}
+}
+
+// Chapters Section
+.chaptersSection {
+	margin-bottom: 32px;
+}
+
+.chaptersSection .sectionHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 0;
+	border-bottom: 1px solid #1f2937;
+	cursor: pointer;
+
+	h3 {
+		font-size: 16px;
+		font-weight: 600;
+		color: #ffffff;
+	}
+}
+
+.chevron {
+	font-size: 12px;
+	color: #9ca3af;
+	transition: transform 0.2s ease;
+
+	&.expanded {
+		transform: rotate(180deg);
+	}
+}
+
+.chaptersContent {
+	padding: 24px 0;
+}
+
+.chapter {
+	margin-bottom: 32px;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.chapterTitle {
+	font-size: 14px;
+	font-weight: 600;
+	color: #ffffff;
+	margin: 0 0 12px 0;
+	line-height: 1.4;
+}
+
+.chapterDescription {
+	font-size: 14px;
+	line-height: 1.6;
+	color: #9ca3af;
+	margin: 0 0 16px 0;
+}
+
+// Decisions Section
+.decisionsSection {
+	margin-bottom: 32px;
+}
+
+.decisionsSection .sectionHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 0;
+	border-bottom: 1px solid #1f2937;
+	cursor: pointer;
+
+	h3 {
+		font-size: 16px;
+		font-weight: 600;
+		color: #ffffff;
+	}
+}
+
+.decisionsContent {
+	padding: 24px 0;
+}
+
+.keyDecisions,
+.actionItems {
+	margin-bottom: 32px;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.sectionHead {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+
+	h4 {
+		font-size: 14px;
+		font-weight: 600;
+		color: #ffffff;
+		margin: 0;
+	}
+}
+
+.checkIcon {
+	width: 20px;
+	height: 20px;
+	background-color: #10b981;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	color: #ffffff;
+	font-weight: bold;
+}
+
+.gearIcon {
+	width: 20px;
+	height: 20px;
+	background-color: #f59e0b;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	color: #ffffff;
+	font-weight: bold;
+}
+
+.decisionsList,
+.actionList {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.decisionItem {
+	display: flex;
+	padding: 16px;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 16px;
+	border-radius: 8px;
+	background: #111827;
+	border: 1px solid #1f2937;
+}
+
+.actionItem {
+	display: flex;
+	padding: 16px;
+	flex-direction: column;
+	gap: 12px;
+	border-radius: 8px;
+	background: #111827;
+	border-radius: 12px;
+	background: var(--card, #1b1c1d);
+}
+
+.decisionText {
+	font-size: 14px;
+	line-height: 1.5;
+	color: #e5e7eb;
+	flex: 1;
+	margin-right: 16px;
+}
+
+.actionText {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	width: 100%;
+	gap: 16px;
+}
+
+.actionDescription {
+	font-size: 14px;
+	line-height: 1.5;
+	color: #e5e7eb;
+	flex: 1;
+}
+
+.decisionMeta {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-shrink: 0;
+}
+
+.actionMeta {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.timeContainer {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.clockIcon {
+	width: 14px;
+	height: 14px;
+	opacity: 0.7;
+}
+
+.decisionTime {
+	color: #e5e7eb;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.decisionPriority {
+	display: inline-flex;
+	padding: 4px 8px;
+	justify-content: center;
+	align-items: center;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 500;
+	background: rgba(245, 158, 11, 0.1);
+	color: #f59e0b;
+	border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.actionStatus {
+	display: inline-flex;
+	padding: 4px 8px;
+	justify-content: center;
+	align-items: center;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 500;
+	background: rgba(34, 182, 240, 0.1);
+	color: #22b6f0;
+	border: 1px solid rgba(34, 182, 240, 0.2);
+	flex-shrink: 0;
+}
+
+.actionAssignee {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #9ca3af;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.actionAssigneeIcon {
+	width: 20px;
+	height: 20px;
+	background-color: #374151;
+	color: #ffffff;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 10px;
+	font-weight: 600;
+}
+
+.actionDueDate {
+	color: var(--secondary-font, #94989e);
+	font-family: Manrope;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 500;
+	line-height: 20px; /* 142.857% */
+	letter-spacing: 0.2px;
+}
+
+// Loading State
+.loadingContainer {
+	height: 400px;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	color: #9ca3af;
+	font-size: 14px;
+	font-weight: 500;
+	gap: 16px;
+}
+
+// Ask VE Popover
+.popover {
+	position: absolute;
+	transform: translate(-50%, -100%);
+	background-color: #22b6f0;
+	color: #ffffff;
+	padding: 8px 12px;
+	border-radius: 6px;
+	white-space: nowrap;
+	transition: all 0.3s ease;
+	cursor: pointer;
+	z-index: 1000;
+	font-size: 12px;
+	font-weight: 500;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+	&:hover {
+		background-color: #1e9bd4;
+		transform: translate(-50%, -100%) scale(1.05);
+	}
+}
+
+// Status specific colors
+.actionStatus {
+	&[style*='color: rgb(16, 185, 129)'] {
+		background: rgba(16, 185, 129, 0.1);
+		color: #10b981 !important;
+		border: 1px solid rgba(16, 185, 129, 0.2);
+	}
+
+	&[style*='color: rgb(245, 158, 11)'] {
+		background: rgba(245, 158, 11, 0.1);
+		color: #f59e0b !important;
+		border: 1px solid rgba(245, 158, 11, 0.2);
+	}
+
+	&[style*='color: rgb(148, 152, 158)'] {
+		background: rgba(148, 152, 158, 0.1);
+		color: #94989e !important;
+		border: 1px solid rgba(148, 152, 158, 0.2);
+	}
+}
+
+.decisionPriority {
+	&[style*='color: rgb(255, 107, 107)'] {
+		background: rgba(255, 107, 107, 0.1);
+		color: #ff6b6b !important;
+		border: 1px solid rgba(255, 107, 107, 0.2);
+	}
+
+	&[style*='color: rgb(102, 187, 106)'] {
+		background: rgba(102, 187, 106, 0.1);
+		color: #66bb6a !important;
+		border: 1px solid rgba(102, 187, 106, 0.2);
+	}
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+	.header {
+		padding: 16px 20px 0;
 	}
 
 	.title {
-		font-size: 28px;
-		font-weight: 600;
-		color: #ffffff;
-		margin: 0 0 8px 0;
-		line-height: 1.2;
+		font-size: 20px;
 	}
 
 	.date {
-		font-size: 16px;
-		color: #94989e;
-		margin: 0;
-		font-weight: 400;
-	}
-
-	.tabs {
-		display: flex;
-		gap: 0;
+		font-size: 12px;
 	}
 
 	.tab {
-		background: none;
-		border: none;
-		color: #94989e;
-		font-size: 16px;
-		font-weight: 500;
-		padding: 12px 24px;
-		cursor: pointer;
-		border-bottom: 2px solid transparent;
-		transition: all 0.2s ease;
-
-		&:hover {
-			color: #ffffff;
-		}
-
-		&.active {
-			color: #ffffff;
-			border-bottom-color: #007aff;
-		}
+		margin-right: 24px;
+		font-size: 13px;
 	}
 
-	// Content Section
 	.content {
-		padding: 24px 32px;
-		max-width: 1200px;
-		margin: 0 auto;
+		padding: 24px 20px 48px;
 	}
 
-	// Summary Section
-	.summarySection {
-		margin-bottom: 32px;
-	}
-
-	.summaryText {
-		font-size: 16px;
-		line-height: 1.6;
-		color: #e0e0e0;
-		margin: 0 0 24px 0;
-	}
-
-	.strengthsSection,
-	.growthSection {
-		margin-bottom: 24px;
-	}
-
-	.sectionHeader {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		margin-bottom: 16px;
-
-		h3,
-		h4 {
-			font-size: 18px;
-			font-weight: 600;
-			color: #ffffff;
-			margin: 0;
-		}
-	}
-
-	.greenBullet {
-		width: 8px;
-		height: 8px;
-		background-color: #66bb6a;
-		border-radius: 50%;
-		flex-shrink: 0;
-	}
-
-	.bulletList {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-	}
-
-	.bulletItem {
-		display: flex;
-		align-items: flex-start;
-		gap: 12px;
-		margin-bottom: 12px;
-		font-size: 15px;
-		line-height: 1.5;
-		color: #e0e0e0;
-
-		span {
-			flex: 1;
-		}
-	}
-
-	// Chapters Section
-	.chaptersSection {
-		margin-bottom: 32px;
-	}
-
-	.chaptersSection .sectionHeader {
-		display: flex;
-		height: 64px;
-		padding: 8px 0;
-		justify-content: space-between;
-		align-items: center;
-		flex-shrink: 0;
-		align-self: stretch;
-		border-bottom: 1px solid #333333;
-
-		h3 {
-			font-size: 16px;
-			font-weight: 600;
-		}
-	}
-
-	.chevron {
-		font-size: 12px;
-		color: #94989e;
-		transition: transform 0.2s ease;
-
-		&.expanded {
-			transform: rotate(180deg);
-		}
-	}
-
-	.chaptersContent {
-		padding: 20px;
-		// background-color: #1a1a1a;
-	}
-
-	.chapter {
-		margin-bottom: 24px;
-
-		&:last-child {
-			margin-bottom: 0;
-		}
-	}
-
-	.chapterTitle {
-		font-size: 16px;
-		font-weight: 600;
-		color: #ffffff;
-		margin: 0 0 8px 0;
-		line-height: 1.4;
-	}
-
-	.chapterDescription {
-		font-size: 14px;
-		line-height: 1.5;
-		color: #b0b0b0;
-		padding: 10px 0;
-	}
-
-	// Decisions Section
-	.decisionsSection {
-		margin-bottom: 32px;
-		// border: 1px solid #333333;
-		// border-radius: 8px;
-		// overflow: hidden;
-	}
-
-	.decisionsSection .sectionHeader {
-		// background-color: #2a2a2a;
-		display: flex;
-		height: 64px;
-		padding: 8px 0;
-		justify-content: space-between;
-		align-items: center;
-		flex-shrink: 0;
-		align-self: stretch;
-		border-bottom: 1px solid #333333;
-		h3 {
-			font-size: 16px;
-			font-weight: 600;
-		}
-	}
-
-	.decisionsContent {
-		padding: 20px;
-		// background-color: #1a1a1a;
-	}
-
-	.keyDecisions,
-	.actionItems {
-		margin-bottom: 24px;
-
-		&:last-child {
-			margin-bottom: 0;
-		}
-		.sectionHead {
-			display: flex;
-			align-items: center;
-			gap: 12px;
-			align-self: stretch;
-			padding: 16px 0;
-		}
-	}
-
-	.checkIcon,
-	.gearIcon {
-		width: 20px;
-		height: 20px;
-		background-color: #66bb6a;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 12px;
-		color: #ffffff;
-		font-weight: bold;
-	}
-
-	.gearIcon {
-		background-color: #ffa726;
-	}
-
-	.decisionsList,
-	.actionList {
-		display: flex;
+	.decisionMeta,
+	.actionMeta {
 		flex-direction: column;
-		gap: 16px;
+		align-items: flex-start;
+		gap: 8px;
 	}
 
 	.decisionItem {
-		display: flex;
-		padding: 16px;
-		align-items: flex-start;
-		gap: 16px;
-		align-self: stretch;
-		border-radius: 12px;
-		justify-content: space-between;
-		background: var(--card, #1b1c1d);
-	}
-	.actionItem {
-		display: flex;
-		padding: 16px;
 		flex-direction: column;
 		align-items: flex-start;
-		gap: 16px;
-		align-self: stretch;
-		border-radius: 12px;
-		background: var(--card, #1b1c1d);
+	}
+}
+
+@media (max-width: 480px) {
+	.header {
+		padding: 12px 16px 0;
 	}
 
-	.decisionText {
-		font-size: 15px;
-		line-height: 1.5;
-		color: #e0e0e0;
-		margin-bottom: 8px;
-	}
-	.actionText {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		align-self: stretch;
-	}
-
-	.decisionMeta {
-		display: flex;
-		align-items: center;
-		gap: 16px;
-	}
-	.actionMeta {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		align-self: stretch;
-	}
-
-	.decisionTime {
-		color: #fff;
-		font-family: $font-family;
-		padding: 0 6px;
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 14px; /* 100% */
-	}
-	.actionAssignee {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		color: var(--secondary-font, #94989e);
-		font-family: Manrope;
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 20px; /* 142.857% */
-		letter-spacing: 0.2px;
-		.actionAssigneeIcon {
-			text-align: center;
-			width: 20px;
-			height: 20px;
-			aspect-ratio: 1/1;
-			border-radius: 50%;
-			background: #ffff;
-		}
-	}
-
-	.decisionPriority {
-		display: flex;
-		height: 27px;
-		padding: 8px 12px;
-		justify-content: center;
-		align-items: center;
-		gap: 6px;
-		border-radius: 16px;
-		background: rgba(237, 161, 69, 0.1);
-		width: 78px;
-		font-size: 12px;
-	}
-	.actionStatus {
-		font-weight: 600;
-		display: flex;
-		height: 27px;
-		padding: 8px 12px;
-		justify-content: center;
-		align-items: center;
-		gap: 6px;
-		border-radius: 16px;
-		background: rgba(80, 137, 249, 0.1);
-		font-family: Manrope;
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-		letter-spacing: 0.2px;
-	}
-
-	.actionDueDate {
-		color: var(--secondary-font, #94989e);
-		font-family: Manrope;
-		font-size: 14px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: 20px; /* 142.857% */
-		letter-spacing: 0.2px;
-	}
-
-	// Input Bar
-	.inputBar {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		background-color: #1a1a1a;
-		border-top: 1px solid #333333;
-		padding: 16px 32px;
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		z-index: 200;
-	}
-
-	.inputField {
-		flex: 1;
-		background-color: #2a2a2a;
-		border: 1px solid #333333;
-		border-radius: 20px;
-		padding: 12px 20px;
-		color: #ffffff;
-		font-size: 14px;
-		outline: none;
-		transition: border-color 0.2s ease;
-
-		&:focus {
-			border-color: #007aff;
-		}
-
-		&::placeholder {
-			color: #94989e;
-		}
-	}
-
-	.searchIcon,
-	.micIcon {
+	.title {
 		font-size: 18px;
-		color: #94989e;
-		cursor: pointer;
-		transition: color 0.2s ease;
-
-		&:hover {
-			color: #ffffff;
-		}
 	}
 
-	// Loading State
-	.loadingContainer {
-		height: 400px;
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		color: #94989e;
-		font-size: 14px;
-		font-weight: 500;
-		line-height: 22px;
-		gap: 16px;
+	.content {
+		padding: 20px 16px 40px;
 	}
 
-	// Ask VE Popover
-	.popover {
-		position: absolute;
-		transform: translate(-50%, -100%);
-		background-color: #007aff;
-		color: #ffffff;
-		padding: 8px 12px;
-		border-radius: 6px;
-		white-space: nowrap;
-		transition: all 0.3s ease;
-		cursor: pointer;
-		z-index: 1000;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-		font-size: 14px;
-		font-weight: 500;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-
-		&:hover {
-			background-color: #0056b3;
-			transform: translate(-50%, -100%) scale(1.05);
-		}
+	.tab {
+		margin-right: 20px;
 	}
 
-	// Responsive Design
-	@media (max-width: 768px) {
-		.header {
-			padding: 16px 20px 12px;
-		}
-
-		.title {
-			font-size: 24px;
-		}
-
-		.date {
-			font-size: 14px;
-		}
-
-		.tab {
-			padding: 10px 16px;
-			font-size: 14px;
-		}
-
-		.content {
-			padding: 16px 20px;
-		}
-
-		.inputBar {
-			padding: 12px 20px;
-		}
-
-		.inputField {
-			font-size: 13px;
-			padding: 10px 16px;
-		}
-
-		.decisionMeta,
-		.actionMeta {
-			flex-direction: column;
-			gap: 8px;
-		}
+	.chaptersContent,
+	.decisionsContent {
+		padding: 20px 0;
 	}
 
-	@media (max-width: 480px) {
-		.header {
-			padding: 12px 16px 8px;
-		}
-
-		.title {
-			font-size: 20px;
-		}
-
-		.content {
-			padding: 12px 16px;
-		}
-
-		.inputBar {
-			padding: 10px 16px;
-		}
-
-		.chaptersContent,
-		.decisionsContent {
-			padding: 16px;
-		}
-
-		.decisionItem,
-		.actionItem {
-			padding: 12px;
-		}
-	}
-
-	// Additional styles for new elements
-	.clockIcon {
-		width: 16px;
-		height: 16px;
-		margin-right: 4px;
-	}
-
-	.actionAssigneeIcon {
-		width: 24px;
-		height: 24px;
-		background-color: #007aff;
-		color: #ffffff;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 12px;
-		font-weight: 600;
-		margin-right: 8px;
-	}
-
-	.actionButtons {
-		margin-bottom: 8px;
-		display: flex;
-		justify-content: flex-end;
-		align-items: center;
-		width: 100%;
-		gap: 12px;
-
-		.copyButton {
-			background-color: transparent;
-			border: none;
-			color: var(--primary-font);
-			font-size: 14px;
-			font-weight: 500;
-			line-height: 20px;
-			letter-spacing: 0.2px;
-			padding: 0;
-			margin: 0;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			gap: 4px;
-			&:hover {
-				opacity: 0.8;
-			}
-		}
+	.decisionItem,
+	.actionItem {
+		padding: 12px;
 	}
 }
