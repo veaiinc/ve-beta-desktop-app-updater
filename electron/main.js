@@ -598,45 +598,8 @@ function createMenuBar() {
 						label: 'Notch',
 						submenu: [
 							{
-								label: 'Open Notch',
-								accelerator: 'CmdOrCtrl+N',
-								click: async () => {
-									try {
-										if (notchDropService) {
-											const result = await notchDropService.enable();
-											if (result) {
-												// log.info('✅ NotchDrop opened from menu');
-												updateMenuBarState();
-											}
-										}
-									} catch (error) {
-										log.error('❌ Failed to open NotchDrop from menu:', error);
-									}
-								},
-							},
-							{
-								label: 'Close Notch',
-								accelerator: 'CmdOrCtrl+Shift+N',
-								click: async () => {
-									try {
-										if (notchDropService) {
-											const result = await notchDropService.disable();
-											if (result) {
-												log.info('✅ NotchDrop closed from menu');
-												updateMenuBarState();
-											}
-										}
-									} catch (error) {
-										log.error('❌ Failed to close NotchDrop from menu:', error);
-									}
-								},
-							},
-							{
-								type: 'separator',
-							},
-							{
 								label: 'Toggle Notch',
-								accelerator: 'CmdOrCtrl+T',
+								accelerator: 'CmdOrCtrl+Shift+M',
 								click: async () => {
 									try {
 										if (notchDropService) {
