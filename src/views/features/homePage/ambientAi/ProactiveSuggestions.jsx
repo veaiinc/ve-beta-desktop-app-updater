@@ -15,6 +15,7 @@ import Spinner from '../../../components/loaders/Spinner';
 import { ReactComponent as CloseSearchbarIcon } from '../assets/svg/closeIcon.svg';
 import AmbientAiModal from '../../../components/modalsV2/homePage/AmbientAiModal';
 import ProactiveCards from './ProactiveCards';
+import upgradeCardImage from '../../../../assets/images/image.png';
 
 const payload = {
 	page: 1,
@@ -119,6 +120,14 @@ const optionsList = [
 	},
 ];
 const onboardingCards = [
+	{
+		id: 'upgradeCard',
+		background: upgradeCardImage,
+		title: '',
+		subTitle: '',
+		// description: 'Ask: “What can you do for me?” or “Show me how to get started.”',
+		type: 'upgrade',
+	},
 	{
 		title: 'What VE.AI do',
 		subTitle: 'For You',
@@ -319,9 +328,9 @@ const ProactiveSuggestions = () => {
 		}
 	}, [insightTypes]);
 
-	useEffect(() => {
-		getProactiveHeadings({ module: 'priority' });
-	}, []);
+	// useEffect(() => {
+	// 	getProactiveHeadings({ module: 'priority' });
+	// }, []);
 
 	useEffect(() => {
 		if (info?.totalCardsData?.length > 0) {
@@ -555,6 +564,9 @@ const ProactiveSuggestions = () => {
 
 	const handleCardClick = useCallback(
 		async (card, index) => {
+			if (card?.id === 'upgradeCard') {
+				navigate('/settings/pricing');
+			}
 			if (!card?.read && info?.selectedOption !== 'onboarding') {
 				await pendingActionsUpdate(card?._id, { read: true });
 				const payload = { read: true },
@@ -774,7 +786,7 @@ const ProactiveSuggestions = () => {
 								proactiveHeadings?.priority_headlines
 							) : (
 								<>
-									<span className="title-highlight">Ambient</span> Insights For
+									<span className="title-highlight">Proactive</span> Insights For
 									You
 								</>
 							)}
