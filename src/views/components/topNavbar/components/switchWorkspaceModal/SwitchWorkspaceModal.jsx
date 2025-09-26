@@ -4,7 +4,7 @@ import s from './switchWorkspaceModal.module.scss';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../../../../helpers';
-import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
+import useBroadcastChannel, { reloadApp } from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 
@@ -88,11 +88,7 @@ const SwitchWorkspaceModal = ({ isOpen, closeWorkspaceModal, userWorkSpaceList }
 		});
 		channel.postMessage('switchWorkspace');
 		window.location.hash = '/home';
-		if (window.api && typeof window.api.reloadApp === 'function') {
-			window.api.reloadApp();
-		} else {
-			window.location.reload();
-		}
+		reloadApp();
 	};
 
 	const handleKeyboardNavigation = (e) => {

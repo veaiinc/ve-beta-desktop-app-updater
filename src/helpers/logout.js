@@ -56,8 +56,11 @@ const logout = async () => {
 			Cookies.set('theme', cookieTheme, { expires: 365 });
 		}
 
-		window.location.replace('/');
+		window.location.hash = '/';
+		reloadApp();
+
 		logoutAPI();
+
 		window.electronApi.sendMessageFrmVeApp('loggedout');
 		return true;
 	} catch (err) {

@@ -3,11 +3,7 @@ import { useEffect } from 'react';
 // This hook handles reloading multiple browser tabs parallelly when a user logs out or switches workspace
 
 export const reloadApp = () => {
-	if (window.api && typeof window.api.reloadApp === 'function') {
-		window.api.reloadApp();
-	} else {
-		window.location.reload();
-	}
+	window.location.reload();
 };
 
 const useBroadcastChannel = () => {
