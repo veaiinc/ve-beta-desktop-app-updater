@@ -216,6 +216,8 @@ const ProactiveSuggestions = () => {
 	const [touchEndX, setTouchEndX] = useState(null);
 	const minSwipeDistance = 50;
 
+	const unread = insightTypes?.unread;
+
 	const checkScroll = useCallback(() => {
 		const container = optionsContainerRef.current;
 		if (container) {
@@ -688,11 +690,10 @@ const ProactiveSuggestions = () => {
 		const selectedConfidenceScore = getFilterValues('Confidence level');
 		const [favourite] = getFilterValues('Other');
 		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
-
 		return {
 			...payload,
 			...(selectedPriority.length && { priority: selectedPriority }),
-			...(selectedReadStatus.length && { read: selectedReadStatus }),
+			...(selectedReadStatus.length && { read: unread === 0 ? true : selectedReadStatus }),
 			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
 			...(from !== undefined && to !== undefined && { from, to }),
 			sortType: info?.sortOptions[info?.sortBy]?.sortType,
