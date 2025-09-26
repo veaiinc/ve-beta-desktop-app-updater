@@ -17,7 +17,7 @@ import PartnerSection from './PartnerSection';
 import DownloadSection from './DownloadSection';
 import FAQ from './FAQ';
 import NewsletterSection from './NewsletterSection';
-import GlassFooterSection from './GlassFooter';
+// import GlassFooterSection from './GlassFooter';
 import FullscreenIMac from './FullscreenIMac';
 import ProductIntro from './ProductIntro';
 import AmbientIntelligence from './intelligenceSections/Intelligence/AmbientIntelligence';

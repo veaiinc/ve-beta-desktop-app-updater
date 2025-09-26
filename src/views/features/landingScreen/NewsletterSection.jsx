@@ -104,7 +104,7 @@ const NewsletterSection = () => {
 					{/* Right Side - Footer Links */}
 					<div className={s.footerLinks}>
 						{/* Use case Column */}
-						<div className={s.linkColumn}>
+						{/* <div className={s.linkColumn}>
 							<div className={s.linkItem}>
 								<span className={s.columnTitle}>Use case</span>
 							</div>
@@ -128,7 +128,7 @@ const NewsletterSection = () => {
 									Recruiting
 								</Link>
 							</div>
-						</div>
+						</div> */}
 
 						{/* Resources Column */}
 						<div className={s.linkColumn}>
@@ -153,7 +153,7 @@ const NewsletterSection = () => {
 								<span className={s.columnTitle}>Support</span>
 							</div>
 							<div className={s.linkItem}>
-								<Link to="#" className={s.linkText}>
+								<Link to="https://intercom.help/veai-3b653317fa86/en" className={s.linkText}>
 									Help Center
 								</Link>
 							</div>

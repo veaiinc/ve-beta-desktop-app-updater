@@ -61,7 +61,7 @@ const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
 				<div className={s.screenContent}>
 					<video
 						ref={videoRef}
-						src="https://us.images.ve.ai/public/dashboard/notch_final.mp4"
+						src="https://us.images.ve.ai/public/dashboard/notch_final_v2.mp4"
 						className={`${s.screenImage} ${isZoomed ? s.hidden : ''}`}
 						data-image="varya"
 						loop
