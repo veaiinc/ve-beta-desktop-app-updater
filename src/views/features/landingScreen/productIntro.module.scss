@@ -1,0 +1,370 @@
+.ProductIntro {
+	width: 100%;
+	min-height: 100vh;
+	position: relative;
+	background: #000938;
+	padding: 0;
+	z-index: 1000;
+	overflow: visible;
+
+	// Performance optimizations for smooth circular animation
+	will-change: clip-path, opacity, transform;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+	contain: layout style paint;
+
+	.heroSection {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 267px 20px 60px;
+		text-align: center;
+		max-width: 840px;
+		margin: 0 auto;
+		gap: 60px;
+		position: relative;
+		z-index: 10;
+
+		.mainTitle {
+			clip-path: inset(0 0 0 0);
+			mask: linear-gradient(white 50%, transparent) 0 100% / 100% 200% no-repeat;
+			font-family: var(--primary-font-family);
+			font-size: 124px;
+			font-weight: 400;
+			line-height: 0.97;
+			letter-spacing: -0.04em;
+			color: #f8fafc;
+			margin: 0;
+			text-align: center;
+
+			@media (max-width: 1200px) {
+				font-size: 100px;
+			}
+
+			@media (max-width: 768px) {
+				font-size: 80px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 60px;
+			}
+		}
+
+		.subtitle {
+			font-family: var(--primary-font-family);
+			font-size: 30px;
+			font-weight: 400;
+			line-height: 1.35;
+			color: rgba(248, 250, 252, 0.8);
+			margin: 0;
+			text-align: center;
+
+			@media (max-width: 768px) {
+				font-size: 28px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 24px;
+			}
+		}
+	}
+
+	.intelligenceSection {
+		display: flex;
+		flex-direction: column;
+		gap: 245px;
+		padding: 0 20px 100px;
+		max-width: 1378px;
+		margin: 0 auto;
+		position: relative;
+		z-index: 10;
+
+		.intelligenceItem {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 60px;
+
+			&:nth-child(even) {
+				flex-direction: row-reverse;
+			}
+
+			.content {
+				display: flex;
+				flex-direction: column;
+				gap: 32px;
+				max-width: 610px;
+				flex: 1;
+				position: relative;
+				z-index: 2;
+
+				.intelligenceTitle {
+					font-family: var(--primary-font-family);
+					font-size: 32px;
+					font-weight: 500;
+					line-height: 1.35;
+					color: #e2e8f0;
+					margin: 0;
+					text-align: left;
+
+					@media (max-width: 768px) {
+						font-size: 28px;
+					}
+
+					@media (max-width: 480px) {
+						font-size: 24px;
+					}
+				}
+
+				.intelligenceDescription {
+					font-family: var(--primary-font-family);
+					font-size: 22px;
+					font-weight: 400;
+					line-height: 1.615;
+					color: rgba(226, 232, 240, 0.7);
+					margin: 0;
+					text-align: left;
+
+					@media (max-width: 768px) {
+						font-size: 22px;
+					}
+
+					@media (max-width: 480px) {
+						font-size: 18px;
+					}
+				}
+			}
+
+			.number {
+				// Create a thin teal outline with transparent fill
+
+				-webkit-text-stroke-width: 2px;
+				-webkit-text-stroke-color: rgba(121, 236, 201, 0.7);
+				color: rgba(0, 0, 0, 0.1);
+
+				text-shadow: 0 0 250px rgba(121, 236, 201, 0.07);
+				font-family: 'Times New Roman';
+				font-size: 700px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 1;
+				opacity: 0.9;
+				position: relative;
+				z-index: 1;
+				pointer-events: none;
+				// Fade the large numeral so it dips under surrounding text
+				-webkit-mask-image: linear-gradient(
+					180deg,
+					transparent 8%,
+					#000 38%,
+					#000 62%,
+					transparent 92%
+				);
+				mask-image: linear-gradient(
+					180deg,
+					transparent 8%,
+					#000 38%,
+					#000 62%,
+					transparent 92%
+				);
+
+				@media (max-width: 1200px) {
+					font-size: 300px;
+				}
+
+				@media (max-width: 768px) {
+					font-size: 200px;
+				}
+
+				@media (max-width: 480px) {
+					font-size: 150px;
+				}
+			}
+
+			@media (max-width: 1024px) {
+				flex-direction: column !important;
+				text-align: center;
+				gap: 40px;
+
+				.content {
+					text-align: center;
+
+					.intelligenceTitle,
+					.intelligenceDescription {
+						text-align: center;
+					}
+				}
+			}
+		}
+
+		@media (max-width: 768px) {
+			gap: 150px;
+		}
+
+		@media (max-width: 480px) {
+			gap: 100px;
+		}
+	}
+
+	.lightPassing {
+		position: absolute;
+		top: 58%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 267px;
+		height: 3527px;
+		background-size: contain;
+		background-position: center;
+		background-repeat: no-repeat;
+		z-index: 5; // Increased z-index to show glow above content
+		pointer-events: none; // Allow clicks to pass through
+
+		// Enhance the glow effect visibility
+		svg {
+			width: 100%;
+			height: 100%;
+			filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3))
+				drop-shadow(0 0 60px rgba(59, 130, 246, 0.2))
+				drop-shadow(0 0 90px rgba(255, 255, 255, 0.15))
+				drop-shadow(0 0 120px rgba(59, 130, 246, 0.1))
+				drop-shadow(0 0 150px rgba(255, 255, 255, 0.05));
+
+			// Apply mask-image gradient like the divider SVG
+			-webkit-mask-image: linear-gradient(180deg, transparent 15%, #000 50%, transparent 90%);
+			mask-image: linear-gradient(180deg, transparent 15%, #000 50%, transparent 90%);
+
+			// Glow paths with enhanced animation
+			#glow-path {
+				animation: pathGlow 6s ease-in-out infinite alternate;
+			}
+
+			#glow-path-intense {
+				animation: pathGlowIntense 4.5s ease-in-out infinite alternate;
+				animation-delay: 1s;
+			}
+
+			// White glow animations
+			#white-glow-path {
+				animation: whiteGlow 7.5s ease-in-out infinite alternate;
+				animation-delay: 0.8s;
+			}
+
+			#white-glow-outer {
+				animation: whiteGlowOuter 9s ease-in-out infinite alternate;
+				animation-delay: 1.5s;
+			}
+		}
+
+		@media (max-width: 768px) {
+			width: 200px;
+			height: 2645px;
+		}
+
+		@media (max-width: 480px) {
+			width: 150px;
+			height: 1984px;
+		}
+	}
+
+	// Standardized Animated Background Glow Effect
+	.glowBackground {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 0; // Behind all content
+		pointer-events: none;
+		overflow: hidden;
+
+		// Override AnimatedGlowBackground defaults for proper integration
+		> div {
+			background: transparent !important; // Override default background
+			min-height: auto !important; // Override default min-height
+			position: absolute !important; // Ensure absolute positioning
+			top: 0 !important;
+			left: 0 !important;
+			width: 100% !important;
+			height: 100% !important;
+
+			// Ensure the glow container extends properly
+			.glowContainer {
+				height: 200vh; // Match original custom implementation
+				width: 100%;
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+		}
+	}
+
+	// Glow animation keyframes
+	@keyframes pathGlow {
+		0% {
+			filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4))
+				drop-shadow(0 0 30px rgba(59, 130, 246, 0.3))
+				drop-shadow(0 0 45px rgba(59, 130, 246, 0.2))
+				drop-shadow(0 0 60px rgba(59, 130, 246, 0.15))
+				drop-shadow(0 0 75px rgba(59, 130, 246, 0.1));
+		}
+		100% {
+			filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.6))
+				drop-shadow(0 0 50px rgba(59, 130, 246, 0.5))
+				drop-shadow(0 0 75px rgba(59, 130, 246, 0.4))
+				drop-shadow(0 0 100px rgba(59, 130, 246, 0.3))
+				drop-shadow(0 0 125px rgba(59, 130, 246, 0.2));
+		}
+	}
+
+	@keyframes pathGlowIntense {
+		0% {
+			filter: drop-shadow(0 0 10px rgba(147, 197, 253, 0.5))
+				drop-shadow(0 0 20px rgba(147, 197, 253, 0.4))
+				drop-shadow(0 0 30px rgba(147, 197, 253, 0.3))
+				drop-shadow(0 0 40px rgba(147, 197, 253, 0.2))
+				drop-shadow(0 0 50px rgba(147, 197, 253, 0.15));
+		}
+		100% {
+			filter: drop-shadow(0 0 20px rgba(147, 197, 253, 0.7))
+				drop-shadow(0 0 40px rgba(147, 197, 253, 0.6))
+				drop-shadow(0 0 60px rgba(147, 197, 253, 0.5))
+				drop-shadow(0 0 80px rgba(147, 197, 253, 0.4))
+				drop-shadow(0 0 100px rgba(147, 197, 253, 0.3));
+		}
+	}
+
+	@keyframes whiteGlow {
+		0% {
+			filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3))
+				drop-shadow(0 0 40px rgba(255, 255, 255, 0.25))
+				drop-shadow(0 0 60px rgba(255, 255, 255, 0.2))
+				drop-shadow(0 0 80px rgba(255, 255, 255, 0.15))
+				drop-shadow(0 0 100px rgba(255, 255, 255, 0.1));
+		}
+		100% {
+			filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5))
+				drop-shadow(0 0 60px rgba(255, 255, 255, 0.4))
+				drop-shadow(0 0 90px rgba(255, 255, 255, 0.3))
+				drop-shadow(0 0 120px rgba(255, 255, 255, 0.25))
+				drop-shadow(0 0 150px rgba(255, 255, 255, 0.2));
+		}
+	}
+
+	@keyframes whiteGlowOuter {
+		0% {
+			filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.2))
+				drop-shadow(0 0 50px rgba(255, 255, 255, 0.15))
+				drop-shadow(0 0 75px rgba(255, 255, 255, 0.1))
+				drop-shadow(0 0 100px rgba(255, 255, 255, 0.08))
+				drop-shadow(0 0 125px rgba(255, 255, 255, 0.05));
+		}
+		100% {
+			filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.3))
+				drop-shadow(0 0 70px rgba(255, 255, 255, 0.25))
+				drop-shadow(0 0 105px rgba(255, 255, 255, 0.2))
+				drop-shadow(0 0 140px rgba(255, 255, 255, 0.15))
+				drop-shadow(0 0 175px rgba(255, 255, 255, 0.1));
+		}
+	}
+}

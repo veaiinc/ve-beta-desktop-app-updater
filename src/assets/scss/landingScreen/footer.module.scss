@@ -5,7 +5,11 @@
 	align-items: center;
 	gap: 100px;
 	padding: 50px;
-	background: var(--card, #18191b);
+	// background: var(--card, #18191b);
+	background-image: url('../../svg/landingScreen/Blue.svg');
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
 	font-family: var(--secondary-font-family);
 
 	.container {
@@ -39,7 +43,7 @@
 				}
 
 				.description {
-					color: var(--primary-font, #f2f2f3);
+					color: #ffffff;
 					font-family: var(--secondary-font-family);
 					font-size: 16px;
 					font-style: normal;
@@ -57,9 +61,9 @@
 						gap: 8px;
 						border-radius: 8px;
 						border: 1px solid var(--stroke, #2c2d2e);
-						background: var(--popup, #202123);
+						// background: var(--popup, #202123);
 						padding: 14px;
-						color: var(--primary-font, #f2f2f3);
+						color: #ffffff;
 						width: 100%;
 
 						&.errorInput {
@@ -79,7 +83,7 @@
 						font-family: var(--secondary-font-family);
 						transition: opacity 0.2s ease;
 						opacity: 0;
-						
+
 						&.visible {
 							opacity: 1;
 						}
@@ -140,7 +144,7 @@
 						margin: 0;
 
 						.listHeading {
-							color: var(--primary-font, #f2f2f3);
+							color: #ffffff;
 							font-weight: 600;
 							margin-bottom: 5px;
 						}
@@ -148,7 +152,7 @@
 						li {
 							width: 100%;
 							* {
-								color: var(--secondary-font, #f2f2f3);
+								color: #ffffff;
 								text-decoration: none;
 								transition: color 0.2s ease;
 								display: block;
@@ -180,7 +184,7 @@
 				line-height: normal;
 
 				.subHeading {
-					color: var(--primary-font, #f2f2f3);
+					color: #ffffff;
 					font-family: Manrope;
 					font-size: 24px;
 					font-style: normal;
@@ -189,7 +193,7 @@
 				}
 
 				.description {
-					color: var(--primary-font, #f2f2f3);
+					color: #ffffff;
 					font-family: Manrope;
 					font-size: 16px;
 					font-style: normal;

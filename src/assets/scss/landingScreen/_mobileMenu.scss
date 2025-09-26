@@ -29,10 +29,49 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			gap: 12px;
 		}
 		.ve-logo {
 			width: 36px;
 			height: 19px;
+		}
+		.mobile-nav-buttons {
+			display: flex;
+			gap: 8px;
+			align-items: center;
+
+			@media (max-width: 480px) {
+				display: none; // Hide on very small screens
+			}
+		}
+		.mobile-nav-btn {
+			background: transparent;
+			border: 1px solid var(--border-color, #e5e5e5);
+			color: var(--primary-font, #f2f2f3);
+			border-radius: 100px;
+			padding: 8px 16px;
+			font-family: var(--primary-font-family);
+			font-weight: 500;
+			font-size: 12px;
+			cursor: pointer;
+			text-align: center;
+			transition: all 0.2s ease;
+
+			&:hover {
+				background: var(--primary-button, #79ecc9);
+				color: var(--primary-button-font, #0c0c0d);
+				border-color: var(--primary-button, #79ecc9);
+			}
+
+			&.primary {
+				background: var(--primary-button, #79ecc9);
+				color: var(--primary-button-font, #0c0c0d);
+				border-color: var(--primary-button, #79ecc9);
+
+				&:hover {
+					opacity: 0.9;
+				}
+			}
 		}
 		.get-ve-free-btn {
 			background: var(--primary-button, #79ecc9);
@@ -63,7 +102,7 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
-		background: var(--card, #18191b);
+		background: #f3f6f5;
 		padding: 20px 10px;
 	}
 
@@ -90,7 +129,7 @@
 			background: transparent;
 			transition: background 0.2s;
 			&:hover {
-				background: var(--card, #181a1b);
+				background: #f3f6f5;
 			}
 			.menu-icon {
 				margin-right: 10px;
@@ -184,7 +223,7 @@
 				font-weight: 500;
 				line-height: normal;
 				&:hover {
-					background: var(--card, #181a1b);
+					background: #f3f6f5;
 				}
 				.submenu-arrow {
 					margin-left: auto;
@@ -197,7 +236,7 @@
 
 	.mobile-menu-footer {
 		padding: 20px 24px 32px 24px;
-		background: var(--card, #18191b);
+		background: #f3f6f5;
 		display: flex;
 		align-items: center;
 		justify-content: center;

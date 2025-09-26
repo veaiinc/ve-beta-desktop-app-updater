@@ -18,6 +18,7 @@ const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerif
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import PricingPageWebsite from '../views/features/pricingPlans/PricingPageWebsite';
 
 const publicRoutes = [
 	{
@@ -92,6 +93,16 @@ const publicRoutes = [
 			<Public>
 				<Suspense fallback={<SuspenseFallback />}>
 					<LoginPage />
+				</Suspense>
+			</Public>
+		),
+	},
+	{
+		path: '/pricing',
+		element: (
+			<Public>
+				<Suspense fallback={<SuspenseFallback />}>
+					<PricingPageWebsite />
 				</Suspense>
 			</Public>
 		),
