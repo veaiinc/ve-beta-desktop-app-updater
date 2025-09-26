@@ -15,14 +15,12 @@ import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
 import { ReactComponent as ArrowsOut } from '../../../assets/svg/gallery/arrowsOut.svg';
 import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancel.svg';
 import { ReactComponent as CreateSvg } from '../../../assets/svg/chat/create.svg';
-import { ReactComponent as UploadSvg } from '../../../assets/svg/chat/upload.svg';
 import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useParams } from 'react-router-dom';
 import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
-import moment from 'moment';
 import { Image, Spin, Upload } from 'antd';
 import { message } from '../globalComponents/CustomToast';
 // import ChatBoxPlaceholder from './ChatBoxPlaceholder';
@@ -37,7 +35,6 @@ import { getFileType } from '../../../helpers/chat/chatHelpers';
 import useSpeechTranscription from '../../../hooks/useSpeechTranscripton';
 import SpeechToTextInactivity from './SpeechToTextInactivity';
 import SourcesTooltip from './SourcesTooltip';
-// import VoiceWrapper from '../../layouts/VoiceWrapper';
 
 const moduleHelper = {
 	tasks: 'tasks',
