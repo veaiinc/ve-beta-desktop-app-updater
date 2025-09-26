@@ -13,7 +13,7 @@
 		width: 80vw;
 		height: calc(80vw * 0.85); // Maintain aspect ratio
 		max-width: 943.28px;
-		max-height: 800px;
+		max-height: 600px;
 	}
 
 	@media (max-width: 1200px) {
@@ -31,7 +31,10 @@
 	}
 
 	@media (min-width: 1025px) {
-		display: block;
+		width: 80vw;
+		height: calc(80vw * 0.85);
+		max-width: 943.28px;
+		max-height: 600px;
 	}
 
 	// VE text overlay - positioned at center of screen
