@@ -8,6 +8,28 @@
 	will-change: transform; // Optimize for animations
 	z-index: 10; // Above download section
 
+	// Responsive scaling for small screens
+	@media (max-width: 1400px) {
+		width: 80vw;
+		height: calc(80vw * 0.85); // Maintain aspect ratio
+		max-width: 943.28px;
+		max-height: 800px;
+	}
+
+	@media (max-width: 1200px) {
+		width: 75vw;
+		height: calc(75vw * 0.85);
+		max-width: 800px;
+		max-height: 680px;
+	}
+
+	@media (max-width: 1024px) {
+		width: 70vw;
+		height: calc(70vw * 0.85);
+		max-width: 700px;
+		max-height: 595px;
+	}
+
 	@media (min-width: 1025px) {
 		display: block;
 	}
@@ -15,7 +37,7 @@
 	// VE text overlay - positioned at center of screen
 	.veText {
 		color: #ffffff;
-		font-family: General Sans Variable, sans-serif;
+		font-family: var(--primary-font-family);
 		font-size: 24px;
 		font-weight: 400;
 		left: 50%;
@@ -25,7 +47,7 @@
 		pointer-events: none;
 		position: absolute;
 		text-transform: uppercase;
-		top: 50%;
+		top: 59%;
 		transform: translate(-50%, -50%);
 		transition: opacity 0.3s ease;
 		will-change: opacity, transform;
@@ -35,10 +57,20 @@
 
 		@media (max-width: 1400px) {
 			font-size: 20px;
+			top: 58%;
+			padding: 0 30px;
 		}
 
 		@media (max-width: 1200px) {
 			font-size: 18px;
+			top: 57%;
+			padding: 0 25px;
+		}
+
+		@media (max-width: 1024px) {
+			font-size: 16px;
+			top: 56%;
+			padding: 0 20px;
 		}
 
 		@media (max-width: 768px) {
@@ -55,10 +87,10 @@
 	// Description text - positioned below VE text
 	.descriptionText {
 		position: absolute;
-		top: 65%; // Position below the VE text (centered)
+		top: 75%; // Position below the VE text (centered)
 		left: 50%;
 		transform: translate(-50%, -50%);
-		font-family: 'General Sans Variable', sans-serif;
+		font-family: var(--primary-font-family);
 		font-weight: 400;
 		font-size: 14px;
 		line-height: 1.4;
@@ -89,13 +121,21 @@
 		}
 
 		@media (max-width: 1400px) {
-			font-size: 11px;
-			top: 180px;
+			font-size: 12px;
+			top: 74%;
+			padding: 0 30px;
 		}
 
 		@media (max-width: 1200px) {
+			font-size: 11px;
+			top: 73%;
+			padding: 0 25px;
+		}
+
+		@media (max-width: 1024px) {
 			font-size: 10px;
-			top: 170px;
+			top: 72%;
+			padding: 0 20px;
 		}
 
 		@media (max-width: 768px) {
@@ -114,10 +154,10 @@
 	// Main description text - positioned below short description
 	.descriptionText2 {
 		position: absolute;
-		top: 75%; // Position below the first description text (centered)
+		top: 85%; // Position below the first description text (centered)
 		left: 50%;
 		transform: translate(-50%, -50%);
-		font-family: 'General Sans Variable', sans-serif;
+		font-family: var(--primary-font-family);
 		font-weight: 400;
 		font-size: 10px; // Smaller font size than first description
 		line-height: 1.4;
@@ -148,12 +188,19 @@
 		}
 
 		@media (max-width: 1400px) {
-			font-size: 13px;
-			top: 300px;
+			font-size: 9px;
+			top: 84%;
+			padding: 0 30px;
 		}
 		@media (max-width: 1200px) {
-			font-size: 12px;
-			top: 290px;
+			font-size: 8px;
+			top: 83%;
+			padding: 0 25px;
+		}
+		@media (max-width: 1024px) {
+			font-size: 7px;
+			top: 82%;
+			padding: 0 20px;
 		}
 		@media (max-width: 768px) {
 			font-size: 11px;
@@ -213,7 +260,7 @@
 	align-items: center;
 	justify-content: center;
 	color: white;
-	font-family: 'General Sans Variable', sans-serif;
+	font-family: var(--primary-font-family);
 	font-size: 24px;
 	font-weight: 600;
 	text-align: center;

@@ -17,6 +17,14 @@ export const useScrollAnimation = () => {
 		if (!downloadSectionRef.current || !iMacFrameRef.current || !fullscreenIMacRef.current)
 			return;
 
+		// Handle window resize to recalculate responsive values
+		const handleResize = () => {
+			// Force ScrollTrigger refresh to recalculate responsive values
+			ScrollTrigger.refresh();
+		};
+
+		window.addEventListener('resize', handleResize);
+
 		// Helper function to get the actual DOM element from ref
 		const getIMacElement = () => {
 			const ref = iMacFrameRef.current;
@@ -38,8 +46,8 @@ export const useScrollAnimation = () => {
 		// Set initial states for all text elements
 		const iMacElement = getIMacElement();
 		const veText = iMacElement?.querySelector('[data-ve-text="true"]');
-		const descriptionText = iMacElement?.querySelector('[data-description-text="true"]');
-		const descriptionText2 = iMacElement?.querySelector('[data-description-text-2="true"]');
+		const descriptionTextInit = iMacElement?.querySelector('[data-description-text="true"]');
+		const descriptionText2Init = iMacElement?.querySelector('[data-description-text-2="true"]');
 
 		// Reset all text elements
 		if (veText) {
@@ -49,15 +57,15 @@ export const useScrollAnimation = () => {
 				scale: 0.9,
 			});
 		}
-		if (descriptionText) {
-			gsap.set(descriptionText, {
+		if (descriptionTextInit) {
+			gsap.set(descriptionTextInit, {
 				opacity: 0,
 				y: 30,
 				scale: 0.9,
 			});
 		}
-		if (descriptionText2) {
-			gsap.set(descriptionText2, {
+		if (descriptionText2Init) {
+			gsap.set(descriptionText2Init, {
 				opacity: 0,
 				y: 30,
 				scale: 0.9,
@@ -74,41 +82,84 @@ export const useScrollAnimation = () => {
 			gsap.set(bgLayerImage, { opacity: 0 });
 		}
 
-		// Create smooth scroll animation with proper reverse
+		// Create smooth scroll animation with staged snapping
 		const tl = gsap.timeline({
 			scrollTrigger: {
 				trigger: downloadSectionRef.current,
-				start: 'top +=250px center',
-				end: 'bottom +=700px center', // Extended scroll range to see second description text reveal
-				scrub: 2, // Smooth scrubbing
-				markers: true, // Show start/end markers
+				start: 'top +=300px center',
+				end: 'bottom +=1000px center',
+				scrub: 2,
+				pin: downloadSectionRef.current,
+				pinSpacing: true,
+				snap: {
+					snapTo: [0, 0.33, 0.66, 1], // 3 stages + end
+					duration: { min: 0.15, max: 0.5 },
+					ease: 'power1.inOut',
+					inertia: false,
+				},
+				// Show start/end markers
 				onUpdate: (self) => {
 					const progress = self.progress;
 					const isScrollingDown = self.direction === 1;
 
-					// Phase 1: DownloadSection scaling (0-30% progress)
-					const sectionScale = progress < 0.3 ? 1 - (progress / 0.3) * 0.3 : 0.7;
+					// Phase 1: DownloadSection scaling (0-30% progress) with responsive adjustments
+					const screenWidth = window.innerWidth;
+					let maxScaleReduction = 0.3; // Default reduction
+
+					// Adjust scaling reduction based on screen size
+					if (screenWidth <= 1400) {
+						maxScaleReduction = 0.25;
+					} else if (screenWidth <= 1200) {
+						maxScaleReduction = 0.2;
+					} else if (screenWidth <= 1024) {
+						maxScaleReduction = 0.15;
+					}
+
+					const sectionScale =
+						progress < 0.3
+							? 1 - (progress / 0.3) * maxScaleReduction
+							: 1 - maxScaleReduction;
 					gsap.set(downloadSectionRef.current, {
 						scale: sectionScale,
 						zIndex: 1,
 					});
 
-					// Phase 2: iMac frame scaling (10-70% progress)
-					if (progress >= 0.1) {
-						const iMacProgress = Math.min(1, (progress - 0.1) / 0.6);
-						const iMacScale = 1 + iMacProgress * 4; // Scale from 1 to 5
+					// Stage-based iMac scaling with responsive adjustments
+					let iMacScale = 1;
 
-						gsap.set(iMacElement, {
-							scale: iMacScale,
-							zIndex: 20,
-						});
-					} else {
-						// Reset scale when progress is less than 0.1 (scrolling back up)
-						gsap.set(iMacElement, {
-							scale: 1,
-							zIndex: 1,
-						});
+					// Adjust scaling based on screen size
+					let maxScale = 4.5;
+					let stage1End = 1.8;
+					let stage2End = 3.0;
+
+					if (screenWidth <= 1400) {
+						maxScale = 3.5;
+						stage1End = 1.6;
+						stage2End = 2.5;
+					} else if (screenWidth <= 1200) {
+						maxScale = 3.0;
+						stage1End = 1.4;
+						stage2End = 2.2;
+					} else if (screenWidth <= 1024) {
+						maxScale = 2.5;
+						stage1End = 1.2;
+						stage2End = 1.8;
 					}
+
+					if (progress < 0.33) {
+						// Stage 1: showcase video
+						const p = Math.max(0, progress / 0.33);
+						iMacScale = 1 + p * (stage1End - 1); // 1 -> stage1End
+					} else if (progress < 0.66) {
+						// Stage 2: continue zoom
+						const p = (progress - 0.33) / 0.33;
+						iMacScale = stage1End + p * (stage2End - stage1End); // stage1End -> stage2End
+					} else {
+						// Stage 3: prepare for fullscreen handoff
+						const p = Math.min(1, (progress - 0.66) / 0.34);
+						iMacScale = stage2End + p * (maxScale - stage2End); // stage2End -> maxScale
+					}
+					gsap.set(iMacElement, { scale: iMacScale, zIndex: 20 });
 
 					// Video control based on scroll direction
 					if (videoRef.current) {
@@ -124,15 +175,22 @@ export const useScrollAnimation = () => {
 						}
 					}
 
-					// Image transition (20-30% progress)
-					if (progress >= 0.2) {
-						const imageProgress = Math.min(1, (progress - 0.2) / 0.1);
+					// Image transition: keep video visible for Stage 1 & 2; crossfade only in Stage 3
+					if (progress >= 0.66) {
+						const imageProgress = Math.min(1, (progress - 0.66) / 0.1); // 0.66 -> 0.76 window
 						const varyaImage = iMacElement?.querySelector('[data-image="varya"]');
 						const bgLayerImage = iMacElement?.querySelector('[data-image="bg-layer"]');
-
 						if (varyaImage && bgLayerImage) {
 							gsap.set(varyaImage, { opacity: 1 - imageProgress });
 							gsap.set(bgLayerImage, { opacity: imageProgress });
+						}
+					} else {
+						// Before Stage 3, ensure video is fully visible
+						const varyaImage = iMacElement?.querySelector('[data-image="varya"]');
+						const bgLayerImage = iMacElement?.querySelector('[data-image="bg-layer"]');
+						if (varyaImage && bgLayerImage) {
+							gsap.set(varyaImage, { opacity: 1 });
+							gsap.set(bgLayerImage, { opacity: 0 });
 						}
 					}
 
@@ -145,21 +203,25 @@ export const useScrollAnimation = () => {
 							y: 30 * (1 - veProgress),
 							scale: 0.9 + 0.1 * veProgress,
 						});
+						if (progress < 0.1) {
+							// Ensure complete reset when scrolling back near top
+							gsap.set(veText, { opacity: 0, y: 30, scale: 0.9 });
+						}
 					}
 
 					// First description text - show container but let SplitText handle the reveal
-					if (descriptionText) {
+					if (descriptionTextInit) {
 						// Show the container when VE text is fully visible
 						if (progress >= 0.4) {
 							const descProgress = Math.min(1, Math.max(0, (progress - 0.4) / 0.1));
-							gsap.set(descriptionText, {
+							gsap.set(descriptionTextInit, {
 								opacity: descProgress,
 								y: 30 * (1 - descProgress),
 								scale: 0.9 + 0.1 * descProgress,
 							});
 						} else {
 							// Keep hidden before VE text is fully visible
-							gsap.set(descriptionText, {
+							gsap.set(descriptionTextInit, {
 								opacity: 0,
 								y: 30,
 								scale: 0.9,
@@ -168,18 +230,18 @@ export const useScrollAnimation = () => {
 					}
 
 					// Second description text - show container but let SplitText handle the reveal
-					if (descriptionText2) {
+					if (descriptionText2Init) {
 						// Show the container after first description gets reduced
-						if (progress >= 0.85) {
-							const desc2Progress = Math.min(1, Math.max(0, (progress - 0.85) / 0.1));
-							gsap.set(descriptionText2, {
+						if (progress >= 0.75) {
+							const desc2Progress = Math.min(1, Math.max(0, (progress - 0.75) / 0.1));
+							gsap.set(descriptionText2Init, {
 								opacity: desc2Progress,
 								y: 30 * (1 - desc2Progress),
 								scale: 0.9 + 0.1 * desc2Progress,
 							});
 						} else {
 							// Keep hidden before first description gets reduced
-							gsap.set(descriptionText2, {
+							gsap.set(descriptionText2Init, {
 								opacity: 0,
 								y: 30,
 								scale: 0.9,
@@ -195,21 +257,51 @@ export const useScrollAnimation = () => {
 						gsap.set(backgroundRef.current, { zIndex: 1 });
 					}
 
-					// Phase 3: Fullscreen iMac (70-100% progress)
-					if (progress >= 0.7) {
-						const fullscreenProgress = (progress - 0.7) / 0.3;
-						const fullscreenScale = 0.3 + fullscreenProgress * 0.7;
-						const fullscreenOpacity = fullscreenProgress;
+					// Ensure video image fully visible when near top
+					if (progress < 0.05) {
+						const varyaImage = iMacElement?.querySelector('[data-image="varya"]');
+						const bgLayerImage = iMacElement?.querySelector('[data-image="bg-layer"]');
+						if (varyaImage && bgLayerImage) {
+							gsap.set(varyaImage, { opacity: 1 });
+							gsap.set(bgLayerImage, { opacity: 0 });
+						}
+					}
+
+					// Stage 3 to Fullscreen handoff (only after 0.66)
+					if (progress >= 0.66) {
+						const fullscreenProgress = (progress - 0.66) / 0.34;
+
+						// Responsive fullscreen scaling
+						let baseScale = 0.3;
+						let maxScale = 1.0;
+
+						if (screenWidth <= 1400) {
+							baseScale = 0.4;
+							maxScale = 0.8;
+						} else if (screenWidth <= 1200) {
+							baseScale = 0.5;
+							maxScale = 0.7;
+						} else if (screenWidth <= 1024) {
+							baseScale = 0.6;
+							maxScale = 0.6;
+						}
+
+						const fullscreenScale =
+							baseScale + fullscreenProgress * (maxScale - baseScale);
+						const fullscreenOpacity = Math.min(1, fullscreenProgress * 1.2);
 
 						gsap.set(fullscreenIMacRef.current, {
 							scale: fullscreenScale,
 							opacity: fullscreenOpacity,
 							zIndex: 9999,
 						});
-
-						if (fullscreenProgress > 0.3) {
+						if (fullscreenProgress > 0.05) {
 							fullscreenIMacRef.current?.classList.add('visible');
 						}
+					} else {
+						// Hide fullscreen before stage 3
+						gsap.set(fullscreenIMacRef.current, { scale: 0.3, opacity: 0, zIndex: -1 });
+						fullscreenIMacRef.current?.classList.remove('visible');
 					}
 				},
 			},
@@ -218,59 +310,74 @@ export const useScrollAnimation = () => {
 		// Create text reveal animation for description text
 		const createTextRevealAnimation = () => {
 			const descriptionText = iMacElement?.querySelector('[data-description-text="true"]');
+			let firstTextCompletionPoint = 300; // Default fallback
+
 			if (descriptionText) {
 				// Split text into lines for animation
 				const split = new SplitText(descriptionText, { type: 'lines' });
+
+				// Calculate when the last line will complete
+				const lastLineIndex = split.lines.length - 1;
+				firstTextCompletionPoint = lastLineIndex * 120 + 150 + 50; // +50px buffer
 
 				// Animate each line with sequential timing - complete one before starting next
 				split.lines.forEach((target, index) => {
 					gsap.to(target, {
 						backgroundPositionX: 0, // Animate from 100% to 0%
-						ease: 'none', // Linear animation for smooth scroll sync
+						ease: 'power1.inOut', // Smoother easing for more organic feel
 						scrollTrigger: {
 							trigger: descriptionText, // Use parent element as trigger
-							scrub: 1, // Faster scrubbing for faster animation
-							markers: true, // Show start/end markers
-							start: `top+=${index * 80}px center`, // Each line starts 80px after previous
-							end: `top+=${index * 80 + 60}px center`, // Each line takes 60px to complete
+							scrub: 3, // Slower scrubbing for smoother animation
+							// Show start/end markers
+							start: `top+=${index * 120}px center`, // Each line starts 120px after previous (more spacing)
+							end: `top+=${index * 120 + 150}px center`, // Each line takes 150px to complete (slower)
 						},
 					});
 				});
 			}
 
-			// Create text reveal animation for second description text (starts after first description completes)
+			// Create text reveal animation for second description text (starts after first description gets reduced)
 			const descriptionText2 = iMacElement?.querySelector('[data-description-text-2="true"]');
 			if (descriptionText2) {
 				// Split text into lines for animation
 				const split2 = new SplitText(descriptionText2, { type: 'lines' });
 
-				// Animate each line with sequential timing - starts after first description gets reduced
+				// Start after first text completes and gets reduced
+				const secondTextStartPoint = firstTextCompletionPoint + 50; // +50px after reduction completes
+
+				// Animate each line with sequential timing
 				split2.lines.forEach((target, index) => {
 					gsap.to(target, {
 						backgroundPositionX: 0, // Animate from 100% to 0%
-						ease: 'none', // Linear animation for smooth scroll sync
+						ease: 'power1.inOut', // Smoother easing for more organic feel
 						scrollTrigger: {
 							trigger: descriptionText2, // Use parent element as trigger
-							scrub: 1, // Faster scrubbing for faster animation
-							markers: true, // Show start/end markers
-							start: `top+=${index * 80 + 250}px center`, // Start 250px after first description gets reduced
-							end: `top+=${index * 80 + 250 + 60}px center`, // Each line takes 60px to complete
+							scrub: 3, // Slower scrubbing for smoother animation
+							// Show start/end markers
+							start: `top+=${index * 120 + secondTextStartPoint}px center`, // Start after first text is reduced
+							end: `top+=${index * 120 + secondTextStartPoint + 150}px center`, // Each line takes 150px to complete
 						},
 					});
 				});
 			}
+
+			// Return the completion point for use in reduction timing
+			return firstTextCompletionPoint;
 		};
 
-		// Call text reveal animation
-		createTextRevealAnimation();
+		// Call text reveal animation and get completion timing
+		const textCompletionPoint = createTextRevealAnimation();
+
+		// Get the description text element for the trigger
+		const descriptionTextElement = iMacElement?.querySelector('[data-description-text="true"]');
 
 		// Create ScrollTrigger for description text reduction animation
 		// This triggers right after the SplitText animation completes
 		ScrollTrigger.create({
-			trigger: descriptionText,
-			start: 'top+=200px center', // Start after SplitText completes (adjust based on line count)
-			end: 'top+=250px center', // Short duration for the reduction
-			markers: true, // Show start/end markers
+			trigger: descriptionTextElement,
+			start: `top+=${textCompletionPoint}px center`, // Start after SplitText actually completes
+			end: `top+=${textCompletionPoint + 100}px center`, // Longer duration for smoother reduction
+			// Show start/end markers
 			onEnter: () => {
 				// Description text reduction starts after SplitText completes
 				const descriptionText = iMacElement?.querySelector(
@@ -280,8 +387,8 @@ export const useScrollAnimation = () => {
 					gsap.to(descriptionText, {
 						scale: 0.6, // Scale down to 60%
 						opacity: 0.4, // Reduce opacity to 40%
-						duration: 0.5,
-						ease: 'power2.out',
+						duration: 0.4, // Faster duration for quicker transition
+						ease: 'power2.out', // Faster easing
 					});
 				}
 			},
@@ -297,8 +404,8 @@ export const useScrollAnimation = () => {
 					gsap.to(descriptionText, {
 						scale: 1, // Reset scale
 						opacity: 1, // Reset opacity
-						duration: 0.3,
-						ease: 'power2.out',
+						duration: 0.3, // Faster duration for quicker transition
+						ease: 'power2.out', // Faster easing
 					});
 				}
 			},
@@ -308,6 +415,9 @@ export const useScrollAnimation = () => {
 		});
 
 		return () => {
+			// Remove resize listener
+			window.removeEventListener('resize', handleResize);
+
 			// Kill all ScrollTriggers
 			ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
 
@@ -315,16 +425,18 @@ export const useScrollAnimation = () => {
 			if (iMacFrameRef.current) {
 				const iMacElement = getIMacElement();
 				const veText = iMacElement?.querySelector('[data-ve-text="true"]');
-				const descriptionText = iMacElement?.querySelector(
+				const descriptionTextCleanup = iMacElement?.querySelector(
 					'[data-description-text="true"]',
 				);
-				const descriptionText2 = iMacElement?.querySelector(
+				const descriptionText2Cleanup = iMacElement?.querySelector(
 					'[data-description-text-2="true"]',
 				);
 
 				if (veText) gsap.set(veText, { opacity: 0, y: 30, scale: 0.9 });
-				if (descriptionText) gsap.set(descriptionText, { opacity: 0, y: 30, scale: 0.9 });
-				if (descriptionText2) gsap.set(descriptionText2, { opacity: 0, y: 30, scale: 0.9 });
+				if (descriptionTextCleanup)
+					gsap.set(descriptionTextCleanup, { opacity: 0, y: 30, scale: 0.9 });
+				if (descriptionText2Cleanup)
+					gsap.set(descriptionText2Cleanup, { opacity: 0, y: 30, scale: 0.9 });
 			}
 
 			if (fullscreenIMacRef.current) {

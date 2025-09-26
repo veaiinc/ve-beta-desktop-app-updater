@@ -1,26 +1,26 @@
 .insightsCard {
 	position: absolute;
-	bottom: 225px;
-	right: 300px;
-	width: 563px;
-	height: 352px;
-	padding: 32px;
+	bottom: clamp(80px, 22vh, 225px);
+	right: clamp(16px, 37vw, 400px);
+	width: min(92vw, 563px);
+	height: clamp(220px, 40vh, 352px);
+	padding: clamp(16px, 3vh, 32px);
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
-	gap: 50px;
+	gap: clamp(16px, 4vh, 50px);
 	background: rgba(0, 0, 0, 0.1);
 	border: 1px solid rgba(121, 236, 201, 0.3);
-	border-radius: 24px;
+	border-radius: clamp(14px, 3vw, 24px);
 	box-shadow: inset 0px 0px 20px 0px rgba(121, 236, 201, 0.3);
 	backdrop-filter: blur(10px);
 }
 
 .insightsTitle {
-	font-family: 'General Sans Variable', sans-serif;
+	font-family: var(--primary-font-family);
 	font-weight: 600;
-	font-size: 24px;
+	font-size: clamp(16px, 2.4vw, 24px);
 	line-height: 1.375em;
 	text-transform: uppercase;
 	text-align: left;
@@ -37,9 +37,9 @@
 }
 
 .insightItem {
-	font-family: 'General Sans Variable', sans-serif;
+	font-family: var(--primary-font-family);
 	font-weight: 400;
-	font-size: 22px;
+	font-size: clamp(14px, 2.2vw, 22px);
 	line-height: 1.5em;
 	text-align: left;
 	color: #ffffff;

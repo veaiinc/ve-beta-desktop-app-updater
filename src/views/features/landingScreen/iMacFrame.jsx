@@ -18,17 +18,15 @@ const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
 
 		const checkZoomState = () => {
 			const transform = container.style.transform;
-			console.log('Transform:', transform); // Debug log
 
 			const scale = transform.match(/scale\(([^)]+)\)/);
 			if (scale) {
 				const scaleValue = parseFloat(scale[1]);
-				console.log('Scale value:', scaleValue); // Debug log
-				const zoomed = scaleValue > 1.05; // Lowered threshold
-				console.log('Is zoomed:', zoomed); // Debug log
+
+				const zoomed = scaleValue > 1.8; // Align with stage 1 end
+
 				setIsZoomed(zoomed);
 			} else {
-				console.log('No scale found, setting zoomed to false'); // Debug log
 				setIsZoomed(false);
 			}
 		};
@@ -104,7 +102,7 @@ const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
 			<div className={s.textContainer}>
 				{/* VE text overlay */}
 				<div className={s.veText} data-ve-text="true">
-					Hey, I'm VE — the living mind of your company.
+					Hey, I'm VE — the living mind <br /> of your company.
 				</div>
 				{/* Additional description text */}
 				<div className={s.descriptionText} data-description-text="true">

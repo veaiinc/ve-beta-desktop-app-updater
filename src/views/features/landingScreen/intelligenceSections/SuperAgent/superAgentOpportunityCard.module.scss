@@ -3,15 +3,15 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: 745px;
+	width: min(92vw, 745px);
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
-	padding: 18px;
+	gap: clamp(8px, 1.6vh, 10px);
+	padding: clamp(12px, 2vh, 18px);
 	background: #202123;
 	border: 1px solid;
 
-	border-radius: 24px;
+	border-radius: clamp(16px, 3vw, 24px);
 	box-shadow: 2px 6px 15px 0px rgba(0, 0, 0, 0.2), 10px 26px 27px 0px rgba(0, 0, 0, 0.17),
 		22px 57px 37px 0px rgba(0, 0, 0, 0.1), 39px 102px 44px 0px rgba(0, 0, 0, 0.03),
 		60px 159px 48px 0px rgba(0, 0, 0, 0), 0px 0px 80px 0px rgba(121, 236, 201, 0.07);
@@ -21,7 +21,7 @@
 	display: flex;
 	align-items: center;
 	align-self: stretch;
-	gap: 205px;
+	gap: clamp(24px, 12vw, 205px);
 	width: 100%;
 }
 
@@ -30,15 +30,15 @@
 	justify-content: center;
 	align-items: center;
 	gap: 4px;
-	padding: 4px 0px;
-	height: 26px;
+	padding: clamp(2px, 0.6vh, 4px) 0px;
+	height: clamp(18px, 3.6vh, 26px);
 
 	border-radius: 4px;
 	width: fit-content;
 
-	font-family: 'General Sans Variable', sans-serif;
+	font-family: var(--primary-font-family);
 	font-weight: 500;
-	font-size: 12px;
+	font-size: clamp(10px, 1.8vw, 12px);
 	line-height: 1.35em;
 	color: #ffffff;
 }
@@ -48,15 +48,15 @@
 	justify-content: stretch;
 	align-items: stretch;
 	align-self: stretch;
-	gap: 12px;
-	padding: 6px;
+	gap: clamp(8px, 1.6vh, 12px);
+	padding: clamp(4px, 1vh, 6px);
 	width: 100%;
 }
 
 .contentText {
-	font-family: 'General Sans Variable', sans-serif;
+	font-family: var(--primary-font-family);
 	font-weight: 500;
-	font-size: 14px;
+	font-size: clamp(12px, 2.2vw, 14px);
 	line-height: 2em;
 	color: #ffffff;
 	width: 100%;

@@ -112,7 +112,7 @@
 	}
 
 	.messageText {
-		font-family: 'General Sans Variable', sans-serif;
+		font-family: var(--primary-font-family);
 		font-weight: 500;
 		font-size: 16px;
 		line-height: 1.35em;
@@ -160,7 +160,7 @@
 	}
 
 	.labelText {
-		font-family: 'General Sans Variable', sans-serif;
+		font-family: var(--primary-font-family);
 		font-weight: 500;
 		font-size: 18px;
 		line-height: 1.35em;
@@ -182,7 +182,7 @@
 	}
 
 	.suggestionMessageText {
-		font-family: 'General Sans Variable', sans-serif;
+		font-family: var(--primary-font-family);
 		font-weight: 600;
 		font-size: 18px;
 		line-height: 1.78em;
@@ -220,7 +220,7 @@
 	}
 
 	.aiResponseHeader {
-		font-family: 'General Sans Variable', sans-serif;
+		font-family: var(--primary-font-family);
 		font-weight: 500;
 		font-size: 12px;
 		line-height: 1.35em;
@@ -230,7 +230,7 @@
 	}
 
 	.aiResponseContent {
-		font-family: 'General Sans Variable', sans-serif;
+		font-family: var(--primary-font-family);
 		font-weight: 500;
 		font-size: 16px;
 		line-height: 1.75em;

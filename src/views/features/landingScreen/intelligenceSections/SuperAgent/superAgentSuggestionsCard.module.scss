@@ -3,7 +3,7 @@
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: 800px;
+	width: min(92vw, 800px);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -15,8 +15,9 @@
 	justify-content: center;
 	align-items: center;
 	align-self: stretch;
-	gap: 12px;
-	padding: 12px 12px 12px 14px;
+	gap: clamp(8px, 1.8vw, 12px);
+	padding: clamp(8px, 2.2vw, 12px) clamp(8px, 2.2vw, 12px) clamp(8px, 2.2vw, 12px)
+		clamp(10px, 2.4vw, 14px);
 	border-radius: 100px;
 	width: 100%;
 }
@@ -26,14 +27,14 @@
 	justify-content: space-between;
 	align-items: center;
 	align-self: stretch;
-	gap: 10px;
+	gap: clamp(6px, 1.6vw, 10px);
 	width: 100%;
 }
 
 .messageText {
-	font-family: 'General Sans Variable', sans-serif;
+	font-family: var(--primary-font-family);
 	font-weight: 450;
-	font-size: 16px;
+	font-size: clamp(13px, 2.2vw, 16px);
 	line-height: 1.625em;
 	color: #f2f2f3;
 	width: fit-content;
@@ -44,7 +45,7 @@
 	justify-content: flex-end;
 	align-items: center;
 	align-self: stretch;
-	gap: 8px;
+	gap: clamp(6px, 1.8vw, 8px);
 	width: fit-content;
 }
 
@@ -54,8 +55,8 @@
 	align-items: center;
 	gap: 6px;
 	padding: 0;
-	width: 36px;
-	height: 36px;
+	width: clamp(28px, 5.5vw, 36px);
+	height: clamp(28px, 5.5vw, 36px);
 	background: transparent;
 	border-radius: 100px;
 	border: none;

@@ -12,6 +12,7 @@ import ContactUs from '../../components/landing_screen/ContactUs';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
 import CustomToast from '../../components/globalComponents/CustomToast';
+import AnimatedGlowBackground from '../../components/globalComponents/AnimatedGlowBackground';
 import PartnerSection from './PartnerSection';
 import DownloadSection from './DownloadSection';
 import FAQ from './FAQ';
@@ -177,25 +178,36 @@ const LandingPage = () => {
 				{/* Fullscreen iMac Component for Scroll Animation */}
 				<FullscreenIMac ref={fullscreenIMacRef} />
 				{/* Additional content to ensure scrollable height for fullscreen animation and pinned text */}
-				<div style={{ height: '65vh', background: 'transparent' }}></div>
+				<div
+					style={{
+						height: '93vh',
+						background: 'transparent',
+						minHeight: '600px', // Ensure minimum height for small screens
+					}}
+				></div>
 
 				{/* Product Intro */}
 				<ProductIntro ref={productIntroRef} />
 
-				{/* (Ambient Intelligence + Actions) */}
+				{/* (Ambient Intelligence + Actions) with Ellipse Transition */}
 				<AmbientIntelligence />
 
 				{/* (Super Agent + Actions) */}
-				<SuperAgent />
+				{/* <SuperAgent /> */}
 
 				{/* (Meeting Intelligence + Actions) */}
 				<MeetingIntelligence />
 
 				{/* <Tagline /> */}
-				<PartnerSection />
 
-				<FAQ />
-				<Footer />
+				{/* Combined sections with shared animated background */}
+				<AnimatedGlowBackground variant="subtle" intensity="medium" fitContent>
+					<PartnerSection />
+					<FAQ />
+					<NewsletterSection />
+				</AnimatedGlowBackground>
+
+				{/* <Footer /> */}
 
 				{/* Newsletter floating on MacBook Section */}
 				{/* <div className="newsletter-macbook-container">
@@ -240,7 +252,7 @@ const LandingPage = () => {
 					<div className="page-header-wrapper">
 						<div className="ve-logo-container">
 							<Link to="/">
-								<VeSvg width={36} height={24} fill="var(--primary-font)" />
+								<VeSvg width={36} height={24} />
 							</Link>
 						</div>
 
@@ -252,9 +264,9 @@ const LandingPage = () => {
 								<Link className="nav-btn" to="/pricing">
 									Pricing
 								</Link>
-								<Link className="nav-btn" to="/explore">
+								{/* <Link className="nav-btn" to="/explore">
 									Explore
-								</Link>
+								</Link> */}
 								<Link className="nav-btn" to="/verify-user">
 									Sign In
 								</Link>

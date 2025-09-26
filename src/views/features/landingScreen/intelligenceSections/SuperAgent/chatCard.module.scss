@@ -11,12 +11,12 @@
 }
 
 .chatIcon {
-	width: 774px;
-	height: 36px;
+	width: min(92vw, 774px);
+	height: clamp(28px, 4.2vw, 36px);
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	background-color: var(--card);
-	padding: 26px 22px;
+	padding: clamp(14px, 3vh, 26px) clamp(12px, 2.8vh, 22px);
 	border-radius: 100px;
 }

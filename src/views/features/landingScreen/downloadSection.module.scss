@@ -41,7 +41,7 @@
 		border-radius: 100px;
 
 		span {
-			font-family: 'General Sans Variable', sans-serif;
+			font-family: var(--primary-font-family);
 			font-weight: 500;
 			font-size: 13px;
 			line-height: 1.35;
@@ -78,7 +78,7 @@
 	}
 
 	.subheading {
-		font-family: 'General Sans Variable', sans-serif;
+		font-family: var(--primary-font-family);
 		font-weight: 500;
 		font-size: 24px;
 		line-height: 1.35;
@@ -118,17 +118,17 @@
 		gap: 8px;
 		padding: 14px 24px;
 		width: 270px;
-		background: rgba(255, 255, 255, 0.2);
-		border: 1px solid rgba(52, 173, 155, 0.2);
 		border-radius: 24px;
-		box-shadow: inset 0px 0px 17px 0px rgba(52, 173, 155, 0.3);
+		border: 1px solid rgba(21, 58, 229, 0.2);
+		background: rgba(255, 255, 255, 0.2);
+		box-shadow: 0 0 17px 0 rgba(21, 58, 229, 0.3) inset;
 		cursor: pointer;
 		transition: all 0.3s ease;
 
 		&:hover {
 			background: rgba(255, 255, 255, 0.3);
-			border-color: rgba(52, 173, 155, 0.4);
-			box-shadow: inset 0px 0px 17px 0px rgba(52, 173, 155, 0.4);
+			border-color: rgba(21, 58, 229, 0.4);
+			box-shadow: inset 0px 0px 17px 0px rgba(21, 58, 229, 0.4);
 			transform: translateY(-2px);
 		}
 
@@ -137,11 +137,12 @@
 		}
 
 		span {
-			font-family: 'General Sans Variable', sans-serif;
-			font-weight: 500;
+			font-family: var(--primary-font-family);
+			color: #153ae5;
 			font-size: 16px;
-			line-height: 1.35;
-			color: var(--primary-button);
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
 		}
 
 		@media (max-width: 768px) {
@@ -160,7 +161,7 @@
 		svg {
 			width: 100%;
 			height: 100%;
-			fill: var(--primary-font);
+			fill: #153ae5;
 		}
 	}
 

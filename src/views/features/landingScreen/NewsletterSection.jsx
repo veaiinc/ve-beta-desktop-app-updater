@@ -10,10 +10,8 @@ import { ReactComponent as YoutubeLogo } from '../../../assets/svg/landingScreen
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
 import GoldenGateImage from '../../../assets/images/goldenGate.png';
 import { LINKEDIN_URL, INSTAGRAM_URL } from '../../../helpers/ConstantUrls';
+import { isValidEmail } from '../../../helpers/index.jsx';
 import { Link } from 'react-router-dom';
-
-// Email validation regex pattern
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 const initialState = {
 	email: '',
@@ -32,7 +30,7 @@ const NewsletterSection = () => {
 			setInfo({ ...info, error: 'Email is required' });
 			return;
 		}
-		if (!emailRegex.test(info.email)) {
+		if (!isValidEmail(info.email)) {
 			setInfo({ ...info, error: 'Please enter a valid email address' });
 			return;
 		}

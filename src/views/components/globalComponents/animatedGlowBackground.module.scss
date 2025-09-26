@@ -38,7 +38,7 @@
 		top: 0;
 		left: 0;
 		width: 100%;
-		height: 200vh;
+		height: 100vh;
 		z-index: 1;
 		pointer-events: none;
 		overflow: visible;
@@ -50,15 +50,16 @@
 		--speed: 20s;
 
 		aspect-ratio: 1;
-		width: calc(120vw * var(--size));
+		width: calc(150vw * var(--size));
 
 		background: radial-gradient(
 			circle at center,
-			#1e40af 0%,
-			#3b82f6 25%,
-			#60a5fa 50%,
-			#93c5fd 75%,
-			#dbeafe 100%
+			#2563eb 0%,
+			#3b82f6 20%,
+			#60a5fa 40%,
+			#93c5fd 60%,
+			#bfdbfe 80%,
+			rgba(191, 219, 254, 0.1) 100%
 		);
 
 		border-radius: 50%;
@@ -91,67 +92,31 @@
 
 	@keyframes glowLoop {
 		0% {
-			transform: translate3D(0%, 0%, 0) rotate(0deg);
+			transform: translate3D(-25%, -25%, 0) rotate(0deg);
 		}
-		5% {
-			transform: translate3D(8%, 15%, 0) rotate(18deg);
-		}
-		10% {
-			transform: translate3D(15%, 30%, 0) rotate(36deg);
-		}
-		15% {
-			transform: translate3D(25%, 45%, 0) rotate(54deg);
-		}
-		20% {
-			transform: translate3D(35%, 60%, 0) rotate(72deg);
+		12.5% {
+			transform: translate3D(0%, -15%, 0) rotate(45deg);
 		}
 		25% {
-			transform: translate3D(45%, 75%, 0) rotate(90deg);
+			transform: translate3D(25%, 0%, 0) rotate(90deg);
 		}
-		30% {
-			transform: translate3D(55%, 90%, 0) rotate(108deg);
-		}
-		35% {
-			transform: translate3D(65%, 105%, 0) rotate(126deg);
-		}
-		40% {
-			transform: translate3D(75%, 120%, 0) rotate(144deg);
-		}
-		45% {
-			transform: translate3D(85%, 135%, 0) rotate(162deg);
+		37.5% {
+			transform: translate3D(35%, 25%, 0) rotate(135deg);
 		}
 		50% {
-			transform: translate3D(95%, 150%, 0) rotate(180deg);
+			transform: translate3D(25%, 50%, 0) rotate(180deg);
 		}
-		55% {
-			transform: translate3D(85%, 165%, 0) rotate(198deg);
-		}
-		60% {
-			transform: translate3D(75%, 180%, 0) rotate(216deg);
-		}
-		65% {
-			transform: translate3D(65%, 195%, 0) rotate(234deg);
-		}
-		70% {
-			transform: translate3D(55%, 210%, 0) rotate(252deg);
+		62.5% {
+			transform: translate3D(0%, 65%, 0) rotate(225deg);
 		}
 		75% {
-			transform: translate3D(45%, 225%, 0) rotate(270deg);
+			transform: translate3D(-25%, 50%, 0) rotate(270deg);
 		}
-		80% {
-			transform: translate3D(35%, 240%, 0) rotate(288deg);
-		}
-		85% {
-			transform: translate3D(25%, 255%, 0) rotate(306deg);
-		}
-		90% {
-			transform: translate3D(15%, 270%, 0) rotate(324deg);
-		}
-		95% {
-			transform: translate3D(8%, 285%, 0) rotate(342deg);
+		87.5% {
+			transform: translate3D(-35%, 25%, 0) rotate(315deg);
 		}
 		100% {
-			transform: translate3D(0%, 300%, 0) rotate(360deg);
+			transform: translate3D(-25%, -25%, 0) rotate(360deg);
 		}
 	}
 
@@ -188,6 +153,17 @@
 	pointer-events: none;
 
 	.glowContainer {
-		height: 300vh; // Extended height for better coverage
+		width: 100%;
+		height: 100vh;
+		overflow: visible;
+	}
+}
+
+// Modifier: fit content height instead of forcing viewport height
+.fitContent {
+	min-height: auto;
+
+	.glowContainer {
+		height: 100%;
 	}
 }
