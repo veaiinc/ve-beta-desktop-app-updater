@@ -10,11 +10,8 @@ import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import GuideMePopup from './guideMePopup';
 import CreateMeetingModal from './CreateMeetingModal';
 import moment from 'moment';
-
-// const drawerStyles = {
-// 	header: { display: 'none' },
-// 	body: { padding: 0, background: 'var(--background-color)', height: '100vh', overflow: 'auto' },
-// };
+import { useStore } from '../../../store/store';
+import { useDispatch } from '@zubridge/electron';
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -30,7 +27,7 @@ function formatDate(timestamp) {
 
 const CardMeetBot = () => {
 	const {
-		notes: { getExistingBots, createMeetBot, existingBots },
+		notes: { getExistingBots, createMeetBot },
 		templates: { updateStateValues },
 		aiSetup: { proactiveHeadings, getProactiveHeadings },
 	} = useContext(Context);
@@ -41,48 +38,113 @@ const CardMeetBot = () => {
 		searchOpen: false,
 		cards: [],
 		guideMePopupOpen: false,
-		apiFetching: true,
+		apiFetching: false,
 	});
 	const searchInputRef = useRef(null);
 
-	const meetings = useMemo(() => existingBots?.data || [], [existingBots?.data]);
-	const loadingMeetings = existingBots ? false : true;
-	const hasNextPage = existingBots?.hasNextPage || false;
-	const nextPage = existingBots?.nextPage || 1;
-	const totalDocs = existingBots?.totalDocs;
+	const dispatch = useDispatch();
+	const { pastMeetings, actions: meetingActions } = useStore((state) => state.meeting);
+
+	const meetings = useMemo(() => pastMeetings?.data || [], [pastMeetings?.data]);
+	const loadingMeetings = pastMeetings?.data ? false : true;
+	const hasNextPage = pastMeetings?.hasNextPage || false;
+	const nextPage = pastMeetings?.nextPage || 1;
+	const totalDocs = pastMeetings?.totalDocs || 0;
+
+	// Modified API call handler to dispatch to store
+	const handleGetExistingBots = useCallback(
+		async (params) => {
+			setInfo((prevInfo) => ({ ...prevInfo, apiFetching: true }));
+
+			try {
+				// Call the API function from context
+				const result = await getExistingBots(params);
+
+				let payload = {};
+
+				if (result[0]) {
+					const data = result[1].data?.listMeetings;
+					const currentPageMeetingsList = data?.data || [];
+
+					let mergedData;
+					if (params.append) {
+						const existing = pastMeetings?.data || [];
+
+						// Merge + deduplicate by "_id"
+						const combined = [...existing, ...currentPageMeetingsList];
+						const seen = new Set();
+						mergedData = combined.filter((meeting) => {
+							if (!meeting?._id) return false; // skip invalid entries
+							if (seen.has(meeting._id)) return false; // skip duplicates
+							seen.add(meeting._id);
+							return true;
+						});
+					} else {
+						// For fresh load, still check for duplicates in the new data itself
+						const seen = new Set();
+						mergedData = currentPageMeetingsList.filter((meeting) => {
+							if (!meeting?._id) return false; // skip invalid entries
+							if (seen.has(meeting._id)) return false; // skip duplicates
+							seen.add(meeting._id);
+							return true;
+						});
+					}
+
+					payload = {
+						data: mergedData,
+						hasNextPage: data.hasNextPage,
+						nextPage: data.nextPage,
+						totalDocs: data.totalDocs,
+						append: params.append || false,
+					};
+				}
+
+				dispatch({
+					type: meetingActions.SET_PAST_MEETINGS,
+					payload,
+				});
+			} catch (error) {
+				console.error('Error fetching meetings:', error);
+			} finally {
+				setInfo((prevInfo) => ({ ...prevInfo, apiFetching: false }));
+			}
+		},
+		[getExistingBots, dispatch, meetingActions, pastMeetings?.data],
+	);
 
 	// Load existing bots when component mounts
 	useEffect(() => {
-		if (!existingBots) {
-			getExistingBots({ page: 1, limit: 10, append: false });
+		if (!pastMeetings?.data || pastMeetings.data.length === 0) {
+			handleGetExistingBots({ page: 1, limit: 10, append: false });
 		}
-	}, []);
-
-	useEffect(() => {
-		if (existingBots) {
-			setInfo((prevInfo) => ({ ...prevInfo, apiFetching: false }));
-		}
-	}, [existingBots]);
+	}, []); // Only run on mount
 
 	// Carousel navigation handlers
-	const handleLeft = () => {
+	const handleLeft = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
 			currentIndex: (prev.currentIndex - 1 + meetings.length) % meetings.length,
 		}));
-	};
-	const handleRight = () => {
+	}, [meetings.length]);
+
+	const handleRight = useCallback(() => {
 		if (hasNextPage && info?.currentIndex > meetings?.length - 5) {
 			if (!info?.apiFetching) {
-				setInfo((prevInfo) => ({ ...prevInfo, apiFetching: true }));
-				getExistingBots({ page: nextPage, limit: 10, append: true });
+				handleGetExistingBots({ page: nextPage, limit: 10, append: true });
 			}
 		}
 		setInfo((prev) => ({
 			...prev,
 			currentIndex: (prev.currentIndex + 1) % meetings.length,
 		}));
-	};
+	}, [
+		hasNextPage,
+		info?.currentIndex,
+		info?.apiFetching,
+		meetings?.length,
+		nextPage,
+		handleGetExistingBots,
+	]);
 
 	useEffect(() => {
 		if (meetings.length > 0) {
@@ -143,6 +205,7 @@ const CardMeetBot = () => {
 			searchInputRef.current.focus();
 		}
 	}, [info.searchOpen]);
+
 	useEffect(() => {
 		getProactiveHeadings({ module: 'meeting' });
 	}, []);

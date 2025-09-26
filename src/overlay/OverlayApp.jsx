@@ -16,6 +16,8 @@ import OverlayNotification, { useOverlayNotification } from './components/Overla
 import './overlay.scss';
 import { transcription_socket } from '../services/config.live';
 import useAssemblyTranscription from './hooks/useAssemblyTranscription';
+import { useDispatch } from '@zubridge/electron';
+import { useStore } from '../store/store';
 
 const OverlayApp = () => {
 	const containerRef = useRef(null);
@@ -28,6 +30,8 @@ const OverlayApp = () => {
 
 	// Custom notification system
 	const notification = useOverlayNotification();
+	const dispatch = useDispatch();
+	const { pastMeetings, actions: meetingActions } = useStore((state) => state.meeting);
 
 	const [info, setInfo] = useState({
 		isMeetIsOngoing: false,
@@ -330,6 +334,17 @@ const OverlayApp = () => {
 
 			if (meetingResponse && meetingResponse[0] === true) {
 				meetingData = meetingResponse[1]?.data?.startMeeting;
+
+				const payload = {
+					...(pastMeetings || {}),
+					data: [meetingData, ...(pastMeetings?.data || [])],
+					totalDocs: (pastMeetings?.totalDocs ?? 0) + 1,
+				};
+
+				dispatch({
+					type: meetingActions.SET_PAST_MEETINGS,
+					payload,
+				});
 			}
 		}
 
@@ -337,6 +352,7 @@ const OverlayApp = () => {
 			// console.log('Meeting created successfully:', meetingData);
 
 			// Store meeting data and ID for later use
+
 			meetingIdRef.current = meetingData._id;
 			// console.log('OverlayApp: Stored meeting ID in ref:', meetingData._id);
 

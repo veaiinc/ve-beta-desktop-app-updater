@@ -176,6 +176,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [audioBlob, meetingId]);
 
+
 	// Start audio recording when meeting starts (for live meetings)
 	const initializeAudioRecording = useCallback(async () => {
 		console.log(

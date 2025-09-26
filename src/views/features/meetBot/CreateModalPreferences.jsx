@@ -27,7 +27,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 			smartQuestions: true,
 			instantAnswers: true,
 			actionSuggestions: true,
-			// contextFilePulls: true,
+			contextFilePulls: true,
 		},
 		allPreferences: {},
 	});
@@ -63,7 +63,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 					smartQuestions: preferences.askUser || false,
 					instantAnswers: preferences.needHelp || false,
 					actionSuggestions: preferences.actions || false,
-					// contextFilePulls: preferences.similarFiles || false,
+					contextFilePulls: preferences.similarFiles || false,
 				},
 			}));
 			setSliderValue(thresholdValue);
@@ -92,7 +92,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 							smartQuestions: currentPreferences.askUser || false,
 							instantAnswers: currentPreferences.needHelp || false,
 							actionSuggestions: currentPreferences.actions || false,
-							// contextFilePulls: currentPreferences.similarFiles || false,
+							contextFilePulls: currentPreferences.similarFiles || false,
 						},
 					}));
 					setSliderValue(thresholdValue);
@@ -118,7 +118,7 @@ const CreateModalPreferences = ({ mode = 'Meeting', onUpdatePreferences }) => {
 					askUser: enabledFeatures.smartQuestions,
 					needHelp: enabledFeatures.instantAnswers,
 					actions: enabledFeatures.actionSuggestions,
-					// similarFiles: enabledFeatures.contextFilePulls,
+					similarFiles: enabledFeatures.contextFilePulls,
 				},
 			};
 

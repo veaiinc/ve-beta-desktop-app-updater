@@ -102,8 +102,6 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 						...(response?.[1]?.data?.startMeeting || {}),
 					});
 
-					
-
 					window.electronApi.minimizeMainWindow();
 
 					// Trigger Dynamic Island recording for Windows (desktop mode only)
