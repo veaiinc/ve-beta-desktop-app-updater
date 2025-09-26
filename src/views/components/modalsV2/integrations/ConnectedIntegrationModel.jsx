@@ -9,8 +9,6 @@ import { ReactComponent as LinkIcon } from '../../../../assets/svg/link.svg';
 import '../../../../assets/scss/integrations/ConnectedCardIntegrationModel.scss';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
-import SyncUserAccountModal from './SyncUserAccountModal';
-import Spinner from '../../loaders/Spinner';
 
 const customStyles = {
 	content: {
@@ -54,7 +52,7 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 	const [disconnectingAccountId, setDisconnectingAccountId] = useState(null);
 
 	const {
-		templates: { disconnectThirdParty, getAuthUrlForThirdParty },
+		templates: { disconnectThirdParty, getAuthUrlForThirdParty, syncUserAccount },
 	} = useContext(Context);
 
 	const handleDisconnect = async (account) => {
@@ -119,6 +117,15 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 		} catch (error) {
 			console.error('Error connecting to integration:', error);
 			message.error('Failed to connect to integration');
+		}
+	};
+
+	const handleSyncUserAccount = async (integration) => {
+		let response = await syncUserAccount(integration?.connectType, integration?._id);
+		if (response?.[0]) {
+			message.success('Synced user account successfully');
+		} else {
+			message.error('Failed to sync user account');
 		}
 	};
 

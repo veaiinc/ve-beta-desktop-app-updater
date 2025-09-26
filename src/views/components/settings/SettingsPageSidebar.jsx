@@ -2,7 +2,6 @@ import { memo, useMemo, useCallback, act, useState } from 'react';
 import '../../../assets/scss/settings/settingsPageSidebar.scss';
 import { settingsItems } from '../topNavbar/components/settings/Settings';
 import { useNavigate, useParams } from 'react-router-dom';
-import TypedInputNumber from 'antd/es/input-number';
 
 // Memoized settings item component to prevent unnecessary re-renders
 const SettingsItem = memo(({ item, isActive, onItemClick }) => {
