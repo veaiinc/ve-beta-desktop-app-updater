@@ -213,21 +213,7 @@
 			padding: 0 16px;
 		}
 
-		// Pinned state styles
-		&.pinned {
-			position: fixed !important;
-			top: 50% !important;
-			left: 50% !important;
-			transform: translate(-50%, -50%) !important;
-			z-index: 30 !important;
-			width: 600px !important;
-			max-width: 90vw !important;
-			background: rgba(255, 255, 255, 0.95);
-			backdrop-filter: blur(10px);
-			border-radius: 12px;
-			padding: 20px 30px;
-			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-		}
+		// Removed pinned state styles - no more fixed positioning
 	}
 
 	// Text container for better positioning control
@@ -329,7 +315,7 @@
 	height: calc(100% - 40px); // Account for 20px border on each side
 	object-fit: cover;
 	position: absolute;
-	top: 20px; // Offset by border width
+	top: 35px; // Offset by border width
 	left: 20px; // Offset by border width
 	transition: opacity 0.8s ease-in-out;
 	will-change: opacity;
