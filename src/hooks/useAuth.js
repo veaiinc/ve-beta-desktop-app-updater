@@ -41,7 +41,8 @@ const useAuth = () => {
 
 	const checkUserAuthState = useCallback(() => {
 		if (!localStorage.getItem('usertoken')) {
-			window.location.replace('/');
+			window.location.hash = '/';
+			window.location.reload();
 		}
 		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
 
