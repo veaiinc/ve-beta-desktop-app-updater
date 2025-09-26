@@ -93,7 +93,11 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 
 	const fetchChats = useCallback(async () => {
 		const agentType = searchParams?.get('agentType') ?? 'multi_agent';
-		await getAiChatSessions({ reset, filters: { page, limit, agentType: [agentType] } });
+		const exclude = agentType === 'multi_agent' ? true : false;
+		await getAiChatSessions({
+			reset,
+			filters: { page, limit, agentType: ['knowledge_agent'], exclude },
+		});
 		updateAiSetupStateValues({
 			aiChatSessionsFilters: { agentType },
 		});
@@ -101,12 +105,13 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 
 	const fetchMoreChats = () => {
 		const agentType = searchParams?.get('agentType') ?? 'multi_agent';
+		const exclude = agentType === 'multi_agent' ? true : false;
 
 		if (hasNextPage) {
 			const nextPage = currentPage + 1;
 			getAiChatSessions({
 				reset: !reset,
-				filters: { page: nextPage, limit, agentType: [agentType] },
+				filters: { page: nextPage, limit, agentType: ['knowledge_agent'], exclude },
 			});
 		}
 	};

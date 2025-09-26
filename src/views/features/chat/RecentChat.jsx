@@ -10,9 +10,8 @@ import React, {
 } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import {
-	handleDeepSearchChainOfThought,
+	handleChainOfThought,
 	handleDeepResearchChainOfThought,
-	getBrowserUrls,
 	handleBrowserData,
 } from '../../../helpers/chat/chatHelpers';
 import Context from '../../../context/context';
@@ -459,7 +458,7 @@ const RecentChat = ({
 	const handleChatHistoryToggle = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			isChatHistoryClosed: !Boolean(prev?.isChatHistoryClosed),
+			isChatHistoryClosed: !prev?.isChatHistoryClosed,
 		}));
 	}, []);
 
@@ -513,6 +512,7 @@ const RecentChat = ({
 				const {
 					originalQuery = '',
 					response,
+					status,
 					_id: messageId,
 					citations,
 					workflowTemplateId,
@@ -556,23 +556,21 @@ const RecentChat = ({
 				}
 				let processing = null,
 					browserChainOfThought = null,
-					openBrowser = false;
+					openBrowser = false,
+					hasChainOfThought = false;
 
 				let deepResearch = {},
 					cot = [];
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { deep_search, deep_research, normal_search, open_browser } =
+						const { cot, deep_research, open_browser, normal_search } =
 							chainOfThought?.[i] || {};
-						if (deep_search) {
-							processing = 'Deep Search';
+						if (cot || normal_search) {
+							hasChainOfThought = true;
 							break;
 						} else if (deep_research) {
 							processing = 'Deep Research';
-							break;
-						} else if (normal_search) {
-							processing = 'Normal Search';
 							break;
 						} else if (open_browser) {
 							openBrowser = true;
@@ -580,12 +578,10 @@ const RecentChat = ({
 						}
 					}
 
-					if (processing === 'Deep Search') {
-						cot = handleDeepSearchChainOfThought(chainOfThought);
+					if (hasChainOfThought) {
+						cot = handleChainOfThought(chainOfThought);
 					} else if (processing === 'Deep Research') {
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
-					} else if (processing === 'Normal Search') {
-						cot = handleDeepSearchChainOfThought(chainOfThought);
 					} else if (openBrowser) {
 						browserChainOfThought = handleBrowserData(chainOfThought);
 					}
@@ -599,6 +595,7 @@ const RecentChat = ({
 					},
 					{
 						message: response,
+						status,
 						type: 'AI',
 						messageId,
 						rating: rating || null,
@@ -614,9 +611,8 @@ const RecentChat = ({
 						userFeedbackReasons,
 						userRemarks,
 						unintegrated_apps: unintegratedApps,
-						...(processing === 'Deep Search' && { chainOfThought: cot }),
+						...(hasChainOfThought && { chainOfThought: cot }),
 						...(processing === 'Deep Research' && { deepResearch }),
-						...(processing === 'Normal Search' && { chainOfThought: cot }),
 						...(browserChainOfThought && { browserChainOfThought }),
 					},
 				]?.concat(messages);
@@ -807,10 +803,6 @@ const RecentChat = ({
 			}
 			const { message_chunk_id, url_type, browserMetadata } = data;
 
-			// if (toolName) {
-			// 	getBrowserUrls(sessionId, handleGlobalChatMessages);
-			// }
-
 			if (message_chunk_id && (url_type === 'live_view' || browserMetadata)) {
 				handleGlobalChatMessages({
 					payload: data,
@@ -841,14 +833,16 @@ const RecentChat = ({
 		async (data, lastQuery) => {
 			try {
 				await sendMessage({ data, sessionId, onMessageFunc, isPublicChat, agentType });
-				setTimeout(() => {
-					smoothScrollToLastMessage();
-				}, 0);
-				handleGlobalChatMessages({
-					sessionId,
-					lastQuery,
-					updateExtraInfo: true,
-				});
+				if (data?.action !== 'stop') {
+					setTimeout(() => {
+						smoothScrollToLastMessage();
+					}, 0);
+					handleGlobalChatMessages({
+						sessionId,
+						lastQuery,
+						updateExtraInfo: true,
+					});
+				}
 			} catch (error) {
 				const info = typeof error?.message === 'string' ? error?.message || '' : '';
 				message.error(info);
@@ -859,8 +853,6 @@ const RecentChat = ({
 					updateExtraInfo: true,
 					removeStreaming: true,
 				});
-
-				// Handle error appropriately (show notification, etc.)
 			}
 		},
 		[sendMessage, sessionId, onMessageFunc, agentType, isPublicChat],

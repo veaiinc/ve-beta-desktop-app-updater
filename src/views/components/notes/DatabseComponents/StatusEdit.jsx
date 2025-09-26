@@ -179,10 +179,7 @@ const StatusEdit = ({ field, pageId, databaseId }) => {
 								placeholder={`New ${title.toLowerCase()} status`}
 								autoFocus
 							/>
-							<button
-								onClick={() => handleAddStatus(group)}
-								disabled={info.loading}
-							>
+							<button onClick={() => handleAddStatus(group)} disabled={info.loading}>
 								Add
 							</button>
 						</div>

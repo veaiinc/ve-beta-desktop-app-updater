@@ -17,7 +17,6 @@ import { ReactComponent as LogoutSvg } from '../../assets/logout.svg';
 import { ReactComponent as DownloadMacSvg } from '../../assets/download-mac.svg';
 import { ReactComponent as DownloadWindowsSvg } from '../../assets/download-windows.svg';
 import { ReactComponent as TemplatesSvg } from '../../assets/templates.svg';
-import useIntercom from '../../../../../hooks/useIntercom';
 import useBroadcastChannel from '../../../../../hooks/useBroadcastChannel';
 import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
 import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
@@ -31,14 +30,39 @@ const deepLinkUrl = 'veai://open';
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
 	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
-const isMacIntel64 =
-	navigator.userAgent.includes('Macintosh') &&
-	navigator.userAgent.includes('Intel') &&
-	navigator.userAgent.includes('x86_64');
+// const isMacIntel64 =
+// 	navigator.userAgent.includes('Macintosh') &&
+// 	navigator.userAgent.includes('Intel') &&
+// 	navigator.userAgent.includes('x86_64');
 
-const desktopAppDownloadUrl = isMacIntel64
-	? import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL
-	: import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+// Helper function to get Mac architecture asynchronously
+const getMacArchitecture = async () => {
+	try {
+		if (navigator.userAgentData?.getHighEntropyValues) {
+			const ua = await navigator.userAgentData.getHighEntropyValues(['architecture']);
+			return ua.architecture === 'arm';
+		}
+		return false;
+	} catch (error) {
+		console.warn('Failed to detect Mac architecture:', error);
+		return false;
+	}
+};
+
+// Function to get the appropriate desktop app download URL
+const getDesktopAppDownloadUrl = async () => {
+	if (!isMac) return null;
+
+	try {
+		const isMacArm64 = await getMacArchitecture();
+		return isMacArm64
+			? import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL
+			: import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL || null;
+	} catch (error) {
+		console.warn('Failed to determine download URL:', error);
+		return import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+	}
+};
 
 export const settingsItems = [
 	{
@@ -107,7 +131,6 @@ const Settings = ({
 	closeSettingsTooltip,
 }) => {
 	const { pathname } = useLocation();
-	const { shutdownIntercom, showIntercom, launchIntercom } = useIntercom();
 	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
@@ -152,11 +175,12 @@ const Settings = ({
 
 	// ✅ Extract the plan title (fallback to 'Free' or currentPlan?.currentPlan if not found)
 	const currentPlanTitle = currentPlanData?.plan || currentPlan?.currentPlan || 'Free';
-	const handleInstallOrOpen = () => {
+	const handleInstallOrOpen = async () => {
 		window.location.href = deepLinkUrl;
 
-		const timer = setTimeout(() => {
+		const timer = setTimeout(async () => {
 			if (isMac) {
+				const desktopAppDownloadUrl = await getDesktopAppDownloadUrl();
 				if (desktopAppDownloadUrl) {
 					window.open(desktopAppDownloadUrl, '_blank');
 				}
@@ -181,16 +205,18 @@ const Settings = ({
 			navigate(settingItem.route);
 		} else {
 			if (settingItem.label === 'Help') {
-				if (info.intercomOpen) {
-					shutdownIntercom();
-				} else {
-					await launchIntercom();
-					showIntercom();
+				// Use global Intercom instance
+				if (window.Intercom) {
+					if (info.intercomOpen) {
+						window.Intercom('shutdown');
+					} else {
+						window.Intercom('show');
+					}
+					setInfo((prev) => ({
+						...prev,
+						intercomOpen: !prev.intercomOpen,
+					}));
 				}
-				setInfo((prev) => ({
-					...prev,
-					intercomOpen: !prev.intercomOpen,
-				}));
 			}
 		}
 		closeSettingsTooltip();
@@ -360,19 +386,10 @@ const Settings = ({
 				</button>
 			</div>
 
-			{!info?.isDesktop && (
+			{!info?.isDesktop && isMac && (
 				<button className={s.downloadMacAppButton} onClick={handleInstallOrOpen}>
-					{isMac ? (
-						<>
-							<DownloadMacSvg />
-							<span>Download Mac App</span>
-						</>
-					) : (
-						<>
-							<DownloadWindowsSvg />
-							<span>Download Windows App</span>
-						</>
-					)}
+					<DownloadMacSvg />
+					<span>Download Mac App</span>
 				</button>
 			)}
 			{workspacesMoreThanOne && (

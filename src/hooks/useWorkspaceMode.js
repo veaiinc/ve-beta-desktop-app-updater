@@ -4,7 +4,6 @@ import Cookies from 'js-cookie';
 import fallbackRoute from '../routes/fallbackRoute';
 import Context from '../context/context';
 import { fetchDomainName } from '../helpers';
-import logout from '../helpers/logout';
 import useBroadcastChannel from './useBroadcastChannel';
 
 export const publicRoutesList = [
@@ -47,6 +46,7 @@ const useWorkspaceMode = () => {
 	const channel = useBroadcastChannel();
 	const {
 		profileInfo: { tennantSettingsData, getTenantSettings },
+		subscriptionInfo: { updateTokenExpiryState },
 	} = useContext(Context);
 
 	const [routesInfo, setRoutesInfo] = useState({
@@ -81,7 +81,7 @@ const useWorkspaceMode = () => {
 				if (!success) {
 					const { code } = response[1];
 					if (code === 401) {
-						logout();
+						updateTokenExpiryState({ expiredTokenModal: true });
 						channel.postMessage('reload');
 					} else if (code === 404) setWorkspaceNotFound(true);
 				}

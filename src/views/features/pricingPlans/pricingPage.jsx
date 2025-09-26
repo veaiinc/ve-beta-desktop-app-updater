@@ -33,6 +33,12 @@ const PricingPage = () => {
 		subscriptionType: 'normal',
 	});
 
+	const currentPlanId = currentPlan?.currentPlanId; // indicates the user's current plan
+	const paidPlanId = currentPlan?.paidPlanId; // indicates the user's last paid plan
+	const paidPlanExpiredAt = new Date(currentPlan?.expiresAt * 1000).toLocaleDateString('en-GB'); // indicates the user's last paid plan's expiry date
+
+	// console.log(currentPlan);
+	console.log(subscriptionPlans);
 	useEffect(() => {
 		if (subscriptionPlans === null) {
 			setInfo((prev) => ({ ...prev, isLoading: true }));
@@ -403,7 +409,16 @@ const PricingPage = () => {
 							};
 
 							return (
-								<div className="eachPricingCard" key={plan._id}>
+								<div
+									style={{
+										border:
+											currentPlanId === plan._id
+												? '1px solid var(--primary-button)'
+												: 'none',
+									}}
+									className="eachPricingCard"
+									key={plan._id}
+								>
 									<div className="pricingCardHeader">
 										<div className="pricingTitleContainer">
 											<span className="priceTitle">
@@ -440,6 +455,12 @@ const PricingPage = () => {
 												<span className="feature-text">{feature}</span>
 											</div>
 										))}
+										{paidPlanId === plan._id && (
+											<p>
+												This was your last paid plan. It expired on{' '}
+												{paidPlanExpiredAt}
+											</p>
+										)}
 									</div>
 
 									<div className="pricingButtonContainer">
@@ -450,8 +471,38 @@ const PricingPage = () => {
 													<div className="quantitySelectorLabel">
 														Users
 													</div>
+													{console.log(
+														info.tenantUsersCount[plan._id],
+														currentPlan?.tenantUsers,
+													)}
 													<div className="quantitySelectorControls">
 														<button
+															disabled={
+																info.tenantUsersCount[plan._id] ===
+																	undefined ||
+																info.tenantUsersCount[plan._id] ===
+																	currentPlan?.tenantUsers
+															}
+															style={{
+																opacity:
+																	info.tenantUsersCount[
+																		plan._id
+																	] === undefined ||
+																	info.tenantUsersCount[
+																		plan._id
+																	] === currentPlan?.tenantUsers
+																		? 0.5
+																		: 1,
+																cursor:
+																	info.tenantUsersCount[
+																		plan._id
+																	] === undefined ||
+																	info.tenantUsersCount[
+																		plan._id
+																	] === currentPlan?.tenantUsers
+																		? 'not-allowed'
+																		: 'pointer',
+															}}
 															onClick={() =>
 																decreaseTenantUsersCount(plan._id)
 															}
@@ -514,7 +565,7 @@ const PricingPage = () => {
 											<div className="pricingButtonRow">
 												{/* Trial button for Plus */}
 												{!currentPlan?.showTrail &&
-													plan?.plan === 'Plus' &&
+													plan?.plan === 'Pro' &&
 													!isEnterprise &&
 													info.selectedPlanId !== plan._id && (
 														<button
@@ -525,7 +576,7 @@ const PricingPage = () => {
 																	: handleBuyTrialPlan(plan)
 															}
 														>
-															Start free {planConfig.trialDays || 1}{' '}
+															Start free {planConfig.trialDays || 2}{' '}
 															day
 															{planConfig.trialDays > 1
 																? 's'
