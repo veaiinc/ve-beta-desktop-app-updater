@@ -1,0 +1,200 @@
+.downloadSection {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0 120px;
+	min-height: 400px;
+	background: var(--background-color);
+	position: relative;
+	z-index: 1; // Default z-index for proper layering
+	transform-origin: center center; // Ensure scaling happens from center
+	will-change: transform, opacity; // Optimize for animations
+
+	.container {
+		max-width: 1680px;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 50px;
+	}
+
+	.content {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 16px;
+		text-align: center;
+	}
+
+	.badge {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		padding: 6px 16px;
+		width: 111px;
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid #e5e5e5;
+		border-radius: 100px;
+
+		span {
+			font-family: var(--primary-font-family);
+			font-weight: 500;
+			font-size: 13px;
+			line-height: 1.35;
+			text-transform: uppercase;
+			color: var(--primary-font);
+		}
+	}
+
+	.heading {
+		font-family: 'Recoleta', serif;
+		font-weight: 400;
+		font-size: 65px;
+		line-height: 1.15;
+		letter-spacing: -5%;
+		text-transform: uppercase;
+		text-align: center;
+		color: var(--primary-font);
+		margin: 0;
+		will-change: transform; // Optimize for scaling animations
+		transition: all 0.3s ease; // Smooth transitions
+
+		span {
+			color: var(--primary-button);
+		}
+
+		@media (max-width: 768px) {
+			font-size: 48px;
+			line-height: 1.2;
+		}
+
+		@media (max-width: 480px) {
+			font-size: 36px;
+		}
+	}
+
+	.subheading {
+		font-family: var(--primary-font-family);
+		font-weight: 500;
+		font-size: 24px;
+		line-height: 1.35;
+		color: var(--secondary-font);
+		margin: 0;
+		will-change: transform; // Optimize for scaling animations
+		transition: all 0.3s ease; // Smooth transitions
+
+		@media (max-width: 768px) {
+			font-size: 20px;
+		}
+
+		@media (max-width: 480px) {
+			font-size: 18px;
+		}
+	}
+
+	.downloadButtons {
+		display: flex;
+		justify-content: center;
+		gap: 16px;
+		flex-wrap: wrap;
+		will-change: transform; // Optimize for scaling animations
+		transition: all 0.3s ease; // Smooth transitions
+
+		@media (max-width: 768px) {
+			flex-direction: column;
+			align-items: center;
+			gap: 12px;
+		}
+	}
+
+	.downloadButton {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		padding: 14px 24px;
+		width: 270px;
+		border-radius: 24px;
+		border: 1px solid rgba(21, 58, 229, 0.2);
+		background: rgba(255, 255, 255, 0.2);
+		box-shadow: 0 0 17px 0 rgba(21, 58, 229, 0.3) inset;
+		cursor: pointer;
+		transition: all 0.3s ease;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.3);
+			border-color: rgba(21, 58, 229, 0.4);
+			box-shadow: inset 0px 0px 17px 0px rgba(21, 58, 229, 0.4);
+			transform: translateY(-2px);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		span {
+			font-family: var(--primary-font-family);
+			color: #153ae5;
+			font-size: 16px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+
+		@media (max-width: 768px) {
+			width: 100%;
+			max-width: 300px;
+		}
+	}
+
+	.iconContainer {
+		width: 18px;
+		height: 18px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		svg {
+			width: 100%;
+			height: 100%;
+			fill: #153ae5;
+		}
+	}
+
+	.imacContainer {
+		margin-top: 120px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+
+		@media (max-width: 1024px) {
+			display: none; // Hide on tablet and mobile
+		}
+	}
+
+	@media (max-width: 1200px) {
+		padding: 0 60px;
+	}
+
+	@media (max-width: 768px) {
+		padding: 0 24px;
+		min-height: 300px;
+
+		.container {
+			gap: 32px;
+		}
+	}
+
+	@media (max-width: 480px) {
+		padding: 0 16px;
+
+		.container {
+			gap: 24px;
+		}
+	}
+}
