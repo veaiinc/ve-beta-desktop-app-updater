@@ -86,22 +86,20 @@ const PermissionOverlay = () => {
 		};
 	}, []);
 
-	// Auto-close overlay when all permissions are granted
-	// useEffect(() => {
-	// 	if (microphonePermission && screenPermission && cameraPermission && !isLoading) {
-	// 		setShowSuccessMessage(true);
-	// 		successTimeoutRef.current = setTimeout(() => {
-	// 			console.log('🎉 All permissions granted! Auto-closing overlay...');
-	// 			window.electronApi.permission.closeWindow();
-	// 		}, 5000); // Show success message for 2 seconds before closing
-	// 	}
+	// Show success message when required permissions are granted
+	useEffect(() => {
+		if (microphonePermission && cameraPermission && !isLoading) {
+			setShowSuccessMessage(true);
+			setPermissionRequestMessage('✅ Essential permissions granted! You can proceed to the next step.');
+			setTimeout(() => setPermissionRequestMessage(''), 5000);
+		}
 
-	// 	return () => {
-	// 		if (successTimeoutRef.current) {
-	// 			clearTimeout(successTimeoutRef.current);
-	// 		}
-	// 	};
-	// }, [microphonePermission, screenPermission, cameraPermission, isLoading]);
+		return () => {
+			if (successTimeoutRef.current) {
+				clearTimeout(successTimeoutRef.current);
+			}
+		};
+	}, [microphonePermission, cameraPermission, isLoading]);
 
 	// Real-time permission monitoring
 	const startPermissionMonitoring = useCallback(() => {
@@ -277,53 +275,29 @@ const PermissionOverlay = () => {
 
 	const handleScreenAction = async () => {
 		try {
-			console.log('🖥️ Requesting screen sharing permission...');
+			console.log('🖥️ Opening screen recording settings...');
 			
-			// First, try to request the permission from macOS
-			const requestResult = await window.electronApi.permission.requestScreenPermission();
-			console.log('🖥️ Screen sharing permission request result:', requestResult);
-			
-			if (requestResult.success && requestResult.granted) {
-				console.log('✅ Screen sharing permission granted!');
-				setPermissionRequestMessage('🎉 Screen sharing permission granted!');
-				setTimeout(() => setPermissionRequestMessage(''), 3000);
-				// Re-check permissions immediately
-				checkPermissions();
-			} else if (requestResult.success && !requestResult.granted) {
-				console.log('❌ Screen sharing permission denied by user');
-				setPermissionRequestMessage('❌ Screen sharing permission denied. Please enable it manually in System Settings.');
-				setTimeout(() => setPermissionRequestMessage(''), 5000);
-				// Still re-check to update the UI
-				checkPermissions();
+			// Directly open system settings for screen recording
+			const result = await window.electronApi.openScreenSettings();
+			if (result.success) {
+				console.log('✅ Screen recording settings opened successfully');
+				setPermissionRequestMessage('📋 Screen recording settings opened. Please enable "Ve.AI" in Privacy & Security > Screen Recording, then return here.');
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+				
+				// Start checking for permission updates after opening settings
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening screen settings...');
+					checkPermissions();
+				}, 2000);
 			} else {
-				console.log('⚠️ Permission request failed, opening system settings...');
-				// Fallback: open system settings
-				const result = await window.electronApi.openScreenSettings();
-				if (result.success) {
-					console.log('✅ Screen sharing settings opened successfully');
-					// Start more frequent checking after opening settings
-					setTimeout(() => {
-						console.log('🔄 Re-checking permissions after opening screen settings...');
-						checkPermissions();
-					}, 1000);
-				} else {
-					console.error('❌ Failed to open screen sharing settings:', result.error);
-				}
+				console.error('❌ Failed to open screen recording settings:', result.error);
+				setPermissionRequestMessage('❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.');
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
 			}
 		} catch (error) {
-			console.error('❌ Error requesting screen sharing permission:', error);
-			// Fallback: try to open system settings
-			try {
-				const result = await window.electronApi.openScreenSettings();
-				if (result.success) {
-					console.log('✅ Screen sharing settings opened as fallback');
-					setTimeout(() => {
-						checkPermissions();
-					}, 1000);
-				}
-			} catch (fallbackError) {
-				console.error('❌ Fallback also failed:', fallbackError);
-			}
+			console.error('❌ Error opening screen recording settings:', error);
+			setPermissionRequestMessage('❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.');
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
 		}
 	};
 
@@ -390,6 +364,15 @@ const PermissionOverlay = () => {
 		return 'permission-action-button pending';
 	};
 	const handleNext = () => {
+		// Microphone and camera are mandatory for proceeding to next step
+		const requiredPermissionsGranted = microphonePermission && cameraPermission;
+		
+		if (!requiredPermissionsGranted) {
+			setPermissionRequestMessage('⚠️ Please grant microphone and camera permissions to continue.');
+			setTimeout(() => setPermissionRequestMessage(''), 5000);
+			return;
+		}
+		
 		setCurrentStep(2);
 	};
 
@@ -398,7 +381,9 @@ const PermissionOverlay = () => {
 	};
 
 	const handleFinish = () => {
-		// Close the permission overlay
+		// Close the permission overlay regardless of screen recording permission
+		// Screen recording is optional, only mic and camera are required
+		console.log('🎉 Setup completed! Closing permission overlay...');
 		window.electronApi.permission.closeWindow();
 	};
 
@@ -548,27 +533,28 @@ const PermissionOverlay = () => {
 						{showSuccessMessage ? (
 							<div className="success-message">
 								<CheckCircle size={20} />
-								<p className="success-text">All permissions granted!</p>
+								<p className="success-text">Essential permissions granted! Ready to proceed.</p>
 							</div>
 						) : (
 							<p className="subtitle">
-								We'll need permission to share your screen, access your microphone, and camera.
+								We'll need permission to access your microphone and camera for full functionality. 
+								Screen recording is optional and enhances your experience.
 								{finalIsMac &&
 									' Click the buttons below to grant permissions, then return here.'}
 							</p>
 						)}
-						{isCheckingPermissions && (
+						{/* {isCheckingPermissions && (
 							<div className="checking-permissions">
 								<div className="spinner"></div>
 								<span>Checking permissions...</span>
 							</div>
-						)}
+						)} */}
 						{permissionRequestMessage && (
 							<div className="permission-request-message">
 								<span>{permissionRequestMessage}</span>
 							</div>
 						)}
-						{!isCheckingPermissions && (
+						{/* {!isCheckingPermissions && (
 							<div className="permission-controls">
 								<button
 									className="refresh-permissions-btn"
@@ -585,7 +571,7 @@ const PermissionOverlay = () => {
 									🔍 Debug
 								</button>
 							</div>
-						)}
+						)} */}
 					</div>
 
 					{/* Permission Items */}
@@ -656,9 +642,9 @@ const PermissionOverlay = () => {
 										<Monitor size={20} />
 									</div>
 									<div className="permission-details">
-										<h3 className="permission-title">Screen Sharing</h3>
+										<h3 className="permission-title">Screen Recording (Optional)</h3>
 										<p className="permission-description">
-											Allow Ve to share your screen content
+											Allow Ve to capture your screen for enhanced features
 										</p>
 										<div className="permission-status">
 											{/* <span

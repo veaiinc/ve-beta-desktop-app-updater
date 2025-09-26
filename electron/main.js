@@ -2213,8 +2213,8 @@ async function checkAllPermissions() {
 		}
 
 		// All permissions must be granted (for macOS) or we're on non-macOS
-		results.allGranted = results.microphone && results.screen;
-		// Note: Camera is optional for now, only require mic and screen
+		results.allGranted = results.microphone && results.camera;
+		// Note: screen is optional for now, only require mic and screen
 
 		log.info('🔍 Permission check results:', results);
 		return results;
