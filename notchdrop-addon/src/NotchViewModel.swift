@@ -254,7 +254,7 @@ class NotchViewModel: NSObject, ObservableObject {
         // Trigger overlay integration - this is the key addition
         // This will communicate with the overlay system to actually start recording
         // and show the Live Intelligence panel, just like the JavaScript version
-        swiftActionSender.send(.triggerOverlayToggleLiveIntelligence)
+        // swiftActionSender.send(.triggerOverlayToggleLiveIntelligence)
     }
     
     func stopRecording() {

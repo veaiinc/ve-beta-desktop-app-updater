@@ -21,9 +21,7 @@ const logoutAPI = async () => {
 		}
 		localStorage.clear();
 		Cookies.remove('usertoken');
-		Cookies.remove('refreshToken');
 		Cookies.remove('accessTokenExpiry');
-		Cookies.remove('refreshTokenExpiry');
 		Cookies.remove('region');
 		Cookies.remove('workspaceId');
 		Cookies.remove('isOnboard');
