@@ -6,6 +6,8 @@ import Public from '../views/layouts/Public';
 // pages
 import LandingPage from '../views/features/landingScreen/LandingPage';
 
+import { lazy } from 'react';
+
 // lazy loaded pages
 const LoginPage = lazy(() => import('../views/features/loginPage/LoginPage'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
