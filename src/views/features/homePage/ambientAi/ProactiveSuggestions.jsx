@@ -151,6 +151,31 @@ const onboardingCards = [
 		type: 'askVe',
 	},
 ];
+
+const proPlanOnboardingCards = [
+	{
+		title: 'What VE.AI do',
+		subTitle: 'For You',
+		description:
+			'Ve auto-detects key emails, drafts replies, and reminds you about missed threads all in the background.',
+		btnText: 'Show me',
+		type: 'onboard',
+	},
+	// {
+	// 	title: 'Connect your',
+	// 	subTitle: 'Integration',
+	// 	description:
+	// 		'Ve connects with your tools to detect meetings, track replies, and surface follow-ups without any extra work.',
+	// 	btnText: 'Connect Now',
+	// 	type: 'integration',
+	// },
+	{
+		title: 'Try asking',
+		subTitle: 'Ve',
+		description: 'Ask: “What can you do for me?” or “Show me how to get started.”',
+		type: 'askVe',
+	},
+];
 const ProactiveSuggestions = () => {
 	const navigate = useNavigate();
 	const currentIndexRef = useRef(0);
@@ -177,7 +202,10 @@ const ProactiveSuggestions = () => {
 		},
 		aiSetup: { proactiveHeadings, getProactiveHeadings },
 		profileInfo: { insightTypes, getAiInsightTypes },
+		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
+
+	const isProPlan = currentPlan?.aiTier === 'pro';
 
 	const [info, setInfo] = useState({
 		totalCardsData: [],
@@ -215,6 +243,8 @@ const ProactiveSuggestions = () => {
 	const [touchStartX, setTouchStartX] = useState(null);
 	const [touchEndX, setTouchEndX] = useState(null);
 	const minSwipeDistance = 50;
+
+	const unread = insightTypes?.unread;
 
 	const checkScroll = useCallback(() => {
 		const container = optionsContainerRef.current;
@@ -363,10 +393,10 @@ const ProactiveSuggestions = () => {
 		if (isMountedRef.current) return;
 
 		if (info?.selectedOption === 'onboarding') {
-			totalCardsDataRef.current = onboardingCards;
+			totalCardsDataRef.current = isProPlan ? proPlanOnboardingCards : onboardingCards;
 			setInfo((prev) => ({
 				...prev,
-				totalCardsData: onboardingCards,
+				totalCardsData: isProPlan ? proPlanOnboardingCards : onboardingCards,
 				loading: false,
 				hasCards: true,
 			}));
@@ -688,11 +718,10 @@ const ProactiveSuggestions = () => {
 		const selectedConfidenceScore = getFilterValues('Confidence level');
 		const [favourite] = getFilterValues('Other');
 		const { from, to } = getDateRangeFromFilters(info?.selectedFilters);
-
 		return {
 			...payload,
 			...(selectedPriority.length && { priority: selectedPriority }),
-			...(selectedReadStatus.length && { read: selectedReadStatus }),
+			...(selectedReadStatus.length && { read: unread === 0 ? true : selectedReadStatus }),
 			...(selectedConfidenceScore.length && { confidenceScore: selectedConfidenceScore }),
 			...(from !== undefined && to !== undefined && { from, to }),
 			sortType: info?.sortOptions[info?.sortBy]?.sortType,

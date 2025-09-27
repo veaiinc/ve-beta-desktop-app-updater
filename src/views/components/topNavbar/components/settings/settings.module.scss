@@ -239,6 +239,14 @@
 			}
 		}
 	}
+	.settingsItemsTitle {
+		color: var(--secondary-font, #a3a3a3);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
 	.settingsItems {
 		width: 100%;
 		display: flex;
