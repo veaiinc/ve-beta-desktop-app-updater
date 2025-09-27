@@ -106,11 +106,17 @@ const DocumentShare = ({
 	const getExpiryDropdownLabel = (expiresAt) => {
 		if (!expiresAt) return 'Never';
 		const now = dayjs().startOf('day');
-		const exp = dayjs.unix(expiresAt).endOf('day');
+		const exp = dayjs.unix(expiresAt);
 		const diffDays = exp.diff(now, 'day');
-		if (diffDays === 0) return '1 day';
-		if (diffDays === 6 || diffDays === 7) return '7 days';
-		if (diffDays === 29 || diffDays === 30) return '30 days';
+		
+		// Check if it's exactly 1 day from now (end of day)
+		if (diffDays === 0 && exp.isSame(dayjs().add(1, 'day').endOf('day'))) return '1 day';
+		// Check if it's exactly 7 days from now (end of day)
+		if (diffDays === 6 && exp.isSame(dayjs().add(7, 'days').endOf('day'))) return '7 days';
+		// Check if it's exactly 30 days from now (end of day)
+		if (diffDays === 29 && exp.isSame(dayjs().add(30, 'days').endOf('day'))) return '30 days';
+		
+		// If it doesn't match any of the predefined options, it's custom
 		return 'Custom';
 	};
 
@@ -524,7 +530,13 @@ const DocumentShare = ({
 		if (info.selected.expiry === 'Custom' && info.customDate) {
 			const dateString = info.customDate.format('YYYY-MM-DD');
 			// Fix: Handle time format properly - time input gives HH:mm, not HH:mm:ss
-			const timeString = info.customTime || '23:59';
+			// If customTime is empty and the selected date is today, use current time
+			let timeString = info.customTime;
+			if (!timeString && info.customDate.isSame(dayjs(), 'day')) {
+				timeString = dayjs().format('HH:mm');
+			} else if (!timeString) {
+				timeString = '23:59';
+			}
 			const combined = `${dateString} ${timeString}`;
 			// Use the correct format for parsing
 			expireAt = dayjs(combined, 'YYYY-MM-DD HH:mm');
@@ -543,13 +555,16 @@ const DocumentShare = ({
 			return '';
 		}
 
+		// Check if the link has already expired
+		if (expireAt.isBefore(dayjs())) {
+			return 'Link has expired';
+		}
+
 		const today = dayjs().startOf('day');
 		const days = expireAt.diff(today, 'day');
 
 		if (info.selected.expiry === 'Custom' && info.customDate) {
-			const timeDisplay = info.customTime
-				? dayjs(info.customTime, 'HH:mm').format('h:mm A')
-				: '11:59 PM';
+			const timeDisplay = expireAt.format('h:mm A');
 			return `Link will expire on ${expireAt.format(
 				'MMMM D, YYYY',
 			)} at ${timeDisplay} (in ${days} day${days !== 1 ? 's' : ''})`;
