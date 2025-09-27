@@ -1426,7 +1426,7 @@ function createWindow(restoreState = false) {
 				);
 				setTimeout(() => {
 					try {
-						windowHelper?.showPermissionWindow();
+						// windowHelper?.showPermissionWindow();
 					} catch (error) {
 						log.error('❌ Error showing permission overlay on focus:', error);
 					}
@@ -2600,7 +2600,7 @@ app.whenReady().then(async () => {
 			const isAuthenticated = await checkUserAuthenticationStatus();
 
 			if (!isAuthenticated) {
-				windowHelper.showPermissionWindow();
+				// windowHelper.showPermissionWindow();
 				log.info('📋 Permission overlay shown for unauthenticated user');
 			} else {
 				log.info('👤 User is authenticated - skipping permission overlay');
@@ -2608,7 +2608,7 @@ app.whenReady().then(async () => {
 		} catch (error) {
 			log.error('❌ Error checking authentication or showing permission overlay:', error);
 			// Show overlay on error to be safe
-			windowHelper.showPermissionWindow();
+			// windowHelper.showPermissionWindow();
 		}
 	}, 2000); // Delay to ensure main window is ready
 
@@ -2763,7 +2763,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('show-permission-window', async () => {
 		try {
-			windowHelper?.showPermissionWindow();
+			// windowHelper?.showPermissionWindow();
 			return { success: true };
 		} catch (error) {
 			log.error('Error showing Permission window:', error);
@@ -2787,7 +2787,7 @@ app.whenReady().then(async () => {
 			const isAuthenticated = await checkUserAuthenticationStatus();
 
 			if (!isAuthenticated) {
-				windowHelper?.showPermissionWindow();
+				// windowHelper?.showPermissionWindow();
 				log.info('📋 Permission overlay shown after auth check');
 				return { success: true, shown: true, authenticated: false };
 			} else {
