@@ -1,7 +1,7 @@
 .imacFrame {
 	position: relative;
 	width: 943.28px;
-	height: 880px; // Increased height for better text visibility and pinned content
+	height: 800px; // Increased height for better text visibility and pinned content
 	margin: 0 auto;
 	display: none; // Hidden by default, show only on desktop
 	transform-origin: center center; // Ensure scaling happens from center
@@ -13,7 +13,7 @@
 		width: 80vw;
 		height: calc(80vw * 0.85); // Maintain aspect ratio
 		max-width: 943.28px;
-		max-height: 600px;
+		max-height: 700px;
 	}
 
 	@media (max-width: 1200px) {
@@ -31,10 +31,7 @@
 	}
 
 	@media (min-width: 1025px) {
-		width: 80vw;
-		height: calc(80vw * 0.85);
-		max-width: 943.28px;
-		max-height: 600px;
+		display: block;
 	}
 
 	// VE text overlay - positioned at center of screen
@@ -60,30 +57,30 @@
 
 		@media (max-width: 1400px) {
 			font-size: 20px;
-			top: 58%;
-			padding: 0 30px;
+			top: 65%;
+			padding: 0 90px;
 		}
 
 		@media (max-width: 1200px) {
 			font-size: 18px;
-			top: 57%;
-			padding: 0 25px;
+			top: 60%;
+			padding: 0 90px;
 		}
 
 		@media (max-width: 1024px) {
 			font-size: 16px;
-			top: 56%;
-			padding: 0 20px;
+			top: 75%;
+			padding: 0 90px;
 		}
 
 		@media (max-width: 768px) {
 			font-size: 16px;
-			padding: 0 20px;
+			padding: 0 90px;
 		}
 
 		@media (max-width: 480px) {
 			font-size: 14px;
-			padding: 0 16px;
+			padding: 0 90px;
 		}
 	}
 
@@ -191,8 +188,8 @@
 		}
 
 		@media (max-width: 1400px) {
-			font-size: 9px;
-			top: 84%;
+			font-size: 10px;
+			top: 85%;
 			padding: 0 30px;
 		}
 		@media (max-width: 1200px) {
@@ -315,10 +312,10 @@
 
 .screenImage {
 	width: calc(100% - 40px); // Account for 20px border on each side
-	height: calc(100% - 40px); // Account for 20px border on each side
+	height: 100vh;
 	object-fit: cover;
 	position: absolute;
-	top: 35px; // Offset by border width
+	top: 16px; // Offset by border width
 	left: 20px; // Offset by border width
 	transition: opacity 0.8s ease-in-out;
 	will-change: opacity;
