@@ -108,14 +108,14 @@ const DocumentShare = ({
 		const now = dayjs().startOf('day');
 		const exp = dayjs.unix(expiresAt);
 		const diffDays = exp.diff(now, 'day');
-		
+
 		// Check if it's exactly 1 day from now (end of day)
 		if (diffDays === 0 && exp.isSame(dayjs().add(1, 'day').endOf('day'))) return '1 day';
 		// Check if it's exactly 7 days from now (end of day)
 		if (diffDays === 6 && exp.isSame(dayjs().add(7, 'days').endOf('day'))) return '7 days';
 		// Check if it's exactly 30 days from now (end of day)
 		if (diffDays === 29 && exp.isSame(dayjs().add(30, 'days').endOf('day'))) return '30 days';
-		
+
 		// If it doesn't match any of the predefined options, it's custom
 		return 'Custom';
 	};
