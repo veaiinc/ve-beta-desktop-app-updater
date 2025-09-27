@@ -9,6 +9,9 @@ import { ReactComponent as LinkIcon } from '../../../../assets/svg/link.svg';
 import '../../../../assets/scss/integrations/ConnectedCardIntegrationModel.scss';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
+import SyncAccountModal from './SyncAccountModal';
+import { Tooltip } from 'antd';
+import Spinner from '../../loaders/Spinner';
 
 const customStyles = {
 	content: {
@@ -43,6 +46,10 @@ const formatTimestamp = (timestamp) => {
 };
 
 const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration }) => {
+	const [info, setInfo] = useState({
+		isconnectingLoader: false,
+		syncModalOpen: false,
+	});
 	const [searchQuery, setSearchQuery] = useState('');
 	const [disconnectingAccountId, setDisconnectingAccountId] = useState(null);
 
@@ -66,20 +73,34 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 				setDisconnectingAccountId(null);
 				return;
 			}
-
+			setInfo((prev) => ({
+				...prev,
+				isconnectingLoader: true,
+			}));
 			const response = await disconnectThirdParty(integrationType, accountId);
 
 			if (response?.[0]) {
 				message.success('Account disconnected successfully');
-
+				setInfo((prev) => ({
+					...prev,
+					isconnectingLoader: false,
+				}));
 				closeModal();
 			} else {
 				const errorMessage = response?.[1]?.message || 'Failed to disconnect account';
 				message.error(errorMessage);
+				setInfo((prev) => ({
+					...prev,
+					isconnectingLoader: false,
+				}));
 			}
 		} catch (error) {
 			console.error('Error disconnecting account:', error);
 			message.error('Failed to disconnect account');
+			setInfo((prev) => ({
+				...prev,
+				isconnectingLoader: false,
+			}));
 		} finally {
 			setDisconnectingAccountId(null);
 		}
@@ -87,14 +108,15 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 
 	const handleConnect = async (integration) => {
 		try {
-			let response = await getAuthUrlForThirdParty(
-				integration?.connectType?.toLowerCase(),
-				integration?.access?.toLowerCase(),
-			);
 			setInfo((prev) => ({
 				...prev,
 				isconnectingLoader: true,
 			}));
+			let response = await getAuthUrlForThirdParty(
+				integration?.connectType?.toLowerCase(),
+				integration?.access?.toLowerCase(),
+			);
+
 			if (response?.[0]) {
 				message.success('Connected to integration successfully');
 				setInfo((prev) => ({
@@ -116,12 +138,16 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 	};
 
 	const handleSyncUserAccount = async (integration) => {
-		let response = await syncUserAccount(integration?.connectType, integration?._id);
-		if (response?.[0]) {
-			message.success('Synced user account successfully');
-		} else {
-			message.error('Failed to sync user account');
-		}
+		setInfo((prev) => ({
+			...prev,
+			syncModalOpen: true,
+		}));
+		// let response = await syncUserAccount(integration?.connectType, integration?._id);
+		// if (response?.[0]) {
+		// 	message.success('Synced user account successfully');
+		// } else {
+		// 	message.error('Failed to sync user account');
+		// }
 	};
 
 	// Filter accounts based on search query
@@ -198,7 +224,9 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 									onClick={() => handleSyncUserAccount(connectedIntegration)}
 									className="sync-button"
 								>
-									<SyncIcon />
+									<Tooltip title="Sync">
+										<SyncIcon />
+									</Tooltip>
 								</div>
 							)}
 							<button
@@ -220,14 +248,26 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 										}
 										className="disconnect-button"
 									>
-										<DisconnectIcon className="disconnect-icon" />
+										{info.isconnectingLoader ? (
+											<Spinner color="#ed4337" width="18px" height="18px" />
+										) : (
+											<Tooltip title="Disconnect">
+												<DisconnectIcon className="disconnect-icon" />
+											</Tooltip>
+										)}
 									</div>
 								) : (
 									<div
 										className="connect-button"
 										onClick={() => handleConnect(connectedIntegration)}
 									>
-										<LinkIcon />
+										{info.isconnectingLoader ? (
+											<Spinner color="#ffffff" width="18px" height="18px" />
+										) : (
+											<Tooltip title="Connect">
+												<LinkIcon />
+											</Tooltip>
+										)}
 									</div>
 								)}
 							</button>
@@ -313,6 +353,16 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 						</div>
 					</div>
 				</div>
+
+				{info.syncModalOpen && (
+					<SyncAccountModal
+						closeSyncModal={() =>
+							setInfo((prev) => ({ ...prev, syncModalOpen: false }))
+						}
+						connectedIntegration={connectedIntegration}
+						closeModal={closeModal}
+					/>
+				)}
 			</div>
 		</ReactModal>
 	);

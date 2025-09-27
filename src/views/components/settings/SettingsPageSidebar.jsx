@@ -57,7 +57,7 @@ const SettingsPageSidebar = ({ toggleSidebar }) => {
 	const navigate = useNavigate();
 	// const { type } = useParams();
 	const [info, setInfo] = useState({
-		activeType: '',
+		activeType: 'Connectors',
 	});
 
 	// Memoize filtered items to prevent unnecessary recalculations
