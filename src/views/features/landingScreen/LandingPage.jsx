@@ -54,8 +54,6 @@ const getDesktopAppDownloadUrl = async () => {
 	}
 };
 
-const downloadUrl = await getDesktopAppDownloadUrl();
-
 const pathToTabMap = {
 	'/': 0,
 	'/manifesto': 1,
@@ -156,16 +154,17 @@ const LandingPage = () => {
 		navigate(tabRoutes[tabVal]);
 	};
 
-	const handleDownloadVeAppPopupOpen = () => {
-		if (isMac && downloadUrl) {
-			window.open(downloadUrl, '_blank');
-			setInfo((prev) => ({
-				...prev,
-				downloadVeAppPopupOpen: true,
-			}));
-		} else {
-			navigate('/verify-user');
+	const handleDownloadVeAppPopupOpen = async () => {
+		if (isMac) {
+			const url = await getDesktopAppDownloadUrl();
+			if (url) {
+				window.open(url, '_blank');
+			}
 		}
+		setInfo((prev) => ({
+			...prev,
+			downloadVeAppPopupOpen: true,
+		}));
 	};
 
 	const tabComponents = {
@@ -264,7 +263,6 @@ const LandingPage = () => {
 			<DownloadVeAppPopup
 				isOpen={info.downloadVeAppPopupOpen}
 				closeModal={() => setInfo((prev) => ({ ...prev, downloadVeAppPopupOpen: false }))}
-				downloadUrl={downloadUrl}
 			/>
 		</>
 	);
