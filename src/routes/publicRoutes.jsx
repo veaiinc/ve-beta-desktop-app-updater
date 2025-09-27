@@ -6,7 +6,7 @@ import Public from '../views/layouts/Public';
 // pages
 import LandingPage from '../views/features/landingScreen/LandingPage';
 
-import { lazy } from 'react';
+import { lazy, Suspense } from 'react';
 
 // lazy loaded pages
 const LoginPage = lazy(() => import('../views/features/loginPage/LoginPage'));
@@ -20,6 +20,7 @@ const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerif
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import PricingPageWebsite from '../views/features/pricingPlans/PricingPageWebsite';
+import LiveIntelligence from '../views/features/onboarding/LiveIntelligence';
 
 const publicRoutes = [
 	{

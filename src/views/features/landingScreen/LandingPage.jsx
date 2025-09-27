@@ -32,6 +32,39 @@ import HeroSection from './heroSection/HeroSection';
 import VeSvg from '../../../assets/svg/veSvg';
 
 import '../../../assets/scss/landingScreen/index.scss';
+import DownloadVeAppPopup from '../../components/downloadVeAppPopup/DownloadVeAppPopup';
+
+const isMac =
+	navigator.userAgentData?.platform === 'macOS' ||
+	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
+
+const getMacArchitecture = async () => {
+	try {
+		if (navigator.userAgentData?.getHighEntropyValues) {
+			const ua = await navigator.userAgentData.getHighEntropyValues(['architecture']);
+			return ua.architecture === 'arm';
+		}
+		return false;
+	} catch (error) {
+		console.warn('Failed to detect Mac architecture:', error);
+		return false;
+	}
+};
+
+// Function to get the appropriate desktop app download URL
+const getDesktopAppDownloadUrl = async () => {
+	if (!isMac) return null;
+
+	try {
+		const isMacArm64 = await getMacArchitecture();
+		return isMacArm64
+			? import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL
+			: import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL || null;
+	} catch (error) {
+		console.warn('Failed to determine download URL:', error);
+		return import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+	}
+};
 
 const pathToTabMap = {
 	'/': 0,
@@ -49,7 +82,11 @@ const LandingPage = () => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [hasPlayed, setHasPlayed] = useState(false);
-	const [info, setInfo] = useState({ navVisible: true, seenOnce: false });
+	const [info, setInfo] = useState({
+		navVisible: true,
+		seenOnce: false,
+		downloadVeAppPopupOpen: false,
+	});
 
 	const videoRef = useRef(null);
 	const {
@@ -135,6 +172,19 @@ const LandingPage = () => {
 		setTab(tabVal);
 		const tabRoutes = ['/', '/manifesto', '/contact-us'];
 		navigate(tabRoutes[tabVal]);
+	};
+
+	const handleDownloadVeAppPopupOpen = async () => {
+		if (isMac) {
+			const url = await getDesktopAppDownloadUrl();
+			if (url) {
+				window.open(url, '_blank');
+			}
+		}
+		setInfo((prev) => ({
+			...prev,
+			downloadVeAppPopupOpen: true,
+		}));
 	};
 
 	const tabComponents = {
@@ -260,32 +310,33 @@ const LandingPage = () => {
 							{/* Navigation items will be added here if needed */}
 						</div>
 						<div className="right-container">
-							<div className="nav-buttons">
-								<Link className="nav-btn" to="/pricing">
-									Pricing
-								</Link>
-								{/* <Link className="nav-btn" to="/explore">
-									Explore
-								</Link> */}
-								<Link className="nav-btn" to="/verify-user">
-									Sign In
-								</Link>
-								<Link className="nav-btn primary" to="/verify-user">
-									Get Started
-								</Link>
+							<Link className="login-btn-text hide-on-mobile" to="/verify-user">
+								Login
+							</Link>
+							<div className="login-container">
+								<button
+									className="login-btn"
+									onClick={handleDownloadVeAppPopupOpen}
+								>
+									Signup
+								</button>
+								<button
+									className="sidebar-button mobile-only"
+									onClick={() => setMobileMenuOpen(true)}
+								>
+									<MenuIcon />
+								</button>
 							</div>
-							<button
-								className="sidebar-button mobile-only"
-								onClick={() => setMobileMenuOpen(true)}
-							>
-								<MenuIcon />
-							</button>
 						</div>
 					</div>
 					<MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 				</header>
 				{tabComponents[tab]}
 			</main>
+			<DownloadVeAppPopup
+				isOpen={info.downloadVeAppPopupOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, downloadVeAppPopupOpen: false }))}
+			/>
 		</>
 	);
 };
