@@ -248,8 +248,8 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 				const cardProgress = Math.min(1, progress * totalCards - index);
 				const fadeProgress = Math.max(0, Math.min(1, cardProgress));
 
-				// Calculate position
-				const topPosition = isSuggestion ? -80 : -positionInStack * 20;
+				// Calculate position - reduced upward movement for suggestion cards to prevent overlap
+				const topPosition = isSuggestion ? -140 : -positionInStack * 20;
 
 				// Animate card in
 				animateCardIn(

@@ -125,11 +125,28 @@
 .actionRequiredSection {
 	position: absolute;
 	top: clamp(120px, 28vh, 225px);
-	left: clamp(16px, 50vw, 450px);
+	left: 30%;
+	transform: translateX(-50%);
 	display: flex;
 	flex-direction: column;
 	gap: clamp(12px, 2.2vh, 24px);
 	max-width: min(90vw, 500px);
+	width: min(90vw, 500px);
+
+	/* Responsive adjustments for laptop screens */
+	@media (max-width: 1440px) {
+		width: min(85vw, 450px);
+	}
+
+	@media (max-width: 1200px) {
+		width: min(80vw, 400px);
+		max-width: min(80vw, 400px);
+	}
+
+	@media (max-width: 1024px) {
+		width: min(75vw, 350px);
+		max-width: min(75vw, 350px);
+	}
 
 	.actionRequiredHeader {
 		display: flex;
@@ -163,12 +180,20 @@
 .messageCard {
 	position: absolute;
 	bottom: clamp(80px, 22vh, 225px);
-	right: clamp(16px, 37vw, 400px);
+	left: 65%;
+	transform: translateX(-50%);
 	width: min(90vw, 500px);
+	max-width: 500px;
 	padding: clamp(16px, 2.4vh, 24px);
 	display: flex;
 	flex-direction: column;
 	gap: clamp(12px, 2vh, 20px);
+
+	/* Responsive adjustments for laptop screens */
+	@media (max-width: 1440px) {
+		width: min(85vw, 450px);
+		left: 75%;
+	}
 
 	.messageContent {
 		display: flex;

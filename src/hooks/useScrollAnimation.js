@@ -87,7 +87,7 @@ export const useScrollAnimation = () => {
 			scrollTrigger: {
 				trigger: downloadSectionRef.current,
 				start: 'top +=300px center',
-				end: 'bottom +=1200px center',
+				end: 'bottom +=1000px center',
 				scrub: 2,
 				pin: downloadSectionRef.current,
 				pinSpacing: true,
