@@ -1,0 +1,244 @@
+.actionsContainer {
+	position: relative;
+	width: 100%;
+	height: 100vh; /* Single viewport height for GSAP pinning */
+	overflow: hidden;
+}
+
+.actionsContainerInner {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+
+	.card {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		opacity: 0;
+		display: none;
+
+		&:first-child {
+			opacity: 1;
+			display: flex;
+		}
+	}
+}
+
+.dotGrid {
+	position: absolute;
+	top: clamp(96px, 20vh, 192px);
+	left: 50%;
+	transform: translateX(-50%);
+	width: clamp(240px, 45vw, 695px);
+	height: clamp(240px, 45vw, 695px);
+	background-image: radial-gradient(circle, #4a5568 1px, transparent 1px);
+	background-size: clamp(12px, 2vw, 20px) clamp(12px, 2vw, 20px);
+	opacity: 0.3;
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: clamp(140px, 24vw, 293px);
+		height: clamp(140px, 24vw, 293px);
+		background: rgba(121, 236, 201, 0.1);
+		border-radius: 50%;
+		filter: blur(clamp(60px, 12vw, 100px));
+	}
+}
+
+.progressBars {
+	position: absolute;
+	top: clamp(220px, 40vh, 479px);
+	right: clamp(12px, 3vw, 55px);
+	display: flex;
+	flex-direction: column;
+	gap: clamp(6px, 1.2vh, 8px);
+	z-index: 10000;
+	pointer-events: auto;
+
+	.progressBar {
+		width: clamp(4px, 0.6vw, 5px);
+		height: clamp(12px, 2vh, 16px);
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 24px;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		pointer-events: auto;
+		position: relative;
+		z-index: 11;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.4);
+			transform: scale(1.05);
+		}
+
+		&.selected {
+			width: clamp(4px, 0.6vw, 4px);
+			height: clamp(28px, 5vh, 40px);
+			background: #79ecc9;
+			box-shadow: 0 0 15px rgba(121, 236, 201, 0.6);
+		}
+
+		.progressFill {
+			width: 100%;
+			height: 60%;
+			border-radius: 24px;
+			pointer-events: none;
+		}
+	}
+}
+
+.titleSection {
+	position: absolute;
+	bottom: clamp(80px, 12vh, 130px);
+	left: clamp(16px, 6vw, 80px);
+	display: flex;
+	flex-direction: column;
+	gap: clamp(4px, 0.8vh, 6px);
+
+	.title {
+		font-family: var(--primary-font-family);
+		font-weight: 600;
+		font-size: clamp(16px, 2.2vw, 24px);
+		line-height: 1.35em;
+		text-transform: uppercase;
+		color: #ffffff;
+	}
+
+	.subtitle {
+		font-family: var(--primary-font-family);
+		font-weight: 400;
+		font-size: clamp(12px, 1.6vw, 16px);
+		line-height: 1.5em;
+		color: rgba(255, 255, 255, 0.7);
+	}
+}
+
+.actionRequiredSection {
+	position: absolute;
+	top: clamp(120px, 28vh, 225px);
+	left: clamp(16px, 50vw, 450px);
+	display: flex;
+	flex-direction: column;
+	gap: clamp(12px, 2.2vh, 24px);
+	max-width: min(90vw, 500px);
+
+	.actionRequiredHeader {
+		display: flex;
+		align-items: center;
+		gap: clamp(8px, 1.2vw, 10px);
+
+		.arrowIcon {
+			width: clamp(14px, 2.2vw, 20px);
+			height: clamp(14px, 2.2vw, 20px);
+		}
+
+		.actionRequiredText {
+			font-family: var(--primary-font-family);
+			font-weight: 500;
+			font-size: clamp(12px, 1.8vw, 16px);
+			line-height: 1.35em;
+			text-transform: uppercase;
+			color: #79ecc9;
+		}
+	}
+
+	.actionTitle {
+		font-family: var(--primary-font-family);
+		font-weight: 500;
+		font-size: clamp(16px, 2.4vw, 24px);
+		line-height: 1.3em;
+		color: #ffffff;
+	}
+}
+
+.messageCard {
+	position: absolute;
+	bottom: clamp(80px, 22vh, 225px);
+	right: clamp(16px, 37vw, 400px);
+	width: min(90vw, 500px);
+	padding: clamp(16px, 2.4vh, 24px);
+	display: flex;
+	flex-direction: column;
+	gap: clamp(12px, 2vh, 20px);
+
+	.messageContent {
+		display: flex;
+		flex-direction: column;
+		gap: clamp(10px, 1.6vh, 16px);
+
+		.messageText {
+			color: #fff;
+			font-family: var(--primary-font-family);
+			font-size: clamp(16px, 2.4vw, 26px);
+			font-weight: 500;
+			line-height: clamp(22px, 3.4vw, 34px);
+		}
+
+		.messageBody {
+			color: #fff;
+			font-family: var(--primary-font-family);
+			font-size: clamp(16px, 2.4vw, 26px);
+			font-weight: 500;
+			line-height: clamp(22px, 3.4vw, 34px);
+		}
+
+		.messageSignature {
+			color: #fff;
+			font-family: var(--primary-font-family);
+			font-size: clamp(16px, 2.4vw, 26px);
+			font-weight: 500;
+			line-height: clamp(22px, 3.4vw, 34px);
+		}
+	}
+
+	.buttonsContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: clamp(6px, 1vw, 8px);
+		align-self: stretch;
+
+		.actionButton {
+			display: flex;
+			padding: clamp(10px, 1.6vh, 12px) clamp(14px, 2.2vh, 18px);
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			flex: 1 0 0;
+			border-radius: clamp(18px, 3vw, 24px);
+			border: 1px solid rgba(121, 236, 201, 0.1);
+			background: rgba(0, 0, 0, 0.1);
+			box-shadow: 0 0 10px 0 rgba(121, 236, 201, 0.2) inset;
+			backdrop-filter: blur(25px);
+			cursor: pointer;
+			transition: all 0.3s ease;
+
+			&:hover {
+				background: rgba(0, 0, 0, 0.2);
+				box-shadow: inset 0px 0px 15px 0px rgba(121, 236, 201, 0.3);
+			}
+
+			.buttonIcon {
+				width: clamp(14px, 2.4vw, 18px);
+				height: clamp(14px, 2.4vw, 18px);
+				color: #ffffff;
+			}
+
+			.buttonText {
+				font-family: var(--primary-font-family);
+				font-weight: 550;
+				font-size: clamp(13px, 2vw, 15px);
+				line-height: 1.35em;
+				color: #79ecc9;
+			}
+		}
+	}
+}

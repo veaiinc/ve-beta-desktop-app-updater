@@ -2,6 +2,7 @@
 import { memo, useContext, useEffect, useState, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { useScrollAnimation } from '../../../hooks/useScrollAnimation';
 
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
@@ -11,6 +12,17 @@ import ContactUs from '../../components/landing_screen/ContactUs';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
 import CustomToast from '../../components/globalComponents/CustomToast';
+import AnimatedGlowBackground from '../../components/globalComponents/AnimatedGlowBackground';
+import PartnerSection from './PartnerSection';
+import DownloadSection from './DownloadSection';
+import FAQ from './FAQ';
+import NewsletterSection from './NewsletterSection';
+// import GlassFooterSection from './GlassFooter';
+import FullscreenIMac from './FullscreenIMac';
+import ProductIntro from './ProductIntro';
+import AmbientIntelligence from './intelligenceSections/Intelligence/AmbientIntelligence';
+import SuperAgent from './intelligenceSections/SuperAgent/SuperAgent';
+import MeetingIntelligence from './intelligenceSections/MeetingIntelligence/MeetingIntelligence';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
@@ -40,6 +52,14 @@ const LandingPage = () => {
 	const [info, setInfo] = useState({ navVisible: true, seenOnce: false });
 
 	const videoRef = useRef(null);
+	const {
+		downloadSectionRef,
+		iMacFrameRef,
+		fullscreenIMacRef,
+		backgroundRef,
+		productIntroRef,
+		videoRef: scrollVideoRef,
+	} = useScrollAnimation();
 
 	// sync tab with URL
 	useEffect(() => {
@@ -122,10 +142,14 @@ const LandingPage = () => {
 			<div className="page-body">
 				<div className="heroContainer">
 					<div className="title-container">
-						<HeroSection />
+						<DownloadSection
+							ref={downloadSectionRef}
+							iMacFrameRef={iMacFrameRef}
+							videoRef={scrollVideoRef}
+						/>
 					</div>
 
-					<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
+					{/* <div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
 						<button onClick={handleVideoClick}>
 							{isPlaying ? (
 								<>
@@ -148,12 +172,63 @@ const LandingPage = () => {
 							autoPlay={window.innerWidth < 768}
 							loop={window.innerWidth < 768}
 						/>
-					</div>
+					</div> */}
 				</div>
 
-				<Tagline />
-				<EarlyAccess />
-				<Footer />
+				{/* Fullscreen iMac Component for Scroll Animation */}
+				<FullscreenIMac ref={fullscreenIMacRef} />
+				{/* Additional content to ensure scrollable height for fullscreen animation and pinned text */}
+				<div
+					style={{
+						height: '93vh',
+						background: 'transparent',
+						minHeight: '600px', // Ensure minimum height for small screens
+					}}
+				></div>
+
+				{/* Product Intro */}
+				<ProductIntro ref={productIntroRef} />
+
+				{/* (Ambient Intelligence + Actions) with Ellipse Transition */}
+				<AmbientIntelligence />
+
+				{/* (Super Agent + Actions) */}
+				{/* <SuperAgent /> */}
+
+				{/* (Meeting Intelligence + Actions) */}
+				<MeetingIntelligence />
+
+				{/* <Tagline /> */}
+
+				{/* Combined sections with shared animated background */}
+				<AnimatedGlowBackground variant="subtle" intensity="medium" fitContent>
+					<PartnerSection />
+					<FAQ />
+					<NewsletterSection />
+				</AnimatedGlowBackground>
+
+				{/* <Footer /> */}
+
+				{/* Newsletter floating on MacBook Section */}
+				{/* <div className="newsletter-macbook-container">
+					<GlassFooterSection />
+					<div className="newsletter-overlay">
+						<NewsletterSection />
+					</div>
+				</div> */}
+
+				{/* Mobile Newsletter and Footer - positioned below FAQ on mobile */}
+				{/* <div className="mobile-footer-container">
+					<NewsletterSection />
+					<GlassFooterSection isMobileFooter={true} />
+				</div> */}
+
+				{/* Background Layer for Scroll Animation */}
+				{/* <div ref={backgroundRef} className="scroll-background">
+					<img src={BgLayerImage} alt="Background" className="background-image" />
+				</div> */}
+
+				{/* <EarlyAccess /> */}
 			</div>
 		),
 		1: <OurMission tab={tab} />,
@@ -177,30 +252,34 @@ const LandingPage = () => {
 					<div className="page-header-wrapper">
 						<div className="ve-logo-container">
 							<Link to="/">
-								<VeSvg width={36} height={24} fill="var(--primary-font)" />
+								<VeSvg width={36} height={24} />
 							</Link>
 						</div>
 
 						<div className="middle-container">
-							{!mobileMenuOpen && (
-								<TabNavigation tab={tab} handleSetTab={handleSetTab} />
-							)}
+							{/* Navigation items will be added here if needed */}
 						</div>
 						<div className="right-container">
-							<Link className="login-btn-text hide-on-mobile" to="/verify-user">
-								Login
-							</Link>
-							<div className="login-container">
-								<Link className="login-btn" to="/verify-user">
-									Signup
+							<div className="nav-buttons">
+								<Link className="nav-btn" to="/pricing">
+									Pricing
 								</Link>
-								<button
-									className="sidebar-button mobile-only"
-									onClick={() => setMobileMenuOpen(true)}
-								>
-									<MenuIcon />
-								</button>
+								{/* <Link className="nav-btn" to="/explore">
+									Explore
+								</Link> */}
+								<Link className="nav-btn" to="/verify-user">
+									Sign In
+								</Link>
+								<Link className="nav-btn primary" to="/verify-user">
+									Get Started
+								</Link>
 							</div>
+							<button
+								className="sidebar-button mobile-only"
+								onClick={() => setMobileMenuOpen(true)}
+							>
+								<MenuIcon />
+							</button>
 						</div>
 					</div>
 					<MobileMenu open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
