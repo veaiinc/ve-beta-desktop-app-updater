@@ -7,7 +7,7 @@ const PermissionOverlay = () => {
 	const [screenPermission, setScreenPermission] = useState(false);
 	const [cameraPermission, setCameraPermission] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
-	const [currentStep, setCurrentStep] = useState(1); // 1: Permissions, 2: Shortcuts
+	const [currentStep, setCurrentStep] = useState(1); // 1: Permissions, 2: Shortcuts, 3: AI Intelligence, 4: Super Agents, 5: Proactive AI
 	const [permissionDetails, setPermissionDetails] = useState({
 		microphone: { status: 'unknown', message: '' },
 		screen: { status: 'unknown', message: '' },
@@ -41,7 +41,13 @@ const PermissionOverlay = () => {
 	});
 
 	useEffect(() => {
-		// Check current permissions on mount immediately
+		// For onboarding screens (2-5), don't check permissions after step 1
+		if (currentStep > 1) {
+			setIsLoading(false);
+			return;
+		}
+
+		// Check current permissions on mount immediately for permission steps
 		console.log('🚀 PermissionOverlay mounted, checking permissions...');
 		checkPermissions();
 
@@ -84,13 +90,25 @@ const PermissionOverlay = () => {
 			window.removeEventListener('contextmenu', handleContextMenu);
 			stopPermissionMonitoring();
 		};
-	}, []);
+	}, [currentStep]);
+
+	// Check permissions when we reach step 1 (permissions screen)
+	useEffect(() => {
+		if (currentStep === 1) {
+			checkPermissions();
+			startPermissionMonitoring();
+		} else {
+			stopPermissionMonitoring();
+		}
+	}, [currentStep]);
 
 	// Show success message when required permissions are granted
 	useEffect(() => {
 		if (microphonePermission && cameraPermission && !isLoading) {
 			setShowSuccessMessage(true);
-			setPermissionRequestMessage('✅ Essential permissions granted! You can proceed to the next step.');
+			setPermissionRequestMessage(
+				'✅ Essential permissions granted! You can proceed to the next step.',
+			);
 			setTimeout(() => setPermissionRequestMessage(''), 5000);
 		}
 
@@ -224,11 +242,11 @@ const PermissionOverlay = () => {
 	const handleMicrophoneAction = async () => {
 		try {
 			console.log('🎤 Requesting microphone permission...');
-			
+
 			// First, try to request the permission from macOS
 			const requestResult = await window.electronApi.permission.requestMicrophonePermission();
 			console.log('🎤 Microphone permission request result:', requestResult);
-			
+
 			if (requestResult.success && requestResult.granted) {
 				console.log('✅ Microphone permission granted!');
 				setPermissionRequestMessage('🎉 Microphone permission granted!');
@@ -237,7 +255,9 @@ const PermissionOverlay = () => {
 				checkPermissions();
 			} else if (requestResult.success && !requestResult.granted) {
 				console.log('❌ Microphone permission denied by user');
-				setPermissionRequestMessage('❌ Microphone permission denied. Please enable it manually in System Settings.');
+				setPermissionRequestMessage(
+					'❌ Microphone permission denied. Please enable it manually in System Settings.',
+				);
 				setTimeout(() => setPermissionRequestMessage(''), 5000);
 				// Still re-check to update the UI
 				checkPermissions();
@@ -249,7 +269,9 @@ const PermissionOverlay = () => {
 					console.log('✅ Microphone settings opened successfully');
 					// Start more frequent checking after opening settings
 					setTimeout(() => {
-						console.log('🔄 Re-checking permissions after opening microphone settings...');
+						console.log(
+							'🔄 Re-checking permissions after opening microphone settings...',
+						);
 						checkPermissions();
 					}, 1000);
 				} else {
@@ -276,14 +298,16 @@ const PermissionOverlay = () => {
 	const handleScreenAction = async () => {
 		try {
 			console.log('🖥️ Opening screen recording settings...');
-			
+
 			// Directly open system settings for screen recording
 			const result = await window.electronApi.openScreenSettings();
 			if (result.success) {
 				console.log('✅ Screen recording settings opened successfully');
-				setPermissionRequestMessage('📋 Screen recording settings opened. Please enable "Ve.AI" in Privacy & Security > Screen Recording, then return here.');
+				setPermissionRequestMessage(
+					'📋 Screen recording settings opened. Please enable "Ve.AI" in Privacy & Security > Screen Recording, then return here.',
+				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
-				
+
 				// Start checking for permission updates after opening settings
 				setTimeout(() => {
 					console.log('🔄 Re-checking permissions after opening screen settings...');
@@ -291,12 +315,16 @@ const PermissionOverlay = () => {
 				}, 2000);
 			} else {
 				console.error('❌ Failed to open screen recording settings:', result.error);
-				setPermissionRequestMessage('❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.');
+				setPermissionRequestMessage(
+					'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.',
+				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
 			}
 		} catch (error) {
 			console.error('❌ Error opening screen recording settings:', error);
-			setPermissionRequestMessage('❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.');
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.',
+			);
 			setTimeout(() => setPermissionRequestMessage(''), 8000);
 		}
 	};
@@ -304,18 +332,20 @@ const PermissionOverlay = () => {
 	const handleCameraAction = async () => {
 		try {
 			console.log('📷 Requesting camera permission...');
-			
+
 			// First, try to request the permission from macOS
 			const requestResult = await window.electronApi.permission.requestCameraPermission();
 			console.log('📷 Camera permission request result:', requestResult);
-			
+
 			if (requestResult.success && requestResult.granted) {
 				console.log('✅ Camera permission granted!');
 				// Re-check permissions immediately
 				checkPermissions();
 			} else if (requestResult.success && !requestResult.granted) {
 				console.log('❌ Camera permission denied by user');
-				setPermissionRequestMessage('❌ Camera permission denied. Please enable it manually in System Settings.');
+				setPermissionRequestMessage(
+					'❌ Camera permission denied. Please enable it manually in System Settings.',
+				);
 				setTimeout(() => setPermissionRequestMessage(''), 5000);
 				// Still re-check to update the UI
 				checkPermissions();
@@ -364,20 +394,24 @@ const PermissionOverlay = () => {
 		return 'permission-action-button pending';
 	};
 	const handleNext = () => {
-		// Microphone and camera are mandatory for proceeding to next step
-		const requiredPermissionsGranted = microphonePermission && cameraPermission;
-		
-		if (!requiredPermissionsGranted) {
-			setPermissionRequestMessage('⚠️ Please grant microphone and camera permissions to continue.');
-			setTimeout(() => setPermissionRequestMessage(''), 5000);
-			return;
+		// Only check permissions when on the permissions step (step 1)
+		if (currentStep === 1) {
+			const requiredPermissionsGranted = microphonePermission && cameraPermission;
+
+			if (!requiredPermissionsGranted) {
+				setPermissionRequestMessage(
+					'⚠️ Please grant microphone and camera permissions to continue.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 5000);
+				return;
+			}
 		}
-		
-		setCurrentStep(2);
+
+		setCurrentStep(currentStep + 1);
 	};
 
 	const handleBack = () => {
-		setCurrentStep(1);
+		setCurrentStep(currentStep - 1);
 	};
 
 	const handleFinish = () => {
@@ -402,7 +436,7 @@ const PermissionOverlay = () => {
 			console.log('🔍 Debugging permissions...');
 			const debugResult = await window.electronApi.permission.debugPermissions();
 			console.log('🔍 Debug permissions result:', debugResult);
-			
+
 			if (debugResult.success) {
 				console.log('🔍 Platform:', debugResult.debugInfo.platform);
 				console.log('🔍 Is Mac Runtime:', debugResult.debugInfo.isMacRuntime);
@@ -415,7 +449,7 @@ const PermissionOverlay = () => {
 		}
 	};
 
-	if (isLoading) {
+	if (isLoading && currentStep >= 4) {
 		return (
 			<div className="permission-overlay">
 				<div className="permission-container">
@@ -424,6 +458,168 @@ const PermissionOverlay = () => {
 			</div>
 		);
 	}
+
+	// AI-Powered Meeting Intelligence screen
+	const renderAIMeetingIntelligenceScreen = () => (
+		<div className="onboarding-overlay">
+			<div className="onboarding-container">
+				<div className="onboarding-card">
+					{/* Ve Logo */}
+					{/* <div className="ve-logo">
+						<span className="ve-text">ve</span>
+					</div> */}
+
+					{/* Title */}
+					<h1 className="onboarding-title">AI-Powered Meeting Intelligence</h1>
+
+					{/* Feature Image */}
+
+					<div className="feature-image-container">
+						<img
+							src={'./page1.png'}
+							alt="AI-Powered Meeting Intelligences"
+							className="feature-image"
+						/>
+					</div>
+
+					{/* Description */}
+					<p className="onboarding-description">
+						Ve.ai listens to your meetings in real time and captures key moments like
+						questions, decisions, and action items. You'll get instant summaries,
+						searchable transcripts, and follow-up tasks without lifting a finger.
+					</p>
+
+					{/* Navigation Buttons */}
+					<div className="onboarding-navigation">
+						{/* Navigation Dots */}
+						<div className="onboarding-dots">
+							<span className="dot"></span>
+							<span className="dot"></span>
+							<span className="dot active"></span>
+							<span className="dot"></span>
+							<span className="dot"></span>
+						</div>
+						<div style={{ display: 'flex', gap: '16px' }}>
+							<button className="back-btn" onClick={handleBack}>
+								Back
+							</button>
+							<button className="next-btn" onClick={handleNext}>
+								Next
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+
+	// Super Agents screen
+	const renderSuperAgentsScreen = () => (
+		<div className="onboarding-overlay">
+			<div className="onboarding-container">
+				<div className="onboarding-card">
+					{/* Ve Logo */}
+					{/* <div className="ve-logo">
+						<span className="ve-text">ve</span>
+					</div> */}
+
+					{/* Title */}
+					<h1 className="onboarding-title">Super Agents at Your Command</h1>
+
+					{/* Feature Image */}
+					<div className="feature-image-container">
+						<img
+							src="./page2.png"
+							alt="Super Agents at Your Command"
+							className="feature-image"
+						/>
+					</div>
+
+					{/* Description */}
+					<p className="onboarding-description">
+						Super Agents are intelligent AI assistants that work alongside you in and
+						out of meetings. They help you manage your calendar, handle tasks, search
+						across your connected tools and even send or draft emails.
+					</p>
+
+					{/* Navigation Buttons */}
+					<div className="onboarding-navigation">
+						{/* Navigation Dots */}
+						<div className="onboarding-dots">
+							<span className="dot"></span>
+							<span className="dot"></span>
+							<span className="dot"></span>
+							<span className="dot active"></span>
+							<span className="dot"></span>
+						</div>
+
+						<div style={{ display: 'flex', gap: '16px' }}>
+							<button className="back-btn" onClick={handleBack}>
+								Back
+							</button>
+							<button className="next-btn" onClick={handleNext}>
+								Next
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+
+	// Proactive AI screen
+	const renderProactiveAIScreen = () => (
+		<div className="onboarding-overlay">
+			<div className="onboarding-container">
+				<div className="onboarding-card">
+					{/* Ve Logo */}
+					{/* <div className="ve-logo">
+						<span className="ve-text">ve</span>
+					</div> */}
+
+					{/* Title */}
+					<h1 className="onboarding-title">Proactive AI - Act before you ask</h1>
+
+					{/* Feature Image */}
+					<div className="feature-image-container">
+						<img
+							src="./page3.png"
+							alt="Proactive AI - Act before you ask"
+							className="feature-image"
+						/>
+					</div>
+
+					{/* Description */}
+					<p className="onboarding-description">
+						VE goes beyond responding to prompts. It proactively surfaces insights,
+						highlights risks, and suggests next steps, keeping you one step ahead
+						without extra effort.
+					</p>
+
+					{/* Navigation Buttons */}
+					<div className="onboarding-navigation">
+						{/* Navigation Dots */}
+						<div className="onboarding-dots">
+							<span className="dot"></span>
+							<span className="dot"></span>
+							<span className="dot"></span>
+							<span className="dot"></span>
+							<span className="dot active"></span>
+						</div>
+
+						<div style={{ display: 'flex', gap: '16px' }}>
+							<button className="back-btn" onClick={handleBack}>
+								Back
+							</button>
+							<button className="next-btn" onClick={handleFinish}>
+								Finish
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 
 	// Shortcuts screen component
 	const renderShortcutsScreen = () => (
@@ -503,12 +699,25 @@ const PermissionOverlay = () => {
 
 					{/* Navigation Buttons */}
 					<div className="navigation-buttons">
-						<button className="back-button" onClick={handleBack}>
-							Back
-						</button>
-						<button className="finish-button" onClick={handleFinish}>
-							Finish
-						</button>
+						{/* Navigation Dots */}
+						<div className="onboarding-dots">
+							<span className="dot"></span>
+							<span className="dot active"></span>
+							<span className="dot"></span>
+							<span className="dot"></span>
+							<span className="dot"></span>
+						</div>
+
+						<div style={{ display: 'flex', gap: '16px' }}>
+							<button className="back-button" onClick={handleBack}>
+								Back
+							</button>
+							<div className="next-button-container">
+								<button className="next-button" onClick={handleNext}>
+									Next
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -533,12 +742,15 @@ const PermissionOverlay = () => {
 						{showSuccessMessage ? (
 							<div className="success-message">
 								<CheckCircle size={20} />
-								<p className="success-text">Essential permissions granted! Ready to proceed.</p>
+								<p className="success-text">
+									Essential permissions granted! Ready to proceed.
+								</p>
 							</div>
 						) : (
 							<p className="subtitle">
-								We'll need permission to access your microphone and camera for full functionality. 
-								Screen recording is optional and enhances your experience.
+								We'll need permission to access your microphone and camera for full
+								functionality. Screen recording is optional and enhances your
+								experience.
 								{finalIsMac &&
 									' Click the buttons below to grant permissions, then return here.'}
 							</p>
@@ -642,7 +854,9 @@ const PermissionOverlay = () => {
 										<Monitor size={20} />
 									</div>
 									<div className="permission-details">
-										<h3 className="permission-title">Screen Recording (Optional)</h3>
+										<h3 className="permission-title">
+											Screen Recording (Optional)
+										</h3>
 										<p className="permission-description">
 											Allow Ve to capture your screen for enhanced features
 										</p>
@@ -752,11 +966,22 @@ const PermissionOverlay = () => {
 							</div>
 						</div>
 
-						{/* Next Button */}
-						<div className="next-button-container">
-							<button className="next-button" onClick={handleNext}>
-								Next
-							</button>
+						{/* Navigation */}
+						<div className="navigation-buttons">
+							{/* Navigation Dots */}
+							<div className="onboarding-dots">
+								<span className="dot active"></span>
+								<span className="dot"></span>
+								<span className="dot"></span>
+								<span className="dot"></span>
+								<span className="dot"></span>
+							</div>
+
+							<div className="next-button-container">
+								<button className="next-button" onClick={handleNext}>
+									Next
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -765,7 +990,15 @@ const PermissionOverlay = () => {
 	);
 
 	// Render based on current step
-	return <>{currentStep === 1 ? renderPermissionsScreen() : renderShortcutsScreen()}</>;
+	return (
+		<>
+			{currentStep === 1 && renderPermissionsScreen()}
+			{currentStep === 2 && renderShortcutsScreen()}
+			{currentStep === 3 && renderAIMeetingIntelligenceScreen()}
+			{currentStep === 4 && renderSuperAgentsScreen()}
+			{currentStep === 5 && renderProactiveAIScreen()}
+		</>
+	);
 };
 
 export default PermissionOverlay;
