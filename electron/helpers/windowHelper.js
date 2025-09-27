@@ -538,6 +538,7 @@ class WindowHelper {
 				contextIsolation: true,
 				preload: path.join(__dirname, '..', 'preload.js'),
 				devTools: true,
+				sandbox: false,
 			},
 			show: false,
 			alwaysOnTop: true,
