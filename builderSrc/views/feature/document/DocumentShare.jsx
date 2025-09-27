@@ -11,7 +11,7 @@ import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile
 import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
 import { ReactComponent as NoImageIcon } from '../../../assets/svg/document/noImage.svg';
-import { DatePicker, Modal, Input, Button, TimePicker } from 'antd';
+import { DatePicker, ConfigProvider, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';
 import { message } from 'antd';
@@ -951,46 +951,71 @@ const DocumentShare = ({
 					)}
 					{info.selected.expiry === 'Custom' && info.showDatePicker && (
 						<div className="date-picker">
-							<DatePicker
-								value={info.customDate}
-								onChange={handleCustomDateChange}
-								disabledDate={(current) =>
-									current && current < dayjs().startOf('day')
-								}
-								format="YYYY-MM-DD"
-							/>
-							<TimePicker
-								className="time-input"
-								value={info.customTime ? dayjs(info.customTime, 'HH:mm') : null}
-								onChange={handleCustomTimeChange}
-								format="HH:mm"
-								disabledTime={() => {
-									// Disable past times if the selected date is today
-									if (info.customDate && info.customDate.isSame(dayjs(), 'day')) {
-										const now = dayjs();
-										return {
-											disabledHours: () => {
-												const hours = [];
-												for (let i = 0; i < now.hour(); i++) {
-													hours.push(i);
-												}
-												return hours;
-											},
-											disabledMinutes: (selectedHour) => {
-												if (selectedHour === now.hour()) {
-													const minutes = [];
-													for (let i = 0; i <= now.minute(); i++) {
-														minutes.push(i);
-													}
-													return minutes;
-												}
-												return [];
-											},
-										};
-									}
-									return {};
+							<ConfigProvider
+								theme={{
+									token: {
+										colorPrimary: '#000000',
+									},
 								}}
-							/>
+							>
+								<DatePicker
+									value={info.customDate}
+									onChange={handleCustomDateChange}
+									disabledDate={(current) =>
+										current && current < dayjs().startOf('day')
+									}
+									format="YYYY-MM-DD"
+								/>
+							</ConfigProvider>
+
+							<ConfigProvider
+								theme={{
+									components: {
+										Select: {
+											colorTextSelected: '#ff0000', // red text when selected
+										},
+										Menu: {
+											itemSelectedColor: '#ff0000', // red text when selected
+										},
+									},
+								}}
+							>
+								<TimePicker
+									// className="time-input"
+									value={info.customTime ? dayjs(info.customTime, 'HH:mm') : null}
+									onChange={handleCustomTimeChange}
+									format="HH:mm"
+									disabledTime={() => {
+										// Disable past times if the selected date is today
+										if (
+											info.customDate &&
+											info.customDate.isSame(dayjs(), 'day')
+										) {
+											const now = dayjs();
+											return {
+												disabledHours: () => {
+													const hours = [];
+													for (let i = 0; i < now.hour(); i++) {
+														hours.push(i);
+													}
+													return hours;
+												},
+												disabledMinutes: (selectedHour) => {
+													if (selectedHour === now.hour()) {
+														const minutes = [];
+														for (let i = 0; i <= now.minute(); i++) {
+															minutes.push(i);
+														}
+														return minutes;
+													}
+													return [];
+												},
+											};
+										}
+										return {};
+									}}
+								/>
+							</ConfigProvider>
 						</div>
 					)}
 					<div className="description">{getExpiryDescription()}</div>

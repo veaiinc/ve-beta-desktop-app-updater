@@ -356,11 +356,11 @@ $font-inter: 'Inter', sans-serif;
 				}
 			}
 		}
-		:where(.css-dev-only-do-not-override-mc1tut).ant-picker
-			.ant-picker-input-placeholder
-			> input {
-			color: #fff !important;
-		}
+		// :where(.css-dev-only-do-not-override-mc1tut).ant-picker
+		// 	.ant-picker-input-placeholder
+		// 	> input {
+		// 	color: #fff !important;
+		// }
 
 		.dropdown-options {
 			position: absolute;
@@ -407,47 +407,54 @@ $font-inter: 'Inter', sans-serif;
 		}
 		.date-picker {
 			.ant-picker {
-				background: #252728;
-				color: #f2f2f3;
-				border: 1px solid #2c2e31;
-				svg {
-					path {
-						fill: var(--primary-font, #f2f2f3);
-					}
-				}
-				&:hover {
-					.ant-picker-input {
-						cursor: pointer;
-						color: var(--primary-font, #f2f2f3);
-						svg {
-							path {
-								fill: var(--primary-font, #f2f2f3);
-							}
-						}
-					}
-				}
+				margin-left: 10px;
 			}
 			.time-input {
-				width: auto;
-				height: 32px;
-				border-radius: 8px;
-				border: 1px solid var(--stroke, #2c2e31);
-				padding: 0 10px;
-				margin-left: 10px;
-				background: #252728;
-				color: #f2f2f3;
-				font-family: $font-general-sans;
-				font-size: 14px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: normal;
-				border: 1px solid #2c2e31;
-				&:hover {
-					cursor: pointer;
-					background: #1a1a1a;
-				}
 			}
 		}
+		// .date-picker {
+		// 	.ant-picker {
+		// 		background: #252728;
+		// 		color: #f2f2f3;
+		// 		border: 1px solid #2c2e31;
+		// 		svg {
+		// 			path {
+		// 				fill: var(--primary-font, #f2f2f3);
+		// 			}
+		// 		}
+		// 		&:hover {
+		// 			.ant-picker-input {
+		// 				cursor: pointer;
+		// 				color: var(--primary-font, #f2f2f3);
+		// 				svg {
+		// 					path {
+		// 						fill: var(--primary-font, #f2f2f3);
+		// 					}
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// 	.time-input {
+		// 		width: auto;
+		// 		height: 32px;
+		// 		border-radius: 8px;
+		// 		border: 1px solid var(--stroke, #2c2e31);
+		// 		padding: 0 10px;
+		// 		margin-left: 10px;
+		// 		background: #252728;
+		// 		color: #f2f2f3;
+		// 		font-family: $font-general-sans;
+		// 		font-size: 14px;
+		// 		font-style: normal;
+		// 		font-weight: 500;
+		// 		line-height: normal;
+		// 		border: 1px solid #2c2e31;
+		// 		&:hover {
+		// 			cursor: pointer;
+		// 			background: #1a1a1a;
+		// 		}
+		// 	}
+		// }
 
 		.description {
 			overflow: hidden;
@@ -996,49 +1003,49 @@ $font-inter: 'Inter', sans-serif;
 	}
 }
 
-.ant-picker-panel-layout {
-	background: #252728;
-	color: #f2f2f3 !important;
-	border: 1px solid #2c2e31;
-	.ant-picker-header {
-		color: #f2f2f3 !important;
-		button {
-			color: #ffff !important;
-		}
-	}
+// .ant-picker-panel-layout {
+// 	background: #252728;
+// 	color: #f2f2f3 !important;
+// 	border: 1px solid #2c2e31;
+// 	.ant-picker-header {
+// 		color: #f2f2f3 !important;
+// 		button {
+// 			color: #ffff !important;
+// 		}
+// 	}
 
-	.ant-picker-body {
-		.ant-picker-content {
-			color: #f2f2f3 !important;
-			thead {
-				tr {
-					th {
-						color: #f2f2f3 !important;
-					}
-				}
-			}
-			tbody {
-				tr {
-					td {
-						.ant-picker-cell {
-							background-color: red !important;
-							.ant-picker-cell-disabled {
-								background: red !important;
-							}
-						}
+// 	.ant-picker-body {
+// 		.ant-picker-content {
+// 			color: #f2f2f3 !important;
+// 			thead {
+// 				tr {
+// 					th {
+// 						color: #f2f2f3 !important;
+// 					}
+// 				}
+// 			}
+// 			tbody {
+// 				tr {
+// 					td {
+// 						.ant-picker-cell {
+// 							background-color: red !important;
+// 							.ant-picker-cell-disabled {
+// 								background: red !important;
+// 							}
+// 						}
 
-						color: #f2f2f3 !important;
-					}
-				}
-			}
-		}
-	}
-	.ant-picker-footer {
-		.ant-picker-now-btn {
-			color: #f2f2f3 !important;
-		}
-	}
-}
+// 						color: #f2f2f3 !important;
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
+// 	.ant-picker-footer {
+// 		.ant-picker-now-btn {
+// 			color: #f2f2f3 !important;
+// 		}
+// 	}
+// }
 
 .ant-picker-time-panel-container {
 	.ant-picker-panel-layout {
@@ -1048,23 +1055,27 @@ $font-inter: 'Inter', sans-serif;
 					.ant-picker-time-panel-column {
 						.ant-picker-time-panel-cell {
 							color: #f2f2f3 !important;
+							.ant-picker-time-panel-cell-selected {
+								color: #f2f2f3 !important;
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-	.ant-picker-footer {
-		.ant-picker-ranges {
-			color: #f2f2f3 !important;
-			.ant-picker-ok {
-				color: #f2f2f3 !important;
-			}
-		}
-	}
 }
+// 	.ant-picker-footer {
+// 		.ant-picker-ranges {
+// 			color: #f2f2f3 !important;
+// 			.ant-picker-ok {
+// 				color: #f2f2f3 !important;
+// 			}
+// 		}
+// 	}
+// }
 
-:where(.css-dev-only-do-not-override-mc1tut).ant-picker-dropdown .ant-picker-cell-disabled {
-	background: rgb(30, 29, 29) !important;
-	color: rgb(66, 65, 65) !important;
-}
+// :where(.css-dev-only-do-not-override-mc1tut).ant-picker-dropdown .ant-picker-cell-disabled {
+// 	background: rgb(30, 29, 29) !important;
+// 	color: rgb(66, 65, 65) !important;
+// }
