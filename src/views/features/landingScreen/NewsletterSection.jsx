@@ -153,7 +153,7 @@ const NewsletterSection = () => {
 								<span className={s.columnTitle}>Support</span>
 							</div>
 							<div className={s.linkItem}>
-								<Link to="https://intercom.help/veai-3b653317fa86/en" className={s.linkText}>
+								<Link to="https://intercom.help/Ve_ai/en" target='_blank' className={s.linkText}>
 									Help Center
 								</Link>
 							</div>
