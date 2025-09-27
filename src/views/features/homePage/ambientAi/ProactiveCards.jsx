@@ -3,6 +3,7 @@ import '../../../../assets/scss/home_page/ambientAi/proactiveCards.scss';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
 import dayjs from 'dayjs';
 import { Tooltip } from 'antd';
+// import upgradeCardImage from '../../../../assets/images/image.png';
 
 const positionClassMap = {
 	0: 'selected',
@@ -32,7 +33,9 @@ const ProactiveCards = ({ cards = [], selectedOption = null, handleCardClick = n
 						onClick={() => handleCardClick?.(card, index)}
 						style={{
 							background:
-								classList?.[1] === 'selected'
+								card?.id === 'upgradeCard'
+									? 'url(' + card?.background + ')'
+									: classList?.[1] === 'selected'
 									? 'var(--popup)'
 									: 'var(--background-color)',
 							overflow: 'hidden',
@@ -46,6 +49,7 @@ const ProactiveCards = ({ cards = [], selectedOption = null, handleCardClick = n
 						>
 							<div className="onboarding-title">
 								{card?.title}
+								{/* <img src={upgradeCardImage} alt="card" /> */}
 								<br />
 								<span
 									style={{
@@ -67,6 +71,48 @@ const ProactiveCards = ({ cards = [], selectedOption = null, handleCardClick = n
 								{card?.description}
 							</div>
 						</div>
+						{card?.id === 'upgradeCard' && (
+							<div
+								style={{
+									position: 'absolute',
+									bottom: 0,
+									width: '100%',
+									height: '80px',
+									left: 0,
+									display: 'flex',
+									justifyContent: 'center',
+									alignItems: 'center',
+									color: 'var(--primary-font)',
+									fontSize: '14px',
+									fontWeight: '600',
+									lineHeight: 'normal',
+									fontFamily: 'var(--primary-font-family)',
+								}}
+							>
+								<p
+									style={{
+										color: 'rgba(242, 242, 243, 0.90)',
+										fontFamily: 'var(--primary-font-family)',
+										fontSize: '19px',
+										fontStyle: 'normal',
+										fontWeight: '500',
+										lineHeight: '22px',
+										letterSpacing: '-0.76px',
+										textAlign: 'center',
+									}}
+								>
+									Upgrade to{' '}
+									<span
+										style={{
+											color: 'var(--primary-button)',
+										}}
+									>
+										Pro Plan
+									</span>{' '}
+									to see Proactive Insights
+								</p>
+							</div>
+						)}
 						{classList?.[1] === 'selected' && card?.btnText && (
 							<div className="onboarding-footer">
 								{card?.btnText}

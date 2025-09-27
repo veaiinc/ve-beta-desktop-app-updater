@@ -78,7 +78,7 @@ const betaRoutes = [
 	// ONBOARDING, HOME & FEATURES
 	// ========================================
 	{
-		path: '/home',
+		path: '/tools',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Tools'}>
@@ -121,11 +121,11 @@ const betaRoutes = [
 	// AI & ASSISTANT FEATURES
 	// ========================================
 	{
-		path: '/priority',
+		path: '/home',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper
-					title={'Priority'}
+					title={'Proactive AI'}
 					outerContainerStyle={{ overflow: 'hidden' }}
 					childrenContainerStyles={{ overflow: 'auto' }}
 					showBottomToolbar={false}
