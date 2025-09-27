@@ -42,7 +42,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const { pastMeetings, actions: meetingActions } = useStore((state) => state.meeting);
+	const { pastMeetings, actions: meetingActions } = useStore((state) => state.meeting) || {};
 
 	const [formData, setFormData] = useState({
 		selectedMode: 'desktop',

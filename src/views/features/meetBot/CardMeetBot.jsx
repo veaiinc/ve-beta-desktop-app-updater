@@ -47,7 +47,7 @@ const CardMeetBot = () => {
 		pastMeetings,
 		activeMeetingId,
 		actions: meetingActions,
-	} = useStore((state) => state.meeting);
+	} = useStore((state) => state.meeting) || {};
 
 	const meetings = useMemo(() => pastMeetings?.data || [], [pastMeetings?.data]);
 	const loadingMeetings = pastMeetings?.data ? false : true;
