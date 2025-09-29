@@ -43,7 +43,7 @@ const {
 
 // Add these after your existing requires
 const { createBridge } = require('./bridge.js');
-const { createStore } = require('./store.js');
+const { createStore, storeActions } = require('./store.js');
 
 // Import dynamic island helper
 // const { DynamicIslandHelper } = require('./dynamicIslandHelper');
@@ -2837,6 +2837,10 @@ app.whenReady().then(async () => {
 			log.error('Error minimizing main window:', error);
 			return { success: false, error: error.message };
 		}
+	});
+
+	ipcMain.on('get-store-actions-sync', (event) => {
+		event.returnValue = storeActions; // synchronous return
 	});
 
 	ipcMain.handle('get-window-info', (event) => {
