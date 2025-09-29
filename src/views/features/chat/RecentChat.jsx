@@ -888,9 +888,12 @@ const RecentChat = ({
 		(index) => {
 			setInfo((prev) => {
 				if (index !== prev?.citationsAiMessageIndex) {
-					updateStateValues({
-						chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
-					});
+					setTimeout(() => {
+						updateStateValues({
+							chatSources:
+								globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
+						});
+					}, 0);
 				}
 				return {
 					...prev,
