@@ -145,6 +145,10 @@ const NewSidebar = () => {
 					...(!info?.sidebarOpen && {
 						transform: info?.sidebarHoverState ? 'translateX(0)' : 'translateX(-256px)',
 					}),
+					...(info?.overlay &&
+						info?.sidebarOpen && {
+							backgroundColor: 'var(--card-hover)',
+						}),
 				}}
 				onMouseLeave={handleSidebarHoverLeave}
 			>
