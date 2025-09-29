@@ -608,6 +608,30 @@ h3 {
 .options-container {
 	width: 712px;
 	margin-bottom: 24px;
+
+	// Custom scrollbar styling for better UX when scrolling is enabled
+	&::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: #f1f1f1;
+		border-radius: 3px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: #c1c1c1;
+		border-radius: 3px;
+		transition: background 0.2s ease;
+	}
+
+	&::-webkit-scrollbar-thumb:hover {
+		background: #a8a8a8;
+	}
+
+	// Firefox scrollbar styling
+	scrollbar-width: thin;
+	scrollbar-color: #c1c1c1 #f1f1f1;
 }
 
 .add-option-form {
