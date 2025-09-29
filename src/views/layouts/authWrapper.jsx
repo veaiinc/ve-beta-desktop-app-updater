@@ -19,6 +19,7 @@ import Offline from '../features/offline/Offline';
 import UnderMaintainence from '../features/underMaintainence/underMaintainence';
 import { internalServerEmitter } from '../../services';
 import InternalServer from '../components/globalComponents/InternalServer';
+import NewSidebar from '../components/sidebar/newSidebar/NewSidebar';
 
 const AuthWrapper = ({
 	title,
@@ -47,8 +48,19 @@ const AuthWrapper = ({
 
 	const {
 		aiSetup: { showVoiceWidget },
+		templates: { sidebarState },
 	} = useContext(Context);
 	const [showServerError, setShowServerError] = useState(false);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(
+		JSON.parse(localStorage.getItem('isSidebarOpen')) ?? false,
+	);
+	const isSidebarOverlay = sidebarState?.overlay ?? false;
+
+	useEffect(() => {
+		if (sidebarState?.open && sidebarState?.open !== isSidebarOpen) {
+			setIsSidebarOpen(sidebarState?.open);
+		}
+	}, [sidebarState?.open]);
 
 	useEffect(() => {
 		const handler = () => setShowServerError(true);
@@ -98,17 +110,14 @@ const AuthWrapper = ({
 				</Helmet>
 				<div
 					style={{
-						display: 'flex',
-						// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
-						flexDirection: 'column',
-						height: '100dvh',
-						padding: '0',
 						...outerContainerStyle,
+						paddingLeft: isSidebarOpen && !isSidebarOverlay ? '256px' : '0',
 					}}
 					className="auth-wrapper-container"
 				>
 					{/* {layoutModeComponentMap[layoutMode]} */}
 					<TopNavbar />
+					<NewSidebar />
 					<div
 						style={{
 							flex: 1,

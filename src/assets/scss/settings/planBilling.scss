@@ -693,7 +693,7 @@
 	align-items: center;
 	flex-shrink: 0;
 	align-self: stretch;
-	border-radius: 24px 24px 0px 0px;
+	// border-radius: 24px 24px 0px 0px;
 	border-bottom: 1px solid var(--stroke, #2c2d2e);
 	background: var(--popup, #202123);
 	width: 100%;
@@ -855,7 +855,7 @@
 	gap: 32px;
 	flex: 1 0 0;
 	align-self: stretch;
-	border-radius: 0px 0px 24px 24px;
+	// border-radius: 0px 0px 24px 24px;
 	background: var(--popup, #202123);
 
 	.tabs-wrapper {

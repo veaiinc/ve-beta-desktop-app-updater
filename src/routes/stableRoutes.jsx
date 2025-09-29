@@ -19,6 +19,7 @@ const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapp
 const ProactiveSuggestions = lazy(() =>
 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 );
+const NewChat = lazy(() => import('../views/components/chat/chatComponents/NewChat'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
@@ -72,6 +73,16 @@ const stableRoutes = [
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Chats'}>
 					<ChatPage />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/new-chat',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'New Chat'}>
+					<NewChat />
 				</AuthWrapper>
 			</Suspense>
 		),

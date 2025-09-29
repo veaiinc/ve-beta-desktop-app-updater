@@ -62,6 +62,7 @@ const Integrations = lazy(() => import('../views/features/integrationsList/Integ
 const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
 const GalleryPage = lazy(() => import('../views/features/gallery/GalleryPage'));
 const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer'));
+const NewChat = lazy(() => import('../views/components/chat/chatComponents/NewChat'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
@@ -251,6 +252,16 @@ const betaRoutes = [
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Chats'}>
 					<ChatPage />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/new-chat',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'New Chat'}>
+					<NewChat />
 				</AuthWrapper>
 			</Suspense>
 		),

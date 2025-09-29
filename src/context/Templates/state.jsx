@@ -133,6 +133,7 @@ export const intialState = {
 	aiMessagesInfo: null,
 	proactiveInfoForChat: null,
 	isDirectSearchAgent: false,
+	sidebarState: null,
 };
 
 export const TemplatesState = (props) => {
