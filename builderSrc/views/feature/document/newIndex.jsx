@@ -1761,7 +1761,7 @@ const CreateDocument = () => {
 									onOpenChange={() => closeToolTip()}
 								>
 									<div className="client-name">
-										<p>Client Name</p>
+										<span>Client Name</span>
 									</div>
 									{/* <div className="chooseClientTriggerContainer">
 										<span>Client Name</span>
