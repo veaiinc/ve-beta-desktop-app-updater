@@ -6,8 +6,8 @@ import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../helpers';
 import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
 import getBaseUrl from '../../services/baseUrls';
-import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
-import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
+// import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
+// import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
 import logout from '../../helpers/logout';
 
 export const initialState = {
@@ -186,7 +186,7 @@ export const AuthState = () => {
 					return [true, { hasWorkspaces: false, isOnboard: false }];
 				}
 
-				const { isOnboard, workspaceId, region } = accessibleWorkspaces?.[0];
+				const { isOnboard, workspaceId, region } = accessibleWorkspaces?.[0] || {};
 
 				localStorage.setItem('isOnboard', isOnboard);
 				Cookies.set('isOnboard', isOnboard, {
@@ -480,7 +480,8 @@ export const AuthState = () => {
 
 		const type = 'auth';
 		const authBaseUrl = getBaseUrl({ region: null, type });
-		window.location.href = `${authBaseUrl}${path}?${params}`;
+		window.location.hash = `${authBaseUrl}${path}?${params}`;
+		window.location.reload();
 	};
 
 	const getUsernameDetailsViaReferralCode = async (referralCode) => {
