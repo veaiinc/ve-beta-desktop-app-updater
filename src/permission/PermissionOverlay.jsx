@@ -208,35 +208,35 @@ const PermissionOverlay = () => {
 		}
 	};
 
-	const getPermissionStatusText = (status) => {
-		switch (status) {
-			case 'granted':
-				return 'Granted';
-			case 'denied':
-				return 'Denied';
-			case 'not-determined':
-				return 'Not Requested';
-			case 'restricted':
-				return 'Restricted';
-			default:
-				return 'Unknown';
-		}
-	};
+	// const getPermissionStatusText = (status) => {
+	// 	switch (status) {
+	// 		case 'granted':
+	// 			return 'Granted';
+	// 		case 'denied':
+	// 			return 'Denied';
+	// 		case 'not-determined':
+	// 			return 'Not Requested';
+	// 		case 'restricted':
+	// 			return 'Restricted';
+	// 		default:
+	// 			return 'Unknown';
+	// 	}
+	// };
 
-	const getPermissionStatusClass = (status) => {
-		switch (status) {
-			case 'granted':
-				return 'status-granted';
-			case 'denied':
-				return 'status-denied';
-			case 'not-determined':
-				return 'status-not-determined';
-			case 'restricted':
-				return 'status-restricted';
-			default:
-				return 'status-unknown';
-		}
-	};
+	// const getPermissionStatusClass = (status) => {
+	// 	switch (status) {
+	// 		case 'granted':
+	// 			return 'status-granted';
+	// 		case 'denied':
+	// 			return 'status-denied';
+	// 		case 'not-determined':
+	// 			return 'status-not-determined';
+	// 		case 'restricted':
+	// 			return 'status-restricted';
+	// 		default:
+	// 			return 'status-unknown';
+	// 	}
+	// };
 
 	// Improved permission action handlers
 	const handleMicrophoneAction = async () => {
@@ -431,23 +431,23 @@ const PermissionOverlay = () => {
 		}
 	};
 
-	const debugPermissions = async () => {
-		try {
-			console.log('🔍 Debugging permissions...');
-			const debugResult = await window.electronApi.permission.debugPermissions();
-			console.log('🔍 Debug permissions result:', debugResult);
+	// const debugPermissions = async () => {
+	// 	try {
+	// 		console.log('🔍 Debugging permissions...');
+	// 		const debugResult = await window.electronApi.permission.debugPermissions();
+	// 		console.log('🔍 Debug permissions result:', debugResult);
 
-			if (debugResult.success) {
-				console.log('🔍 Platform:', debugResult.debugInfo.platform);
-				console.log('🔍 Is Mac Runtime:', debugResult.debugInfo.isMacRuntime);
-				console.log('🔍 Permissions:', debugResult.debugInfo.permissions);
-			} else {
-				console.error('❌ Debug permissions failed:', debugResult.error);
-			}
-		} catch (error) {
-			console.error('❌ Error debugging permissions:', error);
-		}
-	};
+	// 		if (debugResult.success) {
+	// 			console.log('🔍 Platform:', debugResult.debugInfo.platform);
+	// 			console.log('🔍 Is Mac Runtime:', debugResult.debugInfo.isMacRuntime);
+	// 			console.log('🔍 Permissions:', debugResult.debugInfo.permissions);
+	// 		} else {
+	// 			console.error('❌ Debug permissions failed:', debugResult.error);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('❌ Error debugging permissions:', error);
+	// 	}
+	// };
 
 	if (isLoading && currentStep >= 4) {
 		return (
@@ -628,7 +628,7 @@ const PermissionOverlay = () => {
 				{/* Logo */}
 				<div className="logo-section">
 					<div className="logo">
-						<img src={'./ve-black-circle-logo.png'} alt="logo" />
+						<img src={'./Logo.png'} alt="logo" />
 					</div>
 				</div>
 
@@ -731,7 +731,7 @@ const PermissionOverlay = () => {
 				{/* Logo */}
 				<div className="logo-section">
 					<div className="logo">
-						<img src={'./ve-black-circle-logo.png'} alt="logo" />
+						<img src={'./Logo.png'} alt="logo" />
 					</div>
 				</div>
 
@@ -739,52 +739,33 @@ const PermissionOverlay = () => {
 				<div className="content-section">
 					<div className="main-title-container">
 						<h1 className="main-title">Let's get you set up</h1>
-						{showSuccessMessage ? (
-							<div className="success-message">
-								<CheckCircle size={20} />
-								<p className="success-text">
-									Essential permissions granted! Ready to proceed.
-								</p>
-							</div>
-						) : (
-							<p className="subtitle">
-								We'll need permission to access your microphone and camera for full
-								functionality. Screen recording is optional and enhances your
-								experience.
-								{finalIsMac &&
-									' Click the buttons below to grant permissions, then return here.'}
-							</p>
-						)}
+
+						<p className="subtitle">
+							We’ll need permission to assess your screen and microphone to continue
+							{finalIsMac &&
+								' Click the buttons below to grant permissions, then return here.'}
+						</p>
+
 						{/* {isCheckingPermissions && (
 							<div className="checking-permissions">
 								<div className="spinner"></div>
 								<span>Checking permissions...</span>
 							</div>
 						)} */}
-						{permissionRequestMessage && (
+						{/* {permissionRequestMessage && (
 							<div className="permission-request-message">
 								<span>{permissionRequestMessage}</span>
 							</div>
-						)}
-						{/* {!isCheckingPermissions && (
-							<div className="permission-controls">
-								<button
-									className="refresh-permissions-btn"
-									onClick={checkPermissions}
-									title="Refresh permission status"
-								>
-									🔄 Refresh
-								</button>
-								<button
-									className="debug-permissions-btn"
-									onClick={debugPermissions}
-									title="Debug permission status (check console)"
-								>
-									🔍 Debug
-								</button>
-							</div>
 						)} */}
 					</div>
+					{showSuccessMessage && (
+						<div className="success-message">
+							<CheckCircle stroke="#79ECC9" size={20} />
+							<p className="success-text">
+								Essential permissions granted! Ready to proceed.
+							</p>
+						</div>
+					)}
 
 					{/* Permission Items */}
 					<div className="permissions-list">
@@ -828,8 +809,8 @@ const PermissionOverlay = () => {
 								>
 									{microphonePermission ? (
 										<>
-											<CheckCircle size={16} />
-											<span>Granted</span>
+											<CheckCircle stroke="#79ECC9" size={16} />
+											{/* <span>Granted</span> */}
 										</>
 									) : (
 										<>
@@ -854,9 +835,7 @@ const PermissionOverlay = () => {
 										<Monitor size={20} />
 									</div>
 									<div className="permission-details">
-										<h3 className="permission-title">
-											Screen Recording (Optional)
-										</h3>
+										<h3 className="permission-title">Screen Recording</h3>
 										<p className="permission-description">
 											Allow Ve to capture your screen for enhanced features
 										</p>
@@ -889,8 +868,8 @@ const PermissionOverlay = () => {
 									>
 										{screenPermission ? (
 											<>
-												<CheckCircle size={16} />
-												<span>Granted</span>
+												<CheckCircle stroke="#79ECC9" size={16} />
+												{/* <span>Granted</span> */}
 											</>
 										) : (
 											<>
@@ -948,8 +927,8 @@ const PermissionOverlay = () => {
 								>
 									{cameraPermission ? (
 										<>
-											<CheckCircle size={16} />
-											<span>Granted</span>
+											<CheckCircle stroke="#79ECC9" size={16} />
+											{/* <span>Granted</span> */}
 										</>
 									) : (
 										<>
@@ -965,18 +944,22 @@ const PermissionOverlay = () => {
 								</button>
 							</div>
 						</div>
+					</div>
+					{/* Navigation */}
+					<div className="navigation-buttons">
+						{/* Navigation Dots */}
+						<div className="onboarding-dots">
+							<span className="dot active"></span>
+							<span className="dot"></span>
+							<span className="dot"></span>
+							<span className="dot"></span>
+							<span className="dot"></span>
+						</div>
 
-						{/* Navigation */}
-						<div className="navigation-buttons">
-							{/* Navigation Dots */}
-							<div className="onboarding-dots">
-								<span className="dot active"></span>
-								<span className="dot"></span>
-								<span className="dot"></span>
-								<span className="dot"></span>
-								<span className="dot"></span>
-							</div>
-
+						<div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+							<button className="back-button" onClick={handleBack}>
+								Cancel
+							</button>
 							<div className="next-button-container">
 								<button className="next-button" onClick={handleNext}>
 									Next
