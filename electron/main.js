@@ -1,6 +1,7 @@
 // main.js
 // TODO: PERFORMANCE - This file is 5097 lines and handles too many responsibilities
 // TODO: PERFORMANCE - Break into modular services: WindowService, IPCService, NotificationService, etc.
+require('dotenv').config();
 const {
 	app,
 	BrowserWindow,
@@ -44,9 +45,6 @@ const {
 // Add these after your existing requires
 const { createBridge } = require('./bridge.js');
 const { createStore } = require('./store.js');
-
-// Import dynamic island helper
-// const { DynamicIslandHelper } = require('./dynamicIslandHelper');
 
 // Import Windows compatibility fixes
 const { safeExtractImageMetadata } = require('./windowsCompatibility');
@@ -2370,7 +2368,11 @@ app.whenReady().then(async () => {
 
 	// Initialize Dynamic Island with comprehensive error handling
 	// Create Dynamic Island for Intel Macs, Windows, and Linux (but not Apple Silicon Macs)
-	if (!isAppleSiliconMac) {
+	console.log(
+		'process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND ',
+		process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND,
+	);
+	if (process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || !isAppleSiliconMac) {
 		try {
 			log.info(
 				'Initializing Dynamic Island Helper for platform:',
@@ -3585,7 +3587,7 @@ app.whenReady().then(async () => {
 				return value === '1' || value === 'true' || value === 'yes' || value === 'on';
 			})();
 
-			if (isAppleSiliconMac && !shouldForceShowDynamicIsland) {
+			if (!shouldForceShowDynamicIsland && isAppleSiliconMac) {
 				// log.info(
 				// 	'🍎 Skipping Dynamic Island recording on Apple Silicon Mac (using NotchDrop)',
 				// );
@@ -4118,6 +4120,24 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error setting dynamic island mouse events:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Dynamic Island microphone access handler
+	ipcMain.handle('dynamic-island-set-microphone-access', async (event, enabled) => {
+		try {
+			if (!dynamicIslandHelper) {
+				return { success: false, error: 'Dynamic Island Helper not initialized' };
+			}
+			// For now, just log the request - this could be extended to control microphone access
+			log.info(`Dynamic Island microphone access ${enabled ? 'enabled' : 'disabled'}`);
+			return {
+				success: true,
+				message: `Microphone access ${enabled ? 'enabled' : 'disabled'}`,
+			};
+		} catch (error) {
+			log.error('Error setting Dynamic Island microphone access:', error);
 			return { success: false, error: error.message };
 		}
 	});

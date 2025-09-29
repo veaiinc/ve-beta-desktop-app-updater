@@ -54,18 +54,33 @@ module.exports = class DynamicIslandHelper {
 	createDynamicIslandWindow() {
 		if (this.dynamicIslandWindow !== null) return;
 
-		// Skip window creation on Apple Silicon Macs (they use native NotchDrop)
-		// But create Dynamic Island for Intel Macs, Windows, and Linux
-		if (isAppleSiliconMac) {
-			// log.info(
-			// 	'Skipping Dynamic Island window creation on Apple Silicon Mac (using native NotchDrop)',
-			// );
+		// Check environment variable for Dynamic Island window creation
+		const envValue = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
+			.trim()
+			.toLowerCase();
+
+		// If explicitly set to false, skip window creation
+		if (envValue === 'false') {
+			log.info(
+				'⏭️ Skipping Dynamic Island window creation (VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false)',
+			);
 			return;
 		}
-
-		log.info('Creating Dynamic Island window for platform:', process.platform);
-		log.info('NODE_ENV:', process.env.NODE_ENV);
-		log.info('__dirname:', __dirname);
+		// If explicitly set to true, always create Dynamic Island
+		else if (envValue === 'true') {
+			log.info('🏝️ Creating Dynamic Island window (VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=true)');
+		}
+		// Default behavior when environment variable is not set
+		else {
+			// Skip window creation on Apple Silicon Macs (they use native NotchDrop)
+			// But create Dynamic Island for Intel Macs, Windows, and Linux
+			if (isAppleSiliconMac) {
+				log.info(
+					'⏭️ Skipping Dynamic Island window creation on Apple Silicon Mac (using native NotchDrop)',
+				);
+				return;
+			}
+		}
 
 		const windowSettings = {
 			width: this.expandedSize.width, // Start with expanded size (875x280)

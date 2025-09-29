@@ -345,6 +345,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		connectVoice: () => ipcRenderer.invoke('dynamic-island-voice-connect'),
 		disconnectVoice: () => ipcRenderer.invoke('dynamic-island-voice-disconnect'),
 		getVoiceStatus: () => ipcRenderer.invoke('dynamic-island-voice-status'),
+		setMicrophoneAccess: (enabled) =>
+			ipcRenderer.invoke('dynamic-island-set-microphone-access', enabled),
 
 		// Combined recording trigger for Windows (show/expand Dynamic Island + start recording)
 		startRecordingFromModal: () =>
