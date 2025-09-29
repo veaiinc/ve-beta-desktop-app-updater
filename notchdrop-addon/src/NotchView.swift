@@ -76,6 +76,9 @@ struct NotchView: View {
                         .foregroundColor(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
+                } else if vm.hasActiveMusic {
+                    // Music is playing - show album art on left and wave animation on right
+                    MusicCollapsedIndicator()
                 } else {
                     Text("")//empty state
                         .font(.system(size: 9, weight: .regular))
@@ -171,6 +174,116 @@ struct NotchView: View {
             .onAppear {
                 withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                     phase = .pi
+                }
+            }
+        }
+    }
+    
+    // Music indicator for collapsed state - album art + wave animation
+    struct MusicCollapsedIndicator: View {
+        @State private var currentAlbumArt: NSImage? = nil
+        @State private var phase: CGFloat = 0
+        
+        var body: some View {
+            HStack(spacing: 8) {
+                // Album artwork on the left
+                Group {
+                    if let artwork = currentAlbumArt {
+                        Image(nsImage: artwork)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 16, height: 16)
+                            .clipShape(RoundedRectangle(cornerRadius: 3))
+                    } else {
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(LinearGradient(
+                                colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 16, height: 16)
+                            .overlay(
+                                Image(systemName: "music.note")
+                                    .font(.system(size: 8))
+                                    .foregroundColor(.white.opacity(0.8))
+                            )
+                    }
+                }
+                .animation(.easeInOut(duration: 0.3), value: currentAlbumArt != nil)
+                
+                Spacer()
+                
+                // Wave animation on the right
+                HStack(spacing: 1) {
+                    ForEach(0..<4, id: \.self) { i in
+                        let base: CGFloat = 3
+                        let peak: CGFloat = 8
+                        let progress = abs(sin((phase + CGFloat(i) * 0.6)))
+                        let h = base + (peak - base) * progress
+                        RoundedRectangle(cornerRadius: 0.5)
+                            .fill(.white.opacity(0.7))
+                            .frame(width: 1.5, height: h)
+                            .animation(
+                                .easeInOut(duration: 1.2)
+                                .repeatForever(autoreverses: true)
+                                .delay(Double(i) * 0.15),
+                                value: phase
+                            )
+                    }
+                }
+            }
+            .onAppear {
+                // Start wave animation
+                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                    phase = .pi
+                }
+                
+                // Get current album artwork
+                getCurrentAlbumArt()
+                
+                // Update album art periodically
+                Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                    getCurrentAlbumArt()
+                }
+            }
+        }
+        
+        private func getCurrentAlbumArt() {
+            // Try to get album artwork from Spotify
+            let spotifyScript = """
+                tell application "Spotify"
+                    if it is running then
+                        try
+                            set artworkURL to artwork url of current track
+                            return artworkURL
+                        on error
+                            return "missing value"
+                        end try
+                    end if
+                end tell
+            """
+            
+            if let appleScript = NSAppleScript(source: spotifyScript) {
+                var error: NSDictionary?
+                let result = appleScript.executeAndReturnError(&error)
+                
+                if error == nil, let urlString = result.stringValue,
+                   !urlString.isEmpty && urlString != "missing value",
+                   let url = URL(string: urlString) {
+                    
+                    // Download artwork in background
+                    DispatchQueue.global(qos: .background).async {
+                        do {
+                            let data = try Data(contentsOf: url)
+                            if let image = NSImage(data: data) {
+                                DispatchQueue.main.async {
+                                    self.currentAlbumArt = image
+                                }
+                            }
+                        } catch {
+                            // Failed to download, keep current artwork or fallback
+                        }
+                    }
                 }
             }
         }
