@@ -159,8 +159,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [JSON.stringify(summaryInProgress)]);
 
-	console.log('summaryInProgress', info.summaryInProgress);
-
 	// Check if audio recording exists for this meeting
 	const checkAudioRecording = useCallback(async () => {
 		try {
@@ -563,8 +561,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					const transformedData = rawData.map((item) => ({
 						...item,
 						text: item.transcript, // Map transcript to text
-						time: item.createdAt
-							? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
+						recordedAt: item.recordedAt
+							? moment.unix(item.recordedAt).format('HH:mm:ss')
 							: '', // Convert timestamp to readable time
 						speakerName: item.speakerName || 'Note Taker', // Default speaker name
 					}));
@@ -866,14 +864,12 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 															</span>
 														)}
 														<span className="meet-transcript-participant">
-															{item.source === 'mic'
-																? 'You'
-																: 'Screen'}
+															{item.speakerName}
 														</span>
 														<DotIcon />
 														<span className="meet-transcript-time">
 															<ClockPersonIcon />
-															{item.time || ''}
+															{item?.recordedAt}
 														</span>
 													</div>
 													<div className="meet-transcript-text">

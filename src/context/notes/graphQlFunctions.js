@@ -1142,6 +1142,7 @@ export const getMeetTranscriptHistoryQuery = gql`
 				transcriptionSource
 				createdAt
 				updatedAt
+				recordedAt
 			}
 		}
 	}
