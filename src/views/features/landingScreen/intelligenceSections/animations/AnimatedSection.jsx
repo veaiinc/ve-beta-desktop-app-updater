@@ -74,6 +74,13 @@ const AnimatedSection = memo(function AnimatedSection({
 			pin: true,
 			anticipatePin: 1,
 			pinSpacing: true,
+			refreshPriority: -1, // Lower priority to avoid conflicts
+			onEnter: () => {
+				console.log(`${sectionId} section entered and pinned!`);
+			},
+			onLeave: () => {
+				console.log(`${sectionId} section left!`);
+			},
 		});
 
 		// Create smooth curve animation and Actions card switching with progress-based updates
@@ -82,6 +89,7 @@ const AnimatedSection = memo(function AnimatedSection({
 			start: 'top top',
 			end: `+=${scrollAmount}%`,
 			scrub: 1, // Smoother scrubbing
+			refreshPriority: -1, // Lower priority to avoid conflicts
 			onUpdate: (self) => {
 				const progress = self.progress;
 
