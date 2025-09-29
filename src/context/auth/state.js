@@ -147,13 +147,13 @@ export const AuthState = () => {
 		// 	});
 		// }
 
-		const body =
-			// emailVerified
-			// ? fcmToken
-			// 	? { email, otp: verificationCode, fcmToken }
-			// 	: { email, otp: verificationCode }
-			// :
-			{ email, otp: verificationCode };
+		// const body =
+		// emailVerified
+		// ? fcmToken
+		// 	? { email, otp: verificationCode, fcmToken }
+		// 	: { email, otp: verificationCode }
+		// :
+		const body = emailVerified ? { email, otp: verificationCode } : { email, verificationCode };
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
 
