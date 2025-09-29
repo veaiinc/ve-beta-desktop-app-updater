@@ -238,11 +238,11 @@ struct DynamicIslandContentView: View {
 
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
-                            // Home icon with border styling (first icon)
+                            // VE icon with border styling (first icon)
                             Button(action: {
                                 vm.navigateToMainScreen()
                             }) {
-                                HomeIcon(color: .white)
+                                VEIcon(color: .white)
                                     .frame(width: 16, height: 16)
                                     .padding(8) // Increased padding for larger clickable area
                                     .overlay(
@@ -251,7 +251,7 @@ struct DynamicIslandContentView: View {
                                     )
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help("Home")
+                            .help("VE")
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
@@ -872,12 +872,12 @@ struct ChatTextAreaView: View {
 
 
 
-// MARK: - HomeIcon (SVG path rendered in SwiftUI - matches JavaScript HomeIcon)
-struct HomeIcon: View {
+// MARK: - VEIcon (VE text icon for navigation)
+struct VEIcon: View {
     var color: Color = .white
     var body: some View {
-        Image(systemName: "house.fill")
-            .font(.system(size: 14))
+        Text("VE")
+            .font(.system(size: 10, weight: .bold, design: .rounded))
             .foregroundColor(color)
     }
 }
