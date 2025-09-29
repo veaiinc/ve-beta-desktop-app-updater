@@ -304,7 +304,7 @@ struct DynamicIslandContentView: View {
                             
                             // Voice Mode button and Spotify Controller - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
-                                HStack(spacing: 16) {
+                                HStack(spacing: vm.hasActiveMusic ? 16 : 0) {
                                     // Voice Mode button
                                     VoiceModeButton(vm: vm, onFocusChat: {
                                         print("🎯 onFocusChat callback triggered")
@@ -326,10 +326,13 @@ struct DynamicIslandContentView: View {
                                         .frame(width: 90, height: 90)
                                         .transition(.scale.combined(with: .opacity))
                                     
-                                    // Spotify Media Controller (now much wider)
-                                    SpotifyMediaController()
-                                        .transition(.scale.combined(with: .opacity))
+                                    // Spotify Media Controller - only show when music is playing
+                                    if vm.hasActiveMusic {
+                                        SpotifyMediaController(vm: vm)
+                                            .transition(.scale.combined(with: .opacity))
+                                    }
                                 }
+                                .animation(.easeInOut(duration: 0.3), value: vm.hasActiveMusic)
                             }
                             
                             // Webcam button - only show when recording
@@ -351,7 +354,49 @@ struct DynamicIslandContentView: View {
         .onAppear {
             // Set up listener for Swift actions to handle received messages
             setupMessageListener()
+            
+            // Set up Spotify detection timer for the whole view
+            setupSpotifyDetectionTimer()
         }
+    }
+    
+    // MARK: - Spotify Detection Timer
+    private func setupSpotifyDetectionTimer() {
+        // Initial check
+        updateSpotifyStatus()
+        
+        // Set up periodic updates for Spotify status
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            updateSpotifyStatus()
+        }
+    }
+    
+    private func updateSpotifyStatus() {
+        // Check if Spotify is running
+        let spotifyRunning = isSpotifyRunning()
+        
+        // Get system media info
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let hasSystemMedia = nowPlayingInfo != nil
+        
+        // Get basic playback state
+        let playbackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+        let isPlaying = playbackRate > 0.0
+        
+        // Update hasActiveMusic based on multiple detection methods
+        vm.hasActiveMusic = spotifyRunning || hasSystemMedia || isPlaying
+    }
+    
+    private func isSpotifyRunning() -> Bool {
+        let script = "tell application \"System Events\" to (name of processes) contains \"Spotify\""
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            if error == nil {
+                return result.booleanValue
+            }
+        }
+        return false
     }
     
     // MARK: - Message Handling
@@ -1596,14 +1641,19 @@ struct ShortcutKeyView: View {
 
 // MARK: - Spotify Media Controller
 struct SpotifyMediaController: View {
+    @ObservedObject var vm: NotchViewModel
     @State private var isPlaying: Bool = false
     @State private var songTitle: String = "Unknown Track"
     @State private var artistName: String = "Unknown Artist"
     @State private var albumArtwork: NSImage? = nil
     @State private var isHovered: Bool = false
+    @State private var lastButtonPressed: MediaCommandType? = nil
+    @State private var buttonPressTime: Date = Date()
     
     var body: some View {
-        HStack(spacing: 12) {
+        Group {
+            if vm.hasActiveMusic {
+                HStack(spacing: 12) {
             // Large album artwork (left side)
             Group {
                 if let artwork = albumArtwork {
@@ -1669,6 +1719,8 @@ struct SpotifyMediaController: View {
                             .font(.system(size: 14))
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(lastButtonPressed == .previousTrack ? 0.9 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: lastButtonPressed)
                     
                     // Play/Pause button (larger)
                     Button(action: {
@@ -1681,6 +1733,8 @@ struct SpotifyMediaController: View {
                             .font(.system(size: 16, weight: .medium))
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .scaleEffect((lastButtonPressed == .play || lastButtonPressed == .pause) ? 0.9 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: lastButtonPressed)
                     
                     // Next button
                     Button(action: {
@@ -1692,6 +1746,8 @@ struct SpotifyMediaController: View {
                             .font(.system(size: 14))
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(lastButtonPressed == .nextTrack ? 0.9 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: lastButtonPressed)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -1711,14 +1767,16 @@ struct SpotifyMediaController: View {
        
         .onAppear {
             updateCurrentTrackInfo()
-            // Set up periodic updates for track info
-            Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
-                updateCurrentTrackInfo()
+                }
             }
         }
     }
     
     private func sendMediaCommand(_ commandType: MediaCommandType) {
+        // Track the button press for visual feedback
+        lastButtonPressed = commandType
+        buttonPressTime = Date()
+        
         switch commandType {
         case .play:
             executeAppleScript("tell application \"Spotify\" to play")
@@ -1728,6 +1786,28 @@ struct SpotifyMediaController: View {
             executeAppleScript("tell application \"Spotify\" to next track")
         case .previousTrack:
             executeAppleScript("tell application \"Spotify\" to previous track")
+        }
+        
+        // Update track info after command, with faster refresh for track changes
+        let updateDelay: Double = (commandType == .nextTrack || commandType == .previousTrack) ? 0.3 : 0.5
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + updateDelay) {
+            self.updateCurrentTrackInfo()
+        }
+        
+        // For track changes, do multiple quick updates to catch the change faster
+        if commandType == .nextTrack || commandType == .previousTrack {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.updateCurrentTrackInfo()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.updateCurrentTrackInfo()
+            }
+        }
+        
+        // Clear the button press indicator after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.lastButtonPressed = nil
         }
     }
     
@@ -1753,18 +1833,24 @@ struct SpotifyMediaController: View {
                 isPlaying = playbackRate > 0.0
             }
         }
+        
+        // hasActiveMusic is now managed at the higher level, no need to set it here
     }
     
     private func getCurrentTrackFromAppleScript() {
         let spotifyScript = """
             tell application "Spotify"
                 if it is running then
-                    set trackName to name of current track
-                    set artistName to artist of current track
-                    set albumName to album of current track
-                    set artworkURL to artwork url of current track
-                    set playerState to player state
-                    return trackName & "|" & artistName & "|" & albumName & "|" & artworkURL & "|" & (playerState as string)
+                    try
+                        set trackName to name of current track
+                        set artistName to artist of current track
+                        set albumName to album of current track
+                        set artworkURL to artwork url of current track
+                        set playerState to player state
+                        return trackName & "|" & artistName & "|" & albumName & "|" & artworkURL & "|" & (playerState as string)
+                    on error
+                        return "Spotify|Running|Unknown|missing value|playing"
+                    end try
                 end if
             end tell
         """
@@ -1782,10 +1868,16 @@ struct SpotifyMediaController: View {
                     let artworkURLString = components[3]
                     isPlaying = components[4].contains("playing")
                     
+                    // Track info retrieved successfully
+                    
                     // Download album artwork from URL
                     if !artworkURLString.isEmpty && artworkURLString != "missing value" {
                         downloadAlbumArtwork(from: artworkURLString)
                     }
+                } else {
+                    // No valid track info found
+                    songTitle = "Unknown Track"
+                    artistName = "Unknown Artist"
                 }
             } else {
                 print("🎵 AppleScript error: \(error?.description ?? "Unknown error")")

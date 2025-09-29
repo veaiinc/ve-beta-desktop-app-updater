@@ -28,9 +28,13 @@ class NotchViewModel: NSObject, ObservableObject {
                 height: 100   // Figma design height
             )
         }
-        // Always use fixed compact width - no expansion for any state
+        // Dynamic width based on whether Spotify controller is visible
+        let baseWidth: CGFloat = 580  // Width without Spotify controller
+        let spotifyWidth: CGFloat = 160  // Width of Spotify controller
+        let totalWidth = hasActiveMusic ? baseWidth + spotifyWidth : baseWidth
+        
         return .init(
-            width: 730, // Increased width to accommodate Spotify controller horizontal layout
+            width: totalWidth,
             height: DynamicIslandTheme.expandedHeight
         )
     }
@@ -83,6 +87,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var deviceNotchRect: CGRect = .zero
     @Published var screenRect: CGRect = .zero
     @Published var optionKeyPressed: Bool = false
+    @Published var hasActiveMusic: Bool = false
     @Published var notchVisible: Bool = true
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
