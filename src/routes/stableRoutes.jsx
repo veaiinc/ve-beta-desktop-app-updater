@@ -102,7 +102,6 @@ const stableRoutes = [
 					maxWidth="100%"
 				>
 					<RecentChat
-						showChatHistory={true}
 						showDeleteChat={true}
 						showChats={true}
 						showChatsButton={true}
