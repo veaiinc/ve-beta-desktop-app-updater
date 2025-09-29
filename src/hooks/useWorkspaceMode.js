@@ -16,6 +16,7 @@ export const publicRoutesList = [
 	'/forefront',
 	'/onboarding',
 	'/verify-user',
+	'/pricing',
 	'/referral/:referralCode',
 	'/privacy-policy',
 	'/terms-of-service',
@@ -79,7 +80,6 @@ const useWorkspaceMode = () => {
 				const response = await getTenantSettings();
 				const success = response[0] === true;
 				if (!success) {
-					console.log('response', response);
 					const { code } = response[1];
 					if (code === 401) {
 						updateTokenExpiryState({ expiredTokenModal: true });

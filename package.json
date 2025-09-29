@@ -1,22 +1,24 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "0.4.39",
+	"version": "0.4.42",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
 	"repository": "https://github.com/veaiinc/ve-desktop-app-updater",
 	"scripts": {
-		"postinstall": "electron-builder install-app-deps && npm run rebuild:native:mac && npm run clean:sharp",
+		"postinstall": "electron-builder install-app-deps && npm run rebuild:native:mac && npm run clean:sharp && npm run setup:hey-ve",
 		"clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); console.log('🔧 Ensuring Sharp package structure for all platforms...'); if (fs.existsSync(nodeModulesPath)) { const requiredDirs = ['sharp-darwin-arm64', 'sharp-darwin-x64', 'sharp-libvips-darwin-arm64', 'sharp-libvips-darwin-x64', 'sharp-linux-arm', 'sharp-linux-arm64', 'sharp-linux-x64', 'sharp-libvips-linux-arm', 'sharp-libvips-linux-arm64', 'sharp-libvips-linux-x64', 'sharp-win32-ia32', 'sharp-win32-x64', 'sharp-libvips-win32-ia32', 'sharp-libvips-win32-x64']; requiredDirs.forEach(dir => { const dirPath = path.join(nodeModulesPath, dir); if (!fs.existsSync(dirPath)) { fs.mkdirSync(dirPath, { recursive: true }); fs.writeFileSync(path.join(dirPath, '.gitkeep'), ''); console.log('✅ Created missing directory:', dir); } else { console.log('✅ Directory exists:', dir); } }); console.log('🎉 All Sharp directories ensured for cross-platform builds'); } else { console.log('📁 @img directory not found'); }\"",
 		"install-python-deps": "cd electron/wakeWord && (python -m pip install -r requirements.txt || python3 -m pip install -r requirements.txt || py -m pip install -r requirements.txt)",
+		"setup:hey-ve": "node scripts/setup-hey-ve.js",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
-		"dev": " cross-env NODE_ENV=development npm run clean:build:dev && vite",
+		"dev": "npm run build:notchdrop:all && cross-env NODE_ENV=development npm run clean:build:dev && vite",
 		"clean:build:dev": "rimraf dist-electron build",
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
 		"dev:win:no-clean": "set NODE_ENV=development && vite",
-		"build": "npm run build:notchdrop:all && cross-env NODE_ENV=production node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
-		"build:win": "set NODE_ENV=production && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
+		"build": "npm run build:notchdrop:all && npm run bundle:python-runtime && cross-env NODE_ENV=production node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
+		"build:win": "npm run bundle:python-runtime && set NODE_ENV=production && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
+		"bundle:python-runtime": "node scripts/bundle-python-runtime.js",
 		"package": "npm run clean:build:cross && npm run build && electron-builder",
 		"package:win": "npm run build:win && electron-builder --win",
 		"package:win:unsigned": "npm run build:win && electron-builder --win --config.win.signAndEditExecutable=false",
@@ -269,6 +271,15 @@
 				{
 					"from": "notchdrop-addon/ui-bridge.js",
 					"to": "notchdrop-addon/ui-bridge.js"
+				},
+				{
+					"from": "electron/wakeWord",
+					"to": "electron/wakeWord",
+					"filter": [
+						"**/*.onnx",
+						"**/*.py",
+						"requirements.txt"
+					]
 				}
 			],
 			"extendInfo": {

@@ -30,7 +30,7 @@ const OverlayApp = () => {
 	// Custom notification system
 	const notification = useOverlayNotification();
 	const dispatch = useDispatch();
-	const { pastMeetings, actions: meetingActions } = useStore((state) => state.meeting);
+	const { pastMeetings, actions: meetingActions } = useStore((state) => state.meeting) || {};
 
 	const [info, setInfo] = useState({
 		isMeetIsOngoing: false,

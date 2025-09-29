@@ -2786,7 +2786,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('show-permission-window', async () => {
 		try {
-			windowHelper?.showPermissionWindow();
+			// windowHelper?.showPermissionWindow();
 			return { success: true };
 		} catch (error) {
 			log.error('Error showing Permission window:', error);
@@ -2810,7 +2810,7 @@ app.whenReady().then(async () => {
 			const isAuthenticated = await checkUserAuthenticationStatus();
 
 			if (!isAuthenticated) {
-				windowHelper?.showPermissionWindow();
+				// windowHelper?.showPermissionWindow();
 				log.info('📋 Permission overlay shown after auth check');
 				return { success: true, shown: true, authenticated: false };
 			} else {
