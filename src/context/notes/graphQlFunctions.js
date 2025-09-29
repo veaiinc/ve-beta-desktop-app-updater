@@ -1142,6 +1142,7 @@ export const getMeetTranscriptHistoryQuery = gql`
 				transcriptionSource
 				createdAt
 				updatedAt
+				recordedAt
 			}
 		}
 	}
@@ -1239,5 +1240,11 @@ export const updateMeetingMutation = gql`
 			_id
 			title
 		}
+	}
+`;
+
+export const getRevampedPromptQuery = gql`
+	query Query($meetingId: ID!) {
+		getRevampedPrompt(meetingId: $meetingId)
 	}
 `;

@@ -1,4 +1,4 @@
-import { useContext, useRef, useState, useEffect, useCallback } from 'react';
+import { useContext, useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
@@ -27,6 +27,7 @@ import MeetingAnalytics from './MeetingAnalytics';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import { debounce } from 'lodash';
 import ChatBox from '../../components/chat/ChatBox';
+import { useStore, storeActions } from '../../../store/store';
 
 const initialState = {
 	files: [],
@@ -49,6 +50,7 @@ const initialState = {
 	isDeleteModalOpen: false,
 	isDeleteModalLoading: false,
 	meetingTitle: '',
+	summaryInProgress: false,
 };
 const userToken = localStorage.getItem('usertoken');
 const getSpeakerColor = (speakerName) => {
@@ -129,6 +131,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			meetSummary,
 			deleteMeeting,
 			updateMeeting,
+			getRevampedPrompt,
+			activeMeetingRevampedPrompt,
 		},
 		templates: {
 			handleTranscriptionSuggestions,
@@ -138,10 +142,24 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
+	const { summaryInProgress } = useStore((state) => state.meeting) || {};
+
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
 	const [activeTab, setActiveTab] = useState(type === 'in_app_meeting' ? 'summary' : 'summary');
 	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+	useEffect(() => {
+		if (
+			summaryInProgress &&
+			summaryInProgress.length > 0 &&
+			summaryInProgress.includes(meetingId)
+		) {
+			setInfo((prev) => ({ ...prev, summaryInProgress: true }));
+		} else {
+			setInfo((prev) => ({ ...prev, summaryInProgress: false }));
+		}
+	}, [JSON.stringify(summaryInProgress)]);
 
 	// Check if audio recording exists for this meeting
 	const checkAudioRecording = useCallback(async () => {
@@ -545,8 +563,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					const transformedData = rawData.map((item) => ({
 						...item,
 						text: item.transcript, // Map transcript to text
-						time: item.createdAt
-							? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
+						recordedAt: item.recordedAt
+							? moment.unix(item.recordedAt).format('HH:mm:ss')
 							: '', // Convert timestamp to readable time
 						speakerName: item.speakerName || 'Note Taker', // Default speaker name
 					}));
@@ -614,6 +632,15 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			}
 		};
 	}, [isRecording, stopAudioRecording]);
+
+	useEffect(() => {
+		if (
+			history === true &&
+			(!activeMeetingRevampedPrompt || meetingId !== activeMeetingRevampedPrompt?.meetingId)
+		) {
+			getRevampedPrompt({ meetingId });
+		}
+	}, [history, meetingId, activeMeetingRevampedPrompt]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -690,6 +717,17 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			debouncedUpdateMeetingTitle.cancel();
 		};
 	}, [debouncedUpdateMeetingTitle]);
+
+	const isRevampedPromptLoading = useMemo(() => {
+		return (
+			history === 'true' &&
+			(!activeMeetingRevampedPrompt || meetingId !== activeMeetingRevampedPrompt?.meetingId)
+		);
+	}, [history, activeMeetingRevampedPrompt]);
+
+	const revampedPrompt = useMemo(() => {
+		return activeMeetingRevampedPrompt?.revampedPrompt;
+	}, [activeMeetingRevampedPrompt]);
 
 	return (
 		<div className="meetbot-container">
@@ -769,8 +807,17 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					</div>
 				) : null}
 			</div>
-			<div className="transcript-tabs-container">
-				{/* {showTranscriptTabs && (
+
+			{info?.summaryInProgress ? (
+				<div className="transcript-tabs-container">
+					<div className="summary-in-progress-container">
+						<Spinner size={24} />
+						<span>Generating summary...</span>
+					</div>
+				</div>
+			) : (
+				<div className="transcript-tabs-container">
+					{/* {showTranscriptTabs && (
 					<TranscriptionTabs
 						activeTab={activeTab}
 						setActiveTab={setActiveTab}
@@ -785,131 +832,138 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					/>
 				)}
 				{/* Debug info */}
-				{(() => {
-					console.log(
-						'TranscriptionTabs props - hasAudioRecording:',
-						info?.hasAudioRecording,
-						'history:',
-						history,
-					);
-					return null;
-				})()}
-				{showTranscriptTabs &&
-					activeTab === 'transcript' &&
-					(type === 'in_app_meeting' || type === 'third_party_meeting') && (
-						// <div style={{ paddingBottom: 80, width: '100%' }}>
-						<div className="transcript-list-container">
-							{info.transcriptionsLoading && info.transcriptions?.length === 0 ? (
-								<div className="meet-transcript-empty">
-									<Spinner size={24} />
-								</div>
-							) : info.transcriptions && info.transcriptions.length === 0 ? (
-								<div className="meet-transcript-empty">No transcript yet.</div>
-							) : (
-								<InfiniteScroll
-									dataLength={info.transcriptions?.length || 0}
-									next={loadMoreTranscriptions}
-									hasMore={!history ? false : info.transcriptionsHasMore}
-									height={'100%'}
-									style={infiniteScrollStyles}
-									loader={
-										<div className="infinite-loader-container">
-											{<Spinner size={24} />}
-										</div>
-									}
-								>
-									<div className="meet-transcript-list">
-										{info.transcriptions?.map((item, idx) => (
-											<div
-												className={`meet-transcript-item`}
-												key={item._id || item.id || idx}
-											>
-												<div className="meet-transcript-meta">
-													{type === 'third_party_meeting' && (
-														<span
-															className="avatar"
-															style={{
-																backgroundColor: getSpeakerColor(
-																	item.source,
-																),
-															}}
-														>
-															{item.source === 'mic' ? 'Y' : 'S'}
-														</span>
-													)}
-
-													<span className="meet-transcript-participant">
-														{item.source === 'mic' ? 'You' : 'Screen'}
-													</span>
-													<DotIcon />
-													<span className="meet-transcript-time">
-														<ClockPersonIcon />
-														{item.time || ''}
-													</span>
-												</div>
-												<div className="meet-transcript-text">
-													{item.text || item.transcript || ''}
-												</div>
-											</div>
-										))}
+					{(() => {
+						console.log(
+							'TranscriptionTabs props - hasAudioRecording:',
+							info?.hasAudioRecording,
+							'history:',
+							history,
+						);
+						return null;
+					})()}
+					{showTranscriptTabs &&
+						activeTab === 'transcript' &&
+						(type === 'in_app_meeting' || type === 'third_party_meeting') && (
+							// <div style={{ paddingBottom: 80, width: '100%' }}>
+							<div className="transcript-list-container">
+								{info.transcriptionsLoading && info.transcriptions?.length === 0 ? (
+									<div className="meet-transcript-empty">
+										<Spinner size={24} />
 									</div>
-									<div className="sentinalScrollRef" ref={sentinalScrollRef} />
-								</InfiniteScroll>
-							)}
+								) : info.transcriptions && info.transcriptions.length === 0 ? (
+									<div className="meet-transcript-empty">No transcript yet.</div>
+								) : (
+									<InfiniteScroll
+										dataLength={info.transcriptions?.length || 0}
+										next={loadMoreTranscriptions}
+										hasMore={!history ? false : info.transcriptionsHasMore}
+										height={'100%'}
+										style={infiniteScrollStyles}
+										loader={
+											<div className="infinite-loader-container">
+												{<Spinner size={24} />}
+											</div>
+										}
+									>
+										<div className="meet-transcript-list">
+											{info.transcriptions?.map((item, idx) => (
+												<div
+													className={`meet-transcript-item`}
+													key={item._id || item.id || idx}
+												>
+													<div className="meet-transcript-meta">
+														{type === 'third_party_meeting' && (
+															<span
+																className="avatar"
+																style={{
+																	backgroundColor:
+																		getSpeakerColor(
+																			item.source,
+																		),
+																}}
+															>
+																{item.source === 'mic' ? 'Y' : 'S'}
+															</span>
+														)}
+														<span className="meet-transcript-participant">
+															{item.speakerName}
+														</span>
+														<DotIcon />
+														<span className="meet-transcript-time">
+															<ClockPersonIcon />
+															{item?.recordedAt}
+														</span>
+													</div>
+													<div className="meet-transcript-text">
+														{item.text || item.transcript || ''}
+													</div>
+												</div>
+											))}
+										</div>
+										<div
+											className="sentinalScrollRef"
+											ref={sentinalScrollRef}
+										/>
+									</InfiniteScroll>
+								)}
+							</div>
+						)}
+					{showTranscriptTabs && activeTab === 'summary' && (
+						<MeetSummary activeTab={activeTab} meetingId={meetingId} />
+					)}
+					{showTranscriptTabs && activeTab === 'analytics' && (
+						<MeetingAnalytics meetingId={meetingId} />
+					)}
+					{showTranscriptTabs && activeTab === 'audio' && (
+						<div className="audio-tab-container">
+							<AudioPlayback meetingId={meetingId} />
 						</div>
 					)}
-				{showTranscriptTabs && activeTab === 'summary' && (
-					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
-				)}
-				{showTranscriptTabs && activeTab === 'analytics' && (
-					<MeetingAnalytics meetingId={meetingId} />
-				)}
-
-				{showTranscriptTabs && activeTab === 'audio' && (
-					<div className="audio-tab-container">
-						<AudioPlayback meetingId={meetingId} />
-					</div>
-				)}
-
-				{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
-					(activeTab === 'userQuestions' ||
-						activeTab === 'aiQuestions' ||
-						activeTab === 'actions' ||
-						activeTab === 'files' ||
-						activeTab === 'all') && (
-						<AiTranscriptionSuggestions
-							userQuestions={info?.userQuestions}
-							aiQuestions={info?.aiQuestions}
-							actions={info?.actions}
-							files={info?.files}
-							activeTab={activeTab}
-							allSuggestions={info?.allSuggestions}
+					{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
+						(activeTab === 'userQuestions' ||
+							activeTab === 'aiQuestions' ||
+							activeTab === 'actions' ||
+							activeTab === 'files' ||
+							activeTab === 'all') && (
+							<AiTranscriptionSuggestions
+								userQuestions={info?.userQuestions}
+								aiQuestions={info?.aiQuestions}
+								actions={info?.actions}
+								files={info?.files}
+								activeTab={activeTab}
+								allSuggestions={info?.allSuggestions}
+								revampedPrompt={revampedPrompt}
+								isRevampedPromptLoading={isRevampedPromptLoading}
+								isRevampedPrompt={history === true}
+								sessionId={sessionId}
+							/>
+						)}
+					{showTranscriptTabs && type === 'third_party_meeting' && !history && (
+						<TranscriptionWrapper
+							chat={chat}
+							transcription={transcription}
+							transcriptList={transcriptList}
+							botJoined={info?.botJoined}
+							botJoinedTime={info?.botJoinedTime}
+							meetingPlatform={info?.meetingPlatform}
 						/>
 					)}
-
-				{showTranscriptTabs && type === 'third_party_meeting' && !history && (
-					<TranscriptionWrapper
-						chat={chat}
-						transcription={transcription}
-						transcriptList={transcriptList}
-						botJoined={info?.botJoined}
-						botJoinedTime={info?.botJoinedTime}
-						meetingPlatform={info?.meetingPlatform}
-					/>
-				)}
-				{/* Always render NoteTakerTranscript or AssemblyTranscript at the root level */}
-				{showTranscriptTabs && type === 'in_app_meeting' && !history && !useAssemblyAI && (
-					<NoteTakerTranscript
-						sendMessage={recallSendMessage}
-						tenantId={tennantSettingsData?._id}
-						sessionId={sessionId}
-						pageId={'688b653dde81dd3d71a41584'}
-						visible={activeTab === 'transcript'}
-						onTranscriptionUpdate={handleUpdateTranscription}
-					/>
-				)}
-				{/* Assembly AI Transcription option */}
-				{/* {showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
+					{/* Always render NoteTakerTranscript or AssemblyTranscript at the root level */}
+					{showTranscriptTabs &&
+						type === 'in_app_meeting' &&
+						!history &&
+						!useAssemblyAI && (
+							<NoteTakerTranscript
+								sendMessage={recallSendMessage}
+								tenantId={tennantSettingsData?._id}
+								sessionId={sessionId}
+								pageId={'688b653dde81dd3d71a41584'}
+								visible={activeTab === 'transcript'}
+								onTranscriptionUpdate={handleUpdateTranscription}
+							/>
+						)}
+					{/* Assembly AI Transcription option */}
+					{/* {showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
 					<AssemblyTranscriptWrapper
 						handleLiveIntelligenceResponse={handleTranscriptionSuggestions}
 						tenantId={tennantSettingsData?._id}
@@ -920,29 +974,29 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
 				)} */}
-
-				{history && (
-					<div className="chatbox-wrapper">
-						{/* <button className="resume-meeting-button" onClick={handleResumeMeeting}>
+					{history && (
+						<div className="chatbox-wrapper">
+							{/* <button className="resume-meeting-button" onClick={handleResumeMeeting}>
 							<StepForward size={18} />
 							Resume
 						</button> */}
-						{!chat && (
-							<div className="chatbox-container">
-								<ChatBox
-									onSend={handleActionClick}
-									customChatActions={true}
-									showUpgradeSubscriptionBtn={false}
-									sessionId={sessionId}
-									animateChatBox={false}
-									placeholder="Ask anything about the meeting"
-									showBottomTools={false}
-								/>
-							</div>
-						)}
-					</div>
-				)}
-			</div>
+							{!chat && (
+								<div className="chatbox-container">
+									<ChatBox
+										onSend={handleActionClick}
+										customChatActions={true}
+										showUpgradeSubscriptionBtn={false}
+										sessionId={sessionId}
+										animateChatBox={false}
+										placeholder="Ask anything about the meeting"
+										showBottomTools={false}
+									/>
+								</div>
+							)}
+						</div>
+					)}
+				</div>
+			)}
 
 			<DeleteModal
 				isOpen={info?.isDeleteModalOpen}

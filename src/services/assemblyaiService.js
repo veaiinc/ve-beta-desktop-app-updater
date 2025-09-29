@@ -4,6 +4,7 @@
  */
 
 import getBaseUrl from './baseUrls.js';
+import { storeActions } from '../store/store.js';
 
 class AssemblyAIService {
 	constructor() {
@@ -583,6 +584,13 @@ class AssemblyAIService {
 				},
 				body: JSON.stringify(payload),
 			});
+
+			if (window?.zubridge && window?.electronApi) {
+				window.zubridge.dispatch({
+					type: storeActions.meeting.REMOVE_SUMMARY_IN_PROGRESS,
+					payload: meetingId,
+				});
+			}
 
 			// console.log('📡 Meeting Summary API response status:', response.status);
 

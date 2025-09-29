@@ -470,6 +470,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		});
 	},
 
+	getStoreActions: () => ipcRenderer.sendSync('get-store-actions-sync'),
+
 	// File system APIs for audio storage
 	fs: {
 		ensureDir: (dirPath) => ipcRenderer.invoke('fs-ensure-dir', dirPath),
