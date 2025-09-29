@@ -4,7 +4,7 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
 import useAuth from '../../hooks/useAuth';
 import useSubscription from '../../hooks/useSubscription';
-import useTokenExpiry from '../../hooks/useTokenExpiry';
+// import useTokenExpiry from '../../hooks/useTokenExpiry';
 import useAccessControls from '../../hooks/useAccessControls';
 import useTheme from '../../hooks/useTheme';
 
@@ -12,7 +12,7 @@ const WorkflowBuilderLayout = ({ title, children }) => {
 	useTheme();
 	useAuth();
 	useSubscription();
-	useTokenExpiry();
+	// useTokenExpiry();
 	useAccessControls();
 
 	return (

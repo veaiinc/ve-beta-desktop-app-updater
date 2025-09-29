@@ -5,7 +5,7 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 import { Helmet } from 'react-helmet';
 import useAuth from '../../hooks/useAuth';
 import useSubscription from '../../hooks/useSubscription';
-import useTokenExpiry from '../../hooks/useTokenExpiry';
+// import useTokenExpiry from '../../hooks/useTokenExpiry';
 import useTheme from '../../hooks/useTheme';
 import CustomToast from '../components/globalComponents/CustomToast';
 // import Context from '../../context/context';
@@ -18,7 +18,7 @@ const AutomationBuilderLayout = ({ title, children, hideQuickNav = false }) => {
 	useAuth();
 	useAuth();
 	useSubscription();
-	useTokenExpiry();
+	// useTokenExpiry();
 
 	return (
 		<div className="automationBuilderParentContainer">

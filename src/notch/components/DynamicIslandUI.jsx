@@ -97,6 +97,63 @@ const DynamicIslandUI = () => {
 		aiSetup: { voiceIntegrationData, updateAiSetupState },
 	} = useContext(Context);
 
+	const handleVoiceModeClick = async () => {
+		console.log('🎤 Clicked for voice mode');
+
+		try {
+			if (isVoiceModeActive) {
+				// Disconnect voice assistant
+				setVoiceConnectionStatus('disconnecting');
+				setShowVoiceInterface(false);
+				await handleDisconnect();
+				setVoiceConnectionStatus('disconnected');
+				setIsVoiceModeActive(false);
+				setVoiceError(null);
+
+				// Don't show external voice widget, we're showing it inline
+				updateAiSetupState({ showVoiceWidget: false });
+
+				// Reset the voice integration hook state if available
+				if (resetState) {
+					resetState();
+				}
+			} else {
+				// Connect to voice assistant - clear previous data for fresh start
+				setVoiceConnectionStatus('connecting');
+				setVoiceError(null);
+
+				// Clear previous voice data for fresh start
+				setVoiceMessages([]);
+				setCurrentVoiceStatus('Listening');
+				setIsMicrophoneMuted(false);
+
+				// Show voice interface immediately for better UX
+				setShowVoiceInterface(true);
+
+				await handleConnect();
+
+				// Don't show external voice widget, we'll show it inline
+				updateAiSetupState({ showVoiceWidget: false });
+
+				// Force immediate status update - the useEffect should handle this but ensure it happens
+				setTimeout(() => {
+					if (shouldConnect || voiceIntegrationData?.shouldConnect) {
+						setVoiceConnectionStatus('connected');
+						setIsVoiceModeActive(true);
+					} else {
+						setVoiceConnectionStatus('error');
+						setVoiceError('Failed to establish voice connection');
+					}
+				}, 1000);
+			}
+		} catch (error) {
+			console.error('Error in voice mode:', error);
+			setVoiceConnectionStatus('error');
+			setVoiceError(error.message || 'Failed to connect to voice assistant');
+			setShowVoiceInterface(false);
+		}
+	};
+
 	useEffect(() => {
 		// Check authentication status
 		const checkAuthStatus = () => {
@@ -110,7 +167,6 @@ const DynamicIslandUI = () => {
 
 		// Listen for storage changes to detect login/logout
 		const handleStorageChange = (e) => {
-			console.log('🔍 Storage change detected:', e.key, e.newValue);
 			if (e.key === 'usertoken' || e.key === null) {
 				// null means localStorage.clear() was called
 				checkAuthStatus();
@@ -144,16 +200,13 @@ const DynamicIslandUI = () => {
 
 			// Listen for dynamic island state changes
 			window.electronApi.dynamicIsland.onStateChange((data) => {
-				console.log('🏝️ Dynamic Island state changed:', data);
 				if (data.expanded !== undefined) {
-					console.log('🏝️ Setting isExpanded to:', data.expanded);
 					setIsExpanded(data.expanded);
 				}
 			});
 
 			// Listen for overlay state changes to sync recording state
 			window.electronApi.dynamicIsland.onOverlayStateChange((state) => {
-				console.log('🏝️ Dynamic Island received overlay state:', state);
 				setIsRecording(state.isRecording);
 				setIsPaused(state.isPaused);
 				setTimer(state.timer);
@@ -161,13 +214,6 @@ const DynamicIslandUI = () => {
 				setControlledByDynamicIsland(
 					state.isDynamicIslandControlled || state.controlledByDynamicIsland || false,
 				);
-
-				console.log('🎯 Dynamic Island Control State:', {
-					isDynamicIslandControlled: state.isDynamicIslandControlled,
-					controlledByDynamicIsland: state.controlledByDynamicIsland,
-					showShortcutBar: state.showShortcutBar,
-					isRecording: state.isRecording,
-				});
 			});
 
 			// Listen for voice mode trigger from wake word
@@ -183,39 +229,40 @@ const DynamicIslandUI = () => {
 				}
 			});
 		}
-		window.electronApi.dynamicIsland.onNotification((notification) => {
-			console.log('🔔 Dynamic Island received notification:', notification);
-			showNotificationWithExpansion(notification);
-			// Enhanced: Explicitly add to notifications array if not already handled
-		});
+
+		// Listen for notifications - only if dynamicIsland API is available
+		if (window.electronApi && window.electronApi.dynamicIsland) {
+			window.electronApi.dynamicIsland.onNotification((notification) => {
+				showNotificationWithExpansion(notification);
+				// Enhanced: Explicitly add to notifications array if not already handled
+			});
+		}
 
 		// Listen for Swift control events
 		if (window.electronApi && window.electronApi.ipcRenderer) {
 			window.electronApi.ipcRenderer.on('swift:control', (event, data) => {
-				console.log('🎯 Swift control received:', data);
 				handleSwiftControl(data.action, data.data);
 			});
 
 			// Listen for state requests from Swift
 			window.electronApi.ipcRenderer.on('swift:getState', () => {
-				console.log('📊 State request from Swift');
 				sendStateToSwift();
 			});
 
 			// Listen for logout events from main process
 			window.electronApi.ipcRenderer.on('user-logout', () => {
-				console.log('🔓 Received logout notification from main process');
 				setIsAuthenticated(false);
 			});
 
-			// Listen for notifications
-			window.electronApi.dynamicIsland.onNotification((notification) => {
-				console.log('🔔 Dynamic Island received notification:', notification);
-				showNotificationWithExpansion(notification);
-				// Enhanced: Explicitly add to notifications array if not already handled
-				showNotification(notification);
-			});
-
+			// Listen for notifications - only if dynamicIsland API is available
+			if (window.electronApi && window.electronApi.dynamicIsland) {
+				window.electronApi.dynamicIsland.onNotification((notification) => {
+					console.log('🔔 Dynamic Island received notification:', notification);
+					showNotificationWithExpansion(notification);
+					// Enhanced: Explicitly add to notifications array if not already handled
+					showNotification(notification);
+				});
+			}
 		}
 
 		return () => {
@@ -255,19 +302,14 @@ const DynamicIslandUI = () => {
 
 	// Monitor voice connection status changes
 	useEffect(() => {
-		console.log('🔍 Voice integration hook status changed:', { shouldConnect, tokenLength: token?.length });
-		
 		if (shouldConnect && token) {
-			console.log('✅ Voice integration hook connected with token');
 			setVoiceConnectionStatus('connected');
 			setIsVoiceModeActive(true);
 			setVoiceError(null);
 			setShowVoiceInterface(true);
 		} else if (shouldConnect && !token) {
-			console.log('⏳ Voice integration connecting but no token yet...');
 			setVoiceConnectionStatus('connecting');
 		} else if (!shouldConnect) {
-			console.log('🔌 Voice integration hook disconnected');
 			setVoiceConnectionStatus('disconnected');
 			setIsVoiceModeActive(false);
 			setShowVoiceInterface(false);
@@ -276,16 +318,12 @@ const DynamicIslandUI = () => {
 
 	// Monitor voice integration data from context
 	useEffect(() => {
-		console.log('🔍 Voice integration context data changed:', voiceIntegrationData);
-		
 		if (voiceIntegrationData?.shouldConnect && voiceIntegrationData?.token) {
-			console.log('✅ Voice integration context connected with token');
 			setVoiceConnectionStatus('connected');
 			setIsVoiceModeActive(true);
 			setVoiceError(null);
 			setShowVoiceInterface(true);
 		} else if (voiceIntegrationData?.shouldConnect && !voiceIntegrationData?.token) {
-			console.log('⏳ Voice integration context connecting but no token yet...');
 			setVoiceConnectionStatus('connecting');
 		} else if (!voiceIntegrationData?.shouldConnect) {
 			console.log('🔌 Voice integration context disconnected');
@@ -302,13 +340,9 @@ const DynamicIslandUI = () => {
 	useEffect(() => {
 		// Listen for voice mode trigger events from Electron/NotchDrop
 		const handleVoiceModeTrigger = () => {
-			console.log('🎤 Voice mode trigger received from external source');
 			// Trigger voice mode if not already active
 			if (!isVoiceModeActive && voiceConnectionStatus !== 'connecting') {
-				console.log('🚀 Auto-triggering voice mode from external event');
 				handleVoiceModeClick();
-			} else {
-				console.log('🔄 Voice mode already active or connecting, ignoring trigger');
 			}
 		};
 
@@ -331,12 +365,7 @@ const DynamicIslandUI = () => {
 	// Reset audio click processing state when recording starts
 	useEffect(() => {
 		if (isRecording && isAudioClickProcessing) {
-			console.log('✅ Recording started - resetting audio click processing state');
 			setIsAudioClickProcessing(false);
-		} else if (isRecording && !isAudioClickProcessing) {
-			console.log('🔍 Recording is active but processing state was already reset');
-		} else if (!isRecording && isAudioClickProcessing) {
-			console.log('🔍 Not recording but processing state is still active');
 		}
 	}, [isRecording, isAudioClickProcessing]);
 
@@ -344,17 +373,11 @@ const DynamicIslandUI = () => {
 	useEffect(() => {
 		if (isAudioClickProcessing) {
 			const timeout = setTimeout(() => {
-				console.warn('⚠️ Audio click processing timeout - resetting state');
 				setIsAudioClickProcessing(false);
 			}, 10000); // 10 second timeout
 
 			return () => clearTimeout(timeout);
 		}
-	}, [isAudioClickProcessing]);
-
-	// Debug audio click processing state changes
-	useEffect(() => {
-		console.log('🎯 Audio click processing state changed:', isAudioClickProcessing);
 	}, [isAudioClickProcessing]);
 
 	// Check camera permission on mount and when app gains focus
@@ -569,6 +592,12 @@ const DynamicIslandUI = () => {
 	const expand = async () => {
 		if (isExpanded || !isConnected) return;
 
+		// Check if dynamicIsland API is available
+		if (!window.electronApi?.dynamicIsland) {
+			console.error('❌ Dynamic Island API not available');
+			return;
+		}
+
 		try {
 			console.log('📏 Expanding Dynamic Island to show rich UI');
 			const result = await window.electronApi.dynamicIsland.expand();
@@ -595,6 +624,12 @@ const DynamicIslandUI = () => {
 
 	const collapse = async () => {
 		if ((!isExpanded && !isNotificationExpanded) || !isConnected) return;
+
+		// Check if dynamicIsland API is available
+		if (!window.electronApi?.dynamicIsland) {
+			console.error('❌ Dynamic Island API not available');
+			return;
+		}
 
 		try {
 			console.log('📏 Collapsing Dynamic Island to pill');
@@ -700,69 +735,6 @@ const DynamicIslandUI = () => {
 			// Reset processing state on error so user can retry
 			setIsAudioClickProcessing(false);
 			console.log('🔄 Processing state reset due to error');
-		}
-	};
-
-	const handleVoiceModeClick = async () => {
-		console.log('🎤 Clicked for voice mode');
-
-		try {
-			if (isVoiceModeActive) {
-				// Disconnect voice assistant
-				console.log('Disconnecting voice assistant...');
-				setVoiceConnectionStatus('disconnecting');
-				setShowVoiceInterface(false);
-				await handleDisconnect();
-				setVoiceConnectionStatus('disconnected');
-				setIsVoiceModeActive(false);
-				setVoiceError(null);
-
-				// Don't show external voice widget, we're showing it inline
-				updateAiSetupState({ showVoiceWidget: false });
-
-				// Reset the voice integration hook state if available
-				if (resetState) {
-					resetState();
-				}
-			} else {
-				// Connect to voice assistant - clear previous data for fresh start
-				console.log('Connecting to voice assistant...');
-				setVoiceConnectionStatus('connecting');
-				setVoiceError(null);
-
-				// Clear previous voice data for fresh start
-				setVoiceMessages([]);
-				setCurrentVoiceStatus('Listening');
-				setIsMicrophoneMuted(false);
-
-				// Show voice interface immediately for better UX
-				setShowVoiceInterface(true);
-
-				await handleConnect();
-
-				// Don't show external voice widget, we'll show it inline
-				updateAiSetupState({ showVoiceWidget: false });
-
-				// Force immediate status update - the useEffect should handle this but ensure it happens
-				setTimeout(() => {
-					if (shouldConnect || voiceIntegrationData?.shouldConnect) {
-						setVoiceConnectionStatus('connected');
-						setIsVoiceModeActive(true);
-						console.log('✅ Voice assistant connection confirmed');
-					} else {
-						console.warn('⚠️ Voice connection attempt may have failed - no shouldConnect flag');
-						setVoiceConnectionStatus('error');
-						setVoiceError('Failed to establish voice connection');
-					}
-				}, 1000);
-
-				console.log('Voice assistant connection initiated');
-			}
-		} catch (error) {
-			console.error('Error in voice mode:', error);
-			setVoiceConnectionStatus('error');
-			setVoiceError(error.message || 'Failed to connect to voice assistant');
-			setShowVoiceInterface(false);
 		}
 	};
 
