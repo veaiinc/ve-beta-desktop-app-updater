@@ -96,7 +96,6 @@ class Body extends React.Component {
 	};
 	render() {
 		const { data, isImagesLoading } = this.state;
-		const isDocument = window.location.pathname.includes('document');
 
 		return (
 			<>
@@ -108,13 +107,9 @@ class Body extends React.Component {
 						style={{
 							width: '100%',
 							padding: 12,
-							color: isDocument ? '#ffffff' : '#333',
+							color: '#333',
 							fontSize: 13,
 							fontFamily: 'Inter Medium',
-							border: isDocument
-								? '1px solid #ffffff'
-								: '1px solid var(--stroke, #2c2d2e)',
-							borderRadius: '10px',
 						}}
 					/>
 				</div>

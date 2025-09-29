@@ -138,7 +138,7 @@ const AssemblyTranscriptWrapper = ({
 			}}
 		>
 			<AssemblyTranscription
-				onTranscriptionUpdate={handleUpdateTranscription}
+				onTranscriptionUpdate={onTranscriptionUpdate}
 				onLiveIntelligenceResponse={handleLiveIntelligenceResponse}
 				tenantId={tenantId}
 				sessionId={sessionId}
