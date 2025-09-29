@@ -17,8 +17,6 @@ const OauthVerify = () => {
 
 		const region = accessibleWorkspaces?.region;
 		const accessTokenExpiry = params.get('accessTokenExpiry');
-		const refreshToken = params.get('refreshToken');
-		const refreshTokenExpiry = params.get('refreshTokenExpiry');
 
 		if (accessToken) {
 			if (
@@ -32,8 +30,6 @@ const OauthVerify = () => {
 				localStorage.setItem('region', region || 'us-east-1');
 				localStorage.setItem('isOnboard', accessibleWorkspaces?.isOnboard);
 				localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
-				localStorage.setItem('refreshToken', refreshToken);
-				localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry);
 				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
@@ -44,14 +40,6 @@ const OauthVerify = () => {
 					domain: host,
 				});
 				Cookies.set('accessTokenExpiry', accessTokenExpiry, {
-					sameSite: 'lax',
-					domain: host,
-				});
-				Cookies.set('refreshToken', refreshToken, {
-					sameSite: 'lax',
-					domain: host,
-				});
-				Cookies.set('refreshTokenExpiry', refreshTokenExpiry, {
 					sameSite: 'lax',
 					domain: host,
 				});
@@ -71,22 +59,12 @@ const OauthVerify = () => {
 				localStorage.setItem('usertoken', accessToken);
 				localStorage.setItem('region', region || 'us-east-1');
 				localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
-				localStorage.setItem('refreshToken', refreshToken);
-				localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry);
 				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
 					domain: host,
 				});
 				Cookies.set('accessTokenExpiry', accessTokenExpiry, {
-					sameSite: 'lax',
-					domain: host,
-				});
-				Cookies.set('refreshToken', refreshToken, {
-					sameSite: 'lax',
-					domain: host,
-				});
-				Cookies.set('refreshTokenExpiry', refreshTokenExpiry, {
 					sameSite: 'lax',
 					domain: host,
 				});
