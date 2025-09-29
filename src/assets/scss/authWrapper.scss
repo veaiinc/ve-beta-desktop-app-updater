@@ -17,7 +17,7 @@
 			height: 100dvh;
 			padding: 0;
 			overflow: hidden;
-			transition: padding-left 0.3s cubic-bezier(0.25, 0.5, 0.25, 1);
+			transition: padding-left 0.3s cubic-bezier(0, 0, 0.2, 1);
 
 			.childrenContainer {
 				background: inherit;
