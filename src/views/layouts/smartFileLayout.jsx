@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet';
 import { ReactComponent as VE } from '../../assets/svg/smallVe.svg';
 import useAuth from '../../hooks/useAuth';
 import useSubscription from '../../hooks/useSubscription';
-import useTokenExpiry from '../../hooks/useTokenExpiry';
+// 	import useTokenExpiry from '../../hooks/useTokenExpiry';
 import BottomToolbar from '../components/ai_agents/BottomToolbar';
 import useAccessControls from '../../hooks/useAccessControls';
 import useTheme from '../../hooks/useTheme';
@@ -14,7 +14,7 @@ const SmartFileLayout = ({ title, children, hideQuickNav = false, showBottomTool
 	useTheme();
 	useAuth();
 	useSubscription();
-	useTokenExpiry();
+	// useTokenExpiry();
 	useAccessControls();
 
 	return (

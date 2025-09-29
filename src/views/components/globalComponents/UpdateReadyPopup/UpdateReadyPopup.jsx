@@ -43,7 +43,7 @@ const UpdateReadyPopup = ({ updateInfo, onRestart, onDismiss }) => {
 					There's a new version available
 				</h2>
 				<p id="update-description" className={styles.subtitle}>
-					'Refresh to get the latest features and improvements'
+					Restart to get the latest features and improvements
 				</p>
 			</div>
 
@@ -67,14 +67,14 @@ const UpdateReadyPopup = ({ updateInfo, onRestart, onDismiss }) => {
 				<button
 					type="button"
 					className={styles.refreshButton}
-					onClick={() => {}}
-					disabled={handleRestartClick}
+					onClick={handleRestartClick}
+					disabled={isRestarting}
 					aria-describedby="update-description"
 				>
 					<span className={styles.refreshIcon}>
 						<RotateCcw size={12} />
 					</span>
-					{isRestarting ? 'Refreshing...' : 'Refresh now'}
+					{isRestarting ? 'Restarting...' : 'Restart now'}
 				</button>
 			</div>
 		</div>

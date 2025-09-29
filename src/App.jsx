@@ -201,13 +201,14 @@ const App = () => {
 	};
 
 	useEffect(() => {
+		// Only show popup when update is fully downloaded
 		if (updateStatus?.status === 'downloaded') {
 			setIsUpdatePopupVisible(true);
-			return;
 		}
-
-		// Hide the popup for any non-downloaded state
-		setIsUpdatePopupVisible(false);
+		// Don't hide the popup during downloading phase - only hide for other states
+		else if (updateStatus?.status && updateStatus.status !== 'downloading') {
+			setIsUpdatePopupVisible(false);
+		}
 	}, [updateStatus]);
 
 	useEffect(() => {
