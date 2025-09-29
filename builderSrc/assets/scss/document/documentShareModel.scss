@@ -356,6 +356,10 @@ $font-inter: 'Inter', sans-serif;
 				}
 			}
 		}
+		:where(.css-dev-only-do-not-override-mc1tut).ant-picker .ant-picker-input-placeholder >input{
+			color: #fff;
+
+		}
 
 		.dropdown-options {
 			position: absolute;
