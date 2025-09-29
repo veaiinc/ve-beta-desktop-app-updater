@@ -1013,12 +1013,10 @@
 
 .card-container {
 	padding: 10px;
-
 	.card-item {
 		will-change: transform, opacity;
 		backface-visibility: hidden;
 		transform-style: preserve-3d;
-
 		&.create {
 			display: flex;
 			width: 270px;
@@ -1032,9 +1030,6 @@
 			border-radius: 16px;
 			border: 3px solid var(--dividers, #1e1f20);
 			background: var(--card-over-card, #1f2123);
-			&:hover {
-				background-color: var(--card-over-card-hover);
-			}
 		}
 	}
 }

@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useCallback, useContext } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { message } from 'antd';
 import getBaseUrl from '../services/baseUrls';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
-const useSpeechTranscription = ({ tenantId }) => {
+const useSpeechTranscription = ({ tenantId, socketClosingTime = 3 * 60 }) => {
 	const MAX_RETRY_ATTEMPTS = 5;
 	const RETRY_DELAY = 1000; // 1 second
 
@@ -18,6 +18,7 @@ const useSpeechTranscription = ({ tenantId }) => {
 	const sampleCountRef = useRef(0);
 	const muteRef = useRef(false);
 	const socketClosingTimeoutRef = useRef(null);
+	const retryTimerRef = useRef(null);
 
 	const userToken = localStorage.getItem('usertoken');
 	const encodedToken = encodeURIComponent(userToken);
@@ -33,9 +34,11 @@ const useSpeechTranscription = ({ tenantId }) => {
 			clearTimeout(socketClosingTimeoutRef.current);
 		}
 
-		socketClosingTimeoutRef.current = setTimeout(() => {
-			setShowInactivityPopup(true);
-		}, 3 * 60 * 1000);
+		if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+			socketClosingTimeoutRef.current = setTimeout(() => {
+				setShowInactivityPopup(true);
+			}, socketClosingTime * 1000);
+		}
 	};
 
 	const handleResetTimer = () => {
@@ -50,6 +53,11 @@ const useSpeechTranscription = ({ tenantId }) => {
 		if (socketClosingTimeoutRef.current) {
 			clearTimeout(socketClosingTimeoutRef.current);
 			socketClosingTimeoutRef.current = null;
+		}
+
+		if (retryTimerRef.current) {
+			clearTimeout(retryTimerRef.current);
+			retryTimerRef.current = null;
 		}
 
 		// Cleanup audio resources in correct order
@@ -105,12 +113,18 @@ const useSpeechTranscription = ({ tenantId }) => {
 	}, []);
 
 	const handleConnect = async ({ sessionId, onMessageFunc }) => {
+		if (retryTimerRef.current) {
+			console.log('already connecting');
+			return;
+		}
+
 		return new Promise((resolve, reject) => {
 			let attempts = 0;
 
 			const attemptConnection = () => {
 				// If max retries exceeded, reject the promise
 				if (attempts >= MAX_RETRY_ATTEMPTS) {
+					cleanup();
 					reject(new Error('Failed to connect, Please try again'));
 					return;
 				}
@@ -120,7 +134,7 @@ const useSpeechTranscription = ({ tenantId }) => {
 					console.log('Connection closed, attempting to reconnect...');
 					createWebSocketConnection({ sessionId, onMessageFunc });
 					attempts++;
-					setTimeout(attemptConnection, RETRY_DELAY);
+					retryTimerRef.current = setTimeout(attemptConnection, RETRY_DELAY);
 					return;
 				}
 
@@ -128,7 +142,7 @@ const useSpeechTranscription = ({ tenantId }) => {
 				if (websocketRef.current.readyState === WebSocket.CONNECTING) {
 					console.log('Connection not ready, waiting...');
 					attempts++;
-					setTimeout(attemptConnection, RETRY_DELAY);
+					retryTimerRef.current = setTimeout(attemptConnection, RETRY_DELAY);
 					return;
 				}
 
@@ -150,6 +164,10 @@ const useSpeechTranscription = ({ tenantId }) => {
 
 	const createWebSocketConnection = useCallback(
 		async ({ sessionId, onMessageFunc }) => {
+			if (websocketRef.current) {
+				return;
+			}
+
 			websocketRef.current = new WebSocket(`${wsUrl}/${sessionId}?token=${encodedToken}`);
 
 			websocketRef.current.onopen = () => {
@@ -170,6 +188,12 @@ const useSpeechTranscription = ({ tenantId }) => {
 
 			websocketRef.current.onmessage = (event) => {
 				onMessageFunc?.(event);
+			};
+
+			websocketRef.current.onclose = (event) => {
+				console.log('Socket disconnected', event);
+				//do not need to call cleanup function because onclose will run when calling close(), so you dont need to call here
+				// cleanup();
 			};
 
 			websocketRef.current.onerror = (event) => {

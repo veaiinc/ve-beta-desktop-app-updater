@@ -1,123 +1,3 @@
-$font-general-sans: 'General Sans', sans-serif;
-$font-inter: 'Inter', sans-serif;
-
-.back-to-files {
-	display: flex;
-	width: 100%;
-	// max-width: 900px;
-	padding: 20px;
-	justify-content: space-between;
-	align-items: center;
-	border-bottom: 1px solid var(--dividers, #1e1f20);
-	color: var(--secondary-font, #94989e);
-	text-align: center;
-	font-family: $font-general-sans;
-	font-size: 14px;
-	font-style: normal;
-	font-weight: 500;
-	line-height: 20px; /* 142.857% */
-	border-right: 1px solid var(--dividers, #1e1f20);
-	background: var(--right-bar, #161718);
-	.back-arrow {
-		cursor: pointer;
-		svg {
-			path {
-				fill: var(--primary-font, #f2f2f3);
-				stroke: var(--primary-font, #f2f2f3);
-			}
-		}
-		&:hover {
-			opacity: 1;
-		}
-	}
-	.doc-header-actions {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 5px;
-		margin-left: 30px;
-		.doc-header-btn {
-			cursor: pointer;
-			display: flex;
-			height: 32px;
-			padding: 6px 12px;
-			justify-content: center;
-			align-items: center;
-			gap: 8px;
-			border-radius: 8px;
-			border: 0.8px solid var(--stroke, #2c2d2e);
-			background: var(--card, #1b1c1d);
-			.doc-header-btn-text {
-				color: var(--primary-font, #f2f2f3);
-				font-family: $font-general-sans;
-				font-size: 12px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 18px; /* 150% */
-			}
-			&:hover {
-				background: #232323;
-				border-color: #555;
-			}
-			&.delete {
-				background: rgba(199, 27, 58, 0.08);
-				border: 1.5px solid #c71b3a;
-				color: #c71b3a;
-				svg {
-					color: #c71b3a;
-				}
-				&:hover {
-					cursor: pointer;
-				}
-			}
-		}
-	}
-	.createDocumentHeader {
-		position: absolute;
-		top: 0;
-		left: 0;
-		display: flex;
-		width: 100%;
-		padding: 24px 36px;
-		justify-content: start;
-		align-items: flex-start;
-		gap: 10px;
-		border-bottom: 1px solid var(--card-over-card, #27282b);
-		cursor: pointer;
-		.createDocumentTitle {
-			cursor: pointer;
-			color: var(--primary-font, #f2f2f3);
-			text-align: center;
-			font-family: $font-inter;
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: 20px; /* 142.857% */
-		}
-		.back-arrow {
-			cursor: pointer;
-			width: 16px;
-			height: 16px;
-			color: var(--primary-font, #f2f2f3);
-			font-family: $font-inter;
-			font-size: 14px;
-			font-style: normal;
-			font-weight: 400;
-			line-height: 20px; /* 142.857% */
-		}
-
-		@media (max-width: 1024px) {
-			position: static;
-			padding: 16px 12px;
-			width: 100%;
-		}
-		@media (max-width: 600px) {
-			position: static;
-			padding: 12px 4vw;
-			width: 100%;
-		}
-	}
-}
 .viewDocumentContainer {
 	display: flex;
 	flex-direction: column;
@@ -126,127 +6,60 @@ $font-inter: 'Inter', sans-serif;
 	gap: 36px;
 	color: var(--primary-font);
 	overflow-y: auto;
-	border-right: 1px solid var(--dividers, #1e1f20);
-	background: var(--right-bar, #161718);
+	border-right: 1px solid var(--stroke, #2b2e31);
+	background: var(--right-bar, #161618);
 	padding: 2rem 5rem 0 5rem;
 	&::-webkit-scrollbar {
 		display: none;
 	}
+	.back-to-files {
+		cursor: pointer;
+		.createDocumentHeader {
+			position: absolute;
+			top: 0;
+			left: 0;
+			display: flex;
+			width: 100%;
+			padding: 24px 36px;
+			justify-content: start;
+			align-items: flex-start;
+			gap: 10px;
+			border-bottom: 1px solid var(--card-over-card, #27282b);
+			cursor: pointer;
+			.createDocumentTitle {
+				cursor: pointer;
+				color: var(--primary-font, #f2f2f3);
+				text-align: center;
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 20px; /* 142.857% */
+			}
+			.back-arrow {
+				cursor: pointer;
+				width: 16px;
+				height: 16px;
+				color: var(--primary-font, #f2f2f3);
+				font-family: Inter;
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 20px; /* 142.857% */
+			}
 
-	// .back-to-files {
-	// 	display: flex;
-	// 	width: 100%;
-	// 	max-width: 900px;
-	// 	padding: 20px;
-	// 	justify-content: space-between;
-	// 	align-items: center;
-	// 	border-bottom: 1px solid var(--dividers, #1e1f20);
-	// 	color: var(--secondary-font, #94989e);
-	// 	text-align: center;
-	// 	font-family: 'General Sans Variable';
-	// 	font-size: 14px;
-	// 	font-style: normal;
-	// 	font-weight: 500;
-	// 	line-height: 20px; /* 142.857% */
-	// 	.back-arrow {
-	// 		cursor: pointer;
-	// 		svg {
-	// 			path {
-	// 				fill: var(--primary-font, #f2f2f3);
-	// 				stroke: var(--primary-font, #f2f2f3);
-	// 			}
-	// 		}
-	// 		&:hover {
-	// 			opacity: 1;
-	// 		}
-	// 	}
-	// 	.doc-header-actions {
-	// 		display: flex;
-	// 		flex-wrap: wrap;
-	// 		align-items: center;
-	// 		gap: 1rem;
-	// 		.doc-header-btn {
-	// 			cursor: pointer;
-	// 			display: flex;
-	// 			height: 32px;
-	// 			padding: 6px 12px;
-	// 			justify-content: center;
-	// 			align-items: center;
-	// 			gap: 8px;
-	// 			border-radius: 8px;
-	// 			border: 0.8px solid var(--stroke, #2c2d2e);
-	// 			background: var(--card, #1b1c1d);
-	// 			.doc-header-btn-text {
-	// 				color: var(--primary-font, #f2f2f3);
-	// 				font-family: 'General Sans Variable';
-	// 				font-size: 12px;
-	// 				font-style: normal;
-	// 				font-weight: 500;
-	// 				line-height: 18px; /* 150% */
-	// 			}
-	// 			&:hover {
-	// 				background: #232323;
-	// 				border-color: #555;
-	// 			}
-	// 			&.delete {
-	// 				background: rgba(199, 27, 58, 0.08);
-	// 				border: 1.5px solid #c71b3a;
-	// 				color: #c71b3a;
-	// 				svg {
-	// 					color: #c71b3a;
-	// 				}
-	// 				&:hover {
-	// 					cursor: pointer;
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// 	.createDocumentHeader {
-	// 		position: absolute;
-	// 		top: 0;
-	// 		left: 0;
-	// 		display: flex;
-	// 		width: 100%;
-	// 		padding: 24px 36px;
-	// 		justify-content: start;
-	// 		align-items: flex-start;
-	// 		gap: 10px;
-	// 		border-bottom: 1px solid var(--card-over-card, #27282b);
-	// 		cursor: pointer;
-	// 		.createDocumentTitle {
-	// 			cursor: pointer;
-	// 			color: var(--primary-font, #f2f2f3);
-	// 			text-align: center;
-	// 			font-family: Inter;
-	// 			font-size: 14px;
-	// 			font-style: normal;
-	// 			font-weight: 400;
-	// 			line-height: 20px; /* 142.857% */
-	// 		}
-	// 		.back-arrow {
-	// 			cursor: pointer;
-	// 			width: 16px;
-	// 			height: 16px;
-	// 			color: var(--primary-font, #f2f2f3);
-	// 			font-family: Inter;
-	// 			font-size: 14px;
-	// 			font-style: normal;
-	// 			font-weight: 400;
-	// 			line-height: 20px; /* 142.857% */
-	// 		}
-
-	// 		@media (max-width: 1024px) {
-	// 			position: static;
-	// 			padding: 16px 12px;
-	// 			width: 100%;
-	// 		}
-	// 		@media (max-width: 600px) {
-	// 			position: static;
-	// 			padding: 12px 4vw;
-	// 			width: 100%;
-	// 		}
-	// 	}
-	// }
+			@media (max-width: 1024px) {
+				position: static;
+				padding: 16px 12px;
+				width: 100%;
+			}
+			@media (max-width: 600px) {
+				position: static;
+				padding: 12px 4vw;
+				width: 100%;
+			}
+		}
+	}
 
 	.section1-main-container {
 		display: flex;
@@ -269,7 +82,7 @@ $font-inter: 'Inter', sans-serif;
 
 				.section1-title {
 					color: var(--primary-font);
-					font-family: $font-inter;
+					font-family: Inter;
 					font-size: 18px;
 					font-style: normal;
 					font-weight: 600;
@@ -287,7 +100,7 @@ $font-inter: 'Inter', sans-serif;
 
 				.section1-description {
 					color: var(--secondary-font);
-					font-family: $font-inter;
+					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 400;
@@ -319,7 +132,7 @@ $font-inter: 'Inter', sans-serif;
 						border-radius: 65px;
 						border: 1px solid var(--stroke, #2c2e31);
 						color: var(--secondary-font, #7a7e85);
-						font-family: $font-inter;
+						font-family: Inter;
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -335,7 +148,7 @@ $font-inter: 'Inter', sans-serif;
 					border-radius: 65px;
 					background: rgba(199, 27, 58, 0.08);
 					color: var(--error, #c71b3a);
-					font-family: $font-inter;
+					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -348,13 +161,14 @@ $font-inter: 'Inter', sans-serif;
 
 	.section2-main-container {
 		display: flex;
-		padding: 16px;
 		flex-direction: column;
+		gap: 0px;
 		align-items: center;
-		gap: 12px;
 		align-self: stretch;
 		border-radius: 16px;
-		background: var(--card, #161718);
+		background: var(--new-card, #1c1d21);
+		min-height: fit-content;
+
 		.status-tracking {
 			width: 100%;
 			display: flex;
@@ -383,7 +197,7 @@ $font-inter: 'Inter', sans-serif;
 					background: var(--new-card, #1c1d21);
 					.doc-header-btn-text {
 						color: var(--primary-font, #f2f2f3);
-						font-family: $font-inter;
+						font-family: Inter;
 						font-size: 12px;
 						font-style: normal;
 						font-weight: 500;
@@ -398,7 +212,7 @@ $font-inter: 'Inter', sans-serif;
 				.status-title {
 					/* 150% */
 					color: var(--primary-font, #f2f2f3);
-					font-family: $font-inter;
+					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -406,7 +220,7 @@ $font-inter: 'Inter', sans-serif;
 				}
 				.status-separator {
 					color: var(--primary-font, #f2f2f3);
-					font-family: $font-inter;
+					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -414,7 +228,7 @@ $font-inter: 'Inter', sans-serif;
 				}
 				.status-date {
 					color: var(--secondary-font, #7a7e85);
-					font-family: $font-inter;
+					font-family: Inter;
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
@@ -480,7 +294,7 @@ $font-inter: 'Inter', sans-serif;
 					}
 					.status-label {
 						color: var(--secondary-font);
-						font-family: $font-inter;
+						font-family: Inter;
 						text-overflow: ellipsis;
 						font-size: 12px;
 						font-style: normal;
@@ -566,7 +380,7 @@ $font-inter: 'Inter', sans-serif;
 						cursor: pointer;
 						.section2-action-title {
 							color: var(--primary-font, #f2f2f3);
-							font-family: $font-inter;
+							font-family: Inter;
 							font-size: 12px;
 							font-style: normal;
 							font-weight: 500;
@@ -603,7 +417,7 @@ $font-inter: 'Inter', sans-serif;
 			gap: 8px;
 			.suggested-actions-title {
 				color: var(--primary-font, #f2f2f3);
-				font-family: $font-inter;
+				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -650,7 +464,7 @@ $font-inter: 'Inter', sans-serif;
 			flex-wrap: wrap;
 			.suggested-prompts-title {
 				color: var(--primary-font, #f2f2f3);
-				font-family: $font-inter;
+				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -671,7 +485,7 @@ $font-inter: 'Inter', sans-serif;
 					border-radius: 8px;
 					border: 1px solid var(--stroke, #2c2e31);
 					color: var(--secondary-font, #7a7e85);
-					font-family: $font-inter;
+					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -704,7 +518,7 @@ $font-inter: 'Inter', sans-serif;
 
 				.shared-header {
 					color: var(--primary-font, #f2f2f3);
-					font-family: $font-inter;
+					font-family: Inter;
 					font-size: 12px;
 					font-style: normal;
 					font-weight: 500;
@@ -761,7 +575,7 @@ $font-inter: 'Inter', sans-serif;
 	justify-content: center;
 	align-items: center;
 	color: var(--secondary-font, #787e87);
-	font-family: $font-inter;
+	font-family: Inter;
 	font-size: 12px;
 	font-style: normal;
 	font-weight: 400;
@@ -808,6 +622,13 @@ $font-inter: 'Inter', sans-serif;
 		padding: 0.25rem 0.1rem 0 0.1rem;
 		gap: 8px;
 	}
+	.section1-main-container,
+	.section2-main-container,
+	.section3-main-container,
+	.section4-main-container {
+		border-radius: 8px;
+		padding: 4px;
+	}
 	.section2-main-container {
 		min-width: 0;
 		overflow-x: auto;
@@ -848,7 +669,7 @@ $font-inter: 'Inter', sans-serif;
 	align-items: center;
 	flex-wrap: wrap;
 	justify-content: space-between;
-	// margin-bottom: 1.5rem;
+	margin-bottom: 1.5rem;
 	margin-top: 1.5rem;
 	gap: 2rem;
 
@@ -899,7 +720,7 @@ $font-inter: 'Inter', sans-serif;
 			background: var(--new-card, #1c1d21);
 			.doc-header-btn-text {
 				color: var(--primary-font, #f2f2f3);
-				font-family: $font-inter;
+				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -947,7 +768,7 @@ $font-inter: 'Inter', sans-serif;
 		}
 		.doc-info-badge-text {
 			color: var(--primary-font, #f2f2f3);
-			font-family: $font-inter;
+			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -956,7 +777,7 @@ $font-inter: 'Inter', sans-serif;
 	}
 	.doc-info-badge-accept {
 		color: var(--background-color, #131316);
-		font-family: $font-inter;
+		font-family: Inter;
 		font-size: 12px;
 		font-style: normal;
 		font-weight: 500;

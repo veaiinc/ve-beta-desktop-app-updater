@@ -165,13 +165,12 @@ const ChatBox = ({
 			isDirectSearchAgent,
 			isBrowserScreenActive,
 		},
-		chatStream: { closeWebSocketConnection: closeChatWebSocketConnection },
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
+		chatStream: { createWebSocketConnection },
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
-		// notes: { getLiveKitToken },
 		profileInfo: { tenantSettinsData },
 	} = useContext(Context);
 
@@ -205,6 +204,7 @@ const ChatBox = ({
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
 		stopLoading: false,
+		chatSocketConnectionAttempted: false,
 	});
 	const chatBoxWrapperRef = useRef(null);
 	const chatbarContainerRef = useRef(null);
@@ -216,6 +216,7 @@ const ChatBox = ({
 	// Speech-to-text state
 	const [isTranscribing, setIsTranscribing] = useState(false);
 	const [speechTranscription, setSpeechTranscription] = useState([]);
+	const [isMicConnecting, setIsMicConnecting] = useState(false);
 
 	const { handleConnect, handleDisconnect, handleResetTimer, showInactivityPopup } =
 		useSpeechTranscription({
@@ -287,7 +288,7 @@ const ChatBox = ({
 			let text = '';
 			speechTranscription?.forEach((item) => {
 				if (item?.text) {
-					text += item?.text;
+					text += item?.text + ' ';
 				}
 			});
 
@@ -433,6 +434,16 @@ const ChatBox = ({
 
 		if (
 			info?.chatQuery?.length > 0 &&
+			!info?.chatSocketConnectionAttempted &&
+			info?.chatSessionId
+		) {
+			const agentType = globalChatMessages?.[sessionId]?.chatInfo?.agentType ?? null;
+			createWebSocketConnection({ sessionId: info?.chatSessionId, isPublicChat, agentType });
+			setInfo((prev) => ({ ...prev, chatSocketConnectionAttempted: true }));
+		}
+
+		if (
+			info?.chatQuery?.length > 0 &&
 			info?.chatSessionId &&
 			getSuggestions &&
 			!info?.chatQuery?.includes('\n')
@@ -520,9 +531,15 @@ const ChatBox = ({
 				message.error('Please wait, AI is already generating a response');
 				return;
 			}
+			if (totalCreditsUsed >= totalCreditsLimit) {
+				updateStateValues({ activePayloadForChat: null });
+				message.error('You have reached your limit of credits');
+				return;
+			}
+
 			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
-				handleSendWebsocketMessage(payload, currentQuery, '', info?.chatSessionId);
+				handleSendWebsocketMessage(payload, currentQuery);
 			}
 
 			handleStreamSendMessage(payload, localPayload, currentQuery, info?.chatSessionId);
@@ -1382,6 +1399,8 @@ const ChatBox = ({
 
 	const handleMicIconClick = useCallback(
 		async (event) => {
+			if (isMicConnecting) return;
+
 			try {
 				const { hasMic, hasCamera } = await checkDevices();
 
@@ -1393,6 +1412,7 @@ const ChatBox = ({
 				if (isTranscribing) {
 					handleTranscriptionSocketDisconnect();
 				} else {
+					setIsMicConnecting(true);
 					try {
 						await handleConnect({
 							sessionId: ObjectID()?.toString(),
@@ -1400,8 +1420,10 @@ const ChatBox = ({
 						});
 						setIsTranscribing(true);
 					} catch (error) {
-						console.log('Connection not established', error?.message);
+						console.log(error?.message);
 						message.error('Connection not established');
+					} finally {
+						setIsMicConnecting(false);
 					}
 				}
 
@@ -1411,9 +1433,9 @@ const ChatBox = ({
 				message.error('An error occurred while starting transcription');
 			}
 		},
-
 		[
 			isTranscribing,
+			isMicConnecting,
 			handleConnect,
 			handleTranscriptionSocketDisconnect,
 			handleTranscriptionMessageFunc,
@@ -1677,17 +1699,6 @@ const ChatBox = ({
 		[updateAiSetupState],
 	);
 
-	const handleStopChatStream = () => {
-		if (info?.chatSessionId) {
-			closeChatWebSocketConnection([info?.chatSessionId]);
-			handleGlobalChatMessages({
-				sessionId: info?.chatSessionId,
-				removeStreaming: true,
-				updateExtraInfo: true,
-			});
-		}
-	};
-
 	const handleStopCurrentChatStream = useCallback(() => {
 		// Prevent rage clicks: ignore if already stopping or not streaming
 		if (!info?.chatLoading || info?.stopLoading) return;
@@ -1696,7 +1707,7 @@ const ChatBox = ({
 			const payload = { action: 'stop' };
 			if (handleSendWebsocketMessage) {
 				// Keep arguments consistent with other usages in this component
-				handleSendWebsocketMessage(payload, '', '', info?.chatSessionId);
+				handleSendWebsocketMessage(payload, '');
 			} else {
 				// Fallback (avoid if possible): do not close connection unless no sender is available
 				// handleStopChatStream();
@@ -1959,7 +1970,7 @@ const ChatBox = ({
 					) : (
 						<div className="buttons-right-container">
 							{/* Separate Speech-to-Text Button */}
-							{showMicBtn && (
+							{showMicBtn && !isPublicChat && (
 								<div
 									className={`click-btn speech-to-text-btn ${
 										isTranscribing ? 'transcribing' : ''
@@ -1992,22 +2003,10 @@ const ChatBox = ({
 									}`}
 									onClick={(e) => {
 										e.stopPropagation();
-										if (info?.chatLoading) {
-											if (!info?.stopLoading) handleStopCurrentChatStream();
-										} else {
-											handleSendBtnClick(e);
-										}
+										handleSendBtnClick(e);
 									}}
 								>
-									{info?.chatLoading ? (
-										<div className="stop-chat-icon"></div>
-									) : (
-										<ArrowUp
-											className="voice-wave-icon"
-											width={16}
-											height={16}
-										/>
-									)}
+									<ArrowUp className="voice-wave-icon" width={16} height={16} />
 								</div>
 							) : (
 								<div
