@@ -30,7 +30,7 @@ class NotchViewModel: NSObject, ObservableObject {
         }
         // Always use fixed compact width - no expansion for any state
         return .init(
-            width: 550, // Increased width to accommodate new UI layout
+            width: 730, // Increased width to accommodate Spotify controller horizontal layout
             height: DynamicIslandTheme.expandedHeight
         )
     }

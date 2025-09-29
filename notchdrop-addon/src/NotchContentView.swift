@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 import AppKit
 import Combine
 import AVFoundation
+import MediaPlayer
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
@@ -301,27 +302,34 @@ struct DynamicIslandContentView: View {
                             .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                             .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
                             
-                            // Voice Mode button - only show when NOT recording AND chat not focused
+                            // Voice Mode button and Spotify Controller - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
-                                VoiceModeButton(vm: vm, onFocusChat: {
-                                    print("🎯 onFocusChat callback triggered")
-                                    // When voice mode button is clicked, focus the chat input
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        print("🎯 Setting chat input focused: true")
-                                        isChatInputFocused = true
-                                        isTextFieldActive = true
-                                        
-                                        // Ensure window is key for cursor to appear
-                                        if let window = NSApp.keyWindow {
-                                            window.makeKeyAndOrderFront(nil)
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                                window.makeFirstResponder(window.firstResponder)
+                                HStack(spacing: 16) {
+                                    // Voice Mode button
+                                    VoiceModeButton(vm: vm, onFocusChat: {
+                                        print("🎯 onFocusChat callback triggered")
+                                        // When voice mode button is clicked, focus the chat input
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                            print("🎯 Setting chat input focused: true")
+                                            isChatInputFocused = true
+                                            isTextFieldActive = true
+                                            
+                                            // Ensure window is key for cursor to appear
+                                            if let window = NSApp.keyWindow {
+                                                window.makeKeyAndOrderFront(nil)
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                                    window.makeFirstResponder(window.firstResponder)
+                                                }
                                             }
                                         }
-                                    }
-                                })
-                                    .frame(width: 100, height: 100) // Larger voice mode button to match image
-                                    .transition(.scale.combined(with: .opacity))
+                                    })
+                                        .frame(width: 90, height: 90)
+                                        .transition(.scale.combined(with: .opacity))
+                                    
+                                    // Spotify Media Controller (now much wider)
+                                    SpotifyMediaController()
+                                        .transition(.scale.combined(with: .opacity))
+                                }
                             }
                             
                             // Webcam button - only show when recording
@@ -1583,6 +1591,283 @@ struct ShortcutKeyView: View {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(Color.white.opacity(0.15))
             )
+    }
+}
+
+// MARK: - Spotify Media Controller
+struct SpotifyMediaController: View {
+    @State private var isPlaying: Bool = false
+    @State private var songTitle: String = "Unknown Track"
+    @State private var artistName: String = "Unknown Artist"
+    @State private var albumArtwork: NSImage? = nil
+    @State private var isHovered: Bool = false
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Large album artwork (left side)
+            Group {
+                if let artwork = albumArtwork {
+                    Image(nsImage: artwork)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 80)
+                        .clipped()
+                        .cornerRadius(8)
+                        .background(Color.black.opacity(0.3))
+                } else {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.3),
+                                    Color.black.opacity(0.2)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 60, height: 80)
+                        .overlay(
+                            VStack(spacing: 4) {
+                                Image(systemName: "music.note")
+                                    .foregroundColor(.white.opacity(0.8))
+                                    .font(.system(size: 24, weight: .medium))
+                                Text("♫")
+                                    .foregroundColor(.white.opacity(0.6))
+                                    .font(.system(size: 12))
+                            }
+                        )
+                }
+            }
+            
+            // Song info and controls (right side)
+            VStack(alignment: .leading, spacing: 8) {
+                // Song title and artist
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(songTitle)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    
+                    Text(artistName)
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.white.opacity(0.7))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                
+                // Media controls
+                HStack(spacing: 12) {
+                    // Previous button
+                    Button(action: {
+                        print("🎵 Previous track")
+                        sendMediaCommand(.previousTrack)
+                    }) {
+                        Image(systemName: "backward.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 14))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // Play/Pause button (larger)
+                    Button(action: {
+                        print("🎵 Play/Pause toggle")
+                        isPlaying.toggle()
+                        sendMediaCommand(isPlaying ? .play : .pause)
+                    }) {
+                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // Next button
+                    Button(action: {
+                        print("🎵 Next track")
+                        sendMediaCommand(.nextTrack)
+                    }) {
+                        Image(systemName: "forward.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 14))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(12)
+        .frame(width: 160, height: 100)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.black.opacity(0.8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.6), lineWidth: 1)
+                )
+        )
+        .scaleEffect(isHovered ? 1.02 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+       
+        .onAppear {
+            updateCurrentTrackInfo()
+            // Set up periodic updates for track info
+            Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+                updateCurrentTrackInfo()
+            }
+        }
+    }
+    
+    private func sendMediaCommand(_ commandType: MediaCommandType) {
+        switch commandType {
+        case .play:
+            executeAppleScript("tell application \"Spotify\" to play")
+        case .pause:
+            executeAppleScript("tell application \"Spotify\" to pause")
+        case .nextTrack:
+            executeAppleScript("tell application \"Spotify\" to next track")
+        case .previousTrack:
+            executeAppleScript("tell application \"Spotify\" to previous track")
+        }
+    }
+    
+    private func updateCurrentTrackInfo() {
+        // First try to get track info from Spotify directly using AppleScript
+        getCurrentTrackFromAppleScript()
+        
+        // Fallback to system media player info if Spotify AppleScript fails
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        
+        if songTitle == "Unknown Track" && artistName == "Unknown Artist" {
+            if let info = nowPlayingInfo {
+                songTitle = info[MPMediaItemPropertyTitle] as? String ?? "Unknown Track"
+                artistName = info[MPMediaItemPropertyArtist] as? String ?? "Unknown Artist"
+                
+                // Get album artwork from system media player
+                if let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+                    albumArtwork = artwork.image(at: CGSize(width: 40, height: 60))
+                }
+                
+                // Get playback state
+                let playbackRate = info[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+                isPlaying = playbackRate > 0.0
+            }
+        }
+    }
+    
+    private func getCurrentTrackFromAppleScript() {
+        let spotifyScript = """
+            tell application "Spotify"
+                if it is running then
+                    set trackName to name of current track
+                    set artistName to artist of current track
+                    set albumName to album of current track
+                    set artworkURL to artwork url of current track
+                    set playerState to player state
+                    return trackName & "|" & artistName & "|" & albumName & "|" & artworkURL & "|" & (playerState as string)
+                end if
+            end tell
+        """
+        
+        if let appleScript = NSAppleScript(source: spotifyScript) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            
+            if error == nil, let output = result.stringValue {
+                let components = output.components(separatedBy: "|")
+                if components.count >= 5 {
+                    songTitle = components[0]
+                    artistName = components[1]
+                    // albumName = components[2] // We can use this later if needed
+                    let artworkURLString = components[3]
+                    isPlaying = components[4].contains("playing")
+                    
+                    // Download album artwork from URL
+                    if !artworkURLString.isEmpty && artworkURLString != "missing value" {
+                        downloadAlbumArtwork(from: artworkURLString)
+                    }
+                }
+            } else {
+                print("🎵 AppleScript error: \(error?.description ?? "Unknown error")")
+                // Try alternative method using System Events
+                getTrackInfoFromSystemEvents()
+            }
+        }
+    }
+    
+    private func downloadAlbumArtwork(from urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        DispatchQueue.global(qos: .background).async {
+            do {
+                let data = try Data(contentsOf: url)
+                if let image = NSImage(data: data) {
+                    DispatchQueue.main.async {
+                        self.albumArtwork = image
+                    }
+                }
+            } catch {
+                print("🎵 Failed to download artwork: \(error.localizedDescription)")
+                // Try to get artwork from macOS Now Playing if download fails
+                DispatchQueue.main.async {
+                    self.getArtworkFromNowPlaying()
+                }
+            }
+        }
+    }
+    
+    private func getArtworkFromNowPlaying() {
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        if let info = nowPlayingInfo,
+           let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+            albumArtwork = artwork.image(at: CGSize(width: 60, height: 60))
+        }
+    }
+    
+    private func getTrackInfoFromSystemEvents() {
+        // Alternative method using System Events to get current track
+        let systemEventsScript = """
+            tell application "System Events"
+                tell process "Spotify"
+                    if exists then
+                        try
+                            set trackInfo to (name of window 1)
+                            return trackInfo
+                        end try
+                    end if
+                end tell
+            end tell
+        """
+        
+        if let appleScript = NSAppleScript(source: systemEventsScript) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            
+            if error == nil, let windowTitle = result.stringValue {
+                // Spotify window title format is usually "Artist - Song Title"
+                let components = windowTitle.components(separatedBy: " - ")
+                if components.count >= 2 {
+                    artistName = components[0]
+                    songTitle = components[1]
+                } else if !windowTitle.isEmpty && windowTitle != "Spotify" {
+                    songTitle = windowTitle
+                }
+            }
+        }
+    }
+    
+    private func executeAppleScript(_ script: String) {
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            appleScript.executeAndReturnError(&error)
+            if let error = error {
+                print("🎵 AppleScript error: \(error)")
+            }
+        }
+    }
+    
+    enum MediaCommandType {
+        case play, pause, nextTrack, previousTrack
     }
 }
 
