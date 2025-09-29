@@ -248,10 +248,12 @@
 		line-height: normal;
 	}
 	.settingsItems {
-		width: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 1px;
+		gap: 2px;
+		max-height: 300px;
+		width: 100%;
+		overflow-y: scroll;
 
 		.settingItem {
 			display: flex;
@@ -388,26 +390,27 @@
 		padding: 14px;
 		gap: 12px;
 		width: 320px;
-		
+
 		.userInfo {
 			padding: 4px;
 			gap: 6px;
-			
-			.profileImg, .nameInitials {
+
+			.profileImg,
+			.nameInitials {
 				width: 32px;
 				height: 32px;
 			}
-			
+
 			.nameInitials {
 				font-size: 12px;
 			}
-			
+
 			.workspaceImage {
 				width: 18px;
 				left: 24px;
 				top: 24px;
 			}
-			
+
 			.userInfoDetails {
 				.nameAndRole {
 					.fullName {
@@ -422,82 +425,82 @@
 				}
 			}
 		}
-		
+
 		.settingsPlans {
 			width: 100%;
 			padding: 12px 0;
 			gap: 8px;
-			
+
 			.settingCurrentPlan {
 				padding: 0 16px;
-				
+
 				.settingPlanName {
 					font-size: 16px;
 				}
-				
+
 				.settingsUpgrade {
 					height: 28px;
 					padding: 4px 12px;
 					font-size: 12px;
 				}
 			}
-			
+
 			.settingsDivider {
 				width: calc(100% - 32px);
 			}
-			
+
 			.settingsCredits {
 				padding: 0 16px;
-				
+
 				.settingsCreditsLeft {
 					height: 28px;
 					padding: 4px 0;
 					gap: 8px;
-					
+
 					.settingsCreditsTitle {
 						font-size: 12px;
 					}
 				}
-				
+
 				.settingsCreditsCount {
 					height: 28px;
 					padding: 4px 0;
-					
+
 					.settingsCreditsLeftCount {
 						font-size: 12px;
 					}
 				}
 			}
 		}
-		
+
 		.settingsItems {
 			gap: 4px;
-			
+
 			.settingItem {
 				padding: 8px 10px;
 				min-height: 36px;
 				gap: 8px;
-				
+
 				.settingItemLabel {
 					font-size: 12px;
 				}
 			}
 		}
-		
+
 		.switchWorkspaceAndLogoutContainer {
 			gap: 6px;
-			
+
 			.switchWorkspaceButton {
 				padding: 8px 10px;
 				font-size: 12px;
 			}
-			
+
 			.logoutButton {
 				padding: 8px 10px;
 				font-size: 12px;
 			}
 		}
-		
+
 		.downloadMacAppButton {
 			padding: 8px 12px;
 			font-size: 12px;
@@ -511,26 +514,27 @@
 		padding: 12px;
 		gap: 10px;
 		width: 300px;
-		
+
 		.userInfo {
 			padding: 2px;
 			gap: 4px;
-			
-			.profileImg, .nameInitials {
+
+			.profileImg,
+			.nameInitials {
 				width: 28px;
 				height: 28px;
 			}
-			
+
 			.nameInitials {
 				font-size: 11px;
 			}
-			
+
 			.workspaceImage {
 				width: 16px;
 				left: 20px;
 				top: 20px;
 			}
-			
+
 			.userInfoDetails {
 				.nameAndRole {
 					.fullName {
@@ -545,81 +549,81 @@
 				}
 			}
 		}
-		
+
 		.settingsPlans {
 			padding: 10px 0;
 			gap: 6px;
-			
+
 			.settingCurrentPlan {
 				padding: 0 12px;
-				
+
 				.settingPlanName {
 					font-size: 14px;
 				}
-				
+
 				.settingsUpgrade {
 					height: 24px;
 					padding: 2px 8px;
 					font-size: 11px;
 				}
 			}
-			
+
 			.settingsDivider {
 				width: calc(100% - 24px);
 			}
-			
+
 			.settingsCredits {
 				padding: 0 12px;
-				
+
 				.settingsCreditsLeft {
 					height: 24px;
 					padding: 2px 0;
 					gap: 6px;
-					
+
 					.settingsCreditsTitle {
 						font-size: 11px;
 					}
 				}
-				
+
 				.settingsCreditsCount {
 					height: 24px;
 					padding: 2px 0;
-					
+
 					.settingsCreditsLeftCount {
 						font-size: 11px;
 					}
 				}
 			}
 		}
-		
+
 		.settingsItems {
 			gap: 2px;
-			
+
 			.settingItem {
 				padding: 6px 8px;
 				min-height: 32px;
 				gap: 6px;
-				
+
 				.settingItemLabel {
 					font-size: 11px;
 				}
 			}
 		}
-		
+
 		.switchWorkspaceAndLogoutContainer {
 			gap: 4px;
-			
+
 			.switchWorkspaceButton {
 				padding: 6px 8px;
 				font-size: 11px;
 			}
-			
+
 			.logoutButton {
 				padding: 6px 8px;
 				font-size: 11px;
 			}
 		}
-		
+
 		.downloadMacAppButton {
 			padding: 6px 10px;
 			font-size: 11px;
@@ -686,7 +690,6 @@
 		display: none;
 	}
 }
-
 
 @keyframes slideInRight {
 	from {

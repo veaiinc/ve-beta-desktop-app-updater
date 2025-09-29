@@ -1,0 +1,49 @@
+.animatedSectionContainer {
+	position: relative;
+	width: 100%;
+	height: 100vh;
+	overflow: hidden;
+	scroll-behavior: smooth;
+
+	// Performance optimizations
+	will-change: transform;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+	contain: layout style paint;
+	background: #000938;
+
+	// Hide on mobile devices
+	@media (max-width: 768px) {
+		display: none;
+	}
+}
+
+.introSection {
+	position: absolute;
+	inset: 0;
+	z-index: 10;
+	width: 100%;
+	height: 100vh;
+
+	// Performance optimizations for smooth animation
+	will-change: opacity, transform;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+	contain: layout style paint;
+}
+
+.actionsSection {
+	position: absolute;
+	inset: 0;
+	z-index: 5;
+	width: 100%;
+	height: 100vh;
+
+	// Performance optimizations for clip-path animation
+	will-change: clip-path, opacity, transform;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+	contain: layout style paint;
+	isolation: isolate;
+	transform-style: flat;
+}

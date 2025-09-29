@@ -2,6 +2,7 @@
 import { memo, useContext, useEffect, useState, useRef } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import { useScrollAnimation } from '../../../hooks/useScrollAnimation';
 
 import TabNavigation from '../../components/landing_screen/TabNavigation';
 import Tagline from './Tagline';
@@ -11,6 +12,17 @@ import ContactUs from '../../components/landing_screen/ContactUs';
 import OurMission from './OurMission';
 import EarlyAccess from './EarlyAccess';
 import CustomToast from '../../components/globalComponents/CustomToast';
+import AnimatedGlowBackground from '../../components/globalComponents/AnimatedGlowBackground';
+import PartnerSection from './PartnerSection';
+import DownloadSection from './DownloadSection';
+import FAQ from './FAQ';
+import NewsletterSection from './NewsletterSection';
+// import GlassFooterSection from './GlassFooter';
+import FullscreenIMac from './FullscreenIMac';
+import ProductIntro from './ProductIntro';
+import AmbientIntelligence from './intelligenceSections/Intelligence/AmbientIntelligence';
+import SuperAgent from './intelligenceSections/SuperAgent/SuperAgent';
+import MeetingIntelligence from './intelligenceSections/MeetingIntelligence/MeetingIntelligence';
 
 import { ReactComponent as MenuIcon } from '../../../assets/svg/menu.svg';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
@@ -20,6 +32,39 @@ import HeroSection from './heroSection/HeroSection';
 import VeSvg from '../../../assets/svg/veSvg';
 
 import '../../../assets/scss/landingScreen/index.scss';
+import DownloadVeAppPopup from '../../components/downloadVeAppPopup/DownloadVeAppPopup';
+
+const isMac =
+	navigator.userAgentData?.platform === 'macOS' ||
+	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
+
+const getMacArchitecture = async () => {
+	try {
+		if (navigator.userAgentData?.getHighEntropyValues) {
+			const ua = await navigator.userAgentData.getHighEntropyValues(['architecture']);
+			return ua.architecture === 'arm';
+		}
+		return false;
+	} catch (error) {
+		console.warn('Failed to detect Mac architecture:', error);
+		return false;
+	}
+};
+
+// Function to get the appropriate desktop app download URL
+const getDesktopAppDownloadUrl = async () => {
+	if (!isMac) return null;
+
+	try {
+		const isMacArm64 = await getMacArchitecture();
+		return isMacArm64
+			? import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL
+			: import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL || null;
+	} catch (error) {
+		console.warn('Failed to determine download URL:', error);
+		return import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+	}
+};
 
 const pathToTabMap = {
 	'/': 0,
@@ -37,9 +82,21 @@ const LandingPage = () => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [hasPlayed, setHasPlayed] = useState(false);
-	const [info, setInfo] = useState({ navVisible: true, seenOnce: false });
+	const [info, setInfo] = useState({
+		navVisible: true,
+		seenOnce: false,
+		downloadVeAppPopupOpen: false,
+	});
 
 	const videoRef = useRef(null);
+	const {
+		downloadSectionRef,
+		iMacFrameRef,
+		fullscreenIMacRef,
+		backgroundRef,
+		productIntroRef,
+		videoRef: scrollVideoRef,
+	} = useScrollAnimation();
 
 	// sync tab with URL
 	useEffect(() => {
@@ -117,15 +174,32 @@ const LandingPage = () => {
 		navigate(tabRoutes[tabVal]);
 	};
 
+	const handleDownloadVeAppPopupOpen = async () => {
+		if (isMac) {
+			const url = await getDesktopAppDownloadUrl();
+			if (url) {
+				window.open(url, '_blank');
+			}
+		}
+		setInfo((prev) => ({
+			...prev,
+			downloadVeAppPopupOpen: true,
+		}));
+	};
+
 	const tabComponents = {
 		0: (
 			<div className="page-body">
 				<div className="heroContainer">
 					<div className="title-container">
-						<HeroSection />
+						<DownloadSection
+							ref={downloadSectionRef}
+							iMacFrameRef={iMacFrameRef}
+							videoRef={scrollVideoRef}
+						/>
 					</div>
 
-					<div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
+					{/* <div className={`videoContainer ${hasPlayed ? 'played' : 'unplayed'}`}>
 						<button onClick={handleVideoClick}>
 							{isPlaying ? (
 								<>
@@ -148,12 +222,63 @@ const LandingPage = () => {
 							autoPlay={window.innerWidth < 768}
 							loop={window.innerWidth < 768}
 						/>
-					</div>
+					</div> */}
 				</div>
 
-				<Tagline />
-				<EarlyAccess />
-				<Footer />
+				{/* Fullscreen iMac Component for Scroll Animation */}
+				<FullscreenIMac ref={fullscreenIMacRef} />
+				{/* Additional content to ensure scrollable height for fullscreen animation and pinned text */}
+				<div
+					style={{
+						height: '93vh',
+						background: 'transparent',
+						minHeight: '600px', // Ensure minimum height for small screens
+					}}
+				></div>
+
+				{/* Product Intro */}
+				<ProductIntro ref={productIntroRef} />
+
+				{/* (Ambient Intelligence + Actions) with Ellipse Transition */}
+				<AmbientIntelligence />
+
+				{/* (Super Agent + Actions) */}
+				{/* <SuperAgent /> */}
+
+				{/* (Meeting Intelligence + Actions) */}
+				<MeetingIntelligence />
+
+				{/* <Tagline /> */}
+
+				{/* Combined sections with shared animated background */}
+				<AnimatedGlowBackground variant="subtle" intensity="medium" fitContent>
+					<PartnerSection />
+					<FAQ />
+					<NewsletterSection />
+				</AnimatedGlowBackground>
+
+				{/* <Footer /> */}
+
+				{/* Newsletter floating on MacBook Section */}
+				{/* <div className="newsletter-macbook-container">
+					<GlassFooterSection />
+					<div className="newsletter-overlay">
+						<NewsletterSection />
+					</div>
+				</div> */}
+
+				{/* Mobile Newsletter and Footer - positioned below FAQ on mobile */}
+				{/* <div className="mobile-footer-container">
+					<NewsletterSection />
+					<GlassFooterSection isMobileFooter={true} />
+				</div> */}
+
+				{/* Background Layer for Scroll Animation */}
+				{/* <div ref={backgroundRef} className="scroll-background">
+					<img src={BgLayerImage} alt="Background" className="background-image" />
+				</div> */}
+
+				{/* <EarlyAccess /> */}
 			</div>
 		),
 		1: <OurMission tab={tab} />,
@@ -177,23 +302,24 @@ const LandingPage = () => {
 					<div className="page-header-wrapper">
 						<div className="ve-logo-container">
 							<Link to="/">
-								<VeSvg width={36} height={24} fill="var(--primary-font)" />
+								<VeSvg width={36} height={24} />
 							</Link>
 						</div>
 
 						<div className="middle-container">
-							{!mobileMenuOpen && (
-								<TabNavigation tab={tab} handleSetTab={handleSetTab} />
-							)}
+							{/* Navigation items will be added here if needed */}
 						</div>
 						<div className="right-container">
 							<Link className="login-btn-text hide-on-mobile" to="/verify-user">
 								Login
 							</Link>
 							<div className="login-container">
-								<Link className="login-btn" to="/verify-user">
+								<button
+									className="login-btn"
+									onClick={handleDownloadVeAppPopupOpen}
+								>
 									Signup
-								</Link>
+								</button>
 								<button
 									className="sidebar-button mobile-only"
 									onClick={() => setMobileMenuOpen(true)}
@@ -207,6 +333,10 @@ const LandingPage = () => {
 				</header>
 				{tabComponents[tab]}
 			</main>
+			<DownloadVeAppPopup
+				isOpen={info.downloadVeAppPopupOpen}
+				closeModal={() => setInfo((prev) => ({ ...prev, downloadVeAppPopupOpen: false }))}
+			/>
 		</>
 	);
 };

@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "0.4.39",
+	"version": "0.4.40",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -12,7 +12,7 @@
 		"install-python-deps": "cd electron/wakeWord && (python -m pip install -r requirements.txt || python3 -m pip install -r requirements.txt || py -m pip install -r requirements.txt)",
 		"setup:hey-ve": "node scripts/setup-hey-ve.js",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
-		"dev": " cross-env NODE_ENV=development npm run clean:build:dev && vite",
+		"dev": "npm run build:notchdrop:all && cross-env NODE_ENV=development npm run clean:build:dev && vite",
 		"clean:build:dev": "rimraf dist-electron build",
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
 		"dev:win:no-clean": "set NODE_ENV=development && vite",
