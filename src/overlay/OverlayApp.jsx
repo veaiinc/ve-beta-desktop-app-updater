@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import Context from '../context/context';
-// import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
-import useRecallStream from '../hooks/useRecallStream';
 import useMeetingAudioRecorder from '../hooks/useMeetingAudioRecorder';
 import audioStorageService from '../services/audioStorageService';
 import ObjectID from 'bson-objectid';
@@ -143,13 +141,6 @@ const OverlayApp = () => {
 
 	// const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
 	// 	useLiveIntelligenceStream();
-
-	// Recall Stream Hook for Live Intelligence
-	const {
-		createWebSocketConnection: createRecallConnection,
-		closeWebSocketConnection: closeRecallConnection,
-		sendMessage: sendRecallMessage,
-	} = useRecallStream();
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -477,6 +468,11 @@ const OverlayApp = () => {
 		console.log('OverlayApp: Using meeting ID from ref:', currentMeetingId);
 
 		sessionIdRef.current = null;
+
+		dispatch({
+			type: storeActions.meeting.ADD_SUMMARY_IN_PROGRESS,
+			payload: currentMeetingId,
+		});
 
 		stopRecording({ meetingId: info?.meetingData?._id });
 		dispatch({
