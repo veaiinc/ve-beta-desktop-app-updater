@@ -76,9 +76,18 @@ struct NotchView: View {
                         .foregroundColor(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
-                } else if vm.hasActiveMusic {
-                    // Music is playing - show album art on left and wave animation on right
-                    MusicCollapsedIndicator()
+                } else if vm.hasActiveMusic || vm.hasActiveVideo {
+                    // Media is playing - show appropriate indicator
+                    if vm.hasActiveMusic && vm.hasActiveVideo {
+                        // Both music and video - show combined indicator
+                        MediaCollapsedIndicator(showMusic: true, showVideo: true)
+                    } else if vm.hasActiveMusic {
+                        // Music only - show music indicator
+                        MediaCollapsedIndicator(showMusic: true, showVideo: false)
+                    } else {
+                        // Video only - show video indicator
+                        MediaCollapsedIndicator(showMusic: false, showVideo: true)
+                    }
                 } else {
                     Text("")//empty state
                         .font(.system(size: 9, weight: .regular))
@@ -179,37 +188,60 @@ struct NotchView: View {
         }
     }
     
-    // Music indicator for collapsed state - album art + wave animation
-    struct MusicCollapsedIndicator: View {
+    // Media indicator for collapsed state - supports both music and video
+    struct MediaCollapsedIndicator: View {
+        let showMusic: Bool
+        let showVideo: Bool
         @State private var currentAlbumArt: NSImage? = nil
         @State private var phase: CGFloat = 0
         
         var body: some View {
-            HStack(spacing: 8) {
-                // Album artwork on the left
-                Group {
-                    if let artwork = currentAlbumArt {
-                        Image(nsImage: artwork)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 16, height: 16)
-                            .clipShape(RoundedRectangle(cornerRadius: 3))
-                    } else {
-                        RoundedRectangle(cornerRadius: 3)
+            HStack(spacing: 6) {
+                // Media indicators on the left
+                HStack(spacing: 4) {
+                    // Music indicator
+                    if showMusic {
+                        Group {
+                            if let artwork = currentAlbumArt {
+                                Image(nsImage: artwork)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 14, height: 14)
+                                    .clipShape(RoundedRectangle(cornerRadius: 2))
+                            } else {
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(LinearGradient(
+                                        colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ))
+                                    .frame(width: 14, height: 14)
+                                    .overlay(
+                                        Image(systemName: "music.note")
+                                            .font(.system(size: 7))
+                                            .foregroundColor(.white.opacity(0.8))
+                                    )
+                            }
+                        }
+                        .animation(.easeInOut(duration: 0.3), value: currentAlbumArt != nil)
+                    }
+                    
+                    // Video indicator  
+                    if showVideo {
+                        RoundedRectangle(cornerRadius: 2)
                             .fill(LinearGradient(
-                                colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)],
+                                colors: [Color.red.opacity(0.7), Color.orange.opacity(0.5)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ))
-                            .frame(width: 16, height: 16)
+                            .frame(width: 14, height: 14)
                             .overlay(
-                                Image(systemName: "music.note")
-                                    .font(.system(size: 8))
+                                Image(systemName: "play.rectangle.fill")
+                                    .font(.system(size: 7))
                                     .foregroundColor(.white.opacity(0.8))
                             )
                     }
                 }
-                .animation(.easeInOut(duration: 0.3), value: currentAlbumArt != nil)
                 
                 Spacer()
                 
@@ -238,12 +270,14 @@ struct NotchView: View {
                     phase = .pi
                 }
                 
-                // Get current album artwork
-                getCurrentAlbumArt()
-                
-                // Update album art periodically
-                Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                // Get current album artwork (only if showing music)
+                if showMusic {
                     getCurrentAlbumArt()
+                    
+                    // Update album art periodically
+                    Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                        getCurrentAlbumArt()
+                    }
                 }
             }
         }

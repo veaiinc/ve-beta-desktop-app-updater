@@ -28,10 +28,12 @@ class NotchViewModel: NSObject, ObservableObject {
                 height: 100   // Figma design height
             )
         }
-        // Dynamic width based on whether Spotify controller is visible
-        let baseWidth: CGFloat = 580  // Width without Spotify controller
+        // Dynamic width based on whether Spotify and/or YouTube controllers are visible
+        let baseWidth: CGFloat = 580  // Width without media controllers
         let spotifyWidth: CGFloat = 160  // Width of Spotify controller
-        let totalWidth = hasActiveMusic ? baseWidth + spotifyWidth : baseWidth
+        let youtubeWidth: CGFloat = showVideoPlayer ? 300 : 200  // Width of YouTube player (300) vs controller (200)
+        let mediaWidth = (hasActiveMusic ? spotifyWidth : 0) + (hasActiveVideo ? youtubeWidth : 0)
+        let totalWidth = baseWidth + mediaWidth
         
         return .init(
             width: totalWidth,
@@ -88,6 +90,16 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var screenRect: CGRect = .zero
     @Published var optionKeyPressed: Bool = false
     @Published var hasActiveMusic: Bool = false
+    @Published var hasActiveVideo: Bool = false
+    @Published var videoTitle: String = ""
+    @Published var videoChannel: String = ""
+    @Published var videoThumbnail: NSImage? = nil
+    @Published var videoDuration: String = ""
+    @Published var videoCurrentTime: String = ""
+    @Published var isVideoPlaying: Bool = false
+    @Published var videoURL: String = ""
+    @Published var videoEmbedURL: String = ""
+    @Published var showVideoPlayer: Bool = false
     @Published var notchVisible: Bool = true
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)

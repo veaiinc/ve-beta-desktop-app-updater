@@ -5,6 +5,7 @@ import AppKit
 import Combine
 import AVFoundation
 import MediaPlayer
+import WebKit
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
@@ -302,9 +303,9 @@ struct DynamicIslandContentView: View {
                             .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                             .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
                             
-                            // Voice Mode button and Spotify Controller - only show when NOT recording AND chat not focused
+                            // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
-                                HStack(spacing: vm.hasActiveMusic ? 16 : 0) {
+                                HStack(spacing: 16) {
                                     // Voice Mode button
                                     VoiceModeButton(vm: vm, onFocusChat: {
                                         print("🎯 onFocusChat callback triggered")
@@ -326,13 +327,23 @@ struct DynamicIslandContentView: View {
                                         .frame(width: 90, height: 90)
                                         .transition(.scale.combined(with: .opacity))
                                     
-                                    // Spotify Media Controller - only show when music is playing
-                                    if vm.hasActiveMusic {
-                                        SpotifyMediaController(vm: vm)
-                                            .transition(.scale.combined(with: .opacity))
+                                    // Media Controllers Row
+                                    HStack(spacing: 12) {
+                                        // Spotify Media Controller - only show when music is playing
+                                        if vm.hasActiveMusic {
+                                            SpotifyMediaController(vm: vm)
+                                                .transition(.scale.combined(with: .opacity))
+                                        }
+                                        
+                                        // YouTube Media Controller - only show when video is playing
+                                        if vm.hasActiveVideo {
+                                            YouTubeMediaController(vm: vm)
+                                                .transition(.scale.combined(with: .opacity))
+                                        }
                                     }
                                 }
                                 .animation(.easeInOut(duration: 0.3), value: vm.hasActiveMusic)
+                                .animation(.easeInOut(duration: 0.3), value: vm.hasActiveVideo)
                             }
                             
                             // Webcam button - only show when recording
@@ -385,6 +396,9 @@ struct DynamicIslandContentView: View {
         
         // Update hasActiveMusic based on multiple detection methods
         vm.hasActiveMusic = spotifyRunning || hasSystemMedia || isPlaying
+        
+        // Detect YouTube videos
+        detectYouTubeVideo()
     }
     
     private func isSpotifyRunning() -> Bool {
@@ -397,6 +411,192 @@ struct DynamicIslandContentView: View {
             }
         }
         return false
+    }
+    
+    private func detectYouTubeVideo() {
+        // Method 1: Check browser tabs for YouTube
+        let youtubeFromBrowser = checkBrowserForYouTube()
+        
+        // Method 2: Check system media for YouTube
+        let youtubeFromMedia = checkSystemMediaForYouTube()
+        
+        // Update YouTube state
+        vm.hasActiveVideo = youtubeFromBrowser || youtubeFromMedia
+    }
+    
+    private func checkBrowserForYouTube() -> Bool {
+        // Check each browser separately for better reliability
+        let browsers = ["Safari", "Google Chrome", "Firefox", "Microsoft Edge", "Arc", "Brave Browser"]
+        
+        for browser in browsers {
+            if let (url, title) = checkBrowserApp(browser) {
+                if url.contains("youtube.com/watch") || url.contains("youtu.be/") {
+                    updateVideoInfo(from: title, url: url)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    private func checkBrowserApp(_ appName: String) -> (String, String)? {
+        let script: String
+        
+        if appName == "Safari" {
+            script = """
+            tell application "Safari"
+                if it is running then
+                    try
+                        set currentURL to URL of current tab of window 1
+                        set currentTitle to name of current tab of window 1
+                        return currentURL & "|||" & currentTitle
+                    end try
+                end if
+            end tell
+            return ""
+            """
+        } else {
+            script = """
+            tell application "\(appName)"
+                if it is running then
+                    try
+                        set currentURL to URL of active tab of window 1
+                        set currentTitle to title of active tab of window 1
+                        return currentURL & "|||" & currentTitle
+                    end try
+                end if
+            end tell
+            return ""
+            """
+        }
+        
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            if error == nil {
+                let resultString = result.stringValue ?? ""
+                if !resultString.isEmpty && resultString.contains("|||") {
+                    let components = resultString.components(separatedBy: "|||")
+                    if components.count >= 2 {
+                        let url = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                        let title = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                        return (url, title)
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
+    private func checkSystemMediaForYouTube() -> Bool {
+        guard let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo else {
+            return false
+        }
+        
+        // Check if the media source is YouTube
+        if let artist = nowPlayingInfo[MPMediaItemPropertyArtist] as? String,
+           let title = nowPlayingInfo[MPMediaItemPropertyTitle] as? String {
+            
+            // YouTube videos often have "YouTube" as artist or in the title
+            let isYouTube = artist.lowercased().contains("youtube") || 
+                           title.lowercased().contains("youtube") ||
+                           artist.isEmpty // YouTube often has empty artist
+            
+            if isYouTube {
+                updateVideoInfo(from: title, url: "")
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    private func updateVideoInfo(from title: String, url: String) {
+        let vm = self.vm
+        DispatchQueue.main.async {
+            
+            // Parse title to extract video title and channel
+            if title.contains(" - ") {
+                let parts = title.split(separator: " - ", maxSplits: 1)
+                if parts.count == 2 {
+                    vm.videoTitle = String(parts[0]).trimmingCharacters(in: .whitespaces)
+                    vm.videoChannel = String(parts[1]).trimmingCharacters(in: .whitespaces)
+                } else {
+                    vm.videoTitle = title
+                    vm.videoChannel = "YouTube"
+                }
+            } else {
+                vm.videoTitle = title
+                vm.videoChannel = "YouTube"
+            }
+            
+            // Store the video URL and create embed URL
+            vm.videoURL = url
+            if !url.isEmpty {
+                vm.videoEmbedURL = self.convertToEmbedURL(url)
+                vm.showVideoPlayer = true
+                self.extractYouTubeThumbnail(from: url)
+            }
+        }
+    }
+    
+    private func convertToEmbedURL(_ url: String) -> String {
+        // Extract video ID from YouTube URL
+        let patterns = [
+            "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+        ]
+        
+        var videoId: String?
+        for pattern in patterns {
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(url.startIndex..., in: url)
+            if let match = regex?.firstMatch(in: url, options: [], range: range) {
+                let videoIdRange = Range(match.range(at: 1), in: url)!
+                videoId = String(url[videoIdRange])
+                break
+            }
+        }
+        
+        guard let id = videoId else { return "" }
+        
+        // Return YouTube embed URL with autoplay and minimal UI
+        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3"
+    }
+    
+    private func extractYouTubeThumbnail(from url: String) {
+        // Extract video ID from YouTube URL
+        let patterns = [
+            "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+        ]
+        
+        var videoId: String?
+        for pattern in patterns {
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(url.startIndex..., in: url)
+            if let match = regex?.firstMatch(in: url, options: [], range: range) {
+                let videoIdRange = Range(match.range(at: 1), in: url)!
+                videoId = String(url[videoIdRange])
+                break
+            }
+        }
+        
+        guard let id = videoId else { return }
+        
+        // Download thumbnail from YouTube
+        let thumbnailURL = "https://img.youtube.com/vi/\(id)/mqdefault.jpg"
+        let vm = self.vm
+        
+        DispatchQueue.global(qos: .background).async {
+            if let url = URL(string: thumbnailURL),
+               let data = try? Data(contentsOf: url),
+               let image = NSImage(data: data) {
+                DispatchQueue.main.async {
+                    vm.videoThumbnail = image
+                }
+            }
+        }
     }
     
     // MARK: - Message Handling
@@ -1960,6 +2160,92 @@ struct SpotifyMediaController: View {
     
     enum MediaCommandType {
         case play, pause, nextTrack, previousTrack
+    }
+}
+
+// MARK: - YouTube Media Controller
+struct YouTubeMediaController: View {
+    @ObservedObject var vm: NotchViewModel
+    @State private var isHovered: Bool = false
+    
+    var body: some View {
+        Group {
+            if vm.hasActiveVideo && vm.showVideoPlayer && !vm.videoEmbedURL.isEmpty {
+                // Embedded YouTube video player
+                YouTubeVideoPlayer(embedURL: vm.videoEmbedURL)
+                    .frame(width: 300, height: 100) // Wider to show actual video
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.red.opacity(0.6), lineWidth: 1)
+                    )
+                    .scaleEffect(isHovered ? 1.02 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+                    .onHover { hovering in
+                        isHovered = hovering
+                    }
+            }
+        }
+    }
+}
+
+// MARK: - YouTube Video Player
+struct YouTubeVideoPlayer: NSViewRepresentable {
+    let embedURL: String
+    
+    func makeNSView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.navigationDelegate = context.coordinator
+        
+        // Configure for video playback
+        webView.configuration.allowsAirPlayForMediaPlayback = true
+        webView.configuration.mediaTypesRequiringUserActionForPlayback = []
+        
+        // Load the YouTube embed URL
+        if let url = URL(string: embedURL) {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+        
+        return webView
+    }
+    
+    func updateNSView(_ nsView: WKWebView, context: Context) {
+        // Update if URL changes
+        if let currentURL = nsView.url?.absoluteString,
+           currentURL != embedURL,
+           let newURL = URL(string: embedURL) {
+            let request = URLRequest(url: newURL)
+            nsView.load(request)
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    class Coordinator: NSObject, WKNavigationDelegate {
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            // Inject CSS to hide YouTube branding and make it fit better
+            let css = """
+                var style = document.createElement('style');
+                style.innerHTML = `
+                    iframe { 
+                        border-radius: 12px !important;
+                    }
+                    .ytp-chrome-top, 
+                    .ytp-chrome-bottom,
+                    .ytp-watermark,
+                    .ytp-gradient-top,
+                    .ytp-gradient-bottom { 
+                        display: none !important; 
+                    }
+                `;
+                document.head.appendChild(style);
+            """
+            
+            webView.evaluateJavaScript(css, completionHandler: nil)
+        }
     }
 }
 
