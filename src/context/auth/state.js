@@ -431,12 +431,43 @@ export const AuthState = () => {
 		const encodedReferralCode = referralCode ? encodeURIComponent(referralCode) : false;
 		const userId = localStorage?.getItem('user_id') ?? null;
 		const path = '/google/url';
+
+		// let permission;
+		// try {
+		// 	permission = await requestPushNotificationPermission();
+		// } catch (err) {
+		// 	return [
+		// 		false,
+		// 		{
+		// 			message:
+		// 				'An unexpected error occurred while requesting notification permission.',
+		// 		},
+		// 	];
+		// }
+		// if (permission === 'error') {
+		// 	return [false, { message: 'An unexpected error occurred. Please try again!' }];
+		// }
+
+		// const fcmToken = permission === 'granted' ? await generateFCMToken() : '';
+		// if (fcmToken) {
+		// 	localStorage.setItem('fcmToken', fcmToken);
+		// 	Cookies.set('fcmToken', fcmToken, {
+		// 		sameSite: 'lax',
+		// 		domain: fetchDomainName(),
+		// 	});
+		// }
+
 		let params = referralCode
 			? new URLSearchParams({
 					locationDetails: encodedLocationDetails,
 					referralCode: encodedReferralCode,
 			  })?.toString()
-			: new URLSearchParams({
+			: // : fcmToken
+			  // ? new URLSearchParams({
+			  // 		locationDetails: encodedLocationDetails,
+			  // 		fcmToken,
+			  //   })?.toString()
+			  new URLSearchParams({
 					locationDetails: encodedLocationDetails,
 			  })?.toString();
 

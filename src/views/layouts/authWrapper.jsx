@@ -40,7 +40,6 @@ const AuthWrapper = ({
 
 	usePushNotifications(showPushNotification);
 	const { authInitialized } = useAuthInitializer();
-	const { migrationLoading, migrationInProgress } = useMigrationGate();
 
 	// Initialize Intercom for all authenticated users
 	useIntercom();
@@ -81,11 +80,17 @@ const AuthWrapper = ({
 
 	if (!isOnline) return <Offline />;
 
-	// While checking migration, show loader to avoid flicker
-	if (migrationLoading) return <PageLoader />;
+	const region = localStorage.getItem('region');
 
-	// Show offline-like page when migration is in progress (status 102)
-	if (migrationInProgress) return <UnderMaintainence />;
+	if (region === 'ap-south-1') {
+		const { migrationLoading, migrationInProgress } = useMigrationGate();
+
+		// While checking migration, show loader to avoid flicker
+		if (migrationLoading) return <PageLoader />;
+
+		// Show offline-like page when migration is in progress (status 102)
+		if (migrationInProgress) return <UnderMaintainence />;
+	}
 
 	return authInitialized ? (
 		<PageLoader />
