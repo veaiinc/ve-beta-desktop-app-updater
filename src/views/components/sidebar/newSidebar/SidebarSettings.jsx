@@ -10,6 +10,7 @@ import { ReactComponent as HelpSvg } from '../../../../assets/svg/sidebar/help.s
 import { ReactComponent as TemplatesSvg } from '../../../../assets/svg/sidebar/templates.svg';
 import { ReactComponent as CreateWorkspaceSvg } from '../../../../assets/svg/sidebar/createworkspace.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../../assets/svg/sidebar/switchworkspace.svg';
+import { ReactComponent as NotificationsSvg } from '../../../../assets/svg/sidebar/notifications.svg';
 import { ReactComponent as GiftSvg } from '../../../../assets/svg/sidebar/gift.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
@@ -62,6 +63,11 @@ const essentialsItems = [
 		route: '/playbook',
 		value: 'templates',
 	},
+	// {
+	// 	label: 'Notifications',
+	// 	icon: <NotificationsSvg width={18} height={18} />,
+	// 	value: 'notifications',
+	// },
 	{
 		label: 'Share & Earn',
 		icon: <GiftSvg width={18} height={18} />,
@@ -85,7 +91,9 @@ const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, 
 	const [info, setInfo] = useState({
 		switchWorkspaceEnabled: false,
 		shareAndEarnModalOpen: false,
+		notificationsModalOpen: false,
 	});
+
 	const navigate = useNavigate();
 
 	const hasMoreThanOneWorkspace = userWorkSpaceList?.length > 1;
@@ -124,6 +132,10 @@ const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, 
 
 	const handleShareAndEarnModalClose = useCallback(() => {
 		setInfo((prev) => ({ ...prev, shareAndEarnModalOpen: false }));
+	}, []);
+
+	const handleNotificationsModalClose = useCallback(() => {
+		setInfo((prev) => ({ ...prev, notificationsModalOpen: false }));
 	}, []);
 
 	return (
