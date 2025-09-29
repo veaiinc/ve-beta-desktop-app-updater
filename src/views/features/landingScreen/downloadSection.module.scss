@@ -119,16 +119,17 @@
 		padding: 14px 24px;
 		width: 270px;
 		border-radius: 24px;
-		border: 1px solid rgba(21, 58, 229, 0.2);
+
+		border: 1px solid rgba(52, 173, 155, 0.2);
 		background: rgba(255, 255, 255, 0.2);
-		box-shadow: 0 0 17px 0 rgba(21, 58, 229, 0.3) inset;
+		box-shadow: 0 0 17px 0 rgba(52, 173, 155, 0.3) inset;
 		cursor: pointer;
 		transition: all 0.3s ease;
 
 		&:hover {
 			background: rgba(255, 255, 255, 0.3);
-			border-color: rgba(21, 58, 229, 0.4);
-			box-shadow: inset 0px 0px 17px 0px rgba(21, 58, 229, 0.4);
+			border-color: rgba(52, 173, 155, 0.4);
+			box-shadow: inset 0px 0px 17px 0px rgba(52, 173, 155, 0.4);
 			transform: translateY(-2px);
 		}
 
@@ -138,7 +139,7 @@
 
 		span {
 			font-family: var(--primary-font-family);
-			color: #153ae5;
+			color: #34ad9b;
 			font-size: 16px;
 			font-style: normal;
 			font-weight: 500;
@@ -161,7 +162,7 @@
 		svg {
 			width: 100%;
 			height: 100%;
-			fill: #153ae5;
+			fill: #34ad9b;
 		}
 	}
 

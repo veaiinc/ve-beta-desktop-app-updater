@@ -63,9 +63,13 @@ const AnimatedSection = memo(function AnimatedSection({
 			y: 0,
 		});
 
-		// Create pin container for extended scroll (curve animation + Actions cards)
+		// Create pin container for extended scroll
+		// Add an extra initial scroll segment before arc animation begins
 		const cardCount = sectionId === 'SuperAgent' ? 3 : 4;
-		const scrollAmount = 100 + cardCount * 150; // 100% for curve + 150% per card
+		const extraIdleScroll = 100; // extra 100% scroll before arc starts
+		const arcScroll = 100; // dedicated 100% for the arc animation
+		const cardsScroll = cardCount * 150; // 150% per card
+		const scrollAmount = extraIdleScroll + arcScroll + cardsScroll;
 
 		ScrollTrigger.create({
 			trigger: container,
@@ -74,6 +78,7 @@ const AnimatedSection = memo(function AnimatedSection({
 			pin: true,
 			anticipatePin: 1,
 			pinSpacing: true,
+			refreshPriority: -1, // Lower priority to avoid conflicts
 		});
 
 		// Create smooth curve animation and Actions card switching with progress-based updates
@@ -81,103 +86,66 @@ const AnimatedSection = memo(function AnimatedSection({
 			trigger: container,
 			start: 'top top',
 			end: `+=${scrollAmount}%`,
-			scrub: 1, // Smoother scrubbing
+			scrub: 1, // Keep scrub only for card switching
+			refreshPriority: -1, // Lower priority to avoid conflicts
 			onUpdate: (self) => {
-				const progress = self.progress;
+				const progress = self.progress; // 0..1 over total scrollAmount
+				// Segments: [0, extraIdle), [extraIdle, extraIdle+arc), [rest for cards]
+				const idleEnd = extraIdleScroll / scrollAmount; // ~ first 100%
+				const arcEnd = (extraIdleScroll + arcScroll) / scrollAmount; // next 100%
 
-				// Intro fade out (first 15% of scroll)
-				if (progress <= 0.15) {
-					const introProgress = progress / 0.15; // 0 to 1
-					gsap.set(intro, {
-						opacity: 1 - introProgress,
-						y: -50 * introProgress,
-					});
-				} else {
-					// Keep intro hidden
-					gsap.set(intro, {
+				// Intro moves up and fades during arc segment, stays visible during idle
+				if (progress < idleEnd) {
+					gsap.set(intro, { opacity: 1, y: 0 });
+					gsap.set(actions, {
+						clipPath: 'ellipse(220% 200% at 50% 300%)',
 						opacity: 0,
-						y: -50,
 					});
-				}
-
-				// Actions reveal with curve animation (starts at 10% of scroll, completes by 15%)
-				if (progress >= 0.1) {
-					const actionsProgress = Math.min(1, (progress - 0.1) / 0.05); // 0 to 1, complete by 15%
-
-					// Smooth circular reveal - ellipse moves from bottom to center
-					const clipY = 300 - actionsProgress * 125; // Move from 300% to 175%
-					const opacity = Math.min(1, actionsProgress * 1.2); // Slightly faster opacity reveal
-
+				} else if (progress < arcEnd) {
+					const arcProgress = (progress - idleEnd) / (arcEnd - idleEnd); // 0..1
+					// Move intro up and fade while arc opens
+					gsap.set(intro, { opacity: 1 - arcProgress, y: -50 * arcProgress });
+					const clipY = 300 - arcProgress * 125; // 300% -> 175%
+					const opacity = Math.min(1, arcProgress * 1.2);
 					gsap.set(actions, {
 						clipPath: `ellipse(220% 200% at 50% ${clipY}%)`,
 						opacity: opacity,
 					});
 				} else {
-					// Keep actions hidden
+					// Cards segment
+					gsap.set(intro, { opacity: 0, y: -50 });
 					gsap.set(actions, {
-						clipPath: 'ellipse(220% 200% at 50% 300%)',
-						opacity: 0,
+						clipPath: 'ellipse(220% 200% at 50% 175%)',
+						opacity: 1,
 					});
-				}
-
-				// Actions card switching (starts after curve animation completes at 15%)
-				if (progress >= 0.15) {
-					const actionsScrollProgress = (progress - 0.15) / 0.85; // 0 to 1 for Actions cards
+					const cardsProgress = (progress - arcEnd) / (1 - arcEnd); // 0..1 over cards
 					let activeCard = 0;
-
-					// Calculate which card should be active based on progress and card count
 					if (cardCount === 3) {
-						// Super Agent: 3 cards (actions, suggestions, opportunity)
-						if (actionsScrollProgress >= 0.66) activeCard = 2; // Opportunity
-						else if (actionsScrollProgress >= 0.33) activeCard = 1; // Suggestions
-						else activeCard = 0; // Actions
+						if (cardsProgress >= 0.66) activeCard = 2;
+						else if (cardsProgress >= 0.33) activeCard = 1;
+						else activeCard = 0;
 					} else {
-						// Other sections: 4 cards (actions, suggestions, opportunity, risk)
-						if (actionsScrollProgress >= 0.75) activeCard = 3; // Risk
-						else if (actionsScrollProgress >= 0.5) activeCard = 2; // Opportunity
-						else if (actionsScrollProgress >= 0.25) activeCard = 1; // Suggestions
-						else activeCard = 0; // Actions
+						if (cardsProgress >= 0.75) activeCard = 3;
+						else if (cardsProgress >= 0.5) activeCard = 2;
+						else if (cardsProgress >= 0.25) activeCard = 1;
+						else activeCard = 0;
 					}
-
-					// Update the current card index - Actions component will handle visibility
 					setCurrentActionsCard(activeCard);
 				}
 			},
 			onEnter: () => {
-				// Ensure final state is correct when entering
-				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 175%)',
-					opacity: 1,
-				});
-				gsap.set(intro, {
-					opacity: 0,
-					y: -50,
-				});
-			},
-			onLeave: () => {
-				// Keep revealed state when leaving
-				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 175%)',
-					opacity: 1,
-				});
+				// Ensure initial state when entering the pinned section
+				gsap.set(intro, { opacity: 1, y: 0 });
+				gsap.set(actions, { clipPath: 'ellipse(220% 200% at 50% 300%)', opacity: 0 });
 			},
 			onEnterBack: () => {
-				// Reset when scrolling back up
-				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 300%)',
-					opacity: 0,
-				});
-				gsap.set(intro, {
-					opacity: 1,
-					y: 0,
-				});
+				// Reset states when coming back from below
+				gsap.set(actions, { clipPath: 'ellipse(220% 200% at 50% 175%)', opacity: 1 });
 			},
 			onLeaveBack: () => {
-				// Keep hidden state when scrolling back down
-				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 300%)',
-					opacity: 0,
-				});
+				// Reset to initial when leaving upwards
+				gsap.set(actions, { clipPath: 'ellipse(220% 200% at 50% 300%)', opacity: 0 });
+				gsap.set(intro, { opacity: 1, y: 0 });
 			},
 		});
 

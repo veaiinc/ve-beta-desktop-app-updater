@@ -2,7 +2,7 @@
 	width: 100%;
 	min-height: 100vh;
 	position: relative;
-	background: #000938;
+	background: linear-gradient(270deg, rgba(1, 8, 65, 1) 0%, rgba(21, 26, 73, 1) 100%);
 	padding: 0;
 	z-index: 1000;
 	overflow: visible;
@@ -18,25 +18,25 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		padding: 267px 20px 60px;
-		text-align: center;
+		padding: 10px 20px 40px;
 		max-width: 840px;
 		margin: 0 auto;
 		gap: 60px;
 		position: relative;
 		z-index: 10;
+		right: 194px;
+		top: 125px;
 
 		.mainTitle {
-			clip-path: inset(0 0 0 0);
-			mask: linear-gradient(white 50%, transparent) 0 100% / 100% 200% no-repeat;
+			// clip-path: inset(0 0 0 0);
+			// mask: linear-gradient(white 50%, transparent) 0 100% / 100% 200% no-repeat;
 			font-family: var(--primary-font-family);
+			color: #fff;
 			font-size: 124px;
+			font-style: normal;
 			font-weight: 400;
-			line-height: 0.97;
-			letter-spacing: -0.04em;
-			color: #f8fafc;
-			margin: 0;
-			text-align: center;
+			line-height: 120px;
+			letter-spacing: -4.96px;
 
 			@media (max-width: 1200px) {
 				font-size: 100px;
@@ -55,10 +55,9 @@
 			font-family: var(--primary-font-family);
 			font-size: 30px;
 			font-weight: 400;
-			line-height: 1.35;
+			line-height: 1.1;
 			color: rgba(248, 250, 252, 0.8);
 			margin: 0;
-			text-align: center;
 
 			@media (max-width: 768px) {
 				font-size: 28px;
@@ -70,154 +69,316 @@
 		}
 	}
 
-	.intelligenceSection {
-		display: flex;
-		flex-direction: column;
-		gap: 245px;
-		padding: 0 20px 100px;
-		max-width: 1378px;
+	.corePowersSection {
+		padding: 100px 20px;
+		max-width: 1800px;
 		margin: 0 auto;
 		position: relative;
 		z-index: 10;
-
-		.intelligenceItem {
+		max-height: 160vh;
+		@media (max-width: 1280px) {
+			max-height: 180vh;
+		}
+		.powersContainer {
 			display: flex;
 			justify-content: space-between;
-			align-items: center;
+			align-items: flex-start;
 			gap: 60px;
+			will-change: transform; // hint for smoother parallax
+			position: relative;
 
-			&:nth-child(even) {
-				flex-direction: row-reverse;
-			}
-
-			.content {
+			.rightColumn {
 				display: flex;
 				flex-direction: column;
-				gap: 32px;
-				max-width: 610px;
+				gap: 320px; // reduce space between hero and first item
 				flex: 1;
+				max-width: 610px;
 				position: relative;
-				z-index: 2;
-
-				.intelligenceTitle {
-					font-family: var(--primary-font-family);
-					font-size: 32px;
-					font-weight: 500;
-					line-height: 1.35;
-					color: #e2e8f0;
-					margin: 0;
-					text-align: left;
-
-					@media (max-width: 768px) {
-						font-size: 28px;
-					}
-
-					@media (max-width: 480px) {
-						font-size: 24px;
-					}
-				}
-
-				.intelligenceDescription {
-					font-family: var(--primary-font-family);
-					font-size: 22px;
-					font-weight: 400;
-					line-height: 1.615;
-					color: rgba(226, 232, 240, 0.7);
-					margin: 0;
-					text-align: left;
-
-					@media (max-width: 768px) {
-						font-size: 22px;
-					}
-
-					@media (max-width: 480px) {
-						font-size: 18px;
-					}
-				}
+				top: 0;
+				margin-top: 260px; // push down further to match reference
 			}
 
-			.number {
-				// Create a thin teal outline with transparent fill
-
-				-webkit-text-stroke-width: 2px;
-				-webkit-text-stroke-color: rgba(121, 236, 201, 0.7);
-				color: rgba(0, 0, 0, 0.1);
-
-				text-shadow: 0 0 250px rgba(121, 236, 201, 0.07);
-				font-family: 'Times New Roman';
-				font-size: 700px;
-				font-style: normal;
-				font-weight: 400;
-				line-height: 1;
-				opacity: 0.9;
-				position: relative;
-				z-index: 1;
+			.largeNumber {
+				background: linear-gradient(223deg, #98e6f4 24%, #e0fbfc 50%, #cec8f8 76%);
+				-webkit-background-clip: text;
+				font-family: Poppins, sans-serif;
+				font-size: 920px;
+				font-weight: 300;
+				line-height: 1.5;
+				-webkit-text-fill-color: #0000;
+				align-items: center;
+				background-clip: text;
+				display: flex;
+				height: auto;
+				justify-content: center;
 				pointer-events: none;
-				// Fade the large numeral so it dips under surrounding text
-				-webkit-mask-image: linear-gradient(
-					180deg,
-					transparent 8%,
-					#000 38%,
-					#000 62%,
-					transparent 92%
-				);
-				mask-image: linear-gradient(
-					180deg,
-					transparent 8%,
-					#000 38%,
-					#000 62%,
-					transparent 92%
-				);
+				position: sticky; // keep visible while list scrolls
+				top: 45vh; // lower start to align with first list bullet
+				margin-top: 425px; // match updated right column offset
+
+				text-shadow: 0 0 250px #79ecc912;
+				width: auto;
+				z-index: 1;
 
 				@media (max-width: 1200px) {
-					font-size: 300px;
+					font-size: 500px;
+					width: 300px;
+					height: 400px;
 				}
 
 				@media (max-width: 768px) {
-					font-size: 200px;
+					font-size: 400px;
+					width: 250px;
+					height: 300px;
 				}
 
 				@media (max-width: 480px) {
-					font-size: 150px;
+					font-size: 300px;
+					width: 150px;
+					height: 200px;
+				}
+			}
+
+			.powersList {
+				display: flex;
+				flex-direction: column;
+				gap: 56px;
+				flex: 1;
+				max-width: 500px;
+				position: relative;
+				top: 0;
+				will-change: transform, opacity; // hint for smoother animations
+
+				.powerItem {
+					display: flex;
+					flex-direction: column;
+					gap: 32px;
+
+					.powerHeader {
+						display: flex;
+						align-items: center;
+						gap: 16px;
+
+						.powerDot {
+							width: 12px;
+							height: 12px;
+							background: #79ecc9;
+							border-radius: 50%;
+							flex-shrink: 0;
+						}
+
+						.powerTitle {
+							font-family: var(--primary-font-family);
+							font-size: 22px;
+							font-weight: 600;
+							line-height: 1.35;
+							letter-spacing: 0.1em;
+							text-transform: uppercase;
+							color: #ffffff;
+							margin: 0;
+
+							@media (max-width: 768px) {
+								font-size: 20px;
+							}
+
+							@media (max-width: 480px) {
+								font-size: 16px;
+							}
+						}
+					}
+
+					.powerDescription {
+						font-family: var(--primary-font-family);
+						font-size: 22px;
+						font-weight: 400;
+						line-height: 1.583;
+						color: #ffffff;
+						margin: 0;
+
+						@media (max-width: 768px) {
+							font-size: 20px;
+						}
+
+						@media (max-width: 480px) {
+							font-size: 16px;
+						}
+					}
+				}
+
+				@media (max-width: 768px) {
+					gap: 60px;
+				}
+
+				@media (max-width: 480px) {
+					gap: 40px;
 				}
 			}
 
 			@media (max-width: 1024px) {
-				flex-direction: column !important;
+				flex-direction: column;
+				align-items: center;
 				text-align: center;
 				gap: 40px;
 
-				.content {
-					text-align: center;
+				.powersList {
+					.powerItem {
+						.powerHeader {
+							justify-content: center;
+						}
 
-					.intelligenceTitle,
-					.intelligenceDescription {
-						text-align: center;
+						.powerDescription {
+							text-align: center;
+						}
 					}
 				}
 			}
 		}
 
-		@media (max-width: 768px) {
-			gap: 150px;
+		/* Laptop responsiveness */
+		@media (max-width: 1366px) {
+			.powersContainer {
+				gap: 40px;
+				.rightColumn {
+					max-width: 540px;
+					margin-top: 200px;
+					gap: 240px;
+				}
+				.largeNumber {
+					font-size: 780px;
+					top: 42vh;
+					margin-top: 360px;
+				}
+				.powersList {
+					max-width: 460px;
+					gap: 48px;
+				}
+				.lightPassing {
+					width: 200px;
+					top: 48vh;
+					margin-top: 180px;
+				}
+			}
 		}
 
-		@media (max-width: 480px) {
-			gap: 100px;
+		/* Tablet/small laptop responsiveness */
+		@media (max-width: 1024px) {
+			.powersContainer {
+				gap: 28px;
+				.rightColumn {
+					max-width: 600px;
+					margin-top: 120px;
+					gap: 120px;
+				}
+				.largeNumber {
+					font-size: 560px;
+					top: 20vh;
+					margin-top: 120px;
+				}
+				.powersList {
+					max-width: 600px;
+					gap: 40px;
+				}
+				.lightPassing {
+					width: 160px;
+					top: 40vh;
+					margin-top: 100px;
+				}
+			}
+		}
+	}
+
+	.coFounderSection {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 40px;
+		padding: 100px 20px;
+		max-width: 800px;
+		margin: 0 auto;
+		position: relative;
+		z-index: 5; // below animated powers section to avoid overlap
+		text-align: center;
+
+		.coFounderTitle {
+			font-family: var(--primary-font-family);
+			font-size: 124px;
+			font-weight: 400;
+			line-height: 0.967;
+			letter-spacing: -0.04em;
+			color: #ffffff;
+			margin: 0;
+			text-align: center;
+
+			@media (max-width: 1200px) {
+				font-size: 100px;
+			}
+
+			@media (max-width: 768px) {
+				font-size: 80px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 60px;
+			}
+		}
+
+		.coFounderDescription {
+			font-family: var(--primary-font-family);
+			font-size: 28px;
+			font-weight: 500;
+			line-height: 1.428;
+			color: #ffffff;
+			margin: 0;
+			text-align: center;
+			max-width: 580px;
+
+			@media (max-width: 768px) {
+				font-size: 24px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 20px;
+			}
+		}
+
+		/* Laptop responsiveness */
+		@media (max-width: 1366px) {
+			padding: 80px 20px;
+			margin-top: 140px; // extra gap after powers section
+			.coFounderTitle {
+				font-size: 100px;
+			}
+			.coFounderDescription {
+				font-size: 24px;
+				max-width: 540px;
+			}
+		}
+
+		/* Tablet/small laptop responsiveness */
+		@media (max-width: 1024px) {
+			padding: 60px 16px;
+			margin-top: 120px;
+			.coFounderTitle {
+				font-size: 80px;
+			}
+			.coFounderDescription {
+				font-size: 22px;
+				max-width: 520px;
+			}
 		}
 	}
 
 	.lightPassing {
-		position: absolute;
-		top: 58%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 267px;
-		height: 3527px;
-		background-size: contain;
-		background-position: center;
-		background-repeat: no-repeat;
-		z-index: 5; // Increased z-index to show glow above content
+		position: sticky;
+		top: 50vh; // lowered to sit further down
+		margin-top: 220px; // additional downward shift
+		align-self: stretch;
+		width: 228px;
+		min-height: 150vh;
+		display: flex;
+		justify-content: center;
+		z-index: 2;
 		pointer-events: none; // Allow clicks to pass through
 
 		// Enhance the glow effect visibility
