@@ -393,7 +393,7 @@ const IntegrationConnectModel = ({
 											</>
 										) : (
 											<span className="connect-text">
-												Connect just for Everyone
+												Connect for Everyone
 											</span>
 										)}
 									</div>

@@ -5235,12 +5235,28 @@ const SortableComponent = ({
 								? '305px' // Mobile width
 								: '712px', // Desktop width
 						marginRight: '400px',
-						maxHeight: '600px',
-						overflowY: 'auto',
+						// Dynamic height: show max 6-7 options, then enable scrolling
+						// Adjust height for mobile vs desktop
+						maxHeight:
+							(field.options?.length || 0) > 6
+								? windowWidth <= 768
+									? '300px'
+									: '420px'
+								: 'auto',
+						overflowY: (field.options?.length || 0) > 6 ? 'auto' : 'visible',
 						position: 'relative',
 						// paddingBottom: '20px',
-						maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
-						WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+						maskImage:
+							(field.options?.length || 0) > 6
+								? 'linear-gradient(to bottom, black 85%, transparent 100%)'
+								: 'none',
+						WebkitMaskImage:
+							(field.options?.length || 0) > 6
+								? 'linear-gradient(to bottom, black 85%, transparent 100%)'
+								: 'none',
+						// Custom scrollbar styling for better UX
+						scrollbarWidth: 'thin',
+						scrollbarColor: '#ccc transparent',
 					}}
 				>
 					{' '}

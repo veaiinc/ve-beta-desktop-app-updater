@@ -316,7 +316,8 @@ const LandingPage = () => {
 							<div className="login-container">
 								<button
 									className="login-btn"
-									onClick={handleDownloadVeAppPopupOpen}
+									// onClick={handleDownloadVeAppPopupOpen}
+									onClick={() => navigate('/verify-user')}
 								>
 									Signup
 								</button>
