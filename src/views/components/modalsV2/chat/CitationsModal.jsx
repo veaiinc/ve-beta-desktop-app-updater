@@ -1,4 +1,3 @@
-import { Drawer } from 'antd';
 import '../../../../assets/scss/chat/modal/citationsModal.scss';
 import { useContext, memo, useCallback } from 'react';
 import Context from '../../../../context/context';
@@ -12,12 +11,7 @@ import {
 } from '../../../../helpers';
 import { ReactComponent as VeLogoSvg } from '../../../../assets/svg/veLogo.svg';
 
-const styles = {
-	header: { display: 'none' },
-	body: { padding: '0px' },
-};
-
-const CitationsModal = ({ closeModal, modalIsOpen }) => {
+const CitationsModal = ({ closeModal }) => {
 	const {
 		templates: { chatSources },
 	} = useContext(Context);
@@ -27,13 +21,7 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 	}, []);
 
 	return (
-		<Drawer
-			open={modalIsOpen}
-			rootClassName="citations-modal"
-			width={400}
-			mask={false}
-			styles={styles}
-		>
+		<div className="citations-wrapper">
 			<div className="citations-container">
 				<div className="header">
 					<div className="left-text">Sources</div>
@@ -46,11 +34,8 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 						return (
 							<div
 								className="source-container"
-								key={`${Date.now()}-${index}`}
+								key={`${index}`}
 								onClick={() => handleSourceClick(citation)}
-								style={{
-									animationDelay: `${index * 0.05 + 0.2}s`,
-								}}
 							>
 								<div className="source-url-container">
 									<div className="url-icon">
@@ -99,7 +84,7 @@ const CitationsModal = ({ closeModal, modalIsOpen }) => {
 					})}
 				</div>
 			</div>
-		</Drawer>
+		</div>
 	);
 };
 

@@ -16,12 +16,10 @@ const infiniteScrollStyle = {
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
 	gap: '2px',
-
-	// height: '38vh',
 };
 const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
-const limit = 10;
+const limit = 6;
 const reset = true;
 
 const ChatHistory = ({ onChatSelect, isClosed = false }) => {
