@@ -8,7 +8,6 @@ import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
 import getBaseUrl from '../../services/baseUrls';
 import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
 import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
-import logout from '../../helpers/logout';
 
 export const initialState = {
 	currentPlanAddOns: null,
@@ -195,20 +194,13 @@ export const AuthState = () => {
 					return [true, { hasWorkspaces: false, isOnboard: false }];
 				}
 
-				const { isOnboard, workspaceId, region } = accessibleWorkspaces?.[0];
+				const { isOnboard, workspaceId } = accessibleWorkspaces?.[0];
 
 				localStorage.setItem('isOnboard', isOnboard);
 				Cookies.set('isOnboard', isOnboard, {
 					sameSite: 'Lax',
 					domain: host,
 				});
-				if (region) {
-					localStorage.setItem('region', region);
-					Cookies.set('region', region, {
-						sameSite: 'Lax',
-						domain: host,
-					});
-				}
 				if (hasWorkspaces)
 					localStorage.setItem(
 						'accessibleWorkspaces',
@@ -553,10 +545,16 @@ export const AuthState = () => {
 	const getNewAccessToken = async () => {
 		try {
 			const path = '/refresh-token';
-			const token = localStorage.getItem('usertoken') || Cookies.get('usertoken');
-			const response = await service.fetchPost(path, null, token, 'auth');
-			const responseStatus = response?.[2];
-			if (responseStatus === 401 || responseStatus === 403) logout();
+
+			const currentAccessToken =
+				localStorage.getItem('usertoken') || Cookies.get('usertoken');
+			const refreshToken =
+				localStorage.getItem('refreshToken') || Cookies.get('refreshToken');
+			const body = {
+				refreshToken,
+			};
+
+			const response = await service.fetchPost(path, body, currentAccessToken, 'auth');
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
 			} else {

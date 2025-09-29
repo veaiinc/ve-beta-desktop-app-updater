@@ -5,11 +5,9 @@ import '../assets/scss/markdownHelper.scss';
 import { ReactComponent as PencilSparkleIcon } from '../assets/svg/notes/pencilSparkle.svg';
 import { ReactComponent as TickSvg } from '../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../assets/svg/ai_agents/copy.svg';
-import { ReactComponent as LinkArrowSvg } from '../assets/svg/sidebar/arrowupright.svg';
 import Context from '../context/context';
 import { Image, Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
-import Plotly from '../views/components/chat/chatComponents/Plotly';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -39,7 +37,7 @@ const codeColorTheme = {
 		background: 'transparent',
 		fontFamily: 'monospace, Consolas, Monaco, "Andale Mono", "Ubuntu Mono"',
 		lineHeight: '1.5',
-		padding: 'calc(var(--font-size) * 0.85) calc(var(--font-size) * 1)',
+		padding: '16px',
 		overflow: 'auto',
 	},
 	comment: {
@@ -187,6 +185,48 @@ const rehypeCITPlugin = () => {
 	};
 };
 
+// const rehypeFadeInWords = () => {
+// 	return (tree) => {
+// 		const visit = (node, parent) => {
+// 			if (!node || typeof node !== 'object') return;
+
+// 			// Then transform text nodes
+// 			if (node.type === 'text' && node.value) {
+// 				const words = node.value.split(/(\s+)/); // keep spaces too
+
+// 				const newNode = {
+// 					type: 'element',
+// 					tagName: 'span',
+// 					properties: {},
+// 					children: words.map((word) =>
+// 						word.trim() === ''
+// 							? { type: 'text', value: word }
+// 							: {
+// 									type: 'element',
+// 									tagName: 'span',
+// 									properties: { fadeIn: true },
+// 									children: [{ type: 'text', value: word }],
+// 							  },
+// 					),
+// 				};
+
+// 				// Replace this node in the parent's children
+// 				if (parent && parent.children) {
+// 					const idx = parent.children.indexOf(node);
+// 					parent.children[idx] = newNode;
+// 				}
+// 			}
+
+// 			// Recurse first into existing children
+// 			if (node.children && Array.isArray(node.children)) {
+// 				node.children.forEach((child) => visit(child, node));
+// 			}
+// 		};
+
+// 		visit(tree, null);
+// 	};
+// };
+
 const rehypeFadeInWords = () => {
 	return (tree) => {
 		const visit = (node, parent) => {
@@ -222,45 +262,72 @@ const rehypeFadeInWords = () => {
 const baseComponents = {
 	pre: ({ children }) => <pre className="pre">{children}</pre>,
 	hr: () => <hr />,
-	ol: ({ children, ...props }) => <ol className="ol">{children}</ol>,
-	li: ({ children, ...props }) => <li className="li">{children}</li>,
-	ul: ({ children, ...props }) => <ul className="ul">{children}</ul>,
-	strong: ({ children, ...props }) => <strong className="strong">{children}</strong>,
-	a: ({ children, href, ...props }) => (
-		<a target="_blank" rel="noreferrer" href={href} className="a">
+	ol: ({ children, ...props }) => (
+		<ol className="ol" {...props}>
 			{children}
-			<span className="link-arrow">
-				<LinkArrowSvg />
-			</span>
-		</a>
+		</ol>
 	),
-	h1: ({ children, ...props }) => <h1 className="h1">{children}</h1>,
-	h2: ({ children, ...props }) => <h2 className="h2">{children}</h2>,
-	h3: ({ children, ...props }) => <h3 className="h3">{children}</h3>,
-	h4: ({ children, ...props }) => <h4 className="h4">{children}</h4>,
-	h5: ({ children, ...props }) => <h5 className="h5">{children}</h5>,
-	h6: ({ children, ...props }) => <h6 className="h6">{children}</h6>,
-	p: ({ children, ...props }) => <p className="p">{children}</p>,
-	img: ({ children, ...props }) => (
-		<div className="markdown-image-wrapper ">
-			<img
-				{...props}
-				className="img"
-				src={props?.src}
-				alt="img"
-				style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
-			/>
-		</div>
-	),
+	li: ({ children, ...props }) => {
+		return <li className="li">{children}</li>;
+	},
+	ul: ({ children, ...props }) => {
+		return <ul className="ul">{children}</ul>;
+	},
+	strong: ({ children, ...props }) => {
+		return <strong className="strong">{children}</strong>;
+	},
+	a: ({ children, ...props }) => {
+		return (
+			<a target="_blank" rel="noreferrer" {...props} className="a">
+				{children}
+			</a>
+		);
+	},
+	h1: ({ children, ...props }) => {
+		return <h1 className="h1">{children}</h1>;
+	},
+	h2: ({ children, ...props }) => {
+		return <h2 className="h2">{children}</h2>;
+	},
+	h3: ({ children, ...props }) => {
+		return <h3 className="h3">{children}</h3>;
+	},
+	h4: ({ children, ...props }) => {
+		return <h4 className="h4">{children}</h4>;
+	},
+	h5: ({ children, ...props }) => {
+		return <h5 className="h5">{children}</h5>;
+	},
+	h6: ({ children, ...props }) => {
+		return <h6 className="h6">{children}</h6>;
+	},
+	p: ({ children, ...props }) => {
+		return <p className="p">{children}</p>;
+	},
+	img: ({ children, ...props }) => {
+		return (
+			<div className="markdown-image-wrapper ">
+				<img
+					{...props}
+					className="img"
+					src={props?.src}
+					alt="img"
+					style={{ maxWidth: '50%', maxHeight: '50%', borderRadius: '4px' }}
+				/>
+			</div>
+		);
+	},
 	thead: ({ children, ...props }) => <thead>{children}</thead>,
 	th: ({ children, ...props }) => <th>{children}</th>,
 	td: ({ children, ...props }) => <td>{children}</td>,
 	tr: ({ children, ...props }) => <tr>{children}</tr>,
-	iframe: ({ children, ...props }) => (
-		<div className="iframe-wrapper">
-			<iframe {...props} className="iframe" />
-		</div>
-	),
+	iframe: ({ children, ...props }) => {
+		return (
+			<div className="iframe-wrapper">
+				<iframe {...props} className="iframe" />
+			</div>
+		);
+	},
 	blockquote: ({ children, ...props }) => (
 		<blockquote className="blockquote">{children}</blockquote>
 	),
@@ -280,15 +347,15 @@ const MarkdownCode = memo(({ code, match }) => {
 		<div className="markdown-code-wrapper">
 			<div className="code-header">
 				<div className="code-language">{match[1]}</div>
-				<Tooltip title={isCopied ? 'Copied Code' : 'Copy Code'} placement="bottom">
-					<button className="copy-code-btn" onClick={() => handleCopyCode(code || '')}>
-						{isCopied ? <TickSvg /> : <CopyIcon width="14px" height="14px" />}
-					</button>
-				</Tooltip>
+				<button className="copy-code-btn" onClick={() => handleCopyCode(code || '')}>
+					<Tooltip title={isCopied ? 'Copied Code' : 'Copy Code'} placement="bottom">
+						{isCopied ? <TickSvg /> : <CopyIcon />}
+					</Tooltip>
+				</button>
 			</div>
 
 			<SyntaxHighlighter style={codeColorTheme} language={match[1]} PreTag="div">
-				{String(code)?.trim()?.replace(/\n$/, '')}
+				{String(code)?.replace(/\n$/, '')}
 			</SyntaxHighlighter>
 		</div>
 	);
@@ -323,7 +390,7 @@ const MarkdownTable = memo(({ children, node, markdown }) => {
 });
 
 // Memoize citation-specific components
-const createCustomComponents = (citationsRef, markdownRef, plotsRef) => ({
+const createCustomComponents = (citationsRef, markdownRef) => ({
 	span: ({ children, citationId, fadeIn, ...props }) => {
 		if (citationId)
 			return <CitationsTooltip citationId={citationId} citations={citationsRef.current} />;
@@ -364,30 +431,25 @@ const createCustomComponents = (citationsRef, markdownRef, plotsRef) => ({
 			</code>
 		);
 	},
-	plotly: ({ attachmentid, ...props }) => {
-		return <Plotly attachmentId={attachmentid} plotly={plotsRef.current} />;
-	},
 });
 //use remaarkMath for math equations
 const remarkPlugins = [remarkGfm];
 const rehypePlugins = [rehypeKatex, rehypeRaw];
 
-const NonMemoizedMarkdown = ({ children, citations = [], plots = [], animate = false }) => {
+const NonMemoizedMarkdown = ({ children, citations = [], animate = false }) => {
 	const markdownRef = useRef('');
 	const citationsRef = useRef([]);
-	const plotsRef = useRef([]);
 
 	const markdown = children;
 
 	markdownRef.current = children;
 	citationsRef.current = citations;
-	plotsRef.current = plots;
 
 	// Memoize the combined components object
 	const components = useMemo(
 		() => ({
 			...baseComponents,
-			...createCustomComponents(citationsRef, markdownRef, plotsRef),
+			...createCustomComponents(citationsRef, markdownRef),
 		}),
 		[],
 	);

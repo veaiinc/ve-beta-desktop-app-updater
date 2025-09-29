@@ -16,7 +16,7 @@ const useTokenExpiry = () => {
 
 	useEffect(() => {
 		if (timerRef.current) clearTimeout(timerRef.current); // clear existing timers (if any)
-		const triggerAt = (accessTokenExpiry - 60) * 1000; // 60s before access token expires
+		const triggerAt = (accessTokenExpiry - 10) * 1000; // 10s before access token expires
 		const delay = Math.max(triggerAt - Date.now(), 0);
 
 		timerRef.current = setTimeout(async () => {
@@ -26,13 +26,19 @@ const useTokenExpiry = () => {
 				if (success) {
 					const { tokens } = response?.[1] || {};
 					const newAccessToken = tokens.accessToken;
+					const newRefreshToken = tokens.refreshToken;
 					const newAccessTokenExpiry = tokens.accessTokenExpiry;
 					const host = fetchDomainName();
 
 					localStorage.setItem('usertoken', newAccessToken);
+					localStorage.setItem('refreshToken', newRefreshToken);
 					localStorage.setItem('accessTokenExpiry', newAccessTokenExpiry);
 
 					Cookies.set('usertoken', newAccessToken, {
+						sameSite: 'lax',
+						domain: host,
+					});
+					Cookies.set('refreshToken', newRefreshToken, {
 						sameSite: 'lax',
 						domain: host,
 					});

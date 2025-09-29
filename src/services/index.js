@@ -1,8 +1,8 @@
 import mitt from 'mitt';
 import Cookies from 'js-cookie';
-import { fetchDomainName } from '../helpers';
+
+// const x_access_key = import.meta.env.VITE_APP_X_ACCESS_KEY || 'QWxsb3dBY2Nlc3NUb0ZlZWRiYWNrQVBJ';
 import getBaseUrl from './baseUrls.js';
-import logout from '../helpers/logout.js';
 
 const authBearerTypes = new Set([
 	'form',
@@ -16,7 +16,7 @@ const authBearerTypes = new Set([
 	'generate_voice_agent_token_api',
 ]);
 
-const handleHeaders = (token, type) => {
+const handleHeaders = (token, type, isPublicChat = false) => {
 	const headers = { 'Content-Type': 'application/json' };
 
 	if (token) {
@@ -25,6 +25,10 @@ const handleHeaders = (token, type) => {
 			headers['Authorization'] = `Bearer ${token}`;
 		}
 	}
+
+	// if (isPublicChat && type === 'ai_assistant_api') {
+	// 	headers['x-access-key'] = x_access_key;
+	// }
 
 	return headers;
 };
@@ -76,18 +80,25 @@ const processResponse = async (response, requestData, shouldExit = false) => {
 		return await refreshAccessTokenAndRetry(requestData);
 	} else if (responseStatus === 500) {
 		internalServerEmitter.emit('serverError', jsonData);
-		return [false, jsonData, responseStatus];
+		return [false, jsonData];
 	} else {
-		return [false, jsonData, responseStatus];
+		return [response.status, jsonData];
 	}
 };
 
 const handleParams = (params) => {
-	const query = new URLSearchParams(params).toString();
-	return query ? `?${query}` : '';
+	let subUrl = '';
+	if (Object.keys(params)?.length) {
+		subUrl += '?';
+		const keys = Object.keys(params);
+		for (let i = 0; i < keys.length; i++) {
+			subUrl += `${keys[i]}=${encodeURIComponent(params[keys[i]])}&`;
+		}
+	}
+	return subUrl;
 };
 
-const apiFetch = async (url, method, body, token, type, abortSignal = null) => {
+const apiFetch = async (url, method, body, token, type, isPublicChat = false) => {
 	try {
 		const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
 		const baseUrl = getBaseUrl({ type, region });
@@ -97,52 +108,44 @@ const apiFetch = async (url, method, body, token, type, abortSignal = null) => {
 			return [
 				false,
 				{ message: `No base URL found for type: ${type} and region: ${region}` },
-				404,
 			];
 		}
 
 		const endpoint = baseUrl + url;
 
-		const headers = handleHeaders(token, type);
+		const headers = handleHeaders(token, type, isPublicChat);
 
-		let options = { method, headers };
-		if (body) {
-			options.body = JSON.stringify(body);
-		}
-		if (type === 'auth') {
-			options.credentials = 'include';
-		}
-		if (abortSignal) {
-			options.signal = abortSignal;
-		}
+		body && (body = JSON.stringify(body));
 
-		const response = await fetch(endpoint, options);
-		const requestData = { endpoint, ...options };
-		const [success, data, status] = await processResponse(response, requestData);
-		return [success, data, status];
+		const requestInit =
+			type === 'auth'
+				? { method, headers, body, credentials: 'include' }
+				: { method, headers, body };
+		const response = await fetch(endpoint, requestInit);
+		return await processResponse(response);
 	} catch (error) {
 		console.log('Api Failed: ' + error.message);
-		return [false, { message: error.message }, 500];
+		return [false];
 	}
 };
 
 const Service = {
-	fetchGet: async (url, token = null, type = null, params = {}, abortSignal = null) => {
+	fetchGet: async (url, token = null, type = null, params = {}) => {
 		let completeUrl = url;
-		if (Object.keys(params)?.length > 0) {
+		if (Object.keys(params)?.length) {
 			completeUrl += handleParams(params);
 		}
-		return await apiFetch(completeUrl, 'GET', null, token, type, abortSignal);
+		return await apiFetch(completeUrl, 'GET', null, token, type);
 	},
 
-	fetchPost: async (url, body, token = null, type = null, abortSignal = null) =>
-		await apiFetch(url, 'POST', body, token, type, abortSignal),
+	fetchPost: async (url, body, token = null, type = null) =>
+		await apiFetch(url, 'POST', body, token, type),
 
-	fetchPut: async (url, body, token = null, type = null, abortSignal = null) =>
-		await apiFetch(url, 'PUT', body, token, type, abortSignal),
+	fetchPut: async (url, body, token = null, type = null, isPublicChat = false) =>
+		await apiFetch(url, 'PUT', body, token, type, isPublicChat),
 
-	fetchDelete: async (url, token = null, body = null, type = null, abortSignal = null) =>
-		await apiFetch(url, 'DELETE', body, token, type, abortSignal),
+	fetchDelete: async (url, token = null, body = null, type = null) =>
+		await apiFetch(url, 'DELETE', body, token, type),
 };
 
 export default Service;

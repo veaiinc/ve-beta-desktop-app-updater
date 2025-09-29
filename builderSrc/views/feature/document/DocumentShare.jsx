@@ -10,11 +10,16 @@ import { ReactComponent as InfoIcon } from '../../../assets/svg/Settings/Info.sv
 import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile/downArrow.svg';
 import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
-import { DatePicker, Modal, Input, Button } from 'antd';
+import { ReactComponent as NoImageIcon } from '../../../assets/svg/document/noImage.svg';
+import { DatePicker, Modal, Input, Button, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import SendEmailModal from '../../components/SmartFileDetails/SendEmailModal';
+import { UploadFileSVG } from '../../components/builder_client_common';
+import LibraryPopup from '../../components/imageLibrary/LibraryPopup';
+import { ReactComponent as Delete } from '../../../assets/svg/delete.svg';
 
 const DocumentShare = ({
 	isOpen,
@@ -33,6 +38,7 @@ const DocumentShare = ({
 			updateSendSmartFileSettings,
 			workflowInfoDetails,
 			sendCustomEmailToClients,
+			updateWorkflowInfo,
 		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 		aiSetup: {
@@ -68,17 +74,15 @@ const DocumentShare = ({
 		workflowId: smartFileInfo?._id || '',
 		copyLink: '',
 		isAlChatEnabled: smartFileInfo?.isAlChatEnabled || false,
-		clientDetails: '',
+		clientDetails: smartFileInfo?.clientDetails || null,
 		workspaceId: '',
+		customTime: smartFileInfo?.expiresAt
+			? dayjs.unix(smartFileInfo.expiresAt).format('HH:mm:ss')
+			: '',
 	});
 
 	const [pendingExpirySelection, setPendingExpirySelection] = useState(null);
 	const [showEmailModal, setShowEmailModal] = useState(false);
-	const [emailInfo, setEmailInfo] = useState({
-		subject: '',
-		body: '',
-		sending: false,
-	});
 
 	const expiryDropdownRef = useRef(null);
 	const accessDropdownRef = useRef(null);
@@ -102,11 +106,17 @@ const DocumentShare = ({
 	const getExpiryDropdownLabel = (expiresAt) => {
 		if (!expiresAt) return 'Never';
 		const now = dayjs().startOf('day');
-		const exp = dayjs.unix(expiresAt).endOf('day');
+		const exp = dayjs.unix(expiresAt);
 		const diffDays = exp.diff(now, 'day');
-		if (diffDays === 0) return '1 day';
-		if (diffDays === 6 || diffDays === 7) return '7 days';
-		if (diffDays === 29 || diffDays === 30) return '30 days';
+		
+		// Check if it's exactly 1 day from now (end of day)
+		if (diffDays === 0 && exp.isSame(dayjs().add(1, 'day').endOf('day'))) return '1 day';
+		// Check if it's exactly 7 days from now (end of day)
+		if (diffDays === 6 && exp.isSame(dayjs().add(7, 'days').endOf('day'))) return '7 days';
+		// Check if it's exactly 30 days from now (end of day)
+		if (diffDays === 29 && exp.isSame(dayjs().add(30, 'days').endOf('day'))) return '30 days';
+		
+		// If it doesn't match any of the predefined options, it's custom
 		return 'Custom';
 	};
 
@@ -177,6 +187,7 @@ const DocumentShare = ({
 		if (info.editSlug && inputRef.current) {
 			inputRef.current.focus();
 		}
+		// console.log(workflowInfoDetails);
 	}, [info.editSlug]);
 
 	// Update parent state (mimics updateWorkflowSlug in DocsFullView)
@@ -267,16 +278,95 @@ const DocumentShare = ({
 		],
 	);
 
+	// Create a function that can accept date and time parameters
+	const updateExpiryWithSpecificDateTime = useCallback(
+		async (customDate, customTime) => {
+			if (!smartFileInfo?._id || !customDate) return;
+
+			// Combine date and time properly
+			const dateString = customDate.format('YYYY-MM-DD');
+			const timeString = customTime || '23:59';
+			const combined = `${dateString} ${timeString}`;
+			const expireAt = dayjs(combined, 'YYYY-MM-DD HH:mm');
+
+			// Validate the combined datetime
+			if (!expireAt.isValid()) {
+				console.log('Invalid datetime in update:', { dateString, timeString, combined });
+				message.error('Invalid date/time combination');
+				return;
+			}
+
+			// Check if the datetime is in the future
+			if (expireAt.isBefore(dayjs())) {
+				message.error('Expiry date/time must be in the future');
+				return;
+			}
+
+			const payload = {
+				updateWorkflowId: smartFileInfo._id,
+				updateWorkflowInput: {
+					expiresAt: Math.floor(expireAt.unix()),
+					isPublic: !info.emailAccess,
+					isAlChatEnabled: info.isAlChatEnabled,
+				},
+			};
+
+			try {
+				const response = await updateSendSmartFileSettings(payload);
+				if (response?.[0]) {
+					message.success('Link expiry updated successfully');
+					getSmartFileData({ getWorkflowWithModulesId: smartFileInfo._id });
+					if (updateSmartFileEmailAuth) {
+						updateSmartFileEmailAuth(info.emailAccess);
+					}
+					if (updateSmartFileIsAiChatEnabled) {
+						updateSmartFileIsAiChatEnabled(info.isAlChatEnabled);
+					}
+				} else {
+					message.error('Failed to update link expiry');
+				}
+			} catch (err) {
+				console.error('Error updating expiry:', err);
+				message.error('Error updating link expiry');
+			}
+		},
+		[
+			smartFileInfo,
+			info.emailAccess,
+			info.isAlChatEnabled,
+			updateSendSmartFileSettings,
+			getSmartFileData,
+			updateSmartFileEmailAuth,
+			updateSmartFileIsAiChatEnabled,
+		],
+	);
+
+	// Keep the original function for backward compatibility
+	const updateExpiryWithDateTime = useCallback(async () => {
+		return updateExpiryWithSpecificDateTime(info.customDate, info.customTime);
+	}, [updateExpiryWithSpecificDateTime, info.customDate, info.customTime]);
+
 	const updateAccessSettings = useCallback(
 		async (emailAccessOverride) => {
 			if (!smartFileInfo?._id) return;
 			const emailAccess =
 				typeof emailAccessOverride === 'boolean' ? emailAccessOverride : info.emailAccess;
+
+			let expireAt = null;
+			if (info.selected.expiry === 'Custom' && info.customDate) {
+				const dateString = info.customDate.format('YYYY-MM-DD');
+				// Fix: Use correct format - time input gives HH:mm, not HH:mm:ss
+				const timeString = info.customTime || '23:59';
+				const combined = `${dateString} ${timeString}`;
+				// Use the correct format for parsing
+				expireAt = dayjs(combined, 'YYYY-MM-DD HH:mm');
+			}
+
 			const payload = {
 				updateWorkflowId: smartFileInfo._id,
 				updateWorkflowInput: {
 					isPublic: !emailAccess,
-					expiresAt: info.customDate ? Math.floor(info.customDate.unix()) : null,
+					expiresAt: expireAt && expireAt.isValid() ? Math.floor(expireAt.unix()) : null,
 					isAlChatEnabled: info.isAlChatEnabled,
 				},
 			};
@@ -303,6 +393,8 @@ const DocumentShare = ({
 			smartFileInfo,
 			info.emailAccess,
 			info.customDate,
+			info.customTime,
+			info.selected.expiry,
 			info.isAlChatEnabled,
 			updateSendSmartFileSettings,
 			getSmartFileData,
@@ -336,7 +428,9 @@ const DocumentShare = ({
 				selected: { ...prev.selected, expiry: option },
 				showDatePicker: option === 'Custom',
 				customDate: option === 'Custom' ? prev.customDate : null,
+				customTime: option === 'Custom' ? prev.customTime || '23:59' : '',
 			}));
+
 			let expireAt = null;
 			switch (option) {
 				case 'Never':
@@ -351,30 +445,60 @@ const DocumentShare = ({
 					expireAt = dayjs().add(30, 'days').endOf('day');
 					break;
 				case 'Custom':
-					expireAt = info.customDate;
+					// Don't update immediately for custom, wait for date/time selection
 					return;
 				default:
 					break;
 			}
 			updateExpiryDate(expireAt);
 		},
-		[info.customDate, updateExpiryDate],
+		[updateExpiryDate],
 	);
 
 	const handleCustomDateChange = useCallback(
 		(date) => {
-			setInfo((prev) => ({
-				...prev,
-				customDate: date,
-				showDatePicker: true,
-				selected: { ...prev.selected, expiry: 'Custom' },
-			}));
-			if (date) {
-				const expireAt = date.endOf('day');
-				updateExpiryDate(expireAt);
-			}
+			setInfo((prev) => {
+				const newInfo = {
+					...prev,
+					customDate: date,
+					showDatePicker: true,
+					selected: { ...prev.selected, expiry: 'Custom' },
+				};
+
+				// If there's already a time set, trigger API update
+				if (date && prev.customTime) {
+					setTimeout(() => {
+						updateExpiryWithSpecificDateTime(date, prev.customTime);
+					}, 100);
+				}
+
+				return newInfo;
+			});
 		},
-		[updateExpiryDate],
+		[updateExpiryWithSpecificDateTime],
+	);
+
+	// Update the handleCustomTimeChange function to work with TimePicker
+	const handleCustomTimeChange = useCallback(
+		(time, timeString) => {
+			const newTime = timeString; // TimePicker passes timeString directly
+			setInfo((prev) => {
+				const newInfo = {
+					...prev,
+					customTime: newTime,
+				};
+
+				// If there's already a date set, trigger API update with debounce
+				if (prev.customDate && newTime) {
+					setTimeout(() => {
+						updateExpiryWithSpecificDateTime(prev.customDate, newTime);
+					}, 1000); // 1 second debounce
+				}
+
+				return newInfo;
+			});
+		},
+		[updateExpiryWithSpecificDateTime],
 	);
 
 	const handleAssistantChange = useCallback(
@@ -404,7 +528,23 @@ const DocumentShare = ({
 
 		let expireAt;
 		if (info.selected.expiry === 'Custom' && info.customDate) {
-			expireAt = info.customDate.endOf('day');
+			const dateString = info.customDate.format('YYYY-MM-DD');
+			// Fix: Handle time format properly - time input gives HH:mm, not HH:mm:ss
+			// If customTime is empty and the selected date is today, use current time
+			let timeString = info.customTime;
+			if (!timeString && info.customDate.isSame(dayjs(), 'day')) {
+				timeString = dayjs().format('HH:mm');
+			} else if (!timeString) {
+				timeString = '23:59';
+			}
+			const combined = `${dateString} ${timeString}`;
+			// Use the correct format for parsing
+			expireAt = dayjs(combined, 'YYYY-MM-DD HH:mm');
+
+			if (!expireAt.isValid()) {
+				console.log('Invalid datetime:', { dateString, timeString, combined }); // Debug log
+				return 'Invalid date/time selected';
+			}
 		} else if (info.selected.expiry === '1 day') {
 			expireAt = dayjs().add(1, 'day').endOf('day');
 		} else if (info.selected.expiry === '7 days') {
@@ -415,11 +555,24 @@ const DocumentShare = ({
 			return '';
 		}
 
+		// Check if the link has already expired
+		if (expireAt.isBefore(dayjs())) {
+			return 'Link has expired';
+		}
+
 		const today = dayjs().startOf('day');
 		const days = expireAt.diff(today, 'day');
-		return `Link will expire on ${expireAt.format('MMMM D, YYYY')} (in ${days} day${
-			days !== 1 ? 's' : ''
-		})`;
+
+		if (info.selected.expiry === 'Custom' && info.customDate) {
+			const timeDisplay = expireAt.format('h:mm A');
+			return `Link will expire on ${expireAt.format(
+				'MMMM D, YYYY',
+			)} at ${timeDisplay} (in ${days} day${days !== 1 ? 's' : ''})`;
+		} else {
+			return `Link will expire on ${expireAt.format('MMMM D, YYYY')} (in ${days} day${
+				days !== 1 ? 's' : ''
+			})`;
+		}
 	};
 
 	const toggleDropdown = (type) => {
@@ -540,43 +693,25 @@ const DocumentShare = ({
 	};
 
 	useEffect(() => {
-		setInfo((prev) => ({ ...prev, clientDetails: workflowInfoDetails?.clientDetails }));
-	}, [workflowInfoDetails]);
+		// console.log(workflowInfoDetails, 'work flow rakesh');
+		// Prioritize workflowInfoDetails.clientDetails but fallback to smartFileInfo.clientDetails
+		const clientDetails =
+			workflowInfoDetails?.clientDetails || smartFileInfo?.clientDetails || null;
 
-	// Add Send via Email button and modal
-	const handleOpenEmailModal = () => {
-		setEmailInfo({
-			subject: `Access your document: ${info.slugHolder}`,
-			body: `Hi ${info.clientDetails?.name || ''},\n\nHere is your document link: ${
-				info.copyLink
-			}\n\nBest regards,`,
-			sending: false,
-		});
-		setShowEmailModal(true);
-	};
-
-	const handleSendEmail = async () => {
-		setEmailInfo((prev) => ({ ...prev, sending: true }));
-		try {
-			// Use sendCustomEmailToClients from context
-			const payload = {
-				clientEmail: info.clientDetails?.email,
-				mailContent: {
-					htmlBody: emailInfo.body.replace(/\n/g, '<br/>'),
-					subject: emailInfo.subject,
-				},
-			};
-			const response = await sendCustomEmailToClients(payload);
-			if (response?.[0]) {
-				message.success('Email sent successfully');
-				setShowEmailModal(false);
-			} else {
-				message.error('Failed to send email');
-			}
-		} catch (err) {
-			message.error('Error sending email');
+		if (clientDetails) {
+			setInfo((prev) => ({ ...prev, clientDetails }));
 		}
-		setEmailInfo((prev) => ({ ...prev, sending: false }));
+	}, [workflowInfoDetails, smartFileInfo]);
+
+	// Handle opening the email modal
+	const handleOpenEmailModal = () => {
+		// If no client details, try to fetch them first
+		if (!info.clientDetails || (!info.clientDetails.name && !info.clientDetails.email)) {
+			if (smartFileInfo?._id) {
+				getSmartFileData({ getWorkflowWithModulesId: smartFileInfo._id });
+			}
+		}
+		setShowEmailModal(true);
 	};
 
 	useEffect(() => {
@@ -620,6 +755,59 @@ const DocumentShare = ({
 		};
 	}, []);
 	const isCustomDomainExists = tennantSettingsData?.customDomain;
+	const [showConfigureMetadata, setShowConfigureMetadata] = useState(false);
+
+	const [showImageModal, setShowImageModal] = useState(false);
+	// Add loading state for image operations
+	const [imageLoading, setImageLoading] = useState(false);
+
+	const handleCloseModal = () => {
+		setShowImageModal(false);
+		// setModalRef(false);
+	};
+
+	const handleSetLibraryImage = async (imageUrl) => {
+		setImageLoading(true); // Start loading
+		try {
+			await updateWorkflowInfo({
+				updateWorkflowId: workflowInfoDetails?._id,
+				updateWorkflowInput: {
+					imageUrl: imageUrl,
+				},
+			});
+			message.success('Image uploaded successfully');
+			// Add a small delay to show the loading state briefly
+			setTimeout(() => {
+				setImageLoading(false);
+				setShowImageModal(false);
+			}, 800);
+		} catch (error) {
+			console.error('Error uploading image:', error);
+			message.error('Failed to upload image');
+			setImageLoading(false);
+		}
+	};
+
+	const handleDeleteImage = async () => {
+		setImageLoading(true); // Start loading
+		try {
+			await updateWorkflowInfo({
+				updateWorkflowId: workflowInfoDetails?._id,
+				updateWorkflowInput: {
+					imageUrl: '',
+				},
+			});
+			message.success('Image deleted successfully');
+			// Add a small delay to show the loading state briefly
+			setTimeout(() => {
+				setImageLoading(false);
+			}, 800);
+		} catch (error) {
+			console.error('Error deleting image:', error);
+			message.error('Failed to delete image');
+			setImageLoading(false);
+		}
+	};
 	return (
 		<ReactModal
 			isOpen={isOpen}
@@ -647,6 +835,10 @@ const DocumentShare = ({
 							Public
 						</button>
 					</div> */}
+					<div className="copy-link-fab" onClick={handleCopy}>
+						<CopyIcon className="copy-link-fab-icon" />
+						<span>Copy Link</span>
+					</div>
 				</div>
 				<div className="url-display">
 					<div className="url-section">
@@ -698,7 +890,12 @@ const DocumentShare = ({
 							style={{ marginLeft: 8 }}
 							>
 							Send via Email
-							</Button> */}
+						</Button> */}
+								<CopyIcon
+									className="copy-link-fab-icon"
+									onClick={handleCopy}
+									style={{ cursor: 'pointer' }}
+								/>
 								<div className="live-status">
 									<ShareDotIcon className="share-dot-icon" />
 									<span className="live-text">Live</span>
@@ -762,6 +959,38 @@ const DocumentShare = ({
 								}
 								format="YYYY-MM-DD"
 							/>
+							<TimePicker
+								className="time-input"
+								value={info.customTime ? dayjs(info.customTime, 'HH:mm') : null}
+								onChange={handleCustomTimeChange}
+								format="HH:mm"
+								disabledTime={() => {
+									// Disable past times if the selected date is today
+									if (info.customDate && info.customDate.isSame(dayjs(), 'day')) {
+										const now = dayjs();
+										return {
+											disabledHours: () => {
+												const hours = [];
+												for (let i = 0; i < now.hour(); i++) {
+													hours.push(i);
+												}
+												return hours;
+											},
+											disabledMinutes: (selectedHour) => {
+												if (selectedHour === now.hour()) {
+													const minutes = [];
+													for (let i = 0; i <= now.minute(); i++) {
+														minutes.push(i);
+													}
+													return minutes;
+												}
+												return [];
+											},
+										};
+									}
+									return {};
+								}}
+							/>
 						</div>
 					)}
 					<div className="description">{getExpiryDescription()}</div>
@@ -807,8 +1036,8 @@ const DocumentShare = ({
 							: 'Access restricted to AI assistant clients.'}
 					</div>
 				</div>
-				{/* <span className="divider"></span>
-				<div className="settings-section">
+				<span className="divider"></span>
+				{/* <div className="settings-section">
 					<div className="section-header">
 						<span className="title">AI Assistant</span>
 						<InfoIcon className="info-icon" />
@@ -849,38 +1078,133 @@ const DocumentShare = ({
 						</div>
 					)}
 				</div> */}
-				<div className="copy-link-fab-container">
-					<div className="copy-link-fab" onClick={handleCopy}>
-						<CopyIcon className="copy-link-fab-icon" />
-						<span>Copy Link</span>
-					</div>
+				<div
+					className={`configure-metadata-container ${
+						showConfigureMetadata ? 'expanded' : ''
+					}`}
+					onClick={() => setShowConfigureMetadata(!showConfigureMetadata)}
+				>
+					<span className="configure-metadata-button">Configure Metadata</span>
+					<span
+						style={{
+							transition: 'transform 0.3s ease',
+							transform: showConfigureMetadata ? 'rotate(180deg)' : 'rotate(0deg)',
+							display: 'inline-block',
+						}}
+					>
+						<ChevronDownIcon />
+					</span>
 				</div>
+
+				{showConfigureMetadata && (
+					<div className="configure-metadata-content">
+						{/* <div className="configure-metadata-content-item1">
+							<ChartBarIcon /> Meta Description
+						</div>
+						<div className="configure-metadata-content-item2">
+							A beautifully designed wedding proposal template with customizable
+							sections and pricing options.
+						</div> */}
+						<div className="configure-metadata-content-item3">
+							<span className="configure-metadata-content-item3-text">
+								<NoImageIcon />
+								{workflowInfoDetails?.title
+									? workflowInfoDetails?.title
+									: 'Set a thumbnail to give your file a visual identity'}
+							</span>
+							<span className="configure-metadata-content-item3-image">
+								<div className="image-container-wrapper">
+									{/* Always maintain the same container size */}
+									<div
+										className={`image-container-content ${
+											imageLoading ? 'loading' : ''
+										}`}
+										style={{
+											height: '150px',
+											width: '300px',
+											borderRadius: '10px',
+											position: 'relative',
+											overflow: 'hidden',
+											border: workflowInfoDetails?.imageUrl
+												? '1px solid var(--stroke, #2c2e31)'
+												: '1px dashed var(--stroke, #2c2e31)',
+										}}
+									>
+										{imageLoading && (
+											<div className="loading-overlay">
+												<div className="image-upload-spinner">
+													<div className="spinner-dot"></div>
+													<div className="spinner-dot"></div>
+													<div className="spinner-dot"></div>
+													<div className="spinner-dot"></div>
+												</div>
+												{/* <p className="loading-text">
+													{workflowInfoDetails?.imageUrl
+														? 'Deleting...'
+														: 'Uploading...'}
+												</p> */}
+											</div>
+										)}
+
+										{!imageLoading && workflowInfoDetails?.imageUrl && (
+											<div className="image-display">
+												<Delete
+													onClick={handleDeleteImage}
+													className="delete-icon"
+												/>
+												<img
+													className="configure-metadata-content-item3-image-img"
+													src={workflowInfoDetails?.imageUrl}
+													alt="dummyImage"
+													style={{
+														width: '100%',
+														height: '100%',
+														borderRadius: '10px',
+														objectFit: 'contain',
+													}}
+												/>
+											</div>
+										)}
+
+										{!imageLoading && !workflowInfoDetails?.imageUrl && (
+											<div
+												className="upload-placeholder"
+												onClick={() => setShowImageModal(true)}
+											>
+												<span>
+													<UploadFileSVG />
+												</span>
+												<p className="upload-text">Upload</p>
+												<p className="format-text">
+													Image Format: JPG && PNG
+												</p>
+											</div>
+										)}
+									</div>
+								</div>
+							</span>
+						</div>
+					</div>
+				)}
 			</div>
 
-			<Modal
-				title="Send Document Link via Email"
+			{showImageModal && (
+				<LibraryPopup
+					className="Library-popup"
+					close={handleCloseModal}
+					setLibraryImage={handleSetLibraryImage}
+				/>
+			)}
+
+			<SendEmailModal
 				open={showEmailModal}
-				onCancel={() => setShowEmailModal(false)}
-				onOk={handleSendEmail}
-				confirmLoading={emailInfo.sending}
-				okText="Send"
-			>
-				<div style={{ marginBottom: 8 }}>
-					<b>To:</b> {info.clientDetails?.email}
-				</div>
-				<Input
-					value={emailInfo.subject}
-					onChange={(e) => setEmailInfo((prev) => ({ ...prev, subject: e.target.value }))}
-					placeholder="Subject"
-					style={{ marginBottom: 8 }}
-				/>
-				<Input.TextArea
-					value={emailInfo.body}
-					onChange={(e) => setEmailInfo((prev) => ({ ...prev, body: e.target.value }))}
-					rows={5}
-					placeholder="Email body"
-				/>
-			</Modal>
+				closeModal={() => setShowEmailModal(false)}
+				clientDetails={
+					info.clientDetails ||
+					smartFileInfo?.clientDetails ||
+					workflowInfoDetails?.clientDetails
+				}
+			/>
 		</ReactModal>
 	);
 };

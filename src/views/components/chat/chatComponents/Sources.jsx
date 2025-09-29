@@ -1,4 +1,4 @@
-import { memo, useLayoutEffect, useState } from 'react';
+import { memo } from 'react';
 import {
 	redirectTo,
 	fileTypeIcons,
@@ -9,75 +9,44 @@ import {
 import '../../../../assets/scss/chat/chatComponents/sources.scss';
 
 const Sources = ({ sources = [] }) => {
-	const [info, setInfo] = useState({
-		sources: [],
-	});
-
-	useLayoutEffect(() => {
-		if (sources?.length > 0) {
-			const formattedSources = sources?.map((source) => {
-				let title = source?.title ?? '';
-				title = title?.trim();
-				if (title?.length > 0) {
-					const words = title?.split(' ');
-					title = words?.slice(0, 10)?.join(' ');
-					if (words?.length > 10) {
-						title += ' ...';
-					}
-				}
-				return {
-					...source,
-					title,
-				};
-			});
-			setInfo((prev) => ({ ...prev, sources: formattedSources }));
-		}
-	}, [sources]);
-
 	return (
 		<div className="sources">
-			{info?.sources?.map?.((source, index) => {
-				const { type, name, title } = source;
+			{sources?.map?.((source, index) => {
+				const { type, name } = source;
+				if (name?.length === 0) return null;
 				return (
-					<button
+					<div
 						className="source"
 						key={index}
 						onClick={() => {
 							redirectTo?.(type, source?.[redirectTypeMapper?.[type]]);
 						}}
 					>
-						<div className="left-container">
-							<div className="icon">
-								{type === 'url' ? (
-									getFaviconUrl(name) ? (
-										<img
-											src={getFaviconUrl(name)}
-											alt="favicon"
-											className="favicon-image"
-										/>
-									) : (
-										<div className="company-icon">
-											{getWebsiteName(name)?.charAt(0)}
-										</div>
-									)
+						<div className="icon">
+							{type === 'url' ? (
+								getFaviconUrl(name) ? (
+									<img
+										src={getFaviconUrl(name)}
+										alt="favicon"
+										className="favicon-image"
+									/>
 								) : (
 									<div className="company-icon">
-										{type === 's3_key'
-											? fileTypeIcons[name?.match(/\.(\w+)$/)?.[1]]
-											: fileTypeIcons[type]}
+										{getWebsiteName(name)?.charAt(0)}
 									</div>
-								)}
-							</div>
-
-							<div className="source-title">{title ?? ''}</div>
+								)
+							) : (
+								<div className="company-icon">
+									{type === 's3_key'
+										? fileTypeIcons[name?.match(/\.(\w+)$/)?.[1]]
+										: fileTypeIcons[type]}
+								</div>
+							)}
 						</div>
-
-						<div className="right-container">
-							<div className="website-name">
-								{type === 'url' ? getWebsiteName(name) : name}
-							</div>
+						<div className="website-name">
+							{type === 'url' ? getWebsiteName(name) : name}
 						</div>
-					</button>
+					</div>
 				);
 			})}
 		</div>

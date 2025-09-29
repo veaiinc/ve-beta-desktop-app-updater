@@ -632,14 +632,13 @@ const Agents = () => {
 					</div>
 					<div className={s.text}>Create New</div>
 				</div>
-				{agentTabs.map((tab, index) => {
+				{agentTabs.map((tab) => {
 					return (
 						<div
 							className={`${s.actionItem} ${
 								info?.activeTab === tab.value ? s.active : ''
 							}`}
 							onClick={() => handleTabChange(tab.value)}
-							key={index}
 						>
 							<div className={s.indicatorDot}></div>
 							<div className={s.text}>{tab.label}</div>

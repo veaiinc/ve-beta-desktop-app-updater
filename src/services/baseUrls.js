@@ -19,11 +19,11 @@ const regionBaseUrls = {
 		'tenant-users':
 			environment === 'production'
 				? 'https://ap.api.ve.ai/tenant-users/1.0'
-				: 'https://api.ve.co/tenant-users/dev',
+				: 'https://ap.api.ve.ai/tenant-users/1.0',
 		tenant_users_api:
 			environment === 'production'
 				? 'https://ap.api.ve.ai/tenant-users/1.0'
-				: 'https://api.ve.co/tenant-users/dev',
+				: 'https://ap.api.ve.ai/tenant-users/1.0',
 		ve_conversations_api:
 			environment === 'production'
 				? 'https://api.ve.co/ve-conversations/1.0'
@@ -31,7 +31,7 @@ const regionBaseUrls = {
 		proposals_api:
 			environment === 'production'
 				? 'https://ap.api.ve.ai/proposals/1.0'
-				: 'https://ap.api.ve.co/proposals/dev',
+				: 'https://ap.api.ve.ai/proposals/1.0',
 		workflows_Api:
 			environment === 'production'
 				? 'https://ap.api.ve.ai/workflows/1.0'
@@ -126,11 +126,11 @@ const regionBaseUrls = {
 		'tenant-users':
 			environment === 'production'
 				? 'https://us.api.ve.ai/tenant-users/1.0'
-				: 'https://api.ve.co/tenant-users/dev',
+				: 'https://us.api.ve.ai/tenant-users/1.0',
 		tenant_users_api:
 			environment === 'production'
 				? 'https://us.api.ve.ai/tenant-users/1.0'
-				: 'https://api.ve.co/tenant-users/dev',
+				: 'https://us.api.ve.ai/tenant-users/1.0',
 		ve_conversations_api:
 			environment === 'production'
 				? 'https://us.api.ve.ai/ve-conversations/1.0'
@@ -138,7 +138,7 @@ const regionBaseUrls = {
 		proposals_api:
 			environment === 'production'
 				? 'https://us.api.ve.ai/proposals/1.0'
-				: 'https://ap.api.ve.co/proposals/dev',
+				: 'https://us.api.ve.ai/proposals/1.0',
 		workflows_Api:
 			environment === 'production'
 				? 'https://us.api.ve.ai/workflows/1.0'

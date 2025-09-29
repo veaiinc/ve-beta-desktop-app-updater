@@ -4,15 +4,12 @@
 	--font-size: 16px;
 	width: 100%;
 
-	// i am using letter-spacing only for Inter font, if it is not required, you can remove.
-	letter-spacing: -0.3px;
-
 	.span {
 		color: var(--primary-font);
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
-		line-height: 1.75;
+		line-height: 1.55;
 	}
 
 	.markdown-image-wrapper {
@@ -52,27 +49,27 @@
 	.h1 {
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1.25); // 20px
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin: calc(var(--font-size) * 1.25) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
+		margin: calc(var(--font-size) * 1.5) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
 		line-height: 1.5;
 	}
 
 	.h2 {
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1.125); // 18px
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin: calc(var(--font-size) * 1.25) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
+		margin: calc(var(--font-size) * 1.5) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
 		line-height: 1.5;
 	}
 
 	.h3 {
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1.125);
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		margin: calc(var(--font-size) * 1.25) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
+		margin: calc(var(--font-size) * 1.5) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
 		line-height: 1.5;
 	}
 
@@ -81,7 +78,7 @@
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1);
 		line-height: 1.4;
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
 		margin: calc(var(--font-size) * 1) 0 calc(var(--font-size) * 0.5) 0 !important; // 16px 0 8px 0
 	}
@@ -89,7 +86,7 @@
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1);
 		line-height: 1.4;
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
 		margin: calc(var(--font-size) * 1) 0 calc(var(--font-size) * 0.5) 0 !important; // 16px 0 8px 0
 	}
@@ -99,7 +96,7 @@
 		font-family: var(--chat-primary-font-family);
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
-		line-height: 1.75;
+		line-height: 1.65;
 		margin: 0 0 calc(var(--font-size) * 0.75) 0 !important; // 0 0 12px 0
 	}
 
@@ -135,11 +132,6 @@
 		margin: calc(var(--font-size) * 0.5) 0; // 8px 0
 		padding-left: calc(var(--font-size) * 1); // 12px
 
-		.ol,
-		ul {
-			margin: 0;
-		}
-
 		.p {
 			margin: 0 !important;
 		}
@@ -158,6 +150,9 @@
 
 	.ul {
 		list-style-type: disc;
+		.ul {
+			list-style-type: circle;
+		}
 		.li {
 			&::marker {
 				font-size: calc(var(--font-size) * 0.9375); // 15px
@@ -174,15 +169,15 @@
 		font-size: calc(var(--font-size) * 1);
 		margin: 0;
 		padding-left: 6px;
-		padding-bottom: 2px;
-		line-height: 1.75;
+		padding-bottom: 4px;
+		line-height: 1.55;
 	}
 
 	.strong {
 		color: var(--primary-font);
-		font-weight: 600;
+		font-weight: 500;
 		font-family: var(--chat-primary-font-family);
-		line-height: 1.75;
+		line-height: 1.55;
 	}
 
 	.blockquote {
@@ -221,41 +216,15 @@
 	}
 
 	.a {
-		color: var(--primary-font);
+		color: var(--info);
 		font-size: inherit;
 		line-height: calc(var(--font-size) * 1.5);
 		font-weight: 400;
 		font-family: var(--chat-primary-font-family);
-		text-decoration-line: underline;
-		vertical-align: baseline;
-		text-decoration-style: dotted;
-		text-underline-offset: 3px;
-		text-decoration-thickness: 1.5px;
-		text-underline-position: from-font;
-
-		.link-arrow {
-			width: calc(var(--font-size) * 0.8);
-			height: calc(var(--font-size) * 0.8);
-			display: inline-flex;
-			margin-left: 1px;
-			position: relative;
-			top: 2px;
-
-			svg {
-				width: 100%;
-				height: 100%;
-			}
-		}
+		text-decoration: none;
 
 		&:hover {
-			color: var(--info);
-			.link-arrow {
-				svg {
-					path {
-						fill: var(--info) !important;
-					}
-				}
-			}
+			opacity: 0.8;
 		}
 	}
 	.markdown-code-wrapper {
@@ -264,16 +233,14 @@
 		border-radius: calc(var(--font-size) * 1);
 		overflow: hidden;
 		border: 1px solid var(--stroke);
-		background-color: var(--background-color);
+		background-color: var(--card);
 
 		.code-header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			padding: calc(var(--font-size) * 0.75) calc(var(--font-size) * 1); /* 12px 16px */
-			background-color: var(--right-bar);
-			border-bottom: 1px solid var(--stroke);
-			position: relative;
+			padding: calc(var(--font-size) * 1);
+			background-color: var(--card-over-card-hover);
 			.copy-code-btn {
 				display: flex;
 				justify-content: center;
@@ -283,22 +250,13 @@
 				cursor: pointer;
 				padding: 0;
 				align-self: flex-end;
-				transition: all 0.1s ease-out;
-				position: absolute;
-				right: 6px;
-				top: 50%;
-				padding: 8px;
-				border-radius: 50%;
-				transform: translateY(-50%);
+				height: 18px;
+				width: 18px;
 
 				svg {
 					path {
 						fill: var(--primary-font);
 					}
-				}
-
-				&:hover {
-					background-color: var(--stroke);
 				}
 			}
 			.code-language {
@@ -387,7 +345,7 @@
 					font-size: calc(var(--font-size) * 0.9375); /* 15px */
 					padding: calc(var(--font-size) * 0.875) calc(var(--font-size) * 1.25); /* 14px 20px */
 					border-bottom: 1px solid var(--stroke);
-					font-weight: 600;
+					font-weight: 500;
 				}
 
 				tr:first-child {
