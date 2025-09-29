@@ -8,7 +8,7 @@
 	left: 0;
 	height: 100dvh;
 	background: var(--background-color, #0c0c0d);
-	z-index: 1000;
+	z-index: 900;
 	transform: translateX(-256px);
 	transition: transform 0.3s cubic-bezier(0.25, 0.5, 0.25, 1);
 
@@ -208,7 +208,7 @@
 	width: 100dvw;
 	height: 100dvh;
 	background-color: var(--backdrop);
-	z-index: 999;
+	z-index: 899;
 	cursor: pointer;
 }
 .sidebarHoverElement {
@@ -217,7 +217,7 @@
 	height: 100dvh;
 	top: 0;
 	left: 0;
-	z-index: 999;
+	z-index: 899;
 }
 
 .sidebarCloseState {
@@ -233,7 +233,7 @@
 	position: fixed;
 	top: 10px;
 	left: 12px;
-	z-index: 1000;
+	z-index: 900;
 	transform: translateX(256px);
 
 	&.active {

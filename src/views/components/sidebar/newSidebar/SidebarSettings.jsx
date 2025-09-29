@@ -10,44 +10,46 @@ import { ReactComponent as HelpSvg } from '../../../../assets/svg/sidebar/help.s
 import { ReactComponent as TemplatesSvg } from '../../../../assets/svg/sidebar/templates.svg';
 import { ReactComponent as CreateWorkspaceSvg } from '../../../../assets/svg/sidebar/createworkspace.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../../assets/svg/sidebar/switchworkspace.svg';
+import { ReactComponent as GiftSvg } from '../../../../assets/svg/sidebar/gift.svg';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../../context/context';
 import SwitchWorkspace from './SwitchWorkspace';
+import ShareAndEarnModal from '../../../features/shareAndEarn/ShareAndEarnModal';
 
 const settingsItems = [
 	{
 		label: 'My Profile',
-		icon: <MyProfileSvg />,
+		icon: <MyProfileSvg width={18} height={18} />,
 		route: '/settings/my-profile',
 		value: 'my-profile',
 	},
 	{
 		label: 'Workspace',
-		icon: <WorkspaceSvg />,
+		icon: <WorkspaceSvg width={17} height={17} />,
 		route: '/settings/workspace',
 		value: 'workspace',
 	},
 	{
 		label: 'Team Members',
-		icon: <TeamMembersSvg />,
+		icon: <TeamMembersSvg width={18} height={18} />,
 		route: '/settings/team-members',
 		value: 'team-members',
 	},
 	{
 		label: 'Integrations',
-		icon: <IntegrationsSvg />,
+		icon: <IntegrationsSvg width={18} height={18} />,
 		route: '/settings/integrations',
 		value: 'integrations',
 	},
 	{
 		label: 'Plan Billing',
-		icon: <PlanBillingSvg />,
+		icon: <PlanBillingSvg width={18} height={18} />,
 		route: '/settings/plan-billing',
 		value: 'plan-billing',
 	},
 	{
 		label: 'AI Setup',
-		icon: <AISetupSvg />,
+		icon: <AISetupSvg width={18} height={18} />,
 		route: '/settings/ai-memory',
 		value: 'ai-memory',
 	},
@@ -56,13 +58,18 @@ const settingsItems = [
 const essentialsItems = [
 	{
 		label: 'Templates',
-		icon: <TemplatesSvg />,
+		icon: <TemplatesSvg width={18} height={18} />,
 		route: '/playbook',
 		value: 'templates',
 	},
 	{
+		label: 'Share & Earn',
+		icon: <GiftSvg width={18} height={18} />,
+		value: 'share-and-earn',
+	},
+	{
 		label: 'Help',
-		icon: <HelpSvg />,
+		icon: <HelpSvg width={18} height={18} />,
 		route: null,
 		value: 'help',
 	},
@@ -70,12 +77,15 @@ const essentialsItems = [
 
 const createWorkspace = { value: 'create-workspace', route: '/create-workspace' };
 
-const SidebarSettings = ({ activeTab, handleTabChange }) => {
+const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, sidebarOpen }) => {
 	const {
 		profileInfo: { userWorkSpaceList },
 	} = useContext(Context);
 
-	const [info, setInfo] = useState({ switchWorkspaceEnabled: false });
+	const [info, setInfo] = useState({
+		switchWorkspaceEnabled: false,
+		shareAndEarnModalOpen: false,
+	});
 	const navigate = useNavigate();
 
 	const hasMoreThanOneWorkspace = userWorkSpaceList?.length > 1;
@@ -94,16 +104,26 @@ const SidebarSettings = ({ activeTab, handleTabChange }) => {
 					}
 					handleTabChange(null);
 					return;
+				} else if (item?.value === 'share-and-earn') {
+					setInfo((prev) => ({ ...prev, shareAndEarnModalOpen: true }));
+					if (!sidebarOpen) {
+						handleSidebarHoverLeave();
+					}
+					return;
 				}
 			}
 
 			handleTabChange(item?.value);
 		},
-		[handleTabChange, activeTab],
+		[handleTabChange, activeTab, handleSidebarHoverLeave, sidebarOpen],
 	);
 
 	const handleSwitchWorkspace = useCallback(() => {
 		setInfo((prev) => ({ ...prev, switchWorkspaceEnabled: !prev?.switchWorkspaceEnabled }));
+	}, []);
+
+	const handleShareAndEarnModalClose = useCallback(() => {
+		setInfo((prev) => ({ ...prev, shareAndEarnModalOpen: false }));
 	}, []);
 
 	return (
@@ -176,6 +196,10 @@ const SidebarSettings = ({ activeTab, handleTabChange }) => {
 					/>
 				</div>
 			</div>
+			<ShareAndEarnModal
+				isOpen={info?.shareAndEarnModalOpen}
+				closeModal={handleShareAndEarnModalClose}
+			/>
 		</div>
 	);
 };

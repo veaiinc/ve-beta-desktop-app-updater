@@ -177,6 +177,8 @@ const NewSidebar = () => {
 							<SidebarSettings
 								handleTabChange={handleTabChange}
 								activeTab={info?.activeTab}
+								handleSidebarHoverLeave={handleSidebarHoverLeave}
+								sidebarOpen={info?.sidebarOpen}
 							/>
 						) : (
 							<SidebarMainContent

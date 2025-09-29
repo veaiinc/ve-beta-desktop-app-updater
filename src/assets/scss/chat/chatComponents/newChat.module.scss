@@ -12,6 +12,7 @@
 		justify-content: center;
 		align-items: center;
 		height: calc(100vh - 200px);
+		padding: 0 16px;
 
 		.userGreeting {
 			display: flex;
@@ -50,7 +51,7 @@
 
 		.chatboxContainer {
 			width: 100%;
-			max-width: 750px;
+			max-width: 868px;
 
 			:global(.chatBoxParentWrapper) {
 				position: relative;
