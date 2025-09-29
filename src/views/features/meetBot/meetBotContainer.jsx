@@ -1,4 +1,4 @@
-import { useContext, useRef, useState, useEffect, useCallback } from 'react';
+import { useContext, useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
@@ -131,6 +131,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			meetSummary,
 			deleteMeeting,
 			updateMeeting,
+			getRevampedPrompt,
+			activeMeetingRevampedPrompt,
 		},
 		templates: {
 			handleTranscriptionSuggestions,
@@ -631,6 +633,15 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		};
 	}, [isRecording, stopAudioRecording]);
 
+	useEffect(() => {
+		if (
+			history === true &&
+			(!activeMeetingRevampedPrompt || meetingId !== activeMeetingRevampedPrompt?.meetingId)
+		) {
+			getRevampedPrompt({ meetingId });
+		}
+	}, [history, meetingId, activeMeetingRevampedPrompt]);
+
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
 	};
@@ -706,6 +717,17 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			debouncedUpdateMeetingTitle.cancel();
 		};
 	}, [debouncedUpdateMeetingTitle]);
+
+	const isRevampedPromptLoading = useMemo(() => {
+		return (
+			history === 'true' &&
+			(!activeMeetingRevampedPrompt || meetingId !== activeMeetingRevampedPrompt?.meetingId)
+		);
+	}, [history, activeMeetingRevampedPrompt]);
+
+	const revampedPrompt = useMemo(() => {
+		return activeMeetingRevampedPrompt?.revampedPrompt;
+	}, [activeMeetingRevampedPrompt]);
 
 	return (
 		<div className="meetbot-container">
@@ -910,6 +932,10 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 								files={info?.files}
 								activeTab={activeTab}
 								allSuggestions={info?.allSuggestions}
+								revampedPrompt={revampedPrompt}
+								isRevampedPromptLoading={isRevampedPromptLoading}
+								isRevampedPrompt={history === true}
+								sessionId={sessionId}
 							/>
 						)}
 					{showTranscriptTabs && type === 'third_party_meeting' && !history && (

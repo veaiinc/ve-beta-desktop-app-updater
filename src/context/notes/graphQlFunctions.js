@@ -1242,3 +1242,9 @@ export const updateMeetingMutation = gql`
 		}
 	}
 `;
+
+export const getRevampedPromptQuery = gql`
+	query Query($meetingId: ID!) {
+		getRevampedPrompt(meetingId: $meetingId)
+	}
+`;
