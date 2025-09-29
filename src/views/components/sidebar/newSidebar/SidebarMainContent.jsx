@@ -8,11 +8,6 @@ import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
 import { REFERRAL_BASE_URL } from '../../../../helpers/ConstantUrls';
 
-const navigateToRoute = {
-	meet: '/meet',
-	newChat: '/new-chat',
-};
-
 const options = [
 	{
 		label: 'New Chat',
@@ -20,11 +15,17 @@ const options = [
 		value: 'newChat',
 	},
 	{
+		label: 'Proactive AI',
+		route: '/home',
+		value: 'proactiveAi',
+	},
+	{
 		label: 'Meetings',
 		route: '/meet',
 		value: 'meet',
 	},
 ];
+
 const SidebarMainContent = ({
 	activeTab,
 	handleTabChange,
@@ -43,13 +44,13 @@ const SidebarMainContent = ({
 	const navigate = useNavigate();
 
 	const handleTabClick = useCallback(
-		(tab) => {
-			if (tab === activeTab) return;
+		(item) => {
+			if (item?.value === activeTab) return;
 
-			if (navigateToRoute[tab]) {
-				navigate(navigateToRoute[tab]);
+			if (item?.route) {
+				navigate(item?.route);
 			}
-			handleTabChange(tab);
+			handleTabChange(item?.value);
 		},
 		[handleTabChange],
 	);
@@ -102,7 +103,7 @@ const SidebarMainContent = ({
 				{options?.map((option, index) => (
 					<button
 						className={`${s.btn} ${activeTab === option?.value ? s.active : ''}`}
-						onClick={() => handleTabClick(option?.value)}
+						onClick={() => handleTabClick(option)}
 						key={index}
 					>
 						{option?.label}
