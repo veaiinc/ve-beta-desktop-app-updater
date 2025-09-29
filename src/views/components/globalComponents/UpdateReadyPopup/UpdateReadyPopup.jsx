@@ -43,7 +43,7 @@ const UpdateReadyPopup = ({ updateInfo, onRestart, onDismiss }) => {
 					There's a new version available
 				</h2>
 				<p id="update-description" className={styles.subtitle}>
-					'Refresh to get the latest features and improvements'
+					Refresh to get the latest features and improvements
 				</p>
 			</div>
 
