@@ -957,7 +957,7 @@ const PermissionOverlay = () => {
 						</div>
 
 						<div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-							<button className="back-button" onClick={handleBack}>
+							<button className="back-button" onClick={handleFinish}>
 								Cancel
 							</button>
 							<div className="next-button-container">

@@ -1411,26 +1411,30 @@ function createWindow(restoreState = false) {
 		notchDropService.setMainWindow(mainWindow);
 	}
 
-	// Add focus event handler to show permission overlay if needed
+	// Add focus event handler to show permission overlay if needed (only after login)
 	mainWindow.on('focus', async () => {
 		log.info('Main window focused');
 		// Emit focus event to renderer
 		mainWindow.webContents.send('window-focus');
 
-		// Check if permissions are missing and show overlay if needed
+		// Only check/show overlay if user is authenticated
 		try {
-			const permissionsGranted = await checkAllPermissions();
-			if (!permissionsGranted.allGranted) {
-				log.info(
-					'🔍 Main window focused but permissions missing, showing permission overlay',
-				);
-				setTimeout(() => {
-					try {
-						windowHelper?.showPermissionWindow();
-					} catch (error) {
-						log.error('❌ Error showing permission overlay on focus:', error);
-					}
-				}, 500);
+			if (userAuthenticationStatus.isLoggedIn) {
+				const permissionsGranted = await checkAllPermissions();
+				if (!permissionsGranted.allGranted) {
+					log.info(
+						'🔍 Main window focused and user logged in but permissions missing, showing permission overlay',
+					);
+					setTimeout(() => {
+						try {
+							windowHelper?.showPermissionWindow();
+						} catch (error) {
+							log.error('❌ Error showing permission overlay on focus:', error);
+						}
+					}, 500);
+				}
+			} else {
+				log.info('👤 User not logged in on focus - not showing permission overlay');
 			}
 		} catch (error) {
 			log.error('❌ Error checking permissions on window focus:', error);
@@ -1522,6 +1526,17 @@ function createWindow(restoreState = false) {
 			// Hide permission overlay if it's currently visible
 			if (windowHelper?.isPermissionVisible) {
 				windowHelper.hidePermissionWindow();
+			}
+
+			// After login: if permissions are missing, show overlay and/or trigger native prompts (macOS)
+			try {
+				const permissionsGranted = await checkAllPermissions();
+				if (!permissionsGranted.allGranted) {
+					log.info('🔐 Logged in but permissions missing — showing permission overlay');
+					windowHelper?.showPermissionWindow();
+				}
+			} catch (e) {
+				log.error('❌ Error checking permissions post-login:', e);
 			}
 		} else if (msg === 'unauthorized') {
 			log.info('🔓 User not authenticated - permission overlay may be needed');
@@ -2304,49 +2319,49 @@ app.whenReady().then(async () => {
 	}
 
 	// ✅ Request all permissions on startup (macOS only)
-	if (isMacRuntime) {
-		// Request microphone permission
-		setTimeout(async () => {
-			try {
-				const granted = await systemPreferences.askForMediaAccess('microphone');
-				log.info('🎤 Microphone permission request result:', granted);
-			} catch (error) {
-				log.error('Error requesting microphone permission:', error);
-			}
-		}, 1000);
+	// if (isMacRuntime) {
+	// 	// Request microphone permission
+	// 	setTimeout(async () => {
+	// 		try {
+	// 			const granted = await systemPreferences.askForMediaAccess('microphone');
+	// 			log.info('🎤 Microphone permission request result:', granted);
+	// 		} catch (error) {
+	// 			log.error('Error requesting microphone permission:', error);
+	// 		}
+	// 	}, 1000);
 
-		// Request screen sharing permission (replaces screen recording)
-		setTimeout(async () => {
-			try {
-				log.info('🖥️ Testing screen sharing capability on startup...');
-				// Test if we can capture screen sources (this will trigger permission prompt if needed)
-				const sources = await desktopCapturer.getSources({
-					types: ['screen'],
-					thumbnailSize: { width: 1, height: 1 },
-				});
-				const hasPermission = sources && sources.length > 0;
-				log.info(
-					'🖥️ Screen sharing capability test result:',
-					hasPermission ? 'granted' : 'denied',
-				);
-			} catch (error) {
-				log.info(
-					'🖥️ Screen sharing capability test failed (expected for permission prompt):',
-					error.message,
-				);
-			}
-		}, 2000);
+	// 	// Request screen sharing permission (replaces screen recording)
+	// 	setTimeout(async () => {
+	// 		try {
+	// 			log.info('🖥️ Testing screen sharing capability on startup...');
+	// 			// Test if we can capture screen sources (this will trigger permission prompt if needed)
+	// 			const sources = await desktopCapturer.getSources({
+	// 				types: ['screen'],
+	// 				thumbnailSize: { width: 1, height: 1 },
+	// 			});
+	// 			const hasPermission = sources && sources.length > 0;
+	// 			log.info(
+	// 				'🖥️ Screen sharing capability test result:',
+	// 				hasPermission ? 'granted' : 'denied',
+	// 			);
+	// 		} catch (error) {
+	// 			log.info(
+	// 				'🖥️ Screen sharing capability test failed (expected for permission prompt):',
+	// 				error.message,
+	// 			);
+	// 		}
+	// 	}, 2000);
 
-		// Request camera permission
-		setTimeout(async () => {
-			try {
-				const granted = await systemPreferences.askForMediaAccess('camera');
-				log.info('📷 Camera permission request result:', granted);
-			} catch (error) {
-				log.error('Error requesting camera permission:', error);
-			}
-		}, 3000);
-	}
+	// 	// Request camera permission
+	// 	setTimeout(async () => {
+	// 		try {
+	// 			const granted = await systemPreferences.askForMediaAccess('camera');
+	// 			log.info('📷 Camera permission request result:', granted);
+	// 		} catch (error) {
+	// 			log.error('Error requesting camera permission:', error);
+	// 		}
+	// 	}, 3000);
+	// }
 
 	meetingMonitor.setNotificationHandler(showNotification);
 	meetingMonitor.startMeetingMonitor();
@@ -2594,21 +2609,29 @@ app.whenReady().then(async () => {
 	windowHelper.registerGlobalShortcuts(mainWindow);
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
 
-	// Check authentication status and show permission overlay only for unauthenticated users
+	// Check authentication status on startup but DO NOT show permission overlay before login
 	setTimeout(async () => {
 		try {
 			const isAuthenticated = await checkUserAuthenticationStatus();
-
 			if (!isAuthenticated) {
-				windowHelper.showPermissionWindow();
-				log.info('📋 Permission overlay shown for unauthenticated user');
+				// windowHelper?.showPermissionWindow();
+				log.info(
+					'👤 User not authenticated - will show permission overlay after login only',
+				);
 			} else {
-				log.info('👤 User is authenticated - skipping permission overlay');
+				// If already authenticated, show overlay only if permissions missing
+				const permissionsGranted = await checkAllPermissions();
+				if (!permissionsGranted.allGranted) {
+					windowHelper?.showPermissionWindow();
+					log.info(
+						'📋 Permission overlay shown for authenticated user with missing permissions',
+					);
+				} else {
+					log.info('✅ Authenticated and required permissions present - no overlay');
+				}
 			}
 		} catch (error) {
-			log.error('❌ Error checking authentication or showing permission overlay:', error);
-			// Show overlay on error to be safe
-			windowHelper.showPermissionWindow();
+			log.error('❌ Error checking authentication/permissions at startup:', error);
 		}
 	}, 2000); // Delay to ensure main window is ready
 
