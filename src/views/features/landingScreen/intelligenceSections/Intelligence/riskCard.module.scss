@@ -8,11 +8,13 @@
 	display: flex;
 	flex-direction: column;
 	gap: clamp(14px, 3vh, 32px);
+	top: 500px;
 
 	/* Responsive adjustments for laptop screens */
 	@media (max-width: 1440px) {
 		width: min(85vw, 450px);
 		left: 75%;
+		top: 255px;
 	}
 }
 

@@ -48,72 +48,44 @@ const ProductIntro = forwardRef((props, ref) => {
 	];
 
 	useEffect(() => {
-		const initializeGlowEffect = () => {
-			if (!lightPassingRef.current) {
-				console.warn('lightPassingRef.current is null');
-				return false;
-			}
+		const ctx = gsap.context(() => {
+			const initializeGlowEffect = () => {
+				if (!lightPassingRef.current) return false;
 
-			// Find all glow paths in the SVG
-			const glowPaths = lightPassingRef.current.querySelectorAll(
-				'#glow-path, #glow-path-intense, #white-glow-path, #white-glow-outer',
-			);
-			if (!glowPaths.length) {
-				console.warn('glow paths not found in SVG');
-				return false;
-			}
+				const glowPaths = lightPassingRef.current.querySelectorAll(
+					'#glow-path, #glow-path-intense, #white-glow-path, #white-glow-outer',
+				);
+				if (!glowPaths.length) return false;
 
-			// Calculate path length for stroke-dasharray
-			const pathLength = 3527; // Approximate path length
-			const dashLength = pathLength * 0.3; // 30% of path length for dash
-			const gapLength = pathLength * 0.7; // 70% for gap
+				const pathLength = 3527;
+				const dashLength = pathLength * 0.3;
+				const gapLength = pathLength * 0.7;
 
-			// Create a continuous loop animation for each glow path
-			glowPaths.forEach((path, index) => {
-				// Set initial stroke-dasharray
-				gsap.set(path, {
-					strokeDasharray: `${dashLength} ${gapLength}`,
-					strokeDashoffset: pathLength,
+				glowPaths.forEach((path) => {
+					gsap.set(path, {
+						strokeDasharray: `${dashLength} ${gapLength}`,
+						strokeDashoffset: pathLength,
+					});
+
+					gsap.timeline({ repeat: -1, ease: 'none' })
+						.to(path, {
+							strokeDashoffset: -pathLength,
+							duration: 14,
+							ease: 'power2.inOut',
+						})
+						.set(path, { strokeDashoffset: pathLength });
 				});
 
-				// Create continuous flowing animation that goes from start to end
-				const flowAnimation = gsap.timeline({ repeat: -1, ease: 'none' });
+				return true;
+			};
 
-				flowAnimation
-					.to(path, {
-						strokeDashoffset: -pathLength,
-						duration: 9, // 9 seconds to flow from start to end - slower
-						ease: 'power2.inOut',
-					})
-					.set(path, {
-						strokeDashoffset: pathLength, // Reset to start position
-					});
-			});
-
-			return true;
-		};
-
-		// Try to initialize immediately
-		if (initializeGlowEffect()) {
-			return;
-		}
-
-		// If that fails, add a small delay and try again
-		const timer = setTimeout(() => {
-			initializeGlowEffect();
-		}, 100);
-
-		// Cleanup function
-		return () => {
-			clearTimeout(timer);
-			// Kill all GSAP animations on glow paths
-			const glowPaths = lightPassingRef.current?.querySelectorAll(
-				'#glow-path, #glow-path-intense, #white-glow-path, #white-glow-outer',
-			);
-			if (glowPaths) {
-				gsap.killTweensOf(glowPaths);
+			if (!initializeGlowEffect()) {
+				// Retry shortly if SVG not ready
+				gsap.delayedCall(0.1, initializeGlowEffect);
 			}
-		};
+		});
+
+		return () => ctx.revert();
 	}, []);
 
 	// Parallax scroll: largeNumber (slow) vs powersList/powerItems (fast)
@@ -121,108 +93,96 @@ const ProductIntro = forwardRef((props, ref) => {
 		if (!powersContainerRef.current || !largeNumberRef.current || !powersListRef.current)
 			return;
 
-		// Ensure elements are ready
-		const container = powersContainerRef.current;
-		const largeNumber = largeNumberRef.current;
-		const powersList = powersListRef.current;
-		const hero = heroRef.current;
+		const ctx = gsap.context(() => {
+			const container = powersContainerRef.current;
+			const largeNumber = largeNumberRef.current;
+			const powersList = powersListRef.current;
+			const hero = heroRef.current;
 
-		// Kill any existing triggers for safety on hot-reload
-		ScrollTrigger.getAll()
-			.filter((t) => t.trigger === container)
-			.forEach((t) => t.kill());
+			const containerHeight = container.offsetHeight;
+			const viewportH = window.innerHeight;
+			const baseDistance = containerHeight + viewportH;
+			const fastFactor = 0.9;
+			const fastDistance = Math.min(fastFactor * baseDistance, 1500);
 
-		// Compute dynamic distances based on viewport and content height
-		const containerHeight = container.offsetHeight;
-		const viewportH = window.innerHeight;
-		const verticalStartOffset = 0; // start at top baseline for both animations
+			const listRect = powersList.getBoundingClientRect();
+			const numRect = largeNumber.getBoundingClientRect();
+			const listHeight = Math.max(powersList.scrollHeight, listRect.height);
+			const numHeight = numRect.height;
+			const endAlignDelta = Math.max(0, listHeight - numHeight);
+			const slowDistance = endAlignDelta + 20;
 
-		// Tunable factors for speed separation (slightly slower right side for smoothness)
-		const fastFactor = 1.3; // right side speed multiplier
+			const setListY = gsap.quickTo(powersList, 'y', { duration: 0.55, ease: 'power3.out' });
+			const setNumY = gsap.quickTo(largeNumber, 'y', { duration: 2.2, ease: 'power2.out' });
+			const setGlowY = lightPassingRef.current
+				? gsap.quickTo(lightPassingRef.current, 'y', { duration: 2.2, ease: 'power3.out' })
+				: null;
+			const setHeroY = hero
+				? gsap.quickTo(hero, 'y', { duration: 0.55, ease: 'power3.out' })
+				: null;
 
-		const baseDistance = containerHeight + viewportH;
-		const fastDistance = Math.min(fastFactor * baseDistance, 16000);
+			ScrollTrigger.create({
+				trigger: container,
+				start: 'top bottom+600px',
+				end: 'bottom top',
+				scrub: 1.2,
+				markers: false,
+				invalidateOnRefresh: true,
+				onUpdate: (self) => {
+					const p = self.progress;
+					// Slower, smoother perceived motion for the large number while still finishing at end
+					const easeNum = gsap.parseEase('power4.inOut');
+					const pNum = easeNum(p) * 0.85 + p * 0.15;
+					setListY(-(p * fastDistance));
+					if (setHeroY) setHeroY(-(p * fastDistance));
+					setNumY(-(pNum * slowDistance));
+					if (setGlowY) setGlowY(-(p * fastDistance * 1.05));
+				},
+			});
 
-		// Compute a dynamic slow distance so largeNumber ends when list ends
-		const listRect = powersList.getBoundingClientRect();
-		const numRect = largeNumber.getBoundingClientRect();
-		const listHeight = Math.max(powersList.scrollHeight, listRect.height);
-		const numHeight = numRect.height;
-		// target delta: how much we want the number to travel across the whole scroll
-		const endAlignDelta = Math.max(0, listHeight - numHeight);
-		// Use the full delta so the number reaches the end with the list, plus a small buffer
-		const slowDistance = endAlignDelta + 20;
+			const items = powersList.querySelectorAll(`.${s.powerItem}`);
+			if (items.length) {
+				gsap.fromTo(
+					items,
+					{ y: 40, autoAlpha: 0 },
+					{
+						y: 0,
+						autoAlpha: 1,
+						stagger: 0.1,
+						ease: 'power2.out',
+						scrollTrigger: {
+							trigger: container,
+							start: 'top 80%',
+							end: 'top 40%',
+							scrub: false,
+							once: true,
+						},
+					},
+				);
+			}
 
-		// Single ScrollTrigger controls both elements for smoother sync
-		// Smooth value setters to eliminate jitter on scroll
-		const setListY = gsap.quickTo(powersList, 'y', { duration: 0.35, ease: 'power3.out' });
-		const setNumY = gsap.quickTo(largeNumber, 'y', { duration: 0.75, ease: 'power2.out' });
-		const setGlowY = lightPassingRef.current
-			? gsap.quickTo(lightPassingRef.current, 'y', { duration: 0.4, ease: 'power3.out' })
-			: null;
-		const setHeroY = hero
-			? gsap.quickTo(hero, 'y', { duration: 0.35, ease: 'power3.out' })
-			: null;
+			const onResize = () => ScrollTrigger.refresh();
+			window.addEventListener('resize', onResize);
 
-		const masterTrigger = ScrollTrigger.create({
-			trigger: container,
-			start: 'top bottom+600px',
-			end: 'bottom top',
-			scrub: 0.6, // numeric scrub for gentle syncing
-			markers: true,
-			invalidateOnRefresh: true,
-			onUpdate: (self) => {
-				const p = self.progress; // 0..1
-				// Apply parallax offsets with smoothing (both start at the same top baseline)
-				setListY(-(p * fastDistance));
-				if (setHeroY) setHeroY(-(p * fastDistance));
-				setNumY(-(p * slowDistance));
-				if (setGlowY) {
-					// Move glow slightly faster than list for emphasis
-					setGlowY(-(p * fastDistance * 1.15));
-				}
-			},
+			// Ensure we clean listeners created within this context
+			gsap.delayedCall(0, () => {
+				ScrollTrigger.refresh();
+			});
+
+			return () => {
+				window.removeEventListener('resize', onResize);
+			};
 		});
 
-		// Optional: slight stagger reveal for items to enhance perceived speed
-		const items = powersList.querySelectorAll(`.${s.powerItem}`);
-		if (items.length) {
-			gsap.fromTo(
-				items,
-				{ y: 40, autoAlpha: 0 },
-				{
-					y: 0,
-					autoAlpha: 1,
-					stagger: 0.1,
-					ease: 'power2.out',
-					scrollTrigger: {
-						trigger: container,
-						start: 'top 80%',
-						end: 'top 40%',
-						scrub: false,
-						once: true,
-					},
-				},
-			);
-		}
-
-		const onResize = () => {
-			ScrollTrigger.refresh();
-		};
-		window.addEventListener('resize', onResize);
-
-		return () => {
-			window.removeEventListener('resize', onResize);
-			masterTrigger?.kill();
-		};
+		return () => ctx.revert();
 	}, []);
 
 	return (
 		<div ref={ref} className={s.ProductIntro}>
 			{/* Animated Background Glow Effect */}
-			<div className={s.glowBackground}>
-				<AnimatedGlowBackground variant="default" intensity="medium" fitContent={true} />
-			</div>
+			{/* <div className={s.glowBackground}>
+				<AnimatedGlowBackground variant="default" intensity="low" fitContent={true} />
+			</div> */}
 
 			<div className={s.corePowersSection}>
 				<div ref={powersContainerRef} className={s.powersContainer}>

@@ -23,11 +23,12 @@ const AnimatedActions = memo(function AnimatedActions({
 	currentCardIndex = 0,
 	actionsContent,
 	sectionId,
+	withinCardProgress = 0,
 }) {
 	const [currentIndex, setCurrentIndex] = useState(currentCardIndex);
 	const actionsContainerRef = useRef(null);
 	const initialContainerTopRef = useRef(0);
-
+	const shownStepByCardRef = useRef({}); // tracks per-card reveal step
 	// Capture container's original top-offset on mount
 	useLayoutEffect(() => {
 		const container = actionsContainerRef.current;
@@ -78,8 +79,55 @@ const AnimatedActions = memo(function AnimatedActions({
 			display: 'flex',
 		});
 
+		// Only Title visible initially; hide required + content areas
+		gsap.set(`.${styles.actionRequiredSection}`, { autoAlpha: 0 });
+		gsap.set(`.${styles.contentArea}`, { autoAlpha: 0 });
+
 		// No ScrollTrigger setup here - handled by parent AnimatedSection component
 	}, []);
+
+	// Reset per-card visibility when active card changes
+	useEffect(() => {
+		const container = actionsContainerRef.current;
+		if (!container) return;
+		const cards = container.querySelectorAll(`.${styles.card}`);
+		cards.forEach((card, index) => {
+			if (index === currentCardIndex) {
+				const title = card.querySelector(`.${styles.titleSection}`);
+				const required = card.querySelector(`.${styles.actionRequiredSection}`);
+				const content = card.querySelector(`.${styles.contentArea}`);
+				if (title) gsap.set(title, { autoAlpha: 1 });
+				if (required) gsap.set(required, { autoAlpha: 0, y: 20 });
+				if (content) gsap.set(content, { autoAlpha: 0, y: 20 });
+				shownStepByCardRef.current[currentCardIndex] = 0; // reset step for active card
+			}
+		});
+	}, [currentCardIndex]);
+
+	// Reveal required section + content when withinCardProgress crosses threshold with staggered timeline
+	useEffect(() => {
+		const container = actionsContainerRef.current;
+		if (!container) return;
+		const activeCard = container.querySelectorAll(`.${styles.card}`)[currentIndex];
+		if (!activeCard) return;
+		const required = activeCard.querySelector(`.${styles.actionRequiredSection}`);
+		const content = activeCard.querySelector(`.${styles.contentArea}`);
+		const show = withinCardProgress >= 0.5;
+		const prevStep = shownStepByCardRef.current[currentIndex] || 0;
+		const nextStep = show ? 1 : 0;
+		if (prevStep === nextStep) return; // guard: do not replay same step
+		shownStepByCardRef.current[currentIndex] = nextStep;
+		if (required || content) {
+			const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+			if (show) {
+				if (required) tl.to(required, { autoAlpha: 1, y: 0, duration: 0.35 }, 0);
+				if (content) tl.to(content, { autoAlpha: 1, y: 0, duration: 0.35 }, 0.06);
+			} else {
+				if (content) tl.to(content, { autoAlpha: 0, y: 20, duration: 0.25 }, 0);
+				if (required) tl.to(required, { autoAlpha: 0, y: 20, duration: 0.25 }, 0.05);
+			}
+		}
+	}, [withinCardProgress, currentIndex]);
 
 	// Handle progress bar click
 	const handleProgressClick = (index) => {
@@ -163,61 +211,71 @@ const AnimatedActions = memo(function AnimatedActions({
 								</div>
 							)}
 
-							{/* Message Card, Insights Card, Opportunity Card, Risk Card, Chat Card, or Super Agent Suggestions Card */}
-							{type === 'suggestions' && content.insights ? (
-								<InsightsCard
-									insights={content.insights}
-									insightsTitle={content.insightsTitle}
-								/>
-							) : type === 'suggestions' &&
-							  content.superAgentSuggestions &&
-							  sectionId === 'SuperAgent' ? (
-								<SuperAgentSuggestionsCard
-									superAgentSuggestions={content.superAgentSuggestions}
-								/>
-							) : type === 'opportunity' &&
-							  content.superAgentOpportunity &&
-							  sectionId === 'SuperAgent' ? (
-								<SuperAgentOpportunityCard
-									superAgentOpportunity={content.superAgentOpportunity}
-								/>
-							) : type === 'opportunity' && content.opportunityContent ? (
-								<OpportunityCard opportunityContent={content.opportunityContent} />
-							) : type === 'risk' && content.riskContent ? (
-								<RiskCard riskContent={content.riskContent} />
-							) : type === 'actions' &&
-							  content.chatContent &&
-							  sectionId === 'SuperAgent' ? (
-								<ChatCard chatContent={content.chatContent} />
-							) : (
-								<div className={styles.messageCard}>
-									<div className={styles.messageContent}>
-										<div className={styles.messageText}>
-											{content.messageText}
+							<div className={styles.contentArea}>
+								{/* Message Card, Insights Card, Opportunity Card, Risk Card, Chat Card, or Super Agent Suggestions Card */}
+								{type === 'suggestions' && content.insights ? (
+									<InsightsCard
+										insights={content.insights}
+										insightsTitle={content.insightsTitle}
+									/>
+								) : type === 'suggestions' &&
+								  content.superAgentSuggestions &&
+								  sectionId === 'SuperAgent' ? (
+									<SuperAgentSuggestionsCard
+										superAgentSuggestions={content.superAgentSuggestions}
+									/>
+								) : type === 'opportunity' &&
+								  content.superAgentOpportunity &&
+								  sectionId === 'SuperAgent' ? (
+									<SuperAgentOpportunityCard
+										superAgentOpportunity={content.superAgentOpportunity}
+									/>
+								) : type === 'opportunity' && content.opportunityContent ? (
+									<OpportunityCard
+										opportunityContent={content.opportunityContent}
+									/>
+								) : type === 'risk' && content.riskContent ? (
+									<RiskCard riskContent={content.riskContent} />
+								) : type === 'actions' &&
+								  content.chatContent &&
+								  sectionId === 'SuperAgent' ? (
+									<ChatCard chatContent={content.chatContent} />
+								) : (
+									<div className={styles.messageCard}>
+										<div className={styles.messageContent}>
+											<div className={styles.messageText}>
+												{content.messageText}
+											</div>
+											<div className={styles.messageBody}>
+												{content.messageBody}
+											</div>
+											<div className={styles.messageSignature}>
+												{content.messageSignature
+													.split('\n')
+													.map((line, lineIndex) => (
+														<div key={lineIndex}>{line}</div>
+													))}
+											</div>
 										</div>
-										<div className={styles.messageBody}>
-											{content.messageBody}
-										</div>
-										<div className={styles.messageSignature}>
-											{content.messageSignature
-												.split('\n')
-												.map((line, lineIndex) => (
-													<div key={lineIndex}>{line}</div>
-												))}
+										<div className={styles.buttonsContainer}>
+											<button
+												className={styles.actionButton}
+												onClick={onDismiss}
+											>
+												<CrossIcon className={styles.buttonIcon} />
+												<span className={styles.buttonText}>Dismiss</span>
+											</button>
+											<button
+												className={styles.actionButton}
+												onClick={onSend}
+											>
+												<SendIcon className={styles.buttonIcon} />
+												<span className={styles.buttonText}>Send now</span>
+											</button>
 										</div>
 									</div>
-									<div className={styles.buttonsContainer}>
-										<button className={styles.actionButton} onClick={onDismiss}>
-											<CrossIcon className={styles.buttonIcon} />
-											<span className={styles.buttonText}>Dismiss</span>
-										</button>
-										<button className={styles.actionButton} onClick={onSend}>
-											<SendIcon className={styles.buttonIcon} />
-											<span className={styles.buttonText}>Send now</span>
-										</button>
-									</div>
-								</div>
-							)}
+								)}
+							</div>
 
 							{/* Title Section - Hide for Super Agent with new cards */}
 							{!(
