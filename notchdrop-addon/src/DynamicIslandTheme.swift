@@ -29,7 +29,8 @@ enum DynamicIslandTheme {
     static let textMuted = Color(red: 0.58, green: 0.596, blue: 0.62)   // #94989E-ish
     static let primaryGreen = Color(red: 0.475, green: 0.925, blue: 0.788) // #79ECC9
     static let primaryGreenDark = Color(red: 0.427, green: 0.831, blue: 0.722) // hover approx
-    static let card = Color(red: 0.106, green: 0.110, blue: 0.114) // #1B1C1D
+    static let card = Color(red: 0.106, green: 0.110, blue: 0.114)
+    static let cardMaterial = Material.regularMaterial
     static let stopRed = Color(red: 0.812, green: 0.212, blue: 0.208) // #CF3635
     static let stroke = Color(red: 0.173, green: 0.176, blue: 0.180) // subtle stroke
 

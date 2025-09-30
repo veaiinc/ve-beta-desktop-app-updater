@@ -528,6 +528,10 @@ const actionHandlers = {
 		...state,
 		createBotInfo: { ...state?.createBotInfo, ...action?.payload },
 	}),
+	SET_ACTIVE_MEETING_REVPROMPT: (state, action) => ({
+		...state,
+		activeMeetingRevampedPrompt: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

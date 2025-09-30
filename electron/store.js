@@ -1,6 +1,6 @@
 const { create } = require('zustand');
 const { createMeetingHandlers } = require('./features/meeting/index.js');
-const { initialState } = require('./features/index.js');
+const { initialState, storeActions } = require('./features/index.js');
 
 /**
  * Creates a Zustand store for the basic mode
@@ -23,4 +23,4 @@ function createStore() {
 	return store;
 }
 
-module.exports = { createStore };
+module.exports = { createStore, storeActions };

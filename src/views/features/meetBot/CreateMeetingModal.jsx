@@ -16,7 +16,7 @@ import { ReactComponent as CameraIcon } from './cameraIcon.svg';
 import GuideMePopup from './guideMePopup';
 import CreateModalPreferences from './CreateModalPreferences';
 import { message } from '../../components/globalComponents/CustomToast';
-import { useStore } from '../../../store/store.js';
+import { useStore, storeActions } from '../../../store/store.js';
 import { useDispatch } from '@zubridge/electron';
 
 const meetingModeOptions = [
@@ -42,7 +42,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const { pastMeetings, actions: meetingActions } = useStore((state) => state.meeting) || {};
+	const { pastMeetings } = useStore((state) => state.meeting) || {};
 
 	const [formData, setFormData] = useState({
 		selectedMode: 'desktop',
@@ -105,7 +105,7 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 			};
 
 			dispatch({
-				type: meetingActions.SET_PAST_MEETINGS,
+				type: storeActions.meeting.SET_PAST_MEETINGS,
 				payload,
 			});
 

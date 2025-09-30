@@ -68,6 +68,7 @@ import {
 	getAiLiveIntelligenceHistoryQuery,
 	deleteMeetingMutation,
 	updateMeetingMutation,
+	getRevampedPromptQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -95,6 +96,7 @@ export const intialState = {
 	transcriptionList: [],
 	aiLiveIntelligenceHistory: null,
 	createBotInfo: null,
+	activeMeetingRevampedPrompt: null,
 };
 
 export const NotesState = (props) => {
@@ -2182,6 +2184,42 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getRevampedPrompt = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getRevampedPromptQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'meeting_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_ACTIVE_MEETING_REVPROMPT,
+					payload: {
+						meetingId: payload?.meetingId,
+						revampedPrompt:
+							response?.[1]?.data?.getRevampedPrompt?.revampedPrompt || [],
+					},
+				});
+				return response;
+			} else {
+				dispatch({
+					type: Actions.SET_ACTIVE_MEETING_REVPROMPT,
+					payload: {
+						meetingId: payload?.meetingId,
+						revampedPrompt: [],
+					},
+				});
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>getRevampedPrompt', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -2250,5 +2288,6 @@ export const NotesState = (props) => {
 		initializeMeetingSummary,
 		deleteMeeting,
 		updateMeeting,
+		getRevampedPrompt,
 	};
 };

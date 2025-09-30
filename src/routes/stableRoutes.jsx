@@ -93,6 +93,7 @@ const stableRoutes = [
 					<RecentChat
 						showChatHistory={true}
 						showDeleteChat={true}
+						showRightBar={true}
 						showChats={true}
 						showChatsButton={true}
 						showBrowser={true}

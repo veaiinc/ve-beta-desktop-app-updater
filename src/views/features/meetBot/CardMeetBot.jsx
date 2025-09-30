@@ -10,7 +10,7 @@ import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import GuideMePopup from './guideMePopup';
 import CreateMeetingModal from './CreateMeetingModal';
 import moment from 'moment';
-import { useStore } from '../../../store/store';
+import { useStore, storeActions } from '../../../store/store';
 import { useDispatch } from '@zubridge/electron';
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -43,11 +43,7 @@ const CardMeetBot = () => {
 	const searchInputRef = useRef(null);
 
 	const dispatch = useDispatch();
-	const {
-		pastMeetings,
-		activeMeetingId,
-		actions: meetingActions,
-	} = useStore((state) => state.meeting) || {};
+	const { pastMeetings, activeMeetingId } = useStore((state) => state.meeting) || {};
 
 	const meetings = useMemo(() => pastMeetings?.data || [], [pastMeetings?.data]);
 	const loadingMeetings = pastMeetings?.data ? false : true;
@@ -104,7 +100,7 @@ const CardMeetBot = () => {
 				}
 
 				dispatch({
-					type: meetingActions.SET_PAST_MEETINGS,
+					type: storeActions.meeting.SET_PAST_MEETINGS,
 					payload,
 				});
 			} catch (error) {
@@ -113,14 +109,14 @@ const CardMeetBot = () => {
 				setInfo((prevInfo) => ({ ...prevInfo, apiFetching: false }));
 			}
 		},
-		[getExistingBots, dispatch, meetingActions, pastMeetings?.data],
+		[getExistingBots, dispatch, pastMeetings?.data],
 	);
 
 	// Load existing bots when component mounts
 	useEffect(() => {
-		if (!pastMeetings?.data || pastMeetings.data.length === 0) {
+		// if (!pastMeetings?.data || pastMeetings.data.length === 0) {
 			handleGetExistingBots({ page: 1, limit: 10, append: false });
-		}
+		// }
 	}, []); // Only run on mount
 
 	// Carousel navigation handlers

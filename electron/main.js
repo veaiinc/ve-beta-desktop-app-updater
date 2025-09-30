@@ -44,7 +44,7 @@ const {
 
 // Add these after your existing requires
 const { createBridge } = require('./bridge.js');
-const { createStore } = require('./store.js');
+const { createStore, storeActions } = require('./store.js');
 
 // Import Windows compatibility fixes
 const { safeExtractImageMetadata } = require('./windowsCompatibility');
@@ -1865,8 +1865,9 @@ function createWindow(restoreState = false) {
 
 	// Enhanced ready-to-show with better error handling
 	mainWindow.once('ready-to-show', () => {
-		// log.info('✅ Main window ready to show');
-		mainWindow.show();
+		
+		// Always minimize the window on startup to keep app running in background
+		mainWindow.minimize();
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
@@ -2839,6 +2840,10 @@ app.whenReady().then(async () => {
 			log.error('Error minimizing main window:', error);
 			return { success: false, error: error.message };
 		}
+	});
+
+	ipcMain.on('get-store-actions-sync', (event) => {
+		event.returnValue = storeActions; // synchronous return
 	});
 
 	ipcMain.handle('get-window-info', (event) => {
