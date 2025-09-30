@@ -157,7 +157,7 @@ struct DynamicIslandContentView: View {
                                             .font(.system(size: 14))
                                             .foregroundColor(.white)
                                             .frame(width: 24, height: 24)
-                                            .background(DynamicIslandTheme.card)
+                                            .background(DynamicIslandTheme.cardMaterial)
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(PlainButtonStyle())
@@ -211,7 +211,7 @@ struct DynamicIslandContentView: View {
                                 }
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(DynamicIslandTheme.card)
+                                .background(DynamicIslandTheme.cardMaterial)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 8)
                                         .stroke(DynamicIslandTheme.stroke, lineWidth: 0.5)
@@ -498,7 +498,6 @@ struct VoiceControlsCircle: View {
 
             // Inner card
             Circle()
-                .fill(DynamicIslandTheme.card)
                 .shadow(color: DynamicIslandTheme.primaryGreen.opacity(0.5), radius: 15)
 
             VStack(spacing: 10) {
@@ -587,7 +586,7 @@ struct ChatTextAreaView: View {
                         .stroke(
                             isChatInputFocused ? 
                             DynamicIslandTheme.primaryGreen.opacity(0.8) : // Green border when active
-                            DynamicIslandTheme.stroke.opacity(0.5), 
+                            DynamicIslandTheme.white.opacity(0.7), 
                             lineWidth: isChatInputFocused ? 1.5 : 1 // Thicker border when active
                         )
                 )
@@ -1027,7 +1026,7 @@ struct WebcamButton: View {
                 // Background circle - only show when camera preview is not active
                 if !vm.showCameraPreview {
                     Circle()
-                        .fill(DynamicIslandTheme.card)
+                        .fill(DynamicIslandTheme.cardMaterial)
                         .frame(width: 90, height: 90)
                         .scaleEffect(isHovered ? 1.05 : 1.0)
                         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
@@ -1049,7 +1048,7 @@ struct WebcamButton: View {
                     ZStack {
                         // Background circle for camera preview
                         Circle()
-                            .fill(DynamicIslandTheme.card)
+                            .fill(DynamicIslandTheme.cardMaterial)
                             .frame(width: 90, height: 90)
                         
                         // Camera preview
@@ -1357,7 +1356,7 @@ struct NotificationOverlayView: View {
                         .frame(height: 3)
                     }
                     }
-                    .background(Color.black)
+                    .background(.ultraThinMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
                     .frame(width: 370, height: 74) // Matching the Figma dimensions
                     .onHover { isHovering in
