@@ -282,6 +282,23 @@ struct DynamicIslandContentView: View {
                             
                             // Information icon (third icon) with popup menu
                             InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            
+                            // Lock/Unlock button (fourth icon)
+                            Button(action: {
+                                vm.toggleNotchLock()
+                            }) {
+                                Image(systemName: vm.isNotchLocked ? "lock.fill" : "lock.open.fill")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen : .white)
+                                    .frame(width: 16, height: 16)
+                                    .padding(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
+                                    )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
                         }
                     }
                     
@@ -561,7 +578,7 @@ struct DynamicIslandContentView: View {
         guard let id = videoId else { return "" }
         
         // Return YouTube embed URL with autoplay and minimal UI
-        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3"
+        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=0&disablekb=1"
     }
     
     private func extractYouTubeThumbnail(from url: String) {
@@ -2181,8 +2198,10 @@ struct YouTubeMediaController: View {
                     )
                     .scaleEffect(isHovered ? 1.02 : 1.0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-                    .onHover { hovering in
-                        isHovered = hovering
+                    
+                    .onTapGesture {
+                        // User interaction to enable sound if needed
+                        print("📺 User tapped video player - attempting to enable sound")
                     }
             }
         }
@@ -2194,12 +2213,21 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
     let embedURL: String
     
     func makeNSView(context: Context) -> WKWebView {
-        let webView = WKWebView()
+        let configuration = WKWebViewConfiguration()
+        
+        // Configure for video playback with sound
+        configuration.allowsAirPlayForMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
+        
+        // Set user agent to avoid mobile YouTube version
+        configuration.applicationNameForUserAgent = "Version/14.1.2 Safari/605.1.15"
+        
+        let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
         
-        // Configure for video playback
-        webView.configuration.allowsAirPlayForMediaPlayback = true
-        webView.configuration.mediaTypesRequiringUserActionForPlayback = []
+        // Allow sound playback
+        webView.allowsMagnification = false
+        webView.allowsBackForwardNavigationGestures = false
         
         // Load the YouTube embed URL
         if let url = URL(string: embedURL) {
@@ -2226,18 +2254,55 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
     
     class Coordinator: NSObject, WKNavigationDelegate {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Inject CSS to hide YouTube branding and make it fit better
+            // Wait a moment for the video to load, then unmute it
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                // Unmute the video and ensure it's playing with sound
+                let unmuteScript = """
+                    // Find the video element and unmute it
+                    var video = document.querySelector('video');
+                    if (video) {
+                        video.muted = false;
+                        video.volume = 0.7; // Set to 70% volume
+                        
+                        // Try to play with sound
+                        video.play().then(() => {
+                            console.log('Video playing with sound');
+                        }).catch(e => {
+                            console.log('Autoplay failed, user interaction required');
+                        });
+                    }
+                    
+                    // Also try YouTube player API if available
+                    if (typeof YT !== 'undefined' && YT.Player) {
+                        var iframe = document.querySelector('iframe');
+                        if (iframe) {
+                            try {
+                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[70]}', '*');
+                            } catch(e) {
+                                console.log('YouTube API not available');
+                            }
+                        }
+                    }
+                """
+                
+                webView.evaluateJavaScript(unmuteScript) { result, error in
+                    if let error = error {
+                        print("📺 Error unmuting video: \(error)")
+                    } else {
+                        print("📺 Video unmuted successfully")
+                    }
+                }
+            }
+            
+            // Inject CSS to hide unnecessary YouTube UI elements
             let css = """
                 var style = document.createElement('style');
                 style.innerHTML = `
                     iframe { 
                         border-radius: 12px !important;
                     }
-                    .ytp-chrome-top, 
-                    .ytp-chrome-bottom,
-                    .ytp-watermark,
-                    .ytp-gradient-top,
-                    .ytp-gradient-bottom { 
+                    .ytp-watermark { 
                         display: none !important; 
                     }
                 `;

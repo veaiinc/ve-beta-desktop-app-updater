@@ -28,17 +28,27 @@ class NotchViewModel: NSObject, ObservableObject {
                 height: 100   // Figma design height
             )
         }
-        // Dynamic width based on whether Spotify and/or YouTube controllers are visible
-        let baseWidth: CGFloat = 580  // Width without media controllers
-        let spotifyWidth: CGFloat = 160  // Width of Spotify controller
-        let youtubeWidth: CGFloat = showVideoPlayer ? 300 : 200  // Width of YouTube player (300) vs controller (200)
-        let mediaWidth = (hasActiveMusic ? spotifyWidth : 0) + (hasActiveVideo ? youtubeWidth : 0)
-        let totalWidth = baseWidth + mediaWidth
-        
-        return .init(
-            width: totalWidth,
-            height: DynamicIslandTheme.expandedHeight
-        )
+        // Dynamic width based on chat mode, voice agent mode, and media controllers
+        if isChatMode || showVoiceInterface {
+            // Chat mode or Voice Agent mode - use compact width
+            let compactWidth: CGFloat = 580  // Width optimized for chat/voice input only
+            return .init(
+                width: compactWidth,
+                height: DynamicIslandTheme.expandedHeight
+            )
+        } else {
+            // Normal mode - show media controllers if available
+            let baseWidth: CGFloat = 580  // Width without media controllers
+            let spotifyWidth: CGFloat = 160  // Width of Spotify controller
+            let youtubeWidth: CGFloat = showVideoPlayer ? 300 : 200  // Width of YouTube player (300) vs controller (200)
+            let mediaWidth = (hasActiveMusic ? spotifyWidth : 0) + (hasActiveVideo ? youtubeWidth : 0)
+            let totalWidth = baseWidth + mediaWidth
+            
+            return .init(
+                width: totalWidth,
+                height: DynamicIslandTheme.expandedHeight
+            )
+        }
     }
     let dropDetectorRange: CGFloat = 32
 
@@ -101,6 +111,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var videoEmbedURL: String = ""
     @Published var showVideoPlayer: Bool = false
     @Published var notchVisible: Bool = true
+    @Published var isNotchLocked: Bool = false
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
     var selectedLanguage: Language
@@ -237,12 +248,24 @@ class NotchViewModel: NSObject, ObservableObject {
     }
 
     func notchClose() {
+        // Don't close if notch is locked
+        guard !isNotchLocked else { return }
+        
         openReason = .unknown
         status = .closed
         contentType = .normal
         
         // Emit collapse action for JavaScript
         swiftActionSender.send(.collapse)
+    }
+    
+    func toggleNotchLock() {
+        isNotchLocked.toggle()
+        
+        if isNotchLocked {
+            // If locking, ensure notch is open
+            notchOpen(.click)
+        }
     }
 
     func showSettings() {
