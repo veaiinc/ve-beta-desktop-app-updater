@@ -886,15 +886,12 @@ const RecentChat = ({
 
 	const handleSourcesClick = useCallback(
 		(index) => {
+			if (index !== info?.citationsAiMessageIndex) {
+				updateStateValues({
+					chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
+				});
+			}
 			setInfo((prev) => {
-				if (index !== prev?.citationsAiMessageIndex) {
-					setTimeout(() => {
-						updateStateValues({
-							chatSources:
-								globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
-						});
-					}, 0);
-				}
 				return {
 					...prev,
 					rightBarOpen: index !== prev?.citationsAiMessageIndex,
@@ -903,7 +900,7 @@ const RecentChat = ({
 				};
 			});
 		},
-		[globalChatMessages, sessionId, updateStateValues],
+		[globalChatMessages, sessionId, updateStateValues, info?.citationsAiMessageIndex],
 	);
 
 	const handleRightBarToggle = useCallback(({ open = false, activeRightBar = null }) => {
