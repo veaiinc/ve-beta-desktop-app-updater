@@ -1865,8 +1865,9 @@ function createWindow(restoreState = false) {
 
 	// Enhanced ready-to-show with better error handling
 	mainWindow.once('ready-to-show', () => {
-		// log.info('✅ Main window ready to show');
-		mainWindow.show();
+		
+		// Always minimize the window on startup to keep app running in background
+		mainWindow.minimize();
 
 		// If restoring state, navigate to the last known route
 		if (restoreState && lastWindowState.route) {
