@@ -1,29 +1,60 @@
 .build-tooltip-container {
 	display: flex;
-	min-width: 200px;
-	padding: 4px 0px;
+	padding: 12px;
 	flex-direction: column;
 	align-items: flex-start;
-	border-radius: 8px;
-	border: 1px solid var(--stroke, #2c2d2e);
-	background: var(--navbar, #18191b);
+	gap: 2px;
+	align-self: stretch;
+	min-width: 275px;
+	background-color: var(--card-over-card);
+	border-radius: 16px;
 
 	.option {
+		gap: 12px;
 		display: flex;
 		padding: 8px 16px;
-		align-items: center;
-		gap: 8px;
+		align-items: flex-start;
 		align-self: stretch;
+		border-radius: 12px;
 		cursor: pointer;
-		font-family: var(--primary-font-family);
-		font-size: 13px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-		color: var(--primary-font);
 
 		&:hover {
-			background: var(--card-hover, #202123);
+			background: var(--card-over-card-hover, #202123);
+		}
+
+		.left-container {
+			.icon-container {
+				padding: 4px;
+			}
+		}
+		.right-container {
+			display: flex;
+			gap: 2px;
+			flex-direction: column;
+			align-items: flex-start;
+			align-self: stretch;
+
+			.title {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--chat-primary-font-family);
+				font-size: var(--font-size-14, 14px);
+				font-style: normal;
+				font-weight: 500;
+				line-height: 19.6px;
+			}
+
+			.subtitle {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--chat-primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: 19.6px;
+			}
 		}
 	}
+}
+
+.build-tooltip-wrapper {
+	max-width: unset;
 }

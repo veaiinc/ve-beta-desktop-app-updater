@@ -2,7 +2,6 @@ import { memo, useState, useEffect, useRef, useContext, useCallback } from 'reac
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/login_page/verification_code.scss';
 import { message } from '../globalComponents/CustomToast';
-import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
 import CustomOtp from '../globalComponents/CustomOtp';
@@ -240,7 +239,12 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	const handleLocationDetailsData = useCallback(async () => {
 		let locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
 		if (!locationDetails) {
-			locationDetails = await getLocationsDetails();
+			const response = await getLocationDetails();
+			if (response?.[0] === true) {
+				locationDetails = response?.[1];
+			} else {
+				message?.error(response?.[1]?.message);
+			}
 			// Optionally save it
 			localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
 		}
