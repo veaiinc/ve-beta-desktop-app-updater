@@ -58,8 +58,8 @@ const AuthWrapper = ({
 	const isSidebarOverlay = (sidebarState?.overlay || isSidebarMobileView) ?? false;
 
 	useEffect(() => {
-		if (sidebarState?.open !== isSidebarOpen) {
-			setIsSidebarOpen(sidebarState?.open ?? false);
+		if (Boolean(sidebarState?.open) && sidebarState?.open !== isSidebarOpen) {
+			setIsSidebarOpen(sidebarState?.open);
 		}
 	}, [sidebarState?.open]);
 
