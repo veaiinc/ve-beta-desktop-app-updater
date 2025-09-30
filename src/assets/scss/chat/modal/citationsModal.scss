@@ -1,24 +1,16 @@
-.citations-wrapper {
-	width: 400px;
-	height: 100%;
-	overflow: auto;
-	background: var(--card);
-}
-
 .citations-container {
-	background: var(--card);
 	display: flex;
 	height: 100%;
-	width: 100%;
+	width: 400px;
 	flex-direction: column;
 	align-items: flex-start;
 	border-left: 1px solid var(--stroke);
-	opacity: 0.8;
-	animation: sourcesFadeIn 0.1s ease-in-out 0.1s forwards;
+	opacity: 0;
+	animation: citationFadeIn 500ms ease-out 250ms forwards;
 
 	.header {
 		display: flex;
-		padding: 24px;
+		padding: 17px 24px 17px 24px;
 		justify-content: space-between;
 		align-items: center;
 		align-self: stretch;
@@ -157,7 +149,7 @@
 	}
 }
 
-@keyframes sourcesFadeIn {
+@keyframes citationFadeIn {
 	0% {
 		opacity: 0.8;
 	}

@@ -21,68 +21,64 @@ const CitationsModal = ({ closeModal }) => {
 	}, []);
 
 	return (
-		<div className="citations-wrapper">
-			<div className="citations-container">
-				<div className="header">
-					<div className="left-text">Sources</div>
-					<div className="close-modal-icon" onClick={closeModal}>
-						<CloseSvg style={{ width: '20px', height: '20px' }} />
-					</div>
+		<div className="citations-container">
+			<div className="header">
+				<div className="left-text">Sources</div>
+				<div className="close-modal-icon" onClick={closeModal}>
+					<CloseSvg style={{ width: '20px', height: '20px' }} />
 				</div>
-				<div className="chat-sources">
-					{chatSources?.map((citation, index) => {
-						return (
-							<div
-								className="source-container"
-								key={`${index}`}
-								onClick={() => handleSourceClick(citation)}
-							>
-								<div className="source-url-container">
-									<div className="url-icon">
-										{citation?.type === 'url' ? (
-											getFaviconUrl(citation?.name) ? (
-												<img
-													src={getFaviconUrl(citation?.name)}
-													alt="favicon"
-													className="source-favicon-image"
-												/>
-											) : (
-												<div className="source-icon">
-													{getWebsiteName(citation?.name)?.charAt(0)}
-												</div>
-											)
+			</div>
+			<div className="chat-sources">
+				{chatSources?.map((citation, index) => {
+					return (
+						<div
+							className="source-container"
+							key={`${index}`}
+							onClick={() => handleSourceClick(citation)}
+						>
+							<div className="source-url-container">
+								<div className="url-icon">
+									{citation?.type === 'url' ? (
+										getFaviconUrl(citation?.name) ? (
+											<img
+												src={getFaviconUrl(citation?.name)}
+												alt="favicon"
+												className="source-favicon-image"
+											/>
 										) : (
 											<div className="source-icon">
-												{citation?.type === 's3_key'
-													? fileTypeIcons[
-															citation?.name?.match(/\.(\w+)$/)?.[1]
-													  ] || <VeLogoSvg />
-													: fileTypeIcons[citation?.type] || (
-															<VeLogoSvg />
-													  )}
+												{getWebsiteName(citation?.name)?.charAt(0)}
 											</div>
-										)}
-									</div>
-									<div className="url-text">
-										{citation?.type === 'url'
-											? getWebsiteName(citation?.name || '')
-											: citation?.name || ''}
-									</div>
+										)
+									) : (
+										<div className="source-icon">
+											{citation?.type === 's3_key'
+												? fileTypeIcons[
+														citation?.name?.match(/\.(\w+)$/)?.[1]
+												  ] || <VeLogoSvg />
+												: fileTypeIcons[citation?.type] || <VeLogoSvg />}
+										</div>
+									)}
 								</div>
-								{citation?.title && (
-									<div className="source-title-container">
-										{citation?.title || ''}
-									</div>
-								)}
-								{citation?.snippet && (
-									<div className="source-description-container">
-										{citation?.snippet || ''}
-									</div>
-								)}
+								<div className="url-text">
+									{citation?.type === 'url'
+										? getWebsiteName(citation?.name || '')
+										: citation?.name || ''}
+								</div>
 							</div>
-						);
-					})}
-				</div>
+							{citation?.title && (
+								<div className="source-title-container">
+									{citation?.title || ''}
+								</div>
+							)}
+							{citation?.snippet && (
+								<div className="source-description-container">
+									{citation?.snippet || ''}
+								</div>
+							)}
+						</div>
+					);
+				})}
 			</div>
 		</div>
 	);
