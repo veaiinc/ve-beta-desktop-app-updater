@@ -203,9 +203,9 @@ const FormsGrid = ({
 		return () => clearTimeout(timeout);
 	}, [info?.forms?.length, viewMode]);
 
-	useEffect(() => {
-		fetchForms({ page: 1 });
-	}, []);
+	// useEffect(() => {
+	// 	fetchForms({ page: 1 });
+	// }, []);
 
 	useEffect(() => {
 		if (!formsTemplatesList) {
