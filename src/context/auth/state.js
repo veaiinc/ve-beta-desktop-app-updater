@@ -159,28 +159,17 @@ export const AuthState = () => {
 
 			if (response[0] === true) {
 				const { tokens, accessibleWorkspaces } = response?.[1] || {};
-				const { accessToken, refreshToken, accessTokenExpiry, refreshTokenExpiry } =
-					tokens || {};
+				const { accessToken, accessTokenExpiry } = tokens || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
 
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
-					localStorage.setItem('refreshToken', refreshToken);
 					localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
-					localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry);
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
 						domain: host,
 					});
-					Cookies.set('refreshToken', refreshToken, {
-						sameSite: 'lax',
-						domain: host,
-					});
 					Cookies.set('accessTokenExpiry', accessTokenExpiry, {
-						sameSite: 'lax',
-						domain: host,
-					});
-					Cookies.set('refreshTokenExpiry', refreshTokenExpiry, {
 						sameSite: 'lax',
 						domain: host,
 					});

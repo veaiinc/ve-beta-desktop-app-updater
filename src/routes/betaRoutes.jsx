@@ -282,6 +282,7 @@ const betaRoutes = [
 				>
 					<RecentChat
 						showChatHistory={true}
+						showRightBar={true}
 						showDeleteChat={true}
 						showChats={true}
 						showCitationsButton={true}
