@@ -69,6 +69,7 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 		previousVisibleCards: [],
 		activeAnimations: {},
 		isAnimating: false,
+		hasReachedFull: {}, // track cards that have become fully visible at least once
 	});
 
 	// Animation configuration
@@ -108,6 +109,10 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 						// Hide both left and right message cards when suggestion appears
 						// Hide the message that's 2 positions before the suggestion
 						if (messageCount <= 1) {
+							// Ensure card becomes fully visible at least once before hiding
+							if (!animationState.current.hasReachedFull[index]) {
+								return true;
+							}
 							return false;
 						}
 					}
@@ -120,6 +125,10 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 				for (let i = index + 1; i <= currentCardIndex; i++) {
 					if (cardsData[i]?.type === 'suggestion') {
 						// Hide this suggestion when a newer suggestion appears
+						// but only after it has been fully visible at least once
+						if (!animationState.current.hasReachedFull[index]) {
+							return true;
+						}
 						return false;
 					}
 				}
@@ -166,7 +175,11 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 								}
 							}
 							// Hide if there's 1 or fewer messages between this and the suggestion
-							return messageCount > 1;
+							const shouldHide = messageCount <= 1;
+							if (shouldHide && !animationState.current.hasReachedFull[index]) {
+								return true; // keep visible until fully shown once
+							}
+							return !shouldHide;
 						}
 						return true;
 					});
@@ -260,6 +273,11 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 					isSuggestion,
 					positionInStack,
 				);
+
+				// Mark as fully visible once it reaches full opacity
+				if (fadeProgress >= 1 && !animationState.current.hasReachedFull[index]) {
+					animationState.current.hasReachedFull[index] = true;
+				}
 
 				// Handle suggestion card special styling
 				if (isSuggestion && fadeProgress > 0.3) {

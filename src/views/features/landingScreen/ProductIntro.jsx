@@ -103,7 +103,7 @@ const ProductIntro = forwardRef((props, ref) => {
 			const viewportH = window.innerHeight;
 			const baseDistance = containerHeight + viewportH;
 			const fastFactor = 0.9;
-			const fastDistance = Math.min(fastFactor * baseDistance, 16000);
+			const fastDistance = Math.min(fastFactor * baseDistance, 1500);
 
 			const listRect = powersList.getBoundingClientRect();
 			const numRect = largeNumber.getBoundingClientRect();
@@ -115,7 +115,7 @@ const ProductIntro = forwardRef((props, ref) => {
 			const setListY = gsap.quickTo(powersList, 'y', { duration: 0.55, ease: 'power3.out' });
 			const setNumY = gsap.quickTo(largeNumber, 'y', { duration: 2.2, ease: 'power2.out' });
 			const setGlowY = lightPassingRef.current
-				? gsap.quickTo(lightPassingRef.current, 'y', { duration: 0.8, ease: 'power3.out' })
+				? gsap.quickTo(lightPassingRef.current, 'y', { duration: 2.2, ease: 'power3.out' })
 				: null;
 			const setHeroY = hero
 				? gsap.quickTo(hero, 'y', { duration: 0.55, ease: 'power3.out' })

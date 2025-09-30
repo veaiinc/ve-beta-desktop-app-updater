@@ -64,7 +64,7 @@
 		position: relative;
 		font-family: var(--primary-font-family);
 		font-weight: 400;
-		font-size: 24px;
+		font-size: 25px;
 		line-height: 1.6;
 		color: #ffffff;
 		pointer-events: none;
@@ -74,9 +74,6 @@
 		transition: all 0.3s ease;
 		max-width: 800px;
 		padding: 0 40px;
-		word-wrap: normal;
-		word-break: normal;
-		overflow-wrap: break-word;
 		white-space: normal;
 		margin-top: 40px;
 		left: 20px;

@@ -24,8 +24,8 @@
 		gap: 60px;
 		position: relative;
 		z-index: 10;
-		right: 194px;
-		top: 125px;
+		right: 250px;
+		top: -125px;
 
 		.mainTitle {
 			// clip-path: inset(0 0 0 0);
@@ -86,7 +86,7 @@
 			gap: 60px;
 			will-change: transform; // hint for smoother parallax
 			position: relative;
-
+			top: -150px;
 			.rightColumn {
 				display: flex;
 				flex-direction: column;
@@ -96,6 +96,7 @@
 				position: relative;
 				top: 0;
 				margin-top: 260px; // push down further to match reference
+				right: 91px;
 			}
 
 			.largeNumber {
@@ -115,6 +116,7 @@
 				position: sticky; // keep visible while list scrolls
 				top: 45vh; // lower start to align with first list bullet
 				margin-top: 425px; // match updated right column offset
+				margin-left: 150px;
 
 				text-shadow: 0 0 250px #79ecc912;
 				width: auto;
@@ -142,17 +144,17 @@
 			.powersList {
 				display: flex;
 				flex-direction: column;
-				gap: 56px;
+				gap: 80px;
 				flex: 1;
 				max-width: 500px;
 				position: relative;
-				top: 0;
+				bottom: 260px;
 				will-change: transform, opacity; // hint for smoother animations
 
 				.powerItem {
 					display: flex;
 					flex-direction: column;
-					gap: 32px;
+					gap: 24px;
 
 					.powerHeader {
 						display: flex;
@@ -169,10 +171,10 @@
 
 						.powerTitle {
 							font-family: var(--primary-font-family);
-							font-size: 22px;
+							font-size: 18px;
 							font-weight: 600;
 							line-height: 1.35;
-							letter-spacing: 0.1em;
+							letter-spacing: 5px;
 							text-transform: uppercase;
 							color: #ffffff;
 							margin: 0;
@@ -189,9 +191,9 @@
 
 					.powerDescription {
 						font-family: var(--primary-font-family);
-						font-size: 22px;
+						font-size: 20px;
 						font-weight: 400;
-						line-height: 1.583;
+						line-height: 1.6;
 						color: #ffffff;
 						margin: 0;
 
@@ -299,6 +301,7 @@
 		position: relative;
 		z-index: 5; // below animated powers section to avoid overlap
 		text-align: center;
+		bottom: 75px;
 
 		.coFounderTitle {
 			font-family: var(--primary-font-family);
@@ -372,14 +375,15 @@
 	.lightPassing {
 		position: sticky;
 		top: 50vh; // lowered to sit further down
-		margin-top: 220px; // additional downward shift
+		margin-top: 40px; // additional downward shift
 		align-self: stretch;
 		width: 228px;
-		min-height: 150vh;
+		min-height: 250vh;
 		display: flex;
 		justify-content: center;
 		z-index: 2;
 		pointer-events: none; // Allow clicks to pass through
+		margin-left: -290px;
 
 		// Enhance the glow effect visibility
 		svg {

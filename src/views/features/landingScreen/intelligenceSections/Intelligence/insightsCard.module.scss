@@ -1,6 +1,6 @@
 .insightsCard {
 	position: absolute;
-	bottom: clamp(80px, 22vh, 225px);
+	bottom: clamp(80px, 22vh, 210px);
 	left: 65%;
 	top: 500px;
 	transform: translateX(-50%);
@@ -23,6 +23,7 @@
 	@media (max-width: 1440px) {
 		width: min(85vw, 500px);
 		left: 75%;
+		top: 210px;
 	}
 }
 
