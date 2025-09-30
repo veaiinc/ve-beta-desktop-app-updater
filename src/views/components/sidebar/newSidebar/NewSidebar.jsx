@@ -15,6 +15,8 @@ import CreditsUpgradeTooltip from './CreditsUpgradeTooltip';
 import Notifications from '../../topNavbar/components/notifications/Notifications';
 import { Tooltip } from 'antd';
 
+const mediaQuery = window.matchMedia('(max-width: 768px)');
+
 const NewSidebar = () => {
 	const [info, setInfo] = useState({
 		activeTab: null,
@@ -25,13 +27,14 @@ const NewSidebar = () => {
 		sidebarHoverState: false,
 		showSettings: false,
 		logoutLoading: false,
+		isMobileView: mediaQuery.matches,
 	});
 	const location = useLocation();
 	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
 
 	const {
-		templates: { sidebarState, updateStateValues },
+		templates: { sidebarState, updateStateValues, isSidebarMobileView },
 		profileInfo: { userDetailsData, tennantSettingsData, tenantUserAccessControls },
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
@@ -66,7 +69,18 @@ const NewSidebar = () => {
 				},
 			});
 		}
+
+		mediaQuery.addEventListener('change', handleResize);
+		return () => mediaQuery.removeEventListener('change', handleResize);
 	}, []);
+
+	useEffect(() => {
+		if (isSidebarMobileView !== info?.isMobileView) {
+			updateStateValues({
+				isSidebarMobileView: info?.isMobileView,
+			});
+		}
+	}, [info?.isMobileView]);
 
 	useEffect(() => {
 		if (location.pathname) {
@@ -77,6 +91,10 @@ const NewSidebar = () => {
 			}
 		}
 	}, [location.pathname]);
+
+	const handleResize = useCallback((e) => {
+		setInfo((prev) => ({ ...prev, isMobileView: e.matches }));
+	}, []);
 
 	const handleTabChange = useCallback(
 		(tab) => {
@@ -148,9 +166,9 @@ const NewSidebar = () => {
 					...(!info?.sidebarOpen && {
 						transform: info?.sidebarHoverState ? 'translateX(0)' : 'translateX(-256px)',
 					}),
-					...(info?.overlay &&
+					...((info?.overlay || info?.isMobileView) &&
 						info?.sidebarOpen && {
-							backgroundColor: 'var(--card-hover)',
+							backgroundColor: 'var(--card)',
 						}),
 				}}
 				onMouseLeave={handleSidebarHoverLeave}
@@ -277,7 +295,7 @@ const NewSidebar = () => {
 				<div className={s.sidebarHoverElement} onMouseEnter={handleSidebarHoverEnter}></div>
 			)}
 
-			{info?.sidebarOpen && info?.overlay && (
+			{info?.sidebarOpen && (info?.overlay || info?.isMobileView) && (
 				<div className={s.sidebarOverlay} onClick={() => handleSidebarStateChange(false)} />
 			)}
 		</>

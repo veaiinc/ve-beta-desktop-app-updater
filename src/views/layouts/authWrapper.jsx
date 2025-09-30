@@ -47,13 +47,13 @@ const AuthWrapper = ({
 
 	const {
 		aiSetup: { showVoiceWidget },
-		templates: { sidebarState },
+		templates: { sidebarState, isSidebarMobileView },
 	} = useContext(Context);
 	const [showServerError, setShowServerError] = useState(false);
 	const [isSidebarOpen, setIsSidebarOpen] = useState(
 		JSON.parse(localStorage.getItem('isSidebarOpen')) ?? false,
 	);
-	const isSidebarOverlay = sidebarState?.overlay ?? false;
+	const isSidebarOverlay = (sidebarState?.overlay || isSidebarMobileView) ?? false;
 
 	useEffect(() => {
 		if (sidebarState?.open !== isSidebarOpen) {

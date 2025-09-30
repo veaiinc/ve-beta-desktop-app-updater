@@ -133,6 +133,7 @@ export const intialState = {
 	proactiveInfoForChat: null,
 	isDirectSearchAgent: false,
 	sidebarState: null,
+	isSidebarMobileView: false,
 };
 
 export const TemplatesState = (props) => {
