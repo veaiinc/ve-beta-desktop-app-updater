@@ -3,6 +3,7 @@ import s from '../../../../assets/scss/sidebar/sidebar.module.scss';
 import { ReactComponent as VeLogoSvg } from '../../../../assets/svg/veLogo.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as LogoutSvg } from '../../../../assets/svg/sidebar/logout.svg';
+import { ReactComponent as NotificationsSvg } from '../../../../assets/svg/sidebar/notifications.svg';
 import Context from '../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SidebarMainContent from './SidebarMainContent';
@@ -11,6 +12,8 @@ import logout from '../../../../helpers/logout';
 import useBroadcastChannel from '../../../../hooks/useBroadcastChannel';
 import SidebarSettings from './SidebarSettings';
 import CreditsUpgradeTooltip from './CreditsUpgradeTooltip';
+import Notifications from '../../topNavbar/components/notifications/Notifications';
+import { Tooltip } from 'antd';
 
 const NewSidebar = () => {
 	const [info, setInfo] = useState({
@@ -165,11 +168,25 @@ const NewSidebar = () => {
 						<div className={s.veLogo} onClick={handleVeLogoClick}>
 							<VeLogoSvg width={34} height={20} />
 						</div>
-						<div
-							className={s.closeIcon}
-							onClick={() => handleSidebarStateChange(false)}
-						>
-							<SidebarClosingSvg width={24} height={24} />
+						<div className={s.rightContainer}>
+							<Tooltip
+								title={<Notifications />}
+								placement="bottom"
+								arrow={false}
+								color={'transparent'}
+								rootClassName={s.notificationsTooltip}
+							>
+								<div className={s.notificationsIcon}>
+									<NotificationsSvg width={21} height={21} />
+								</div>
+							</Tooltip>
+
+							<div
+								className={s.closeIcon}
+								onClick={() => handleSidebarStateChange(false)}
+							>
+								<SidebarClosingSvg width={24} height={24} />
+							</div>
 						</div>
 					</div>
 					<div className={s.mainContent}>

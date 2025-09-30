@@ -43,29 +43,48 @@
 					fill: var(--primary-button);
 				}
 			}
-			.closeIcon {
+			.rightContainer {
 				display: flex;
-				width: 40px;
-				height: 40px;
-				padding: 12px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				flex-shrink: 0;
-				border-radius: 100px;
-				cursor: pointer;
-				border: 1px solid transparent;
-				&:hover {
-					background: var(--background-color, #1b1c1d);
-					border: 1px solid var(--stroke);
+
+				.notificationsIcon {
+					padding: 12px;
+					display: flex;
+					width: 40px;
+					height: 40px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+
+					svg {
+						flex-shrink: 0;
+					}
 				}
 
-				:global(svg) {
+				.closeIcon {
+					display: flex;
+					width: 40px;
+					height: 40px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
 					flex-shrink: 0;
-				}
+					border-radius: 100px;
+					cursor: pointer;
+					border: 1px solid transparent;
+					&:hover {
+						background: var(--background-color, #1b1c1d);
+						border: 1px solid var(--stroke);
+					}
 
-				:global(svg) path {
-					stroke: var(--primary-font);
+					:global(svg) {
+						flex-shrink: 0;
+					}
+
+					:global(svg) path {
+						stroke: var(--primary-font);
+					}
 				}
 			}
 		}
@@ -270,5 +289,13 @@
 		:global(svg) path {
 			stroke: var(--primary-font);
 		}
+	}
+}
+
+.notificationsTooltip {
+	max-width: unset;
+
+	:global(.notificationsContainer) {
+		top: 0;
 	}
 }

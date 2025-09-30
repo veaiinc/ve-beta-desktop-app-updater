@@ -128,7 +128,7 @@ const SidebarMainContent = ({
 				</div>
 			</div>
 			<div className={s.sidebarChats}>
-				{expanded && activeType === 'chats' && <ChatHistory />}
+				{expanded && activeType === 'chats' && <ChatHistory showNewChatBtn={false} />}
 			</div>
 		</div>
 	);
