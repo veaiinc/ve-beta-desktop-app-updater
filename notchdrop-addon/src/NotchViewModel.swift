@@ -12,6 +12,7 @@ class NotchViewModel: NSObject, ObservableObject {
         self.inset = inset
         super.init()
         setupCancellables()
+        // Calendar will be initialized directly by CalendarView
     }
 
     deinit {
@@ -37,12 +38,13 @@ class NotchViewModel: NSObject, ObservableObject {
                 height: DynamicIslandTheme.expandedHeight
             )
         } else {
-            // Normal mode - show media controllers if available
-            let baseWidth: CGFloat = 580  // Width without media controllers
+            // Normal mode - show calendar and media controllers if available
+            let baseWidth: CGFloat = 580  // Width without any additional components
+            let calendarWidth: CGFloat = 200  // Width of Boring Notch style calendar component
             let spotifyWidth: CGFloat = 160  // Width of Spotify controller
             let youtubeWidth: CGFloat = showVideoPlayer ? 300 : 200  // Width of YouTube player (300) vs controller (200)
             let mediaWidth = (hasActiveMusic ? spotifyWidth : 0) + (hasActiveVideo ? youtubeWidth : 0)
-            let totalWidth = baseWidth + mediaWidth
+            let totalWidth = baseWidth + calendarWidth + mediaWidth
             
             return .init(
                 width: totalWidth,
@@ -100,6 +102,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var screenRect: CGRect = .zero
     @Published var optionKeyPressed: Bool = false
     @Published var hasActiveMusic: Bool = false
+    @Published var isMusicPlaying: Bool = false
     @Published var hasActiveVideo: Bool = false
     @Published var videoTitle: String = ""
     @Published var videoChannel: String = ""

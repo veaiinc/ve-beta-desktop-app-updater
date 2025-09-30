@@ -80,13 +80,13 @@ struct NotchView: View {
                     // Media is playing - show appropriate indicator
                     if vm.hasActiveMusic && vm.hasActiveVideo {
                         // Both music and video - show combined indicator
-                        MediaCollapsedIndicator(showMusic: true, showVideo: true)
+                        MediaCollapsedIndicator(vm: vm, showMusic: vm.hasActiveMusic, showVideo: vm.hasActiveVideo)
                     } else if vm.hasActiveMusic {
                         // Music only - show music indicator
-                        MediaCollapsedIndicator(showMusic: true, showVideo: false)
+                        MediaCollapsedIndicator(vm: vm, showMusic: vm.hasActiveMusic, showVideo: false)
                     } else {
                         // Video only - show video indicator
-                        MediaCollapsedIndicator(showMusic: false, showVideo: true)
+                        MediaCollapsedIndicator(vm: vm, showMusic: false, showVideo: vm.hasActiveVideo)
                     }
                 } else {
                     Text("")//empty state
@@ -190,10 +190,13 @@ struct NotchView: View {
     
     // Media indicator for collapsed state - supports both music and video
     struct MediaCollapsedIndicator: View {
+        let vm: NotchViewModel
         let showMusic: Bool
         let showVideo: Bool
         @State private var currentAlbumArt: NSImage? = nil
         @State private var phase: CGFloat = 0
+        @State private var playbackPollTimer: Timer? = nil
+        @State private var waveTimer: Timer? = nil
         
         var body: some View {
             HStack(spacing: 6) {
@@ -265,10 +268,8 @@ struct NotchView: View {
                 }
             }
             .onAppear {
-                // Start wave animation
-                withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                    phase = .pi
-                }
+                // Start/stop wave animation based on closed state and real playback
+                updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
                 
                 // Get current album artwork (only if showing music)
                 if showMusic {
@@ -279,7 +280,58 @@ struct NotchView: View {
                         getCurrentAlbumArt()
                     }
                 }
+
+                // Lightweight polling to keep collapsed indicator in sync
+                playbackPollTimer?.invalidate()
+                playbackPollTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { _ in
+                    updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
+                }
             }
+            .onChange(of: vm.status) { _, newStatus in
+                updateWave(active: newStatus == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
+            }
+            .onChange(of: vm.isMusicPlaying) { _, isPlaying in
+                updateWave(active: vm.status == .closed && (isPlaying || vm.isVideoPlaying))
+            }
+            .onChange(of: vm.isVideoPlaying) { _, isPlaying in
+                updateWave(active: vm.status == .closed && (isPlaying || vm.isMusicPlaying))
+            }
+            .onDisappear {
+                playbackPollTimer?.invalidate()
+                playbackPollTimer = nil
+                stopWave()
+            }
+            .onChange(of: vm.hasActiveMusic) { _, _ in
+                updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
+            }
+        }
+        
+        private func startWave() {
+            stopWave()
+            // Drive phase manually for reliable animation
+            waveTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { _ in
+                phase += 0.2
+                if phase > .pi * 2 { phase = 0 }
+            }
+        }
+        
+        private func stopWave() {
+            waveTimer?.invalidate()
+            waveTimer = nil
+            phase = 0
+        }
+        
+        private func updateWave(active: Bool) {
+            if active {
+                startWave()
+            } else {
+                stopWave()
+            }
+        }
+
+        private func systemIsPlaying() -> Bool {
+            // Prefer view model's playback state to avoid MediaPlayer import in this file
+            return vm.isMusicPlaying
         }
         
         private func getCurrentAlbumArt() {

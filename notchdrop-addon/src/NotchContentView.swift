@@ -344,8 +344,12 @@ struct DynamicIslandContentView: View {
                                         .frame(width: 90, height: 90)
                                         .transition(.scale.combined(with: .opacity))
                                     
-                                    // Media Controllers Row
+                                    // Media Controllers and Calendar Row
                                     HStack(spacing: 12) {
+                                        // Boring Notch Style Calendar - always show when not in chat mode and not recording
+                                        BoringNotchCalendarWithPermissions()
+                                            .transition(.scale.combined(with: .opacity))
+                                        
                                         // Spotify Media Controller - only show when music is playing
                                         if vm.hasActiveMusic {
                                             SpotifyMediaController(vm: vm)
@@ -413,6 +417,7 @@ struct DynamicIslandContentView: View {
         
         // Update hasActiveMusic based on multiple detection methods
         vm.hasActiveMusic = spotifyRunning || hasSystemMedia || isPlaying
+        vm.isMusicPlaying = isPlaying
         
         // Detect YouTube videos
         detectYouTubeVideo()
@@ -439,6 +444,7 @@ struct DynamicIslandContentView: View {
         
         // Update YouTube state
         vm.hasActiveVideo = youtubeFromBrowser || youtubeFromMedia
+        vm.isVideoPlaying = vm.hasActiveVideo
     }
     
     private func checkBrowserForYouTube() -> Bool {
