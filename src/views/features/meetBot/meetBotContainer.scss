@@ -200,6 +200,19 @@
 		flex-direction: column;
 		gap: 24px;
 
+		.summary-in-progress-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 12px;
+			color: var(--secondary-font, #94989e);
+			font-size: 14px;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+			width: 100%;
+		}
+
 		.transcript-list-container {
 			flex-grow: 1;
 			overflow-y: auto;

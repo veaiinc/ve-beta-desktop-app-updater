@@ -11,6 +11,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ReactComponent as UserIcon } from '../../../assets/svg/transcription/userIcon.svg';
 import { ReactComponent as NeedHelpIcon } from '../../../assets/svg/transcription/neddhelp.svg';
 import { ReactComponent as ActionIcon } from '../../../assets/svg/transcription/action.svg';
+import Spinner from '../loaders/Spinner';
 
 const AiTranscriptionSuggestions = ({
 	closeModal,
@@ -21,12 +22,15 @@ const AiTranscriptionSuggestions = ({
 	files = [],
 	activeTab = null,
 	allSuggestions = [],
+	revampedPrompt = [],
+	isRevampedPromptLoading = false,
+	isRevampedPrompt = false,
+	sessionId,
 }) => {
 	const {
 		templates: { updateStateValues },
 	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
-	const sessionId = searchParams.get('sId');
 	// const [info, setInfo] = useState({
 	// 	sessionId: null,
 	// });
@@ -222,6 +226,71 @@ const AiTranscriptionSuggestions = ({
 		}
 	};
 
+	const renderRevampedPrompt = (prompt) => {
+		if (prompt.entity === 'user') {
+			return (
+				<div
+					className={s.userQuestionContainer}
+					onClick={() => handleActionClick(prompt?.prompt || '')}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+						<UserIcon />
+						<div className={s.questionText}>{prompt?.prompt || ''}</div>
+					</div>
+
+					{/* <button className={s.askUserButton}>Ask User</button> */}
+				</div>
+			);
+		}
+		if (prompt.entity === 'search_agent') {
+			return (
+				<div
+					className={s.aiQuestionContainer}
+					onClick={() => handleActionClick(prompt?.prompt || '', true)}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+						<NeedHelpIcon />
+						<div className={s.questionText}>{prompt?.prompt || ''}</div>
+					</div>
+					{/* <div className={s.needHelpButton}>Need help?</div> */}
+				</div>
+			);
+		}
+		if (prompt.entity.endsWith('_agent')) {
+			return (
+				<div
+					className={s.actionsContainer}
+					onClick={() => handleActionClick(prompt?.prompt || '')}
+				>
+					{/* <div className={s.dot}></div> */}
+					<ActionIcon />
+					<div className={s.actionDetails}>
+						<div className={s.actionName}>{prompt?.prompt}</div>
+						{/* <div className={s.promptText}>{prompt?.prompt || ''}</div> */}
+						{/* <button className={s.takeActionButton}>Run</button> */}
+					</div>
+				</div>
+			);
+		}
+		if (prompt.entity === 'file') {
+			return (
+				<div className={s.filesContainer} onClick={() => handleFileClick(prompt)}>
+					<div className={s.file}>{prompt?.name}</div>
+				</div>
+			);
+		}
+		if (prompt.entity === '') {
+			return (
+				<div
+					className={s.aiQuestionContainer}
+					onClick={() => handleActionClick(prompt?.prompt || '', true)}
+				>
+					<div className={s.questionText}>{prompt?.prompt || ''}</div>
+				</div>
+			);
+		}
+	};
+
 	return (
 		<div
 			className={s.aiTranscriptionSuggestions}
@@ -237,7 +306,6 @@ const AiTranscriptionSuggestions = ({
 					<div className={s.text}>Ambient Assistance</div>
 				</div>
 			</div> */}
-
 			<div
 				className={s.body}
 				ref={bodyRef}
@@ -247,14 +315,38 @@ const AiTranscriptionSuggestions = ({
 			>
 				{activeTab === 'all' && (
 					<div className={s.allSuggestionsContainer}>
-						{allSuggestions?.map((suggestion, index) => (
-							<Fragment key={suggestion?.reference_id || suggestion?.id || index}>
-								{renderAllSuggestions(suggestion)}
-							</Fragment>
-						))}
-
-						{allSuggestions?.length === 0 && (
-							<div className="meet-transcript-empty">No data.</div>
+						{isRevampedPrompt ? (
+							<>
+								{isRevampedPromptLoading ? (
+									<div className="meet-transcript-empty">
+										<Spinner size={24} />
+									</div>
+								) : revampedPrompt?.length === 0 ? (
+									<div className="meet-transcript-empty">No data.</div>
+								) : (
+									revampedPrompt?.map((prompt, index) => (
+										<Fragment key={prompt?.reference_id || prompt?.id || index}>
+											{renderRevampedPrompt(prompt)}
+										</Fragment>
+									))
+								)}
+							</>
+						) : (
+							<>
+								{allSuggestions?.length === 0 ? (
+									<div className="meet-transcript-empty">No data.</div>
+								) : (
+									allSuggestions?.map((suggestion, index) => (
+										<Fragment
+											key={
+												suggestion?.reference_id || suggestion?.id || index
+											}
+										>
+											{renderAllSuggestions(suggestion)}
+										</Fragment>
+									))
+								)}
+							</>
 						)}
 					</div>
 				)}

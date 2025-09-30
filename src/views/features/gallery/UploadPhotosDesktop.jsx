@@ -6,14 +6,14 @@ import { ReactComponent as BackIcon } from '../../../assets/svg/gallery/back-gra
 import WaterMarkComponent from '../../components/gallery/addGallery/WaterMarkComponent';
 import UploadStatusComponent from '../../components/gallery/addGallery/UploadStatusComponent';
 import randomize from 'randomatic';
-import moment from 'moment';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+// import moment from 'moment';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+// import axios from 'axios';
 import UploadCompletedPopup from '../../components/gallery/addGallery/UploadCompletedPopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import Context from '../../../context/context';
-import { uploadImage } from '../../../helpers/uploadImage';
-import ObjectID from 'bson-objectid';
+// import { uploadImage } from '../../../helpers/uploadImage';
+// import ObjectID from 'bson-objectid';
 import ReactModal from '../../components/modalsV2';
 
 const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onStartUpload }) => {
@@ -63,7 +63,7 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 		isPopupOpen: false,
 		title: '',
 		isRefreshPopupOpen: false,
-		isAiEnabled: false,
+		isAiEnabled: true,
 		isUploadComplete: false,
 		scaleWatermark: 0.15,
 		watermarkOpacity: 1,

@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import Context from '../context/context';
-// import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
-import useRecallStream from '../hooks/useRecallStream';
 import useMeetingAudioRecorder from '../hooks/useMeetingAudioRecorder';
 import audioStorageService from '../services/audioStorageService';
 import ObjectID from 'bson-objectid';
@@ -13,7 +11,7 @@ import OverlayNotification, { useOverlayNotification } from './components/Overla
 import './overlay.scss';
 import useAssemblyTranscription from './hooks/useAssemblyTranscription';
 import { useDispatch } from '@zubridge/electron';
-import { useStore } from '../store/store';
+import { useStore, storeActions } from '../store/store';
 
 const OverlayApp = () => {
 	const containerRef = useRef(null);
@@ -30,7 +28,7 @@ const OverlayApp = () => {
 	// Custom notification system
 	const notification = useOverlayNotification();
 	const dispatch = useDispatch();
-	const { pastMeetings, actions: meetingActions } = useStore((state) => state.meeting) || {};
+	const { pastMeetings } = useStore((state) => state.meeting) || {};
 
 	const [info, setInfo] = useState({
 		isMeetIsOngoing: false,
@@ -143,13 +141,6 @@ const OverlayApp = () => {
 
 	// const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
 	// 	useLiveIntelligenceStream();
-
-	// Recall Stream Hook for Live Intelligence
-	const {
-		createWebSocketConnection: createRecallConnection,
-		closeWebSocketConnection: closeRecallConnection,
-		sendMessage: sendRecallMessage,
-	} = useRecallStream();
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -392,7 +383,7 @@ const OverlayApp = () => {
 				};
 
 				dispatch({
-					type: meetingActions.SET_PAST_MEETINGS,
+					type: storeActions.meeting.SET_PAST_MEETINGS,
 					payload,
 				});
 			}
@@ -403,7 +394,7 @@ const OverlayApp = () => {
 
 			// Store meeting data and ID for later use
 			dispatch({
-				type: meetingActions.SET_ACTIVE_MEETING_ID,
+				type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
 				payload: meetingData._id,
 			});
 
@@ -478,9 +469,14 @@ const OverlayApp = () => {
 
 		sessionIdRef.current = null;
 
+		dispatch({
+			type: storeActions.meeting.ADD_SUMMARY_IN_PROGRESS,
+			payload: currentMeetingId,
+		});
+
 		stopRecording({ meetingId: info?.meetingData?._id });
 		dispatch({
-			type: meetingActions.SET_ACTIVE_MEETING_ID,
+			type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
 			payload: null,
 		});
 		// closeLiveIntelligenceConnection();
