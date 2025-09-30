@@ -127,21 +127,49 @@ struct DynamicIslandContentView: View {
                                 .disabled(vm.isConnecting)
                                 .opacity(vm.isConnecting ? 0.8 : 1.0)
                             } else if vm.showVoiceInterface {
-                                // Voice mode indicator (when split layout is visible)
-                                HStack(spacing: 8) {
-                                    WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                        .frame(width: 16, height: 16)
-                                    Text("Voice Agent")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                // Voice controls (mute/unmute and cancel buttons)
+                                HStack(spacing: 12) {
+                                    // Mute/Unmute toggle
+                                    Button(action: {
+                                        print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                                        vm.toggleVoiceMute()
+                                        print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+                                    }) {
+                                        Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.white)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                    
+                                    // Cancel/Disconnect button
+                                    Button(action: {
+                                        print("❌ Cancel button clicked")
+                                        vm.disconnectVoiceAssistant()
+                                    }) {
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .fill(Color.red)
+                                            .frame(width: 14, height: 14)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                                 .padding(.horizontal, 12)
-                                .padding(.vertical, 4)
-                                .background(DynamicIslandTheme.primaryGreen.opacity(0.1))
-                                .overlay(
-                                    Capsule().stroke(DynamicIslandTheme.primaryGreen.opacity(0.3), lineWidth: 1)
-                                )
-                                .clipShape(Capsule())
+                                .padding(.top, 2) // Move left icons up to align with right icons
+                                .padding(.bottom, 6)
+                                .background(Color.clear) // Transparent background
                             } else {
                                 // Recording controls
                                 HStack(spacing: 4) {
@@ -362,66 +390,106 @@ struct DynamicIslandContentView: View {
     }
 }
 
-// MARK: - Voice Split Layout (UI parity)
+// MARK: - Voice Split Layout (New Design)
 struct VoiceSplitLayout: View {
     @ObservedObject var vm: NotchViewModel
 
     var body: some View {
-        HStack(spacing: 8) {
-            // Left: conversation list (real messages from LiveKit)
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 8) {
-                        if vm.voiceMessages.isEmpty {
-                            // Show connection status when no messages
-                            VoiceMessageBubble(
-                                sender: "System",
-                                text: vm.voiceConnectionStatus == .connected ?
-                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
-                                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected")
-                            )
-                        } else {
-                            // Show actual conversation messages
-                            ForEach(vm.voiceMessages) { message in
-                                VoiceMessageBubble(
-                                    sender: message.sender,
-                                    text: message.content,
-                                    isFromAgent: message.isFromAgent
-                                )
-                                .id(message.id)
-                            }
-                        }
-                        
-                        // Show current status only when there are no voice messages
-                        if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
-                            VoiceMessageBubble(
-                                sender: "Status",
-                                text: vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...",
-                                isStatus: true
-                            )
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
-                .onChange(of: vm.voiceMessages.count) { _, _ in
-                    // Auto-scroll to latest message
-                    if let lastMessage = vm.voiceMessages.last {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(8)
-            .background(Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            // .border(DynamicIslandTheme.stroke.opacity(0.3), lineWidth: 0.5)
-
-            // Right: assistant controls circle (restore original functionality)
-            VoiceControlsCircle(vm: vm)
+        VStack(spacing: 0) {
+            // Main content area with transcriptions (controls are now in top left)
+            VoiceTranscriptionArea(vm: vm)
         }
         .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain to dynamic island width minus padding
+        .background(Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - Voice Top Controls Component
+struct VoiceTopControls: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Left side: Mute/Unmute toggle
+            Button(action: {
+                print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                vm.toggleVoiceMute()
+                print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+            }) {
+                Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(vm.isMicrophoneMuted ? Color.red : DynamicIslandTheme.primaryGreen)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            // Cancel/Disconnect button
+            Button(action: {
+                print("❌ Cancel button clicked")
+                vm.disconnectVoiceAssistant()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            Spacer()
+        }
+        // .padding(.horizontal, 16)
+        // .padding(.vertical, 8)
+        // .background(Color(red: 0.1, green: 0.1, blue: 0.1)) // Darker background for controls
+    }
+}
+
+// MARK: - Voice Transcription Area Component
+struct VoiceTranscriptionArea: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            if vm.voiceMessages.isEmpty {
+                // Show connection status when no messages - centered text
+                Text(vm.voiceConnectionStatus == .connected ?
+                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
+                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
+            } else {
+                // Show only the most recent message - positioned towards top
+                if let lastMessage = vm.voiceMessages.last {
+                    Text(lastMessage.content)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 20)
+                        .id(lastMessage.id)
+                }
+            }
+            
+            // Show current status only when there are no voice messages
+            if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
+                Text(vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
     }
 }
 
@@ -434,37 +502,37 @@ struct VoiceMessageBubble: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
-                Circle()
-                    .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
-                          isStatus ? Color.yellow :
-                          Color(red: 0.173, green: 0.176, blue: 0.180))
-                    .frame(width: 6, height: 6)
+                // Circle()
+                //     .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
+                //           isStatus ? Color.yellow :
+                //           Color(red: 0.173, green: 0.176, blue: 0.180))
+                //     .frame(width: 6, height: 6)
                 Text(sender)
                     .font(.system(size: 9, weight: .medium))
-                    .foregroundColor(DynamicIslandTheme.textMuted)
+                    // .foregroundColor(DynamicIslandTheme.textMuted)
                 Spacer()
             }
             Text(text)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
+                .font(.system(size: 20, weight: .medium))
+                // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
                 .multilineTextAlignment(.leading)
         }
-        .padding(8)
-        .background(
-            isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
-            isStatus ? Color.clear :
-            Color.clear
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(
-                    isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
-                    isStatus ? Color.clear :
-                    DynamicIslandTheme.stroke.opacity(0.3),
-                    lineWidth: 0.5
-                )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        // .padding(8)
+        // .background(
+        //     isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
+        //     isStatus ? Color.clear :
+        //     Color.clear
+        // )
+        // .overlay(
+        //     RoundedRectangle(cornerRadius: 8)
+        //         .stroke(
+        //             isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
+        //             isStatus ? Color.clear :
+        //             DynamicIslandTheme.stroke.opacity(0.3),
+        //             lineWidth: 0.5
+        //         )
+        // )
+        // .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
