@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import s from '../../../../assets/scss/chat/chatComponents/ChatRightBar.module.scss';
+import s from '../../../../assets/scss/chat/chatComponents/chatRightBar.module.scss';
 import CitationsModal from '../../modalsV2/chat/CitationsModal';
 
 const ChatRightBar = ({ activeRightBar, handleRightBarToggle, handleCloseCitationsModal }) => {
