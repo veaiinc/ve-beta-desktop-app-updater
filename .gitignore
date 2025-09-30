@@ -66,3 +66,4 @@ notchdrop-addon/.build
 Package.resolved
 .claude/
 CLAUDE.md
+.vscode

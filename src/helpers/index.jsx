@@ -120,38 +120,76 @@ export const getRelativeDayLabel = (timestamp) => {
 };
 
 export const getLocationsDetails = async () => {
-	const response = await axios.get(
-		'https://ipapi.co/json/?key=B17oRoM25399fyZGLiTtq5qbfNE2XaleKkzTmKdnPzGJfgo1UY',
-	);
-	const {
-		country_code,
-		region_code,
-		region,
-		country_name,
-		city,
-		timezone,
-		postal,
-		currency,
-		ip,
-	} = response?.data;
+	const localStorageLocationDetails = localStorage.getItem('locationDetails');
+	if (
+		(localStorageLocationDetails && localStorageLocationDetails !== 'undefined') ||
+		localStorageLocationDetails !== null
+	) {
+		return JSON.parse(localStorageLocationDetails);
+	}
+
+	var locationDetailsUrl = 'https://ipapi.co/json';
+	var locationDetailsResponse = null;
+
+	try {
+		const response = await axios.get(locationDetailsUrl);
+		const {
+			country_code,
+			region_code,
+			region,
+			country_name,
+			city,
+			timezone,
+			postal,
+			currency,
+			ip,
+		} = response?.data;
+		locationDetailsResponse = response?.data;
+	} catch (error) {
+		console.error('Location API Error:', error.message, error.response?.status);
+		if (error?.response?.status === 429) {
+			if (import.meta.env.VITE_IPAPI_API_KEY) {
+				locationDetailsUrl = `https://ipapi.co/json?key=${
+					import.meta.env.VITE_IPAPI_API_KEY
+				}`;
+			}
+			const response = await axios.get(locationDetailsUrl);
+			const {
+				country_code,
+				region_code,
+				region,
+				country_name,
+				city,
+				timezone,
+				postal,
+				currency,
+				ip,
+			} = response?.data;
+			locationDetailsResponse = response?.data;
+		}
+	}
 	const locationDetails = {
-		countryCode: country_code,
-		countryRegionCode: region_code,
-		countryRegion: region,
-		country: country_name,
-		city,
-		timezone,
-		postalCode: postal || '',
-		currency,
+		countryCode: locationDetailsResponse?.country_code,
+		countryRegionCode: locationDetailsResponse?.region_code,
+		countryRegion: locationDetailsResponse?.region,
+		country: locationDetailsResponse?.country_name,
+		city: locationDetailsResponse?.city,
+		timezone: locationDetailsResponse?.timezone,
+		postalCode: locationDetailsResponse?.postal || '',
+		currency: locationDetailsResponse?.currency,
 	};
 
-	let apiRegion = 'ap-south-1';
+	let apiRegion = 'us-east-1';
 	// Dynamic origin selection based on country/region
-	if (country_code === 'IN') {
+	if (locationDetailsResponse?.country_code === 'IN') {
 		// Route Indian traffic to ap-south-1
 		apiRegion = 'ap-south-1';
-	} else if (country_code === 'US') {
-		if (region_code === 'CA' || region_code === 'OR' || region_code === 'WA') {
+	} else if (locationDetailsResponse?.country_code === 'US') {
+		if (
+			locationDetailsResponse?.region_code === 'CA' ||
+			locationDetailsResponse?.region_code === 'OR' ||
+			locationDetailsResponse?.region_code === 'WA'
+		) {
 			apiRegion = 'us-east-1';
 		} else {
 			// Default to us-east-1
@@ -162,7 +200,7 @@ export const getLocationsDetails = async () => {
 	locationDetails.region = apiRegion;
 	localStorage.setItem('region', apiRegion);
 	localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
-	localStorage.setItem('ipAddress', ip);
+	localStorage.setItem('ipAddress', locationDetailsResponse?.ip);
 	return locationDetails;
 };
 
