@@ -20,6 +20,7 @@ import UnderMaintainence from '../features/underMaintainence/underMaintainence';
 import { internalServerEmitter } from '../../services';
 import InternalServer from '../components/globalComponents/InternalServer';
 import NewSidebar from '../components/sidebar/newSidebar/NewSidebar';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 
 const AuthWrapper = ({
 	title,
@@ -33,6 +34,7 @@ const AuthWrapper = ({
 	showSidebar = true,
 }) => {
 	const { isOnline } = useNetworkStatus();
+	const { workspaceMode } = useWorkspaceMode();
 
 	const showPushNotification = useCallback((payload) => {
 		const { title, body } = payload.notification || {};
@@ -121,8 +123,8 @@ const AuthWrapper = ({
 					className="auth-wrapper-container"
 				>
 					{/* {layoutModeComponentMap[layoutMode]} */}
-					<TopNavbar />
-					<NewSidebar />
+					{workspaceMode === 'stable' ? <NewSidebar /> : <TopNavbar />}
+
 					<div
 						style={{
 							flex: 1,

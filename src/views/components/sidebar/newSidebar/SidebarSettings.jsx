@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import s from '../../../../assets/scss/sidebar/sidebarSettings.module.scss';
 import { ReactComponent as MyProfileSvg } from '../../../../assets/svg/sidebar/my-profile.svg';
 import { ReactComponent as WorkspaceSvg } from '../../../../assets/svg/sidebar/workspace.svg';
@@ -85,7 +85,7 @@ const createWorkspace = { value: 'create-workspace', route: '/create-workspace' 
 
 const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, sidebarOpen }) => {
 	const {
-		profileInfo: { userWorkSpaceList },
+		profileInfo: { userWorkSpaceList, getUserWorkSpaceList },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -97,6 +97,12 @@ const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, 
 	const navigate = useNavigate();
 
 	const hasMoreThanOneWorkspace = userWorkSpaceList?.length > 1;
+
+	useEffect(() => {
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList]);
 
 	const handleItemClick = useCallback(
 		(item) => {
