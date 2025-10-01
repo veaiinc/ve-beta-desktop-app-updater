@@ -14,6 +14,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			createAccountUsingEmail,
 			checkAccountExistsUsingEmail,
 			verifyEmailVerificationCode,
+			getLocationDetails,
 		},
 		profileInfo: { getWorkSpaceInfo },
 	} = useContext(Context);
