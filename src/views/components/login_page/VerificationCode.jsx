@@ -15,6 +15,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			createAccountUsingEmail,
 			checkAccountExistsUsingEmail,
 			verifyEmailVerificationCode,
+			getLocationDetails,
 		},
 		profileInfo: { getWorkSpaceInfo },
 	} = useContext(Context);
@@ -60,8 +61,6 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 				localStorage.removeItem('otpBlock');
 			}
 		}
-
-		handleLocationDetailsData();
 
 		return () => {
 			clearInterval(info?.resendTimerInterval);

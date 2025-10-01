@@ -1,7 +1,21 @@
 import { ApolloClient, ApolloLink, HttpLink, from, InMemoryCache } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
+import { Observable } from '@apollo/client/utilities';
 import Cookies from 'js-cookie';
 import getBaseUrl from './baseUrls.js';
+import getSharedRefreshToken from './utils/sharedTokenRefresh.js';
+
+const refreshTokenForGraphQL = async () => {
+	const refreshResult = await getSharedRefreshToken();
+
+	// If refresh failed, return the error
+	if (!refreshResult.success) {
+		return [false, refreshResult.refreshTokenResponse, refreshResult.status];
+	}
+
+	// If refresh succeeded, return the new token
+	return [true, refreshResult.accessToken, refreshResult.status];
+};
 
 const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) => {
 	if (graphQLErrors) {
@@ -14,7 +28,40 @@ const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) 
 	}
 
 	if (networkError) {
-		console.log(`[Network error]: ${networkError}`);
+		if (
+			networkError.statusCode === 401 ||
+			(networkError.message && networkError.message.includes('401')) ||
+			(networkError.message && networkError.message.includes('jwt expired'))
+		) {
+			return new Observable((observer) => {
+				refreshTokenForGraphQL()
+					.then(([success, accessToken, status]) => {
+						if (success) {
+							operation.setContext({
+								...operation.getContext(),
+								headers: {
+									...operation.getContext().headers,
+									authorization: accessToken ? `Bearer ${accessToken}` : '',
+								},
+							});
+
+							const retryObservable = forward(operation);
+							retryObservable.subscribe({
+								next: (result) => observer.next(result),
+								error: (err) => observer.error(err),
+								complete: () => observer.complete(),
+							});
+						} else {
+							console.error('Token refresh failed:', status);
+							observer.error(networkError);
+						}
+					})
+					.catch((error) => {
+						console.error('Token refresh failed:', error);
+						observer.error(networkError);
+					});
+			});
+		}
 	}
 
 	return forward(operation);
