@@ -362,11 +362,9 @@ const betaRoutes = [
 	{
 		path: '/galleries',
 		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
-					<AddGallery />
-				</AuthWrapper>
-			</Suspense>
+			<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
+				<AddGallery />
+			</AuthWrapper>
 		),
 	},
 	{
