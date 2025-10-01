@@ -318,38 +318,17 @@ struct DynamicIslandContentView: View {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)
                         } else {
-                            // Chat input section with arrow icon inside - matches image layout
+                            // Chat input section with voice/arrow icon inside - matches image layout
                             ChatTextAreaView(
                                 chatInput: $vm.chatInput,
                                 isTextFieldActive: $isTextFieldActive,
                                 vm: vm
                             )
-                            .frame(width: (vm.isChatMode && !vm.isRecording) ? 510 : 400) // Dynamic width: 400px initially, 510px when focused (but 400px in meeting mode)
+                            .frame(width: vm.isRecording ? 410 : 510) // 410px in meeting mode, 510px otherwise
                             .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                             .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
+                            .animation(.easeInOut(duration: 0.3), value: vm.showVoiceInterface)
                             
-                            // Voice Mode button - only show when NOT recording AND chat not focused
-                            if !vm.isRecording && !vm.isChatMode {
-                                VoiceModeButton(vm: vm, onFocusChat: {
-                                    print("🎯 onFocusChat callback triggered")
-                                    // When voice mode button is clicked, focus the chat input
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        print("🎯 Setting chat input focused: true")
-                                        isChatInputFocused = true
-                                        isTextFieldActive = true
-                                        
-                                        // Ensure window is key for cursor to appear
-                                        if let window = NSApp.keyWindow {
-                                            window.makeKeyAndOrderFront(nil)
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                                window.makeFirstResponder(window.firstResponder)
-                                            }
-                                        }
-                                    }
-                                })
-                                    .frame(width: 100, height: 100) // Larger voice mode button to match image
-                                    .transition(.scale.combined(with: .opacity))
-                            }
                             
                             // Webcam button - only show when recording
                             if vm.isRecording {
@@ -680,7 +659,8 @@ struct ChatTextAreaView: View {
                 .foregroundColor(DynamicIslandTheme.white)
                 .accentColor(DynamicIslandTheme.primaryGreen) // Green cursor for better visibility
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 16) // Extra bottom padding
                 .padding(.trailing, 40) // Add space for arrow icon
                 .background(Color.clear)
                 .focused($isChatInputFocused)
@@ -723,27 +703,43 @@ struct ChatTextAreaView: View {
                     }
                 }
             
-            // Arrow icon inside the input box (bottom-right)
+            // Voice/Arrow icon inside the input box (bottom-right)
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     Button(action: {
-                        print("🎯 Arrow button clicked - submitting chat")
-                        if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            vm.submitChat()
+                        if isChatInputFocused {
+                            // Arrow mode - submit chat
+                            print("🎯 Arrow button clicked - submitting chat")
+                            if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                vm.submitChat()
+                            }
+                        } else {
+                            // Voice mode - activate voice assistant
+                            print("🎤 Voice button clicked - activating voice assistant")
+                            // Ensure we don't accidentally focus the text area
+                            DispatchQueue.main.async {
+                                vm.connectVoiceAssistant()
+                            }
                         }
                     }) {
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white)
-                            .frame(width: 24, height: 24)
-                            // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                        if isChatInputFocused {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        } else {
+                            WaveIcon(color: .white)
+                                .frame(width: 16, height: 16)
+                        }
                     }
                     .buttonStyle(PlainButtonStyle())
                     .padding(.trailing, 8)
                     .padding(.bottom, 8)
+                    .contentShape(Rectangle()) // Ensure button area is properly defined
+                    .allowsHitTesting(true) // Ensure button can receive taps
                 }
             }
                 .onKeyPress(keys: [.return]) { event in
@@ -809,11 +805,31 @@ struct ChatTextAreaView: View {
                         calculateTextEditorWidth()
                     }
                 }
+                .onChange(of: vm.showVoiceInterface) { oldValue, newValue in
+                    // Adjust width when voice interface state changes
+                    withAnimation(DynamicIslandTheme.expansionAnimation) {
+                        calculateTextEditorWidth()
+                    }
+                }
         }
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
-        .onTapGesture {
-            print("🎯 Chat area tapped - attempting to focus text input")
+        .onTapGesture { location in
+            print("🎯 Chat area tapped at location: \(location) - attempting to focus text input")
+            
+            // Check if tap is in the button area (bottom-right corner)
+            let currentWidth = vm.isRecording ? 410 : 510
+            let buttonArea = CGRect(
+                x: currentWidth - 40, // 40px from right edge
+                y: 100 - 40, // 40px from bottom edge
+                width: 40,
+                height: 40
+            )
+            
+            if buttonArea.contains(location) {
+                print("🎯 Tap detected in button area - ignoring chat focus")
+                return
+            }
             
             // Find the NotchDrop window specifically
             var notchWindow: NSWindow?
@@ -907,8 +923,8 @@ struct ChatTextAreaView: View {
     
     // MARK: - Width Calculation Helper
     private func calculateTextEditorWidth() {
-        // Dynamic width based on chat mode: 400px initially, 510px when focused (but 400px in meeting mode)
-        let calculatedWidth: CGFloat = (vm.isChatMode && !vm.isRecording) ? 510 : 400
+        // 410px in meeting mode (recording), 510px otherwise
+        let calculatedWidth: CGFloat = vm.isRecording ? 410 : 510
         
         textEditorWidth = calculatedWidth
     }
@@ -1448,63 +1464,6 @@ struct NotificationOverlayView: View {
     }
 }
 
-// MARK: - Voice Mode Button (Large circular button as shown in image)
-struct VoiceModeButton: View {
-    @ObservedObject var vm: NotchViewModel
-    @State private var isHovered: Bool = false
-    let onFocusChat: () -> Void
-    
-    var body: some View {
-        Button(action: {
-            print("🎤 Voice Mode button clicked - connecting to voice assistant")
-            // Connect to voice assistant instead of just enabling chat mode
-            vm.connectVoiceAssistant()
-        }) {
-            ZStack {
-                // Main circle with CSS properties
-                ZStack {
-                    // Background circle - border-radius: 100px; background: rgba(255, 255, 255, 0.01);
-                    Circle()
-                        .fill(Color.white.opacity(0.01))
-                        .frame(width: 90, height: 90)
-                    
-                  
-                    
-                    // Border - border: 1px solid #79ECC9;
-                     Circle()
-                         .stroke(Color(red: 0.475, green: 0.925, blue: 0.788), lineWidth: 1)
-                         .frame(width: 90, height: 90)
-                }
-                .scaleEffect(isHovered ? 1.05 : 1.0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-                
-                // Content with inline text
-                HStack(spacing: 2) {
-                    // "VOICE" text - bold
-                    Text("VOICE")
-                        .font(.custom("SF Pro Text", size: 10))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .tracking(1)
-                    
-                    // "MODE" text - semibold
-                    Text("MODE")
-                        .font(.custom("SF Pro Text", size: 10))
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .tracking(1)
-                }
-                .frame(width: 90, height: 90) // width: 90px; height: 90px;
-                .padding(.horizontal, 24) // padding: 6px 24px; (horizontal)
-                .padding(.vertical, 6)    // padding: 6px 24px; (vertical)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-        .onHover { hovering in
-            isHovered = hovering
-        }
-    }
-}
 
 // MARK: - Info Icon with Popup Menu
 struct InfoIconWithPopup: View {
