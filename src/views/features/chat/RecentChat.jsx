@@ -7,6 +7,8 @@ import React, {
 	useContext,
 	Fragment,
 	useLayoutEffect,
+	Suspense,
+	lazy,
 } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import {
@@ -16,7 +18,6 @@ import {
 } from '../../../helpers/chat/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
-import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/chat/ChatBox';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { FetchMoreLoaderComp } from '../../../helpers';
@@ -24,10 +25,11 @@ import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import ChatHeader from '../../components/chat/ChatHeader';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
-import Browser from '../../components/chat/chatComponents/Browser';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import ChatRightBar from '../../components/chat/chatComponents/ChatRightBar';
+const NoteComponentModal = lazy(() => import('../../components/notes/NoteComponentModal'));
+const Browser = lazy(() => import('../../components/chat/chatComponents/Browser'));
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -1179,12 +1181,16 @@ const RecentChat = ({
 							width: info?.openBrowser ? '50vw' : '0px',
 						}}
 					>
-						<Browser
-							sessionId={sessionId}
-							isOpen={info?.openBrowser}
-							browserData={browserData}
-							handleBrowserButtonClick={handleBrowserButtonClick}
-						/>
+						{info?.openBrowser && (
+							<Suspense fallback={'Loading...'}>
+								<Browser
+									sessionId={sessionId}
+									isOpen={info?.openBrowser}
+									browserData={browserData}
+									handleBrowserButtonClick={handleBrowserButtonClick}
+								/>
+							</Suspense>
+						)}
 					</div>
 				)}
 
@@ -1198,11 +1204,16 @@ const RecentChat = ({
 					)}
 				</div>
 			</div>
-			<NoteComponentModal
-				modalIsOpen={info?.noteModalIsOpen}
-				closeModal={handleNoteComponentModalClose}
-				sessionId={sessionId}
-			/>
+
+			{info?.noteModalIsOpen && (
+				<Suspense fallback={''}>
+					<NoteComponentModal
+						modalIsOpen={info?.noteModalIsOpen}
+						closeModal={handleNoteComponentModalClose}
+						sessionId={sessionId}
+					/>
+				</Suspense>
+			)}
 		</>
 	);
 };
