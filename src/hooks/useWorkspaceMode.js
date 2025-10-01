@@ -16,6 +16,7 @@ export const publicRoutesList = [
 	'/forefront',
 	'/onboarding',
 	'/verify-user',
+	'/pricing',
 	'/referral/:referralCode',
 	'/privacy-policy',
 	'/terms-of-service',
