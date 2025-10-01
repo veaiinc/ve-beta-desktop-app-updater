@@ -12,10 +12,14 @@ const DownloadSection = forwardRef(({ iMacFrameRef, videoRef }, ref) => {
 						<span>Meet VE</span>
 					</div>
 					<h2 className={s.heading}>
-						the <span>Living mind</span> <br />
-						of your company
+						Your{' '}
+						<span>
+							Living <br />
+							Intelligence
+						</span>{' '}
+						Layer
 					</h2>
-					<p className={s.subheading}>Always-on . Real time . Acts before you ask.</p>
+					<p className={s.subsubheading}> formless - ambient - proactive!</p>
 				</div>
 
 				<div className={s.downloadButtons}>
@@ -23,6 +27,9 @@ const DownloadSection = forwardRef(({ iMacFrameRef, videoRef }, ref) => {
 						<span>Get it for free</span>
 					</Link>
 				</div>
+				<p className={s.subheading}>
+					Your invisible second mind moving life from intention to reality.
+				</p>
 
 				{/* iMac Frame - Desktop only */}
 				<div className={s.imacContainer}>
