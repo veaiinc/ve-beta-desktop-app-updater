@@ -490,7 +490,7 @@ const RecentChat = ({
 		//logic related to scroll button
 		const { scrollTop, scrollHeight, clientHeight } = chatContentRef.current;
 		const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-		const isNearBottom = distanceFromBottom < 5;
+		const isNearBottom = distanceFromBottom < 50;
 
 		if (isNearBottom && info?.showScrollButton) {
 			setInfo((prev) => ({
