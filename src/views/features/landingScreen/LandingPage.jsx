@@ -39,7 +39,7 @@ const getMacArchitecture = async () => {
 	}
 };
 
-// Function to get the appropriate desktop app download URL
+// Function to get the appropriate desktop app download
 const getDesktopAppDownloadUrl = async () => {
 	if (!isMac) return null;
 
