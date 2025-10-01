@@ -408,21 +408,22 @@ struct DynamicIslandContentView: View {
                     // Main content area
                     HStack(alignment: .center, spacing: 8) {
                         if vm.isTeamsView {
-                            // Teams view: Start card + interactive chat + webcam pinned right
-                            if !vm.isRecording {
-                                StartMeetingCard(vm: vm)
-                                    .frame(width: 220, height: 100)
+                            // Teams view: maintain even spacing between three blocks
+                            HStack(spacing: 12) {
+                                if !vm.isRecording {
+                                    StartMeetingCard(vm: vm)
+                                        .frame(width: 220, height: 100)
+                                }
+                                ChatTextAreaView(
+                                    chatInput: $vm.chatInput,
+                                    isTextFieldActive: $isTextFieldActive,
+                                    vm: vm
+                                )
+                                .frame(width: 400, height: 100)
+                                .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
+                                WebcamButton(vm: vm)
+                                    .frame(width: 100, height: 100)
                             }
-                            ChatTextAreaView(
-                                chatInput: $vm.chatInput,
-                                isTextFieldActive: $isTextFieldActive,
-                                vm: vm
-                            )
-                            .frame(width: 400, height: 100)
-                            .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
-                            Spacer(minLength: 0)
-                            WebcamButton(vm: vm)
-                                .frame(width: 100, height: 100)
                         } else if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)

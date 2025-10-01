@@ -295,7 +295,9 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func toggleNotchLock() {
-        isNotchLocked.toggle()
+        let newValue = !isNotchLocked
+        print("🔒 Toggling notch lock -> \(newValue ? "LOCKED" : "UNLOCKED")")
+        isNotchLocked = newValue
         
         if isNotchLocked {
             // If locking, ensure notch is open
