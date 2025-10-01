@@ -173,21 +173,11 @@ struct DynamicIslandContentView: View {
                                     HStack(spacing: 6.0) {
                                         Image(systemName: "house")
                                             .font(.system(size: 14, weight: .regular))
-                                            .foregroundColor(vm.isTeamsView ? .white : .black)
-                                        if !vm.isTeamsView {
-                                            Text("Home")
-                                                .font(.system(size: 14, weight: .semibold))
-                                                .foregroundColor(.black)
-                                        }
+                                            .foregroundColor(.white)
                                     }
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
-                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .stroke(vm.isTeamsView ? Color.white.opacity(0.2) : Color.clear, lineWidth: 1)
-                                    )
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 4)
+                                    .background(Color.clear)
                                 }
                                 .buttonStyle(PlainButtonStyle())
 
@@ -198,18 +188,11 @@ struct DynamicIslandContentView: View {
                                     HStack(spacing: 6) {
                                         Text("Meeting AI")
                                             .font(.system(size: 15, weight: .semibold))
-                                            .foregroundColor(vm.isTeamsView ? .black : .white)
+                                            .foregroundColor(.white)
                                     }
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.white.opacity(0.06))
-                                    )
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .stroke(vm.isTeamsView ? Color.clear : Color.white.opacity(0.18), lineWidth: 1)
-                                    )
+                                    .padding(.horizontal, 4)
+                                    .padding(.vertical, 4)
+                                    .background(Color.clear)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 // Removed desktop and VE icons per request
@@ -1427,13 +1410,25 @@ struct WebcamButton: View {
                             .multilineTextAlignment(.center)
                     }
                 } else {
-                    // Default state - webcam icon (always show unless camera preview is active)
-                    VStack(spacing: 4) {
-                        WebcamIcon(color: DynamicIslandTheme.textMuted)
-                            .frame(width: 24, height: 24)
-                        Text("Webcam")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(DynamicIslandTheme.textMuted)
+                    // Default state - frosted circular button with icon and label
+                    ZStack {
+                        Circle()
+                            .fill(DynamicIslandTheme.cardMaterial)
+                            .frame(width: 100, height: 100)
+                            .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 2)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.18), lineWidth: 1.5)
+                                    .blur(radius: 0.3)
+                            )
+                        VStack(spacing: 10) {
+                            WebcamIcon(color: .white)
+                                .frame(width: 28, height: 28)
+                            Text("WEBCAM")
+                                .font(.system(size: 13, weight: .semibold))
+                                .kerning(0.6)
+                                .foregroundColor(.white)
+                        }
                     }
                 }
                 
