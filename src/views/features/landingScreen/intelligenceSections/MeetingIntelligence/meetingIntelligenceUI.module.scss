@@ -5,10 +5,11 @@
 	z-index: 1000;
 	overflow: visible;
 
-	// Hide on mobile devices
-	// @media (max-width: 768px) {
-	// 	display: none;
-	// }
+	// Mobile view adjustments
+	@media (max-width: 768px) {
+		min-height: auto;
+		padding: 40px 0;
+	}
 }
 
 .meetingIntelligenceUIInner {
@@ -22,6 +23,14 @@
 	justify-content: flex-start;
 	gap: 30px; // Add gap between cards
 	z-index: 2;
+
+	// Mobile: Static layout with normal spacing
+	@media (max-width: 768px) {
+		min-height: auto;
+		padding: 20px 16px;
+		gap: 16px;
+		justify-content: flex-start;
+	}
 
 	.dotGrid {
 		position: absolute;
@@ -70,6 +79,23 @@
 			max-width: 600px;
 			max-height: 600px;
 		}
+
+		// Mobile: Smaller and adjusted positioning
+		@media (max-width: 768px) {
+			top: 50px;
+			width: min(90vw, 400px);
+			height: min(90vw, 400px);
+			max-width: 400px;
+			max-height: 400px;
+			background-size: 15px 15px;
+
+			&::after {
+				top: 50px;
+				left: 50px;
+				width: 70%;
+				height: 300px;
+			}
+		}
 	}
 
 	.meetingOverlay {
@@ -85,13 +111,8 @@
 		}
 
 		@media (max-width: 1200px) {
-			max-width: min(70vw, 400px);
+			max-width: min(90vw, 400px);
 			max-height: min(30vw, 200px);
-		}
-
-		@media (max-width: 1024px) {
-			max-width: min(65vw, 350px);
-			max-height: min(25vw, 175px);
 		}
 	}
 
@@ -148,6 +169,34 @@
 
 			&.rightSide {
 				margin-right: clamp(15px, 8vw, 80px);
+			}
+		}
+
+		// Mobile: Simplified positioning for scroll animations
+		@media (max-width: 768px) {
+			max-width: 100%;
+			width: 100%;
+			margin: 0;
+			padding: 12px;
+			border-radius: 12px;
+			gap: 10px;
+			position: relative;
+
+			&.leftSide,
+			&.rightSide {
+				align-self: stretch;
+				margin-left: 0 !important;
+				margin-right: 0 !important;
+			}
+
+			&.leftSide {
+				background: rgba(40, 44, 48, 0.6);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+			}
+
+			&.rightSide {
+				background: rgba(121, 236, 201, 0.1);
+				border: 1px solid rgba(121, 236, 201, 0.2);
 			}
 		}
 	}
@@ -216,6 +265,19 @@
 			margin-left: auto;
 			margin-right: auto;
 		}
+
+		// Mobile: Full width for scroll animations
+		@media (max-width: 768px) {
+			width: 100%;
+			margin: 0;
+			position: relative;
+			gap: 8px;
+
+			&.leftSide,
+			&.rightSide {
+				width: 100%;
+			}
+		}
 	}
 
 	.suggestionLabel {
@@ -255,6 +317,13 @@
 		box-shadow: inset 0px 0px 20px 0px rgba(121, 236, 201, 0.15);
 		backdrop-filter: blur(10px);
 		width: 100%;
+
+		// Mobile: Adjusted padding and spacing
+		@media (max-width: 768px) {
+			padding: 16px;
+			gap: 20px;
+			border-radius: 12px;
+		}
 	}
 
 	.suggestionMessageText {
@@ -302,6 +371,21 @@
 		/* Responsive adjustments for laptop screens */
 		@media (max-width: 1440px) {
 			margin: -120px 0; // Move up more on smaller screens
+		}
+
+		// Mobile: Full width for scroll animations
+		@media (max-width: 768px) {
+			width: 100%;
+			margin: 0;
+			padding: 16px;
+			gap: 16px;
+			border-radius: 16px;
+			position: relative;
+
+			&.leftSide,
+			&.rightSide {
+				width: 100%;
+			}
 		}
 	}
 
