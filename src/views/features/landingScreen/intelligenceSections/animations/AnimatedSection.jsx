@@ -90,7 +90,7 @@ const AnimatedSection = memo(function AnimatedSection({
 			start: 'top top',
 			end: `+=${scrollAmount}%`,
 			scrub: 1,
-			// SNAP to ensure arc never stops in middle
+			// SNAP to ensure arc never stops in middle and to half-steps per card (title -> content)
 			snap: {
 				snapTo: (progress) => {
 					const idleEnd = idleScroll / scrollAmount;
@@ -101,7 +101,16 @@ const AnimatedSection = memo(function AnimatedSection({
 						// scrolling down (1) => OPEN; scrolling up (-1) => CLOSE
 						return lastDirection === 1 ? transitionEnd : idleEnd;
 					}
-					return progress; // Don't snap outside transition zone
+					// In cards zone, snap to nearest half of a card segment
+					if (progress >= transitionEnd) {
+						const cardsProgress = (progress - transitionEnd) / (1 - transitionEnd);
+						const segmentSize = 1 / cardCount;
+						const half = segmentSize / 2;
+						const snapped = Math.round(cardsProgress / half) * half;
+						const clamped = Math.min(Math.max(snapped, 0), 1);
+						return transitionEnd + clamped * (1 - transitionEnd);
+					}
+					return progress; // Don't snap outside transition/card zones
 				},
 				duration: { min: 0.2, max: 0.5 },
 				delay: 0.1,

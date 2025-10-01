@@ -28,7 +28,7 @@ const AnimatedActions = memo(function AnimatedActions({
 	const [currentIndex, setCurrentIndex] = useState(currentCardIndex);
 	const actionsContainerRef = useRef(null);
 	const initialContainerTopRef = useRef(0);
-
+	const shownStepByCardRef = useRef({}); // tracks per-card reveal step
 	// Capture container's original top-offset on mount
 	useLayoutEffect(() => {
 		const container = actionsContainerRef.current;
@@ -99,11 +99,12 @@ const AnimatedActions = memo(function AnimatedActions({
 				if (title) gsap.set(title, { autoAlpha: 1 });
 				if (required) gsap.set(required, { autoAlpha: 0, y: 20 });
 				if (content) gsap.set(content, { autoAlpha: 0, y: 20 });
+				shownStepByCardRef.current[currentCardIndex] = 0; // reset step for active card
 			}
 		});
 	}, [currentCardIndex]);
 
-	// Reveal required section + content when withinCardProgress crosses threshold
+	// Reveal required section + content when withinCardProgress crosses threshold with staggered timeline
 	useEffect(() => {
 		const container = actionsContainerRef.current;
 		if (!container) return;
@@ -112,20 +113,20 @@ const AnimatedActions = memo(function AnimatedActions({
 		const required = activeCard.querySelector(`.${styles.actionRequiredSection}`);
 		const content = activeCard.querySelector(`.${styles.contentArea}`);
 		const show = withinCardProgress >= 0.5;
-		if (required)
-			gsap.to(required, {
-				autoAlpha: show ? 1 : 0,
-				y: show ? 0 : 20,
-				duration: 0.3,
-				ease: 'power2.out',
-			});
-		if (content)
-			gsap.to(content, {
-				autoAlpha: show ? 1 : 0,
-				y: show ? 0 : 20,
-				duration: 0.3,
-				ease: 'power2.out',
-			});
+		const prevStep = shownStepByCardRef.current[currentIndex] || 0;
+		const nextStep = show ? 1 : 0;
+		if (prevStep === nextStep) return; // guard: do not replay same step
+		shownStepByCardRef.current[currentIndex] = nextStep;
+		if (required || content) {
+			const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+			if (show) {
+				if (required) tl.to(required, { autoAlpha: 1, y: 0, duration: 0.35 }, 0);
+				if (content) tl.to(content, { autoAlpha: 1, y: 0, duration: 0.35 }, 0.06);
+			} else {
+				if (content) tl.to(content, { autoAlpha: 0, y: 20, duration: 0.25 }, 0);
+				if (required) tl.to(required, { autoAlpha: 0, y: 20, duration: 0.25 }, 0.05);
+			}
+		}
 	}, [withinCardProgress, currentIndex]);
 
 	// Handle progress bar click

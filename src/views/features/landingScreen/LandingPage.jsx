@@ -235,7 +235,7 @@ const LandingPage = () => {
 					style={{
 						height: '93vh',
 						background: 'transparent',
-						minHeight: '600px', // Ensure minimum height for small screens
+						minHeight: '100px',
 					}}
 				></div>
 				<TextOverlay ref={textOverlayRef} />
