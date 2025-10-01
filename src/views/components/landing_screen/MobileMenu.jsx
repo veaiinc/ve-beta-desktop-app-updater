@@ -52,7 +52,9 @@ const MobileMenu = ({ open, onClose }) => {
 		if (item.submenu) {
 			setInfo({ activeMenu: 'submenu', submenu: item });
 		} else {
-			item.path && navigate(item.path);
+			if (item.path) {
+				navigate(item.path);
+			}
 			onClose();
 		}
 	};
@@ -64,6 +66,35 @@ const MobileMenu = ({ open, onClose }) => {
 			<div className="mobile-menu-header">
 				<VeLogo className="ve-logo" />
 				<div className="mobile-menu-header-right">
+					<div className="mobile-nav-buttons">
+						<button
+							className="mobile-nav-btn"
+							onClick={() => {
+								navigate('/pricing');
+								onClose();
+							}}
+						>
+							Pricing
+						</button>
+						<button
+							className="mobile-nav-btn"
+							onClick={() => {
+								navigate('/verify-user');
+								onClose();
+							}}
+						>
+							Sign In
+						</button>
+						<button
+							className="mobile-nav-btn primary"
+							onClick={() => {
+								navigate('/verify-user');
+								onClose();
+							}}
+						>
+							Get Started
+						</button>
+					</div>
 					<button className="close-btn" onClick={onClose}>
 						&times;
 					</button>
@@ -108,7 +139,9 @@ const MobileMenu = ({ open, onClose }) => {
 											key={idx}
 											className="submenu-item"
 											onClick={() => {
-												sub.path && navigate(sub.path);
+												if (sub.path) {
+													navigate(sub.path);
+												}
 												onClose();
 											}}
 										>

@@ -15,6 +15,7 @@ const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'))
 const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
 const ChangeLog = lazy(() => import('../views/features/signin/ChangeLog'));
 const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
+const PricingPageWebsite = lazy(() => import('../views/features/pricingPlans/PricingPageWebsite'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
@@ -92,6 +93,16 @@ const publicRoutes = [
 			<Public>
 				<Suspense fallback={<SuspenseFallback />}>
 					<LoginPage />
+				</Suspense>
+			</Public>
+		),
+	},
+	{
+		path: '/pricing',
+		element: (
+			<Public>
+				<Suspense fallback={<SuspenseFallback />}>
+					<PricingPageWebsite />
 				</Suspense>
 			</Public>
 		),
