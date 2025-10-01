@@ -2233,6 +2233,12 @@ app.whenReady().then(async () => {
 	store = createStore();
 	bridge = createBridge(store);
 
+	// Apply initial desktop settings - hide dock by default for background operation
+	if (process.platform === 'darwin') {
+		app.dock.hide();
+		log.info('🍎 Dock icon hidden on startup - running in background mode by default');
+	}
+
 	// Set up permission request handler for microphone access
 	session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
 		const allowedPermissions = [
@@ -3276,10 +3282,20 @@ app.whenReady().then(async () => {
 		try {
 			// Check if main window exists and is not destroyed
 			if (mainWindow && !mainWindow.isDestroyed()) {
-				mainWindow.show();
-				mainWindow.focus();
-				mainWindow.webContents.send('navigate-to', data?.path);
-				log.info('Main window navigated to:', data?.path);
+				// Check if dock is hidden (background mode)
+				const dockHidden = process.platform === 'darwin' && !app.dock.isVisible();
+
+				if (dockHidden) {
+					// In background mode, just navigate without showing/focusing the window
+					mainWindow.webContents.send('navigate-to', data?.path);
+					log.info('Main window navigated in background mode to:', data?.path);
+				} else {
+					// Normal mode - show and focus the window
+					mainWindow.show();
+					mainWindow.focus();
+					mainWindow.webContents.send('navigate-to', data?.path);
+					log.info('Main window navigated to:', data?.path);
+				}
 				return { success: true };
 			} else {
 				// Main window doesn't exist or is destroyed, recreate it
@@ -3292,13 +3308,27 @@ app.whenReady().then(async () => {
 				await new Promise((resolve) => {
 					if (mainWindow && !mainWindow.isDestroyed()) {
 						mainWindow.once('ready-to-show', () => {
-							mainWindow.show();
-							mainWindow.focus();
-							mainWindow.webContents.send('navigate-to', data?.path);
-							log.info(
-								'Main window recreated and shown successfully with state restoration and navigated to:',
-								data?.path,
-							);
+							// Check if dock is hidden (background mode)
+							const dockHidden =
+								process.platform === 'darwin' && !app.dock.isVisible();
+
+							if (dockHidden) {
+								// In background mode, just navigate without showing/focusing the window
+								mainWindow.webContents.send('navigate-to', data?.path);
+								log.info(
+									'Main window recreated in background mode and navigated to:',
+									data?.path,
+								);
+							} else {
+								// Normal mode - show and focus the window
+								mainWindow.show();
+								mainWindow.focus();
+								mainWindow.webContents.send('navigate-to', data?.path);
+								log.info(
+									'Main window recreated and shown successfully with state restoration and navigated to:',
+									data?.path,
+								);
+							}
 							resolve();
 						});
 					} else {
