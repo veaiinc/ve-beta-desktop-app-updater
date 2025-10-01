@@ -19,6 +19,7 @@ const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapp
 // const ProactiveSuggestions = lazy(() =>
 // 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 // );
+const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DesktopApp'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
@@ -154,6 +155,14 @@ const stableRoutes = [
 				<AuthWrapper title={'Workspace Settings'}>
 					<SettingsWrapper />
 				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/download-app',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<DownloadDesktopApp />
 			</Suspense>
 		),
 	},
