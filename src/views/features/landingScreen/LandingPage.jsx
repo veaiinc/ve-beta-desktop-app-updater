@@ -30,6 +30,7 @@ import { ReactComponent as PlayIcon } from './assets/playIcon.svg';
 import { ReactComponent as PauseIcon } from './assets/pauseIcon.svg';
 import HeroSection from './heroSection/HeroSection';
 import VeSvg from '../../../assets/svg/veSvg';
+import TextOverlay from './TextOverlay';
 
 import '../../../assets/scss/landingScreen/index.scss';
 import DownloadVeAppPopup from '../../components/downloadVeAppPopup/DownloadVeAppPopup';
@@ -93,6 +94,7 @@ const LandingPage = () => {
 		downloadSectionRef,
 		iMacFrameRef,
 		fullscreenIMacRef,
+		textOverlayRef,
 		backgroundRef,
 		productIntroRef,
 		videoRef: scrollVideoRef,
@@ -236,6 +238,7 @@ const LandingPage = () => {
 						minHeight: '600px', // Ensure minimum height for small screens
 					}}
 				></div>
+				<TextOverlay ref={textOverlayRef} />
 
 				{/* Product Intro */}
 				<ProductIntro ref={productIntroRef} />

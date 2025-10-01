@@ -59,6 +59,7 @@ const MeetingIntelligence = memo(function MeetingIntelligence() {
 			pin: true,
 			anticipatePin: 1,
 			pinSpacing: true,
+			refreshPriority: -1, // Lower priority to avoid conflicts
 		});
 
 		ScrollTrigger.create({
@@ -66,6 +67,7 @@ const MeetingIntelligence = memo(function MeetingIntelligence() {
 			start: 'top top',
 			end: '+=1000%', // Increased scroll distance for more animation time
 			scrub: 1,
+			refreshPriority: -1, // Lower priority to avoid conflicts
 			onUpdate: (self) => {
 				const progress = self.progress;
 

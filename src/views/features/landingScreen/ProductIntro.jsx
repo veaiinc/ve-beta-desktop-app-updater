@@ -9,31 +9,41 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ProductIntro = forwardRef((props, ref) => {
 	const lightPassingRef = useRef(null);
+	const powersContainerRef = useRef(null);
+	const largeNumberRef = useRef(null);
+	const powersListRef = useRef(null);
+	const heroRef = useRef(null);
 
-	const intelligenceTypes = [
+	const corePowers = [
 		{
-			number: '1',
-			title: 'AMBIENT INTELLIGENCE',
+			title: 'AMBIENT AWARENESS',
 			description:
-				'Ambient Intelligence is designed to fade into the background while actively supporting you. It continuously senses your context, observes your behavior, and learns what matters most without requiring explicit commands. Instead of waiting to be prompted, it proactively surfaces the right information, suggestions, and reminders at the right time. This creates a seamless experience where work flows naturally, and you stay focused on what truly matters',
+				'We continuously perceive context across tools, tasks, and signals, building a live memory of your world so Ve can anticipate needs and act before you even ask.',
 		},
 		{
-			number: '2',
-			title: 'DESKTOP INTELLIGENCE',
+			title: 'PROACTIVE MEMORY GRAPH',
 			description:
-				'Desktop Intelligence transforms your computer into a living, thinking workspace. It connects across your apps, documents, and activities to detect patterns, priorities, and blockers in real time. By understanding your focus, it provides timely nudges, shortcuts, and recommendations right where you work. Whether you’re writing, browsing, or multitasking, Desktop Intelligence keeps you organized, reduces cognitive load, and ensures nothing slips through the cracks.',
+				'We unify streams of information into a living graph that evolves with time, remembering everything and enabling reasoning that never forgets.',
 		},
 		{
-			number: '3',
-			title: 'MEETING INTELLIGENCE',
+			title: 'AUTONOMOUS MULTI-AGENTS',
 			description:
-				'Meeting Intelligence goes beyond simple note-taking it listens, understands, and remembers. In every meeting, it captures key points, decisions, and follow-ups while filtering out the noise. It identifies action items, risks, and opportunities, then translates them into clear, trackable outcomes. By acting as a persistent memory layer, it ensures your team leaves with clarity, accountability, and insights that drive progress long after the meeting ends.',
+				'We orchestrate specialized agents that plan, execute, and adapt together empowering workflows that feel less like automation and more like an intelligent team.',
 		},
 		{
-			number: '4',
-			title: 'SUPER AGENTS',
+			title: 'GOAL INTELLIGENCE',
 			description:
-				'Super Agents are autonomous, task-driven AIs built to act like powerful teammates. They don’t just assist they execute. From drafting reports to planning projects or automating workflows, they handle complexity end-to-end. Super Agents reason over context, coordinate with other agents, and adapt their actions based on outcomes. Always learning and evolving, they extend your capacity, giving you the ability to achieve more with less effort.',
+				'We turn intentions into executable outcomes. From capturing a single goal to running entire workflows, Ve ensures progress without friction.',
+		},
+		{
+			title: 'ADAPTIVE INTERFACES',
+			description:
+				'We shape the interface around you in real time. From voice to video to ambient cards, Ve delivers intelligence in the right form, in the right moment.',
+		},
+		{
+			title: 'LIVING CONTINUITY',
+			description:
+				'We strive to give Ve permanence a system that never resets, never loses track, and grows with you, relentlessly, for all time.',
 		},
 	];
 
@@ -106,6 +116,107 @@ const ProductIntro = forwardRef((props, ref) => {
 		};
 	}, []);
 
+	// Parallax scroll: largeNumber (slow) vs powersList/powerItems (fast)
+	useEffect(() => {
+		if (!powersContainerRef.current || !largeNumberRef.current || !powersListRef.current)
+			return;
+
+		// Ensure elements are ready
+		const container = powersContainerRef.current;
+		const largeNumber = largeNumberRef.current;
+		const powersList = powersListRef.current;
+		const hero = heroRef.current;
+
+		// Kill any existing triggers for safety on hot-reload
+		ScrollTrigger.getAll()
+			.filter((t) => t.trigger === container)
+			.forEach((t) => t.kill());
+
+		// Compute dynamic distances based on viewport and content height
+		const containerHeight = container.offsetHeight;
+		const viewportH = window.innerHeight;
+		const verticalStartOffset = 0; // start at top baseline for both animations
+
+		// Tunable factors for speed separation (slightly slower right side for smoothness)
+		const fastFactor = 1.3; // right side speed multiplier
+
+		const baseDistance = containerHeight + viewportH;
+		const fastDistance = Math.min(fastFactor * baseDistance, 16000);
+
+		// Compute a dynamic slow distance so largeNumber ends when list ends
+		const listRect = powersList.getBoundingClientRect();
+		const numRect = largeNumber.getBoundingClientRect();
+		const listHeight = Math.max(powersList.scrollHeight, listRect.height);
+		const numHeight = numRect.height;
+		// target delta: how much we want the number to travel across the whole scroll
+		const endAlignDelta = Math.max(0, listHeight - numHeight);
+		// Use the full delta so the number reaches the end with the list, plus a small buffer
+		const slowDistance = endAlignDelta + 20;
+
+		// Single ScrollTrigger controls both elements for smoother sync
+		// Smooth value setters to eliminate jitter on scroll
+		const setListY = gsap.quickTo(powersList, 'y', { duration: 0.35, ease: 'power3.out' });
+		const setNumY = gsap.quickTo(largeNumber, 'y', { duration: 0.75, ease: 'power2.out' });
+		const setGlowY = lightPassingRef.current
+			? gsap.quickTo(lightPassingRef.current, 'y', { duration: 0.4, ease: 'power3.out' })
+			: null;
+		const setHeroY = hero
+			? gsap.quickTo(hero, 'y', { duration: 0.35, ease: 'power3.out' })
+			: null;
+
+		const masterTrigger = ScrollTrigger.create({
+			trigger: container,
+			start: 'top bottom+600px',
+			end: 'bottom top',
+			scrub: 0.6, // numeric scrub for gentle syncing
+			markers: true,
+			invalidateOnRefresh: true,
+			onUpdate: (self) => {
+				const p = self.progress; // 0..1
+				// Apply parallax offsets with smoothing (both start at the same top baseline)
+				setListY(-(p * fastDistance));
+				if (setHeroY) setHeroY(-(p * fastDistance));
+				setNumY(-(p * slowDistance));
+				if (setGlowY) {
+					// Move glow slightly faster than list for emphasis
+					setGlowY(-(p * fastDistance * 1.15));
+				}
+			},
+		});
+
+		// Optional: slight stagger reveal for items to enhance perceived speed
+		const items = powersList.querySelectorAll(`.${s.powerItem}`);
+		if (items.length) {
+			gsap.fromTo(
+				items,
+				{ y: 40, autoAlpha: 0 },
+				{
+					y: 0,
+					autoAlpha: 1,
+					stagger: 0.1,
+					ease: 'power2.out',
+					scrollTrigger: {
+						trigger: container,
+						start: 'top 80%',
+						end: 'top 40%',
+						scrub: false,
+						once: true,
+					},
+				},
+			);
+		}
+
+		const onResize = () => {
+			ScrollTrigger.refresh();
+		};
+		window.addEventListener('resize', onResize);
+
+		return () => {
+			window.removeEventListener('resize', onResize);
+			masterTrigger?.kill();
+		};
+	}, []);
+
 	return (
 		<div ref={ref} className={s.ProductIntro}>
 			{/* Animated Background Glow Effect */}
@@ -113,32 +224,46 @@ const ProductIntro = forwardRef((props, ref) => {
 				<AnimatedGlowBackground variant="default" intensity="medium" fitContent={true} />
 			</div>
 
-			<div className={s.heroSection} data-hero-section="true">
-				<h1 className={s.mainTitle}>
-					Personal
-					<br />
-					Perspectives
-				</h1>
-				<p className={s.subtitle}>
-					One intelligent system that listens, learns,and acts making search faster,
-					meetings smarter, and work seamless
-				</p>
-			</div>
-
-			<div className={s.intelligenceSection}>
-				{intelligenceTypes.map((item, index) => (
-					<div key={index} className={s.intelligenceItem}>
-						<div className={s.content}>
-							<h3 className={s.intelligenceTitle}>{item.title}</h3>
-							<p className={s.intelligenceDescription}>{item.description}</p>
-						</div>
-						<div className={s.number}>{item.number}</div>
+			<div className={s.corePowersSection}>
+				<div ref={powersContainerRef} className={s.powersContainer}>
+					<div ref={largeNumberRef} className={s.largeNumber}>
+						6
 					</div>
-				))}
+					{/* LightPassing separator between left and right columns */}
+					<div ref={lightPassingRef} className={s.lightPassing}>
+						<LightPassingSvg />
+					</div>
+					<div className={s.rightColumn}>
+						<div ref={heroRef} className={s.heroSection} data-hero-section="true">
+							<h1 className={s.mainTitle}>Guiding Powers</h1>
+							<p className={s.subtitle}>
+								Through the seamless integration of our 6 core powers, we set in
+								motion Ve.ai's relentless intelligence, focus, and autonomy.
+							</p>
+						</div>
+						<div ref={powersListRef} className={s.powersList}>
+							{corePowers.map((power, index) => (
+								<div key={index} className={s.powerItem}>
+									<div className={s.powerHeader}>
+										<div className={s.powerDot}></div>
+										<h3 className={s.powerTitle}>{power.title}</h3>
+									</div>
+									<p className={s.powerDescription}>{power.description}</p>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
 			</div>
 
-			<div ref={lightPassingRef} className={s.lightPassing}>
-				<LightPassingSvg />
+			<div className={s.coFounderSection}>
+				<h2 className={s.coFounderTitle}>
+					Your True <br /> Co-Founder
+				</h2>
+				<p className={s.coFounderDescription}>
+					An intelligence that learns you, grows with you, and relentlessly pushes your
+					vision forward as if it were its own.
+				</p>
 			</div>
 		</div>
 	);
