@@ -47,38 +47,38 @@ class ErrorBoundary extends Component {
 		// - Failed dynamic import
 		// - Invalid MIME type
 		// - Suspense in component stack
-		const isLazyLoadingErr =
-			(error instanceof TypeError &&
-				(error.message.includes('Failed to fetch dynamically imported module') ||
-					error.message.includes(`'text/html' is not a valid JavaScript MIME type`))) ||
-			(errorInfo?.componentStack && errorInfo.componentStack.includes('Suspense'));
+		// const isLazyLoadingErr =
+		// 	(error instanceof TypeError &&
+		// 		(error.message.includes('Failed to fetch dynamically imported module') ||
+		// 			error.message.includes(`'text/html' is not a valid JavaScript MIME type`))) ||
+		// 	(errorInfo?.componentStack && errorInfo.componentStack.includes('Suspense'));
 
-		if (isLazyLoadingErr) {
-			this.setState({ isLazyLoadingError: true });
+		// if (isLazyLoadingErr) {
+		// 	this.setState({ isLazyLoadingError: true });
 
-			setTimeout(() => {
-				window.location.reload(true);
-			}, 300);
-			return;
-		}
+		// 	setTimeout(() => {
+		// 		window.location.reload(true);
+		// 	}, 300);
+		// 	return;
+		// }
 
-		if (window.location.hostname !== 'localhost') {
-			const payload = {
-				errorType: error.name,
-				errorMessage: error.message,
-				errorPath: path,
-				errorComponent: component,
-				errorComponentStack: errorInfo?.componentStack || 'Not Available',
-			};
+		// if (window.location.hostname !== 'localhost') {
+		// 	const payload = {
+		// 		errorType: error.name,
+		// 		errorMessage: error.message,
+		// 		errorPath: path,
+		// 		errorComponent: component,
+		// 		errorComponentStack: errorInfo?.componentStack || 'Not Available',
+		// 	};
 
-			if (isLazyLoadingErr) return;
-			const success = await logError(payload);
-			if (success) {
-				console.log('Error logged successfully');
-			} else {
-				console.error('Error logging failed');
-			}
-		}
+		// 	if (isLazyLoadingErr) return;
+		// 	const success = await logError(payload);
+		// 	if (success) {
+		// 		console.log('Error logged successfully');
+		// 	} else {
+		// 		console.error('Error logging failed');
+		// 	}
+		// }
 	}
 
 	render() {
