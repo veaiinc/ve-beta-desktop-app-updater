@@ -61,8 +61,6 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			}
 		}
 
-		handleLocationDetailsData();
-
 		return () => {
 			clearInterval(info?.resendTimerInterval);
 		};
