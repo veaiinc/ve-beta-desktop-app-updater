@@ -812,7 +812,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				<div className="transcript-tabs-container">
 					<div className="summary-in-progress-container">
 						<Spinner size={24} />
-						<span>Generating summary...</span>
+						<span className="summary-in-progress-text">
+							Generating the summary may take up to 30 seconds.
+							<br /> You can close this window and we will email the summary once it
+							is ready.
+						</span>
 					</div>
 				</div>
 			) : (
