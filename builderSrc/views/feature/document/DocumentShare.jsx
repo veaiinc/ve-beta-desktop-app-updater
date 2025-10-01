@@ -10,8 +10,7 @@ import { ReactComponent as InfoIcon } from '../../../assets/svg/Settings/Info.sv
 import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile/downArrow.svg';
 import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
-import { ReactComponent as NoImageIcon } from '../../../assets/svg/document/image.svg';
-import { DatePicker, ConfigProvider, TimePicker } from 'antd';
+import { DatePicker, Modal, Input, Button } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';
 import { message } from 'antd';
@@ -105,15 +104,9 @@ const DocumentShare = ({
 		const now = dayjs().startOf('day');
 		const exp = dayjs.unix(expiresAt).endOf('day');
 		const diffDays = exp.diff(now, 'day');
-
-		// Check if it's exactly 1 day from now (end of day)
-		if (diffDays === 0 && exp.isSame(dayjs().add(1, 'day').endOf('day'))) return '1 day';
-		// Check if it's exactly 7 days from now (end of day)
-		if (diffDays === 6 && exp.isSame(dayjs().add(7, 'days').endOf('day'))) return '7 days';
-		// Check if it's exactly 30 days from now (end of day)
-		if (diffDays === 29 && exp.isSame(dayjs().add(30, 'days').endOf('day'))) return '30 days';
-
-		// If it doesn't match any of the predefined options, it's custom
+		if (diffDays === 0) return '1 day';
+		if (diffDays === 6 || diffDays === 7) return '7 days';
+		if (diffDays === 29 || diffDays === 30) return '30 days';
 		return 'Custom';
 	};
 
@@ -761,71 +754,14 @@ const DocumentShare = ({
 					)}
 					{info.selected.expiry === 'Custom' && info.showDatePicker && (
 						<div className="date-picker">
-							<ConfigProvider
-								theme={{
-									token: {
-										colorPrimary: '#000000',
-									},
-								}}
-							>
-								<DatePicker
-									value={info.customDate}
-									onChange={handleCustomDateChange}
-									disabledDate={(current) =>
-										current && current < dayjs().startOf('day')
-									}
-									format="YYYY-MM-DD"
-								/>
-							</ConfigProvider>
-
-							<ConfigProvider
-								theme={{
-									components: {
-										Select: {
-											colorTextSelected: '#ff0000', // red text when selected
-										},
-										Menu: {
-											itemSelectedColor: '#ff0000', // red text when selected
-										},
-									},
-								}}
-							>
-								<TimePicker
-									// className="time-input"
-									value={info.customTime ? dayjs(info.customTime, 'HH:mm') : null}
-									onChange={handleCustomTimeChange}
-									format="HH:mm"
-									disabledTime={() => {
-										// Disable past times if the selected date is today
-										if (
-											info.customDate &&
-											info.customDate.isSame(dayjs(), 'day')
-										) {
-											const now = dayjs();
-											return {
-												disabledHours: () => {
-													const hours = [];
-													for (let i = 0; i < now.hour(); i++) {
-														hours.push(i);
-													}
-													return hours;
-												},
-												disabledMinutes: (selectedHour) => {
-													if (selectedHour === now.hour()) {
-														const minutes = [];
-														for (let i = 0; i <= now.minute(); i++) {
-															minutes.push(i);
-														}
-														return minutes;
-													}
-													return [];
-												},
-											};
-										}
-										return {};
-									}}
-								/>
-							</ConfigProvider>
+							<DatePicker
+								value={info.customDate}
+								onChange={handleCustomDateChange}
+								disabledDate={(current) =>
+									current && current < dayjs().startOf('day')
+								}
+								format="YYYY-MM-DD"
+							/>
 						</div>
 					)}
 					<div className="description">{getExpiryDescription()}</div>
