@@ -566,7 +566,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						recordedAt: item.recordedAt
 							? moment.unix(item.recordedAt).format('HH:mm:ss')
 							: '', // Convert timestamp to readable time
-						speakerName: item.speakerName || 'Note Taker', // Default speaker name
+						speakerName: item.speakerName || 'VE Note Taker', // Default speaker name
 					}));
 
 					setInfo((prev) => ({

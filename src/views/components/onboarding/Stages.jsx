@@ -516,7 +516,7 @@ const Stages = ({ onNext }) => {
 					message?.success('Workspace created successfully');
 				}
 				// onNext(info);
-				navigate('/settings/pricing');
+				navigate('/download-app');
 			} else {
 				message?.error(response?.[1]?.message);
 			}
@@ -545,8 +545,8 @@ const Stages = ({ onNext }) => {
 					<header className="header">
 						{isWorkspaceCreationMode ? (
 							<>
-								<h1 className="title">Create a new workspace</h1>
-								<h2 className="subtitle">Set up your workspace details</h2>
+								<h1 className="title">Set up a collaborative workspace</h1>
+								{/* <h2 className="subtitle">Set up your workspace details</h2> */}
 							</>
 						) : (
 							<>

@@ -7,6 +7,7 @@ import LoginDescription from '../../components/login_page/LoginDescription';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
+import NewLoginDescription from '../../components/login_page/NewLoginDescription';
 
 const LoginPage = () => {
 	const navigate = useNavigate();
@@ -207,7 +208,9 @@ const LoginPage = () => {
 					</div>
 				</div>
 				<div className="description-section login-child-container">
-					<LoginDescription />
+					{/* <LoginDescription />
+					 */}
+					<NewLoginDescription />
 				</div>
 			</div>
 		</div>
