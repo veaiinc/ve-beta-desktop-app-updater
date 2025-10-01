@@ -1,7 +1,5 @@
 import { memo, forwardRef, useRef, useEffect, useState } from 'react';
 import s from './iMacFrame.module.scss';
-import BgLayerImage from '../../../assets/svg/landingScreen/Blue.svg';
-import AnimatedGlowBackground from '../../components/globalComponents/AnimatedGlowBackground';
 
 const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
 	const internalVideoRef = useRef(null);
@@ -68,24 +66,6 @@ const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
 						muted
 						playsInline
 						preload="metadata"
-					/>
-					{/* Animated Glow Background - shows only when zoomed */}
-					{isZoomed && (
-						<div className={s.glowBackgroundContainer}>
-							<AnimatedGlowBackground
-								variant="default"
-								intensity="medium"
-								className={s.glowBackground}
-							/>
-						</div>
-					)}
-
-					{/* Fallback static background */}
-					<img
-						src={BgLayerImage}
-						alt="VE Dashboard"
-						className={s.screenImage}
-						data-image="bg-layer"
 					/>
 				</div>
 			</div>

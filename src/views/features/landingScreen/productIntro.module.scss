@@ -24,19 +24,19 @@
 		gap: 60px;
 		position: relative;
 		z-index: 10;
-		top: 142px;
-		right: 221px;
+		right: 194px;
+		top: 125px;
 
 		.mainTitle {
 			// clip-path: inset(0 0 0 0);
 			// mask: linear-gradient(white 50%, transparent) 0 100% / 100% 200% no-repeat;
 			font-family: var(--primary-font-family);
+			color: #fff;
 			font-size: 124px;
+			font-style: normal;
 			font-weight: 400;
-			line-height: 0.97;
-			letter-spacing: -0.04em;
-			color: #f8fafc;
-			margin: 0;
+			line-height: 120px;
+			letter-spacing: -4.96px;
 
 			@media (max-width: 1200px) {
 				font-size: 100px;
@@ -75,7 +75,7 @@
 		margin: 0 auto;
 		position: relative;
 		z-index: 10;
-		max-height: 150vh;
+		max-height: 160vh;
 		@media (max-width: 1280px) {
 			max-height: 180vh;
 		}
@@ -169,7 +169,7 @@
 
 						.powerTitle {
 							font-family: var(--primary-font-family);
-							font-size: 24px;
+							font-size: 22px;
 							font-weight: 600;
 							line-height: 1.35;
 							letter-spacing: 0.1em;
@@ -182,14 +182,14 @@
 							}
 
 							@media (max-width: 480px) {
-								font-size: 18px;
+								font-size: 16px;
 							}
 						}
 					}
 
 					.powerDescription {
 						font-family: var(--primary-font-family);
-						font-size: 24px;
+						font-size: 22px;
 						font-weight: 400;
 						line-height: 1.583;
 						color: #ffffff;
@@ -200,7 +200,7 @@
 						}
 
 						@media (max-width: 480px) {
-							font-size: 18px;
+							font-size: 16px;
 						}
 					}
 				}

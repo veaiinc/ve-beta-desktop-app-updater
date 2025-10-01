@@ -52,10 +52,16 @@ const MeetingIntelligence = memo(function MeetingIntelligence() {
 			y: 0,
 		});
 
+		// Add an extra initial idle scroll segment before arc animation
+		const extraIdleScroll = 100; // 100%
+		const arcScroll = 100; // 100%
+		const cardsScroll = 800; // remaining for cards (keeps total similar to previous 1000%)
+		const totalScroll = extraIdleScroll + arcScroll + cardsScroll; // 1000%
+
 		ScrollTrigger.create({
 			trigger: container,
 			start: 'top top',
-			end: '+=1000%', // Increased scroll distance for more animation time
+			end: `+=${totalScroll}%`,
 			pin: true,
 			anticipatePin: 1,
 			pinSpacing: true,
@@ -65,77 +71,59 @@ const MeetingIntelligence = memo(function MeetingIntelligence() {
 		ScrollTrigger.create({
 			trigger: container,
 			start: 'top top',
-			end: '+=1000%', // Increased scroll distance for more animation time
+			end: `+=${totalScroll}%`,
 			scrub: 1,
 			refreshPriority: -1, // Lower priority to avoid conflicts
 			onUpdate: (self) => {
-				const progress = self.progress;
+				const progress = self.progress; // 0..1
+				const idleEnd = extraIdleScroll / totalScroll;
+				const arcEnd = (extraIdleScroll + arcScroll) / totalScroll;
 
-				if (progress <= 0.15) {
-					const introProgress = progress / 0.15;
-					gsap.set(intro, {
-						opacity: 1 - introProgress,
-						y: -50 * introProgress,
-					});
-				} else {
-					gsap.set(intro, {
-						opacity: 0,
-						y: -50,
-					});
-				}
-
-				if (progress >= 0.1) {
-					const actionsProgress = Math.min(1, (progress - 0.1) / 0.05);
-					const clipY = 300 - actionsProgress * 125;
-					const opacity = Math.min(1, actionsProgress * 1.2);
-
-					gsap.set(actions, {
-						clipPath: `ellipse(220% 200% at 50% ${clipY}%)`,
-						opacity: opacity,
-					});
-				} else {
+				if (progress < idleEnd) {
+					// Idle: show intro, hide actions
+					gsap.set(intro, { opacity: 1, y: 0 });
 					gsap.set(actions, {
 						clipPath: 'ellipse(220% 200% at 50% 300%)',
 						opacity: 0,
 					});
-				}
-
-				if (progress >= 0.15) {
-					const actionsScrollProgress = (progress - 0.15) / 0.85;
-					setCurrentActionsCard(actionsScrollProgress);
+				} else if (progress < arcEnd) {
+					// Arc: move intro up while opening arc
+					const arcProgress = (progress - idleEnd) / (arcEnd - idleEnd);
+					gsap.set(intro, { opacity: 1 - arcProgress, y: -50 * arcProgress });
+					const clipY = 300 - arcProgress * 125; // 300 -> 175
+					const opacity = Math.min(1, arcProgress * 1.2);
+					gsap.set(actions, {
+						clipPath: `ellipse(220% 200% at 50% ${clipY}%)`,
+						opacity,
+					});
+				} else {
+					// Cards: keep arc open, drive cards by remaining progress
+					gsap.set(intro, { opacity: 0, y: -50 });
+					gsap.set(actions, {
+						clipPath: 'ellipse(220% 200% at 50% 175%)',
+						opacity: 1,
+					});
+					const cardsProgress = (progress - arcEnd) / (1 - arcEnd);
+					setCurrentActionsCard(cardsProgress);
 				}
 			},
 			onEnter: () => {
-				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 175%)',
-					opacity: 1,
-				});
-				gsap.set(intro, {
-					opacity: 0,
-					y: -50,
-				});
+				// Reset to initial state on enter
+				gsap.set(intro, { opacity: 1, y: 0 });
+				gsap.set(actions, { clipPath: 'ellipse(220% 200% at 50% 300%)', opacity: 0 });
 			},
 			onLeave: () => {
-				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 175%)',
-					opacity: 1,
-				});
+				// Keep actions visible once we leave the pin at bottom
+				gsap.set(actions, { clipPath: 'ellipse(220% 200% at 50% 175%)', opacity: 1 });
 			},
 			onEnterBack: () => {
-				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 300%)',
-					opacity: 0,
-				});
-				gsap.set(intro, {
-					opacity: 1,
-					y: 0,
-				});
+				// Coming back from below: keep actions hidden until arc segment
+				gsap.set(actions, { clipPath: 'ellipse(220% 200% at 50% 300%)', opacity: 0 });
+				gsap.set(intro, { opacity: 1, y: 0 });
 			},
 			onLeaveBack: () => {
-				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 300%)',
-					opacity: 0,
-				});
+				// Leaving upwards: reset to initial hidden actions
+				gsap.set(actions, { clipPath: 'ellipse(220% 200% at 50% 300%)', opacity: 0 });
 			},
 		});
 

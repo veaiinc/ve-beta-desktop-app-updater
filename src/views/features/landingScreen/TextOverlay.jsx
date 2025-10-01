@@ -62,20 +62,13 @@ const TextOverlay = forwardRef((props, ref) => {
 			pinSpacing: true,
 			markers: false, // Hide markers for production
 			refreshPriority: 1, // Higher priority to ensure TextOverlay runs first
-			onEnter: () => {
-				console.log('TextOverlay entered and pinned!');
-			},
+
 			onLeave: () => {
-				console.log('TextOverlay left!');
 				// Ensure TextOverlay is completely finished before next section
 				gsap.set(container, { zIndex: 1 }); // Lower z-index after completion
 			},
 			onEnterBack: () => {
-				console.log('TextOverlay entered back!');
 				gsap.set(container, { zIndex: 15 }); // Restore z-index when scrolling back
-			},
-			onLeaveBack: () => {
-				console.log('TextOverlay left back!');
 			},
 		});
 
