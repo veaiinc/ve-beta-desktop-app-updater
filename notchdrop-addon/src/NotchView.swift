@@ -125,7 +125,7 @@ struct NotchView: View {
 
     var notch: some View {
         Rectangle()
-            .foregroundStyle(.black)
+            .foregroundStyle(.regularMaterial)
             .mask(notchBackgroundMaskGroup)
             .frame(
                 width: notchSize.width + notchCornerRadius * 2,
@@ -228,7 +228,7 @@ struct NotchView: View {
     @ViewBuilder
     var dragDetector: some View {
         RoundedRectangle(cornerRadius: notchCornerRadius)
-            .foregroundStyle(Color.black.opacity(0.001)) // fuck you apple and 0.001 is the smallest we can have
+            .foregroundStyle(.regularMaterial.opacity(0.001)) // Use material background with minimal opacity for hit testing
             .contentShape(Rectangle())
             .frame(width: notchSize.width + vm.dropDetectorRange, height: notchSize.height + vm.dropDetectorRange)
             .onDrop(of: [.data], isTargeted: $dropTargeting) { _ in true }
