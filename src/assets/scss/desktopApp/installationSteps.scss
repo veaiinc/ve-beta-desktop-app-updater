@@ -139,20 +139,46 @@
 }
 
 // Responsive styles for installation steps
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
 	.installation-steps {
-		margin-top: 20px;
-		padding: 16px;
+		margin-top: 30px;
+		padding: 18px;
 
 		.installation-title {
 			font-size: 24px;
 		}
 
 		.steps-container {
-			gap: 20px;
+			gap: 24px;
 
 			.step-container {
 				width: 280px;
+
+				.preview-img {
+					height: 180px;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	.installation-steps {
+		margin-top: 20px;
+		padding: 16px;
+
+		.installation-title {
+			font-size: 22px;
+		}
+
+		.steps-container {
+			gap: 20px;
+			flex-direction: column;
+			align-items: center;
+
+			.step-container {
+				width: 100%;
+				max-width: 320px;
 
 				.preview-img {
 					height: 150px;
@@ -164,6 +190,7 @@
 
 @media (max-width: 480px) {
 	.installation-steps {
+		margin-top: 16px;
 		padding: 12px;
 
 		.installation-title {
@@ -175,7 +202,7 @@
 
 			.step-container {
 				width: 100%;
-				max-width: 250px;
+				max-width: 280px;
 
 				.preview-img {
 					height: 120px;
@@ -184,6 +211,35 @@
 				.step-description p {
 					width: 100%;
 					font-size: 12px;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 360px) {
+	.installation-steps {
+		margin-top: 12px;
+		padding: 8px;
+
+		.installation-title {
+			font-size: 18px;
+		}
+
+		.steps-container {
+			gap: 12px;
+
+			.step-container {
+				width: 100%;
+				max-width: 260px;
+
+				.preview-img {
+					height: 100px;
+				}
+
+				.step-description p {
+					width: 100%;
+					font-size: 11px;
 				}
 			}
 		}

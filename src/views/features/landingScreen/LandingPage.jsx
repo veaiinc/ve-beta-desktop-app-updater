@@ -33,7 +33,7 @@ import VeSvg from '../../../assets/svg/veSvg';
 import TextOverlay from './TextOverlay';
 
 import '../../../assets/scss/landingScreen/index.scss';
-import DownloadVeAppPopup from '../../components/downloadVeAppPopup/DownloadVeAppPopup';
+import DownloadVeAppPopup from '../../components/desktopApp/DownloadVeAppPopup';
 
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
@@ -113,9 +113,13 @@ const LandingPage = () => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const isOnboard = JSON.parse(localStorage.getItem('isOnboard') || 'false');
 
-		if (token && region && workspaceId) {
-			if (!isOnboard) return navigate('/early-access');
-			return navigate('/home');
+		// Only redirect if we have all required authentication data
+		if (token && region && workspaceId && token.trim() !== '') {
+			if (!isOnboard) {
+				navigate('/early-access');
+			} else {
+				navigate('/home');
+			}
 		}
 	}, [navigate]);
 

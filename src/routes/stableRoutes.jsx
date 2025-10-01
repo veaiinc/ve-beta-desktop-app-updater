@@ -19,7 +19,7 @@ const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapp
 // const ProactiveSuggestions = lazy(() =>
 // 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 // );
-const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DesktopApp'));
+const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DownloadDesktopApp'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';

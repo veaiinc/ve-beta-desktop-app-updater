@@ -516,7 +516,7 @@ const Stages = ({ onNext }) => {
 					message?.success('Workspace created successfully');
 				}
 				// onNext(info);
-				navigate('/settings/pricing');
+				navigate('/download-app');
 			} else {
 				message?.error(response?.[1]?.message);
 			}

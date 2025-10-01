@@ -87,6 +87,7 @@ const CustomOtp = ({ otp, setOtp, onComplete, error }) => {
 							onPaste={handlePaste}
 							onFocus={(e) => e.target.select()}
 							ref={(el) => (otpInputRefs.current[i] = el)}
+							autoFocus={i === 0}
 						/>
 					))}
 				</div>

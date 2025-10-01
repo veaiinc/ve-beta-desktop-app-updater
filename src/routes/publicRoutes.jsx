@@ -16,7 +16,7 @@ const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'
 const ChangeLog = lazy(() => import('../views/features/signin/ChangeLog'));
 const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
 const PricingPageWebsite = lazy(() => import('../views/features/pricingPlans/PricingPageWebsite'));
-const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DesktopApp'));
+const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DownloadDesktopApp'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';

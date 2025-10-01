@@ -138,6 +138,13 @@
 		.desktop-app-container {
 			.navbar {
 				padding: 30px 20px;
+
+				.navbar-content {
+					.logo {
+						width: 36px;
+						height: 18px;
+					}
+				}
 			}
 
 			.main-content {
@@ -164,6 +171,11 @@
 							padding: 12px 20px;
 
 							.button-content {
+								.mac-icon {
+									width: 16px;
+									height: 16px;
+								}
+
 								.button-text {
 									font-size: 14px;
 								}
@@ -181,6 +193,13 @@
 		.desktop-app-container {
 			.navbar {
 				padding: 20px 16px;
+
+				.navbar-content {
+					.logo {
+						width: 32px;
+						height: 16px;
+					}
+				}
 			}
 
 			.main-content {
@@ -208,8 +227,8 @@
 
 							.button-content {
 								.mac-icon {
-									width: 16px;
-									height: 16px;
+									width: 14px;
+									height: 14px;
 								}
 
 								.button-text {

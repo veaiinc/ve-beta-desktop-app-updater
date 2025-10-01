@@ -38,15 +38,23 @@ const useAuth = () => {
 	};
 
 	const checkUserAuthState = useCallback(() => {
-		if (!localStorage.getItem('usertoken')) {
-			window.location.replace('/');
+		const token = localStorage.getItem('usertoken');
+
+		// Only redirect if we're not already on the landing page
+		if (!token || token.trim() === '') {
+			const currentPath = window.location.pathname;
+			if (currentPath !== '/' && !currentPath.startsWith('/verify-user')) {
+				window.location.replace('/');
+			}
+			return;
 		}
-		const isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+
+		const isOnboard = JSON.parse(localStorage.getItem('isOnboard') || 'false');
 
 		if (!isOnboard) {
 			navigate('/early-access');
 		}
-	}, []);
+	}, [navigate]);
 
 	const { authLoading } = info;
 	return { authLoading };

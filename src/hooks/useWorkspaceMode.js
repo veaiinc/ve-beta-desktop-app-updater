@@ -23,6 +23,7 @@ export const publicRoutesList = [
 	'/cookie-policy',
 	'/changelog',
 	'/user/verify-oauth-user',
+	'/download-app',
 ];
 
 const routeImports = {

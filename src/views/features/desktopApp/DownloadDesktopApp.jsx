@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import '../../../assets/scss/desktopApp/index.scss';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
-import DownloadVeAppPopup from '../../components/downloadVeAppPopup/DownloadVeAppPopup';
+import DownloadVeAppPopup from '../../components/desktopApp/DownloadVeAppPopup';
 import { ReactComponent as DownloadMacSvg } from '../../components/topNavbar/assets/download-mac.svg';
 import { useNavigate } from 'react-router-dom';
 
