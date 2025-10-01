@@ -325,45 +325,6 @@ const betaRoutes = [
 	// ========================================
 	// MEET
 	// ========================================
-	// {
-	// 	path: '/chats',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Chats'}>
-	// 				<ChatPage />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
-	// {
-	// 	path: '/chat/:sessionId',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper
-	// 				title={'Chat'}
-	// 				showBottomToolbar={false}
-	// 				outerContainerStyle={{
-	// 					paddingRight: '0px',
-	// 					backgroundColor: 'var(--background-color)',
-	// 				}}
-	// 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
-	// 				maxWidth="100%"
-	// 			>
-	// 				<RecentChat
-	// 					showChatHistory={true}
-	// 					showRightBar={true}
-	// 					showDeleteChat={true}
-	// 					showChats={true}
-	// 					showCitationsButton={true}
-	// 					showBrowser={true}
-	// 				/>
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
-	// ========================================
-	// MEET
-	// ========================================
 	{
 		path: '/meet',
 		element: (
