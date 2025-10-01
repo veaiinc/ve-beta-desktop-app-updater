@@ -1,7 +1,7 @@
 const registerUnifiedSW = async () => {
 	// Skip service worker registration in Electron apps
 	if (window.navigator.userAgent.includes('Electron')) {
-		console.log('Skipping service worker registration in Electron app');
+		// console.log('Skipping service worker registration in Electron app');
 		return null;
 	}
 
