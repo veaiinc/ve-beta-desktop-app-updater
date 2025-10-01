@@ -26,6 +26,7 @@ import { internalServerEmitter } from '../../services';
 const InternalServer = lazy(() => import('../components/globalComponents/InternalServer'));
 import NewSidebar from '../components/sidebar/newSidebar/NewSidebar';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import { useLocation } from 'react-router-dom';
 
 const AuthWrapper = ({
 	title,
@@ -40,6 +41,8 @@ const AuthWrapper = ({
 }) => {
 	const { isOnline } = useNetworkStatus();
 	const { workspaceMode } = useWorkspaceMode();
+	const location = useLocation();
+	const { pathname } = location;
 
 	const showPushNotification = useCallback((payload) => {
 		const { title, body } = payload.notification || {};
@@ -61,6 +64,14 @@ const AuthWrapper = ({
 		JSON.parse(localStorage.getItem('isSidebarOpen')) ?? false,
 	);
 	const isSidebarOverlay = (sidebarState?.overlay || isSidebarMobileView) ?? false;
+	const hideSidebar =
+		pathname.includes('builder') ||
+		pathname.includes('galleries') ||
+		pathname.includes('create-workspace') ||
+		pathname.includes('agent/') ||
+		pathname.includes('note/') ||
+		pathname.includes('meet/') ||
+		pathname.includes('chat/');
 
 	useEffect(() => {
 		if (typeof sidebarState?.open === 'boolean' && sidebarState?.open !== isSidebarOpen) {
@@ -123,12 +134,19 @@ const AuthWrapper = ({
 				<div
 					style={{
 						...outerContainerStyle,
-						paddingLeft: isSidebarOpen && !isSidebarOverlay ? '256px' : '0',
+						paddingLeft:
+							isSidebarOpen && !isSidebarOverlay && !hideSidebar ? '256px' : '0',
 					}}
 					className="auth-wrapper-container"
 				>
 					{/* {layoutModeComponentMap[layoutMode]} */}
-					{workspaceMode === 'stable' ? <NewSidebar /> : <TopNavbar />}
+					{workspaceMode === 'stable' ? (
+						!hideSidebar ? (
+							<NewSidebar />
+						) : null
+					) : (
+						<TopNavbar />
+					)}
 
 					<div
 						style={{
