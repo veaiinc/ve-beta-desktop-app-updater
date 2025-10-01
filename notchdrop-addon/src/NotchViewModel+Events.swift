@@ -27,11 +27,11 @@ extension NotchViewModel {
                         return
                     }
                     
-                    // touch outside, close
-                    if !notchOpenedRect.contains(mouseLocation) {
+                    // touch outside, close (but not if locked)
+                    if !notchOpenedRect.contains(mouseLocation), !isNotchLocked {
                         notchClose()
-                        // click where user open the panel
-                    } else if deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
+                        // click where user open the panel - but don't auto-close if video is playing or locked
+                    } else if deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation), !hasActiveVideo, !isNotchLocked {
                         notchClose()
                         // for the same height as device notch, open the url of project
                     } else if headlineOpenedRect.contains(mouseLocation) {
@@ -75,7 +75,8 @@ extension NotchViewModel {
                     if inClosedHoverZone { notchOpen(.hover) }
                 case .opened:
                     // Auto-close only if we opened due to hover and the pointer leaves the opened island
-                    if openReason == .hover, !inOpenedHoverZone { notchClose() }
+                    // BUT don't close if video is playing or notch is locked
+                    if openReason == .hover, !inOpenedHoverZone, !hasActiveVideo, !isNotchLocked { notchClose() }
                 case .popping:
                     // Legacy pop behavior: close pop if pointer leaves the closed hover zone
                     if !inClosedHoverZone { notchClose() }

@@ -4,6 +4,8 @@ import UniformTypeIdentifiers
 import AppKit
 import Combine
 import AVFoundation
+import MediaPlayer
+import WebKit
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
@@ -280,6 +282,23 @@ struct DynamicIslandContentView: View {
                             
                             // Information icon (third icon) with popup menu
                             InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            
+                            // Lock/Unlock button (fourth icon)
+                            Button(action: {
+                                vm.toggleNotchLock()
+                            }) {
+                                Image(systemName: vm.isNotchLocked ? "lock.fill" : "lock.open.fill")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen : .white)
+                                    .frame(width: 16, height: 16)
+                                    .padding(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
+                                    )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
                         }
                     }
                     
@@ -301,27 +320,51 @@ struct DynamicIslandContentView: View {
                             .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                             .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
                             
-                            // Voice Mode button - only show when NOT recording AND chat not focused
+                            // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
-                                VoiceModeButton(vm: vm, onFocusChat: {
-                                    print("🎯 onFocusChat callback triggered")
-                                    // When voice mode button is clicked, focus the chat input
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        print("🎯 Setting chat input focused: true")
-                                        isChatInputFocused = true
-                                        isTextFieldActive = true
-                                        
-                                        // Ensure window is key for cursor to appear
-                                        if let window = NSApp.keyWindow {
-                                            window.makeKeyAndOrderFront(nil)
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                                window.makeFirstResponder(window.firstResponder)
+                                HStack(spacing: 16) {
+                                    // Voice Mode button
+                                    VoiceModeButton(vm: vm, onFocusChat: {
+                                        print("🎯 onFocusChat callback triggered")
+                                        // When voice mode button is clicked, focus the chat input
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                            print("🎯 Setting chat input focused: true")
+                                            isChatInputFocused = true
+                                            isTextFieldActive = true
+                                            
+                                            // Ensure window is key for cursor to appear
+                                            if let window = NSApp.keyWindow {
+                                                window.makeKeyAndOrderFront(nil)
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                                                    window.makeFirstResponder(window.firstResponder)
+                                                }
                                             }
                                         }
+                                    })
+                                        .frame(width: 90, height: 90)
+                                        .transition(.scale.combined(with: .opacity))
+                                    
+                                    // Media Controllers and Calendar Row
+                                    HStack(spacing: 12) {
+                                        // Boring Notch Style Calendar - always show when not in chat mode and not recording
+                                        BoringNotchCalendarWithPermissions()
+                                            .transition(.scale.combined(with: .opacity))
+                                        
+                                        // Spotify Media Controller - only show when music is playing
+                                        if vm.hasActiveMusic {
+                                            SpotifyMediaController(vm: vm)
+                                                .transition(.scale.combined(with: .opacity))
+                                        }
+                                        
+                                        // YouTube Media Controller - only show when video is playing
+                                        if vm.hasActiveVideo {
+                                            YouTubeMediaController(vm: vm)
+                                                .transition(.scale.combined(with: .opacity))
+                                        }
                                     }
-                                })
-                                    .frame(width: 100, height: 100) // Larger voice mode button to match image
-                                    .transition(.scale.combined(with: .opacity))
+                                }
+                                .animation(.easeInOut(duration: 0.3), value: vm.hasActiveMusic)
+                                .animation(.easeInOut(duration: 0.3), value: vm.hasActiveVideo)
                             }
                             
                             // Webcam button - only show when recording
@@ -343,6 +386,239 @@ struct DynamicIslandContentView: View {
         .onAppear {
             // Set up listener for Swift actions to handle received messages
             setupMessageListener()
+            
+            // Set up Spotify detection timer for the whole view
+            setupSpotifyDetectionTimer()
+        }
+    }
+    
+    // MARK: - Spotify Detection Timer
+    private func setupSpotifyDetectionTimer() {
+        // Initial check
+        updateSpotifyStatus()
+        
+        // Set up periodic updates for Spotify status
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            updateSpotifyStatus()
+        }
+    }
+    
+    private func updateSpotifyStatus() {
+        // Check if Spotify is running
+        let spotifyRunning = isSpotifyRunning()
+        
+        // Get system media info
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let hasSystemMedia = nowPlayingInfo != nil
+        
+        // Get basic playback state
+        let playbackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+        let isPlaying = playbackRate > 0.0
+        
+        // Update hasActiveMusic based on multiple detection methods
+        vm.hasActiveMusic = spotifyRunning || hasSystemMedia || isPlaying
+        vm.isMusicPlaying = isPlaying
+        
+        // Detect YouTube videos
+        detectYouTubeVideo()
+    }
+    
+    private func isSpotifyRunning() -> Bool {
+        let script = "tell application \"System Events\" to (name of processes) contains \"Spotify\""
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            if error == nil {
+                return result.booleanValue
+            }
+        }
+        return false
+    }
+    
+    private func detectYouTubeVideo() {
+        // Method 1: Check browser tabs for YouTube
+        let youtubeFromBrowser = checkBrowserForYouTube()
+        
+        // Method 2: Check system media for YouTube
+        let youtubeFromMedia = checkSystemMediaForYouTube()
+        
+        // Update YouTube state
+        vm.hasActiveVideo = youtubeFromBrowser || youtubeFromMedia
+        vm.isVideoPlaying = vm.hasActiveVideo
+    }
+    
+    private func checkBrowserForYouTube() -> Bool {
+        // Check each browser separately for better reliability
+        let browsers = ["Safari", "Google Chrome", "Firefox", "Microsoft Edge", "Arc", "Brave Browser"]
+        
+        for browser in browsers {
+            if let (url, title) = checkBrowserApp(browser) {
+                if url.contains("youtube.com/watch") || url.contains("youtu.be/") {
+                    updateVideoInfo(from: title, url: url)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    private func checkBrowserApp(_ appName: String) -> (String, String)? {
+        let script: String
+        
+        if appName == "Safari" {
+            script = """
+            tell application "Safari"
+                if it is running then
+                    try
+                        set currentURL to URL of current tab of window 1
+                        set currentTitle to name of current tab of window 1
+                        return currentURL & "|||" & currentTitle
+                    end try
+                end if
+            end tell
+            return ""
+            """
+        } else {
+            script = """
+            tell application "\(appName)"
+                if it is running then
+                    try
+                        set currentURL to URL of active tab of window 1
+                        set currentTitle to title of active tab of window 1
+                        return currentURL & "|||" & currentTitle
+                    end try
+                end if
+            end tell
+            return ""
+            """
+        }
+        
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            if error == nil {
+                let resultString = result.stringValue ?? ""
+                if !resultString.isEmpty && resultString.contains("|||") {
+                    let components = resultString.components(separatedBy: "|||")
+                    if components.count >= 2 {
+                        let url = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                        let title = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                        return (url, title)
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
+    private func checkSystemMediaForYouTube() -> Bool {
+        guard let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo else {
+            return false
+        }
+        
+        // Check if the media source is YouTube
+        if let artist = nowPlayingInfo[MPMediaItemPropertyArtist] as? String,
+           let title = nowPlayingInfo[MPMediaItemPropertyTitle] as? String {
+            
+            // YouTube videos often have "YouTube" as artist or in the title
+            let isYouTube = artist.lowercased().contains("youtube") || 
+                           title.lowercased().contains("youtube") ||
+                           artist.isEmpty // YouTube often has empty artist
+            
+            if isYouTube {
+                updateVideoInfo(from: title, url: "")
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    private func updateVideoInfo(from title: String, url: String) {
+        let vm = self.vm
+        DispatchQueue.main.async {
+            
+            // Parse title to extract video title and channel
+            if title.contains(" - ") {
+                let parts = title.split(separator: " - ", maxSplits: 1)
+                if parts.count == 2 {
+                    vm.videoTitle = String(parts[0]).trimmingCharacters(in: .whitespaces)
+                    vm.videoChannel = String(parts[1]).trimmingCharacters(in: .whitespaces)
+                } else {
+                    vm.videoTitle = title
+                    vm.videoChannel = "YouTube"
+                }
+            } else {
+                vm.videoTitle = title
+                vm.videoChannel = "YouTube"
+            }
+            
+            // Store the video URL and create embed URL
+            vm.videoURL = url
+            if !url.isEmpty {
+                vm.videoEmbedURL = self.convertToEmbedURL(url)
+                vm.showVideoPlayer = true
+                self.extractYouTubeThumbnail(from: url)
+            }
+        }
+    }
+    
+    private func convertToEmbedURL(_ url: String) -> String {
+        // Extract video ID from YouTube URL
+        let patterns = [
+            "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+        ]
+        
+        var videoId: String?
+        for pattern in patterns {
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(url.startIndex..., in: url)
+            if let match = regex?.firstMatch(in: url, options: [], range: range) {
+                let videoIdRange = Range(match.range(at: 1), in: url)!
+                videoId = String(url[videoIdRange])
+                break
+            }
+        }
+        
+        guard let id = videoId else { return "" }
+        
+        // Return YouTube embed URL with autoplay and minimal UI
+        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=0&disablekb=1"
+    }
+    
+    private func extractYouTubeThumbnail(from url: String) {
+        // Extract video ID from YouTube URL
+        let patterns = [
+            "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+        ]
+        
+        var videoId: String?
+        for pattern in patterns {
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(url.startIndex..., in: url)
+            if let match = regex?.firstMatch(in: url, options: [], range: range) {
+                let videoIdRange = Range(match.range(at: 1), in: url)!
+                videoId = String(url[videoIdRange])
+                break
+            }
+        }
+        
+        guard let id = videoId else { return }
+        
+        // Download thumbnail from YouTube
+        let thumbnailURL = "https://img.youtube.com/vi/\(id)/mqdefault.jpg"
+        let vm = self.vm
+        
+        DispatchQueue.global(qos: .background).async {
+            if let url = URL(string: thumbnailURL),
+               let data = try? Data(contentsOf: url),
+               let image = NSImage(data: data) {
+                DispatchQueue.main.async {
+                    vm.videoThumbnail = image
+                }
+            }
         }
     }
     
@@ -1582,6 +1858,464 @@ struct ShortcutKeyView: View {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(Color.white.opacity(0.15))
             )
+    }
+}
+
+// MARK: - Spotify Media Controller
+struct SpotifyMediaController: View {
+    @ObservedObject var vm: NotchViewModel
+    @State private var isPlaying: Bool = false
+    @State private var songTitle: String = "Unknown Track"
+    @State private var artistName: String = "Unknown Artist"
+    @State private var albumArtwork: NSImage? = nil
+    @State private var isHovered: Bool = false
+    @State private var lastButtonPressed: MediaCommandType? = nil
+    @State private var buttonPressTime: Date = Date()
+    
+    var body: some View {
+        Group {
+            if vm.hasActiveMusic {
+                HStack(spacing: 12) {
+            // Large album artwork (left side)
+            Group {
+                if let artwork = albumArtwork {
+                    Image(nsImage: artwork)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 80)
+                        .clipped()
+                        .cornerRadius(8)
+                        .background(Color.black.opacity(0.3))
+                } else {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.3),
+                                    Color.black.opacity(0.2)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 60, height: 80)
+                        .overlay(
+                            VStack(spacing: 4) {
+                                Image(systemName: "music.note")
+                                    .foregroundColor(.white.opacity(0.8))
+                                    .font(.system(size: 24, weight: .medium))
+                                Text("♫")
+                                    .foregroundColor(.white.opacity(0.6))
+                                    .font(.system(size: 12))
+                            }
+                        )
+                }
+            }
+            
+            // Song info and controls (right side)
+            VStack(alignment: .leading, spacing: 8) {
+                // Song title and artist
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(songTitle)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    
+                    Text(artistName)
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.white.opacity(0.7))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                
+                // Media controls
+                HStack(spacing: 12) {
+                    // Previous button
+                    Button(action: {
+                        print("🎵 Previous track")
+                        sendMediaCommand(.previousTrack)
+                    }) {
+                        Image(systemName: "backward.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 14))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(lastButtonPressed == .previousTrack ? 0.9 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: lastButtonPressed)
+                    
+                    // Play/Pause button (larger)
+                    Button(action: {
+                        print("🎵 Play/Pause toggle")
+                        isPlaying.toggle()
+                        sendMediaCommand(isPlaying ? .play : .pause)
+                    }) {
+                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect((lastButtonPressed == .play || lastButtonPressed == .pause) ? 0.9 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: lastButtonPressed)
+                    
+                    // Next button
+                    Button(action: {
+                        print("🎵 Next track")
+                        sendMediaCommand(.nextTrack)
+                    }) {
+                        Image(systemName: "forward.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 14))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(lastButtonPressed == .nextTrack ? 0.9 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: lastButtonPressed)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(12)
+        .frame(width: 160, height: 100)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.black.opacity(0.8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.6), lineWidth: 1)
+                )
+        )
+        .scaleEffect(isHovered ? 1.02 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+       
+        .onAppear {
+            updateCurrentTrackInfo()
+                }
+            }
+        }
+    }
+    
+    private func sendMediaCommand(_ commandType: MediaCommandType) {
+        // Track the button press for visual feedback
+        lastButtonPressed = commandType
+        buttonPressTime = Date()
+        
+        switch commandType {
+        case .play:
+            executeAppleScript("tell application \"Spotify\" to play")
+        case .pause:
+            executeAppleScript("tell application \"Spotify\" to pause")
+        case .nextTrack:
+            executeAppleScript("tell application \"Spotify\" to next track")
+        case .previousTrack:
+            executeAppleScript("tell application \"Spotify\" to previous track")
+        }
+        
+        // Update track info after command, with faster refresh for track changes
+        let updateDelay: Double = (commandType == .nextTrack || commandType == .previousTrack) ? 0.3 : 0.5
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + updateDelay) {
+            self.updateCurrentTrackInfo()
+        }
+        
+        // For track changes, do multiple quick updates to catch the change faster
+        if commandType == .nextTrack || commandType == .previousTrack {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.updateCurrentTrackInfo()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.updateCurrentTrackInfo()
+            }
+        }
+        
+        // Clear the button press indicator after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.lastButtonPressed = nil
+        }
+    }
+    
+    private func updateCurrentTrackInfo() {
+        // First try to get track info from Spotify directly using AppleScript
+        getCurrentTrackFromAppleScript()
+        
+        // Fallback to system media player info if Spotify AppleScript fails
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        
+        if songTitle == "Unknown Track" && artistName == "Unknown Artist" {
+            if let info = nowPlayingInfo {
+                songTitle = info[MPMediaItemPropertyTitle] as? String ?? "Unknown Track"
+                artistName = info[MPMediaItemPropertyArtist] as? String ?? "Unknown Artist"
+                
+                // Get album artwork from system media player
+                if let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+                    albumArtwork = artwork.image(at: CGSize(width: 40, height: 60))
+                }
+                
+                // Get playback state
+                let playbackRate = info[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+                isPlaying = playbackRate > 0.0
+            }
+        }
+        
+        // hasActiveMusic is now managed at the higher level, no need to set it here
+    }
+    
+    private func getCurrentTrackFromAppleScript() {
+        let spotifyScript = """
+            tell application "Spotify"
+                if it is running then
+                    try
+                        set trackName to name of current track
+                        set artistName to artist of current track
+                        set albumName to album of current track
+                        set artworkURL to artwork url of current track
+                        set playerState to player state
+                        return trackName & "|" & artistName & "|" & albumName & "|" & artworkURL & "|" & (playerState as string)
+                    on error
+                        return "Spotify|Running|Unknown|missing value|playing"
+                    end try
+                end if
+            end tell
+        """
+        
+        if let appleScript = NSAppleScript(source: spotifyScript) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            
+            if error == nil, let output = result.stringValue {
+                let components = output.components(separatedBy: "|")
+                if components.count >= 5 {
+                    songTitle = components[0]
+                    artistName = components[1]
+                    // albumName = components[2] // We can use this later if needed
+                    let artworkURLString = components[3]
+                    isPlaying = components[4].contains("playing")
+                    
+                    // Track info retrieved successfully
+                    
+                    // Download album artwork from URL
+                    if !artworkURLString.isEmpty && artworkURLString != "missing value" {
+                        downloadAlbumArtwork(from: artworkURLString)
+                    }
+                } else {
+                    // No valid track info found
+                    songTitle = "Unknown Track"
+                    artistName = "Unknown Artist"
+                }
+            } else {
+                print("🎵 AppleScript error: \(error?.description ?? "Unknown error")")
+                // Try alternative method using System Events
+                getTrackInfoFromSystemEvents()
+            }
+        }
+    }
+    
+    private func downloadAlbumArtwork(from urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        DispatchQueue.global(qos: .background).async {
+            do {
+                let data = try Data(contentsOf: url)
+                if let image = NSImage(data: data) {
+                    DispatchQueue.main.async {
+                        self.albumArtwork = image
+                    }
+                }
+            } catch {
+                print("🎵 Failed to download artwork: \(error.localizedDescription)")
+                // Try to get artwork from macOS Now Playing if download fails
+                DispatchQueue.main.async {
+                    self.getArtworkFromNowPlaying()
+                }
+            }
+        }
+    }
+    
+    private func getArtworkFromNowPlaying() {
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        if let info = nowPlayingInfo,
+           let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+            albumArtwork = artwork.image(at: CGSize(width: 60, height: 60))
+        }
+    }
+    
+    private func getTrackInfoFromSystemEvents() {
+        // Alternative method using System Events to get current track
+        let systemEventsScript = """
+            tell application "System Events"
+                tell process "Spotify"
+                    if exists then
+                        try
+                            set trackInfo to (name of window 1)
+                            return trackInfo
+                        end try
+                    end if
+                end tell
+            end tell
+        """
+        
+        if let appleScript = NSAppleScript(source: systemEventsScript) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            
+            if error == nil, let windowTitle = result.stringValue {
+                // Spotify window title format is usually "Artist - Song Title"
+                let components = windowTitle.components(separatedBy: " - ")
+                if components.count >= 2 {
+                    artistName = components[0]
+                    songTitle = components[1]
+                } else if !windowTitle.isEmpty && windowTitle != "Spotify" {
+                    songTitle = windowTitle
+                }
+            }
+        }
+    }
+    
+    private func executeAppleScript(_ script: String) {
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            appleScript.executeAndReturnError(&error)
+            if let error = error {
+                print("🎵 AppleScript error: \(error)")
+            }
+        }
+    }
+    
+    enum MediaCommandType {
+        case play, pause, nextTrack, previousTrack
+    }
+}
+
+// MARK: - YouTube Media Controller
+struct YouTubeMediaController: View {
+    @ObservedObject var vm: NotchViewModel
+    @State private var isHovered: Bool = false
+    
+    var body: some View {
+        Group {
+            if vm.hasActiveVideo && vm.showVideoPlayer && !vm.videoEmbedURL.isEmpty {
+                // Embedded YouTube video player
+                YouTubeVideoPlayer(embedURL: vm.videoEmbedURL)
+                    .frame(width: 300, height: 100) // Wider to show actual video
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.red.opacity(0.6), lineWidth: 1)
+                    )
+                    .scaleEffect(isHovered ? 1.02 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+                    
+                    .onTapGesture {
+                        // User interaction to enable sound if needed
+                        print("📺 User tapped video player - attempting to enable sound")
+                    }
+            }
+        }
+    }
+}
+
+// MARK: - YouTube Video Player
+struct YouTubeVideoPlayer: NSViewRepresentable {
+    let embedURL: String
+    
+    func makeNSView(context: Context) -> WKWebView {
+        let configuration = WKWebViewConfiguration()
+        
+        // Configure for video playback with sound
+        configuration.allowsAirPlayForMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
+        
+        // Set user agent to avoid mobile YouTube version
+        configuration.applicationNameForUserAgent = "Version/14.1.2 Safari/605.1.15"
+        
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.navigationDelegate = context.coordinator
+        
+        // Allow sound playback
+        webView.allowsMagnification = false
+        webView.allowsBackForwardNavigationGestures = false
+        
+        // Load the YouTube embed URL
+        if let url = URL(string: embedURL) {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+        
+        return webView
+    }
+    
+    func updateNSView(_ nsView: WKWebView, context: Context) {
+        // Update if URL changes
+        if let currentURL = nsView.url?.absoluteString,
+           currentURL != embedURL,
+           let newURL = URL(string: embedURL) {
+            let request = URLRequest(url: newURL)
+            nsView.load(request)
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    class Coordinator: NSObject, WKNavigationDelegate {
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            // Wait a moment for the video to load, then unmute it
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                // Unmute the video and ensure it's playing with sound
+                let unmuteScript = """
+                    // Find the video element and unmute it
+                    var video = document.querySelector('video');
+                    if (video) {
+                        video.muted = false;
+                        video.volume = 0.7; // Set to 70% volume
+                        
+                        // Try to play with sound
+                        video.play().then(() => {
+                            console.log('Video playing with sound');
+                        }).catch(e => {
+                            console.log('Autoplay failed, user interaction required');
+                        });
+                    }
+                    
+                    // Also try YouTube player API if available
+                    if (typeof YT !== 'undefined' && YT.Player) {
+                        var iframe = document.querySelector('iframe');
+                        if (iframe) {
+                            try {
+                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[70]}', '*');
+                            } catch(e) {
+                                console.log('YouTube API not available');
+                            }
+                        }
+                    }
+                """
+                
+                webView.evaluateJavaScript(unmuteScript) { result, error in
+                    if let error = error {
+                        print("📺 Error unmuting video: \(error)")
+                    } else {
+                        print("📺 Video unmuted successfully")
+                    }
+                }
+            }
+            
+            // Inject CSS to hide unnecessary YouTube UI elements
+            let css = """
+                var style = document.createElement('style');
+                style.innerHTML = `
+                    iframe { 
+                        border-radius: 12px !important;
+                    }
+                    .ytp-watermark { 
+                        display: none !important; 
+                    }
+                `;
+                document.head.appendChild(style);
+            """
+            
+            webView.evaluateJavaScript(css, completionHandler: nil)
+        }
     }
 }
 
