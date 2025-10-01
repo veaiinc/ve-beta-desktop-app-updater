@@ -15,13 +15,8 @@ const options = [
 		value: 'newChat',
 	},
 	{
-		label: 'Proactive AI',
-		route: '/home',
-		value: 'proactiveAi',
-	},
-	{
 		label: 'Meetings',
-		route: '/meet',
+		route: '/home',
 		value: 'meet',
 	},
 ];
