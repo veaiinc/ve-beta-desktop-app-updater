@@ -56,8 +56,9 @@
 
 .citation-tooltip-wrapper {
 	max-width: unset;
+
 	.ant-tooltip-inner {
-		padding: 3px 0 0 0;
+		padding: 0;
 	}
 	.citation-tooltip-container {
 		display: flex;
@@ -70,6 +71,7 @@
 		box-shadow: 0 4px 16px 0 #0a12170d;
 		border: 1px solid var(--dividers);
 		overflow: hidden;
+		top: 3px;
 
 		.controls {
 			display: flex;
