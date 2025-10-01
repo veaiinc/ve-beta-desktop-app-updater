@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import AnimatedGlowBackground from '../../../../components/globalComponents/AnimatedGlowBackground';
@@ -10,6 +10,7 @@ gsap.registerPlugin(ScrollTrigger);
 function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 	const containerRef = useRef(null);
 	const cardsRef = useRef([]);
+	const [isMobile, setIsMobile] = useState(false);
 
 	const cardsData = [
 		{
@@ -22,7 +23,7 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 			type: 'message',
 			side: 'leftSide',
 			user: 'Jordan (P0)',
-			text: "That's tight, but doable. We'll need inputs from Marketing and Design by next Friday.",
+			text: 'That’s tight, but doable. We’ll need inputs from Marketing and Design by next Friday.',
 		},
 		{
 			type: 'suggestion',
@@ -33,13 +34,13 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 			type: 'message',
 			side: 'rightSide',
 			user: 'Sarah (Design)',
-			text: 'I can have the design mockups ready by next Wednesday. Will that work?',
+			text: 'Can we confirm the roadmap deadline of Oct 1st? That gives us 2.5 weeks ?',
 		},
 		{
 			type: 'message',
 			side: 'leftSide',
 			user: 'Mike (Marketing)',
-			text: "Marketing materials will be ready by Friday. We're on track!",
+			text: 'Yes, if Marketing and Design provide input on the GTM messaging and landing pages in time.',
 		},
 		{
 			type: 'suggestion',
@@ -49,20 +50,42 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 		{
 			type: 'aiResponse',
 			header: 'AI Response',
-			text: 'A Go-To-Market (GTM) strategy is a comprehensive plan that outlines how a company will successfully launch a product or feature, reach its target customers, and achieve market growth. It includes key elements like market research, pricing strategy, distribution channels, and marketing campaigns.',
+			text: 'A Go-To-Market (GTM) strategy is a comprehensive plan that outlines how a company will successfully launch a product or feature, reach its target customers, and achieve market growth.It includes key elements like',
 		},
 	];
+
+	// Mobile detection
+	useEffect(() => {
+		const checkMobile = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
+
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+
+		return () => window.removeEventListener('resize', checkMobile);
+	}, []);
 
 	useEffect(() => {
 		if (!containerRef.current || !cardsRef.current.length) return;
 
-		// Set initial state - all cards start invisible from below
+		// Mobile: Set initial state - cards start slightly hidden and lower
+		if (isMobile) {
+			gsap.set(cardsRef.current, {
+				opacity: 0,
+				y: 30,
+				scale: 0.95,
+			});
+			return;
+		}
+
+		// Desktop: Set initial state - all cards start invisible from below
 		gsap.set(cardsRef.current, {
 			opacity: 0,
 			y: 50,
 			scale: 0.9,
 		});
-	}, [sectionId]);
+	}, [sectionId, isMobile]);
 
 	// Animation state management
 	const animationState = useRef({
@@ -79,12 +102,46 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 		transition: { duration: 0.3, ease: 'power2.out' },
 	};
 
+	// Mobile animation configuration - simpler, just fade in sequentially
+	const MOBILE_ANIMATION_CONFIG = {
+		fadeIn: { duration: 0.4, ease: 'power2.out' },
+	};
+
 	useEffect(() => {
 		if (!cardsRef.current.length) return;
 
 		const progress = Math.max(0, Math.min(1, parentScrollProgress));
 		const totalCards = cardsRef.current.length;
 		const currentCardIndex = Math.floor(progress * totalCards);
+
+		// Mobile: Simplified animation - just fade in cards sequentially
+		if (isMobile) {
+			cardsRef.current.forEach((card, index) => {
+				if (!card) return;
+
+				const cardProgress = Math.min(1, progress * totalCards - index);
+				const fadeProgress = Math.max(0, Math.min(1, cardProgress));
+
+				if (fadeProgress > 0) {
+					// Card should be visible
+					gsap.to(card, {
+						opacity: fadeProgress,
+						y: 0,
+						scale: 1,
+						...MOBILE_ANIMATION_CONFIG.fadeIn,
+						overwrite: true,
+					});
+				} else {
+					// Card not yet visible
+					gsap.set(card, {
+						opacity: 0,
+						y: 30,
+						scale: 0.95,
+					});
+				}
+			});
+			return;
+		}
 
 		// Function to determine if a card should be visible based on smart disappearing logic
 		const shouldCardBeVisible = (index) => {
@@ -296,7 +353,7 @@ function MeetingIntelligenceUI({ sectionId, parentScrollProgress = 0 }) {
 
 		// Update previous state
 		animationState.current.previousVisibleCards = [...visibleCards];
-	}, [parentScrollProgress]);
+	}, [parentScrollProgress, isMobile]);
 
 	// Cleanup animations on unmount
 	useEffect(() => {

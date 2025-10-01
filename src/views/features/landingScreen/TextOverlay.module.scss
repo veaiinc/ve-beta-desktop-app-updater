@@ -78,6 +78,11 @@
 		margin-top: 40px;
 		left: 20px;
 
+		/* 🔑 Add these */
+		word-break: normal;
+		overflow-wrap: break-word; // ensures long words wrap cleanly
+		hyphens: auto; // optional: adds hyphenation instead of splitting words badly
+
 		@media (max-width: 1400px) {
 			font-size: 20px;
 			padding: 0 30px;

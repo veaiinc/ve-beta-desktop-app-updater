@@ -289,9 +289,13 @@
 
 	/* Responsive adjustments for laptop screens */
 	@media (max-width: 1440px) {
+		left: 72%;
+		top: 210px;
+		width: min(85vw, 450px);
+	}
+	@media (max-width: 768px) {
 		left: 12%;
 		top: 40px;
-		width: min(85vw, 450px);
 	}
 
 	.messageContent {
