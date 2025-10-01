@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
 
-const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });;
+const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
 const useAssemblyTranscription = ({
 	onTranscriptionUpdate,
@@ -221,7 +221,7 @@ const useAssemblyTranscription = ({
 			setTimeout(() => {
 				if (window?.electronApi?.navigateMainWindow) {
 					window?.electronApi?.navigateMainWindow({
-						path: `/meet/${meetingId}?type=desktop&history=true`,
+						path: `/meet/${meetingId}?type=in_app_meeting&history=true`,
 					});
 				}
 			}, 2000);

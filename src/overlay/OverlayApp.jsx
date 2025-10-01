@@ -469,11 +469,6 @@ const OverlayApp = () => {
 
 		sessionIdRef.current = null;
 
-		dispatch({
-			type: storeActions.meeting.ADD_SUMMARY_IN_PROGRESS,
-			payload: currentMeetingId,
-		});
-
 		stopRecording({ meetingId: info?.meetingData?._id });
 		dispatch({
 			type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
