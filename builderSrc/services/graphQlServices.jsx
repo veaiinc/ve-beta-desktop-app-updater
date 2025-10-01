@@ -1,38 +1,18 @@
 import { ApolloClient, ApolloLink, HttpLink, from, InMemoryCache } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { Observable } from '@apollo/client/utilities';
-import Cookies from 'js-cookie';
-import refreshAccessToken from './utils/refreshAccessToken.js';
-import { fetchDomainName } from '../../src/helpers';
-import logout from '../../src/helpers/logout.js';
+import getBuilderSrcSharedRefreshToken from './utils/sharedTokenRefresh.js';
 
 const refreshTokenForGraphQL = async () => {
-	const response = await refreshAccessToken();
-	const status = response.status;
-	const refreshTokenResponse = await response.json();
+	const refreshResult = await getBuilderSrcSharedRefreshToken();
 
-	if (status === 200) {
-		const { tokens } = refreshTokenResponse;
-		const { accessToken, accessTokenExpiry } = tokens;
-		const host = fetchDomainName();
-		Cookies.set('usertoken', accessToken, { sameSite: 'lax', domain: host });
-		Cookies.set('accessTokenExpiry', accessTokenExpiry, { sameSite: 'lax', domain: host });
-		localStorage.setItem('usertoken', accessToken);
-		localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
-		return [true, accessToken, status];
-	} else if (status === 401 || status === 403) {
-		if (
-			refreshTokenResponse.message === 'jwt expired' ||
-			refreshTokenResponse.message === 'Invalid refresh token, please login again'
-		) {
-			logout();
-			return [false, refreshTokenResponse, status];
-		} else {
-			return [false, refreshTokenResponse, status];
-		}
-	} else {
-		return [false, refreshTokenResponse, status];
+	// If refresh failed, return the error
+	if (!refreshResult.success) {
+		return [false, refreshResult.refreshTokenResponse, refreshResult.status];
 	}
+
+	// If refresh succeeded, return the new token
+	return [true, refreshResult.accessToken, refreshResult.status];
 };
 
 const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) => {
