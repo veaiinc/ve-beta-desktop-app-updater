@@ -64,13 +64,19 @@
 .screenImage {
 	width: calc(100% - 40px); // Account for 20px border on each side
 	height: 100vh;
-	object-fit: cover;
+	// object-fit: cover;
 	position: absolute;
-	top: 16px; // Offset by border width
+	top: -243px; // Offset by border width
 	left: 20px; // Offset by border width
 	transition: opacity 0.8s ease-in-out;
 	will-change: opacity;
 	border-radius: 1.64px; // Slightly smaller radius to fit inside frame
+	@media (max-width: 1284px) {
+		top: -100px;
+	}
+	@media (max-width: 1684px) {
+		top: -175px;
+	}
 
 	// Video - shows by default, hidden when zoomed (glow shows instead)
 	&[data-image='varya'] {

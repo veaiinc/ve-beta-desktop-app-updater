@@ -28,7 +28,7 @@
 		font-weight: 500;
 		line-height: 1.1;
 		opacity: 1;
-		padding: 0 40px;
+
 		pointer-events: none;
 		position: relative;
 		text-transform: uppercase;
@@ -36,8 +36,11 @@
 		will-change: opacity, transform;
 		width: 100%;
 		max-width: 800px;
-
 		letter-spacing: -0.02em;
+
+		/* Prevent text breaking at wrong places */
+		white-space: pre-line;
+		word-break: keep-all;
 
 		@media (max-width: 1200px) {
 			font-size: 40px;
@@ -64,27 +67,37 @@
 		position: relative;
 		font-family: var(--primary-font-family);
 		font-weight: 400;
-		font-size: 25px;
-		line-height: 1.6;
+		font-size: 47px;
+		line-height: 1.2;
 		color: #ffffff;
 		pointer-events: none;
 		opacity: 1;
 		transform-origin: center center;
 		will-change: transform, opacity;
 		transition: all 0.3s ease;
-		max-width: 800px;
+		max-width: 900px;
 		padding: 0 40px;
 		white-space: normal;
-		margin-top: 40px;
+		margin-top: 80px;
 		left: 20px;
 
-		/* 🔑 Add these */
+		/* Prevent awkward text breaking */
 		word-break: normal;
-		overflow-wrap: break-word; // ensures long words wrap cleanly
-		hyphens: auto; // optional: adds hyphenation instead of splitting words badly
+		overflow-wrap: normal;
 
-		@media (max-width: 1400px) {
-			font-size: 20px;
+		/* Ensure SplitText words and characters render properly */
+		> div {
+			display: inline-block;
+			white-space: nowrap;
+
+			/* Characters inside words */
+			> div {
+				display: inline;
+			}
+		}
+
+		@media (max-width: 1680px) {
+			font-size: 30px;
 			padding: 0 30px;
 		}
 

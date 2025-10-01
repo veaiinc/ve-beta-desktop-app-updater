@@ -16,34 +16,34 @@ const ProductIntro = forwardRef((props, ref) => {
 
 	const corePowers = [
 		{
-			title: 'AMBIENT AWARENESS',
+			title: 'Formless',
 			description:
-				'We continuously perceive context across tools, tasks, and signals, building a live memory of your world so Ve can anticipate needs and act before you even ask.',
+				'We believe intelligence cannot be confined to apps, dashboards, or devices. Ve flows across your life in calls, emails, meetings, cars, homes, and glasses adapting to wherever you are. Formless means Ve is always with you, without forcing you to adapt to software.',
 		},
 		{
-			title: 'PROACTIVE MEMORY GRAPH',
+			title: 'Ambient',
 			description:
-				'We unify streams of information into a living graph that evolves with time, remembering everything and enabling reasoning that never forgets.',
+				'Ve is present, always aware, and invisibly attentive. It listens, perceives, and understands the rhythm of your work and life without demanding attention. Ambient intelligence blends seamlessly into your world, surfacing only when needed subtle, quiet, yet powerful enough to transform every moment.',
 		},
 		{
-			title: 'AUTONOMOUS MULTI-AGENTS',
+			title: 'Proactive',
 			description:
-				'We orchestrate specialized agents that plan, execute, and adapt together empowering workflows that feel less like automation and more like an intelligent team.',
+				'Unlike assistants that wait for commands, Ve moves first. It anticipates intent, remembers context, and acts before you ask. Proactivity is the difference between software that reacts and intelligence that lives alongside you, guiding and shaping outcomes continuously and autonomously.',
 		},
 		{
-			title: 'GOAL INTELLIGENCE',
+			title: 'Living Context',
 			description:
-				'We turn intentions into executable outcomes. From capturing a single goal to running entire workflows, Ve ensures progress without friction.',
+				'with the state of the art Memory and intent fuse into one evolving model. Ve never forgets, and it always understands. By weaving past knowledge, present signals, and future goals into a living graph, Ve creates context that powers every action. Context turns intelligence into a true second brain, aligned with your intent.',
 		},
 		{
-			title: 'ADAPTIVE INTERFACES',
+			title: 'Execution Everywhere',
 			description:
-				'We shape the interface around you in real time. From voice to video to ambient cards, Ve delivers intelligence in the right form, in the right moment.',
+				'Ve doesn’t stop at suggestions it completes actions. It flows through your tools, APIs, workflows, and even humans, turning intelligence into execution. Execution Everywhere means Ve delivers outcomes across surfaces and systems, bridging thought and reality without friction.',
 		},
 		{
-			title: 'LIVING CONTINUITY',
+			title: 'Alter Ego',
 			description:
-				'We strive to give Ve permanence a system that never resets, never loses track, and grows with you, relentlessly, for all time.',
+				'Ve is more than a system. It’s your invisible alter ego: loyal, adaptive, and evolving with you. It learns your voice, mirrors your style, and stays true to your goals. The alter ego pillar makes Ve feel alive not just intelligence, but a second self you trust.',
 		},
 	];
 
@@ -132,19 +132,19 @@ const ProductIntro = forwardRef((props, ref) => {
 			const viewportH = window.innerHeight;
 			const baseDistance = containerHeight + viewportH;
 			const fastFactor = 2.5;
-			const fastDistance = Math.min(fastFactor * baseDistance, 1500);
+			const fastDistance = Math.min(fastFactor * baseDistance, 4500);
 
 			const listRect = powersList.getBoundingClientRect();
 			const numRect = largeNumber.getBoundingClientRect();
 			const listHeight = Math.max(powersList.scrollHeight, listRect.height);
 			const numHeight = numRect.height;
 			const endAlignDelta = Math.max(0, listHeight - numHeight);
-			const slowDistance = endAlignDelta + 20;
+			const slowDistance = (endAlignDelta + 50) * 1.8;
 
-			const setListY = gsap.quickTo(powersList, 'y', { duration: 0.55, ease: 'power3.out' });
-			const setNumY = gsap.quickTo(largeNumber, 'y', { duration: 2.2, ease: 'power2.out' });
+			const setListY = gsap.quickTo(powersList, 'y', { duration: 0.25, ease: 'power3.out' });
+			const setNumY = gsap.quickTo(largeNumber, 'y', { duration: 0.25, ease: 'power2.out' });
 			const setGlowY = lightPassingRef.current
-				? gsap.quickTo(lightPassingRef.current, 'y', { duration: 2.2, ease: 'power3.out' })
+				? gsap.quickTo(lightPassingRef.current, 'y', { duration: 0.25, ease: 'power3.out' })
 				: null;
 			const setHeroY = hero
 				? gsap.quickTo(hero, 'y', { duration: 0.55, ease: 'power3.out' })
@@ -159,13 +159,13 @@ const ProductIntro = forwardRef((props, ref) => {
 				invalidateOnRefresh: true,
 				onUpdate: (self) => {
 					const p = self.progress;
-					// Slower, smoother perceived motion for the large number while still finishing at end
-					const easeNum = gsap.parseEase('power4.inOut');
-					const pNum = easeNum(p) * 0.85 + p * 0.15;
+					// Smoother perceived motion for the large number with more movement
+					const easeNum = gsap.parseEase('power2.inOut');
+					const pNum = easeNum(p) * 0.7 + p * 0.3;
 					setListY(-(p * fastDistance));
 					if (setHeroY) setHeroY(-(p * fastDistance));
 					setNumY(-(pNum * slowDistance));
-					if (setGlowY) setGlowY(-(p * fastDistance * 1.05));
+					if (setGlowY) setGlowY(-(p * fastDistance));
 				},
 			});
 
@@ -224,10 +224,12 @@ const ProductIntro = forwardRef((props, ref) => {
 					</div>
 					<div className={s.rightColumn}>
 						<div ref={heroRef} className={s.heroSection} data-hero-section="true">
-							<h1 className={s.mainTitle}>Guiding Powers</h1>
+							<h1 className={s.mainTitle}>
+								Six Principles. One Living Intelligence.
+							</h1>
 							<p className={s.subtitle}>
-								Through the seamless integration of our 6 core powers, we set in
-								motion Ve.ai's relentless intelligence, focus, and autonomy.
+								Through the seamless integration of our 6 guiding principles, we set
+								in motion Ve’s living intelligence.
 							</p>
 						</div>
 						<div ref={powersListRef} className={s.powersList}>
@@ -247,11 +249,12 @@ const ProductIntro = forwardRef((props, ref) => {
 
 			<div className={s.coFounderSection}>
 				<h2 className={s.coFounderTitle}>
-					Your True <br /> Co-Founder
+					AI that minds your <br />
+					business and your world
 				</h2>
 				<p className={s.coFounderDescription}>
-					An intelligence that learns you, grows with you, and relentlessly pushes your
-					vision forward as if it were its own.
+					Here are some ways you’ll live with Ve: Across your meetings - desktop - all
+					your digital connectors
 				</p>
 			</div>
 		</div>
