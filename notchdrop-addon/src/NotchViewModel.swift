@@ -24,7 +24,16 @@ class NotchViewModel: NSObject, ObservableObject {
     var notchOpenedSize: CGSize {
         // Teams view: fixed compact width
         if isTeamsView {
-            // Responsive width for Meeting mode so items fit side-by-side without overlap
+            // When meeting is active (start card hidden), fix width to 580 so chat + webcam fit
+            if isRecording {
+                let fixedWidth: CGFloat = 580
+                let maxAllowed = max(500, screenRect.width - 40)
+                return .init(
+                    width: min(fixedWidth, maxAllowed),
+                    height: DynamicIslandTheme.expandedHeight
+                )
+            }
+            // Responsive width for Meeting mode with Start card visible
             let startWidth: CGFloat = 220
             let chatWidth: CGFloat = max(200, screenRect.width * 0.19) // allow growth but reserve space
             let webcamWidth: CGFloat = 100
@@ -36,8 +45,7 @@ class NotchViewModel: NSObject, ObservableObject {
             let targetWidth = max(desiredWidth, minComfortableWidth)
             let maxAllowed = max(500, screenRect.width - 40) // keep within screen
             let baseWidth = min(targetWidth, maxAllowed)
-            // Reduce overall Meeting-mode notch width by 30 as requested
-            let adjustedWidth = max(400, baseWidth )
+            let adjustedWidth = max(400, baseWidth)
             return .init(
                 width: adjustedWidth,
                 height: DynamicIslandTheme.expandedHeight

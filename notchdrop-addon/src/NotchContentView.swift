@@ -439,45 +439,21 @@ struct DynamicIslandContentView: View {
                             
                             // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
-                                HStack(spacing: 16) {
-                                    // Voice Mode button
-                                    VoiceModeButton(vm: vm, onFocusChat: {
-                                        print("🎯 onFocusChat callback triggered")
-                                        // When voice mode button is clicked, focus the chat input
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                            print("🎯 Setting chat input focused: true")
-                                            isChatInputFocused = true
-                                            isTextFieldActive = true
-                                            
-                                            // Ensure window is key for cursor to appear
-                                            if let window = NSApp.keyWindow {
-                                                window.makeKeyAndOrderFront(nil)
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                                    window.makeFirstResponder(window.firstResponder)
-                                                }
-                                            }
-                                        }
-                                    })
-                                        .frame(width: 90, height: 90)
+                                HStack(spacing: 12) {
+                                    // Boring Notch Style Calendar - always show when not in chat mode and not recording
+                                    BoringNotchCalendarWithPermissions()
                                         .transition(.scale.combined(with: .opacity))
-                                    
-                                    // Media Controllers and Calendar Row
-                                    HStack(spacing: 12) {
-                                        // Boring Notch Style Calendar - always show when not in chat mode and not recording
-                                        BoringNotchCalendarWithPermissions()
+                                        
+                                    // Spotify Media Controller - only show when music is playing
+                                    if vm.hasActiveMusic {
+                                        SpotifyMediaController(vm: vm)
                                             .transition(.scale.combined(with: .opacity))
-                                        
-                                        // Spotify Media Controller - only show when music is playing
-                                        if vm.hasActiveMusic {
-                                            SpotifyMediaController(vm: vm)
-                                                .transition(.scale.combined(with: .opacity))
-                                        }
-                                        
-                                        // YouTube Media Controller - only show when video is playing
-                                        if vm.hasActiveVideo {
-                                            YouTubeMediaController(vm: vm)
-                                                .transition(.scale.combined(with: .opacity))
-                                        }
+                                    }
+                                    
+                                    // YouTube Media Controller - only show when video is playing
+                                    if vm.hasActiveVideo {
+                                        YouTubeMediaController(vm: vm)
+                                            .transition(.scale.combined(with: .opacity))
                                     }
                                 }
                                 .animation(.easeInOut(duration: 0.3), value: vm.hasActiveMusic)
