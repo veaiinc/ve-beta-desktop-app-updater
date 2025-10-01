@@ -1,4 +1,4 @@
-import { memo, useContext, useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
+import { memo, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import Context from '../../../context/context';
 import { Markdown } from '../../../helpers/markdownHelper';
 import { Tooltip } from 'antd';
@@ -12,15 +12,12 @@ import PromptPopup from '../homePage/PromptPopup';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import TextSelector from './chatComponents/TextSelector';
-
-const FormWidget = lazy(() => import('./FormWidget'));
-const BrowserChainOfThought = lazy(() => import('./chatComponents/BrowserChainOfThought'));
-const IntermediateSteps = lazy(() => import('./chatComponents/IntermediateSteps'));
-const AISuggestionsReportAiComponent = lazy(() =>
-	import('./chatComponents/AiSuggestionsReportAiComponent'),
-);
-const ClarifyWidget = lazy(() => import('./chatWidgets/ClarifyWidget'));
-const UnintegratedAgentApps = lazy(() => import('./chatComponents/UnintegratedAgentApps'));
+import FormWidget from './FormWidget';
+import BrowserChainOfThought from './chatComponents/BrowserChainOfThought';
+import IntermediateSteps from './chatComponents/IntermediateSteps';
+import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
+import ClarifyWidget from './chatWidgets/ClarifyWidget';
+import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
 
 const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
@@ -257,19 +254,17 @@ const AIMessage = ({
 				messageData?.module_template_id &&
 				(showCanvas && !isNoteCanvas ? (
 					info?.usedAgents?.map((agent, index) => (
-						<Suspense fallback={''}>
-							<FormWidget
-								workflowTemplateId={messageData?.workflow_template_id}
-								moduleTemplateId={messageData?.module_template_id}
-								handleViewDocument={handleViewDocument}
-								showViewDocument={showViewDocument}
-								isLastMessage={isLastMessage}
-								messageData={messageData}
-								agent={agent}
-								key={index}
-								sessionId={sessionId}
-							/>
-						</Suspense>
+						<FormWidget
+							workflowTemplateId={messageData?.workflow_template_id}
+							moduleTemplateId={messageData?.module_template_id}
+							handleViewDocument={handleViewDocument}
+							showViewDocument={showViewDocument}
+							isLastMessage={isLastMessage}
+							messageData={messageData}
+							agent={agent}
+							key={index}
+							sessionId={sessionId}
+						/>
 					))
 				) : (
 					<div
@@ -287,32 +282,24 @@ const AIMessage = ({
 				))}
 
 			{messageData?.browserChainOfThought && !isSkipped ? (
-				<Suspense fallback={''}>
-					<BrowserChainOfThought chainOfThought={messageData?.browserChainOfThought} />
-				</Suspense>
+				<BrowserChainOfThought chainOfThought={messageData?.browserChainOfThought} />
 			) : (
 				''
 			)}
 
 			{messageData?.tool_invocations?.length > 0 && !isSkipped ? (
-				<Suspense fallback={''}>
-					<IntermediateSteps
-						steps={messageData?.tool_invocations}
-						isStreaming={effectiveStreamEnd === false}
-					/>
-				</Suspense>
+				<IntermediateSteps
+					steps={messageData?.tool_invocations}
+					isStreaming={effectiveStreamEnd === false}
+				/>
 			) : (
 				''
 			)}
 
 			{messageData?.moduleType === 'ai_suggestion_report' ? (
-				<Suspense fallback={''}>
-					<AISuggestionsReportAiComponent data={messageData?.data} />
-				</Suspense>
+				<AISuggestionsReportAiComponent data={messageData?.data} />
 			) : messageData?.widget_type === 'clarifyWidget' ? (
-				<Suspense fallback={''}>
-					<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
-				</Suspense>
+				<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
 			) : (
 				<div className="markdown-container" ref={markdownContainerRef}>
 					{/* Dedicated UI for skipped answer */}
@@ -331,9 +318,7 @@ const AIMessage = ({
 			)}
 
 			{messageData?.unintegrated_apps?.length > 0 ? (
-				<Suspense fallback={''}>
-					<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
-				</Suspense>
+				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
 			) : (
 				''
 			)}
