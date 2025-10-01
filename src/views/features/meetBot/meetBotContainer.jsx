@@ -427,14 +427,14 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	// Fetch meeting details if not available
 	useEffect(() => {
-		if (meetingId && (!createBotInfo || createBotInfo?._id !== meetingId)) {
+		if (meetingId) {
 			setIsLoadingMeetingDetails(true);
 			setMeetingNotFound(false);
 			getMeetBotById({ meetingId }).finally(() => {
 				setIsLoadingMeetingDetails(false);
 			});
 		}
-	}, [createBotInfo, meetingId]);
+	}, [meetingId]);
 
 	// Check if meeting was not found after loading
 	useEffect(() => {
@@ -444,7 +444,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [isLoadingMeetingDetails, createBotInfo, meetingId]);
 
 	useEffect(() => {
-		if (createBotInfo) {
+		if (createBotInfo && meetingId === createBotInfo?._id) {
 			if (!valuesInitializedRef.current) {
 				valuesInitializedRef.current = true;
 				setInfo((prev) => ({
@@ -810,14 +810,13 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				) : null}
 			</div>
 
-			{info?.summaryInProgress ? (
+			{info?.summaryInProgress && activeTab !== 'transcript' ? (
 				<div className="transcript-tabs-container">
 					<div className="summary-in-progress-container">
 						<Spinner size={24} />
 						<span className="summary-in-progress-text">
-							Generating the summary may take up to 30 seconds.
-							<br /> You can close this window and we will email the summary once it
-							is ready.
+							Generating analytics, may take up to 30 seconds.
+							<br /> You can close this window, we will email you once it is ready.
 						</span>
 					</div>
 				</div>
