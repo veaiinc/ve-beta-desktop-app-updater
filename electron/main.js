@@ -1409,30 +1409,24 @@ function createWindow(restoreState = false) {
 		notchDropService.setMainWindow(mainWindow);
 	}
 
-	// Add focus event handler to show permission overlay if needed (only after login)
+	// Add focus event handler (removed auto-show of permission overlay - permissions are now optional)
 	mainWindow.on('focus', async () => {
 		log.info('Main window focused');
 		// Emit focus event to renderer
 		mainWindow.webContents.send('window-focus');
 
-		// Only check/show overlay if user is authenticated
+		// Permissions are now optional - users can access the app without granting them
+		// The permission overlay can be accessed manually from settings if needed
 		try {
 			if (userAuthenticationStatus.isLoggedIn) {
 				const permissionsGranted = await checkAllPermissions();
 				if (!permissionsGranted.allGranted) {
 					log.info(
-						'🔍 Main window focused and user logged in but permissions missing, showing permission overlay',
+						'ℹ️ Main window focused - permissions not fully granted but app is accessible (optional permissions)',
 					);
-					setTimeout(() => {
-						try {
-							windowHelper?.showPermissionWindow();
-						} catch (error) {
-							log.error('❌ Error showing permission overlay on focus:', error);
-						}
-					}, 500);
 				}
 			} else {
-				log.info('👤 User not logged in on focus - not showing permission overlay');
+				log.info('👤 User not logged in on focus');
 			}
 		} catch (error) {
 			log.error('❌ Error checking permissions on window focus:', error);
@@ -1517,21 +1511,21 @@ function createWindow(restoreState = false) {
 
 		// Handle authentication status messages
 		if (msg === 'authorized') {
-			log.info('✅ User authenticated - hiding permission overlay if visible');
+			log.info('✅ User authenticated - showing optional permission setup');
 			userAuthenticationStatus.isLoggedIn = true;
-			userAuthenticationStatus.shouldShowPermissionOverlay = false;
+			userAuthenticationStatus.shouldShowPermissionOverlay = true;
 
-			// Hide permission overlay if it's currently visible
-			if (windowHelper?.isPermissionVisible) {
-				windowHelper.hidePermissionWindow();
-			}
-
-			// After login: if permissions are missing, show overlay and/or trigger native prompts (macOS)
+			// Show permission overlay on login (but it's optional - users can skip)
 			try {
 				const permissionsGranted = await checkAllPermissions();
 				if (!permissionsGranted.allGranted) {
-					log.info('🔐 Logged in but permissions missing — showing permission overlay');
-					windowHelper?.showPermissionWindow();
+					log.info('ℹ️ Logged in - showing permission overlay (optional setup)');
+					// Show permission overlay after a short delay
+					setTimeout(() => {
+						windowHelper?.showPermissionWindow();
+					}, 500);
+				} else {
+					log.info('✅ All permissions already granted - skipping overlay');
 				}
 			} catch (e) {
 				log.error('❌ Error checking permissions post-login:', e);
@@ -1880,6 +1874,7 @@ function createWindow(restoreState = false) {
 
 	// Enhanced ready-to-show with better error handling
 	mainWindow.once('ready-to-show', () => {
+		
 		// Always minimize the window on startup to keep app running in background
 		mainWindow.minimize();
 
@@ -2142,7 +2137,7 @@ if (!gotTheLock) {
 async function checkUserAuthenticationStatus() {
 	try {
 		if (!mainWindow || mainWindow.isDestroyed()) {
-			// log.warn('⚠️ Main window not available for auth check');
+			log.warn('⚠️ Main window not available for auth check');
 			return false;
 		}
 
@@ -2156,6 +2151,7 @@ async function checkUserAuthenticationStatus() {
 					
 					// User is considered authenticated if they have token, workspace, and are onboarded
 					const authenticated = !!(usertoken && workspaceId && isOnboard);
+					console.log('🔍 Auth check - token:', !!usertoken, 'workspace:', !!workspaceId, 'onboard:', isOnboard, 'result:', authenticated);
 					return authenticated;
 				} catch (error) {
 					console.error('❌ Error checking auth status:', error);
@@ -2616,25 +2612,24 @@ app.whenReady().then(async () => {
 	windowHelper.registerGlobalShortcuts(mainWindow);
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
 
-	// Check authentication status on startup but DO NOT show permission overlay before login
+	// Check authentication status on startup and show permission overlay if needed
 	setTimeout(async () => {
 		try {
 			const isAuthenticated = await checkUserAuthenticationStatus();
 			if (!isAuthenticated) {
-				// windowHelper?.showPermissionWindow();
 				log.info(
-					'👤 User not authenticated - will show permission overlay after login only',
+					'👤 User not authenticated - permission overlay will show on login',
 				);
 			} else {
-				// If already authenticated, show overlay only if permissions missing
+				// If already authenticated, check permissions and show overlay if needed
 				const permissionsGranted = await checkAllPermissions();
 				if (!permissionsGranted.allGranted) {
-					windowHelper?.showPermissionWindow();
 					log.info(
-						'📋 Permission overlay shown for authenticated user with missing permissions',
+						'ℹ️ Authenticated user - showing optional permission overlay',
 					);
+					windowHelper?.showPermissionWindow();
 				} else {
-					log.info('✅ Authenticated and required permissions present - no overlay');
+					log.info('✅ Authenticated and all permissions granted');
 				}
 			}
 		} catch (error) {
@@ -2793,7 +2788,8 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('show-permission-window', async () => {
 		try {
-			// windowHelper?.showPermissionWindow();
+			// Re-enabled to allow manual access to permission window from settings
+			windowHelper?.showPermissionWindow();
 			return { success: true };
 		} catch (error) {
 			log.error('Error showing Permission window:', error);
@@ -2818,10 +2814,10 @@ app.whenReady().then(async () => {
 
 			if (!isAuthenticated) {
 				// windowHelper?.showPermissionWindow();
-				// log.info('📋 Permission overlay shown after auth check');
+				log.info('📋 Permission overlay shown after auth check');
 				return { success: true, shown: true, authenticated: false };
 			} else {
-				// log.info('👤 User is authenticated - permission overlay not needed');
+				log.info('👤 User is authenticated - permission overlay not needed');
 				return { success: true, shown: false, authenticated: true };
 			}
 		} catch (error) {
@@ -3311,11 +3307,11 @@ app.whenReady().then(async () => {
 				// 	mainWindow.webContents.send('navigate-to', data?.path);
 				// 	log.info('Main window navigated in background mode to:', data?.path);
 				// } else {
-				// Normal mode - show and focus the window
-				mainWindow.show();
-				mainWindow.focus();
-				mainWindow.webContents.send('navigate-to', data?.path);
-				log.info('Main window navigated to:', data?.path);
+					// Normal mode - show and focus the window
+					mainWindow.show();
+					mainWindow.focus();
+					mainWindow.webContents.send('navigate-to', data?.path);
+					log.info('Main window navigated to:', data?.path);
 				// }
 				return { success: true };
 			} else {
@@ -3830,7 +3826,7 @@ app.whenReady().then(async () => {
 				if (!notchDropService) {
 					return { success: false, error: 'NotchDrop service not initialized' };
 				}
-				// log.info('🎯 Swift action received in main.js:', action, data);
+				log.info('🎯 Swift action received in main.js:', action, data);
 				const result = await notchDropService.handleSwiftAction(action, data);
 				return result;
 			} catch (error) {
@@ -3929,7 +3925,7 @@ app.whenReady().then(async () => {
 	// New NotchDropLatest IPC handlers
 	ipcMain.handle('notchdrop-open-airdrop', async () => {
 		try {
-			// log.info('Opening AirDrop from NotchDropLatest');
+			log.info('Opening AirDrop from NotchDropLatest');
 			// Open AirDrop sharing dialog
 			exec('open -a AirDrop', (error) => {
 				if (error) {
@@ -3945,7 +3941,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-open-share', async () => {
 		try {
-			// log.info('Opening share dialog from NotchDropLatest');
+			log.info('Opening share dialog from NotchDropLatest');
 			// Open file picker for sharing
 			const result = await dialog.showOpenDialog(mainWindow, {
 				properties: ['openFile', 'multiSelections'],
@@ -3960,7 +3956,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-open-file', async (event, filePath) => {
 		try {
-			// log.info('Opening file from NotchDropLatest:', filePath);
+			log.info('Opening file from NotchDropLatest:', filePath);
 			await shell.openPath(filePath);
 			return { success: true };
 		} catch (error) {
@@ -3971,7 +3967,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-delete-file', async (event, fileId) => {
 		try {
-			// log.info('Deleting file from NotchDropLatest:', fileId);
+			log.info('Deleting file from NotchDropLatest:', fileId);
 			// This would integrate with the file storage system
 			// For now, just return success
 			return { success: true };
@@ -3984,7 +3980,7 @@ app.whenReady().then(async () => {
 	// Update voice status in NotchDrop
 	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
 		try {
-			// log.info('Updating NotchDrop voice status:', status);
+			log.info('Updating NotchDrop voice status:', status);
 			if (notchDropService) {
 				await notchDropService.updateVoiceStatus(status);
 				return { success: true };
@@ -3999,7 +3995,7 @@ app.whenReady().then(async () => {
 	// Update voice connection state in NotchDrop
 	ipcMain.handle('notchdrop-update-voice-connection-state', async (event, status) => {
 		try {
-			// log.info('Updating NotchDrop voice connection state:', status);
+			log.info('Updating NotchDrop voice connection state:', status);
 			if (notchDropService) {
 				await notchDropService.updateVoiceConnectionState(status);
 				return { success: true };
@@ -4014,12 +4010,12 @@ app.whenReady().then(async () => {
 	// Add voice message to NotchDrop
 	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
 		try {
-			// log.info(
-			// 	'Adding voice message to NotchDrop:',
-			// 	messageData.sender,
-			// 	':',
-			// 	messageData.content?.substring(0, 50),
-			// );
+			log.info(
+				'Adding voice message to NotchDrop:',
+				messageData.sender,
+				':',
+				messageData.content?.substring(0, 50),
+			);
 			if (notchDropService) {
 				await notchDropService.addVoiceMessage(messageData);
 				return { success: true };
@@ -4034,7 +4030,7 @@ app.whenReady().then(async () => {
 	// Update voice mute state in NotchDrop
 	ipcMain.handle('notchdrop-update-voice-mute-state', async (event, isMuted) => {
 		try {
-			// log.info('Updating NotchDrop voice mute state:', isMuted);
+			log.info('Updating NotchDrop voice mute state:', isMuted);
 			if (notchDropService) {
 				await notchDropService.updateVoiceMuteState(isMuted);
 				return { success: true };
@@ -4164,7 +4160,7 @@ app.whenReady().then(async () => {
 				return { success: false, error: 'Dynamic Island Helper not initialized' };
 			}
 			// For now, just log the request - this could be extended to control microphone access
-			// log.info(`Dynamic Island microphone access ${enabled ? 'enabled' : 'disabled'}`);
+			log.info(`Dynamic Island microphone access ${enabled ? 'enabled' : 'disabled'}`);
 			return {
 				success: true,
 				message: `Microphone access ${enabled ? 'enabled' : 'disabled'}`,
@@ -4178,7 +4174,7 @@ app.whenReady().then(async () => {
 	// Voice integration handlers for Dynamic Island
 	ipcMain.handle('dynamic-island-voice-connect', async () => {
 		try {
-			// log.info('Dynamic Island voice connect requested');
+			log.info('Dynamic Island voice connect requested');
 			// In the future, this could trigger specific voice setup for Dynamic Island
 			return { success: true, message: 'Voice connection initiated from Dynamic Island' };
 		} catch (error) {
@@ -4189,7 +4185,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('dynamic-island-voice-disconnect', async () => {
 		try {
-			// log.info('Dynamic Island voice disconnect requested');
+			log.info('Dynamic Island voice disconnect requested');
 			// In the future, this could trigger specific voice cleanup for Dynamic Island
 			return { success: true, message: 'Voice disconnection initiated from Dynamic Island' };
 		} catch (error) {
@@ -4222,7 +4218,7 @@ app.whenReady().then(async () => {
 			// Send notification to Dynamic Island window
 			dynamicIslandWindow.webContents.send('dynamic-island-notification', notification);
 
-			// log.info('Notification sent to Dynamic Island:', notification);
+			log.info('Notification sent to Dynamic Island:', notification);
 			return { success: true, message: 'Notification sent to Dynamic Island' };
 		} catch (error) {
 			log.error('Error showing notification in Dynamic Island:', error);
@@ -4247,16 +4243,16 @@ app.whenReady().then(async () => {
 	// CRITICAL FIX: Enhanced NotchDrop overlay integration handlers with immediate response
 	ipcMain.handle('notchdrop:triggerOverlayRecording', async () => {
 		try {
-			// log.info('⚡ SWIFT UI START BUTTON: Immediate overlay recording - ZERO DELAY MODE');
+			log.info('⚡ SWIFT UI START BUTTON: Immediate overlay recording - ZERO DELAY MODE');
 
 			// CRITICAL FIX: Try immediate response method first
 			const immediateResult = await handleSwiftOverlayRequestImmediate('startRecording');
 			if (immediateResult.success) {
-				// 	log.info('🚀 SUCCESS: Immediate overlay recording triggered instantly!');
+				log.info('🚀 SUCCESS: Immediate overlay recording triggered instantly!');
 				return immediateResult;
 			}
 
-			// log.info('🔄 Immediate failed, using fallback method...');
+			log.info('🔄 Immediate failed, using fallback method...');
 
 			// CRITICAL FIX: Verify windowHelper is available
 			if (!windowHelper) {
@@ -4270,7 +4266,7 @@ app.whenReady().then(async () => {
 			const maxRetries = 3;
 
 			while (!overlayWindow && retryCount < maxRetries) {
-				// log.info(`🔧 Attempt ${retryCount + 1}: Creating overlay window...`);
+				log.info(`🔧 Attempt ${retryCount + 1}: Creating overlay window...`);
 				windowHelper.createOverlayWindow();
 
 				// Progressive wait times: 100ms, 200ms, 300ms
@@ -4292,7 +4288,7 @@ app.whenReady().then(async () => {
 
 				// CRITICAL FIX: Enhanced window visibility handling
 				if (!overlayWindow.isVisible()) {
-					// log.info('👁️ Showing overlay window...');
+					log.info('👁️ Showing overlay window...');
 					windowHelper.showOverlayWindow();
 
 					// Wait for window to be properly visible
@@ -4315,11 +4311,11 @@ app.whenReady().then(async () => {
 					commandSent = windowHelper.sendOverlayCommand({
 						action: 'startRecording',
 					});
-					// log.info(
-					// 	`✅ SMART QUEUE: StartRecording command ${
-					// 		commandSent ? 'sent immediately' : 'queued'
-					// 	} from Swift UI`,
-					// );
+					log.info(
+						`✅ SMART QUEUE: StartRecording command ${
+							commandSent ? 'sent immediately' : 'queued'
+						} from Swift UI`,
+					);
 				}
 
 				// Fallback: Direct webContents send if queuing failed
@@ -4332,9 +4328,9 @@ app.whenReady().then(async () => {
 						overlayWindow.webContents.send('overlay-command', {
 							action: 'startRecording',
 						});
-						// log.info(
-						// 	'✅ FALLBACK: StartRecording command sent directly to webContents',
-						// );
+						log.info(
+							'✅ FALLBACK: StartRecording command sent directly to webContents',
+						);
 						commandSent = true;
 					} catch (fallbackError) {
 						log.error('❌ Fallback command sending failed:', fallbackError);
@@ -4350,7 +4346,7 @@ app.whenReady().then(async () => {
 					// Force window to be interactive
 					overlayWindow.setIgnoreMouseEvents(false);
 
-					// log.info('✅ Overlay window focused and brought to front');
+					log.info('✅ Overlay window focused and brought to front');
 				} catch (focusError) {
 					log.warn('⚠️ Could not focus overlay window:', focusError);
 				}
@@ -4379,7 +4375,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'stopRecording',
 				});
-				// log.info('Sent stopRecording command to overlay window from NotchDrop');
+				log.info('Sent stopRecording command to overlay window from NotchDrop');
 			} else {
 				log.warn('Overlay window not available for stopRecording');
 			}
@@ -4392,13 +4388,13 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop:triggerOverlayPauseRecording', async () => {
 		try {
-			// log.info('⏸️ NotchDrop requested overlay pause recording');
+			log.info('⏸️ NotchDrop requested overlay pause recording');
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'pauseRecording',
 				});
-				// log.info('Sent pauseRecording command to overlay window from NotchDrop');
+				log.info('Sent pauseRecording command to overlay window from NotchDrop');
 			} else {
 				log.warn('Overlay window not available for pauseRecording');
 			}
@@ -4416,7 +4412,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'resumeRecording',
 				});
-				// log.info('Sent resumeRecording command to overlay window from NotchDrop');
+				log.info('Sent resumeRecording command to overlay window from NotchDrop');
 			} else {
 				log.warn('Overlay window not available for resumeRecording');
 			}
@@ -4429,7 +4425,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop:triggerOverlayToggleLiveIntelligence', async () => {
 		try {
-			// log.info('🧠 NotchDrop requested overlay toggle live intelligence');
+			log.info('🧠 NotchDrop requested overlay toggle live intelligence');
 			let overlayWindow = windowHelper?.getOverlayWindow();
 			if (!overlayWindow) {
 				// Create overlay window if it doesn't exist
@@ -4448,7 +4444,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'toggleLiveIntelligence',
 				});
-				// log.info('Sent toggleLiveIntelligence command to overlay window from NotchDrop');
+				log.info('Sent toggleLiveIntelligence command to overlay window from NotchDrop');
 			} else {
 				log.error('Overlay window not available after creating');
 				return { success: false, error: 'Overlay window not available' };
@@ -4514,7 +4510,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'stopRecording',
 				});
-				// log.info('Sent stopRecording command to overlay window');
+				log.info('Sent stopRecording command to overlay window');
 			} else {
 				log.warn('Overlay window not available for stopRecording');
 			}
@@ -4525,7 +4521,7 @@ app.whenReady().then(async () => {
 			// Hide the Are You There window if it's visible
 			if (windowHelper) {
 				windowHelper.hideAreYouThereWindow();
-				// log.info('🏠 Hiding Are You There window - recording stopped from Dynamic Island');
+				log.info('🏠 Hiding Are You There window - recording stopped from Dynamic Island');
 			}
 
 			return { success: true };
@@ -4542,7 +4538,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'pauseRecording',
 				});
-				// log.info('Sent pauseRecording command to overlay window');
+				log.info('Sent pauseRecording command to overlay window');
 			} else {
 				log.warn('Overlay window not available for pauseRecording');
 			}
@@ -4560,7 +4556,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'resumeRecording',
 				});
-				// log.info('Sent resumeRecording command to overlay window');
+				log.info('Sent resumeRecording command to overlay window');
 			} else {
 				log.warn('Overlay window not available for resumeRecording');
 			}
@@ -4595,7 +4591,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'toggleLiveIntelligence',
 				});
-				// log.info('Sent toggleLiveIntelligence command to overlay window');
+				log.info('Sent toggleLiveIntelligence command to overlay window');
 			} else {
 				log.error('Overlay window not available after creating');
 				return { success: false, error: 'Overlay window not available' };
@@ -4615,7 +4611,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'getRecordingState',
 				});
-				// log.info('Sent getRecordingState command to overlay window');
+				log.info('Sent getRecordingState command to overlay window');
 			} else {
 				log.warn('Overlay window not available for getRecordingState');
 			}
@@ -4641,7 +4637,7 @@ app.whenReady().then(async () => {
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				// Forward state to Dynamic Island window
 				dynamicIslandWindow.webContents.send('overlay-state-changed', state);
-				// log.debug('State forwarded to Dynamic Island window');
+				log.debug('State forwarded to Dynamic Island window');
 			} else {
 				// log.warn('Dynamic Island window not available for state update');
 			}
@@ -4774,7 +4770,7 @@ app.whenReady().then(async () => {
 	// Are You There window IPC handlers
 	ipcMain.handle('are-you-there-continue-meeting', async () => {
 		try {
-			// log.info("✅ User clicked I'm here - continuing meeting");
+			log.info("✅ User clicked I'm here - continuing meeting");
 
 			// Reset the flag to allow next popup
 			isAreYouThereWindowShown = false;

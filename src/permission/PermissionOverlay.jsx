@@ -394,19 +394,8 @@ const PermissionOverlay = () => {
 		return 'permission-action-button pending';
 	};
 	const handleNext = () => {
-		// Only check permissions when on the permissions step (step 1)
-		if (currentStep === 1) {
-			const requiredPermissionsGranted = microphonePermission && cameraPermission;
-
-			if (!requiredPermissionsGranted) {
-				setPermissionRequestMessage(
-					'⚠️ Please grant microphone and camera permissions to continue.',
-				);
-				setTimeout(() => setPermissionRequestMessage(''), 5000);
-				return;
-			}
-		}
-
+		// Permissions are now optional - users can proceed without granting them
+		// Removed mandatory permission check to allow users to continue regardless of permission status
 		setCurrentStep(currentStep + 1);
 	};
 
