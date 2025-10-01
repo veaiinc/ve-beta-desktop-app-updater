@@ -4,9 +4,14 @@ import { ReactComponent as BackIcon } from '../../../../assets/svg/left-arrow.sv
 import { ReactComponent as SearchIcon } from '../../../../assets/svg/seach-magnifier.svg';
 import { ReactComponent as LockIcon } from '../../../../assets/svg/notesPage/lock-icon.svg';
 import { ReactComponent as DisconnectIcon } from '../../../../assets/svg/disconnect-icon.svg';
+import { ReactComponent as SyncIcon } from '../../../../assets/svg/sync.svg';
+import { ReactComponent as LinkIcon } from '../../../../assets/svg/link.svg';
 import '../../../../assets/scss/integrations/ConnectedCardIntegrationModel.scss';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
+import SyncAccountModal from './SyncAccountModal';
+import { Tooltip } from 'antd';
+import Spinner from '../../loaders/Spinner';
 
 const customStyles = {
 	content: {
@@ -41,11 +46,15 @@ const formatTimestamp = (timestamp) => {
 };
 
 const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration }) => {
+	const [info, setInfo] = useState({
+		isconnectingLoader: false,
+		syncModalOpen: false,
+	});
 	const [searchQuery, setSearchQuery] = useState('');
 	const [disconnectingAccountId, setDisconnectingAccountId] = useState(null);
 
 	const {
-		templates: { disconnectThirdParty },
+		templates: { disconnectThirdParty, getAuthUrlForThirdParty, syncUserAccount },
 	} = useContext(Context);
 
 	const handleDisconnect = async (account) => {
@@ -64,23 +73,82 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 				setDisconnectingAccountId(null);
 				return;
 			}
-
+			setInfo((prev) => ({
+				...prev,
+				isconnectingLoader: true,
+			}));
 			const response = await disconnectThirdParty(integrationType, accountId);
 
 			if (response?.[0]) {
 				message.success('Account disconnected successfully');
-
+				setInfo((prev) => ({
+					...prev,
+					isconnectingLoader: false,
+				}));
 				closeModal();
 			} else {
 				const errorMessage = response?.[1]?.message || 'Failed to disconnect account';
 				message.error(errorMessage);
+				setInfo((prev) => ({
+					...prev,
+					isconnectingLoader: false,
+				}));
 			}
 		} catch (error) {
 			console.error('Error disconnecting account:', error);
 			message.error('Failed to disconnect account');
+			setInfo((prev) => ({
+				...prev,
+				isconnectingLoader: false,
+			}));
 		} finally {
 			setDisconnectingAccountId(null);
 		}
+	};
+
+	const handleConnect = async (integration) => {
+		try {
+			setInfo((prev) => ({
+				...prev,
+				isconnectingLoader: true,
+			}));
+			let response = await getAuthUrlForThirdParty(
+				integration?.connectType?.toLowerCase(),
+				integration?.access?.toLowerCase(),
+			);
+
+			if (response?.[0]) {
+				message.success('Connected to integration successfully');
+				setInfo((prev) => ({
+					...prev,
+					isconnectingLoader: false,
+				}));
+				closeModal();
+				window.open(response, '_blank');
+			} else {
+				message.error('Failed to connect to integration');
+				setInfo((prev) => ({
+					...prev,
+					isconnectingLoader: false,
+				}));
+			}
+		} catch (error) {
+			console.error('Error connecting to integration:', error);
+			message.error('Failed to connect to integration');
+		}
+	};
+
+	const handleSyncUserAccount = async (integration) => {
+		setInfo((prev) => ({
+			...prev,
+			syncModalOpen: true,
+		}));
+		// let response = await syncUserAccount(integration?.connectType, integration?._id);
+		// if (response?.[0]) {
+		// 	message.success('Synced user account successfully');
+		// } else {
+		// 	message.error('Failed to sync user account');
+		// }
 	};
 
 	// Filter accounts based on search query
@@ -113,12 +181,29 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 								/>
 							</div>
 							<div className="integration-text">
-								<h2 className="integration-title">{connectedIntegration?.title}</h2>
+								<div className="integration-title-container">
+									<h2 className="integration-title">
+										{connectedIntegration?.title}
+									</h2>
+									<div className="status-badge connected">
+										<span
+											className={`status-dot ${
+												connectedIntegration?.isActive ? '' : 'inactive'
+											}`}
+										></span>
+										<span className="status-text">
+											{connectedIntegration?.isActive ? 'Active' : 'Inactive'}
+										</span>
+									</div>
+								</div>
 								<div className="integration-meta">
 									<div className="user-info">
 										<span className="user-name">
-											{connectedIntegration?.addedBy ||
+											{/* {connectedIntegration?.addedBy ||
 												connectedIntegration?.accounts?.[0]?.addedBy ||
+												'User'} */}
+											{connectedIntegration?.email ||
+												connectedIntegration?.addedBy ||
 												'User'}
 										</span>
 									</div>
@@ -135,15 +220,18 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 							</div>
 						</div>
 						<div className="header-actions">
-							<div className="status-badge connected">
-								<span className="status-dot"></span>
-								<span className="status-text">Connected</span>
-							</div>
+							{connectedIntegration?.isActive && (
+								<div
+									onClick={() => handleSyncUserAccount(connectedIntegration)}
+									className="sync-button"
+								>
+									<Tooltip title="Sync">
+										<SyncIcon />
+									</Tooltip>
+								</div>
+							)}
 							<button
-								className="disconnect-button"
-								onClick={() =>
-									handleDisconnect(connectedIntegration?.accounts?.[0])
-								}
+								className="connect-container"
 								disabled={
 									disconnectingAccountId ===
 									(connectedIntegration?.accounts?.[0]?.uid ||
@@ -154,8 +242,34 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 								(connectedIntegration?.accounts?.[0]?.uid ||
 									connectedIntegration?.accounts?.[0]?._id) ? (
 									'Disconnecting...'
+								) : connectedIntegration?.isActive ? (
+									<div
+										onClick={() =>
+											handleDisconnect(connectedIntegration?.accounts?.[0])
+										}
+										className="disconnect-button"
+									>
+										{info.isconnectingLoader ? (
+											<Spinner color="#ed4337" width="18px" height="18px" />
+										) : (
+											<Tooltip title="Disconnect">
+												<DisconnectIcon className="disconnect-icon" />
+											</Tooltip>
+										)}
+									</div>
 								) : (
-									<DisconnectIcon className="disconnect-icon" />
+									<div
+										className="connect-button"
+										onClick={() => handleConnect(connectedIntegration)}
+									>
+										{info.isconnectingLoader ? (
+											<Spinner color="#ffffff" width="18px" height="18px" />
+										) : (
+											<Tooltip title="Connect">
+												<LinkIcon />
+											</Tooltip>
+										)}
+									</div>
 								)}
 							</button>
 						</div>
@@ -240,6 +354,16 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 						</div>
 					</div>
 				</div>
+
+				{info.syncModalOpen && (
+					<SyncAccountModal
+						closeSyncModal={() =>
+							setInfo((prev) => ({ ...prev, syncModalOpen: false }))
+						}
+						connectedIntegration={connectedIntegration}
+						closeModal={closeModal}
+					/>
+				)}
 			</div>
 		</ReactModal>
 	);

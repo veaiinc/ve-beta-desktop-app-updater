@@ -14,23 +14,15 @@ import { ReactComponent as BulbSvg } from '../../../assets/svg/home_page/bulb.sv
 import { ReactComponent as TrendUpSvg } from '../../../assets/svg/trendUp.svg';
 import { ReactComponent as ArrowsOut } from '../../../assets/svg/gallery/arrowsOut.svg';
 import { ReactComponent as StopIconSvg } from '../../../assets/svg/notesPage/cancel.svg';
-import { ReactComponent as UploadSvg } from '../../../assets/svg/chat/upload.svg';
+import { ReactComponent as CreateSvg } from '../../../assets/svg/chat/create.svg';
 import CreditCoinImage from '../../../assets/images/creditCoin.png';
 import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 import { useLocation, useParams } from 'react-router-dom';
 import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
-import SearchDropdown from './SearchDropdown';
-import UploadFileTooltip from './UploadFileTooltip';
-import DateRangeDropdown from './DateRangeDropdown';
-import moment from 'moment';
 import { Image, Spin, Upload } from 'antd';
-// import AIMessageLoader from './AIMessageLoader';
-import WebSvg from '../../../assets/svg/ai_agents/webSvg';
-import BookSvg from '../../../assets/svg/ai_agents/bookSvg';
 import { message } from '../globalComponents/CustomToast';
-// import SearchTypeTooltip from './SearchTypeTooltip';
 // import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
 import BuildTooltip from './BuildTooltip';
@@ -42,7 +34,7 @@ import { ReactComponent as VoiceAgentSvg } from '../../../assets/svg/ai_agents/v
 import { getFileType } from '../../../helpers/chat/chatHelpers';
 import useSpeechTranscription from '../../../hooks/useSpeechTranscripton';
 import SpeechToTextInactivity from './SpeechToTextInactivity';
-// import VoiceWrapper from '../../layouts/VoiceWrapper';
+import SourcesTooltip from './SourcesTooltip';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -50,12 +42,6 @@ const moduleHelper = {
 	calendar: 'calendar',
 	meet: 'meeting',
 	note: 'notes',
-};
-
-const initialChatFilters = {
-	modules: {},
-	integrations: {},
-	dateRange: null,
 };
 
 const integrationsOptions = {
@@ -165,13 +151,12 @@ const ChatBox = ({
 			isDirectSearchAgent,
 			isBrowserScreenActive,
 		},
-		chatStream: { closeWebSocketConnection: closeChatWebSocketConnection },
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
+		chatStream: { createWebSocketConnection },
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
 		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
-		// notes: { getLiveKitToken },
 		profileInfo: { tenantSettinsData },
 	} = useContext(Context);
 
@@ -189,9 +174,7 @@ const ChatBox = ({
 		noteModalIsOpen: false,
 		citationsModalIsOpen: false,
 		filtersEnabled: false,
-		isUploadFileOpen: false,
 		isRecentFileOpen: false,
-		chatFilters: initialChatFilters,
 		isIntegrationsDropdownOpen: false,
 		isModulesDropdownOpen: false,
 		recentFiles: [],
@@ -204,6 +187,8 @@ const ChatBox = ({
 		chatBoxInfo: initialChatBoxInfo,
 		chatboxMinimized: true,
 		chatBoxContainerHeight: 60,
+		stopLoading: false,
+		chatSocketConnectionAttempted: false,
 	});
 	const chatBoxWrapperRef = useRef(null);
 	const chatbarContainerRef = useRef(null);
@@ -215,6 +200,7 @@ const ChatBox = ({
 	// Speech-to-text state
 	const [isTranscribing, setIsTranscribing] = useState(false);
 	const [speechTranscription, setSpeechTranscription] = useState([]);
+	const [isMicConnecting, setIsMicConnecting] = useState(false);
 
 	const { handleConnect, handleDisconnect, handleResetTimer, showInactivityPopup } =
 		useSpeechTranscription({
@@ -286,7 +272,7 @@ const ChatBox = ({
 			let text = '';
 			speechTranscription?.forEach((item) => {
 				if (item?.text) {
-					text += item?.text;
+					text += item?.text + ' ';
 				}
 			});
 
@@ -328,7 +314,11 @@ const ChatBox = ({
 		}
 
 		if (info?.chatLoading !== isStreaming) {
-			setInfo((prev) => ({ ...prev, chatLoading: isStreaming }));
+			setInfo((prev) => ({
+				...prev,
+				chatLoading: isStreaming,
+				...(isStreaming ? {} : { stopLoading: false }),
+			}));
 		}
 
 		if (latestStreamMessage) {
@@ -428,6 +418,16 @@ const ChatBox = ({
 
 		if (
 			info?.chatQuery?.length > 0 &&
+			!info?.chatSocketConnectionAttempted &&
+			info?.chatSessionId
+		) {
+			const agentType = globalChatMessages?.[sessionId]?.chatInfo?.agentType ?? null;
+			createWebSocketConnection({ sessionId: info?.chatSessionId, isPublicChat, agentType });
+			setInfo((prev) => ({ ...prev, chatSocketConnectionAttempted: true }));
+		}
+
+		if (
+			info?.chatQuery?.length > 0 &&
 			info?.chatSessionId &&
 			getSuggestions &&
 			!info?.chatQuery?.includes('\n')
@@ -515,9 +515,15 @@ const ChatBox = ({
 				message.error('Please wait, AI is already generating a response');
 				return;
 			}
+			if (totalCreditsUsed >= totalCreditsLimit) {
+				updateStateValues({ activePayloadForChat: null });
+				message.error('You have reached your limit of credits');
+				return;
+			}
+
 			const { payload, localPayload, currentQuery, recentFiles = [] } = activePayloadForChat;
 			if (handleSendWebsocketMessage) {
-				handleSendWebsocketMessage(payload, currentQuery, '', info?.chatSessionId);
+				handleSendWebsocketMessage(payload, currentQuery);
 			}
 
 			handleStreamSendMessage(payload, localPayload, currentQuery, info?.chatSessionId);
@@ -671,13 +677,6 @@ const ChatBox = ({
 		});
 	};
 
-	const handleResetFiltersClick = () => {
-		setInfo((prev) => ({
-			...prev,
-			chatFilters: initialChatFilters,
-		}));
-	};
-
 	const handleRecentFileClick = (file) => {
 		let udpatedData = [...(recentFilesRef?.current || [])];
 		const isFileAlreadyPresent = recentFilesRef?.current?.some((ele) => ele?._id === file?._id);
@@ -710,38 +709,6 @@ const ChatBox = ({
 		setInfo((prev) => ({
 			...prev,
 			recentFiles: updatedRecentFiles,
-		}));
-	};
-
-	const handleIntegrationsOptionClick = (key) => {
-		let currentIntegrations = { ...info?.chatFilters?.integrations };
-		if (currentIntegrations[key]) {
-			delete currentIntegrations[key];
-		} else {
-			currentIntegrations[key] = integrationsOptions[key];
-		}
-		setInfo((prev) => ({
-			...prev,
-			chatFilters: {
-				...prev?.chatFilters,
-				integrations: currentIntegrations,
-			},
-		}));
-	};
-
-	const handleModulesOptionClick = (key) => {
-		let currentModules = { ...info?.chatFilters?.modules };
-		if (currentModules[key]) {
-			delete currentModules[key];
-		} else {
-			currentModules[key] = modulesOptions[key];
-		}
-		setInfo((prev) => ({
-			...prev,
-			chatFilters: {
-				...prev?.chatFilters,
-				modules: currentModules,
-			},
 		}));
 	};
 
@@ -783,13 +750,6 @@ const ChatBox = ({
 					const chatInfo = globalChatMessages?.[sessionId]?.chatInfo;
 
 					const chatPayload = globalChatMessages?.[sessionId]?.chatPayload || {};
-					const date =
-						info?.chatFilters?.dateRange?.length > 0
-							? [
-									moment(info?.chatFilters?.dateRange[0])?.unix(),
-									moment(info?.chatFilters?.dateRange[1])?.unix(),
-							  ]
-							: [];
 
 					query = currentQuery;
 
@@ -800,8 +760,6 @@ const ChatBox = ({
 						...(!isPublicChat && {
 							knowledge_base_search: chatBoxData?.workspaceSearch,
 						}),
-						...(!isPublicChat && { modules: Object?.keys(info?.chatFilters?.modules) }),
-						...(!isPublicChat && { date: date }),
 						deep_research: chatBoxData?.deepResearch,
 						deep_search: chatBoxData?.deepSearch,
 					};
@@ -866,16 +824,6 @@ const ChatBox = ({
 						});
 					}
 
-					if (proactiveInfoForChat) {
-						payload.proactive = true;
-						if (proactiveInfoForChat?.proactiveSessionId) {
-							payload.proactive_id = proactiveInfoForChat?.proactiveSessionId;
-						}
-						updateStateValues({
-							proactiveInfoForChat: null,
-						});
-					}
-
 					if (activeWorkflowSlugForSmartFile) {
 						payload.workflow_slug = activeWorkflowSlugForSmartFile;
 					}
@@ -902,6 +850,17 @@ const ChatBox = ({
 						payload.direct_agent = 'search_agent';
 						updateStateValues({
 							isDirectSearchAgent: false,
+						});
+					}
+					if (proactiveInfoForChat) {
+						payload.proactive = true;
+						if (proactiveInfoForChat?.proactiveSessionId) {
+							payload.proactive_id = proactiveInfoForChat?.proactiveSessionId;
+							payload.module_id = proactiveInfoForChat?.moduleId;
+							payload.screen = proactiveInfoForChat?.screen;
+						}
+						updateStateValues({
+							proactiveInfoForChat: null,
 						});
 					}
 
@@ -941,13 +900,13 @@ const ChatBox = ({
 						...prev,
 						uploadedImages: [],
 						chatQuery: '',
-						// recentFiles: [],// not clearing the recent files , because they want like sana
-						chatFilters: initialChatFilters,
+						recentFiles: [],
 						chatboxMinimized: true,
 						suggestion: null,
 						showSuggestion: false,
 					}));
 					uploadedImagesRef.current = [];
+					recentFilesRef.current = [];
 
 					onChatQueryChange?.('');
 					clearTextArea();
@@ -1254,6 +1213,11 @@ const ChatBox = ({
 
 	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
+			const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
+				totalCreditsLimit = currentPlan?.totalAiCreditLimit || 0;
+			if (totalCreditsUsed >= totalCreditsLimit) {
+				return message.error('You have reached your limit of credits');
+			}
 			if (
 				(file?.size >= 3145728 && file?.type?.includes?.('image')) ||
 				uploadedImagesRef?.current?.length === 3
@@ -1301,7 +1265,13 @@ const ChatBox = ({
 				recentFiles,
 			}));
 		},
-		[handleAiUploadImage, info, recentFilesRef?.current, uploadedImagesRef?.current],
+		[
+			handleAiUploadImage,
+			info,
+			recentFilesRef?.current,
+			uploadedImagesRef?.current,
+			currentPlan,
+		],
 	);
 
 	const checkAllUploadLoadingStatus = useCallback(() => {
@@ -1376,6 +1346,8 @@ const ChatBox = ({
 
 	const handleMicIconClick = useCallback(
 		async (event) => {
+			if (isMicConnecting) return;
+
 			try {
 				const { hasMic, hasCamera } = await checkDevices();
 
@@ -1387,6 +1359,7 @@ const ChatBox = ({
 				if (isTranscribing) {
 					handleTranscriptionSocketDisconnect();
 				} else {
+					setIsMicConnecting(true);
 					try {
 						await handleConnect({
 							sessionId: ObjectID()?.toString(),
@@ -1394,8 +1367,10 @@ const ChatBox = ({
 						});
 						setIsTranscribing(true);
 					} catch (error) {
-						console.log('Connection not established', error?.message);
+						console.log(error?.message);
 						message.error('Connection not established');
+					} finally {
+						setIsMicConnecting(false);
 					}
 				}
 
@@ -1405,9 +1380,9 @@ const ChatBox = ({
 				message.error('An error occurred while starting transcription');
 			}
 		},
-
 		[
 			isTranscribing,
+			isMicConnecting,
 			handleConnect,
 			handleTranscriptionSocketDisconnect,
 			handleTranscriptionMessageFunc,
@@ -1629,6 +1604,24 @@ const ChatBox = ({
 		});
 	};
 
+	const handleSearchTypeChange = (key, value) => {
+		let chatBoxData = info?.chatBoxInfo;
+
+		chatBoxData = {
+			...chatBoxData,
+			ask: false,
+			deepResearch: false,
+			goals: false,
+			build: false,
+			[key]: value,
+		};
+		handleGlobalChatMessages({
+			sessionId: info?.chatSessionId,
+			chatBoxInfo: chatBoxData,
+			updateExtraInfo: true,
+		});
+	};
+
 	const handleReplyCloseClick = useCallback(() => {
 		updateStateValues({
 			chatReplyData: null,
@@ -1671,16 +1664,24 @@ const ChatBox = ({
 		[updateAiSetupState],
 	);
 
-	const handleStopChatStream = () => {
-		if (info?.chatSessionId) {
-			closeChatWebSocketConnection([info?.chatSessionId]);
-			handleGlobalChatMessages({
-				sessionId: info?.chatSessionId,
-				removeStreaming: true,
-				updateExtraInfo: true,
-			});
+	const handleStopCurrentChatStream = useCallback(() => {
+		// Prevent rage clicks: ignore if already stopping or not streaming
+		if (!info?.chatLoading || info?.stopLoading) return;
+		setInfo((prev) => ({ ...prev, stopLoading: true }));
+		try {
+			const payload = { action: 'stop' };
+			if (handleSendWebsocketMessage) {
+				// Keep arguments consistent with other usages in this component
+				handleSendWebsocketMessage(payload, '');
+			} else {
+				// Fallback (avoid if possible): do not close connection unless no sender is available
+				// handleStopChatStream();
+			}
+		} catch (error) {
+			console.error('Failed to send stop action:', error);
+			setInfo((prev) => ({ ...prev, stopLoading: false }));
 		}
-	};
+	}, [handleSendWebsocketMessage, info?.chatSessionId, info?.chatLoading, info?.stopLoading]);
 
 	return (
 		<div className="chatBoxParentWrapper" ref={chatBoxWrapperRef} onClick={handleChatBoxClick}>
@@ -1920,98 +1921,107 @@ const ChatBox = ({
 						</div>
 					</div>
 
-					<div className="buttons-right-container">
-						{/* Separate Speech-to-Text Button */}
-						{showMicBtn && (
-							<div
-								className={`click-btn speech-to-text-btn ${
-									isTranscribing ? 'transcribing' : ''
-								}`}
-								onClick={(e) => {
-									e.stopPropagation();
-									handleMicIconClick(e);
-								}}
-								style={{
-									backgroundColor: isTranscribing ? 'var(--error-color)' : 'none',
-								}}
-								title={isTranscribing ? 'Stop Recording' : 'Start Speech-to-Text'}
+					{info?.chatLoading ? (
+						<div className="buttons-right-container">
+							<button
+								className="stop-button"
+								onClick={handleStopCurrentChatStream}
+								disabled={info?.stopLoading}
+								title={info?.stopLoading ? 'Stopping…' : 'Stop generation'}
 							>
-								{isTranscribing ? (
-									<StopIconSvg className="voice-icon" />
-								) : (
-									<SpeechMicSvg className="voice-icon" />
-								)}
-							</div>
-						)}
+								<div className="stop-button-square"></div>
+							</button>
+						</div>
+					) : (
+						<div className="buttons-right-container">
+							{/* Separate Speech-to-Text Button */}
+							{showMicBtn && !isPublicChat && (
+								<div
+									className={`click-btn speech-to-text-btn ${
+										isTranscribing ? 'transcribing' : ''
+									}`}
+									onClick={(e) => {
+										e.stopPropagation();
+										handleMicIconClick(e);
+									}}
+									style={{
+										backgroundColor: isTranscribing
+											? 'var(--error-color)'
+											: 'none',
+									}}
+									title={
+										isTranscribing ? 'Stop Recording' : 'Start Speech-to-Text'
+									}
+								>
+									{isTranscribing ? (
+										<StopIconSvg className="voice-icon" />
+									) : (
+										<SpeechMicSvg className="voice-icon" />
+									)}
+								</div>
+							)}
 
-						{isDesktopApp ? (
-							<div
-								className={`click-btn voice-agent-btn ${
-									info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
-								}`}
-								onClick={(e) => {
-									e.stopPropagation();
-									if (info?.chatLoading) {
-										handleStopChatStream();
-									} else {
+							{isDesktopApp ? (
+								<div
+									className={`click-btn voice-agent-btn ${
+										info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										e.stopPropagation();
 										handleSendBtnClick(e);
-									}
-								}}
-							>
-								{info?.chatLoading ? (
-									<div className="stop-chat-icon"></div>
-								) : (
+									}}
+								>
 									<ArrowUp className="voice-wave-icon" width={16} height={16} />
-								)}
-							</div>
-						) : (
-							<div
-								className={`click-btn voice-agent-btn ${
-									info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
-								}`}
-								onClick={(e) => {
-									e.stopPropagation();
-									if (info?.chatQuery?.trim()?.length > 0) {
-										handleSendBtnClick(e);
-									} else {
-										if (info?.voiceIntegration) return;
-										handleVoiceAgentClick(e);
-									}
-								}}
-							>
-								{info?.chatQuery?.trim()?.length > 0 ? (
-									<ArrowUp className="voice-wave-icon" width={16} height={16} />
-								) : (
-									<VoiceAgentSvg
-										className="voice-wave-icon"
-										width={18}
-										height={18}
-									/>
-								)}
-							</div>
-						)}
-					</div>
+								</div>
+							) : (
+								<div
+									className={`click-btn voice-agent-btn ${
+										info?.chatQuery?.trim()?.length > 0 ? 'active' : ''
+									}`}
+									onClick={(e) => {
+										e.stopPropagation();
+										if (info?.chatQuery?.trim()?.length > 0) {
+											handleSendBtnClick(e);
+										} else {
+											if (info?.voiceIntegration) return;
+											handleVoiceAgentClick(e);
+										}
+									}}
+								>
+									{info?.chatQuery?.trim()?.length > 0 ? (
+										<ArrowUp
+											className="voice-wave-icon"
+											width={16}
+											height={16}
+										/>
+									) : (
+										<VoiceAgentSvg
+											className="voice-wave-icon"
+											width={18}
+											height={18}
+										/>
+									)}
+								</div>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 
 			{showBottomTools && (
 				<div className="chat-payload-info">
 					<div className="left-container">
-						{!isPublicChat && showBottomTools && (
-							<Upload
-								onChange={handleFileAttachmentChange}
-								showUploadList={false}
-								beforeUpload={() => false} // Prevent default upload behavior
-								maxCount={1} // Allow only one file at a time
-								// accept="image/*" // Accept only images
-								accept=".pdf,.docx,.txt,.md,.json,.png,.jpg,.jpeg,.csv,.xlsx,.xls"
-							>
-								<button className="upload-file-btn-container">
-									<UploadSvg />
-									<span className="btn-text">Upload file</span>
-								</button>
-							</Upload>
-						)}
+						{isBuildEnbled &&
+							!isPublicChat &&
+							showBottomTools &&
+							workspaceMode !== 'stable' && (
+								<BuildTooltip>
+									<button className="create-btn-container">
+										<CreateSvg width={16} height={16} />
+										<div className="btn-text">Create</div>
+									</button>
+								</BuildTooltip>
+							)}
 
 						{!isPublicChat && showBottomTools && (
 							<button
@@ -2025,20 +2035,20 @@ const ChatBox = ({
 							</button>
 						)}
 
-						{isBuildEnbled &&
-							!isPublicChat &&
-							showBottomTools &&
-							workspaceMode !== 'stable' && (
-								<BuildTooltip>
-									<button className="create-btn-container">
-										<PlusSvg width={16} height={16} />
-										<div className="btn-text">Create</div>
-									</button>
-								</BuildTooltip>
-							)}
+						{!isPublicChat && showBottomTools && (
+							<SourcesTooltip
+								handleFileAttachmentChange={handleFileAttachmentChange}
+								handleSearchTypeChange={handleSearchTypeChange}
+								webSearchChecked={info?.chatBoxInfo?.webSearch}
+								workspaceSearchChecked={info?.chatBoxInfo?.workspaceSearch}
+							>
+								<button className="upload-file-btn-container">
+									<PlusSvg width={16} height={16} />
+									<span className="btn-text">Sources</span>
+								</button>
+							</SourcesTooltip>
+						)}
 					</div>
-
-					<div className="right-container"></div>
 				</div>
 			)}
 
@@ -2067,48 +2077,6 @@ const ChatBox = ({
 };
 
 export default memo(ChatBox);
-
-{
-	/* <div className="chat-icons-container">
-							{!isPublicChat && showBottomTools && (
-								<UploadFileTooltip
-									fileTypeIcons={fileTypeIcons}
-									handleChange={handleFileAttachmentChange}
-									isUploadFileOpen={info?.isUploadFileOpen}
-									setIsUploadFileOpen={(value) => {
-										if (info?.chatBoxInfo?.deepResearch) return;
-										setInfo((prev) => ({
-											...prev,
-											isUploadFileOpen: value,
-										}));
-									}}
-									handleRecentFileClick={handleRecentFileClick}
-									recentFiles={recentFilesRef.current || []}
-								>
-									<Tooltip
-										title={
-											<div className="chatbox-icon-tooltip-container upload-file-tooltip-btn-container">
-												<PlusSvg width={20} height={20} />
-												Upload File
-											</div>
-										}
-										color="transparent"
-										arrow={false}
-										rootClassName="chatbox-tooltip"
-									>
-										<div
-											className="upload-file-icon-container"
-											style={{
-												opacity: '1',
-											}}
-										>
-											<PlusSvg width={20} height={20} />
-										</div>
-									</Tooltip>
-								</UploadFileTooltip>
-							)}
-						</div> */
-}
 
 {
 	/* <div className="combined-chat-options">

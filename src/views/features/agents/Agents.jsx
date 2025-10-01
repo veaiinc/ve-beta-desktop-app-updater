@@ -161,9 +161,9 @@ const Agents = () => {
 		}
 	}, [info?.totalCards, info?.currentIndex]);
 
-	useEffect(() => {
-		getProactiveHeadings({ module: 'agent' });
-	}, []);
+	// useEffect(() => {
+	// 	getProactiveHeadings({ module: 'agent' });
+	// }, []);
 
 	const handleLeft = useCallback(() => {
 		const index =
@@ -632,13 +632,14 @@ const Agents = () => {
 					</div>
 					<div className={s.text}>Create New</div>
 				</div>
-				{agentTabs.map((tab) => {
+				{agentTabs.map((tab, index) => {
 					return (
 						<div
 							className={`${s.actionItem} ${
 								info?.activeTab === tab.value ? s.active : ''
 							}`}
 							onClick={() => handleTabChange(tab.value)}
+							key={index}
 						>
 							<div className={s.indicatorDot}></div>
 							<div className={s.text}>{tab.label}</div>

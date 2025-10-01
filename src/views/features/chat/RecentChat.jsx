@@ -10,9 +10,8 @@ import React, {
 } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import {
-	handleDeepSearchChainOfThought,
+	handleChainOfThought,
 	handleDeepResearchChainOfThought,
-	getBrowserUrls,
 	handleBrowserData,
 } from '../../../helpers/chat/chatHelpers';
 import Context from '../../../context/context';
@@ -23,12 +22,12 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import { FetchMoreLoaderComp } from '../../../helpers';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import ChatHeader from '../../components/chat/ChatHeader';
-import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
 import Browser from '../../components/chat/chatComponents/Browser';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import ChatRightBar from '../../components/chat/chatComponents/ChatRightBar';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -48,6 +47,7 @@ const RecentChat = ({
 	showRecentFiles = true,
 	showResponseEditBtn = true,
 	fetchRecentChatMessages = true,
+	showRightBar = false,
 
 	// below props are for desktop app
 	isDesktopApp = false,
@@ -113,12 +113,14 @@ const RecentChat = ({
 			// getFollowUpQueries: false,
 			chatQuery: '',
 			citationsAiMessageIndex: null,
-			citationsModalIsOpen: false,
 			isMobileView: false,
 			isChatHistoryClosed,
 			openBrowser: false,
 			browserDataAvailable: false,
 			chatPaddingBottom: 70,
+			rightBarOpen: false,
+			activeRightBar: null,
+			rightBarWidth: 0,
 		};
 	});
 
@@ -131,6 +133,7 @@ const RecentChat = ({
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	const currentUserMessageTimeoutRef = useRef(null);
 	const followUpQueryTimeoutRef = useRef(null);
+	const rightBarRef = useRef(null);
 
 	sessionId = isPreview ? sId : sessionId;
 
@@ -161,7 +164,6 @@ const RecentChat = ({
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
-					citations: null,
 					chatPayload: {
 						workflowTemplateId: null,
 						moduleTemplateId: null,
@@ -214,6 +216,15 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages?.[sessionId]?.open_browser]);
 
+	useEffect(() => {
+		if (rightBarRef.current) {
+			setInfo((prev) => ({
+				...prev,
+				rightBarWidth: rightBarRef.current?.clientWidth,
+			}));
+		}
+	}, [info?.rightBarOpen, info?.activeRightBar]);
+
 	// useEffect(() => {
 	// 	if (info?.getFollowUpQueries) {
 	// 		if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
@@ -258,7 +269,6 @@ const RecentChat = ({
 			if (info?.renderingTwice) {
 				//clearing context state when rendering different session
 				updateStateValues({
-					citations: null,
 					chatPayload: {
 						workflowTemplateId: null,
 						moduleTemplateId: null,
@@ -270,8 +280,10 @@ const RecentChat = ({
 				setInfo((prev) => ({
 					...prev,
 					scrollExecuted: false,
-					citationsModalIsOpen: false,
 					citationsAiMessageIndex: null,
+					rightBarOpen: false,
+					activeRightBar: null,
+					rightBarWidth: 0,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -459,7 +471,7 @@ const RecentChat = ({
 	const handleChatHistoryToggle = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			isChatHistoryClosed: !Boolean(prev?.isChatHistoryClosed),
+			isChatHistoryClosed: !prev?.isChatHistoryClosed,
 		}));
 	}, []);
 
@@ -513,6 +525,7 @@ const RecentChat = ({
 				const {
 					originalQuery = '',
 					response,
+					status,
 					_id: messageId,
 					citations,
 					workflowTemplateId,
@@ -556,23 +569,20 @@ const RecentChat = ({
 				}
 				let processing = null,
 					browserChainOfThought = null,
-					openBrowser = false;
+					openBrowser = false,
+					hasChainOfThought = false;
 
 				let deepResearch = {},
 					cot = [];
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { deep_search, deep_research, normal_search, open_browser } =
-							chainOfThought?.[i] || {};
-						if (deep_search) {
-							processing = 'Deep Search';
+						const { cot, deep_research, open_browser } = chainOfThought?.[i] || {};
+						if (cot) {
+							hasChainOfThought = true;
 							break;
 						} else if (deep_research) {
 							processing = 'Deep Research';
-							break;
-						} else if (normal_search) {
-							processing = 'Normal Search';
 							break;
 						} else if (open_browser) {
 							openBrowser = true;
@@ -580,12 +590,10 @@ const RecentChat = ({
 						}
 					}
 
-					if (processing === 'Deep Search') {
-						cot = handleDeepSearchChainOfThought(chainOfThought);
+					if (hasChainOfThought) {
+						cot = handleChainOfThought(chainOfThought);
 					} else if (processing === 'Deep Research') {
 						deepResearch = handleDeepResearchChainOfThought(chainOfThought);
-					} else if (processing === 'Normal Search') {
-						cot = handleDeepSearchChainOfThought(chainOfThought);
 					} else if (openBrowser) {
 						browserChainOfThought = handleBrowserData(chainOfThought);
 					}
@@ -599,6 +607,7 @@ const RecentChat = ({
 					},
 					{
 						message: response,
+						status,
 						type: 'AI',
 						messageId,
 						rating: rating || null,
@@ -614,9 +623,8 @@ const RecentChat = ({
 						userFeedbackReasons,
 						userRemarks,
 						unintegrated_apps: unintegratedApps,
-						...(processing === 'Deep Search' && { chainOfThought: cot }),
+						...(hasChainOfThought && { chainOfThought: cot }),
 						...(processing === 'Deep Research' && { deepResearch }),
-						...(processing === 'Normal Search' && { chainOfThought: cot }),
 						...(browserChainOfThought && { browserChainOfThought }),
 					},
 				]?.concat(messages);
@@ -807,10 +815,6 @@ const RecentChat = ({
 			}
 			const { message_chunk_id, url_type, browserMetadata } = data;
 
-			// if (toolName) {
-			// 	getBrowserUrls(sessionId, handleGlobalChatMessages);
-			// }
-
 			if (message_chunk_id && (url_type === 'live_view' || browserMetadata)) {
 				handleGlobalChatMessages({
 					payload: data,
@@ -841,14 +845,16 @@ const RecentChat = ({
 		async (data, lastQuery) => {
 			try {
 				await sendMessage({ data, sessionId, onMessageFunc, isPublicChat, agentType });
-				setTimeout(() => {
-					smoothScrollToLastMessage();
-				}, 0);
-				handleGlobalChatMessages({
-					sessionId,
-					lastQuery,
-					updateExtraInfo: true,
-				});
+				if (data?.action !== 'stop') {
+					setTimeout(() => {
+						smoothScrollToLastMessage();
+					}, 0);
+					handleGlobalChatMessages({
+						sessionId,
+						lastQuery,
+						updateExtraInfo: true,
+					});
+				}
 			} catch (error) {
 				const info = typeof error?.message === 'string' ? error?.message || '' : '';
 				message.error(info);
@@ -859,8 +865,6 @@ const RecentChat = ({
 					updateExtraInfo: true,
 					removeStreaming: true,
 				});
-
-				// Handle error appropriately (show notification, etc.)
 			}
 		},
 		[sendMessage, sessionId, onMessageFunc, agentType, isPublicChat],
@@ -873,28 +877,39 @@ const RecentChat = ({
 	const handleCloseCitationsModal = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			citationsModalIsOpen: false,
+			rightBarOpen: false,
+			activeRightBar: null,
+			rightBarWidth: 0,
 			citationsAiMessageIndex: null,
 		}));
 	}, []);
 
 	const handleSourcesClick = useCallback(
 		(index) => {
+			if (index !== info?.citationsAiMessageIndex) {
+				updateStateValues({
+					chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
+				});
+			}
 			setInfo((prev) => {
-				if (index !== prev?.citationsAiMessageIndex) {
-					updateStateValues({
-						chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
-					});
-				}
 				return {
 					...prev,
-					citationsModalIsOpen: index !== prev?.citationsAiMessageIndex,
+					rightBarOpen: index !== prev?.citationsAiMessageIndex,
+					activeRightBar: index !== prev?.citationsAiMessageIndex ? 'citations' : null,
 					citationsAiMessageIndex: index !== prev?.citationsAiMessageIndex ? index : null,
 				};
 			});
 		},
-		[globalChatMessages, sessionId, updateStateValues],
+		[globalChatMessages, sessionId, updateStateValues, info?.citationsAiMessageIndex],
 	);
+
+	const handleRightBarToggle = useCallback(({ open = false, activeRightBar = null }) => {
+		setInfo((prev) => ({
+			...prev,
+			rightBarOpen: open,
+			activeRightBar: activeRightBar,
+		}));
+	}, []);
 
 	const handleChatBoxHeight = useCallback((chatboxHeight) => {
 		setInfo((prev) => {
@@ -914,7 +929,9 @@ const RecentChat = ({
 			<div
 				className="chat-page-container-wrapper"
 				style={{
-					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
+					...(showRightBar && {
+						paddingRight: info?.rightBarOpen ? `${info?.rightBarWidth}px` : '0px',
+					}),
 				}}
 			>
 				{showChatHistory && !info?.isMobileView && (
@@ -1170,12 +1187,17 @@ const RecentChat = ({
 						/>
 					</div>
 				)}
-			</div>
 
-			<CitationsModal
-				modalIsOpen={info?.citationsModalIsOpen}
-				closeModal={handleCloseCitationsModal}
-			/>
+				<div className="chat-right-bar-container" ref={rightBarRef}>
+					{showRightBar && (
+						<ChatRightBar
+							activeRightBar={info?.activeRightBar}
+							handleRightBarToggle={handleRightBarToggle}
+							handleCloseCitationsModal={handleCloseCitationsModal}
+						/>
+					)}
+				</div>
+			</div>
 			<NoteComponentModal
 				modalIsOpen={info?.noteModalIsOpen}
 				closeModal={handleNoteComponentModalClose}

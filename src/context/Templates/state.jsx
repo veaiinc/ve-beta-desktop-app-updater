@@ -1614,6 +1614,14 @@ export const TemplatesState = (props) => {
 					path: `/outlookmail/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
 					apiType: 'microsoft_integration_api',
 				},
+				outlookcalendar: {
+					path: `/outlookcalendar/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
+					apiType: 'microsoft_integration_api',
+				},
+				outlookmail: {
+					path: `/outlookmail/${workspaceId}/auth?access=${access}&redirectURL=${currentURl}`,
+					apiType: 'microsoft_integration_api',
+				},
 			};
 
 			const config = authConfig[connectType] || {
@@ -1654,7 +1662,7 @@ export const TemplatesState = (props) => {
 					path: `/slack/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'third_party_integrations_api',
 				},
-				'outlook-calendar': {
+				outlookCalendar: {
 					path: `/outlookcalendar/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'microsoft_integration_api',
 				},
@@ -1680,6 +1688,90 @@ export const TemplatesState = (props) => {
 			}
 		} catch (error) {
 			console.log('error==>disconnectThirdParty', error);
+		}
+	};
+	const syncUserAccount = async (connectType, id, dateRange = null) => {
+		try {
+			const token = localStorage.getItem('usertoken');
+			const workspaceId = localStorage.getItem('workspaceId');
+			let path, response, apiType;
+			if (dateRange) {
+				const connectUserAccountConfig = {
+					gmail: {
+						path: `/auth/gmail/${workspaceId}/${id}/sync-data?startDate=${dateRange?.startDate}&endDate=${dateRange?.endDate}`,
+						apiType: 'calendar_api',
+					},
+					'google-calendar': {
+						path: `/google-calendar/${workspaceId}/${id}/sync-data?startDate=${dateRange?.startDate}&endDate=${dateRange?.endDate}`,
+						apiType: 'calendar_api',
+					},
+					slack: {
+						path: `/slack/${workspaceId}/${id}/sync-data?startDate=${dateRange?.startDate}&endDate=${dateRange?.endDate}`,
+						apiType: 'third_party_integrations_api',
+					},
+					'outlook-calendar': {
+						path: `/outlookcalendar/${workspaceId}/${id}/sync-data?startDate=${dateRange?.startDate}&endDate=${dateRange?.endDate}`,
+						apiType: 'microsoft_integration_api',
+					},
+					outlookMail: {
+						path: `/outlookmail/${workspaceId}/${id}/sync-data?startDate=${dateRange?.startDate}&endDate=${dateRange?.endDate}`,
+						apiType: 'microsoft_integration_api',
+					},
+				};
+
+				let config = connectUserAccountConfig[connectType] || {
+					path: `/${connectType}/${workspaceId}/${id}/sync-data?startDate=${dateRange?.startDate}&endDate=${dateRange?.endDate}`,
+					apiType: 'third_party_integrations_api',
+				};
+				path = config.path;
+				apiType = config.apiType;
+				response = await Service?.fetchPost(path, null, token, apiType);
+
+				if (response?.[0]) {
+					return response;
+				} else {
+					return response;
+				}
+			} else {
+				const connectUserAccountConfig = {
+					gmail: {
+						path: `/auth/gmail/${workspaceId}/${id}/sync-data`,
+						apiType: 'calendar_api',
+					},
+					'google-calendar': {
+						path: `/google-calendar/${workspaceId}/${id}/sync-data`,
+						apiType: 'calendar_api',
+					},
+					slack: {
+						path: `/slack/${workspaceId}/${id}/sync-data`,
+						apiType: 'third_party_integrations_api',
+					},
+					'outlook-calendar': {
+						path: `/outlookcalendar/${workspaceId}/${id}/sync-data`,
+						apiType: 'microsoft_integration_api',
+					},
+					outlookMail: {
+						path: `/outlookmail/${workspaceId}/${id}/sync-data`,
+						apiType: 'microsoft_integration_api',
+					},
+				};
+
+				let config = connectUserAccountConfig[connectType] || {
+					path: `/${connectType}/${workspaceId}/${id}/sync-data`,
+					apiType: 'third_party_integrations_api',
+				};
+				path = config.path;
+				apiType = config.apiType;
+				response = await Service?.fetchPost(path, null, token, apiType);
+
+				if (response?.[0]) {
+					return response;
+				} else {
+					return response;
+				}
+			}
+		} catch (error) {
+			console.log('error==>syncUserAccount', error);
 		}
 	};
 
@@ -2880,11 +2972,10 @@ export const TemplatesState = (props) => {
 
 	const deleteChatSession = async (sessionId) => {
 		try {
-			console.log('sessionId==>deleteChatSession', sessionId);
 			const workspaceId = localStorage.getItem('workspaceId');
 			const usertoken = localStorage.getItem('usertoken');
 			const url = `/${workspaceId}/ai-chat/delete-multiagent-conversation/${sessionId}`;
-			const body = { isPermanent: false };
+			const body = { isPermanent: true };
 			const response = await Service.fetchDelete(url, usertoken, body, 'ai_assistant_api');
 			return response;
 		} catch (error) {
@@ -3167,5 +3258,6 @@ export const TemplatesState = (props) => {
 		getAuthUrlForThirdParty,
 		disconnectThirdParty,
 		handleResetBrowserInactivityState,
+		syncUserAccount,
 	};
 };

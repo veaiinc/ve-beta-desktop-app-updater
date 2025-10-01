@@ -10,75 +10,116 @@ const WorkflowBuilderLayout = lazy(() => import('../views/layouts/workflowBuilde
 const Public = lazy(() => import('../views/layouts/Public'));
 
 // Protected Pages
+
+// ========================================
+// Global
+// ========================================
 const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
 const EarlyAccess = lazy(() => import('../views/features/earlyAccess/EarlyAccess'));
-const AddGallery = lazy(() => import('../views/features/gallery/AddGallery'));
-const AlbumSettings = lazy(() => import('../views/features/gallery/AlbumSettings'));
-const UploadPhotos = lazy(() => import('../views/features/gallery/UploadPhotos'));
 const InitialHomePage = lazy(() => import('../views/features/homePage/InitialHomePage'));
-// const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
-const Docs = lazy(() => import('../views/features/docs/Docs'));
-import LiteGallery from '../views/features/gallery/Litegallery';
+// const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
+const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
+const PricingPage = lazy(() => import('../views/features/pricingPlans/pricingPage'));
+// const Integrations = lazy(() => import('../views/features/integrationsList/Integrations'));
+
+// ========================================
+// Files
+// ========================================
+const Files = lazy(() => import('../views/features/files/Files'));
 const MyTemplates = lazy(() => import('../views/features/myTemplates/MyTemplates'));
+const Docs = lazy(() => import('../views/features/docs/Docs'));
 const Forms = lazy(() => import('../views/features/forms/Forms'));
 const FormLeads = lazy(() => import('../views/features/forms/FormLeads'));
-const EditAgent = lazy(() => import('../views/features/aiAssistant/EditAgent'));
-const AgentDetails = lazy(() => import('../views/features/aiAssistant/AgentDetails'));
-const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
-const AutomationBuilder = lazy(() =>
-	import('../views/features/automationBuilder/AutomationBuilder'),
-);
-const Automations = lazy(() => import('../views/features/automations/Automations'));
 const DocsFullView = lazy(() => import('../views/components/docs/DocsFullView'));
-const EditKnowledgeAgent = lazy(() => import('../views/features/knowledgeAgent/EditAgent'));
 const FormResCard = lazy(() => import('../views/components/forms/FormResCard'));
 const FormSummary = lazy(() => import('../views/components/forms/FormSummary'));
 const SchedulerMainPage = lazy(() => import('../views/features/calendar/SchedulerMainPage'));
 const EditScheduler = lazy(() => import('../views/features/calendar/EditScheduler'));
-const PricingPage = lazy(() => import('../views/features/pricingPlans/pricingPage'));
-const ProactiveAi = lazy(() => import('../views/features/proactiveAi/ProactiveAi'));
-const KnowledgeAgents = lazy(() => import('../views/features/knowledgeAgent/KnowledgeAgents'));
-const AiAssistants = lazy(() => import('../views/features/aiAssistant/AiAssistants'));
-const KnowledgeAgentDetails = lazy(() => import('../views/features/knowledgeAgent/AgentDetails'));
 const SmartFile = lazy(() => import('../views/features/sales/smartFiles/SmartFile'));
-const WorkflowBuilder = lazy(() => import('../views/features/workflowBuilder/WorkflowBuilder'));
+// const WorkflowBuilder = lazy(() => import('../views/features/workflowBuilder/WorkflowBuilder'));
 const Workflow_builder_updated = lazy(() =>
 	import('../views/features/workflowBuilderUpdated/WorkflowBuilderUpdated'),
 );
-const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
-const Contacts = lazy(() => import('../views/features/contacts/Contacts'));
-
-const Files = lazy(() => import('../views/features/files/Files'));
-const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
-const BuilderApp = lazy(() => import('../../builderSrc/App'));
 const Notes = lazy(() => import('../views/features/notesModule/Notes'));
-const Agents = lazy(() => import('../views/features/agents/Agents'));
-const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
+const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
+
+// ========================================
+// Tools
+// ========================================
+const TaskFullView = lazy(() => import('../views/features/tasks/TaskFullView'));
 const CalendarModule = lazy(() => import('../views/features/calendar/Calendar'));
 const Tasks = lazy(() => import('../views/features/tasks/Tasks'));
-const TaskFullView = lazy(() => import('../views/features/tasks/TaskFullView'));
-const Integrations = lazy(() => import('../views/features/integrationsList/Integrations'));
-const NotesPage = lazy(() => import('../views/features/notesPage/NotesPage'));
+const AutomationBuilder = lazy(() =>
+	import('../views/features/automationBuilder/AutomationBuilder'),
+);
+const Automations = lazy(() => import('../views/features/automations/Automations'));
+const Contacts = lazy(() => import('../views/features/contacts/Contacts'));
+const ExpandedClientView = lazy(() => import('../views/features/contacts/ExpandedClientView'));
+
+// ========================================
+// Chat
+// ========================================
+const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
+const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
+const ProactiveAi = lazy(() => import('../views/features/proactiveAi/ProactiveAi'));
+
+// ========================================
+// Gallery
+// ========================================
 const GalleryPage = lazy(() => import('../views/features/gallery/GalleryPage'));
 const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer'));
+import AddGallery from '../views/features/gallery/AddGallery';
+// const AlbumSettings = lazy(() => import('../views/features/gallery/AlbumSettings'));
+const UploadPhotos = lazy(() => import('../views/features/gallery/UploadPhotos'));
+const LiteGallery = lazy(() => import('../views/features/gallery/Litegallery'));
 
-// components
-import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import publicRoutes from './publicRoutes';
-const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+// ========================================
+// AI ASSISTANT - Discarded
+// ========================================
+// const EditAgent = lazy(() => import('../views/features/aiAssistant/EditAgent'));
+// const AgentDetails = lazy(() => import('../views/features/aiAssistant/AgentDetails'));
+// const KnowledgeAgents = lazy(() => import('../views/features/knowledgeAgent/KnowledgeAgents'));
+// const AiAssistants = lazy(() => import('../views/features/aiAssistant/AiAssistants'));
+// const KnowledgeAgentDetails = lazy(() => import('../views/features/knowledgeAgent/AgentDetails'));
+// const EditKnowledgeAgent = lazy(() => import('../views/features/knowledgeAgent/EditAgent'));
+
+// ========================================
+// Builder
+// ========================================
+const BuilderApp = lazy(() => import('../../builderSrc/App'));
+
+// ========================================
+// Agents
+// ========================================
+// const Agents = lazy(() => import('../views/features/agents/Agents'));
+// const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
+
+// ========================================
+// Ambient AI
+// ========================================
 const ProactiveSuggestions = lazy(() =>
 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 );
+
+// ========================================
+// Meet Bot
+// ========================================
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
-const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
+const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+
+// ========================================
+// components
+// ========================================
+import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
+import publicRoutes from './publicRoutes';
 
 const betaRoutes = [
 	// ========================================
 	// ONBOARDING, HOME & FEATURES
 	// ========================================
 	{
-		path: '/home',
+		path: '/tools',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Tools'}>
@@ -121,11 +162,11 @@ const betaRoutes = [
 	// AI & ASSISTANT FEATURES
 	// ========================================
 	{
-		path: '/priority',
+		path: '/home',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper
-					title={'Priority'}
+					title={'Proactive AI'}
 					outerContainerStyle={{ overflow: 'hidden' }}
 					childrenContainerStyles={{ overflow: 'auto' }}
 					showBottomToolbar={false}
@@ -135,78 +176,78 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/ai-assistant',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'AI Assistant'}>
-					<AiAssistants />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/ai-assistant/:aiAssistantId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'AI Assistant'}>
-					<AgentDetails />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/ai-assistant/:aiAssistantId/edit',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'AI Assistant'}>
-					<EditAgent />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/knowledge-agent',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Knowledge Agent'}
-					innerContainerStyle={{ paddingBottom: '0px' }}
-					showBottomToolbar={false}
-				>
-					<KnowledgeAgents />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/knowledge-agent/:agentId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Knowledge Agent'}
-					showBottomToolbar={false}
-					innerContainerStyle={{ paddingBottom: '0px' }}
-				>
-					<KnowledgeAgentDetails />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/knowledge-agent/:agentId/edit',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Knowledge Agent'}
-					showBottomToolbar={false}
-					outerContainerStyle={{ paddingRight: '0px' }}
-				>
-					<EditKnowledgeAgent />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/ai-assistant',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'AI Assistant'}>
+	// 				<AiAssistants />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/ai-assistant/:aiAssistantId',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'AI Assistant'}>
+	// 				<AgentDetails />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/ai-assistant/:aiAssistantId/edit',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'AI Assistant'}>
+	// 				<EditAgent />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/knowledge-agent',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper
+	// 				title={'Knowledge Agent'}
+	// 				innerContainerStyle={{ paddingBottom: '0px' }}
+	// 				showBottomToolbar={false}
+	// 			>
+	// 				<KnowledgeAgents />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/knowledge-agent/:agentId',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper
+	// 				title={'Knowledge Agent'}
+	// 				showBottomToolbar={false}
+	// 				innerContainerStyle={{ paddingBottom: '0px' }}
+	// 			>
+	// 				<KnowledgeAgentDetails />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/knowledge-agent/:agentId/edit',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper
+	// 				title={'Knowledge Agent'}
+	// 				showBottomToolbar={false}
+	// 				outerContainerStyle={{ paddingRight: '0px' }}
+	// 			>
+	// 				<EditKnowledgeAgent />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/proactiveai/:proactiveAiId',
 		element: (
@@ -217,30 +258,30 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/agents',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title="Agents"
-					outerContainerStyle={{ padding: '0' }}
-					sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
-				>
-					<Agents />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/agent/:agentId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title="Agent">
-					<Agent />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/agents',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper
+	// 				title="Agents"
+	// 				outerContainerStyle={{ padding: '0' }}
+	// 				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+	// 			>
+	// 				<Agents />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/agent/:agentId',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title="Agent">
+	// 				<Agent />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 
 	// ========================================
 	// CHAT
@@ -271,6 +312,7 @@ const betaRoutes = [
 				>
 					<RecentChat
 						showChatHistory={true}
+						showRightBar={true}
 						showDeleteChat={true}
 						showChats={true}
 						showCitationsButton={true}
@@ -309,11 +351,9 @@ const betaRoutes = [
 	{
 		path: '/galleries',
 		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
-					<AddGallery />
-				</AuthWrapper>
-			</Suspense>
+			<AuthWrapper title={'Galleries'} showBottomToolbar={false}>
+				<AddGallery />
+			</AuthWrapper>
 		),
 	},
 	{
@@ -346,16 +386,16 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/galleries/:galleryId/:albumId/album-settings',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
-					<AlbumSettings />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/galleries/:galleryId/:albumId/album-settings',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
+	// 				<AlbumSettings />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/galleries/:galleryId/:albumId/gallery-viewer',
 		element: (
@@ -392,16 +432,16 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/workflow_builder/:templateId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<WorkflowBuilderLayout title={'Workflow Builder'}>
-					<WorkflowBuilder />
-				</WorkflowBuilderLayout>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/workflow_builder/:templateId',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<WorkflowBuilderLayout title={'Workflow Builder'}>
+	// 				<WorkflowBuilder />
+	// 			</WorkflowBuilderLayout>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/automation_builder/:templateId',
 		element: (
@@ -649,16 +689,16 @@ const betaRoutes = [
 	// ========================================
 	// INTEGRATIONS
 	// ========================================
-	{
-		path: '/integrations',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Integrations'}>
-					<Integrations />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/integrations',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Integrations'}>
+	// 				<Integrations />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	// ========================================
 	// BUILDER
 	// ========================================

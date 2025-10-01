@@ -67,6 +67,13 @@ const AIMessage = ({
 		replyElementStyles: replyElementInitialState,
 	});
 
+	const isCancelled = messageData?.status === 'cancelled';
+	const primaryText = typeof text === 'string' && text?.length >= 0 ? text : '';
+	const hasText = (primaryText || '')?.trim()?.length > 0;
+	const isSkipped = !hasText && isCancelled;
+	const effectiveStreamEnd = isSkipped ? true : messageData?.stream_end || false;
+	const displayText = isSkipped ? 'Answer skipped' : primaryText;
+
 	useEffect(() => {
 		if (markdownContainerRef.current) {
 			markdownContainerRef.current.addEventListener('mouseup', handleMouseUp);
@@ -274,16 +281,16 @@ const AIMessage = ({
 					</div>
 				))}
 
-			{messageData?.browserChainOfThought ? (
+			{messageData?.browserChainOfThought && !isSkipped ? (
 				<BrowserChainOfThought chainOfThought={messageData?.browserChainOfThought} />
 			) : (
 				''
 			)}
 
-			{messageData?.tool_invocations ? (
+			{messageData?.tool_invocations && !isSkipped ? (
 				<IntermediateSteps
 					steps={messageData?.tool_invocations}
-					isStreaming={messageData?.stream_end === false}
+					isStreaming={effectiveStreamEnd === false}
 				/>
 			) : (
 				''
@@ -295,10 +302,18 @@ const AIMessage = ({
 				<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
 			) : (
 				<div className="markdown-container" ref={markdownContainerRef}>
-					{/* here animate key's initial value only used, next updated animate value will not reach markdown component */}
-					<Markdown citations={citations} animate={!(messageData?.stream_end || false)}>
-						{text}
-					</Markdown>
+					{/* Dedicated UI for skipped answer */}
+					{isSkipped ? (
+						<div className="answer-skipped">Answer skipped</div>
+					) : (
+						/* here animate key's initial value only used, next updated animate value will not reach markdown component */
+						<Markdown
+							citations={citations}
+							animate={!(messageData?.stream_end ?? false)}
+						>
+							{displayText}
+						</Markdown>
+					)}
 				</div>
 			)}
 
@@ -308,53 +323,58 @@ const AIMessage = ({
 				''
 			)}
 
-			{messageData?.messageId ? (
-				<div
-					className="hover-actions-container"
-					style={{
-						...(isLastMessage && { opacity: 1 }),
-					}}
-				>
-					<div className="left-container">
-						<div className="icon-container">
-							<Tooltip
-								placement="bottom"
-								arrow={false}
-								trigger={'hover'}
-								title={
-									<div className="hover-icons-tooltip">
-										{info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
-									</div>
-								}
-								color="transparent"
-								styles={tooltipStyles}
-							>
-								{info?.isCopiedToClipboard ? (
-									<TickSvg />
-								) : (
-									<CopyIcon onClick={() => handleCopyTextClick(text)} />
-								)}
-							</Tooltip>
-						</div>
-						{showResponseEditBtn && (
+			<div
+				className="hover-actions-container"
+				style={{
+					...(isLastMessage && { opacity: 1 }),
+					display: messageData?.stream_end ? 'flex' : 'none',
+				}}
+			>
+				<div className="left-container">
+					{text?.length > 0 && (
+						<>
 							<div className="icon-container">
 								<Tooltip
 									placement="bottom"
 									arrow={false}
 									trigger={'hover'}
+									title={
+										<div className="hover-icons-tooltip">
+											{info?.isCopiedToClipboard ? 'Copied' : 'Copy'}
+										</div>
+									}
 									color="transparent"
-									title={<div className="hover-icons-tooltip">Edit</div>}
 									styles={tooltipStyles}
 								>
-									<PencilSparkleIcon
-										style={pencilIconStyles}
-										onClick={handlePencilClick}
-									/>
+									{info?.isCopiedToClipboard ? (
+										<TickSvg />
+									) : (
+										<CopyIcon onClick={() => handleCopyTextClick(text)} />
+									)}
 								</Tooltip>
 							</div>
-						)}
 
-						{/* <Tooltip
+							{showResponseEditBtn && (
+								<div className="icon-container">
+									<Tooltip
+										placement="bottom"
+										arrow={false}
+										trigger={'hover'}
+										color="transparent"
+										title={<div className="hover-icons-tooltip">Edit</div>}
+										styles={tooltipStyles}
+									>
+										<PencilSparkleIcon
+											style={pencilIconStyles}
+											onClick={handlePencilClick}
+										/>
+									</Tooltip>
+								</div>
+							)}
+						</>
+					)}
+
+					{/* <Tooltip
 							placement="bottom"
 							arrow={false}
 							trigger={'hover'}
@@ -370,50 +390,45 @@ const AIMessage = ({
 							</div>
 						</Tooltip> */}
 
-						{messageData?.citations?.length > 0 && showCitationsButton && (
-							<div
-								className="ai-message-sources-container"
-								onClick={() => handleSourcesClick?.(messageIndex)}
-							>
-								<div className="imgs-container">
-									{messageData?.citations?.slice(0, 3)?.map((citation, index) => (
-										<div className="ai-message-icon" key={index}>
-											{citation?.type === 'url' ? (
-												getFaviconUrl(citation?.name) ? (
-													<img
-														src={getFaviconUrl(citation?.name)}
-														alt="favicon"
-														className="ai-message-favicon-image"
-													/>
-												) : (
-													<div className="ai-message-source-icon">
-														{getWebsiteName(citation?.name)?.charAt(0)}
-													</div>
-												)
+					{messageData?.citations?.length > 0 && showCitationsButton && (
+						<div
+							className="ai-message-sources-container"
+							onClick={() => handleSourcesClick?.(messageIndex)}
+						>
+							<div className="imgs-container">
+								{messageData?.citations?.slice(0, 3)?.map((citation, index) => (
+									<div className="ai-message-icon" key={index}>
+										{citation?.type === 'url' ? (
+											getFaviconUrl(citation?.name) ? (
+												<img
+													src={getFaviconUrl(citation?.name)}
+													alt="favicon"
+													className="ai-message-favicon-image"
+												/>
 											) : (
 												<div className="ai-message-source-icon">
-													{citation?.type === 's3_key'
-														? fileTypeIcons[
-																citation?.name?.match(
-																	/\.(\w+)$/,
-																)?.[1]
-														  ] || <VeLogoSvg />
-														: fileTypeIcons[citation?.type] || (
-																<VeLogoSvg />
-														  )}
+													{getWebsiteName(citation?.name)?.charAt(0)}
 												</div>
-											)}
-										</div>
-									))}
-								</div>
-								<div className="source-text-container">Sources</div>
+											)
+										) : (
+											<div className="ai-message-source-icon">
+												{citation?.type === 's3_key'
+													? fileTypeIcons[
+															citation?.name?.match(/\.(\w+)$/)?.[1]
+													  ] || <VeLogoSvg />
+													: fileTypeIcons[citation?.type] || (
+															<VeLogoSvg />
+													  )}
+											</div>
+										)}
+									</div>
+								))}
 							</div>
-						)}
-					</div>
+							<div className="source-text-container">Sources</div>
+						</div>
+					)}
 				</div>
-			) : (
-				''
-			)}
+			</div>
 
 			{/* {(aiMessagesInfo?.[messageData?.messageId]?.followUpQuery?.length > 0 ||
 				((messageData?.['follow_up_query'] || [])?.length > 0 &&

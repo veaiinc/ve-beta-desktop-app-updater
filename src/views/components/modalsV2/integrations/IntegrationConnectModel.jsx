@@ -81,13 +81,9 @@ const IntegrationConnectModel = ({
 
 			const response = await Service?.fetchGet(path, token, 'third_party_integrations_api');
 
-			console.log('Verification response:', response);
-			console.log('Looking for integration:', integration?.connectType, integration?.title);
-
 			if (response?.[0] === true && response?.[1]?.data) {
 				// Check if the specific integration is now connected
 				const connectedAccounts = response[1].data;
-				console.log('Connected accounts:', connectedAccounts);
 
 				// Create an array of possible app names to match against
 				const possibleAppNames = [
@@ -102,35 +98,27 @@ const IntegrationConnectModel = ({
 					'google_calendar',
 				].filter(Boolean); // Remove undefined/null values
 
-				console.log('Possible app names to match:', possibleAppNames);
-
 				const isConnected = connectedAccounts.some((account) => {
 					const accountApp = account.app;
-					console.log('Checking account:', accountApp, 'against:', possibleAppNames);
 					return possibleAppNames.includes(accountApp);
 				});
 
-				console.log('Connection verification result:', isConnected);
 				return isConnected;
 			}
 
-			console.log('No connected accounts found or invalid response');
 			return false;
 		} catch (error) {
-			console.error('Error verifying connection:', error);
 			return false;
 		}
 	};
 
 	const verifyConnectionWithRetry = async (maxRetries = 3) => {
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
-			console.log(`Verification attempt ${attempt}/${maxRetries}`);
 			setVerificationAttempt(attempt);
 
 			const isConnected = await verifyConnection();
 
 			if (isConnected) {
-				console.log(`Connection verified on attempt ${attempt}`);
 				setVerificationAttempt(0);
 				return true;
 			}
@@ -138,12 +126,10 @@ const IntegrationConnectModel = ({
 			if (attempt < maxRetries) {
 				// Wait longer between each retry
 				const delay = attempt * 2000; // 2s, 4s, 6s
-				console.log(`Connection not found, retrying in ${delay}ms...`);
 				await new Promise((resolve) => setTimeout(resolve, delay));
 			}
 		}
 
-		console.log('Connection verification failed after all retries');
 		setVerificationAttempt(0);
 		return false;
 	};
@@ -407,7 +393,7 @@ const IntegrationConnectModel = ({
 											</>
 										) : (
 											<span className="connect-text">
-												Connect just for Everyone
+												Connect for Everyone
 											</span>
 										)}
 									</div>

@@ -1,23 +1,29 @@
-import { memo, useContext, useEffect, useState, useCallback } from 'react';
+import { memo, useContext, useEffect, useState, useCallback, lazy } from 'react';
 import { Helmet } from 'react-helmet';
 // import Sidebar from '../components/sidebar/Sidebar';
 import TopNavbar from '../components/topNavbar/TopNavbar';
 import '../../assets/scss/authWrapper.scss';
-import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
-import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
-import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
-import CustomToast, { message } from '../components/globalComponents/CustomToast';
-import PageLoader from '../features/app/PageLoader';
+const ExpiredSubscriptionModal = lazy(() =>
+	import('../components/modalsV2/subscription/ExpiredSubscriptionModal'),
+);
+const ExpiredTokenModal = lazy(() =>
+	import('../components/modalsV2/subscription/ExpiredTokenModal'),
+);
+const AccessDeniedPopup = lazy(() => import('../components/accessPopups/accessDeniedPopup'));
+const CustomToast = lazy(() => import('../components/globalComponents/CustomToast'));
+const { message } = lazy(() => import('../components/globalComponents/CustomToast'));
+const PageLoader = lazy(() => import('../features/app/PageLoader'));
 import useAuthInitializer from '../../hooks/useAuthInitializer';
 import usePushNotifications from '../../hooks/usePushNotifications';
-import useMigrationGate from '../../hooks/useMigrationGate';
-import VoiceWrapper from './VoiceWrapper';
+// const useMigrationGate = lazy(() => import('../../hooks/useMigrationGate'));
+const VoiceWrapper = lazy(() => import('./VoiceWrapper'));
 import Context from '../../context/context';
 import useNetworkStatus from '../../hooks/useNetworkStatus';
-import Offline from '../features/offline/Offline';
-import UnderMaintainence from '../features/underMaintainence/underMaintainence';
+import useIntercom from '../../hooks/useIntercom';
+const Offline = lazy(() => import('../features/offline/Offline'));
+// const UnderMaintainence = lazy(() => import('../features/underMaintainence/underMaintainence'));
 import { internalServerEmitter } from '../../services';
-import InternalServer from '../components/globalComponents/InternalServer';
+const InternalServer = lazy(() => import('../components/globalComponents/InternalServer'));
 
 const AuthWrapper = ({
 	title,
@@ -25,10 +31,10 @@ const AuthWrapper = ({
 	maxWidth = '',
 	outerContainerStyle = {},
 	authParentContainerStyle = {},
-	sidebarContainerStyles = {},
-	sidebarContainerClassName = '',
+	// sidebarContainerStyles = {},
+	// sidebarContainerClassName = '',
 	childrenContainerStyles = {},
-	showSidebar = true,
+	// showSidebar = true,
 }) => {
 	const { isOnline } = useNetworkStatus();
 
@@ -39,7 +45,9 @@ const AuthWrapper = ({
 
 	usePushNotifications(showPushNotification);
 	const { authInitialized } = useAuthInitializer();
-	// const { migrationLoading, migrationInProgress } = useMigrationGate();
+
+	// Initialize Intercom for all authenticated users
+	useIntercom();
 
 	const {
 		aiSetup: { showVoiceWidget },
@@ -77,11 +85,17 @@ const AuthWrapper = ({
 
 	if (!isOnline) return <Offline />;
 
-	// While checking migration, show loader to avoid flicker
-	// if (migrationLoading) return <PageLoader />;
+	// const region = localStorage.getItem('region');
 
-	// Show offline-like page when migration is in progress (status 102)
-	// if (migrationInProgress) return <UnderMaintainence />;
+	// if (region === 'ap-south-1') {
+	// 	const { migrationLoading, migrationInProgress } = useMigrationGate();
+
+	// 	// While checking migration, show loader to avoid flicker
+	// 	if (migrationLoading) return <PageLoader />;
+
+	// 	// Show offline-like page when migration is in progress (status 102)
+	// 	if (migrationInProgress) return <UnderMaintainence />;
+	// }
 
 	return authInitialized ? (
 		<PageLoader />

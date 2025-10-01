@@ -11,11 +11,12 @@ const OauthVerify = () => {
 	const params = new URLSearchParams(location.search);
 	useEffect(() => {
 		const accessToken = params.get('accessToken');
-		let accessibleWorkspaces = params.get('workspaceId');
-		accessibleWorkspaces = decodeURIComponent(accessibleWorkspaces);
-		if (accessibleWorkspaces !== undefined || accessibleWorkspaces !== 'undefined') {
-			accessibleWorkspaces = JSON.parse(accessibleWorkspaces);
-		}
+		const accessibleWorkspaces = params.get('workspaceId')
+			? JSON.parse(decodeURIComponent(params.get('workspaceId')))
+			: null;
+
+		const region = accessibleWorkspaces?.region;
+		const accessTokenExpiry = params.get('accessTokenExpiry');
 
 		if (accessToken) {
 			if (
@@ -26,8 +27,9 @@ const OauthVerify = () => {
 			) {
 				localStorage.setItem('workspaceId', accessibleWorkspaces?.workspaceId);
 				localStorage.setItem('usertoken', accessToken);
-				localStorage.setItem('region', accessibleWorkspaces?.region || 'us-east-1');
+				localStorage.setItem('region', region || 'us-east-1');
 				localStorage.setItem('isOnboard', accessibleWorkspaces?.isOnboard);
+				localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
 				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
@@ -37,7 +39,11 @@ const OauthVerify = () => {
 					sameSite: 'lax',
 					domain: host,
 				});
-				Cookies.set('region', accessibleWorkspaces?.region || 'us-east-1', {
+				Cookies.set('accessTokenExpiry', accessTokenExpiry, {
+					sameSite: 'lax',
+					domain: host,
+				});
+				Cookies.set('region', region || 'us-east-1', {
 					sameSite: 'lax',
 					domain: host,
 				});
@@ -51,13 +57,18 @@ const OauthVerify = () => {
 				accessibleWorkspaces === 'undefined'
 			) {
 				localStorage.setItem('usertoken', accessToken);
-				localStorage.setItem('region', accessibleWorkspaces?.region || 'us-east-1');
+				localStorage.setItem('region', region || 'us-east-1');
+				localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
 				const host = fetchDomainName();
 				Cookies.set('usertoken', accessToken, {
 					sameSite: 'lax',
 					domain: host,
 				});
-				Cookies.set('region', accessibleWorkspaces?.region || 'us-east-1', {
+				Cookies.set('accessTokenExpiry', accessTokenExpiry, {
+					sameSite: 'lax',
+					domain: host,
+				});
+				Cookies.set('region', region || 'us-east-1', {
 					sameSite: 'lax',
 					domain: host,
 				});

@@ -13,7 +13,7 @@ const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'))
 const TermsOfService = lazy(() => import('../views/features/signin/TermsOfService'));
 const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'));
 const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
-const ChageLog = lazy(() => import('../views/features/signin/ChageLog'));
+const ChangeLog = lazy(() => import('../views/features/signin/ChangeLog'));
 const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
 
 // components
@@ -141,7 +141,7 @@ const publicRoutes = [
 		element: (
 			<Public>
 				<Suspense fallback={<SuspenseFallback />}>
-					<ChageLog />
+					<ChangeLog />
 				</Suspense>
 			</Public>
 		),
