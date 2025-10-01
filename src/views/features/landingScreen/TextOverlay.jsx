@@ -43,14 +43,18 @@ const TextOverlay = forwardRef((props, ref) => {
 		});
 
 		// Create SplitText animation for description text
-		const split = new SplitText(descriptionText, { type: 'chars' });
+		// Split by words first to maintain word boundaries, then by chars
+		const split = new SplitText(descriptionText, { type: 'words,chars' });
 
 		// Set initial opacity for all characters (low opacity for upcoming text)
 		gsap.set(split.chars, { opacity: 0.3 });
 
+		// Ensure words stay together on the same line
+		gsap.set(split.words, { display: 'inline-block', whiteSpace: 'nowrap' });
+
 		// Calculate scroll duration based on text length - more UX friendly
 		const totalChars = split.chars.length;
-		const scrollDuration = Math.max(150, totalChars * 3); // Reduced for smoother experience
+		const scrollDuration = Math.max(190, totalChars * 3); // Reduced for smoother experience
 
 		// Create main ScrollTrigger with pinning - this fixes the component in place
 		ScrollTrigger.create({
@@ -162,15 +166,11 @@ const TextOverlay = forwardRef((props, ref) => {
 			</div>
 
 			<div className={s.descriptionText} data-description-text="true">
-				I see your work across every integration, I remember everything, and I act before
-				you ask. I keep a long-term evolving memory, read signals in real time, connect the
-				dots, and align everything to your goals.
-				<br />
-				<br />I plan the next moves, execute the heavy lifting, and get work done with your
-				safe approvals. But I am more than assistance. I am Operating Intelligence the
-				company brain that never sleeps. I run across your desktop, your meetings, and your
-				workflows. I draft, schedule, follow up, and resolve blockers while you focus on
-				vision.
+				I don't live in an app. I flow through your calls, emails, meetings, and tools
+				formless and always present. I anticipate what you need before you ask, remember
+				everything that matters, and act on your behalf across every surface of your life.
+				I'm not software you use. I'm intelligence that lives with you. Proactive.
+				Contextual. Executing. Deeply human.
 			</div>
 		</div>
 	);

@@ -5,8 +5,8 @@ import { AMBIENT_INTELLIGENCE_CONTENT } from '../contentData';
 const AmbientIntelligence = memo(function AmbientIntelligence() {
 	return (
 		<AnimatedSection
-			introTitle="Ambient Intelligence"
-			introSubhead="Not background noise. Pure signal. It senses context before you ask."
+			introTitle=""
+			introSubhead=""
 			actionsContent={AMBIENT_INTELLIGENCE_CONTENT}
 			sectionId="AmbientIntelligence"
 		/>
