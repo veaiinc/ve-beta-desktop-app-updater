@@ -40,6 +40,69 @@ struct NotchContentView: View {
     }
 }
 
+// MARK: - MeetingCompactChatBox (non-expandable chat lookalike)
+struct MeetingCompactChatBox: View {
+    let placeholder: String
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(DynamicIslandTheme.primaryGreen.opacity(0.6), lineWidth: 1)
+                )
+
+            Text(placeholder)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(Color.white.opacity(0.6))
+                .padding(.horizontal, 18)
+        }
+    }
+}
+
+// MARK: - Start Meeting Card
+struct StartMeetingCard: View {
+    let vm: NotchViewModel
+
+    var body: some View {
+        GeometryReader { geo in
+            let h = geo.size.height
+            let corner: CGFloat = 12
+            let padding: CGFloat = 12
+            // Scale text to fit smaller height nicely (target 220x100 card)
+            let titleSize = max(16, min(22, h * 0.28))
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: corner, style: .continuous)
+                    .fill(Color.white.opacity(0.04))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: corner, style: .continuous)
+                            .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                    )
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Start")
+                        .font(.system(size: titleSize, weight: .medium))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text("Meeting")
+                        .font(.system(size: titleSize, weight: .medium))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .padding(padding)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
+            .onTapGesture { vm.startRecording() }
+        }
+        // Ensure the reader honors parent frame
+        .clipped()
+    }
+}
+
 // New Dynamic Island Content View matching JavaScript structure
 struct DynamicIslandContentView: View {
     @StateObject var vm: NotchViewModel
@@ -99,35 +162,57 @@ struct DynamicIslandContentView: View {
                 VStack(spacing: 12.0) {
                     // Top row with start button and icons
                     HStack(spacing: 0.0) {
-                        // Start button section
+                        // Start/Navigation section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Start button (starts transcription/recording) - matches image design
+                                // Home button → default home; also exit Teams view
                                 Button(action: {
-                                    vm.startRecording()
+                                    vm.isTeamsView = false
+                                    vm.navigateToMainScreen(path: nil)
                                 }) {
                                     HStack(spacing: 6.0) {
-                                        // Custom wave icon (SVG-based)
-                                        WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                            .frame(width: 16, height: 16)
-                                        Text(vm.isConnecting ? "Connecting..." : "Start")
-                                            .font(.system(size: 13, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                        Image(systemName: "house")
+                                            .font(.system(size: 14, weight: .regular))
+                                            .foregroundColor(vm.isTeamsView ? .white : .black)
+                                        if !vm.isTeamsView {
+                                            Text("Home")
+                                                .font(.system(size: 14, weight: .semibold))
+                                                .foregroundColor(.black)
+                                        }
                                     }
-                                    .padding(.horizontal, 16)
+                                    .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
-                                    // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
+                                    .background(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                     .overlay(
-                                        Capsule()
-                                            .stroke(DynamicIslandTheme.primaryGreen, lineWidth: 0.5)
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .stroke(vm.isTeamsView ? Color.white.opacity(0.2) : Color.clear, lineWidth: 1)
                                     )
-                                    .clipShape(Capsule())
                                 }
                                 .buttonStyle(PlainButtonStyle())
-                                .scaleEffect(1.0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
-                                .disabled(vm.isConnecting)
-                                .opacity(vm.isConnecting ? 0.8 : 1.0)
+
+                                // Teams pill (sets Teams view)
+                                Button(action: {
+                                    vm.isTeamsView = true
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Text("Meeting AI")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundColor(vm.isTeamsView ? .black : .white)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.white.opacity(0.06))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .stroke(vm.isTeamsView ? Color.clear : Color.white.opacity(0.18), lineWidth: 1)
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                // Removed desktop and VE icons per request
                             } else if vm.showVoiceInterface {
                                 // Voice mode indicator (when split layout is visible)
                                 HStack(spacing: 8) {
@@ -303,9 +388,23 @@ struct DynamicIslandContentView: View {
                     }
                     
                     
-                    // Main content area - always show chat box with Voice Mode button
-                    HStack(alignment: .center, spacing: 16) {
-                        if vm.showVoiceInterface {
+                    // Main content area
+                    HStack(alignment: .center, spacing: 8) {
+                        if vm.isTeamsView {
+                            // Teams view: Start card + interactive chat + webcam pinned right
+                            StartMeetingCard(vm: vm)
+                                .frame(width: 220, height: 100)
+                            ChatTextAreaView(
+                                chatInput: $vm.chatInput,
+                                isTextFieldActive: $isTextFieldActive,
+                                vm: vm
+                            )
+                            .frame(minWidth: 200, maxWidth: .infinity, minHeight: 100, maxHeight: 100)
+                            .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
+                            Spacer(minLength: 0)
+                            WebcamButton(vm: vm)
+                                .frame(width: 100, height: 100)
+                        } else if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)
                         } else {
@@ -919,8 +1018,8 @@ struct ChatTextAreaView: View {
                     DispatchQueue.main.async {
                         isChatInputFocused = true
                         isTextFieldActive = true
-                        // Only enable chat mode if NOT in meeting mode (recording)
-                        if !vm.isRecording {
+                        // Only enable chat mode if NOT in meeting mode (recording) and NOT in Teams/Meeting layout
+                        if !vm.isRecording && !vm.isTeamsView {
                             vm.isChatMode = true
                         }
                         
@@ -1041,8 +1140,8 @@ struct ChatTextAreaView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     isChatInputFocused = true
                     isTextFieldActive = true
-                    // Only enable chat mode if NOT in meeting mode (recording)
-                    if !vm.isRecording {
+                    // Only enable chat mode if NOT in meeting mode (recording) and NOT in Teams/Meeting layout
+                    if !vm.isRecording && !vm.isTeamsView {
                         vm.isChatMode = true
                         vm.isChatInputFocused = true
                     }
@@ -1115,6 +1214,11 @@ struct ChatTextAreaView: View {
     
     // MARK: - Width Calculation Helper
     private func calculateTextEditorWidth() {
+        // In Teams/Meeting layout keep width strictly fixed regardless of focus/chat mode
+        if vm.isTeamsView {
+            textEditorWidth = 400
+            return
+        }
         // Dynamic width based on chat mode: 400px initially, 510px when focused (but 400px in meeting mode)
         let calculatedWidth: CGFloat = (vm.isChatMode && !vm.isRecording) ? 510 : 400
         

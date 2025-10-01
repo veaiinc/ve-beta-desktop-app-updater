@@ -22,6 +22,27 @@ class NotchViewModel: NSObject, ObservableObject {
     let animation: Animation = DynamicIslandTheme.expansionAnimation
     // Fixed size - no width expansion functionality
     var notchOpenedSize: CGSize {
+        // Teams view: fixed compact width
+        if isTeamsView {
+            // Responsive width for Meeting mode so items fit side-by-side without overlap
+            let startWidth: CGFloat = 220
+            let chatWidth: CGFloat = max(200, screenRect.width * 0.19) // allow growth but reserve space
+            let webcamWidth: CGFloat = 100
+            let innerGaps: CGFloat = 8 * 2 // between the three items
+            let outerPadding: CGFloat = spacing * 2 // view padding
+            let buffer: CGFloat = 24 // breathing room for outlines/shadows
+            let desiredWidth = startWidth + chatWidth + webcamWidth + innerGaps + outerPadding + buffer
+            let minComfortableWidth: CGFloat = 650
+            let targetWidth = max(desiredWidth, minComfortableWidth)
+            let maxAllowed = max(500, screenRect.width - 40) // keep within screen
+            let baseWidth = min(targetWidth, maxAllowed)
+            // Reduce overall Meeting-mode notch width by 30 as requested
+            let adjustedWidth = max(400, baseWidth )
+            return .init(
+                width: adjustedWidth,
+                height: DynamicIslandTheme.expandedHeight
+            )
+        }
         // When showing notification, use notification-specific dimensions matching Figma
         if showNotificationOverlay {
             return .init(
@@ -136,6 +157,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var controlledByDynamicIsland: Bool = false
     @Published var isConnecting = false
     @Published var isStealthModeEnabled: Bool = false
+    @Published var isTeamsView: Bool = false
     
     // Chat expansion state
     @Published var isChatExpanded: Bool = false // Deprecated - no longer used for width expansion
@@ -237,6 +259,8 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     private var timerCancellable: AnyCancellable?
+    private var lastNavigationTimestamp: Date = .distantPast
+    private var lastNavigationPath: String? = nil
 
     func notchOpen(_ reason: OpenReason) {
         openReason = reason
@@ -728,6 +752,15 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func navigateToMainScreen(path: String? = nil) {
+        // Throttle duplicate/rapid navigations to avoid feedback loops
+        let now = Date()
+        let since = now.timeIntervalSince(lastNavigationTimestamp)
+        if since < 0.5 && (path == nil || path == lastNavigationPath) {
+            print("⏱️ Throttled navigateToMainScreen to prevent rapid duplicate calls: \(path ?? "<default>")")
+            return
+        }
+        lastNavigationTimestamp = now
+        lastNavigationPath = path
         print("🏠 Navigating to main screen - resetting UI state")
         
         // Reset chat-related state
