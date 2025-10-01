@@ -70,7 +70,7 @@ const ProactiveAi = lazy(() => import('../views/features/proactiveAi/ProactiveAi
 const GalleryPage = lazy(() => import('../views/features/gallery/GalleryPage'));
 const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer'));
 const NewChat = lazy(() => import('../views/components/chat/chatComponents/NewChat'));
-const AddGallery = lazy(() => import('../views/features/gallery/AddGallery'));
+import AddGallery from '../views/features/gallery/AddGallery';
 // const AlbumSettings = lazy(() => import('../views/features/gallery/AlbumSettings'));
 const UploadPhotos = lazy(() => import('../views/features/gallery/UploadPhotos'));
 const LiteGallery = lazy(() => import('../views/features/gallery/Litegallery'));
