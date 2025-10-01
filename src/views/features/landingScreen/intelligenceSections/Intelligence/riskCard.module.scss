@@ -1,11 +1,19 @@
 .riskCard {
 	position: absolute;
 	bottom: clamp(80px, 22vh, 225px);
-	right: clamp(16px, 37vw, 400px);
-	width: min(92vw, 500px);
+	left: 65%;
+	transform: translateX(-50%);
+	width: min(90vw, 500px);
+	max-width: 500px;
 	display: flex;
 	flex-direction: column;
 	gap: clamp(14px, 3vh, 32px);
+
+	/* Responsive adjustments for laptop screens */
+	@media (max-width: 1440px) {
+		width: min(85vw, 450px);
+		left: 75%;
+	}
 }
 
 .riskHeader {

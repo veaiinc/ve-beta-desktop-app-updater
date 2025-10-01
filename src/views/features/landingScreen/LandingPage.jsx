@@ -229,6 +229,7 @@ const LandingPage = () => {
 				<FullscreenIMac ref={fullscreenIMacRef} />
 				{/* Additional content to ensure scrollable height for fullscreen animation and pinned text */}
 				<div
+					className="dummy-div"
 					style={{
 						height: '93vh',
 						background: 'transparent',
