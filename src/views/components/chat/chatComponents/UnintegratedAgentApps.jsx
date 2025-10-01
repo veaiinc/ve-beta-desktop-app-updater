@@ -1,6 +1,6 @@
 import { memo, useContext, useState } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/unintegratedAgentApps.module.scss';
-import { createFrontendClient } from '@pipedream/sdk/browser';
+// import { createFrontendClient } from '@pipedream/sdk/browser';
 import Context from '../../../../context/context';
 import { message } from '../../globalComponents/CustomToast';
 import Spinner from '../../loaders/Spinner';

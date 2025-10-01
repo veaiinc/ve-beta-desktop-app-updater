@@ -184,13 +184,16 @@
 		flex-shrink: 0;
 		justify-content: center;
 
-		@media (max-width: 1024px) {
+		@media (max-width: 1280px) {
 			width: 100%;
-			justify-content: center;
+			justify-content: start;
+			align-items: start;
 		}
 
 		@media (max-width: 768px) {
 			flex-direction: column;
+			justify-content: center;
+			align-items: center;
 			text-align: center;
 		}
 	}
@@ -449,6 +452,128 @@
 
 		.container {
 			gap: 40px;
+		}
+	}
+	.locationCompany {
+		width: 580.329px;
+		flex-shrink: 0;
+		color: #fff;
+		text-align: center;
+		font-family: 'Satoshi Variable';
+		font-size: 35.897px;
+		font-style: italic;
+		font-weight: 700;
+		line-height: 44.871px; /* 125% */
+		letter-spacing: -1.795px;
+
+		@media (max-width: 768px) {
+			width: 100%;
+			max-width: 580.329px;
+			font-size: 28px;
+			line-height: 35px;
+			letter-spacing: -1.4px;
+		}
+
+		@media (max-width: 480px) {
+			font-size: 24px;
+			line-height: 30px;
+			letter-spacing: -1.2px;
+		}
+
+		span {
+			color: #fff;
+			text-align: center;
+			font-family: 'GeneralSans';
+			font-size: 35.897px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 44.871px; /* 125% */
+			letter-spacing: -1.795px;
+
+			@media (max-width: 768px) {
+				font-size: 28px;
+				line-height: 35px;
+				letter-spacing: -1.4px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 24px;
+				line-height: 30px;
+				letter-spacing: -1.2px;
+			}
+		}
+	}
+	.locationCompanyContainer {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 10px;
+
+		@media (max-width: 768px) {
+			gap: 8px;
+		}
+
+		@media (max-width: 480px) {
+			gap: 6px;
+		}
+	}
+	.locationDetail {
+		display: flex;
+
+		align-items: center;
+		color: #fff;
+		font-family: 'Satoshi Variable';
+		font-size: 35.897px;
+		font-style: italic;
+		font-weight: 700;
+		letter-spacing: -1.795px;
+
+		@media (max-width: 768px) {
+			font-size: 28px;
+			letter-spacing: -1.4px;
+		}
+
+		@media (max-width: 480px) {
+			font-size: 24px;
+			letter-spacing: -1.2px;
+		}
+
+		span {
+			color: #fff;
+			text-align: center;
+			font-family: 'GeneralSans';
+			font-size: 35.897px;
+			font-style: normal;
+			font-weight: 400;
+			letter-spacing: -1.795px;
+			margin-right: 12px;
+
+			@media (max-width: 768px) {
+				font-size: 28px;
+				letter-spacing: -1.4px;
+				margin-right: 8px;
+			}
+
+			@media (max-width: 480px) {
+				font-size: 24px;
+				letter-spacing: -1.2px;
+				margin-right: 6px;
+			}
+		}
+
+		svg {
+			margin-bottom: 7px;
+			height: 40px;
+
+			@media (max-width: 768px) {
+				height: 32px;
+				margin-bottom: 5px;
+			}
+
+			@media (max-width: 480px) {
+				height: 28px;
+				margin-bottom: 4px;
+			}
 		}
 	}
 }

@@ -54,12 +54,12 @@ const baseLeftContainerItems = [
 		route: '/chats',
 		showBetaBadge: false,
 	},
-	{
-		id: 4,
-		label: 'Agents',
-		route: '/agents',
-		showBetaBadge: true,
-	},
+	// {
+	// 	id: 4,
+	// 	label: 'Agents',
+	// 	route: '/agents',
+	// 	showBetaBadge: true,
+	// },
 	{
 		id: 5,
 		label: 'Vault',
