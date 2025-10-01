@@ -1057,18 +1057,18 @@ struct WebcamButton: View {
                     }
                 }
                 
-                // Error overlay
-                if let error = vm.cameraError {
-                    VStack {
-                        Spacer()
-                        Text(error)
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.red)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 8)
-                            .padding(.bottom, 4)
-                    }
-                }
+                // // Error overlay
+                // if let error = vm.cameraError {
+                //     VStack {
+                //         Spacer()
+                //         Text(error)
+                //             .font(.system(size: 9, weight: .medium))
+                //             .foregroundColor(.red)
+                //             .multilineTextAlignment(.center)
+                //             .padding(.horizontal, 8)
+                //             .padding(.bottom, 4)
+                //     }
+                // }
             }
         }
         .buttonStyle(PlainButtonStyle())
