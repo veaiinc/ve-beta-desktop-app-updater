@@ -69,20 +69,20 @@ const TemplatesGrid = ({ handleTotalChange, viewMode, setViewMode }) => {
 	}, [myWorkflows]);
 
 	// Add refetch mechanism when component mounts
-	useEffect(() => {
-		// Clear
-		updateStateValues({ myWorkflows: null });
-		// Always refetch data when component mounts to ensure fresh data
-		getMyWorkflowTemplatesData(1);
-	}, []);
+	// useEffect(() => {
+	// 	// Clear
+	// 	updateStateValues({ myWorkflows: null });
+	// 	// Always refetch data when component mounts to ensure fresh data
+	// 	getMyWorkflowTemplatesData(1);
+	// }, []);
 
 	// Handle templatesRefetch from context
-	useEffect(() => {
-		if (templatesRefetch) {
-			getMyWorkflowTemplatesData(1);
-			updateStateValues({ templatesRefetch: null });
-		}
-	}, [templatesRefetch]);
+	// useEffect(() => {
+	// 	if (templatesRefetch) {
+	// 		getMyWorkflowTemplatesData(1);
+	// 		updateStateValues({ templatesRefetch: null });
+	// 	}
+	// }, [templatesRefetch]);
 
 	useEffect(() => {
 		if (mountedRef.current) {

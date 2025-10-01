@@ -10,11 +10,10 @@ import { ReactComponent as EmailIcon } from '../../../assets/svg/footer/email.sv
 import { ReactComponent as AgentsIcon } from '../../../assets/svg/login_page/newAgents.svg';
 import { ReactComponent as InfinityIcon } from '../../../assets/svg/login_page/infinityIcon.svg';
 import Context from '../../../context/context';
-import { getLocationsDetails } from '../../../helpers';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { message } from '../globalComponents/CustomToast';
 import gsap from 'gsap';
 import Spinner from '../loaders/Spinner';
+import { useLocation } from 'react-router-dom';
 
 const Email = ({
 	email,
@@ -24,7 +23,6 @@ const Email = ({
 	lastOtpEmail,
 	setLastOtpEmail,
 }) => {
-	const navigate = useNavigate();
 	const arrowRef = useRef(null);
 
 	const {
@@ -33,6 +31,7 @@ const Email = ({
 			createAccountUsingEmail,
 			continueWithGoogle,
 			getUsernameDetailsViaReferralCode,
+			getLocationDetails,
 		},
 	} = useContext(Context);
 
@@ -55,6 +54,7 @@ const Email = ({
 		: false;
 
 	useEffect(() => {
+		getLocationDetails();
 		const isHostnameVeDotAi =
 			typeof window !== 'undefined' && window.location.hostname.endsWith('ve.ai');
 		setInfo((prev) => ({ ...prev, isHostnameVeDotAi, googleLoading: false }));
@@ -62,7 +62,6 @@ const Email = ({
 		if (referralCode) {
 			handleGetAndSetReferrerUserName();
 		}
-		handleLocationDetailsData();
 		const isValid = validator?.isEmail(email);
 		setInfo((prev) => ({
 			...prev,
@@ -120,7 +119,12 @@ const Email = ({
 		let locationDetails;
 		locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
 		if (!locationDetails) {
-			locationDetails = await getLocationsDetails();
+			const response = await getLocationDetails();
+			if (response?.[0] === true) {
+				locationDetails = response?.[1];
+			} else {
+				message?.error(response?.[1]?.message);
+			}
 		}
 		setInfo((prev) => ({ ...prev, locationDetails }));
 		return locationDetails;
@@ -154,7 +158,12 @@ const Email = ({
 		}
 		let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
 		if (!locationDetails) {
-			locationDetails = await getLocationsDetails();
+			const response = await getLocationDetails();
+			if (response?.[0] === true) {
+				locationDetails = response?.[1];
+			} else {
+				message?.error(response?.[1]?.message);
+			}
 		}
 
 		setInfo((prev) => ({ ...prev, googleLoading: true }));
