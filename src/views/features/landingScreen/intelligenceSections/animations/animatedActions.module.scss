@@ -97,28 +97,33 @@
 }
 
 .titleSection {
-	position: absolute;
-	bottom: clamp(80px, 12vh, 130px);
-	left: clamp(16px, 6vw, 80px);
+	align-items: flex-start;
 	display: flex;
 	flex-direction: column;
-	gap: clamp(4px, 0.8vh, 6px);
+	justify-content: flex-end;
+	height: 100vh;
+	padding: 80px 60px;
+	gap: 10px;
+	position: relative;
+	z-index: 2;
 
 	.title {
+		color: #f2f2f3;
 		font-family: var(--primary-font-family);
-		font-weight: 600;
-		font-size: clamp(16px, 2.2vw, 24px);
-		line-height: 1.35em;
+		font-size: 32px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
 		text-transform: uppercase;
-		color: #ffffff;
 	}
 
 	.subtitle {
+		color: rgba(242, 242, 243, 0.6);
 		font-family: var(--primary-font-family);
-		font-weight: 400;
-		font-size: clamp(12px, 1.6vw, 16px);
-		line-height: 1.5em;
-		color: rgba(255, 255, 255, 0.7);
+		font-size: 26px;
+		font-style: normal;
+		font-weight: 300;
+		line-height: 30px; /* 142.857% */
 	}
 }
 
@@ -177,6 +182,11 @@
 	}
 }
 
+.contentArea {
+	position: relative;
+	height: 100%;
+}
+
 .messageCard {
 	position: absolute;
 	bottom: clamp(80px, 22vh, 225px);
@@ -188,6 +198,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: clamp(12px, 2vh, 20px);
+	top: 500px;
 
 	/* Responsive adjustments for laptop screens */
 	@media (max-width: 1440px) {
