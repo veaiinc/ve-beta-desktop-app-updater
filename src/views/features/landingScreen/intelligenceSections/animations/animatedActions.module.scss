@@ -3,6 +3,12 @@
 	width: 100%;
 	height: 100vh; /* Single viewport height for GSAP pinning */
 	overflow: hidden;
+
+	@media (max-width: 768px) {
+		height: auto;
+		min-height: 100vh;
+		overflow: visible;
+	}
 }
 
 .actionsContainerInner {
@@ -25,6 +31,15 @@
 		&:first-child {
 			opacity: 1;
 			display: flex;
+		}
+
+		@media (max-width: 768px) {
+			position: relative;
+			height: auto;
+			min-height: 100vh;
+			opacity: 1;
+			display: flex;
+			margin-bottom: 40px;
 		}
 	}
 }
@@ -52,6 +67,10 @@
 		border-radius: 50%;
 		filter: blur(clamp(60px, 12vw, 100px));
 	}
+
+	@media (max-width: 768px) {
+		display: none; // Hide dot grid on mobile for cleaner layout
+	}
 }
 
 .progressBars {
@@ -63,6 +82,10 @@
 	gap: clamp(6px, 1.2vh, 8px);
 	z-index: 10000;
 	pointer-events: auto;
+
+	@media (max-width: 768px) {
+		display: none; // Hide progress bars on mobile for cleaner layout
+	}
 
 	.progressBar {
 		width: clamp(4px, 0.6vw, 5px);
@@ -107,6 +130,13 @@
 	position: relative;
 	z-index: 2;
 
+	@media (max-width: 768px) {
+		height: auto;
+		padding: 40px 16px 20px 16px;
+		justify-content: flex-start;
+		order: 1;
+	}
+
 	.title {
 		color: #f2f2f3;
 		font-family: var(--primary-font-family);
@@ -115,6 +145,11 @@
 		font-weight: 500;
 		line-height: normal;
 		text-transform: uppercase;
+
+		@media (max-width: 768px) {
+			font-size: 24px;
+			line-height: 1.35em;
+		}
 	}
 
 	.subtitle {
@@ -124,6 +159,11 @@
 		font-style: normal;
 		font-weight: 300;
 		line-height: 30px; /* 142.857% */
+
+		@media (max-width: 768px) {
+			font-size: 14px;
+			line-height: 1.35em;
+		}
 	}
 }
 
@@ -138,19 +178,39 @@
 	max-width: min(90vw, 500px);
 	width: min(90vw, 500px);
 
+	@media (max-width: 768px) {
+		position: relative;
+		top: auto;
+		left: auto;
+		transform: none;
+		width: 100%;
+		max-width: 280px;
+		padding: 0 16px;
+		order: 2;
+		margin-top: 20px;
+	}
+
 	/* Responsive adjustments for laptop screens */
 	@media (max-width: 1440px) {
 		width: min(85vw, 450px);
+		left: 30%;
 	}
 
 	@media (max-width: 1200px) {
 		width: min(80vw, 400px);
 		max-width: min(80vw, 400px);
+		left: 30%;
 	}
 
 	@media (max-width: 1024px) {
 		width: min(75vw, 350px);
 		max-width: min(75vw, 350px);
+		left: 30%;
+	}
+	@media (max-width: 768px) {
+		width: 100%;
+		max-width: 100%;
+		left: 5%;
 	}
 
 	.actionRequiredHeader {
@@ -170,6 +230,10 @@
 			line-height: 1.35em;
 			text-transform: uppercase;
 			color: #79ecc9;
+
+			@media (max-width: 768px) {
+				font-size: 16px;
+			}
 		}
 	}
 
@@ -179,12 +243,24 @@
 		font-size: clamp(16px, 2.4vw, 24px);
 		line-height: 1.3em;
 		color: #ffffff;
+
+		@media (max-width: 768px) {
+			font-size: 18px;
+			line-height: 1.44em;
+		}
 	}
 }
 
 .contentArea {
 	position: relative;
 	height: 100%;
+
+	@media (max-width: 768px) {
+		order: 3;
+		height: auto;
+		padding: 0 16px;
+		margin-top: 40px;
+	}
 }
 
 .messageCard {
@@ -200,11 +276,22 @@
 	gap: clamp(12px, 2vh, 20px);
 	top: 500px;
 
+	@media (max-width: 768px) {
+		position: relative;
+		bottom: auto;
+		left: auto;
+		top: auto;
+		transform: none;
+		width: 100%;
+		max-width: 300px;
+		margin: 0 auto;
+	}
+
 	/* Responsive adjustments for laptop screens */
 	@media (max-width: 1440px) {
+		left: 12%;
+		top: 40px;
 		width: min(85vw, 450px);
-		left: 75%;
-		top: 266px;
 	}
 
 	.messageContent {
@@ -218,6 +305,11 @@
 			font-size: clamp(16px, 2.4vw, 26px);
 			font-weight: 500;
 			line-height: clamp(22px, 3.4vw, 34px);
+
+			@media (max-width: 768px) {
+				font-size: 18px;
+				line-height: 1.44em;
+			}
 		}
 
 		.messageBody {
@@ -226,6 +318,11 @@
 			font-size: clamp(16px, 2.4vw, 26px);
 			font-weight: 500;
 			line-height: clamp(22px, 3.4vw, 34px);
+
+			@media (max-width: 768px) {
+				font-size: 18px;
+				line-height: 1.44em;
+			}
 		}
 
 		.messageSignature {
@@ -234,6 +331,11 @@
 			font-size: clamp(16px, 2.4vw, 26px);
 			font-weight: 500;
 			line-height: clamp(22px, 3.4vw, 34px);
+
+			@media (max-width: 768px) {
+				font-size: 18px;
+				line-height: 1.44em;
+			}
 		}
 	}
 
@@ -275,6 +377,10 @@
 				font-size: clamp(13px, 2vw, 15px);
 				line-height: 1.35em;
 				color: #79ecc9;
+
+				@media (max-width: 768px) {
+					font-size: 14px;
+				}
 			}
 		}
 	}

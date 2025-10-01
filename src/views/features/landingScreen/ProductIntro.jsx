@@ -99,10 +99,39 @@ const ProductIntro = forwardRef((props, ref) => {
 			const powersList = powersListRef.current;
 			const hero = heroRef.current;
 
+			// Check if we're on mobile (768px and below)
+			const isMobile = window.innerWidth <= 768;
+
+			if (isMobile) {
+				// On mobile, only animate the powers list items, keep large number static
+				const items = powersList.querySelectorAll(`.${s.powerItem}`);
+				if (items.length) {
+					gsap.fromTo(
+						items,
+						{ y: 40, autoAlpha: 0 },
+						{
+							y: 0,
+							autoAlpha: 1,
+							stagger: 0.1,
+							ease: 'power2.out',
+							scrollTrigger: {
+								trigger: container,
+								start: 'top 80%',
+								end: 'top 40%',
+								scrub: false,
+								once: true,
+							},
+						},
+					);
+				}
+				return;
+			}
+
+			// Desktop/tablet parallax animation
 			const containerHeight = container.offsetHeight;
 			const viewportH = window.innerHeight;
 			const baseDistance = containerHeight + viewportH;
-			const fastFactor = 0.9;
+			const fastFactor = 2.5;
 			const fastDistance = Math.min(fastFactor * baseDistance, 1500);
 
 			const listRect = powersList.getBoundingClientRect();
@@ -125,7 +154,7 @@ const ProductIntro = forwardRef((props, ref) => {
 				trigger: container,
 				start: 'top bottom+600px',
 				end: 'bottom top',
-				scrub: 1.2,
+				scrub: 3.2,
 				markers: false,
 				invalidateOnRefresh: true,
 				onUpdate: (self) => {

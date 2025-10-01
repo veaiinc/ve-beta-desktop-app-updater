@@ -1,4 +1,4 @@
-import { memo, useRef, useLayoutEffect, useState } from 'react';
+import { memo, useRef, useLayoutEffect, useState, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
@@ -22,6 +22,19 @@ const AnimatedSection = memo(function AnimatedSection({
 	const initialContainerTopRef = useRef(0);
 	const [currentActionsCard, setCurrentActionsCard] = useState(0);
 	const [withinCardProgress, setWithinCardProgress] = useState(0);
+	const [isMobile, setIsMobile] = useState(false);
+
+	// Check if mobile on mount and resize
+	useEffect(() => {
+		const checkMobile = () => {
+			setIsMobile(window.innerWidth <= 768);
+		};
+
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+
+		return () => window.removeEventListener('resize', checkMobile);
+	}, []);
 
 	// Capture container's original top-offset on mount
 	useLayoutEffect(() => {
@@ -32,8 +45,10 @@ const AnimatedSection = memo(function AnimatedSection({
 		}
 	}, []);
 
-	// GSAP + ScrollTrigger setup for curve animation
+	// GSAP + ScrollTrigger setup for curve animation (desktop only)
 	useGSAP(() => {
+		// Skip GSAP setup on mobile
+
 		// Clear old triggers for this component only
 		const triggers = ScrollTrigger.getAll();
 		triggers.forEach((t) => {
@@ -216,7 +231,7 @@ const AnimatedSection = memo(function AnimatedSection({
 				}
 			});
 		};
-	}, [sectionId]);
+	}, [sectionId, isMobile]);
 
 	return (
 		<div ref={containerRef} className={s.animatedSectionContainer}>
