@@ -1,0 +1,391 @@
+.actionsContainer {
+	position: relative;
+	width: 100%;
+	height: 100vh; /* Single viewport height for GSAP pinning */
+	overflow: hidden;
+
+	@media (max-width: 768px) {
+		height: auto;
+		min-height: 100vh;
+		overflow: visible;
+	}
+}
+
+.actionsContainerInner {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+
+	.card {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+		opacity: 0;
+		display: none;
+
+		&:first-child {
+			opacity: 1;
+			display: flex;
+		}
+
+		@media (max-width: 768px) {
+			position: relative;
+			height: auto;
+			min-height: 100vh;
+			opacity: 1;
+			display: flex;
+			margin-bottom: 40px;
+		}
+	}
+}
+
+.dotGrid {
+	position: absolute;
+	top: clamp(96px, 20vh, 192px);
+	left: 50%;
+	transform: translateX(-50%);
+	width: clamp(240px, 45vw, 695px);
+	height: clamp(240px, 45vw, 695px);
+	background-image: radial-gradient(circle, #ffffff66 1px, transparent 1px);
+	background-size: clamp(12px, 2vw, 20px) clamp(12px, 2vw, 20px);
+	opacity: 0.3;
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: clamp(140px, 24vw, 293px);
+		height: clamp(140px, 24vw, 293px);
+		background: rgba(121, 236, 201, 0.1);
+		border-radius: 50%;
+		filter: blur(clamp(60px, 12vw, 100px));
+	}
+
+	@media (max-width: 768px) {
+		display: none; // Hide dot grid on mobile for cleaner layout
+	}
+}
+
+.progressBars {
+	position: absolute;
+	top: clamp(220px, 40vh, 479px);
+	right: clamp(12px, 3vw, 55px);
+	display: flex;
+	flex-direction: column;
+	gap: clamp(6px, 1.2vh, 8px);
+	z-index: 10000;
+	pointer-events: auto;
+
+	@media (max-width: 768px) {
+		display: none; // Hide progress bars on mobile for cleaner layout
+	}
+
+	.progressBar {
+		width: clamp(4px, 0.6vw, 5px);
+		height: clamp(12px, 2vh, 16px);
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 24px;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		pointer-events: auto;
+		position: relative;
+		z-index: 11;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.4);
+			transform: scale(1.05);
+		}
+
+		&.selected {
+			width: clamp(4px, 0.6vw, 4px);
+			height: clamp(28px, 5vh, 40px);
+			background: #79ecc9;
+			box-shadow: 0 0 15px rgba(121, 236, 201, 0.6);
+		}
+
+		.progressFill {
+			width: 100%;
+			height: 60%;
+			border-radius: 24px;
+			pointer-events: none;
+		}
+	}
+}
+
+.titleSection {
+	align-items: flex-start;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	height: 100vh;
+	padding: 80px 60px;
+	gap: 10px;
+	position: relative;
+	z-index: 2;
+
+	@media (max-width: 768px) {
+		height: auto;
+		padding: 40px 16px 20px 16px;
+		justify-content: flex-start;
+		order: 1;
+	}
+
+	.title {
+		color: #f2f2f3;
+		font-family: var(--primary-font-family);
+		font-size: 32px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		text-transform: uppercase;
+
+		@media (max-width: 768px) {
+			font-size: 24px;
+			line-height: 1.35em;
+		}
+	}
+
+	.subtitle {
+		color: rgba(242, 242, 243, 0.6);
+		font-family: var(--primary-font-family);
+		font-size: 26px;
+		font-style: normal;
+		font-weight: 300;
+		line-height: 30px; /* 142.857% */
+
+		@media (max-width: 768px) {
+			font-size: 14px;
+			line-height: 1.35em;
+		}
+	}
+}
+
+.actionRequiredSection {
+	position: absolute;
+	top: clamp(120px, 28vh, 225px);
+	left: 40%;
+	transform: translateX(-50%);
+	display: flex;
+	flex-direction: column;
+	gap: clamp(12px, 2.2vh, 24px);
+	max-width: min(90vw, 500px);
+	width: min(90vw, 500px);
+
+	@media (max-width: 768px) {
+		position: relative;
+		top: auto;
+		left: auto;
+		transform: none;
+		width: 100%;
+		max-width: 280px;
+		padding: 0 16px;
+		order: 2;
+		margin-top: 20px;
+	}
+
+	/* Responsive adjustments for laptop screens */
+	@media (max-width: 1440px) {
+		width: min(85vw, 450px);
+		left: 30%;
+	}
+
+	@media (max-width: 1200px) {
+		width: min(80vw, 400px);
+		max-width: min(80vw, 400px);
+		left: 30%;
+	}
+
+	@media (max-width: 1024px) {
+		width: min(75vw, 350px);
+		max-width: min(75vw, 350px);
+		left: 30%;
+	}
+	@media (max-width: 768px) {
+		width: 100%;
+		max-width: 100%;
+		left: 5%;
+	}
+
+	.actionRequiredHeader {
+		display: flex;
+		align-items: center;
+		gap: clamp(8px, 1.2vw, 10px);
+
+		.arrowIcon {
+			width: clamp(14px, 2.2vw, 20px);
+			height: clamp(14px, 2.2vw, 20px);
+		}
+
+		.actionRequiredText {
+			font-family: var(--primary-font-family);
+			font-weight: 500;
+			font-size: clamp(12px, 1.8vw, 16px);
+			line-height: 1.35em;
+			text-transform: uppercase;
+			color: #79ecc9;
+
+			@media (max-width: 768px) {
+				font-size: 16px;
+			}
+		}
+	}
+
+	.actionTitle {
+		font-family: var(--primary-font-family);
+		font-weight: 500;
+		font-size: clamp(16px, 2.4vw, 24px);
+		line-height: 1.3em;
+		color: #ffffff;
+
+		@media (max-width: 768px) {
+			font-size: 18px;
+			line-height: 1.44em;
+		}
+	}
+}
+
+.contentArea {
+	position: relative;
+	height: 100%;
+
+	@media (max-width: 768px) {
+		order: 3;
+		height: auto;
+		padding: 0 16px;
+		margin-top: 40px;
+	}
+}
+
+.messageCard {
+	position: absolute;
+	bottom: clamp(80px, 22vh, 225px);
+	left: 65%;
+	transform: translateX(-50%);
+	width: min(90vw, 500px);
+	max-width: 500px;
+	padding: clamp(16px, 2.4vh, 24px);
+	display: flex;
+	flex-direction: column;
+	gap: clamp(12px, 2vh, 20px);
+	top: 500px;
+
+	@media (max-width: 768px) {
+		position: relative;
+		bottom: auto;
+		left: auto;
+		top: auto;
+		transform: none;
+		width: 100%;
+		max-width: 300px;
+		margin: 0 auto;
+	}
+
+	/* Responsive adjustments for laptop screens */
+	@media (max-width: 1440px) {
+		left: 72%;
+		top: 210px;
+		width: min(85vw, 450px);
+	}
+	@media (max-width: 768px) {
+		left: 12%;
+		top: 40px;
+	}
+
+	.messageContent {
+		display: flex;
+		flex-direction: column;
+		gap: clamp(10px, 1.6vh, 16px);
+
+		.messageText {
+			color: #fff;
+			font-family: var(--primary-font-family);
+			font-size: clamp(16px, 2.4vw, 26px);
+			font-weight: 500;
+			line-height: clamp(22px, 3.4vw, 34px);
+
+			@media (max-width: 768px) {
+				font-size: 18px;
+				line-height: 1.44em;
+			}
+		}
+
+		.messageBody {
+			color: #fff;
+			font-family: var(--primary-font-family);
+			font-size: clamp(16px, 2.4vw, 26px);
+			font-weight: 500;
+			line-height: clamp(22px, 3.4vw, 34px);
+
+			@media (max-width: 768px) {
+				font-size: 18px;
+				line-height: 1.44em;
+			}
+		}
+
+		.messageSignature {
+			color: #fff;
+			font-family: var(--primary-font-family);
+			font-size: clamp(16px, 2.4vw, 26px);
+			font-weight: 500;
+			line-height: clamp(22px, 3.4vw, 34px);
+
+			@media (max-width: 768px) {
+				font-size: 18px;
+				line-height: 1.44em;
+			}
+		}
+	}
+
+	.buttonsContainer {
+		display: flex;
+		align-items: flex-start;
+		gap: clamp(6px, 1vw, 8px);
+		align-self: stretch;
+
+		.actionButton {
+			display: flex;
+			padding: clamp(10px, 1.6vh, 12px) clamp(14px, 2.2vh, 18px);
+			justify-content: center;
+			align-items: center;
+			gap: 8px;
+			flex: 1 0 0;
+			border-radius: clamp(18px, 3vw, 24px);
+			border: 1px solid rgba(121, 236, 201, 0.1);
+			background: rgba(0, 0, 0, 0.1);
+			box-shadow: 0 0 10px 0 rgba(121, 236, 201, 0.2) inset;
+			backdrop-filter: blur(25px);
+			cursor: pointer;
+			transition: all 0.3s ease;
+
+			&:hover {
+				background: rgba(0, 0, 0, 0.2);
+				box-shadow: inset 0px 0px 15px 0px rgba(121, 236, 201, 0.3);
+			}
+
+			.buttonIcon {
+				width: clamp(14px, 2.4vw, 18px);
+				height: clamp(14px, 2.4vw, 18px);
+				color: #ffffff;
+			}
+
+			.buttonText {
+				font-family: var(--primary-font-family);
+				font-weight: 550;
+				font-size: clamp(13px, 2vw, 15px);
+				line-height: 1.35em;
+				color: #79ecc9;
+
+				@media (max-width: 768px) {
+					font-size: 14px;
+				}
+			}
+		}
+	}
+}

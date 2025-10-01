@@ -1,0 +1,66 @@
+.glassFooterSection {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	position: relative;
+	z-index: 1;
+
+	@media (max-width: 768px) {
+		position: static;
+		z-index: auto;
+		margin-top: 35px;
+		background: #000000;
+		background-image: url('../../../assets/svg/landingScreen/footerMobile.svg');
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+		min-height: 564px;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		align-items: center;
+		padding: 50px 0;
+	}
+}
+
+.glassFooter {
+	width: 100%;
+	height: auto;
+	display: block;
+
+	@media (max-width: 768px) {
+		display: none;
+	}
+}
+
+.mobileFooter {
+	display: none;
+	width: 100%;
+	height: auto;
+	max-width: 375px;
+
+	@media (max-width: 768px) {
+		display: block;
+		width: 100%;
+		height: auto;
+		max-width: 375px;
+	}
+}
+
+// When used as mobile footer (below NewsletterSection)
+.mobileFooterContainer {
+	.glassFooter {
+		display: none;
+	}
+
+	.mobileFooter {
+		display: block;
+		width: 100%;
+		height: auto;
+		max-width: 375px;
+	}
+}

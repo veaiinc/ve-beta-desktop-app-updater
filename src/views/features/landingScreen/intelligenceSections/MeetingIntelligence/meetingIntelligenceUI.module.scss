@@ -1,0 +1,456 @@
+.meetingIntelligenceUI {
+	width: 100%;
+	min-height: 100vh; // Normal height for natural scrolling
+	position: relative;
+	z-index: 1000;
+	overflow: visible;
+
+	// Mobile view adjustments
+	@media (max-width: 768px) {
+		min-height: auto;
+		padding: 40px 0;
+	}
+}
+
+.meetingIntelligenceUIInner {
+	width: 100%;
+	min-height: 100vh;
+	position: relative;
+	padding: 50px 0; // Reduced padding for better spacing
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 30px; // Add gap between cards
+	z-index: 2;
+
+	// Mobile: Static layout with normal spacing
+	@media (max-width: 768px) {
+		min-height: auto;
+		padding: 20px 16px;
+		gap: 16px;
+		justify-content: flex-start;
+	}
+
+	.dotGrid {
+		position: absolute;
+		top: 200px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 955px;
+
+		height: min(90vw, 955px);
+
+		max-height: 955px;
+		background-image: radial-gradient(circle, #2e3339 1px, transparent 1px);
+		background-size: 20px 20px;
+		opacity: 0.3;
+		z-index: 1;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 124.65px;
+			left: 124.65px;
+			width: 75%;
+			height: 704.69px;
+			background: rgba(121, 236, 201, 0.1);
+			border-radius: 50%;
+			filter: blur(293.3357849121094px);
+		}
+
+		/* Responsive adjustments for laptop screens */
+		@media (max-width: 1440px) {
+			height: min(85vw, 800px);
+
+			max-height: 800px;
+		}
+
+		@media (max-width: 1200px) {
+			width: min(80vw, 700px);
+			height: min(80vw, 700px);
+			max-width: 700px;
+			max-height: 700px;
+		}
+
+		@media (max-width: 1024px) {
+			width: min(75vw, 600px);
+			height: min(75vw, 600px);
+			max-width: 600px;
+			max-height: 600px;
+		}
+
+		// Mobile: Smaller and adjusted positioning
+		@media (max-width: 768px) {
+			top: 50px;
+			width: min(90vw, 400px);
+			height: min(90vw, 400px);
+			max-width: 400px;
+			max-height: 400px;
+			background-size: 15px 15px;
+
+			&::after {
+				top: 50px;
+				left: 50px;
+				width: 70%;
+				height: 300px;
+			}
+		}
+	}
+
+	.meetingOverlay {
+		max-height: min(40vw, 250px);
+		align-self: center;
+		justify-self: center;
+		margin: -35px 0 34px;
+		z-index: 2;
+
+		/* Responsive adjustments for laptop screens */
+		@media (max-width: 1440px) {
+			max-height: min(35vw, 225px);
+		}
+
+		@media (max-width: 1200px) {
+			max-width: min(90vw, 400px);
+			max-height: min(30vw, 200px);
+		}
+	}
+
+	.messageCard {
+		border-radius: 13.34px;
+		padding: 16.68px;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 13.34px;
+		width: fit-content;
+		max-width: 400px;
+		z-index: 10;
+		margin: -45px 0; // Increased margin for better spacing
+		position: relative;
+
+		&.leftSide {
+			align-self: flex-start;
+			margin-left: 350px;
+			margin-right: auto;
+		}
+
+		&.rightSide {
+			align-self: flex-end;
+			margin-left: auto;
+			margin-right: 350px;
+		}
+
+		/* Responsive adjustments for laptop screens */
+		@media (max-width: 1440px) {
+			&.leftSide {
+				margin-left: clamp(30px, 12vw, 150px);
+			}
+
+			&.rightSide {
+				margin-right: clamp(30px, 12vw, 150px);
+			}
+		}
+
+		@media (max-width: 1200px) {
+			&.leftSide {
+				margin-left: clamp(20px, 10vw, 100px);
+			}
+
+			&.rightSide {
+				margin-right: clamp(20px, 10vw, 100px);
+			}
+		}
+
+		@media (max-width: 1024px) {
+			&.leftSide {
+				margin-left: clamp(15px, 8vw, 80px);
+			}
+
+			&.rightSide {
+				margin-right: clamp(15px, 8vw, 80px);
+			}
+		}
+
+		// Mobile: Simplified positioning for scroll animations
+		@media (max-width: 768px) {
+			max-width: 100%;
+			width: 100%;
+			margin: 0;
+			padding: 12px;
+			border-radius: 12px;
+			gap: 10px;
+			position: relative;
+
+			&.leftSide,
+			&.rightSide {
+				align-self: stretch;
+				margin-left: 0 !important;
+				margin-right: 0 !important;
+			}
+
+			&.leftSide {
+				background: rgba(40, 44, 48, 0.6);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+			}
+
+			&.rightSide {
+				background: rgba(121, 236, 201, 0.1);
+				border: 1px solid rgba(121, 236, 201, 0.2);
+			}
+		}
+	}
+
+	.userInfo {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.userTag {
+		display: flex;
+		align-items: center;
+		gap: 6.67px;
+		padding: 5px 8.34px;
+		width: 26.68px;
+		height: 26.68px;
+		background: #2c2d2e;
+		border: 0.83px solid #2c2d2e;
+		border-radius: 41.69px;
+	}
+
+	.userAvatar {
+		width: 16px;
+		height: 16px;
+
+		border-radius: 50%;
+	}
+
+	.userName {
+		font-family: 'Gilroy-Regular', sans-serif;
+		font-weight: 400;
+		font-size: 15px;
+		line-height: 1.2em;
+		color: #f2f2f3;
+	}
+
+	.messageText {
+		font-family: var(--primary-font-family);
+		font-weight: 500;
+		font-size: clamp(14px, 2vw, 16px);
+		line-height: 1.35em;
+		color: #f2f2f3;
+		text-align: left;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+	}
+
+	.suggestionCard {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		width: 400px;
+		margin: -22px 0;
+		position: relative;
+		z-index: 10;
+		// Center suggestion cards by default
+		align-self: center;
+		margin-left: auto;
+		margin-right: auto;
+
+		// Override side positioning for suggestion cards - always center them
+		&.leftSide,
+		&.rightSide {
+			align-self: center;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		// Mobile: Full width for scroll animations
+		@media (max-width: 768px) {
+			width: 100%;
+			margin: 0;
+			position: relative;
+			gap: 8px;
+
+			&.leftSide,
+			&.rightSide {
+				width: 100%;
+			}
+		}
+	}
+
+	.suggestionLabel {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		padding: 6px 10px;
+		width: fit-content;
+	}
+
+	.labelIcon {
+		width: 12px;
+		height: 12px;
+		background: #79ecc9;
+		border-radius: 50%;
+		box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+	}
+
+	.labelText {
+		font-family: var(--primary-font-family);
+		font-weight: 500;
+		font-size: 18px;
+		line-height: 1.35em;
+		color: #79ecc9;
+	}
+
+	.suggestionMessage {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 50px;
+		padding: 32px;
+		background: rgba(0, 0, 0, 0.25);
+		border: 1px solid rgba(121, 236, 201, 0.3);
+		border-radius: 16px;
+		box-shadow: inset 0px 0px 20px 0px rgba(121, 236, 201, 0.15);
+		backdrop-filter: blur(10px);
+		width: 100%;
+
+		// Mobile: Adjusted padding and spacing
+		@media (max-width: 768px) {
+			padding: 16px;
+			gap: 20px;
+			border-radius: 12px;
+		}
+	}
+
+	.suggestionMessageText {
+		font-family: var(--primary-font-family);
+		font-weight: 600;
+		font-size: clamp(16px, 2.2vw, 18px);
+		line-height: 1.78em;
+		color: #79ecc9;
+		width: auto;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+	}
+
+	.aiResponseCard {
+		display: flex;
+		flex-direction: column;
+		gap: 24px;
+		padding: 24px;
+		width: 680px;
+		background: #202123;
+		border: 1px solid;
+		border-radius: 24px;
+		box-shadow: 2px 6px 15px 0px rgba(0, 0, 0, 0.2), 10px 26px 27px 0px rgba(0, 0, 0, 0.17),
+			22px 57px 37px 0px rgba(0, 0, 0, 0.1), 39px 102px 44px 0px rgba(0, 0, 0, 0.03),
+			60px 159px 48px 0px rgba(0, 0, 0, 0), 0px 0px 80px 0px rgba(121, 236, 201, 0.07);
+		margin: -20px 0; // Increased margin for better spacing
+		position: relative;
+		z-index: 10;
+		align-self: center;
+		margin-left: auto;
+		margin-right: auto;
+
+		&.leftSide {
+			align-self: center;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		&.rightSide {
+			align-self: center;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		/* Responsive adjustments for laptop screens */
+		@media (max-width: 1440px) {
+			margin: -120px 0; // Move up more on smaller screens
+		}
+
+		// Mobile: Full width for scroll animations
+		@media (max-width: 768px) {
+			width: 100%;
+			margin: 0;
+			padding: 16px;
+			gap: 16px;
+			border-radius: 16px;
+			position: relative;
+
+			&.leftSide,
+			&.rightSide {
+				width: 100%;
+			}
+		}
+	}
+
+	.aiResponseHeader {
+		font-family: var(--primary-font-family);
+		font-weight: 500;
+		font-size: 12px;
+		line-height: 1.35em;
+		text-transform: uppercase;
+		color: #94989e;
+		width: fit-content;
+	}
+
+	.aiResponseContent {
+		font-family: var(--primary-font-family);
+		font-weight: 500;
+		font-size: clamp(14px, 2vw, 16px);
+		line-height: 1.75em;
+		color: #ffffff;
+		width: 100%;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+	}
+
+	// Animation system - GSAP handles all animations
+	.animatedCard {
+		will-change: transform, opacity, z-index;
+		transition: none; // Disable CSS transitions to prevent conflicts with GSAP
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		position: relative;
+		backface-visibility: hidden; // Prevent flickering
+		transform-style: preserve-3d; // Better performance
+	}
+
+	// Performance optimizations for different card types
+	.messageCard.animatedCard {
+		transform-origin: center center;
+	}
+
+	.suggestionCard.animatedCard {
+		transform-origin: center center;
+	}
+
+	.aiResponseCard.animatedCard {
+		transform-origin: center center;
+	}
+
+	// Special styling when suggestion card is at middle position
+	.suggestionCard.animatedCard {
+		&.topPosition {
+			box-shadow: 0px 12px 40px rgba(121, 236, 201, 0.4);
+			transform: scale(1.05); // Reduced scale to prevent overlap
+			border: 2px solid rgba(121, 236, 201, 0.6);
+			// Center the suggestion card in the middle of the viewport
+			position: relative;
+			left: 50%;
+			transform: translateX(-50%) scale(1.05); // Reduced scale
+			// Ensure consistent middle positioning
+			margin-left: auto;
+			margin-right: auto;
+		}
+	}
+
+	// Performance optimizations
+	scroll-behavior: smooth;
+	contain: layout style paint; // Better performance
+}

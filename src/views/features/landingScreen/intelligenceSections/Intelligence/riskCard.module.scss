@@ -1,0 +1,105 @@
+.riskCard {
+	position: absolute;
+	bottom: clamp(80px, 22vh, 225px);
+	left: 65%;
+	transform: translateX(-50%);
+	width: min(90vw, 500px);
+	max-width: 500px;
+	display: flex;
+	flex-direction: column;
+	gap: clamp(14px, 3vh, 32px);
+	top: 500px;
+
+	/* Responsive adjustments for laptop screens */
+	@media (max-width: 1440px) {
+		width: min(85vw, 450px);
+		left: 75%;
+		top: 255px;
+	}
+
+	/* Mobile responsive layout */
+	@media (max-width: 768px) {
+		position: relative;
+		bottom: auto;
+		left: auto;
+		top: auto;
+		transform: none;
+		width: 100%;
+		max-width: 300px;
+		margin: 0 auto;
+	}
+}
+
+.riskHeader {
+	display: flex;
+	flex-direction: column;
+	align-self: stretch;
+	gap: 12px;
+	width: 100%;
+}
+
+.riskTitle {
+	font-family: var(--primary-font-family);
+	font-weight: 500;
+	font-size: clamp(20px, 4.2vw, 40px);
+	line-height: 1.35em;
+	color: #f2f2f3;
+	width: min(90vw, 399px);
+
+	@media (max-width: 768px) {
+		font-size: 24px;
+		width: 100%;
+	}
+}
+
+.riskDescription {
+	font-family: var(--primary-font-family);
+	font-weight: 400;
+	font-size: clamp(14px, 2.6vw, 24px);
+	line-height: 1.35em;
+	color: #f2f2f3;
+	width: 100%;
+
+	@media (max-width: 768px) {
+		font-size: 18px;
+	}
+}
+
+.riskActions {
+	display: flex;
+	flex-direction: column;
+	align-self: stretch;
+	gap: clamp(6px, 1.2vh, 10px);
+	width: 100%;
+}
+
+.actionButton {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	align-self: stretch;
+	gap: 8px;
+	padding: clamp(10px, 1.8vh, 12px) clamp(14px, 2.4vh, 18px);
+	border-radius: clamp(16px, 3vw, 24px);
+	border: 1px solid rgba(121, 236, 201, 0.1);
+	background: rgba(0, 0, 0, 0.1);
+	box-shadow: inset 0px 0px 10px 0px rgba(121, 236, 201, 0.2);
+	backdrop-filter: blur(50px);
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.2);
+		box-shadow: inset 0px 0px 15px 0px rgba(121, 236, 201, 0.3);
+	}
+
+	font-family: var(--primary-font-family);
+	font-weight: 550;
+	font-size: clamp(13px, 2.4vw, 17px);
+	line-height: 1.35em;
+	color: #79ecc9;
+
+	@media (max-width: 768px) {
+		font-size: 15px;
+	}
+}
