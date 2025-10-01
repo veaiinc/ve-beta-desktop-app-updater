@@ -35,29 +35,49 @@ struct AirDropView: View {
     }
     
     var dropLabel: some View {
-        VStack(spacing: 8) {
-            Image(systemName: "airplayaudio")
-                .font(.system(size: 24))
-            Text("AirDrop")
-                .font(.system(size: 11, weight: .medium))
-        }
-        .foregroundStyle(.gray)
-        .contentShape(Rectangle())
-        .onTapGesture {
+        Button(action: {
+            print("📤 AirDrop button clicked - getting tray items")
             trigger = .init()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                let picker = NSOpenPanel()
-                picker.allowsMultipleSelection = true
-                picker.canChooseDirectories = true
-                picker.canChooseFiles = true
-                picker.begin { response in
-                    if response == .OK {
-                        let drop = AirDrop(files: picker.urls)
-                        drop.begin()
+            
+            // Get all current tray items
+            let trayItems = TrayDrop.shared.items
+            
+            if trayItems.isEmpty {
+                print("⚠️ No items in tray, opening file picker instead")
+                // No items, open picker
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    let picker = NSOpenPanel()
+                    picker.allowsMultipleSelection = true
+                    picker.canChooseDirectories = true
+                    picker.canChooseFiles = true
+                    picker.begin { response in
+                        if response == .OK {
+                            print("📤 Sharing \(picker.urls.count) files via AirDrop")
+                            let drop = AirDrop(files: picker.urls)
+                            drop.begin()
+                        }
                     }
                 }
+            } else {
+                // Share all tray items via AirDrop
+                print("📤 Sharing \(trayItems.count) tray items via AirDrop")
+                let urls = trayItems.map { $0.storageURL }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    let drop = AirDrop(files: urls)
+                    drop.begin()
+                }
             }
+        }) {
+            VStack(spacing: 8) {
+                Image(systemName: "airplayaudio")
+                    .font(.system(size: 24))
+                Text("AirDrop")
+                    .font(.system(size: 11, weight: .medium))
+            }
+            .foregroundStyle(.gray)
         }
+        .buttonStyle(PlainButtonStyle())
+        .contentShape(Rectangle())
     }
     
     func beginDrop(_ providers: [NSItemProvider]) {

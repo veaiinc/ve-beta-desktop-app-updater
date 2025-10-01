@@ -49,15 +49,37 @@ struct EnhancedDropItemView: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 4) {
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(.clear)
-                    .background {
-                        Image(nsImage: item.workspacePreviewImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                ZStack(alignment: .topTrailing) {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(.clear)
+                        .background {
+                            Image(nsImage: item.workspacePreviewImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+                        .frame(width: 64, height: 64)
+                    
+                    // Delete button - ALWAYS visible (no hover needed)
+                    Button(action: {
+                        print("🗑️ DELETE BUTTON CLICKED for: \(item.fileName)")
+                        tvm.delete(item.id)
+                    }) {
+                        Circle()
+                            .fill(.red.opacity(0.9))
+                            .overlay(
+                                Image(systemName: "xmark")
+                                    .foregroundStyle(.white)
+                                    .font(.system(size: 10))
+                                    .fontWeight(.bold)
+                            )
+                            .frame(width: 24, height: 24)
+                            .shadow(color: .black.opacity(0.6), radius: 5)
                     }
-                    .frame(width: 64, height: 64)
+                    .buttonStyle(PlainButtonStyle())
+                    .offset(x: 10, y: -10)
+                    .zIndex(100) // Ensure it's on top
+                }
                 
                 Text(item.fileName)
                     .multilineTextAlignment(.center)
@@ -73,34 +95,17 @@ struct EnhancedDropItemView: View {
             }
             .onTapGesture {
                 guard !coordinator.optionKeyPressed else { return }
+                print("👆 Opening file: \(item.fileName)")
                 vm.notchClose()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     NSWorkspace.shared.open(item.storageURL)
                 }
             }
-            
-            // Delete button (only visible when option key is pressed)
-            if hover && coordinator.optionKeyPressed {
-                Circle()
-                    .fill(.white)
-                    .overlay(
-                        Image(systemName: "xmark")
-                            .foregroundStyle(.black)
-                            .font(.system(size: 7))
-                            .fontWeight(.semibold)
-                    )
-                    .frame(width: spacing, height: spacing)
-                    .scaleEffect(1.0)
-                    .transition(.scale.combined(with: .opacity))
-                    .offset(x: spacing / 2, y: -spacing / 2)
-                    .onTapGesture { tvm.delete(item.id) }
-                    .shadow(color: .black.opacity(0.3), radius: 3)
-            }
         }
         .scaleEffect(hover ? 1.05 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: hover)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: coordinator.optionKeyPressed)
         .onHover { hovering in
+            print("👆 Hover \(hovering ? "ENTERED" : "EXITED") for: \(item.fileName)")
             withAnimation(.smooth(duration: 0.2)) {
                 hover = hovering
             }
@@ -108,13 +113,26 @@ struct EnhancedDropItemView: View {
     }
 
     private func handleOnDrag(for item: TrayDrop.DropItem) -> NSItemProvider {
-        guard let itemProvider = NSItemProvider(contentsOf: item.storageURL) else {
+        print("🎯 Starting drag for: \(item.fileName)")
+        print("📂 Storage URL: \(item.storageURL.path)")
+        
+        // Verify the file exists
+        if !FileManager.default.fileExists(atPath: item.storageURL.path) {
+            print("❌ File doesn't exist at storage URL!")
             return NSItemProvider()
         }
         
-        let nameWithoutExtension = (item.fileName as NSString).deletingPathExtension
-        itemProvider.suggestedName = nameWithoutExtension
+        print("✅ File exists, creating NSItemProvider")
         
+        guard let itemProvider = NSItemProvider(contentsOf: item.storageURL) else {
+            print("❌ Failed to create NSItemProvider")
+            return NSItemProvider()
+        }
+        
+        // Set the suggested name
+        itemProvider.suggestedName = item.fileName
+        
+        print("✅ NSItemProvider created with name: \(item.fileName)")
         return itemProvider
     }
 }

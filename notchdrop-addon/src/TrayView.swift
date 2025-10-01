@@ -52,27 +52,25 @@ struct TrayView: View {
     }
 
     var body: some View {
-        ZStack {
-            panel
-            
-            // Native AppKit drop zone overlay for reliable drops
-            DragDropViewRepresentable(isTargeted: $targeting) { urls in
-                print("🎯 TrayView: Native drop received \(urls.count) URLs!")
-                print("📂 Files: \(urls.map { $0.lastPathComponent })")
-                
-                // Convert URLs to NSItemProviders and load
-                DispatchQueue.global().async {
-                    let providers = urls.map { url in
-                        NSItemProvider(contentsOf: url)
-                    }.compactMap { $0 }
+        panel
+            .background(
+                // Native AppKit drop zone - BEHIND content so it doesn't block clicks
+                DragDropViewRepresentable(isTargeted: $targeting) { urls in
+                    print("🎯 TrayView: Native drop received \(urls.count) URLs!")
+                    print("📂 Files: \(urls.map { $0.lastPathComponent })")
                     
-                    print("🔄 TrayView: Loading \(providers.count) providers via native drop")
-                    self.tvm.load(providers)
+                    // Convert URLs to NSItemProviders and load
+                    DispatchQueue.global().async {
+                        let providers = urls.map { url in
+                            NSItemProvider(contentsOf: url)
+                        }.compactMap { $0 }
+                        
+                        print("🔄 TrayView: Loading \(providers.count) providers via native drop")
+                        self.tvm.load(providers)
+                    }
                 }
-            }
-            .allowsHitTesting(true)
-            .opacity(0.001) // Nearly invisible but still receives events
-        }
+                .allowsHitTesting(false) // Don't block interactions
+            )
     }
 
     var panel: some View {
@@ -84,13 +82,21 @@ struct TrayView: View {
             
             content
                 .padding()
-                .allowsHitTesting(false) // Let drops pass through to the native view
+                .allowsHitTesting(true) // Allow all interactions (delete, AirDrop, etc.)
         }
         .animation(vm.animation, value: tvm.items)
         .animation(vm.animation, value: tvm.isLoading)
         .animation(.easeInOut(duration: 0.2), value: targeting)
         .onChange(of: targeting) { newValue in
             print("🎯 TrayView: Targeting changed to \(newValue)")
+        }
+        .onDrop(of: acceptedTypes, isTargeted: $targeting) { providers in
+            print("🎯 TrayView: SwiftUI onDrop triggered with \(providers.count) providers")
+            DispatchQueue.global().async {
+                print("🔄 TrayView: Starting load via SwiftUI onDrop")
+                tvm.load(providers)
+            }
+            return true
         }
     }
 
