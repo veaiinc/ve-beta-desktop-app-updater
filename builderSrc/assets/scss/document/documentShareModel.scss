@@ -395,7 +395,7 @@
 		// 		margin-left: 10px;
 		// 		background: #252728;
 		// 		color: #f2f2f3;
-		// 		font-family: $font-general-sans;
+		// 		font-family: Inter;
 		// 		font-size: 14px;
 		// 		font-style: normal;
 		// 		font-weight: 500;
@@ -448,7 +448,7 @@
 		padding: 5px;
 		color: var(--primary-font, #f2f2f3);
 		text-align: center;
-		font-family: $font-general-sans;
+		font-family: Inter;
 		font-size: 18px;
 		font-style: normal;
 		font-weight: 500;
@@ -456,7 +456,7 @@
 		cursor: pointer;
 		.configure-metadata-button {
 			color: var(--primary-font, #f2f2f3);
-			font-family: $font-general-sans;
+			font-family: Inter;
 			font-size: 14px;
 			font-weight: 500;
 			line-height: normal;
@@ -475,7 +475,7 @@
 			gap: 4px;
 			align-self: stretch;
 			color: var(--primary-font, #f2f2f3);
-			font-family: $font-general-sans;
+			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -492,7 +492,7 @@
 			border: 1px solid var(--stroke, #2b2e31);
 			background: var(--navbar, #202123);
 			color: var(--secondary-font, #7a7e85);
-			font-family: $font-general-sans;
+			font-family: Inter;
 			font-size: 12px;
 			font-style: normal;
 			font-weight: 500;
@@ -511,7 +511,7 @@
 				align-items: center;
 				gap: 8px;
 				color: var(--primary-font, #f2f2f3);
-				font-family: $font-general-sans;
+				font-family: Inter;
 				font-size: 12px;
 				font-style: normal;
 				font-weight: 500;
@@ -828,7 +828,7 @@
 	height: 100%;
 	transition: all 0.2s ease;
 	animation: fadeIn 0.3s ease-in-out;
-	font-family: $font-general-sans;
+	font-family: Inter;
 
 	&:hover {
 		background-color: rgba(255, 255, 255, 0.05);
