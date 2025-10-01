@@ -636,11 +636,13 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	useEffect(() => {
 		if (
 			history === true &&
-			(!activeMeetingRevampedPrompt || meetingId !== activeMeetingRevampedPrompt?.meetingId)
+			(!activeMeetingRevampedPrompt ||
+				meetingId !== activeMeetingRevampedPrompt?.meetingId) &&
+			!info?.summaryInProgress
 		) {
 			getRevampedPrompt({ meetingId });
 		}
-	}, [history, meetingId, activeMeetingRevampedPrompt]);
+	}, [history, meetingId, activeMeetingRevampedPrompt, info?.summaryInProgress]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -812,7 +814,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				<div className="transcript-tabs-container">
 					<div className="summary-in-progress-container">
 						<Spinner size={24} />
-						<span>Generating summary...</span>
+						<span className="summary-in-progress-text">
+							Generating the summary may take up to 30 seconds.
+							<br /> You can close this window and we will email the summary once it
+							is ready.
+						</span>
 					</div>
 				</div>
 			) : (
@@ -832,17 +838,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					/>
 				)}
 				{/* Debug info */}
-					{(() => {
-						console.log(
-							'TranscriptionTabs props - hasAudioRecording:',
-							info?.hasAudioRecording,
-							'history:',
-							history,
-						);
-						return null;
-					})()}
-					{showTranscriptTabs &&
-						activeTab === 'transcript' &&
+					{activeTab === 'transcript' &&
 						(type === 'in_app_meeting' || type === 'third_party_meeting') && (
 							// <div style={{ paddingBottom: 80, width: '100%' }}>
 							<div className="transcript-list-container">
