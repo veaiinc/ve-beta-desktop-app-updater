@@ -30,7 +30,10 @@
                   "src/Ext+NSImage.swift",
                   "src/Ext+NSAlert.swift",
                   "src/Ext+FileProvider.swift",
-                  "src/NotchViewController.swift"
+                  "src/NotchViewController.swift",
+                  "src/CalendarViewModel.swift",
+                  "src/CalendarView.swift",
+                  "src/BoringNotchCalendarView.swift"
                 ],
         "include_dirs": [
           "<!@(node -p \"require('node-addon-api').include\")",
@@ -95,7 +98,9 @@
               "src/Ext+NSImage.swift",
               "src/Ext+NSAlert.swift",
               "src/Ext+FileProvider.swift",
-              "src/NotchViewController.swift"
+              "src/NotchViewController.swift",
+              "src/CalendarViewModel.swift",
+              "src/CalendarView.swift"
             ],
             "outputs": [
               "build_swift/libNotchDropCore.a",
@@ -128,6 +133,9 @@
               "src/Ext+NSAlert.swift",
               "src/Ext+FileProvider.swift",
               "src/NotchViewController.swift",
+              "src/CalendarViewModel.swift",
+              "src/CalendarView.swift",
+              "src/BoringNotchCalendarView.swift",
               "-emit-objc-header-path", "./build_swift/notchdrop_addon-Swift.h",
               "-emit-library", "-o", "./build_swift/libNotchDropCore.a",
               "-emit-module", "-module-name", "notchdrop_addon",

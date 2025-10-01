@@ -13,6 +13,7 @@
 		"setup:hey-ve": "node scripts/setup-hey-ve.js",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
 		"dev": "npm run build:notchdrop:all && cross-env NODE_ENV=development npm run clean:build:dev && vite",
+		"dev:mac:entitled": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null && open \"dist/mac-arm64/Ve AI.app\"",
 		"clean:build:dev": "rimraf dist-electron build",
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
 		"dev:win:no-clean": "set NODE_ENV=development && vite",
@@ -287,6 +288,8 @@
 				"NSCameraUsageDescription": "Please give us access to your camera",
 				"NSCameraUseContinuityCameraDeviceType": true,
 				"NSScreenCaptureUsageDescription": "We need permission to capture your screen so you can ask AI questions about what you see.",
+				"NSCalendarsUsageDescription": "Ve AI needs access to your calendar to show upcoming events in the notch area, helping you stay organized while you work.",
+				"NSAppleEventsUsageDescription": "Ve AI needs to control other apps (Spotify/Safari) to read now playing info for media controls.",
 				"com.apple.security.device.audio-input": true,
 				"com.apple.security.device.camera": true
 			}
