@@ -26,6 +26,9 @@ const NewLoginDescription = () => {
 					<div className="carousel-gradient-overlay"></div>
 					<div className="carousel-text-overlay">
 						<h2 className="carousel-title">{newLoginDescription[activeIndex].title}</h2>
+						<h2 className="carousel-title">
+							{newLoginDescription[activeIndex].subTitle}
+						</h2>
 						<p className="carousel-description">
 							{newLoginDescription[activeIndex].description}
 						</p>

@@ -2,9 +2,9 @@
 	width: 100%;
 	height: 100%;
 	border-radius: 8px;
-	border: 1px solid #b6b6b6;
-	background: #fff;
-	box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
+	border: 1px solid var(--stroke);
+	background: var(--card);
+	box-shadow: 0 0 4px 0 var(--stroke);
 	position: relative;
 	padding: 20px;
 	display: flex;
@@ -48,7 +48,7 @@
 	}
 
 	.title {
-		color: var(--background-color, #121212);
+		color: var(--primary-font);
 		text-align: center;
 		font-family: var(--primary-font-family);
 		font-size: 28px;
@@ -105,7 +105,7 @@
 
 				p {
 					width: 160px;
-					color: var(--background-color, #121212);
+					color: var(--primary-font);
 					text-align: center;
 					font-family: var(--primary-font-family);
 					font-size: 14px;
@@ -122,7 +122,7 @@
 	}
 
 	.downloadAgainLink {
-		color: var(--background-color, #121212);
+		color: var(--primary-font);
 		text-align: center;
 		font-family: var(--primary-font-family);
 		font-size: 14px;
@@ -143,6 +143,9 @@
 			text-decoration-thickness: auto;
 			text-underline-offset: auto;
 			text-underline-position: from-font;
+		}
+		p {
+			color: var(--primary-font);
 		}
 	}
 }
