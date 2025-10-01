@@ -16,6 +16,18 @@
 		left: 75%;
 		top: 255px;
 	}
+
+	/* Mobile responsive layout */
+	@media (max-width: 768px) {
+		position: relative;
+		bottom: auto;
+		left: auto;
+		top: auto;
+		transform: none;
+		width: 100%;
+		max-width: 300px;
+		margin: 0 auto;
+	}
 }
 
 .opportunityHeader {
@@ -42,6 +54,10 @@
 	text-transform: uppercase;
 	color: rgba(121, 236, 201, 0.5);
 	width: fit-content;
+
+	@media (max-width: 768px) {
+		font-size: 16px;
+	}
 }
 
 .opportunityDescription {
@@ -51,4 +67,9 @@
 	line-height: 1.235em;
 	color: #79ecc9;
 	width: 100%;
+
+	@media (max-width: 768px) {
+		font-size: 18px;
+		line-height: 1.44em;
+	}
 }

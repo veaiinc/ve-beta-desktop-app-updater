@@ -11,11 +11,12 @@
 	transform: translateZ(0);
 	contain: layout style paint;
 	background: #000938;
-	
 
-	// Hide on mobile devices
+	// Show on mobile devices with adjusted layout
 	@media (max-width: 768px) {
-		display: none;
+		height: auto;
+		min-height: 100vh;
+		overflow: visible;
 	}
 }
 
@@ -31,6 +32,11 @@
 	backface-visibility: hidden;
 	transform: translateZ(0);
 	contain: layout style paint;
+
+	@media (max-width: 768px) {
+		height: auto;
+		min-height: 100vh;
+	}
 }
 
 .actionsSection {
@@ -47,4 +53,10 @@
 	contain: layout style paint;
 	isolation: isolate;
 	transform-style: flat;
+
+	@media (max-width: 768px) {
+		position: relative;
+		height: auto;
+		min-height: 100vh;
+	}
 }
