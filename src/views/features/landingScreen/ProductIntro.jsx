@@ -9,136 +9,250 @@ gsap.registerPlugin(ScrollTrigger);
 
 const ProductIntro = forwardRef((props, ref) => {
 	const lightPassingRef = useRef(null);
+	const powersContainerRef = useRef(null);
+	const largeNumberRef = useRef(null);
+	const powersListRef = useRef(null);
+	const heroRef = useRef(null);
 
-	const intelligenceTypes = [
+	const corePowers = [
 		{
-			number: '1',
-			title: 'AMBIENT INTELLIGENCE',
+			title: 'AMBIENT AWARENESS',
 			description:
-				'Ambient Intelligence is designed to fade into the background while actively supporting you. It continuously senses your context, observes your behavior, and learns what matters most without requiring explicit commands. Instead of waiting to be prompted, it proactively surfaces the right information, suggestions, and reminders at the right time. This creates a seamless experience where work flows naturally, and you stay focused on what truly matters',
+				'We continuously perceive context across tools, tasks, and signals, building a live memory of your world so Ve can anticipate needs and act before you even ask.',
 		},
 		{
-			number: '2',
-			title: 'DESKTOP INTELLIGENCE',
+			title: 'PROACTIVE MEMORY GRAPH',
 			description:
-				'Desktop Intelligence transforms your computer into a living, thinking workspace. It connects across your apps, documents, and activities to detect patterns, priorities, and blockers in real time. By understanding your focus, it provides timely nudges, shortcuts, and recommendations right where you work. Whether you’re writing, browsing, or multitasking, Desktop Intelligence keeps you organized, reduces cognitive load, and ensures nothing slips through the cracks.',
+				'We unify streams of information into a living graph that evolves with time, remembering everything and enabling reasoning that never forgets.',
 		},
 		{
-			number: '3',
-			title: 'MEETING INTELLIGENCE',
+			title: 'AUTONOMOUS MULTI-AGENTS',
 			description:
-				'Meeting Intelligence goes beyond simple note-taking it listens, understands, and remembers. In every meeting, it captures key points, decisions, and follow-ups while filtering out the noise. It identifies action items, risks, and opportunities, then translates them into clear, trackable outcomes. By acting as a persistent memory layer, it ensures your team leaves with clarity, accountability, and insights that drive progress long after the meeting ends.',
+				'We orchestrate specialized agents that plan, execute, and adapt together empowering workflows that feel less like automation and more like an intelligent team.',
 		},
 		{
-			number: '4',
-			title: 'SUPER AGENTS',
+			title: 'GOAL INTELLIGENCE',
 			description:
-				'Super Agents are autonomous, task-driven AIs built to act like powerful teammates. They don’t just assist they execute. From drafting reports to planning projects or automating workflows, they handle complexity end-to-end. Super Agents reason over context, coordinate with other agents, and adapt their actions based on outcomes. Always learning and evolving, they extend your capacity, giving you the ability to achieve more with less effort.',
+				'We turn intentions into executable outcomes. From capturing a single goal to running entire workflows, Ve ensures progress without friction.',
+		},
+		{
+			title: 'ADAPTIVE INTERFACES',
+			description:
+				'We shape the interface around you in real time. From voice to video to ambient cards, Ve delivers intelligence in the right form, in the right moment.',
+		},
+		{
+			title: 'LIVING CONTINUITY',
+			description:
+				'We strive to give Ve permanence a system that never resets, never loses track, and grows with you, relentlessly, for all time.',
 		},
 	];
 
 	useEffect(() => {
-		const initializeGlowEffect = () => {
-			if (!lightPassingRef.current) {
-				console.warn('lightPassingRef.current is null');
-				return false;
-			}
+		const ctx = gsap.context(() => {
+			const initializeGlowEffect = () => {
+				if (!lightPassingRef.current) return false;
 
-			// Find all glow paths in the SVG
-			const glowPaths = lightPassingRef.current.querySelectorAll(
-				'#glow-path, #glow-path-intense, #white-glow-path, #white-glow-outer',
-			);
-			if (!glowPaths.length) {
-				console.warn('glow paths not found in SVG');
-				return false;
-			}
+				const glowPaths = lightPassingRef.current.querySelectorAll(
+					'#glow-path, #glow-path-intense, #white-glow-path, #white-glow-outer',
+				);
+				if (!glowPaths.length) return false;
 
-			// Calculate path length for stroke-dasharray
-			const pathLength = 3527; // Approximate path length
-			const dashLength = pathLength * 0.3; // 30% of path length for dash
-			const gapLength = pathLength * 0.7; // 70% for gap
+				const pathLength = 3527;
+				const dashLength = pathLength * 0.3;
+				const gapLength = pathLength * 0.7;
 
-			// Create a continuous loop animation for each glow path
-			glowPaths.forEach((path, index) => {
-				// Set initial stroke-dasharray
-				gsap.set(path, {
-					strokeDasharray: `${dashLength} ${gapLength}`,
-					strokeDashoffset: pathLength,
+				glowPaths.forEach((path) => {
+					gsap.set(path, {
+						strokeDasharray: `${dashLength} ${gapLength}`,
+						strokeDashoffset: pathLength,
+					});
+
+					gsap.timeline({ repeat: -1, ease: 'none' })
+						.to(path, {
+							strokeDashoffset: -pathLength,
+							duration: 14,
+							ease: 'power2.inOut',
+						})
+						.set(path, { strokeDashoffset: pathLength });
 				});
 
-				// Create continuous flowing animation that goes from start to end
-				const flowAnimation = gsap.timeline({ repeat: -1, ease: 'none' });
+				return true;
+			};
 
-				flowAnimation
-					.to(path, {
-						strokeDashoffset: -pathLength,
-						duration: 9, // 9 seconds to flow from start to end - slower
-						ease: 'power2.inOut',
-					})
-					.set(path, {
-						strokeDashoffset: pathLength, // Reset to start position
-					});
+			if (!initializeGlowEffect()) {
+				// Retry shortly if SVG not ready
+				gsap.delayedCall(0.1, initializeGlowEffect);
+			}
+		});
+
+		return () => ctx.revert();
+	}, []);
+
+	// Parallax scroll: largeNumber (slow) vs powersList/powerItems (fast)
+	useEffect(() => {
+		if (!powersContainerRef.current || !largeNumberRef.current || !powersListRef.current)
+			return;
+
+		const ctx = gsap.context(() => {
+			const container = powersContainerRef.current;
+			const largeNumber = largeNumberRef.current;
+			const powersList = powersListRef.current;
+			const hero = heroRef.current;
+
+			// Check if we're on mobile (768px and below)
+			const isMobile = window.innerWidth <= 768;
+
+			if (isMobile) {
+				// On mobile, only animate the powers list items, keep large number static
+				const items = powersList.querySelectorAll(`.${s.powerItem}`);
+				if (items.length) {
+					gsap.fromTo(
+						items,
+						{ y: 40, autoAlpha: 0 },
+						{
+							y: 0,
+							autoAlpha: 1,
+							stagger: 0.1,
+							ease: 'power2.out',
+							scrollTrigger: {
+								trigger: container,
+								start: 'top 80%',
+								end: 'top 40%',
+								scrub: false,
+								once: true,
+							},
+						},
+					);
+				}
+				return;
+			}
+
+			// Desktop/tablet parallax animation
+			const containerHeight = container.offsetHeight;
+			const viewportH = window.innerHeight;
+			const baseDistance = containerHeight + viewportH;
+			const fastFactor = 2.5;
+			const fastDistance = Math.min(fastFactor * baseDistance, 1500);
+
+			const listRect = powersList.getBoundingClientRect();
+			const numRect = largeNumber.getBoundingClientRect();
+			const listHeight = Math.max(powersList.scrollHeight, listRect.height);
+			const numHeight = numRect.height;
+			const endAlignDelta = Math.max(0, listHeight - numHeight);
+			const slowDistance = endAlignDelta + 20;
+
+			const setListY = gsap.quickTo(powersList, 'y', { duration: 0.55, ease: 'power3.out' });
+			const setNumY = gsap.quickTo(largeNumber, 'y', { duration: 2.2, ease: 'power2.out' });
+			const setGlowY = lightPassingRef.current
+				? gsap.quickTo(lightPassingRef.current, 'y', { duration: 2.2, ease: 'power3.out' })
+				: null;
+			const setHeroY = hero
+				? gsap.quickTo(hero, 'y', { duration: 0.55, ease: 'power3.out' })
+				: null;
+
+			ScrollTrigger.create({
+				trigger: container,
+				start: 'top bottom+600px',
+				end: 'bottom top',
+				scrub: 3.2,
+				markers: false,
+				invalidateOnRefresh: true,
+				onUpdate: (self) => {
+					const p = self.progress;
+					// Slower, smoother perceived motion for the large number while still finishing at end
+					const easeNum = gsap.parseEase('power4.inOut');
+					const pNum = easeNum(p) * 0.85 + p * 0.15;
+					setListY(-(p * fastDistance));
+					if (setHeroY) setHeroY(-(p * fastDistance));
+					setNumY(-(pNum * slowDistance));
+					if (setGlowY) setGlowY(-(p * fastDistance * 1.05));
+				},
 			});
 
-			return true;
-		};
-
-		// Try to initialize immediately
-		if (initializeGlowEffect()) {
-			return;
-		}
-
-		// If that fails, add a small delay and try again
-		const timer = setTimeout(() => {
-			initializeGlowEffect();
-		}, 100);
-
-		// Cleanup function
-		return () => {
-			clearTimeout(timer);
-			// Kill all GSAP animations on glow paths
-			const glowPaths = lightPassingRef.current?.querySelectorAll(
-				'#glow-path, #glow-path-intense, #white-glow-path, #white-glow-outer',
-			);
-			if (glowPaths) {
-				gsap.killTweensOf(glowPaths);
+			const items = powersList.querySelectorAll(`.${s.powerItem}`);
+			if (items.length) {
+				gsap.fromTo(
+					items,
+					{ y: 40, autoAlpha: 0 },
+					{
+						y: 0,
+						autoAlpha: 1,
+						stagger: 0.1,
+						ease: 'power2.out',
+						scrollTrigger: {
+							trigger: container,
+							start: 'top 80%',
+							end: 'top 40%',
+							scrub: false,
+							once: true,
+						},
+					},
+				);
 			}
-		};
+
+			const onResize = () => ScrollTrigger.refresh();
+			window.addEventListener('resize', onResize);
+
+			// Ensure we clean listeners created within this context
+			gsap.delayedCall(0, () => {
+				ScrollTrigger.refresh();
+			});
+
+			return () => {
+				window.removeEventListener('resize', onResize);
+			};
+		});
+
+		return () => ctx.revert();
 	}, []);
 
 	return (
 		<div ref={ref} className={s.ProductIntro}>
 			{/* Animated Background Glow Effect */}
-			<div className={s.glowBackground}>
-				<AnimatedGlowBackground variant="default" intensity="medium" fitContent={true} />
-			</div>
+			{/* <div className={s.glowBackground}>
+				<AnimatedGlowBackground variant="default" intensity="low" fitContent={true} />
+			</div> */}
 
-			<div className={s.heroSection} data-hero-section="true">
-				<h1 className={s.mainTitle}>
-					Personal
-					<br />
-					Perspectives
-				</h1>
-				<p className={s.subtitle}>
-					One intelligent system that listens, learns,and acts making search faster,
-					meetings smarter, and work seamless
-				</p>
-			</div>
-
-			<div className={s.intelligenceSection}>
-				{intelligenceTypes.map((item, index) => (
-					<div key={index} className={s.intelligenceItem}>
-						<div className={s.content}>
-							<h3 className={s.intelligenceTitle}>{item.title}</h3>
-							<p className={s.intelligenceDescription}>{item.description}</p>
-						</div>
-						<div className={s.number}>{item.number}</div>
+			<div className={s.corePowersSection}>
+				<div ref={powersContainerRef} className={s.powersContainer}>
+					<div ref={largeNumberRef} className={s.largeNumber}>
+						6
 					</div>
-				))}
+					{/* LightPassing separator between left and right columns */}
+					<div ref={lightPassingRef} className={s.lightPassing}>
+						<LightPassingSvg />
+					</div>
+					<div className={s.rightColumn}>
+						<div ref={heroRef} className={s.heroSection} data-hero-section="true">
+							<h1 className={s.mainTitle}>Guiding Powers</h1>
+							<p className={s.subtitle}>
+								Through the seamless integration of our 6 core powers, we set in
+								motion Ve.ai's relentless intelligence, focus, and autonomy.
+							</p>
+						</div>
+						<div ref={powersListRef} className={s.powersList}>
+							{corePowers.map((power, index) => (
+								<div key={index} className={s.powerItem}>
+									<div className={s.powerHeader}>
+										<div className={s.powerDot}></div>
+										<h3 className={s.powerTitle}>{power.title}</h3>
+									</div>
+									<p className={s.powerDescription}>{power.description}</p>
+								</div>
+							))}
+						</div>
+					</div>
+				</div>
 			</div>
 
-			<div ref={lightPassingRef} className={s.lightPassing}>
-				<LightPassingSvg />
+			<div className={s.coFounderSection}>
+				<h2 className={s.coFounderTitle}>
+					Your True <br /> Co-Founder
+				</h2>
+				<p className={s.coFounderDescription}>
+					An intelligence that learns you, grows with you, and relentlessly pushes your
+					vision forward as if it were its own.
+				</p>
 			</div>
 		</div>
 	);

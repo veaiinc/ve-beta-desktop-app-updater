@@ -12,6 +12,9 @@
 	transform: translateZ(0);
 	contain: layout style paint;
 
+	// Subtle default transitions so text changes feel smooth
+	transition: opacity 0.3s ease, transform 0.3s ease;
+
 	.content {
 		align-items: flex-start;
 		display: flex;

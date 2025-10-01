@@ -49,91 +49,132 @@ const MeetingIntelligence = memo(function MeetingIntelligence() {
 
 		gsap.set(intro, {
 			opacity: 1,
+			scale: 1,
 			y: 0,
 		});
 
+		// Slower visible arc animation that always completes
+		const idleScroll = 50; // brief initial pause
+		const transitionScroll = 150; // SLOWER so you can see the arc
+		const cardsScroll = 800; // card animations
+		const totalScroll = idleScroll + transitionScroll + cardsScroll; // 1000%
+
 		ScrollTrigger.create({
 			trigger: container,
 			start: 'top top',
-			end: '+=1000%', // Increased scroll distance for more animation time
+			end: `+=${totalScroll}%`,
 			pin: true,
 			anticipatePin: 1,
 			pinSpacing: true,
+			refreshPriority: -1, // Lower priority to avoid conflicts
 		});
+
+		let lastDirection = 1; // 1 => scrolling down, -1 => scrolling up
 
 		ScrollTrigger.create({
 			trigger: container,
 			start: 'top top',
-			end: '+=1000%', // Increased scroll distance for more animation time
+			end: `+=${totalScroll}%`,
 			scrub: 1,
+			// SNAP to ensure arc never stops in middle
+			snap: {
+				snapTo: (progress) => {
+					const idleEnd = idleScroll / totalScroll;
+					const transitionEnd = (idleScroll + transitionScroll) / totalScroll;
+
+					// If in transition zone, snap based on scroll direction
+					if (progress >= idleEnd && progress < transitionEnd) {
+						// scrolling down (1) => OPEN; scrolling up (-1) => CLOSE
+						return lastDirection === 1 ? transitionEnd : idleEnd;
+					}
+					return progress; // Don't snap outside transition zone
+				},
+				duration: { min: 0.2, max: 0.5 },
+				delay: 0.1,
+				ease: 'power2.inOut',
+			},
+			refreshPriority: -1,
 			onUpdate: (self) => {
-				const progress = self.progress;
+				lastDirection = self.direction;
+				const progress = self.progress; // 0..1
+				const idleEnd = idleScroll / totalScroll;
+				const transitionEnd = (idleScroll + transitionScroll) / totalScroll;
 
-				if (progress <= 0.15) {
-					const introProgress = progress / 0.15;
-					gsap.set(intro, {
-						opacity: 1 - introProgress,
-						y: -50 * introProgress,
-					});
-				} else {
-					gsap.set(intro, {
-						opacity: 0,
-						y: -50,
-					});
-				}
-
-				if (progress >= 0.1) {
-					const actionsProgress = Math.min(1, (progress - 0.1) / 0.05);
-					const clipY = 300 - actionsProgress * 125;
-					const opacity = Math.min(1, actionsProgress * 1.2);
-
-					gsap.set(actions, {
-						clipPath: `ellipse(220% 200% at 50% ${clipY}%)`,
-						opacity: opacity,
-					});
-				} else {
+				if (progress < idleEnd) {
+					// Phase 1: FULLY CLOSED state
+					gsap.set(intro, { opacity: 1, scale: 1, y: 0, zIndex: 1 });
 					gsap.set(actions, {
 						clipPath: 'ellipse(220% 200% at 50% 300%)',
 						opacity: 0,
+						zIndex: 10,
 					});
-				}
+				} else if (progress < transitionEnd) {
+					// Phase 2: Smooth visible arc animation
+					const t = (progress - idleEnd) / (transitionEnd - idleEnd);
+					// Smooth easeInOut for visible arc movement
+					const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
-				if (progress >= 0.15) {
-					const actionsScrollProgress = (progress - 0.15) / 0.85;
-					setCurrentActionsCard(actionsScrollProgress);
+					// Text disappears quickly
+					const scale = 1 - eased * 0.6;
+					const textY = -100 * eased;
+					const opacity = t < 0.2 ? 1 - t * 5 : 0;
+					gsap.set(intro, { opacity, scale, y: textY, zIndex: 1 });
+
+					// Arc clipPath animates smoothly - VISIBLE movement
+					const clipY = 300 - eased * 125;
+					const contentOpacity = Math.min(1, eased * 1.5);
+					gsap.set(actions, {
+						clipPath: `ellipse(220% 200% at 50% ${clipY}%)`,
+						opacity: contentOpacity,
+						zIndex: 10,
+					});
+				} else {
+					// Phase 3: FULLY OPEN state - cards animation
+					gsap.set(intro, { opacity: 0, scale: 0.4, y: -100, zIndex: 1 });
+					gsap.set(actions, {
+						clipPath: 'ellipse(220% 200% at 50% 175%)',
+						opacity: 1,
+						zIndex: 10,
+					});
+					const cardsProgress = (progress - transitionEnd) / (1 - transitionEnd);
+					setCurrentActionsCard(cardsProgress);
 				}
 			},
 			onEnter: () => {
+				// Reset to initial state on enter
+				gsap.set(intro, { opacity: 1, scale: 1, y: 0, zIndex: 1 });
 				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 175%)',
-					opacity: 1,
-				});
-				gsap.set(intro, {
+					clipPath: 'ellipse(220% 200% at 50% 300%)',
 					opacity: 0,
-					y: -50,
+					zIndex: 10,
 				});
 			},
 			onLeave: () => {
+				// Keep actions visible once we leave the pin at bottom
+				gsap.set(intro, { opacity: 0, scale: 0.4, y: -100, zIndex: 1 });
 				gsap.set(actions, {
 					clipPath: 'ellipse(220% 200% at 50% 175%)',
 					opacity: 1,
+					zIndex: 10,
 				});
 			},
 			onEnterBack: () => {
+				// Coming back from below: show final state
+				gsap.set(intro, { opacity: 0, scale: 0.4, y: -100, zIndex: 1 });
 				gsap.set(actions, {
-					clipPath: 'ellipse(220% 200% at 50% 300%)',
-					opacity: 0,
-				});
-				gsap.set(intro, {
+					clipPath: 'ellipse(220% 200% at 50% 175%)',
 					opacity: 1,
-					y: 0,
+					zIndex: 10,
 				});
 			},
 			onLeaveBack: () => {
+				// Leaving upwards: reset to initial hidden actions
 				gsap.set(actions, {
 					clipPath: 'ellipse(220% 200% at 50% 300%)',
 					opacity: 0,
+					zIndex: 10,
 				});
+				gsap.set(intro, { opacity: 1, scale: 1, y: 0, zIndex: 1 });
 			},
 		});
 

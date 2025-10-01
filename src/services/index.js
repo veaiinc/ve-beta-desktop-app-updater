@@ -1,9 +1,8 @@
 import mitt from 'mitt';
 import Cookies from 'js-cookie';
 import { fetchDomainName } from '../helpers';
-import refreshAccessToken from './utils/refreshAccessToken.js';
+import getSharedRefreshToken from './utils/sharedTokenRefresh.js';
 import getBaseUrl from './baseUrls.js';
-import logout from '../helpers/logout.js';
 
 const authBearerTypes = new Set([
 	'form',
@@ -33,39 +32,21 @@ const handleHeaders = (token, type) => {
 export const internalServerEmitter = mitt();
 
 const refreshAccessTokenAndRetry = async (requestData) => {
-	const response = await refreshAccessToken();
-	const status = response.status;
-	const refreshTokenResponse = await response.json();
-	if (status === 200) {
-		// set the new access token and access token expiry
-		const { tokens } = refreshTokenResponse;
-		const { accessToken, accessTokenExpiry } = tokens;
-		const host = fetchDomainName();
-		Cookies.set('usertoken', accessToken, { sameSite: 'lax', domain: host });
-		Cookies.set('accessTokenExpiry', accessTokenExpiry, { sameSite: 'lax', domain: host });
-		localStorage.setItem('usertoken', accessToken);
-		localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
-		// retry the request with the new access token
-		const { endpoint, method, body, type } = requestData;
-		const headers = handleHeaders(accessToken, type);
-		const resp = await fetch(endpoint, { method, headers, body });
-		const success = resp.status >= 200 && resp.status < 300;
-		const data = await resp.json();
-		const status = resp.status;
-		return [success, data, status];
-	} else if (status === 401 || status === 403) {
-		if (
-			refreshTokenResponse.message === 'jwt expired' ||
-			refreshTokenResponse.message === 'Invalid refresh token, please login again'
-		) {
-			logout();
-			return [false, refreshTokenResponse, status];
-		} else {
-			return [false, refreshTokenResponse, status];
-		}
-	} else {
-		return [false, refreshTokenResponse, status];
+	const refreshResult = await getSharedRefreshToken();
+
+	// If refresh failed, return the error
+	if (!refreshResult.success) {
+		return [false, refreshResult.refreshTokenResponse, refreshResult.status];
 	}
+
+	// If refresh succeeded, retry the original request with new token
+	const { endpoint, method, body, type } = requestData;
+	const headers = handleHeaders(refreshResult.accessToken, type);
+	const resp = await fetch(endpoint, { method, headers, body });
+	const success = resp.status >= 200 && resp.status < 300;
+	const data = await resp.json();
+	const status = resp.status;
+	return [success, data, status];
 };
 
 const processResponse = async (response, requestData) => {

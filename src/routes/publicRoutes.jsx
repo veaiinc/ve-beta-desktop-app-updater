@@ -14,12 +14,12 @@ const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'))
 const TermsOfService = lazy(() => import('../views/features/signin/TermsOfService'));
 const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'));
 const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
-const ChageLog = lazy(() => import('../views/features/signin/ChageLog'));
+const ChangeLog = lazy(() => import('../views/features/signin/ChangeLog'));
 const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
+const PricingPageWebsite = lazy(() => import('../views/features/pricingPlans/PricingPageWebsite'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import PricingPageWebsite from '../views/features/pricingPlans/PricingPageWebsite';
 import LiveIntelligence from '../views/features/onboarding/LiveIntelligence';
 
 const publicRoutes = [
@@ -160,7 +160,9 @@ const publicRoutes = [
 		path: '/changelog',
 		element: (
 			<Public>
-				<ChageLog />
+				<Suspense fallback={<SuspenseFallback />}>
+					<ChangeLog />
+				</Suspense>
 			</Public>
 		),
 	},
