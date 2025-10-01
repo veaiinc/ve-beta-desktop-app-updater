@@ -913,13 +913,13 @@ const RecentChat = ({
 
 	const handleChatBoxHeight = useCallback((chatboxHeight) => {
 		setInfo((prev) => {
-			if (prev?.chatPaddingBottom === chatboxHeight - 47) {
+			if (prev?.chatPaddingBottom === chatboxHeight - 31) {
 				return prev;
 			}
 
 			return {
 				...prev,
-				chatPaddingBottom: chatboxHeight - 47,
+				chatPaddingBottom: chatboxHeight - 31,
 			};
 		});
 	}, []);
