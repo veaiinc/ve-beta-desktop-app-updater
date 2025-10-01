@@ -29,10 +29,10 @@ class NotchViewModel: NSObject, ObservableObject {
                 height: 100   // Figma design height
             )
         }
-        // Dynamic width based on chat mode, voice agent mode, and media controllers
-        if isChatMode || showVoiceInterface {
-            // Chat mode or Voice Agent mode - use compact width
-            let compactWidth: CGFloat = 580  // Width optimized for chat/voice input only
+        // Dynamic width based on chat mode, voice agent mode, meeting mode, and media controllers
+        if isChatMode || showVoiceInterface || isRecording {
+            // Chat mode, Voice Agent mode, or Meeting/Recording mode - use compact width
+            let compactWidth: CGFloat = 580  // Width optimized for chat/voice/meeting input only
             return .init(
                 width: compactWidth,
                 height: DynamicIslandTheme.expandedHeight
