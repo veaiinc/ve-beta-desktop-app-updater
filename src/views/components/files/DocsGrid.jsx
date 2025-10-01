@@ -118,29 +118,30 @@ const DocsGrid = ({
 	useEffect(() => {
 		if (!docsFilesList) {
 			fetchDocs({ page: 1 });
+			updateStateValues({ docsFilesList: null });
 		}
 	}, [docsFilesList]);
 
-	// Add refetch mechanism when component mounts
-	useEffect(() => {
-		// Clear
-		updateStateValues({ docsFilesList: null });
-		// Always refetch data when component mounts to ensure fresh data
-		fetchDocs({ page: 1 });
-	}, []);
+	// // Add refetch mechanism when component mounts
+	// useEffect(() => {
+	// 	// Clear
+	// 	updateStateValues({ docsFilesList: null });
+	// 	// Always refetch data when component mounts to ensure fresh data
+	// 	fetchDocs({ page: 1 });
+	// }, []);
 
-	// Handle docsFilesRefetch from context
-	useEffect(() => {
-		if (docsFilesRefetch) {
-			fetchDocs({ page: 1 });
-			updateStateValues({ docsFilesRefetch: null });
-		}
-	}, [docsFilesRefetch]);
+	// // Handle docsFilesRefetch from context
+	// useEffect(() => {
+	// 	if (docsFilesRefetch) {
+	// 		fetchDocs({ page: 1 });
+	// 		updateStateValues({ docsFilesRefetch: null });
+	// 	}
+	// }, [docsFilesRefetch]);
 
 	// Handle filter changes
-	useEffect(() => {
-		fetchDocs({ page: 1 });
-	}, [info?.selectedFilter]);
+	// useEffect(() => {
+	// 	fetchDocs({ page: 1 });
+	// }, [info?.selectedFilter]);
 
 	useEffect(() => {
 		// Skip animations when in list view
@@ -298,9 +299,9 @@ const DocsGrid = ({
 		fetchDocs({ page: info?.currentPage + 1 });
 	};
 
-	useEffect(() => {
-		fetchDocs({ page: 1 });
-	}, []);
+	// useEffect(() => {
+	// 	fetchDocs({ page: 1 });
+	// }, []);
 
 	const handleSortClick = (value) => {
 		let sortType = value?.sortType;
