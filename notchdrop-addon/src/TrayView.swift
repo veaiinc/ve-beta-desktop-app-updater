@@ -73,11 +73,16 @@ struct TrayView: View {
             )
     }
 
+    // Custom teal color for drop zone
+    private var dropHighlightColor: Color {
+        Color(red: 0x79 / 255.0, green: 0xec / 255.0, blue: 0xc9 / 255.0)
+    }
+    
     var panel: some View {
         ZStack {
             RoundedRectangle(cornerRadius: vm.cornerRadius)
                 .strokeBorder(style: StrokeStyle(lineWidth: 4, dash: [10]))
-                .foregroundStyle(targeting ? .blue.opacity(0.5) : .white.opacity(0.1))
+                .foregroundStyle(targeting ? dropHighlightColor.opacity(0.6) : .white.opacity(0.1))
                 .background(loading)
             
             content
@@ -102,11 +107,11 @@ struct TrayView: View {
 
     var loading: some View {
         RoundedRectangle(cornerRadius: vm.cornerRadius)
-            .foregroundStyle(targeting ? .blue.opacity(0.2) : .white.opacity(0.1))
+            .foregroundStyle(targeting ? dropHighlightColor.opacity(0.15) : .white.opacity(0.1))
             .overlay(
                 RoundedRectangle(cornerRadius: vm.cornerRadius)
-                    .stroke(Color.blue, lineWidth: tvm.isLoading > 0 ? 2 : 0)
-                    .opacity(tvm.isLoading > 0 ? 0.5 : 0)
+                    .stroke(tvm.isLoading > 0 ? dropHighlightColor : .clear, lineWidth: tvm.isLoading > 0 ? 2 : 0)
+                    .opacity(tvm.isLoading > 0 ? 0.8 : 0)
             )
             .animation(.easeInOut(duration: 0.3), value: tvm.isLoading)
             .animation(.easeInOut(duration: 0.2), value: targeting)
@@ -131,11 +136,11 @@ struct TrayView: View {
                     VStack(spacing: 8) {
                         Image(systemName: targeting ? "arrow.down.doc.fill" : "tray.and.arrow.down.fill")
                             .font(.system(size: 32))
-                            .foregroundColor(targeting ? .blue : .gray)
+                            .foregroundColor(targeting ? dropHighlightColor : .gray)
                         Text(targeting ? "Drop files here" : text)
                             .multilineTextAlignment(.center)
                             .font(.system(.headline, design: .rounded))
-                            .foregroundColor(targeting ? .blue : .gray)
+                            .foregroundColor(targeting ? dropHighlightColor : .gray)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .contentShape(Rectangle())
