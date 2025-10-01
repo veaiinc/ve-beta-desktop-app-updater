@@ -24,6 +24,7 @@ const LiveIntelligencePanel = ({
 		actions: [],
 		files: [],
 	},
+	sessionId,
 }) => {
 	const [activeTab, setActiveTab] = useState('all-threads');
 	const contentRef = useRef(null);
@@ -86,6 +87,7 @@ const LiveIntelligencePanel = ({
 			itemData: item,
 			timestamp: new Date().toISOString(),
 			isNeedHelp,
+			sessionId: sessionId,
 		};
 
 		// Send message to Ask AI - the main process will handle window creation and visibility
@@ -197,8 +199,9 @@ const LiveIntelligencePanel = ({
 								return (
 									<div
 										key={thread.reference_id || thread.id || index}
-										className={`thread-item clickable ${ ""
-											// thread.entity === 'user' ? 'ask-user-item' : 'clickable' 
+										className={`thread-item clickable ${
+											''
+											// thread.entity === 'user' ? 'ask-user-item' : 'clickable'
 										}`}
 										onClick={() =>
 											handleThreadItemClick(
@@ -394,9 +397,7 @@ const LiveIntelligencePanel = ({
 						}}
 						style={{ pointerEvents: 'auto' }}
 					>
-						<span>
-							View Transcriptions
-						</span>
+						<span>View Transcriptions</span>
 					</button>
 
 					<div className="live-intelligence-panel__control-divider" />
