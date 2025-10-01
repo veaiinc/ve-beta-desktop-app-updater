@@ -15,10 +15,10 @@ const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'))
 const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
 const ChangeLog = lazy(() => import('../views/features/signin/ChangeLog'));
 const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
+const PricingPageWebsite = lazy(() => import('../views/features/pricingPlans/PricingPageWebsite'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import PricingPageWebsite from '../views/features/pricingPlans/PricingPageWebsite';
 
 const publicRoutes = [
 	{
