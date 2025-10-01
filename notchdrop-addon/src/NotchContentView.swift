@@ -173,11 +173,14 @@ struct DynamicIslandContentView: View {
                                     HStack(spacing: 6.0) {
                                         Image(systemName: "house")
                                             .font(.system(size: 14, weight: .regular))
-                                            .foregroundColor(.white)
+                                            .foregroundColor(vm.isTeamsView ? .white : .black)
                                     }
-                                    .padding(.horizontal, 4)
-                                    .padding(.vertical, 4)
-                                    .background(Color.clear)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                    )
                                 }
                                 .buttonStyle(PlainButtonStyle())
 
@@ -188,11 +191,14 @@ struct DynamicIslandContentView: View {
                                     HStack(spacing: 6) {
                                         Text("Meeting AI")
                                             .font(.system(size: 15, weight: .semibold))
-                                            .foregroundColor(.white)
+                                            .foregroundColor(vm.isTeamsView ? .black : .white)
                                     }
-                                    .padding(.horizontal, 4)
-                                    .padding(.vertical, 4)
-                                    .background(Color.clear)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.clear)
+                                    )
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 // Removed desktop and VE icons per request
@@ -375,14 +381,16 @@ struct DynamicIslandContentView: View {
                     HStack(alignment: .center, spacing: 8) {
                         if vm.isTeamsView {
                             // Teams view: Start card + interactive chat + webcam pinned right
-                            StartMeetingCard(vm: vm)
-                                .frame(width: 220, height: 100)
+                            if !vm.isRecording {
+                                StartMeetingCard(vm: vm)
+                                    .frame(width: 220, height: 100)
+                            }
                             ChatTextAreaView(
                                 chatInput: $vm.chatInput,
                                 isTextFieldActive: $isTextFieldActive,
                                 vm: vm
                             )
-                            .frame(minWidth: 200, maxWidth: .infinity, minHeight: 100, maxHeight: 100)
+                            .frame(width: 400, height: 100)
                             .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
                             Spacer(minLength: 0)
                             WebcamButton(vm: vm)

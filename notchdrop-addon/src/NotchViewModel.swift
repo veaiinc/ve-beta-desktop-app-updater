@@ -135,7 +135,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var videoEmbedURL: String = ""
     @Published var showVideoPlayer: Bool = false
     @Published var notchVisible: Bool = true
-    @Published var isNotchLocked: Bool = false
+    @Published var isNotchLocked: Bool = true
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
     var selectedLanguage: Language
@@ -287,12 +287,12 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func toggleNotchLock() {
-        isNotchLocked.toggle()
-        
-        if isNotchLocked {
-            // If locking, ensure notch is open
-            notchOpen(.click)
+        // Always enforce locked state; ignore attempts to unlock
+        if !isNotchLocked {
+            isNotchLocked = true
         }
+        // Ensure notch is open when locked
+        notchOpen(.click)
     }
 
     func showSettings() {
