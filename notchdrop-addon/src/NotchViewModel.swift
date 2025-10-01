@@ -29,6 +29,13 @@ class NotchViewModel: NSObject, ObservableObject {
                 height: 100   // Figma design height
             )
         }
+        // Tray mode - wider to show file items
+        if isTrayMode {
+            return .init(
+                width: 700,  // Wider for tray items
+                height: 180   // Taller for tray with AirDrop
+            )
+        }
         // Dynamic width based on chat mode, voice agent mode, meeting mode, and media controllers
         if isChatMode || showVoiceInterface || isRecording {
             // Chat mode, Voice Agent mode, or Meeting/Recording mode - use compact width
@@ -140,6 +147,9 @@ class NotchViewModel: NSObject, ObservableObject {
     // Chat expansion state
     @Published var isChatExpanded: Bool = false // Deprecated - no longer used for width expansion
     @Published var chatTextHeight: CGFloat = 100
+    
+    // Tray/Shelf state
+    @Published var isTrayMode: Bool = false
 
     // Voice UI state (UI parity with React)
     enum VoiceConnectionStatus: String { case disconnected, connecting, connected, error }
@@ -363,6 +373,15 @@ class NotchViewModel: NSObject, ObservableObject {
         
         // Emit action for JavaScript
         swiftActionSender.send(.toggleChatMode)
+    }
+    
+    func toggleTrayMode() {
+        isTrayMode.toggle()
+        // Close other modes when opening tray
+        if isTrayMode {
+            isChatMode = false
+            showVoiceInterface = false
+        }
     }
     
     func submitChat() {

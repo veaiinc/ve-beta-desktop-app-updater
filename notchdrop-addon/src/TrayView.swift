@@ -1,17 +1,35 @@
 //
-//  TrayDrop+View.swift
+//  TrayView.swift (Enhanced with AirDrop)
 //  NotchDrop
 //
-//  Created by 秋星桥 on 2024/7/8.
+//  Enhanced with boring.notch AirDrop functionality
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct TrayView: View {
     @StateObject var vm: NotchViewModel
     @StateObject var tvm = TrayDrop.shared
 
     @State private var targeting = false
+    
+    // All supported file types for dropping
+    private let acceptedTypes: [UTType] = [
+        .fileURL,
+        .url,
+        .data,
+        .item,
+        .image,
+        .png,
+        .jpeg,
+        .pdf,
+        .plainText,
+        .text,
+        .movie,
+        .video,
+        .audio
+    ]
 
     var storageTime: String {
         switch tvm.selectedFileStorageTime {
@@ -34,35 +52,58 @@ struct TrayView: View {
     }
 
     var body: some View {
-        panel
-            .onDrop(of: [.data], isTargeted: $targeting) { providers in
-                DispatchQueue.global().async { tvm.load(providers) }
-                return true
+        ZStack {
+            panel
+            
+            // Native AppKit drop zone overlay for reliable drops
+            DragDropViewRepresentable(isTargeted: $targeting) { urls in
+                print("🎯 TrayView: Native drop received \(urls.count) URLs!")
+                print("📂 Files: \(urls.map { $0.lastPathComponent })")
+                
+                // Convert URLs to NSItemProviders and load
+                DispatchQueue.global().async {
+                    let providers = urls.map { url in
+                        NSItemProvider(contentsOf: url)
+                    }.compactMap { $0 }
+                    
+                    print("🔄 TrayView: Loading \(providers.count) providers via native drop")
+                    self.tvm.load(providers)
+                }
             }
+            .allowsHitTesting(true)
+            .opacity(0.001) // Nearly invisible but still receives events
+        }
     }
 
     var panel: some View {
-        RoundedRectangle(cornerRadius: vm.cornerRadius)
-            .strokeBorder(style: StrokeStyle(lineWidth: 4, dash: [10]))
-            .foregroundStyle(.white.opacity(0.1))
-            .background(loading)
-            .overlay {
-                content
-                    .padding()
-            }
-            .animation(vm.animation, value: tvm.items)
-            .animation(vm.animation, value: tvm.isLoading)
+        ZStack {
+            RoundedRectangle(cornerRadius: vm.cornerRadius)
+                .strokeBorder(style: StrokeStyle(lineWidth: 4, dash: [10]))
+                .foregroundStyle(targeting ? .blue.opacity(0.5) : .white.opacity(0.1))
+                .background(loading)
+            
+            content
+                .padding()
+                .allowsHitTesting(false) // Let drops pass through to the native view
+        }
+        .animation(vm.animation, value: tvm.items)
+        .animation(vm.animation, value: tvm.isLoading)
+        .animation(.easeInOut(duration: 0.2), value: targeting)
+        .onChange(of: targeting) { newValue in
+            print("🎯 TrayView: Targeting changed to \(newValue)")
+        }
     }
 
     var loading: some View {
         RoundedRectangle(cornerRadius: vm.cornerRadius)
-            .foregroundStyle(.white.opacity(0.1))
+            .foregroundStyle(targeting ? .blue.opacity(0.2) : .white.opacity(0.1))
             .overlay(
                 RoundedRectangle(cornerRadius: vm.cornerRadius)
                     .stroke(Color.blue, lineWidth: tvm.isLoading > 0 ? 2 : 0)
                     .opacity(tvm.isLoading > 0 ? 0.5 : 0)
             )
             .animation(.easeInOut(duration: 0.3), value: tvm.isLoading)
+            .animation(.easeInOut(duration: 0.2), value: targeting)
     }
 
     var text: String {
@@ -79,18 +120,34 @@ struct TrayView: View {
     var content: some View {
         Group {
             if tvm.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "tray.and.arrow.down.fill")
-                    Text(text)
-                        .multilineTextAlignment(.center)
-                        .font(.system(.headline, design: .rounded))
+                HStack(spacing: vm.spacing) {
+                    // Empty state with drop instructions
+                    VStack(spacing: 8) {
+                        Image(systemName: targeting ? "arrow.down.doc.fill" : "tray.and.arrow.down.fill")
+                            .font(.system(size: 32))
+                            .foregroundColor(targeting ? .blue : .gray)
+                        Text(targeting ? "Drop files here" : text)
+                            .multilineTextAlignment(.center)
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundColor(targeting ? .blue : .gray)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                    .animation(.easeInOut(duration: 0.2), value: targeting)
+                    
+                    // AirDrop zone - always visible
+                    AirDropView(vm: vm)
                 }
             } else {
                 ScrollView(.horizontal) {
                     HStack(spacing: vm.spacing) {
+                        // Tray items with enhanced styling
                         ForEach(tvm.items) { item in
-                            DropItemView(item: item, vm: vm, tvm: tvm)
+                            EnhancedDropItemView(item: item, vm: vm)
                         }
+                        
+                        // AirDrop zone when items exist
+                        AirDropView(vm: vm)
                     }
                     .padding(vm.spacing)
                 }
@@ -98,6 +155,8 @@ struct TrayView: View {
                 .scrollIndicators(.never)
             }
         }
+        .frame(maxHeight: .infinity)
+        .contentShape(Rectangle())
     }
 }
 

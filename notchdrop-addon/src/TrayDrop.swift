@@ -57,23 +57,54 @@ class TrayDrop: ObservableObject {
     @Published var isLoading: Int = 0
 
     func load(_ providers: [NSItemProvider]) {
-        assert(!Thread.isMainThread)
-        DispatchQueue.main.asyncAndWait { isLoading += 1 }
+        // Don't assert - just log the thread
+        print("📥 TrayDrop: Loading \(providers.count) provider(s) on thread: \(Thread.isMainThread ? "MAIN" : "BACKGROUND")")
+        
+        // Ensure we increment loading on main thread
+        if Thread.isMainThread {
+            isLoading += 1
+        } else {
+            DispatchQueue.main.sync { isLoading += 1 }
+        }
+        
         guard let urls = providers.interfaceConvert() else {
-            DispatchQueue.main.asyncAndWait { isLoading -= 1 }
+            print("❌ TrayDrop: Failed to convert providers to URLs")
+            DispatchQueue.main.async { self.isLoading -= 1 }
             return
         }
+        
+        print("✅ TrayDrop: Got \(urls.count) URLs, creating items...")
+        urls.forEach { url in
+            print("📂 URL: \(url.path)")
+        }
+        
         do {
-            let items = try urls.map { try DropItem(url: $0) }
+            let items = try urls.map { url in
+                print("📦 Creating DropItem for: \(url.lastPathComponent)")
+                let item = try DropItem(url: url)
+                print("✅ Created DropItem with ID: \(item.id)")
+                return item
+            }
+            
+            print("💾 TrayDrop: Successfully created \(items.count) items, adding to array...")
+            
             DispatchQueue.main.async {
+                print("💾 Adding \(items.count) items to tray (current count: \(self.items.count))")
                 items.forEach { item in
                     if !self.items.contains(where: { $0.id == item.id }) {
                         self.items.insert(item, at: 0)
+                        print("✅ Added: \(item.fileName) (new count: \(self.items.count))")
+                    } else {
+                        print("⚠️ Item already exists: \(item.fileName)")
                     }
                 }
                 self.isLoading -= 1
+                print("🎉 TrayDrop: Load complete! Total items: \(self.items.count)")
+                print("📋 Current items: \(self.items.map { $0.fileName })")
             }
         } catch {
+            print("❌ TrayDrop: Error creating items: \(error)")
+            print("❌ Error details: \(error.localizedDescription)")
             DispatchQueue.main.async {
                 self.isLoading -= 1
                 NSAlert.popError(error)
@@ -175,3 +206,4 @@ extension TrayDrop {
         }
     }
 }
+

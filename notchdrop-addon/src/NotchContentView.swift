@@ -128,6 +128,30 @@ struct DynamicIslandContentView: View {
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
                                 .disabled(vm.isConnecting)
                                 .opacity(vm.isConnecting ? 0.8 : 1.0)
+                                
+                                // Tray button beside Start
+                                Button(action: {
+                                    vm.toggleTrayMode()
+                                }) {
+                                    HStack(spacing: 6.0) {
+                                        Image(systemName: vm.isTrayMode ? "tray.fill" : "tray")
+                                            .font(.system(size: 14))
+                                            .frame(width: 16, height: 16)
+                                        Text("Tray")
+                                            .font(.system(size: 13, weight: .medium))
+                                    }
+                                    .foregroundColor(vm.isTrayMode ? DynamicIslandTheme.primaryGreen : .white.opacity(0.7))
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(vm.isTrayMode ? DynamicIslandTheme.primaryGreen : .white.opacity(0.3), lineWidth: 0.5)
+                                    )
+                                    .clipShape(Capsule())
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .scaleEffect(1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isTrayMode)
                             } else if vm.showVoiceInterface {
                                 // Voice mode indicator (when split layout is visible)
                                 HStack(spacing: 8) {
@@ -303,9 +327,14 @@ struct DynamicIslandContentView: View {
                     }
                     
                     
-                    // Main content area - always show chat box with Voice Mode button
+                    // Main content area - show tray when tray mode is active
                     HStack(alignment: .center, spacing: 16) {
-                        if vm.showVoiceInterface {
+                        if vm.isTrayMode {
+                            // Tray/Shelf view with AirDrop functionality
+                            TrayView(vm: vm)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .transition(.scale.combined(with: .opacity))
+                        } else if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)
                         } else {

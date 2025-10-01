@@ -131,6 +131,7 @@ struct NotchView: View {
         .animation(vm.animation, value: vm.isChatExpanded)
         .animation(.easeInOut(duration: 0.3), value: vm.isRecording) // Smooth recording state transition
         .animation(.easeInOut(duration: 0.3), value: vm.isPaused) // Smooth pause state transition
+        .animation(.easeInOut(duration: 0.3), value: vm.isTrayMode) // Smooth tray mode transition
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
