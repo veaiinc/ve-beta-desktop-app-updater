@@ -1653,7 +1653,7 @@ export const TemplatesState = (props) => {
 					path: `/auth/gmail/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'calendar_api',
 				},
-				googleCalendar: {
+				'google-calendar': {
 					path: `/google-calendar/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'calendar_api',
 				},
@@ -1661,7 +1661,7 @@ export const TemplatesState = (props) => {
 					path: `/slack/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'third_party_integrations_api',
 				},
-				outlookCalendars: {
+				outlookCalendar: {
 					path: `/outlookcalendar/${workspaceId}/${id}/deactivate-integration`,
 					apiType: 'microsoft_integration_api',
 				},

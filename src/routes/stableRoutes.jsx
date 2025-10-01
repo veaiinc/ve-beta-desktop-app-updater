@@ -13,12 +13,12 @@ const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'))
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 // const Agents = lazy(() => import('../views/features/agents/Agents'));
 // const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
-const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
+// const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
-const ProactiveSuggestions = lazy(() =>
-	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
-);
+// const ProactiveSuggestions = lazy(() =>
+// 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
+// );
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
@@ -30,10 +30,17 @@ const stableRoutes = [
 	// ========================================
 	{
 		path: '/home',
+		// element: (
+		// 	<Suspense fallback={<SuspenseFallback />}>
+		// 		<AuthWrapper title={'Ambient AI'}>
+		// 			<ProactiveSuggestions />
+		// 		</AuthWrapper>
+		// 	</Suspense>
+		// ),
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Ambient AI'}>
-					<ProactiveSuggestions />
+				<AuthWrapper title={'Meet'}>
+					<CardMeetBot />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -126,16 +133,16 @@ const stableRoutes = [
 	// ========================================
 	// Playbook
 	// ========================================
-	{
-		path: '/playbook',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Playbook'}>
-					<GlobalWorkflows />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/playbook',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Playbook'}>
+	// 				<GlobalWorkflows />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 
 	// ========================================
 	// SETTINGS & ADMINISTRATION
