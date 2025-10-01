@@ -74,6 +74,9 @@
 	@media (max-width: 1284px) {
 		top: -100px;
 	}
+	@media (max-width: 1684px) {
+		top: -175px;
+	}
 
 	// Video - shows by default, hidden when zoomed (glow shows instead)
 	&[data-image='varya'] {
