@@ -45,7 +45,7 @@ struct DynamicIslandContentView: View {
     @Binding var infoPopupPosition: CGPoint
     @FocusState private var isChatInputFocused: Bool
     @State private var isTextFieldActive: Bool = false
-    @State private var textEditorHeight: CGFloat = 100 // Dynamic height for textarea
+    @State private var textEditorHeight: CGFloat = 100 // Fixed height for textarea with scroll
     @State private var receivedMessage: String = "" // Track received messages from Electron
     @State private var cancellables = Set<AnyCancellable>()
     
@@ -293,7 +293,6 @@ struct DynamicIslandContentView: View {
                             // Chat input section with arrow icon inside - matches image layout
                             ChatTextAreaView(
                                 chatInput: $vm.chatInput,
-                                textEditorHeight: $textEditorHeight,
                                 isTextFieldActive: $isTextFieldActive,
                                 vm: vm
                             )
@@ -571,7 +570,6 @@ struct VoiceControlsCircle: View {
 struct ChatTextAreaView: View {
     @Binding var chatInput: String
     @FocusState var isChatInputFocused: Bool
-    @Binding var textEditorHeight: CGFloat
     @Binding var isTextFieldActive: Bool
     @ObservedObject var vm: NotchViewModel
     @State private var textEditorWidth: CGFloat = 0 // Will be calculated based on available space
@@ -580,25 +578,22 @@ struct ChatTextAreaView: View {
         ZStack(alignment: .topLeading) {
             // Background for the textarea with active effect
             RoundedRectangle(cornerRadius: 8)
-                .fill(isChatInputFocused ? Color.white.opacity(0.05) : Color.clear) // Subtle background when active
+                .fill(isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.02) : Color.clear) // Subtle background when active
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(
-                            isChatInputFocused ? 
-                            DynamicIslandTheme.primaryGreen.opacity(0.8) : // Green border when active
-                            DynamicIslandTheme.white.opacity(0.7), 
-                            lineWidth: isChatInputFocused ? 1.5 : 1 // Thicker border when active
+                            DynamicIslandTheme.primaryGreen, // White border for chat box area
+                            lineWidth: 1.5 // Consistent border width
                         )
                 )
-                .frame(width: .infinity, height: textEditorHeight)
-                .shadow(
-                    color: isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear,
-                    radius: isChatInputFocused ? 4 : 0,
-                    x: 0,
-                    y: 0
-                )
+                .frame(width: .infinity, height: 100) // Fixed height
+//                 .shadow(
+// color: isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear,
+//                     radius: isChatInputFocused ? 4 : 0,
+//                     x: 0,
+//                     y: 0
+//                 )
                 .animation(DynamicIslandTheme.expansionAnimation, value: textEditorWidth)
-                .animation(.easeInOut(duration: 0.25), value: textEditorHeight)
                 .animation(.easeInOut(duration: 0.2), value: isChatInputFocused) // Smooth transition for active state
             
             // Placeholder text when empty - matches image
@@ -611,20 +606,37 @@ struct ChatTextAreaView: View {
                     .allowsHitTesting(false) // Allow taps to pass through to TextEditor
             }
             
-            // TextEditor (multi-line text input)
+            // TextEditor (multi-line text input) with fixed height and scroll
             TextEditor(text: $chatInput)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(DynamicIslandTheme.white)
-                .accentColor(DynamicIslandTheme.white) // Ensure cursor and selection are white
+                .accentColor(DynamicIslandTheme.primaryGreen) // Green cursor for better visibility
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
                 .padding(.trailing, 40) // Add space for arrow icon
                 .background(Color.clear)
                 .focused($isChatInputFocused)
-                .frame(width: textEditorWidth, height: textEditorHeight)
+                .frame(width: textEditorWidth, height: 100) // Fixed height - no dynamic resizing
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .scrollContentBackground(.hidden) // Hide default TextEditor background
+                .scrollDisabled(false) // Enable scrolling when content exceeds height
                 .allowsHitTesting(true) // Ensure TextEditor can receive mouse events
+                .onKeyPress(keys: [.return]) { event in
+                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
+                    if event.modifiers == .shift {
+                        // Shift+Enter: Insert new line manually
+                        print("🎯 Shift+Enter detected - inserting new line")
+                        chatInput.append("\n")
+                        return .handled
+                    } else {
+                        // Enter alone: Submit chat
+                        print("🎯 Enter alone detected - submitting chat")
+                        if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            vm.submitChat()
+                        }
+                        return .handled
+                    }
+                }
                 .onTapGesture {
                     // Direct tap on TextEditor to ensure focus and cursor
                     print("🎯 TextEditor directly tapped")
@@ -634,6 +646,11 @@ struct ChatTextAreaView: View {
                         // Only enable chat mode if NOT in meeting mode (recording)
                         if !vm.isRecording {
                             vm.isChatMode = true
+                        }
+                        
+                        // Force focus with a slight delay to ensure cursor appears
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isChatInputFocused = true
                         }
                     }
                 }
@@ -771,50 +788,12 @@ struct ChatTextAreaView: View {
 
     
     private func handleTextChange(_ newValue: String) {
+        // Fixed height implementation - no dynamic resizing
+        // TextEditor will scroll when content exceeds the fixed height of 100px
+        print("🎯 Text changed: \(newValue.count) characters")
         
-        // Only resize based on actual content, not placeholder
-        if !newValue.isEmpty {
-
-            // Auto-resize functionality - use correct font size (13, same as TextEditor)
-            let font = NSFont.systemFont(ofSize: 13, weight: .medium)
-            let textAttributes: [NSAttributedString.Key: Any] = [
-                .font: font
-            ]
-            
-            let attributedString = NSAttributedString(string: newValue, attributes: textAttributes)
-            
-            // Calculate text size with padding constraints - match TextEditor's actual available width
-            let textWidth: CGFloat = textEditorWidth - 36 // TextEditor horizontal padding (16px each side) + small buffer for text rendering
-            print("🎯 Available text width: \(textWidth)px")
-            let boundingRect = attributedString.boundingRect(
-                with: CGSize(width: textWidth, height: .greatestFiniteMagnitude),
-                options: [.usesLineFragmentOrigin, .usesFontLeading, .usesDeviceMetrics],
-                context: nil
-            )
-            print("🎯 Calculated text height: \(boundingRect.height)px")
-            
-            // Calculate new height with min/max constraints
-            let minHeight: CGFloat = 100 // Minimum height
-            let maxHeight: CGFloat = 200 // Maximum height
-            let contentHeight = boundingRect.height + 30 // Add vertical padding for TextEditor
-            
-            let newHeight = max(minHeight, min(maxHeight, contentHeight))
-            
-            // Update height with animation if it changed significantly
-            if abs(textEditorHeight - newHeight) > 5 {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    textEditorHeight = newHeight
-                }
-            }
-        } else {
-            // Reset to minimum height when empty
-            let minHeight: CGFloat = 100
-            if abs(textEditorHeight - minHeight) > 5 {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    textEditorHeight = minHeight
-                }
-            }
-        }
+        // Keep the height fixed at 100px - scrolling will handle overflow
+        // No need to calculate or change textEditorHeight
     }
     
     private func handleFocusChange(_ newValue: Bool) {
@@ -833,11 +812,9 @@ struct ChatTextAreaView: View {
             calculateTextEditorWidth()
         }
         
-        // When unfocused and no text, clear chat input and reset height
+        // When unfocused and no text, clear chat input (height stays fixed)
         if !newValue && chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                textEditorHeight = 100 // Reset to minimum height
-            }
+            // Height remains fixed at 100px - no need to reset
         }
         
         // When focused, ensure window is key and cursor appears
@@ -1080,18 +1057,18 @@ struct WebcamButton: View {
                     }
                 }
                 
-                // Error overlay
-                if let error = vm.cameraError {
-                    VStack {
-                        Spacer()
-                        Text(error)
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.red)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 8)
-                            .padding(.bottom, 4)
-                    }
-                }
+                // // Error overlay
+                // if let error = vm.cameraError {
+                //     VStack {
+                //         Spacer()
+                //         Text(error)
+                //             .font(.system(size: 9, weight: .medium))
+                //             .foregroundColor(.red)
+                //             .multilineTextAlignment(.center)
+                //             .padding(.horizontal, 8)
+                //             .padding(.bottom, 4)
+                //     }
+                // }
             }
         }
         .buttonStyle(PlainButtonStyle())
