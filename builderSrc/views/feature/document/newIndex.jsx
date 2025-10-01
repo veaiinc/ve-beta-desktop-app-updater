@@ -716,12 +716,101 @@ const CreateDocument = () => {
 														duplicateWarning: null, // Clear duplicate warning
 													}))
 												}
+<<<<<<< HEAD
+
+												<button
+													className="createDocumentButton create-Button"
+													onClick={handleCreate}
+													style={{
+														opacity: canCreate ? 1 : 0.7,
+														cursor: canCreate
+															? 'pointer'
+															: 'not-allowed',
+													}}
+													disabled={!canCreate}
+												>
+													{stageInfo.isCreating ? (
+														<>
+															<Spinner height="16px" width="16px" />
+															<span
+																style={{
+																	marginLeft: '8px',
+																}}
+															>
+																{stageInfo.isNewClient
+																	? 'Creating new client...'
+																	: 'Creating document...'}
+															</span>
+														</>
+													) : (
+														'Create Document'
+													)}
+												</button>
+											</div>
+											{/* Duplicate warning message */}
+											{stageInfo.duplicateWarning && (
+												<div className="duplicateWarningMessage">
+													{stageInfo.duplicateWarning.message}
+												</div>
+											)}
+										</>
+									)}
+
+									{/* Remove or comment out the duplicate document name section since we've integrated it above */}
+									{/* {stageInfo.showDocumentName && (
+											<div className="documentNameSection">
+												<span className="sectionTitle">Document name</span>
+												<input
+													type="text"
+													className="documentNameInput"
+													placeholder="Document name"
+													value={searchQuery}
+													onChange={handleSearchChange}
+													onClick={(e) => e.stopPropagation()}
+												/>
+											</div>
+										)} */}
+								</>
+							) : (
+								<Tooltip
+									overlayStyle={{
+										width: 'min(600px, 90vw)',
+										maxWidth: '600px',
+									}}
+									placement="bottomLeft"
+									// title={
+									// 	<ClientSelectionTooltip
+									// 		handleOptionSelection={handleOptionSelection}
+									// 		clientsList={stageInfo.clientData}
+									// 		getClientList={getClientList}
+									// 		newContainer={true}
+									// 	/>
+									// }
+									color={'#202020'}
+									arrow={false}
+									trigger="click"
+									overlayClassName="toolTipContainer responsive-tooltip"
+									open={stageInfo.showClientSelectionToolTip}
+									onOpenChange={() => closeToolTip()}
+								>
+									<div className="client-name">
+										<span style={{ color: '#94989e' }}>Client Name</span>
+									</div>
+									{/* <div className="chooseClientTriggerContainer">
+										<span>Client Name</span>
+										<div className="clientSelectorBox">Select Client</div>
+									</div> */}
+									<div className={`clientSelectionTooltipContainer  `}>
+										<div className="clientSearch">
+											{/* <SearchIcon /> */}
+=======
 											>
 												Back
 											</button>
 										</div>
 										<div className="inputFieldContainer">
 											<label className="inputLabel">Client Name *</label>
+>>>>>>> origin/master
 											<input
 												className="inputBoxContainer"
 												placeholder="Enter client name"
