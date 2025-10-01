@@ -10,7 +10,7 @@ import { ReactComponent as InfoIcon } from '../../../assets/svg/Settings/Info.sv
 import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile/downArrow.svg';
 import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
-import { ReactComponent as NoImageIcon } from '../../../assets/svg/document/noImage.svg';
+import { ReactComponent as NoImageIcon } from '../../../assets/svg/document/image.svg';
 import { DatePicker, ConfigProvider, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';
