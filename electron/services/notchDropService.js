@@ -676,10 +676,10 @@ class NotchDropService {
 
 			// Handle voice-specific actions
 			if (action === 'connectVoice' || action === 'startVoiceAgent') {
-				console.log('🎤 NotchDrop Voice button clicked - activating voice agent');
+				// console.log('🎤 NotchDrop Voice button clicked - activating voice agent');
 				await this.activateVoiceAgent();
 			} else if (action === 'disconnectVoice') {
-				console.log('🎤 NotchDrop Voice disconnect - deactivating voice agent');
+				// console.log('🎤 NotchDrop Voice disconnect - deactivating voice agent');
 				await this.deactivateVoiceAgent();
 			}
 
@@ -693,12 +693,11 @@ class NotchDropService {
 
 	async activateVoiceAgent() {
 		try {
-			console.log('🎤 Activating voice agent from NotchDrop (LiveKit only)...');
+			// console.log('🎤 Activating voice agent from NotchDrop (LiveKit only)...');
 
 			// ONLY dispatch LiveKit voice activation event - no web interface
 			if (this.mainWindow) {
 				const liveKitResult = await this.mainWindow.webContents.executeJavaScript(`
-					console.log('🎤 NotchDrop: Dispatching LiveKit voice activation event...');
 					window.dispatchEvent(new CustomEvent('notchdrop-activate-voice', { 
 						detail: { 
 							source: 'notchdrop', 
@@ -708,8 +707,8 @@ class NotchDropService {
 					}));
 					'{ "success": true, "method": "LiveKit voice activation event" }';
 				`);
-				console.log('🎤 LiveKit voice activation event result:', liveKitResult);
-				console.log('✅ Voice conversation will stay within NotchDrop UI');
+				// console.log('🎤 LiveKit voice activation event result:', liveKitResult);
+				// console.log('✅ Voice conversation will stay within NotchDrop UI');
 			}
 		} catch (error) {
 			console.error('❌ Error activating voice agent:', error);
@@ -718,12 +717,11 @@ class NotchDropService {
 
 	async deactivateVoiceAgent() {
 		try {
-			console.log('🔌 Deactivating voice agent from NotchDrop (LiveKit only)...');
+			// console.log('🔌 Deactivating voice agent from NotchDrop (LiveKit only)...');
 
 			if (this.mainWindow) {
 				// ONLY dispatch LiveKit voice deactivation event - no web interface
 				const liveKitResult = await this.mainWindow.webContents.executeJavaScript(`
-					console.log('🔌 NotchDrop: Dispatching LiveKit voice deactivation event...');
 					window.dispatchEvent(new CustomEvent('notchdrop-deactivate-voice', { 
 						detail: { 
 							source: 'notchdrop', 
@@ -733,8 +731,8 @@ class NotchDropService {
 					}));
 					'{ "success": true, "method": "LiveKit voice deactivation event" }';
 				`);
-				console.log('🔌 LiveKit voice deactivation event result:', liveKitResult);
-				console.log('✅ Voice conversation ended within NotchDrop UI');
+				// console.log('🔌 LiveKit voice deactivation event result:', liveKitResult);
+				// console.log('✅ Voice conversation ended within NotchDrop UI');
 			}
 		} catch (error) {
 			console.error('❌ Error deactivating voice agent:', error);
@@ -743,12 +741,11 @@ class NotchDropService {
 
 	async toggleVoiceMute() {
 		try {
-			console.log('🔇 Toggling voice mute from NotchDrop...');
+			// console.log('🔇 Toggling voice mute from NotchDrop...');
 
 			if (this.mainWindow) {
 				// Dispatch LiveKit microphone toggle event
 				const muteToggleResult = await this.mainWindow.webContents.executeJavaScript(`
-					console.log('🔇 NotchDrop: Dispatching LiveKit microphone toggle event...');
 					window.dispatchEvent(new CustomEvent('notchdrop-toggle-microphone', { 
 						detail: { 
 							source: 'notchdrop', 
@@ -758,8 +755,8 @@ class NotchDropService {
 					}));
 					'{ "success": true, "method": "LiveKit microphone toggle event" }';
 				`);
-				console.log('🔇 LiveKit microphone toggle event result:', muteToggleResult);
-				console.log('✅ Microphone mute toggled from NotchDrop');
+				// console.log('🔇 LiveKit microphone toggle event result:', muteToggleResult);
+				// console.log('✅ Microphone mute toggled from NotchDrop');
 			}
 		} catch (error) {
 			console.error('❌ Error toggling voice mute:', error);
@@ -768,7 +765,7 @@ class NotchDropService {
 
 	async updateVoiceConnectionState(status) {
 		try {
-			console.log(`🔄 Updating NotchDrop voice connection state: ${status}`);
+			// console.log(`🔄 Updating NotchDrop voice connection state: ${status}`);
 
 			if (!this.isInitialized) {
 				log.warn('NotchDrop not initialized, cannot update voice connection state');
@@ -778,7 +775,7 @@ class NotchDropService {
 			// Call the native addon to update the Swift UI voice status
 			if (this.notchDropAddon && this.notchDropAddon.updateVoiceConnectionState) {
 				this.notchDropAddon.updateVoiceConnectionState(status);
-				console.log(`✅ NotchDrop voice status updated to: ${status}`);
+				// console.log(`✅ NotchDrop voice status updated to: ${status}`);
 				return true;
 			} else {
 				console.warn('⚠️ updateVoiceConnectionState method not available on addon');
@@ -792,11 +789,11 @@ class NotchDropService {
 
 	async addVoiceMessage(messageData) {
 		try {
-			console.log(
-				`💬 Adding voice message to NotchDrop: ${
-					messageData.sender
-				}: ${messageData.content?.substring(0, 50)}...`,
-			);
+			// console.log(
+			// 	`💬 Adding voice message to NotchDrop: ${
+			// 		messageData.sender
+			// 	}: ${messageData.content?.substring(0, 50)}...`,
+			// );
 
 			if (!this.isInitialized) {
 				log.warn('NotchDrop not initialized, cannot add voice message');
@@ -806,7 +803,7 @@ class NotchDropService {
 			// Call the native addon to add the voice message to Swift UI
 			if (this.notchDropAddon && this.notchDropAddon.addVoiceMessage) {
 				this.notchDropAddon.addVoiceMessage(messageData);
-				console.log(`✅ Voice message added to NotchDrop`);
+				// console.log(`✅ Voice message added to NotchDrop`);
 				return true;
 			} else {
 				console.warn('⚠️ addVoiceMessage method not available on addon');
@@ -820,7 +817,7 @@ class NotchDropService {
 
 	async updateVoiceMuteState(isMuted) {
 		try {
-			console.log(`🔇 Updating NotchDrop voice mute state: ${isMuted}`);
+			// console.log(`🔇 Updating NotchDrop voice mute state: ${isMuted}`);
 
 			if (!this.isInitialized) {
 				log.warn('NotchDrop not initialized, cannot update voice mute state');
@@ -830,7 +827,7 @@ class NotchDropService {
 			// Call the native addon to update the voice mute state in Swift UI
 			if (this.notchDropAddon && this.notchDropAddon.updateVoiceMuteState) {
 				this.notchDropAddon.updateVoiceMuteState(isMuted);
-				console.log(`✅ Voice mute state updated to: ${isMuted}`);
+				// console.log(`✅ Voice mute state updated to: ${isMuted}`);
 				return true;
 			} else {
 				console.warn('⚠️ updateVoiceMuteState method not available on addon');
@@ -853,7 +850,7 @@ class NotchDropService {
 			// Call the native addon to update the voice status in Swift UI
 			if (this.notchDropAddon && this.notchDropAddon.updateVoiceStatus) {
 				this.notchDropAddon.updateVoiceStatus(status);
-				console.log(`✅ Voice status updated to: ${status}`);
+				// console.log(`✅ Voice status updated to: ${status}`);
 				return true;
 			} else {
 				console.warn('⚠️ updateVoiceStatus method not available on addon');
@@ -939,7 +936,7 @@ class NotchDropService {
 	handleSwiftLog(message) {
 		try {
 			// Log to Electron's log system
-			log.info(`[Swift UI] ${message}`);
+			// log.info(`[Swift UI] ${message}`);
 
 			// Emit to renderer process for UI display
 			this.emitToRenderer('swift-log-message', {
@@ -975,7 +972,7 @@ class NotchDropService {
 			// Use the triggerSwiftAction method to send a custom message action
 			if (this.notchDropAddon.triggerSwiftAction) {
 				this.notchDropAddon.triggerSwiftAction('receiveMessage', message);
-				log.info('📤 Message sent to Swift UI:', message);
+				// log.info('📤 Message sent to Swift UI:', message);
 				return { success: true };
 			} else {
 				log.error('❌ triggerSwiftAction method not available on NotchDrop addon');
