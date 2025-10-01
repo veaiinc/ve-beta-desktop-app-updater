@@ -35,17 +35,17 @@ class NotchViewModel: NSObject, ObservableObject {
             }
             // Responsive width for Meeting mode with Start card visible
             let startWidth: CGFloat = 220
-            let chatWidth: CGFloat = max(200, screenRect.width * 0.19) // allow growth but reserve space
+            let chatWidth: CGFloat = 400 // Fixed chat width
             let webcamWidth: CGFloat = 100
-            let innerGaps: CGFloat = 8 * 2 // between the three items
+            let innerGaps: CGFloat = 12 * 2 // spacing between the three items
             let outerPadding: CGFloat = spacing * 2 // view padding
             let buffer: CGFloat = 24 // breathing room for outlines/shadows
             let desiredWidth = startWidth + chatWidth + webcamWidth + innerGaps + outerPadding + buffer
-            let minComfortableWidth: CGFloat = 650
+            let minComfortableWidth: CGFloat = 800 // Increased minimum width for larger screens
             let targetWidth = max(desiredWidth, minComfortableWidth)
-            let maxAllowed = max(500, screenRect.width - 40) // keep within screen
+            let maxAllowed = max(600, screenRect.width - 40) // Increased minimum allowed width
             let baseWidth = min(targetWidth, maxAllowed)
-            let adjustedWidth = max(400, baseWidth)
+            let adjustedWidth = max(600, baseWidth) // Increased minimum width
             return .init(
                 width: adjustedWidth,
                 height: DynamicIslandTheme.expandedHeight
