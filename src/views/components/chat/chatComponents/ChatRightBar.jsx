@@ -1,11 +1,17 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, lazy, Suspense } from 'react';
 import s from '../../../../assets/scss/chat/chatComponents/chatRightBar.module.scss';
-import CitationsModal from '../../modalsV2/chat/CitationsModal';
+const CitationsModal = lazy(() => import('../../modalsV2/chat/CitationsModal'));
 
 const ChatRightBar = ({ activeRightBar, handleRightBarToggle, handleCloseCitationsModal }) => {
 	const componentMapper = useMemo(
 		() => ({
-			citations: <CitationsModal closeModal={handleCloseCitationsModal} />,
+			citations: (
+				<div className={s.citationsWrapper}>
+					<Suspense fallback={'Loading...'}>
+						<CitationsModal closeModal={handleCloseCitationsModal} />
+					</Suspense>
+				</div>
+			),
 		}),
 		[handleRightBarToggle, handleCloseCitationsModal],
 	);
