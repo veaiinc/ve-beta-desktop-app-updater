@@ -124,6 +124,7 @@ const ConnectedIntegrationModel = ({ isOpen, closeModal, connectedIntegration })
 					isconnectingLoader: false,
 				}));
 				closeModal();
+				window.open(response, '_blank');
 			} else {
 				message.error('Failed to connect to integration');
 				setInfo((prev) => ({

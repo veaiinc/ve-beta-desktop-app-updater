@@ -47,7 +47,9 @@ const NotesGrid = ({ handleTotalChange, isDatabase = false }) => {
 
 	useEffect(() => {
 		setInfo((prevInfo) => ({ ...prevInfo, loading: true }));
-		fetchNotes({ page: 1 });
+		if (!notes) {
+			fetchNotes({ page: 1 });
+		}
 	}, [info?.selectedFilter?.value, info?.selectedSort, isDatabase]);
 
 	useEffect(() => {

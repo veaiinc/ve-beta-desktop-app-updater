@@ -62,7 +62,6 @@ const Email = ({
 		if (referralCode) {
 			handleGetAndSetReferrerUserName();
 		}
-		handleLocationDetailsData();
 		const isValid = validator?.isEmail(email);
 		setInfo((prev) => ({
 			...prev,
