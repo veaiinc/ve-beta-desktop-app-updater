@@ -732,20 +732,49 @@ const GalleryPage = () => {
 
 		// Only set the active album if it's not already set
 		if (tenantAlbums && galleryId) {
-			setInfo((prev) => ({
-				...prev,
-				albumName: tenantAlbums?.albums?.[0]?.title,
-				activeAlbumId: tenantAlbums?.albums?.[0]?._id,
-				activeAlbum: tenantAlbums?.albums?.[0],
-				tenantAlbums: tenantAlbums?.albums,
-				albumSlug: tenantAlbums?.albums?.[0]?.slug,
-				isPublished: tenantAlbums?.isPublished,
-				isOnline: tenantAlbums?.isPublished,
-				videosList: tenantAlbums?.embeddedVideos,
-				selectVideo: info?.videoUploaded
-					? tenantAlbums?.embeddedVideos?.[tenantAlbums?.embeddedVideos?.length - 1]
-					: tenantAlbums?.embeddedVideos?.[0],
-			}));
+			setInfo((prev) => {
+				// Check if we have a current active album to preserve it
+				const currentActiveAlbumId = prev?.activeAlbumId;
+				const currentActiveAlbum = prev?.activeAlbum;
+
+				// Find the updated version of the current active album in the new data
+				const updatedActiveAlbum = currentActiveAlbumId
+					? tenantAlbums?.albums?.find((album) => album._id === currentActiveAlbumId)
+					: null;
+
+				// Only set to first album if no active album is currently set
+				const newAlbumName =
+					currentActiveAlbumId && updatedActiveAlbum
+						? updatedActiveAlbum.title
+						: tenantAlbums?.albums?.[0]?.title;
+				const newActiveAlbumId =
+					currentActiveAlbumId && updatedActiveAlbum
+						? updatedActiveAlbum._id
+						: tenantAlbums?.albums?.[0]?._id;
+				const newActiveAlbum =
+					currentActiveAlbumId && updatedActiveAlbum
+						? updatedActiveAlbum
+						: tenantAlbums?.albums?.[0];
+				const newAlbumSlug =
+					currentActiveAlbumId && updatedActiveAlbum
+						? updatedActiveAlbum.slug
+						: tenantAlbums?.albums?.[0]?.slug;
+
+				return {
+					...prev,
+					albumName: newAlbumName,
+					activeAlbumId: newActiveAlbumId,
+					activeAlbum: newActiveAlbum,
+					tenantAlbums: tenantAlbums?.albums,
+					albumSlug: newAlbumSlug,
+					isPublished: tenantAlbums?.isPublished,
+					isOnline: tenantAlbums?.isPublished,
+					videosList: tenantAlbums?.embeddedVideos,
+					selectVideo: prev?.videoUploaded
+						? tenantAlbums?.embeddedVideos?.[tenantAlbums?.embeddedVideos?.length - 1]
+						: tenantAlbums?.embeddedVideos?.[0],
+				};
+			});
 		}
 		if (tenantAlbums && galleryId && !info?.selectVideo) {
 			setInfo((prev) => ({
