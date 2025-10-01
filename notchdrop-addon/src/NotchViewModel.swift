@@ -295,12 +295,12 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func toggleNotchLock() {
-        // Always enforce locked state; ignore attempts to unlock
-        if !isNotchLocked {
-            isNotchLocked = true
+        isNotchLocked.toggle()
+        
+        if isNotchLocked {
+            // If locking, ensure notch is open
+            notchOpen(.click)
         }
-        // Ensure notch is open when locked
-        notchOpen(.click)
     }
 
     func showSettings() {
