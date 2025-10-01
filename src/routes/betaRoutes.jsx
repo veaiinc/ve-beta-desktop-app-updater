@@ -17,10 +17,10 @@ const Public = lazy(() => import('../views/layouts/Public'));
 const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
 const EarlyAccess = lazy(() => import('../views/features/earlyAccess/EarlyAccess'));
 const InitialHomePage = lazy(() => import('../views/features/homePage/InitialHomePage'));
-// const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
+const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
 // const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
-// const PricingPage = lazy(() => import('../views/features/pricingPlans/pricingPage'));
+const PricingPage = lazy(() => import('../views/features/pricingPlans/pricingPage'));
 // const Integrations = lazy(() => import('../views/features/integrationsList/Integrations'));
 
 // ========================================
@@ -70,7 +70,7 @@ const ProactiveAi = lazy(() => import('../views/features/proactiveAi/ProactiveAi
 const GalleryPage = lazy(() => import('../views/features/gallery/GalleryPage'));
 const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer'));
 const AddGallery = lazy(() => import('../views/features/gallery/AddGallery'));
-const AlbumSettings = lazy(() => import('../views/features/gallery/AlbumSettings'));
+// const AlbumSettings = lazy(() => import('../views/features/gallery/AlbumSettings'));
 const UploadPhotos = lazy(() => import('../views/features/gallery/UploadPhotos'));
 const LiteGallery = lazy(() => import('../views/features/gallery/Litegallery'));
 
@@ -92,19 +92,25 @@ const BuilderApp = lazy(() => import('../../builderSrc/App'));
 // ========================================
 // Agents
 // ========================================
-const Agents = lazy(() => import('../views/features/agents/Agents'));
-const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
+// const Agents = lazy(() => import('../views/features/agents/Agents'));
+// const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
 
 // ========================================
 // Ambient AI
 // ========================================
-// const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
 const ProactiveSuggestions = lazy(() =>
 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 );
-// const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
 
+// ========================================
+// Meet Bot
+// ========================================
+const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+
+// ========================================
 // components
+// ========================================
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 import publicRoutes from './publicRoutes';
 
@@ -252,30 +258,30 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/agents',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title="Agents"
-					outerContainerStyle={{ padding: '0' }}
-					sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
-				>
-					<Agents />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/agent/:agentId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title="Agent">
-					<Agent />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/agents',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper
+	// 				title="Agents"
+	// 				outerContainerStyle={{ padding: '0' }}
+	// 				sidebarContainerStyles={{ padding: '32px 0 0 32px' }}
+	// 			>
+	// 				<Agents />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/agent/:agentId',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title="Agent">
+	// 				<Agent />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 
 	// ========================================
 	// CHAT
@@ -320,25 +326,64 @@ const betaRoutes = [
 	// MEET
 	// ========================================
 	// {
-	// 	path: '/meet',
+	// 	path: '/chats',
 	// 	element: (
 	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Meet'}>
-	// 				<CardMeetBot />
+	// 			<AuthWrapper title={'Chats'}>
+	// 				<ChatPage />
 	// 			</AuthWrapper>
 	// 		</Suspense>
 	// 	),
 	// },
 	// {
-	// 	path: '/meet/:meetingId',
+	// 	path: '/chat/:sessionId',
 	// 	element: (
 	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Meet'}>
-	// 				<MeetBotWrapper />
+	// 			<AuthWrapper
+	// 				title={'Chat'}
+	// 				showBottomToolbar={false}
+	// 				outerContainerStyle={{
+	// 					paddingRight: '0px',
+	// 					backgroundColor: 'var(--background-color)',
+	// 				}}
+	// 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
+	// 				maxWidth="100%"
+	// 			>
+	// 				<RecentChat
+	// 					showChatHistory={true}
+	// 					showRightBar={true}
+	// 					showDeleteChat={true}
+	// 					showChats={true}
+	// 					showCitationsButton={true}
+	// 					showBrowser={true}
+	// 				/>
 	// 			</AuthWrapper>
 	// 		</Suspense>
 	// 	),
 	// },
+	// ========================================
+	// MEET
+	// ========================================
+	{
+		path: '/meet',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<CardMeetBot />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/meet/:meetingId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<MeetBotWrapper />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 	// ========================================
 	// GALLERY
 	// ========================================
@@ -382,16 +427,16 @@ const betaRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/galleries/:galleryId/:albumId/album-settings',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
-					<AlbumSettings />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/galleries/:galleryId/:albumId/album-settings',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Album Settings'} showBottomToolbar={false}>
+	// 				<AlbumSettings />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/galleries/:galleryId/:albumId/gallery-viewer',
 		element: (
@@ -716,29 +761,29 @@ const betaRoutes = [
 	// ========================================
 	// SETTINGS
 	// ========================================
-	// {
-	// 	path: '/settings/:type',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Workspace Settings'}>
-	// 				<SettingsWrapper />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
+	{
+		path: '/settings/:type',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Workspace Settings'}>
+					<SettingsWrapper />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 	// ========================================
 	// PRICING
 	// ========================================
-	// {
-	// 	path: '/pricing',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Pricing'}>
-	// 				<PricingPage />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
+	{
+		path: '/pricing',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Pricing'}>
+					<PricingPage />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 	// ========================================
 	// FALLBACK ROUTE
 	// ========================================
