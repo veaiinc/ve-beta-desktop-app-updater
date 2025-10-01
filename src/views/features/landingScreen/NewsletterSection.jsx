@@ -260,10 +260,14 @@ const NewsletterSection = () => {
 					</div> */}
 				</div>
 
-				<div className={s.locationCompanyContainer}>
+				<div
+					className={s.locationCompanyContainer}
+					onClick={() => window.open('https://livingintelligencecompany.com', '_blank')}
+					style={{ cursor: 'pointer' }}
+				>
 					<div className={s.locationCompany}>
 						<span>The</span> <br />
-						Singularity Intelligence
+						Living Intelligence
 					</div>
 					<div className={s.locationDetail}>
 						<span>Company of </span> San Fransisco <SansLogo />
