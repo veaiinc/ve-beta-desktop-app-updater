@@ -119,23 +119,26 @@ struct DynamicIslandContentView: View {
             if !vm.isAuthenticated {
                 // Welcome section when not authenticated
                 VStack(spacing: 8) {
-                    Text("hello")
-                        .font(.system(size: 48, weight: .light, design: .default))
-                        .foregroundColor(.white)
-                    Text("Please log in to access features")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundColor(.white.opacity(0.8))
+                   Text("Hello I’m Ve")
+                .font(.custom("Urbanist", size: 54)) // Use actual font name
+                .kerning(-0.03 * 54) // -3% of font size = -1.62
+                .lineSpacing(-4) // Optional: Adjust if you want total line height to be close to 50px
+                .foregroundColor(.white)
+
+                    // Text("Please log in to access features")
+                    //     .font(.system(size: 14, weight: .regular))
+                    //     .foregroundColor(.white.opacity(0.8))
                     
                     // Test buttons
                     HStack(spacing: 8) {
-                        Button("Login") {
+                        Button("LOGIN") {
                             vm.navigateToMainScreen(path: "/verify-user")
                         }
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.custom("Urbanist", size: 14))
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.blue.opacity(0.3))
+                        // .background(Color.blue.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .buttonStyle(PlainButtonStyle())
 
