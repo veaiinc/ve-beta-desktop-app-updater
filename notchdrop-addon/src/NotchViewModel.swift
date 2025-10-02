@@ -144,6 +144,12 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var showVideoPlayer: Bool = false
     @Published var notchVisible: Bool = true
     @Published var isNotchLocked: Bool = true
+    
+    // Browser permission state for YouTube detection
+    @PublishedPersist(key: "hasBrowserPermission", defaultValue: false)
+    var hasBrowserPermission: Bool
+    @Published var browserPermissionRequested: Bool = false
+    @Published var showBrowserPermissionRequest: Bool = false
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
     var selectedLanguage: Language
@@ -963,6 +969,38 @@ class NotchViewModel: NSObject, ObservableObject {
             if let error = error {
                 // print("📹 Camera error: \(error)")
             }
+        }
+    }
+    
+    // MARK: - Browser Permission Methods
+    
+    /// Request browser permission for YouTube detection
+    func requestBrowserPermission() {
+        print("🌐 Requesting browser permission for YouTube detection...")
+        
+        DispatchQueue.main.async {
+            self.browserPermissionRequested = true
+            self.showBrowserPermissionRequest = true
+        }
+    }
+    
+    /// Grant browser permission
+    func grantBrowserPermission() {
+        print("🌐 Browser permission granted")
+        
+        DispatchQueue.main.async {
+            self.hasBrowserPermission = true
+            self.showBrowserPermissionRequest = false
+        }
+    }
+    
+    /// Deny browser permission
+    func denyBrowserPermission() {
+        print("🌐 Browser permission denied")
+        
+        DispatchQueue.main.async {
+            self.hasBrowserPermission = false
+            self.showBrowserPermissionRequest = false
         }
     }
     

@@ -12,7 +12,11 @@ struct NotchContentView: View {
     
     var body: some View {
         ZStack {
-            if vm.showNotificationOverlay {
+            if vm.showBrowserPermissionRequest {
+                // Browser permission request overlay
+                BrowserPermissionRequestView(vm: vm)
+                    .transition(.scale(scale: 1.0).combined(with: .opacity))
+            } else if vm.showNotificationOverlay {
                 // When notification is showing, ONLY show the notification (no background content)
                 NotificationOverlayView(vm: vm)
                     .transition(.scale(scale: 1.0).combined(with: .opacity))
@@ -27,6 +31,7 @@ struct NotchContentView: View {
         }
         .animation(vm.animation, value: vm.contentType)
         .animation(vm.animation, value: vm.showNotificationOverlay)
+        .animation(vm.animation, value: vm.showBrowserPermissionRequest)
     }
 }
 
@@ -530,8 +535,17 @@ struct DynamicIslandContentView: View {
     }
     
     private func checkBrowserForYouTube() -> Bool {
-        // Check each browser separately for better reliability
-        let browsers = ["Safari", "Google Chrome", "Firefox", "Microsoft Edge", "Arc", "Brave Browser"]
+        // Only check browsers if we have permission
+        guard vm.hasBrowserPermission else {
+            // Request permission first time
+            if !vm.browserPermissionRequested {
+                vm.requestBrowserPermission()
+            }
+            return false
+        }
+        
+        // Check only major browsers: Safari, Chrome, Firefox
+        let browsers = ["Safari", "Google Chrome", "Firefox"]
         
         for browser in browsers {
             if let (url, title) = checkBrowserApp(browser) {
@@ -2281,6 +2295,87 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
             
             webView.evaluateJavaScript(css, completionHandler: nil)
         }
+    }
+}
+
+// MARK: - Browser Permission Request View
+struct BrowserPermissionRequestView: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Icon
+            Image(systemName: "globe")
+                .font(.system(size: 24))
+                .foregroundColor(DynamicIslandTheme.primaryGreen)
+            
+            // Title and description
+            VStack(spacing: 8) {
+                Text("Browser Access")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                
+                Text("Allow access to Safari, Chrome, and Firefox to detect YouTube videos playing in your browser")
+                    .font(.system(size: 12))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+            }
+            
+            // Buttons
+            HStack(spacing: 12) {
+                Button("Not Now") {
+                    vm.denyBrowserPermission()
+                }
+                .buttonStyle(SecondaryButtonStyle())
+                
+                Button("Allow") {
+                    vm.grantBrowserPermission()
+                }
+                .buttonStyle(PrimaryButtonStyle())
+            }
+        }
+        .padding(20)
+        .frame(width: 320, height: 180)
+        .background(DynamicIslandTheme.cardMaterial)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(DynamicIslandTheme.stroke, lineWidth: 0.5)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+// MARK: - Button Styles for Permission Request
+struct PrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(DynamicIslandTheme.primaryGreen)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white.opacity(0.7))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.white.opacity(0.1))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 
