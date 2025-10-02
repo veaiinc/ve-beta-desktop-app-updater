@@ -36,29 +36,29 @@ const plans = [
 		isBasicIntegrationAvailable: false,
 		basicIntegration: [],
 	},
-	{
-		key: 'basic',
-		name: 'Basic',
-		price: { monthly: 10, yearly: 120 },
-		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
-		subscribeLabel: 'Subscribe',
-		//featuresTitle: 'Everything in Free',
-		features: [
-			`Unlimited meetings (60 mins each)`,
-			`AskVe search (Gmail + Calendar)`,
-			`1,990 credits/month`,
-			`Email support (48 hr response)`,
-		],
-		tokens: null,
-		highlight: false,
-		isBasicIntegrationAvailable: false,
-		basicIntegration: [{ label: 'Mail', icon: <MailIcon width={16} height={16} /> }],
-	},
+	// {
+	// 	key: 'basic',
+	// 	name: 'Basic',
+	// 	price: { monthly: 19, yearly: 190 },
+	// 	userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
+	// 	subscribeLabel: 'Subscribe',
+	// 	//featuresTitle: 'Everything in Free',
+	// 	features: [
+	// 		`Unlimited meetings (60 mins each)`,
+	// 		`AskVe search (Gmail + Calendar)`,
+	// 		`1,990 credits/month`,
+	// 		`Email support (48 hr response)`,
+	// 	],
+	// 	tokens: null,
+	// 	highlight: false,
+	// 	isBasicIntegrationAvailable: false,
+	// 	basicIntegration: [{ label: 'Mail', icon: <MailIcon width={16} height={16} /> }],
+	// },
 
 	{
 		key: 'Plus',
 		name: 'Plus',
-		price: { monthly: 10, yearly: 120 },
+		price: { monthly: 39, yearly: 390 },
 		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
 		subscribeLabel: 'Subscribe',
 		//featuresTitle: 'Everything in Free',
@@ -131,41 +131,41 @@ const plans = [
 	// 	isBasicIntegrationAvailable: false,
 	// 	basicIntegration: [],
 	// },
-	{
-		key: 'pro',
-		name: 'Pro',
-		price: { monthly: 60, yearly: 720 },
-		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
-		subscribeLabel: 'Subscribe',
-		//featuresTitle: 'Everything in OS',
-		features: [
-			`Unlimited meetings`,
+	// {
+	// 	key: 'pro',
+	// 	name: 'Pro',
+	// 	price: { monthly: 199, yearly: 1990 },
+	// 	userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
+	// 	subscribeLabel: 'Subscribe',
+	// 	//featuresTitle: 'Everything in OS',
+	// 	features: [
+	// 		`Unlimited meetings`,
 
-			`AskVe full enterprise search (Gmail, Outlook, Drive, Docs, PDFs)`,
+	// 		`AskVe full enterprise search (Gmail, Outlook, Drive, Docs, PDFs)`,
 
-			`Advanced AskVe queries (multi-agent cross-search reasoning)`,
+	// 		`Advanced AskVe queries (multi-agent cross-search reasoning)`,
 
-			`Marketplace integrations (Slack, Notion, Jira)`,
+	// 		`Marketplace integrations (Slack, Notion, Jira)`,
 
-			`19,900 credits/month`,
+	// 		`19,900 credits/month`,
 
-			`Priority support (live chat, faster SLA)`,
-		],
-		// aiFeatures: [
-		// 	'AI included',
-		// 	'Enterprise Search',
-		// 	'AI Note Taker',
-		// 	'AI Meeting Notes',
-		// 	'Presentations',
-		// 	'AI Research Mode',
-		// 	'Proactive AI',
-		// 	'AI Agents',
-		// ],
-		tokens: null,
-		highlight: false,
-		isBasicIntegrationAvailable: false,
-		basicIntegration: [],
-	},
+	// 		`Priority support (live chat, faster SLA)`,
+	// 	],
+	// 	// aiFeatures: [
+	// 	// 	'AI included',
+	// 	// 	'Enterprise Search',
+	// 	// 	'AI Note Taker',
+	// 	// 	'AI Meeting Notes',
+	// 	// 	'Presentations',
+	// 	// 	'AI Research Mode',
+	// 	// 	'Proactive AI',
+	// 	// 	'AI Agents',
+	// 	// ],
+	// 	tokens: null,
+	// 	highlight: false,
+	// 	isBasicIntegrationAvailable: false,
+	// 	basicIntegration: [],
+	// },
 	{
 		key: 'enterprise',
 		name: 'Enterprise',
@@ -323,6 +323,8 @@ const FeatureList = memo(
 	),
 );
 
+FeatureList.displayName = 'FeatureList';
+
 const AIFeatureList = memo(({ aiFeatures }) => (
 	<div className="ai-features">
 		<span className="ai-label">AI Features</span>
@@ -339,7 +341,9 @@ const AIFeatureList = memo(({ aiFeatures }) => (
 	</div>
 ));
 
-const PricingCard = memo(({ plan, price, userInfo, isHighlighted }) => (
+AIFeatureList.displayName = 'AIFeatureList';
+
+const PricingCard = memo(({ plan, price, userInfo, isHighlighted, onSubscribe }) => (
 	<div
 		className={`pricing-card ${plan.key}${isHighlighted ? ' highlighted' : ''}`.trim()}
 		style={plan.badge && { border: '1px solid var(--primary-button)' }}
@@ -358,7 +362,9 @@ const PricingCard = memo(({ plan, price, userInfo, isHighlighted }) => (
 					{plan.key !== 'enterprise' && <span className="user-info">{userInfo}</span>}
 				</div>
 			</div>
-			<div className="subscribe-btn">{plan.subscribeLabel}</div>
+			<div className="subscribe-btn" onClick={onSubscribe}>
+				{plan.subscribeLabel}
+			</div>
 			<div className="features-container">
 				{plan.featuresTitle && <div className="features-title">{plan.featuresTitle}</div>}
 				<FeatureList
@@ -373,6 +379,8 @@ const PricingCard = memo(({ plan, price, userInfo, isHighlighted }) => (
 		{/* {plan.tokens && <div className="token-box">{plan.tokens} Tokens</div>} */}
 	</div>
 ));
+
+PricingCard.displayName = 'PricingCard';
 
 const WebsitePricingPage = () => {
 	const [billing, setBilling] = useState('monthly');
@@ -417,11 +425,13 @@ const WebsitePricingPage = () => {
 				<div className="pricing-cards">
 					{plans.map((plan) => (
 						<PricingCard
+							key={plan.key}
 							name={plan.name}
 							plan={plan}
 							price={plan.price[billing]}
 							userInfo={plan.userInfo[billing]}
 							isHighlighted={plan.highlight}
+							onSubscribe={() => navigate('/verify-user')}
 						/>
 					))}
 				</div>
@@ -465,7 +475,10 @@ const WebsitePricingPage = () => {
 									)}
 								</div>
 							</div>
-							<div className={`plan-table-btn${plan.key === 'free' ? ' free' : ''}`}>
+							<div
+								className={`plan-table-btn${plan.key === 'free' ? ' free' : ''}`}
+								onClick={() => navigate('/verify-user')}
+							>
 								{plan.key === 'enterprise' ? 'Contact Sales' : plan.subscribeLabel}
 							</div>
 						</div>
