@@ -1,11 +1,33 @@
 .opportunityCard {
 	position: absolute;
 	bottom: clamp(80px, 22vh, 225px);
-	right: clamp(16px, 37vw, 400px);
-	width: min(92vw, 567px);
+	left: 65%;
+	transform: translateX(-50%);
+	width: min(90vw, 567px);
+	max-width: 567px;
 	display: flex;
 	flex-direction: column;
 	gap: clamp(10px, 2vh, 16px);
+	top: 500px;
+
+	/* Responsive adjustments for laptop screens */
+	@media (max-width: 1440px) {
+		width: min(85vw, 500px);
+		left: 75%;
+		top: 255px;
+	}
+
+	/* Mobile responsive layout */
+	@media (max-width: 768px) {
+		position: relative;
+		bottom: auto;
+		left: auto;
+		top: auto;
+		transform: none;
+		width: 100%;
+		max-width: 300px;
+		margin: 0 auto;
+	}
 }
 
 .opportunityHeader {
@@ -32,13 +54,22 @@
 	text-transform: uppercase;
 	color: rgba(121, 236, 201, 0.5);
 	width: fit-content;
+
+	@media (max-width: 768px) {
+		font-size: 16px;
+	}
 }
 
 .opportunityDescription {
 	font-family: var(--primary-font-family);
 	font-weight: 500;
-	font-size: clamp(18px, 3.6vw, 34px);
+	font-size: 30px;
 	line-height: 1.235em;
 	color: #79ecc9;
 	width: 100%;
+
+	@media (max-width: 768px) {
+		font-size: 18px;
+		line-height: 1.44em;
+	}
 }

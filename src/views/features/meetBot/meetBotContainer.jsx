@@ -427,14 +427,14 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	// Fetch meeting details if not available
 	useEffect(() => {
-		if (meetingId && (!createBotInfo || createBotInfo?._id !== meetingId)) {
+		if (meetingId) {
 			setIsLoadingMeetingDetails(true);
 			setMeetingNotFound(false);
 			getMeetBotById({ meetingId }).finally(() => {
 				setIsLoadingMeetingDetails(false);
 			});
 		}
-	}, [createBotInfo, meetingId]);
+	}, [meetingId]);
 
 	// Check if meeting was not found after loading
 	useEffect(() => {
@@ -444,7 +444,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [isLoadingMeetingDetails, createBotInfo, meetingId]);
 
 	useEffect(() => {
-		if (createBotInfo) {
+		if (createBotInfo && meetingId === createBotInfo?._id) {
 			if (!valuesInitializedRef.current) {
 				valuesInitializedRef.current = true;
 				setInfo((prev) => ({
@@ -566,7 +566,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						recordedAt: item.recordedAt
 							? moment.unix(item.recordedAt).format('HH:mm:ss')
 							: '', // Convert timestamp to readable time
-						speakerName: item.speakerName || 'Note Taker', // Default speaker name
+						speakerName: item.speakerName || 'VE Note Taker', // Default speaker name
 					}));
 
 					setInfo((prev) => ({
@@ -636,11 +636,13 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	useEffect(() => {
 		if (
 			history === true &&
-			(!activeMeetingRevampedPrompt || meetingId !== activeMeetingRevampedPrompt?.meetingId)
+			(!activeMeetingRevampedPrompt ||
+				meetingId !== activeMeetingRevampedPrompt?.meetingId) &&
+			!info?.summaryInProgress
 		) {
 			getRevampedPrompt({ meetingId });
 		}
-	}, [history, meetingId, activeMeetingRevampedPrompt]);
+	}, [history, meetingId, activeMeetingRevampedPrompt, info?.summaryInProgress]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -808,11 +810,14 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				) : null}
 			</div>
 
-			{info?.summaryInProgress ? (
+			{info?.summaryInProgress && activeTab !== 'transcript' ? (
 				<div className="transcript-tabs-container">
 					<div className="summary-in-progress-container">
 						<Spinner size={24} />
-						<span>Generating summary...</span>
+						<span className="summary-in-progress-text">
+							Generating analytics, may take up to 30 seconds.
+							<br /> You can close this window, we will email you once it is ready.
+						</span>
 					</div>
 				</div>
 			) : (
@@ -832,17 +837,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					/>
 				)}
 				{/* Debug info */}
-					{(() => {
-						console.log(
-							'TranscriptionTabs props - hasAudioRecording:',
-							info?.hasAudioRecording,
-							'history:',
-							history,
-						);
-						return null;
-					})()}
-					{showTranscriptTabs &&
-						activeTab === 'transcript' &&
+					{activeTab === 'transcript' &&
 						(type === 'in_app_meeting' || type === 'third_party_meeting') && (
 							// <div style={{ paddingBottom: 80, width: '100%' }}>
 							<div className="transcript-list-container">

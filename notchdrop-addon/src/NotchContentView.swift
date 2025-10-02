@@ -4,6 +4,8 @@ import UniformTypeIdentifiers
 import AppKit
 import Combine
 import AVFoundation
+import MediaPlayer
+import WebKit
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
@@ -38,6 +40,69 @@ struct NotchContentView: View {
     }
 }
 
+// MARK: - MeetingCompactChatBox (non-expandable chat lookalike)
+struct MeetingCompactChatBox: View {
+    let placeholder: String
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(DynamicIslandTheme.primaryGreen.opacity(0.6), lineWidth: 1)
+                )
+
+            Text(placeholder)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(Color.white.opacity(0.6))
+                .padding(.horizontal, 18)
+        }
+    }
+}
+
+// MARK: - Start Meeting Card
+struct StartMeetingCard: View {
+    let vm: NotchViewModel
+
+    var body: some View {
+        GeometryReader { geo in
+            let h = geo.size.height
+            let corner: CGFloat = 12
+            let padding: CGFloat = 12
+            // Scale text to fit smaller height nicely (target 220x100 card)
+            let titleSize = max(16, min(22, h * 0.28))
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: corner, style: .continuous)
+                    .fill(Color.white.opacity(0.04))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: corner, style: .continuous)
+                            .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                    )
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Start")
+                        .font(.system(size: titleSize, weight: .medium))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text("Meeting")
+                        .font(.system(size: titleSize, weight: .medium))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .padding(padding)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
+            .onTapGesture { vm.startRecording() }
+        }
+        // Ensure the reader honors parent frame
+        .clipped()
+    }
+}
+
 // New Dynamic Island Content View matching JavaScript structure
 struct DynamicIslandContentView: View {
     @StateObject var vm: NotchViewModel
@@ -45,7 +110,7 @@ struct DynamicIslandContentView: View {
     @Binding var infoPopupPosition: CGPoint
     @FocusState private var isChatInputFocused: Bool
     @State private var isTextFieldActive: Bool = false
-    @State private var textEditorHeight: CGFloat = 100 // Dynamic height for textarea
+    @State private var textEditorHeight: CGFloat = 100 // Fixed height for textarea with scroll
     @State private var receivedMessage: String = "" // Track received messages from Electron
     @State private var cancellables = Set<AnyCancellable>()
     
@@ -97,51 +162,90 @@ struct DynamicIslandContentView: View {
                 VStack(spacing: 12.0) {
                     // Top row with start button and icons
                     HStack(spacing: 0.0) {
-                        // Start button section
+                        // Start/Navigation section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Start button (starts transcription/recording) - matches image design
+                                // Home button → default home; also exit Teams view
                                 Button(action: {
-                                    vm.startRecording()
+                                    vm.isTeamsView = false
+                                    vm.navigateToMainScreen(path: nil)
                                 }) {
                                     HStack(spacing: 6.0) {
-                                        // Custom wave icon (SVG-based)
-                                        WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                            .frame(width: 16, height: 16)
-                                        Text(vm.isConnecting ? "Connecting..." : "Start")
-                                            .font(.system(size: 13, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                        Image(systemName: "house")
+                                            .font(.system(size: 14, weight: .regular))
+                                            .foregroundColor(vm.isTeamsView ? .white : .black)
                                     }
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
-                                    .overlay(
-                                        Capsule()
-                                            .stroke(DynamicIslandTheme.primaryGreen, lineWidth: 0.5)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
                                     )
-                                    .clipShape(Capsule())
                                 }
                                 .buttonStyle(PlainButtonStyle())
-                                .scaleEffect(1.0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
-                                .disabled(vm.isConnecting)
-                                .opacity(vm.isConnecting ? 0.8 : 1.0)
+
+                                // Teams pill (sets Teams view)
+                                Button(action: {
+                                    vm.isTeamsView = true
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Text("Meeting AI")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundColor(vm.isTeamsView ? .black : .white)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.clear)
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                // Removed desktop and VE icons per request
                             } else if vm.showVoiceInterface {
-                                // Voice mode indicator (when split layout is visible)
-                                HStack(spacing: 8) {
-                                    WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                        .frame(width: 16, height: 16)
-                                    Text("Voice Agent")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                // Voice controls (mute/unmute and cancel buttons)
+                                HStack(spacing: 12) {
+                                    // Mute/Unmute toggle
+                                    Button(action: {
+                                        print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                                        vm.toggleVoiceMute()
+                                        print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+                                    }) {
+                                        Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.white)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                    
+                                    // Cancel/Disconnect button
+                                    Button(action: {
+                                        print("❌ Cancel button clicked")
+                                        vm.disconnectVoiceAssistant()
+                                    }) {
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .fill(Color.red)
+                                            .frame(width: 14, height: 14)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                                 .padding(.horizontal, 12)
-                                .padding(.vertical, 4)
-                                .background(DynamicIslandTheme.primaryGreen.opacity(0.1))
-                                .overlay(
-                                    Capsule().stroke(DynamicIslandTheme.primaryGreen.opacity(0.3), lineWidth: 1)
-                                )
-                                .clipShape(Capsule())
+                                .padding(.top, 2) // Move left icons up to align with right icons
+                                .padding(.bottom, 6)
+                                .background(Color.clear) // Transparent background
                             } else {
                                 // Recording controls
                                 HStack(spacing: 4) {
@@ -280,48 +384,81 @@ struct DynamicIslandContentView: View {
                             
                             // Information icon (third icon) with popup menu
                             InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            
+                            // Lock/Unlock button (fourth icon)
+                            Button(action: {
+                                vm.toggleNotchLock()
+                            }) {
+                                Image(systemName: vm.isNotchLocked ? "lock.fill" : "lock.open.fill")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen : .white)
+                                    .frame(width: 16, height: 16)
+                                    .padding(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
+                                    )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
                         }
                     }
                     
                     
-                    // Main content area - always show chat box with Voice Mode button
-                    HStack(alignment: .center, spacing: 16) {
-                        if vm.showVoiceInterface {
+                    // Main content area
+                    HStack(alignment: .center, spacing: 8) {
+                        if vm.isTeamsView {
+                            // Teams view: maintain even spacing between three blocks
+                            HStack(spacing: 12) {
+                                if !vm.isRecording {
+                                    StartMeetingCard(vm: vm)
+                                        .frame(width: 220, height: 100)
+                                }
+                                ChatTextAreaView(
+                                    chatInput: $vm.chatInput,
+                                    isTextFieldActive: $isTextFieldActive,
+                                    vm: vm
+                                )
+                                .frame(width: 400, height: 100)
+                                .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
+                                WebcamButton(vm: vm)
+                                    .frame(width: 100, height: 100)
+                            }
+                        } else if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)
                         } else {
-                            // Chat input section with arrow icon inside - matches image layout
+                            // Chat input section with voice/arrow icon inside - matches image layout
                             ChatTextAreaView(
                                 chatInput: $vm.chatInput,
-                                textEditorHeight: $textEditorHeight,
                                 isTextFieldActive: $isTextFieldActive,
                                 vm: vm
                             )
-                            .frame(width: (vm.isChatMode && !vm.isRecording) ? 510 : 400) // Dynamic width: 400px initially, 510px when focused (but 400px in meeting mode)
+                            .frame(width: vm.isRecording ? 410 : 510) // 410px in meeting mode, 510px otherwise
                             .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                             .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
                             
-                            // Voice Mode button - only show when NOT recording AND chat not focused
+                            // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
-                                VoiceModeButton(vm: vm, onFocusChat: {
-                                    print("🎯 onFocusChat callback triggered")
-                                    // When voice mode button is clicked, focus the chat input
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        print("🎯 Setting chat input focused: true")
-                                        isChatInputFocused = true
-                                        isTextFieldActive = true
+                                HStack(spacing: 12) {
+                                    // Boring Notch Style Calendar - always show when not in chat mode and not recording
+                                    BoringNotchCalendarWithPermissions()
+                                        .transition(.scale.combined(with: .opacity))
                                         
-                                        // Ensure window is key for cursor to appear
-                                        if let window = NSApp.keyWindow {
-                                            window.makeKeyAndOrderFront(nil)
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                                window.makeFirstResponder(window.firstResponder)
-                                            }
-                                        }
+                                    // Spotify Media Controller - only show when music is playing
+                                    if vm.hasActiveMusic {
+                                        SpotifyMediaController(vm: vm)
+                                            .transition(.scale.combined(with: .opacity))
                                     }
-                                })
-                                    .frame(width: 100, height: 100) // Larger voice mode button to match image
-                                    .transition(.scale.combined(with: .opacity))
+                                    
+                                    // YouTube Media Controller - only show when video is playing
+                                    if vm.hasActiveVideo {
+                                        YouTubeMediaController(vm: vm)
+                                            .transition(.scale.combined(with: .opacity))
+                                    }
+                                }
+                                .animation(.easeInOut(duration: 0.3), value: vm.hasActiveMusic)
+                                .animation(.easeInOut(duration: 0.3), value: vm.hasActiveVideo)
                             }
                             
                             // Webcam button - only show when recording
@@ -343,6 +480,239 @@ struct DynamicIslandContentView: View {
         .onAppear {
             // Set up listener for Swift actions to handle received messages
             setupMessageListener()
+            
+            // Set up Spotify detection timer for the whole view
+            setupSpotifyDetectionTimer()
+        }
+    }
+    
+    // MARK: - Spotify Detection Timer
+    private func setupSpotifyDetectionTimer() {
+        // Initial check
+        updateSpotifyStatus()
+        
+        // Set up periodic updates for Spotify status
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            updateSpotifyStatus()
+        }
+    }
+    
+    private func updateSpotifyStatus() {
+        // Check if Spotify is running
+        let spotifyRunning = isSpotifyRunning()
+        
+        // Get system media info
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let hasSystemMedia = nowPlayingInfo != nil
+        
+        // Get basic playback state
+        let playbackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+        let isPlaying = playbackRate > 0.0
+        
+        // Update hasActiveMusic based on multiple detection methods
+        vm.hasActiveMusic = spotifyRunning || hasSystemMedia || isPlaying
+        vm.isMusicPlaying = isPlaying
+        
+        // Detect YouTube videos
+        detectYouTubeVideo()
+    }
+    
+    private func isSpotifyRunning() -> Bool {
+        let script = "tell application \"System Events\" to (name of processes) contains \"Spotify\""
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            if error == nil {
+                return result.booleanValue
+            }
+        }
+        return false
+    }
+    
+    private func detectYouTubeVideo() {
+        // Method 1: Check browser tabs for YouTube
+        let youtubeFromBrowser = checkBrowserForYouTube()
+        
+        // Method 2: Check system media for YouTube
+        let youtubeFromMedia = checkSystemMediaForYouTube()
+        
+        // Update YouTube state
+        vm.hasActiveVideo = youtubeFromBrowser || youtubeFromMedia
+        vm.isVideoPlaying = vm.hasActiveVideo
+    }
+    
+    private func checkBrowserForYouTube() -> Bool {
+        // Check each browser separately for better reliability
+        let browsers = ["Safari", "Google Chrome", "Firefox", "Microsoft Edge", "Arc", "Brave Browser"]
+        
+        for browser in browsers {
+            if let (url, title) = checkBrowserApp(browser) {
+                if url.contains("youtube.com/watch") || url.contains("youtu.be/") {
+                    updateVideoInfo(from: title, url: url)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
+    private func checkBrowserApp(_ appName: String) -> (String, String)? {
+        let script: String
+        
+        if appName == "Safari" {
+            script = """
+            tell application "Safari"
+                if it is running then
+                    try
+                        set currentURL to URL of current tab of window 1
+                        set currentTitle to name of current tab of window 1
+                        return currentURL & "|||" & currentTitle
+                    end try
+                end if
+            end tell
+            return ""
+            """
+        } else {
+            script = """
+            tell application "\(appName)"
+                if it is running then
+                    try
+                        set currentURL to URL of active tab of window 1
+                        set currentTitle to title of active tab of window 1
+                        return currentURL & "|||" & currentTitle
+                    end try
+                end if
+            end tell
+            return ""
+            """
+        }
+        
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            if error == nil {
+                let resultString = result.stringValue ?? ""
+                if !resultString.isEmpty && resultString.contains("|||") {
+                    let components = resultString.components(separatedBy: "|||")
+                    if components.count >= 2 {
+                        let url = components[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                        let title = components[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                        return (url, title)
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
+    private func checkSystemMediaForYouTube() -> Bool {
+        guard let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo else {
+            return false
+        }
+        
+        // Check if the media source is YouTube
+        if let artist = nowPlayingInfo[MPMediaItemPropertyArtist] as? String,
+           let title = nowPlayingInfo[MPMediaItemPropertyTitle] as? String {
+            
+            // YouTube videos often have "YouTube" as artist or in the title
+            let isYouTube = artist.lowercased().contains("youtube") || 
+                           title.lowercased().contains("youtube") ||
+                           artist.isEmpty // YouTube often has empty artist
+            
+            if isYouTube {
+                updateVideoInfo(from: title, url: "")
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    private func updateVideoInfo(from title: String, url: String) {
+        let vm = self.vm
+        DispatchQueue.main.async {
+            
+            // Parse title to extract video title and channel
+            if title.contains(" - ") {
+                let parts = title.split(separator: " - ", maxSplits: 1)
+                if parts.count == 2 {
+                    vm.videoTitle = String(parts[0]).trimmingCharacters(in: .whitespaces)
+                    vm.videoChannel = String(parts[1]).trimmingCharacters(in: .whitespaces)
+                } else {
+                    vm.videoTitle = title
+                    vm.videoChannel = "YouTube"
+                }
+            } else {
+                vm.videoTitle = title
+                vm.videoChannel = "YouTube"
+            }
+            
+            // Store the video URL and create embed URL
+            vm.videoURL = url
+            if !url.isEmpty {
+                vm.videoEmbedURL = self.convertToEmbedURL(url)
+                vm.showVideoPlayer = true
+                self.extractYouTubeThumbnail(from: url)
+            }
+        }
+    }
+    
+    private func convertToEmbedURL(_ url: String) -> String {
+        // Extract video ID from YouTube URL
+        let patterns = [
+            "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+        ]
+        
+        var videoId: String?
+        for pattern in patterns {
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(url.startIndex..., in: url)
+            if let match = regex?.firstMatch(in: url, options: [], range: range) {
+                let videoIdRange = Range(match.range(at: 1), in: url)!
+                videoId = String(url[videoIdRange])
+                break
+            }
+        }
+        
+        guard let id = videoId else { return "" }
+        
+        // Return YouTube embed URL with autoplay and minimal UI
+        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=0&disablekb=1"
+    }
+    
+    private func extractYouTubeThumbnail(from url: String) {
+        // Extract video ID from YouTube URL
+        let patterns = [
+            "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+        ]
+        
+        var videoId: String?
+        for pattern in patterns {
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(url.startIndex..., in: url)
+            if let match = regex?.firstMatch(in: url, options: [], range: range) {
+                let videoIdRange = Range(match.range(at: 1), in: url)!
+                videoId = String(url[videoIdRange])
+                break
+            }
+        }
+        
+        guard let id = videoId else { return }
+        
+        // Download thumbnail from YouTube
+        let thumbnailURL = "https://img.youtube.com/vi/\(id)/mqdefault.jpg"
+        let vm = self.vm
+        
+        DispatchQueue.global(qos: .background).async {
+            if let url = URL(string: thumbnailURL),
+               let data = try? Data(contentsOf: url),
+               let image = NSImage(data: data) {
+                DispatchQueue.main.async {
+                    vm.videoThumbnail = image
+                }
+            }
         }
     }
     
@@ -363,66 +733,106 @@ struct DynamicIslandContentView: View {
     }
 }
 
-// MARK: - Voice Split Layout (UI parity)
+// MARK: - Voice Split Layout (New Design)
 struct VoiceSplitLayout: View {
     @ObservedObject var vm: NotchViewModel
 
     var body: some View {
-        HStack(spacing: 8) {
-            // Left: conversation list (real messages from LiveKit)
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 8) {
-                        if vm.voiceMessages.isEmpty {
-                            // Show connection status when no messages
-                            VoiceMessageBubble(
-                                sender: "System",
-                                text: vm.voiceConnectionStatus == .connected ?
-                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
-                                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected")
-                            )
-                        } else {
-                            // Show actual conversation messages
-                            ForEach(vm.voiceMessages) { message in
-                                VoiceMessageBubble(
-                                    sender: message.sender,
-                                    text: message.content,
-                                    isFromAgent: message.isFromAgent
-                                )
-                                .id(message.id)
-                            }
-                        }
-                        
-                        // Show current status only when there are no voice messages
-                        if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
-                            VoiceMessageBubble(
-                                sender: "Status",
-                                text: vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...",
-                                isStatus: true
-                            )
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
-                .onChange(of: vm.voiceMessages.count) { _, _ in
-                    // Auto-scroll to latest message
-                    if let lastMessage = vm.voiceMessages.last {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(8)
-            .background(Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            // .border(DynamicIslandTheme.stroke.opacity(0.3), lineWidth: 0.5)
-
-            // Right: assistant controls circle (restore original functionality)
-            VoiceControlsCircle(vm: vm)
+        VStack(spacing: 0) {
+            // Main content area with transcriptions (controls are now in top left)
+            VoiceTranscriptionArea(vm: vm)
         }
         .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain to dynamic island width minus padding
+        .background(Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - Voice Top Controls Component
+struct VoiceTopControls: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Left side: Mute/Unmute toggle
+            Button(action: {
+                print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                vm.toggleVoiceMute()
+                print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+            }) {
+                Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(vm.isMicrophoneMuted ? Color.red : DynamicIslandTheme.primaryGreen)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            // Cancel/Disconnect button
+            Button(action: {
+                print("❌ Cancel button clicked")
+                vm.disconnectVoiceAssistant()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            Spacer()
+        }
+        // .padding(.horizontal, 16)
+        // .padding(.vertical, 8)
+        // .background(Color(red: 0.1, green: 0.1, blue: 0.1)) // Darker background for controls
+    }
+}
+
+// MARK: - Voice Transcription Area Component
+struct VoiceTranscriptionArea: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            if vm.voiceMessages.isEmpty {
+                // Show connection status when no messages - centered text
+                Text(vm.voiceConnectionStatus == .connected ?
+                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
+                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
+            } else {
+                // Show only the most recent message - positioned towards top
+                if let lastMessage = vm.voiceMessages.last {
+                    Text(lastMessage.content)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 20)
+                        .id(lastMessage.id)
+                }
+            }
+            
+            // Show current status only when there are no voice messages
+            if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
+                Text(vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
     }
 }
 
@@ -435,37 +845,37 @@ struct VoiceMessageBubble: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
-                Circle()
-                    .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
-                          isStatus ? Color.yellow :
-                          Color(red: 0.173, green: 0.176, blue: 0.180))
-                    .frame(width: 6, height: 6)
+                // Circle()
+                //     .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
+                //           isStatus ? Color.yellow :
+                //           Color(red: 0.173, green: 0.176, blue: 0.180))
+                //     .frame(width: 6, height: 6)
                 Text(sender)
                     .font(.system(size: 9, weight: .medium))
-                    .foregroundColor(DynamicIslandTheme.textMuted)
+                    // .foregroundColor(DynamicIslandTheme.textMuted)
                 Spacer()
             }
             Text(text)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
+                .font(.system(size: 20, weight: .medium))
+                // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
                 .multilineTextAlignment(.leading)
         }
-        .padding(8)
-        .background(
-            isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
-            isStatus ? Color.clear :
-            Color.clear
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(
-                    isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
-                    isStatus ? Color.clear :
-                    DynamicIslandTheme.stroke.opacity(0.3),
-                    lineWidth: 0.5
-                )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        // .padding(8)
+        // .background(
+        //     isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
+        //     isStatus ? Color.clear :
+        //     Color.clear
+        // )
+        // .overlay(
+        //     RoundedRectangle(cornerRadius: 8)
+        //         .stroke(
+        //             isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
+        //             isStatus ? Color.clear :
+        //             DynamicIslandTheme.stroke.opacity(0.3),
+        //             lineWidth: 0.5
+        //         )
+        // )
+        // .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -571,7 +981,6 @@ struct VoiceControlsCircle: View {
 struct ChatTextAreaView: View {
     @Binding var chatInput: String
     @FocusState var isChatInputFocused: Bool
-    @Binding var textEditorHeight: CGFloat
     @Binding var isTextFieldActive: Bool
     @ObservedObject var vm: NotchViewModel
     @State private var textEditorWidth: CGFloat = 0 // Will be calculated based on available space
@@ -580,25 +989,22 @@ struct ChatTextAreaView: View {
         ZStack(alignment: .topLeading) {
             // Background for the textarea with active effect
             RoundedRectangle(cornerRadius: 8)
-                .fill(isChatInputFocused ? Color.white.opacity(0.05) : Color.clear) // Subtle background when active
+                .fill(isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.02) : Color.clear) // Subtle background when active
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(
-                            isChatInputFocused ? 
-                            DynamicIslandTheme.primaryGreen.opacity(0.8) : // Green border when active
-                            DynamicIslandTheme.white.opacity(0.7), 
-                            lineWidth: isChatInputFocused ? 1.5 : 1 // Thicker border when active
+                            DynamicIslandTheme.primaryGreen, // White border for chat box area
+                            lineWidth: 1.5 // Consistent border width
                         )
                 )
-                .frame(width: .infinity, height: textEditorHeight)
-                .shadow(
-                    color: isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear,
-                    radius: isChatInputFocused ? 4 : 0,
-                    x: 0,
-                    y: 0
-                )
+                .frame(width: .infinity, height: 100) // Fixed height
+//                 .shadow(
+// color: isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear,
+//                     radius: isChatInputFocused ? 4 : 0,
+//                     x: 0,
+//                     y: 0
+//                 )
                 .animation(DynamicIslandTheme.expansionAnimation, value: textEditorWidth)
-                .animation(.easeInOut(duration: 0.25), value: textEditorHeight)
                 .animation(.easeInOut(duration: 0.2), value: isChatInputFocused) // Smooth transition for active state
             
             // Placeholder text when empty - matches image
@@ -611,54 +1017,93 @@ struct ChatTextAreaView: View {
                     .allowsHitTesting(false) // Allow taps to pass through to TextEditor
             }
             
-            // TextEditor (multi-line text input)
+            // TextEditor (multi-line text input) with fixed height and scroll
             TextEditor(text: $chatInput)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(DynamicIslandTheme.white)
-                .accentColor(DynamicIslandTheme.white) // Ensure cursor and selection are white
+                .accentColor(DynamicIslandTheme.primaryGreen) // Green cursor for better visibility
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 16) // Extra bottom padding
                 .padding(.trailing, 40) // Add space for arrow icon
                 .background(Color.clear)
                 .focused($isChatInputFocused)
-                .frame(width: textEditorWidth, height: textEditorHeight)
+                .frame(width: textEditorWidth, height: 100) // Fixed height - no dynamic resizing
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .scrollContentBackground(.hidden) // Hide default TextEditor background
+                .scrollDisabled(false) // Enable scrolling when content exceeds height
                 .allowsHitTesting(true) // Ensure TextEditor can receive mouse events
+                .onKeyPress(keys: [.return]) { event in
+                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
+                    if event.modifiers == .shift {
+                        // Shift+Enter: Insert new line manually
+                        print("🎯 Shift+Enter detected - inserting new line")
+                        chatInput.append("\n")
+                        return .handled
+                    } else {
+                        // Enter alone: Submit chat
+                        print("🎯 Enter alone detected - submitting chat")
+                        if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            vm.submitChat()
+                        }
+                        return .handled
+                    }
+                }
                 .onTapGesture {
                     // Direct tap on TextEditor to ensure focus and cursor
                     print("🎯 TextEditor directly tapped")
                     DispatchQueue.main.async {
                         isChatInputFocused = true
                         isTextFieldActive = true
-                        // Only enable chat mode if NOT in meeting mode (recording)
-                        if !vm.isRecording {
+                        // Only enable chat mode if NOT in meeting mode (recording) and NOT in Teams/Meeting layout
+                        if !vm.isRecording && !vm.isTeamsView {
                             vm.isChatMode = true
+                        }
+                        
+                        // Force focus with a slight delay to ensure cursor appears
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isChatInputFocused = true
                         }
                     }
                 }
             
-            // Arrow icon inside the input box (bottom-right)
+            // Voice/Arrow icon inside the input box (bottom-right)
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     Button(action: {
-                        print("🎯 Arrow button clicked - submitting chat")
-                        if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            vm.submitChat()
+                        if isChatInputFocused {
+                            // Arrow mode - submit chat
+                            print("🎯 Arrow button clicked - submitting chat")
+                            if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                vm.submitChat()
+                            }
+                        } else {
+                            // Voice mode - activate voice assistant
+                            print("🎤 Voice button clicked - activating voice assistant")
+                            // Ensure we don't accidentally focus the text area
+                            DispatchQueue.main.async {
+                                vm.connectVoiceAssistant()
+                            }
                         }
                     }) {
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white)
-                            .frame(width: 24, height: 24)
-                            // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                        if isChatInputFocused {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        } else {
+                            WaveIcon(color: .white)
+                                .frame(width: 16, height: 16)
+                        }
                     }
                     .buttonStyle(PlainButtonStyle())
                     .padding(.trailing, 8)
                     .padding(.bottom, 8)
+                    .contentShape(Rectangle()) // Ensure button area is properly defined
+                    .allowsHitTesting(true) // Ensure button can receive taps
                 }
             }
                 .onKeyPress(keys: [.return]) { event in
@@ -724,11 +1169,31 @@ struct ChatTextAreaView: View {
                         calculateTextEditorWidth()
                     }
                 }
+                .onChange(of: vm.showVoiceInterface) { oldValue, newValue in
+                    // Adjust width when voice interface state changes
+                    withAnimation(DynamicIslandTheme.expansionAnimation) {
+                        calculateTextEditorWidth()
+                    }
+                }
         }
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
-        .onTapGesture {
-            print("🎯 Chat area tapped - attempting to focus text input")
+        .onTapGesture { location in
+            print("🎯 Chat area tapped at location: \(location) - attempting to focus text input")
+            
+            // Check if tap is in the button area (bottom-right corner)
+            let currentWidth = vm.isRecording ? 410 : 510
+            let buttonArea = CGRect(
+                x: currentWidth - 40, // 40px from right edge
+                y: 100 - 40, // 40px from bottom edge
+                width: 40,
+                height: 40
+            )
+            
+            if buttonArea.contains(location) {
+                print("🎯 Tap detected in button area - ignoring chat focus")
+                return
+            }
             
             // Find the NotchDrop window specifically
             var notchWindow: NSWindow?
@@ -748,8 +1213,8 @@ struct ChatTextAreaView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     isChatInputFocused = true
                     isTextFieldActive = true
-                    // Only enable chat mode if NOT in meeting mode (recording)
-                    if !vm.isRecording {
+                    // Only enable chat mode if NOT in meeting mode (recording) and NOT in Teams/Meeting layout
+                    if !vm.isRecording && !vm.isTeamsView {
                         vm.isChatMode = true
                         vm.isChatInputFocused = true
                     }
@@ -771,50 +1236,12 @@ struct ChatTextAreaView: View {
 
     
     private func handleTextChange(_ newValue: String) {
+        // Fixed height implementation - no dynamic resizing
+        // TextEditor will scroll when content exceeds the fixed height of 100px
+        print("🎯 Text changed: \(newValue.count) characters")
         
-        // Only resize based on actual content, not placeholder
-        if !newValue.isEmpty {
-
-            // Auto-resize functionality - use correct font size (13, same as TextEditor)
-            let font = NSFont.systemFont(ofSize: 13, weight: .medium)
-            let textAttributes: [NSAttributedString.Key: Any] = [
-                .font: font
-            ]
-            
-            let attributedString = NSAttributedString(string: newValue, attributes: textAttributes)
-            
-            // Calculate text size with padding constraints - match TextEditor's actual available width
-            let textWidth: CGFloat = textEditorWidth - 36 // TextEditor horizontal padding (16px each side) + small buffer for text rendering
-            print("🎯 Available text width: \(textWidth)px")
-            let boundingRect = attributedString.boundingRect(
-                with: CGSize(width: textWidth, height: .greatestFiniteMagnitude),
-                options: [.usesLineFragmentOrigin, .usesFontLeading, .usesDeviceMetrics],
-                context: nil
-            )
-            print("🎯 Calculated text height: \(boundingRect.height)px")
-            
-            // Calculate new height with min/max constraints
-            let minHeight: CGFloat = 100 // Minimum height
-            let maxHeight: CGFloat = 200 // Maximum height
-            let contentHeight = boundingRect.height + 30 // Add vertical padding for TextEditor
-            
-            let newHeight = max(minHeight, min(maxHeight, contentHeight))
-            
-            // Update height with animation if it changed significantly
-            if abs(textEditorHeight - newHeight) > 5 {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    textEditorHeight = newHeight
-                }
-            }
-        } else {
-            // Reset to minimum height when empty
-            let minHeight: CGFloat = 100
-            if abs(textEditorHeight - minHeight) > 5 {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    textEditorHeight = minHeight
-                }
-            }
-        }
+        // Keep the height fixed at 100px - scrolling will handle overflow
+        // No need to calculate or change textEditorHeight
     }
     
     private func handleFocusChange(_ newValue: Bool) {
@@ -833,11 +1260,9 @@ struct ChatTextAreaView: View {
             calculateTextEditorWidth()
         }
         
-        // When unfocused and no text, clear chat input and reset height
+        // When unfocused and no text, clear chat input (height stays fixed)
         if !newValue && chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                textEditorHeight = 100 // Reset to minimum height
-            }
+            // Height remains fixed at 100px - no need to reset
         }
         
         // When focused, ensure window is key and cursor appears
@@ -862,6 +1287,11 @@ struct ChatTextAreaView: View {
     
     // MARK: - Width Calculation Helper
     private func calculateTextEditorWidth() {
+        // In Teams/Meeting layout keep width strictly fixed regardless of focus/chat mode
+        if vm.isTeamsView {
+            textEditorWidth = 400
+            return
+        }
         // Dynamic width based on chat mode: 400px initially, 510px when focused (but 400px in meeting mode)
         let calculatedWidth: CGFloat = (vm.isChatMode && !vm.isRecording) ? 510 : 400
         
@@ -1070,28 +1500,40 @@ struct WebcamButton: View {
                             .multilineTextAlignment(.center)
                     }
                 } else {
-                    // Default state - webcam icon (always show unless camera preview is active)
-                    VStack(spacing: 4) {
-                        WebcamIcon(color: DynamicIslandTheme.textMuted)
-                            .frame(width: 24, height: 24)
-                        Text("Webcam")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(DynamicIslandTheme.textMuted)
+                    // Default state - frosted circular button with icon and label
+                    ZStack {
+                        Circle()
+                            .fill(DynamicIslandTheme.cardMaterial)
+                            .frame(width: 100, height: 100)
+                            .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 2)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.18), lineWidth: 1.5)
+                                    .blur(radius: 0.3)
+                            )
+                        VStack(spacing: 10) {
+                            WebcamIcon(color: .white)
+                                .frame(width: 28, height: 28)
+                            Text("WEBCAM")
+                                .font(.system(size: 13, weight: .semibold))
+                                .kerning(0.6)
+                                .foregroundColor(.white)
+                        }
                     }
                 }
                 
-                // Error overlay
-                if let error = vm.cameraError {
-                    VStack {
-                        Spacer()
-                        Text(error)
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.red)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 8)
-                            .padding(.bottom, 4)
-                    }
-                }
+                // // Error overlay
+                // if let error = vm.cameraError {
+                //     VStack {
+                //         Spacer()
+                //         Text(error)
+                //             .font(.system(size: 9, weight: .medium))
+                //             .foregroundColor(.red)
+                //             .multilineTextAlignment(.center)
+                //             .padding(.horizontal, 8)
+                //             .padding(.bottom, 4)
+                //     }
+                // }
             }
         }
         .buttonStyle(PlainButtonStyle())
@@ -1403,63 +1845,6 @@ struct NotificationOverlayView: View {
     }
 }
 
-// MARK: - Voice Mode Button (Large circular button as shown in image)
-struct VoiceModeButton: View {
-    @ObservedObject var vm: NotchViewModel
-    @State private var isHovered: Bool = false
-    let onFocusChat: () -> Void
-    
-    var body: some View {
-        Button(action: {
-            print("🎤 Voice Mode button clicked - connecting to voice assistant")
-            // Connect to voice assistant instead of just enabling chat mode
-            vm.connectVoiceAssistant()
-        }) {
-            ZStack {
-                // Main circle with CSS properties
-                ZStack {
-                    // Background circle - border-radius: 100px; background: rgba(255, 255, 255, 0.01);
-                    Circle()
-                        .fill(Color.white.opacity(0.01))
-                        .frame(width: 90, height: 90)
-                    
-                  
-                    
-                    // Border - border: 1px solid #79ECC9;
-                     Circle()
-                         .stroke(Color(red: 0.475, green: 0.925, blue: 0.788), lineWidth: 1)
-                         .frame(width: 90, height: 90)
-                }
-                .scaleEffect(isHovered ? 1.05 : 1.0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-                
-                // Content with inline text
-                HStack(spacing: 2) {
-                    // "VOICE" text - bold
-                    Text("VOICE")
-                        .font(.custom("SF Pro Text", size: 10))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .tracking(1)
-                    
-                    // "MODE" text - semibold
-                    Text("MODE")
-                        .font(.custom("SF Pro Text", size: 10))
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .tracking(1)
-                }
-                .frame(width: 90, height: 90) // width: 90px; height: 90px;
-                .padding(.horizontal, 24) // padding: 6px 24px; (horizontal)
-                .padding(.vertical, 6)    // padding: 6px 24px; (vertical)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-        .onHover { hovering in
-            isHovered = hovering
-        }
-    }
-}
 
 // MARK: - Info Icon with Popup Menu
 struct InfoIconWithPopup: View {
@@ -1582,6 +1967,464 @@ struct ShortcutKeyView: View {
                 RoundedRectangle(cornerRadius: 4)
                     .fill(Color.white.opacity(0.15))
             )
+    }
+}
+
+// MARK: - Spotify Media Controller
+struct SpotifyMediaController: View {
+    @ObservedObject var vm: NotchViewModel
+    @State private var isPlaying: Bool = false
+    @State private var songTitle: String = "Unknown Track"
+    @State private var artistName: String = "Unknown Artist"
+    @State private var albumArtwork: NSImage? = nil
+    @State private var isHovered: Bool = false
+    @State private var lastButtonPressed: MediaCommandType? = nil
+    @State private var buttonPressTime: Date = Date()
+    
+    var body: some View {
+        Group {
+            if vm.hasActiveMusic {
+                HStack(spacing: 12) {
+            // Large album artwork (left side)
+            Group {
+                if let artwork = albumArtwork {
+                    Image(nsImage: artwork)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 80)
+                        .clipped()
+                        .cornerRadius(8)
+                        .background(Color.black.opacity(0.3))
+                } else {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.3),
+                                    Color.black.opacity(0.2)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 60, height: 80)
+                        .overlay(
+                            VStack(spacing: 4) {
+                                Image(systemName: "music.note")
+                                    .foregroundColor(.white.opacity(0.8))
+                                    .font(.system(size: 24, weight: .medium))
+                                Text("♫")
+                                    .foregroundColor(.white.opacity(0.6))
+                                    .font(.system(size: 12))
+                            }
+                        )
+                }
+            }
+            
+            // Song info and controls (right side)
+            VStack(alignment: .leading, spacing: 8) {
+                // Song title and artist
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(songTitle)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    
+                    Text(artistName)
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.white.opacity(0.7))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                
+                // Media controls
+                HStack(spacing: 12) {
+                    // Previous button
+                    Button(action: {
+                        print("🎵 Previous track")
+                        sendMediaCommand(.previousTrack)
+                    }) {
+                        Image(systemName: "backward.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 14))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(lastButtonPressed == .previousTrack ? 0.9 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: lastButtonPressed)
+                    
+                    // Play/Pause button (larger)
+                    Button(action: {
+                        print("🎵 Play/Pause toggle")
+                        isPlaying.toggle()
+                        sendMediaCommand(isPlaying ? .play : .pause)
+                    }) {
+                        Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 16, weight: .medium))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect((lastButtonPressed == .play || lastButtonPressed == .pause) ? 0.9 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: lastButtonPressed)
+                    
+                    // Next button
+                    Button(action: {
+                        print("🎵 Next track")
+                        sendMediaCommand(.nextTrack)
+                    }) {
+                        Image(systemName: "forward.fill")
+                            .foregroundColor(.white)
+                            .font(.system(size: 14))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(lastButtonPressed == .nextTrack ? 0.9 : 1.0)
+                    .animation(.easeInOut(duration: 0.1), value: lastButtonPressed)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(12)
+        .frame(width: 160, height: 100)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.black.opacity(0.8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.6), lineWidth: 1)
+                )
+        )
+        .scaleEffect(isHovered ? 1.02 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+       
+        .onAppear {
+            updateCurrentTrackInfo()
+                }
+            }
+        }
+    }
+    
+    private func sendMediaCommand(_ commandType: MediaCommandType) {
+        // Track the button press for visual feedback
+        lastButtonPressed = commandType
+        buttonPressTime = Date()
+        
+        switch commandType {
+        case .play:
+            executeAppleScript("tell application \"Spotify\" to play")
+        case .pause:
+            executeAppleScript("tell application \"Spotify\" to pause")
+        case .nextTrack:
+            executeAppleScript("tell application \"Spotify\" to next track")
+        case .previousTrack:
+            executeAppleScript("tell application \"Spotify\" to previous track")
+        }
+        
+        // Update track info after command, with faster refresh for track changes
+        let updateDelay: Double = (commandType == .nextTrack || commandType == .previousTrack) ? 0.3 : 0.5
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + updateDelay) {
+            self.updateCurrentTrackInfo()
+        }
+        
+        // For track changes, do multiple quick updates to catch the change faster
+        if commandType == .nextTrack || commandType == .previousTrack {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.updateCurrentTrackInfo()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.updateCurrentTrackInfo()
+            }
+        }
+        
+        // Clear the button press indicator after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.lastButtonPressed = nil
+        }
+    }
+    
+    private func updateCurrentTrackInfo() {
+        // First try to get track info from Spotify directly using AppleScript
+        getCurrentTrackFromAppleScript()
+        
+        // Fallback to system media player info if Spotify AppleScript fails
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        
+        if songTitle == "Unknown Track" && artistName == "Unknown Artist" {
+            if let info = nowPlayingInfo {
+                songTitle = info[MPMediaItemPropertyTitle] as? String ?? "Unknown Track"
+                artistName = info[MPMediaItemPropertyArtist] as? String ?? "Unknown Artist"
+                
+                // Get album artwork from system media player
+                if let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+                    albumArtwork = artwork.image(at: CGSize(width: 40, height: 60))
+                }
+                
+                // Get playback state
+                let playbackRate = info[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+                isPlaying = playbackRate > 0.0
+            }
+        }
+        
+        // hasActiveMusic is now managed at the higher level, no need to set it here
+    }
+    
+    private func getCurrentTrackFromAppleScript() {
+        let spotifyScript = """
+            tell application "Spotify"
+                if it is running then
+                    try
+                        set trackName to name of current track
+                        set artistName to artist of current track
+                        set albumName to album of current track
+                        set artworkURL to artwork url of current track
+                        set playerState to player state
+                        return trackName & "|" & artistName & "|" & albumName & "|" & artworkURL & "|" & (playerState as string)
+                    on error
+                        return "Spotify|Running|Unknown|missing value|playing"
+                    end try
+                end if
+            end tell
+        """
+        
+        if let appleScript = NSAppleScript(source: spotifyScript) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            
+            if error == nil, let output = result.stringValue {
+                let components = output.components(separatedBy: "|")
+                if components.count >= 5 {
+                    songTitle = components[0]
+                    artistName = components[1]
+                    // albumName = components[2] // We can use this later if needed
+                    let artworkURLString = components[3]
+                    isPlaying = components[4].contains("playing")
+                    
+                    // Track info retrieved successfully
+                    
+                    // Download album artwork from URL
+                    if !artworkURLString.isEmpty && artworkURLString != "missing value" {
+                        downloadAlbumArtwork(from: artworkURLString)
+                    }
+                } else {
+                    // No valid track info found
+                    songTitle = "Unknown Track"
+                    artistName = "Unknown Artist"
+                }
+            } else {
+                print("🎵 AppleScript error: \(error?.description ?? "Unknown error")")
+                // Try alternative method using System Events
+                getTrackInfoFromSystemEvents()
+            }
+        }
+    }
+    
+    private func downloadAlbumArtwork(from urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        DispatchQueue.global(qos: .background).async {
+            do {
+                let data = try Data(contentsOf: url)
+                if let image = NSImage(data: data) {
+                    DispatchQueue.main.async {
+                        self.albumArtwork = image
+                    }
+                }
+            } catch {
+                print("🎵 Failed to download artwork: \(error.localizedDescription)")
+                // Try to get artwork from macOS Now Playing if download fails
+                DispatchQueue.main.async {
+                    self.getArtworkFromNowPlaying()
+                }
+            }
+        }
+    }
+    
+    private func getArtworkFromNowPlaying() {
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        if let info = nowPlayingInfo,
+           let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+            albumArtwork = artwork.image(at: CGSize(width: 60, height: 60))
+        }
+    }
+    
+    private func getTrackInfoFromSystemEvents() {
+        // Alternative method using System Events to get current track
+        let systemEventsScript = """
+            tell application "System Events"
+                tell process "Spotify"
+                    if exists then
+                        try
+                            set trackInfo to (name of window 1)
+                            return trackInfo
+                        end try
+                    end if
+                end tell
+            end tell
+        """
+        
+        if let appleScript = NSAppleScript(source: systemEventsScript) {
+            var error: NSDictionary?
+            let result = appleScript.executeAndReturnError(&error)
+            
+            if error == nil, let windowTitle = result.stringValue {
+                // Spotify window title format is usually "Artist - Song Title"
+                let components = windowTitle.components(separatedBy: " - ")
+                if components.count >= 2 {
+                    artistName = components[0]
+                    songTitle = components[1]
+                } else if !windowTitle.isEmpty && windowTitle != "Spotify" {
+                    songTitle = windowTitle
+                }
+            }
+        }
+    }
+    
+    private func executeAppleScript(_ script: String) {
+        if let appleScript = NSAppleScript(source: script) {
+            var error: NSDictionary?
+            appleScript.executeAndReturnError(&error)
+            if let error = error {
+                print("🎵 AppleScript error: \(error)")
+            }
+        }
+    }
+    
+    enum MediaCommandType {
+        case play, pause, nextTrack, previousTrack
+    }
+}
+
+// MARK: - YouTube Media Controller
+struct YouTubeMediaController: View {
+    @ObservedObject var vm: NotchViewModel
+    @State private var isHovered: Bool = false
+    
+    var body: some View {
+        Group {
+            if vm.hasActiveVideo && vm.showVideoPlayer && !vm.videoEmbedURL.isEmpty {
+                // Embedded YouTube video player
+                YouTubeVideoPlayer(embedURL: vm.videoEmbedURL)
+                    .frame(width: 300, height: 100) // Wider to show actual video
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.red.opacity(0.6), lineWidth: 1)
+                    )
+                    .scaleEffect(isHovered ? 1.02 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
+                    
+                    .onTapGesture {
+                        // User interaction to enable sound if needed
+                        print("📺 User tapped video player - attempting to enable sound")
+                    }
+            }
+        }
+    }
+}
+
+// MARK: - YouTube Video Player
+struct YouTubeVideoPlayer: NSViewRepresentable {
+    let embedURL: String
+    
+    func makeNSView(context: Context) -> WKWebView {
+        let configuration = WKWebViewConfiguration()
+        
+        // Configure for video playback with sound
+        configuration.allowsAirPlayForMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
+        
+        // Set user agent to avoid mobile YouTube version
+        configuration.applicationNameForUserAgent = "Version/14.1.2 Safari/605.1.15"
+        
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.navigationDelegate = context.coordinator
+        
+        // Allow sound playback
+        webView.allowsMagnification = false
+        webView.allowsBackForwardNavigationGestures = false
+        
+        // Load the YouTube embed URL
+        if let url = URL(string: embedURL) {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+        
+        return webView
+    }
+    
+    func updateNSView(_ nsView: WKWebView, context: Context) {
+        // Update if URL changes
+        if let currentURL = nsView.url?.absoluteString,
+           currentURL != embedURL,
+           let newURL = URL(string: embedURL) {
+            let request = URLRequest(url: newURL)
+            nsView.load(request)
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    class Coordinator: NSObject, WKNavigationDelegate {
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            // Wait a moment for the video to load, then unmute it
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                // Unmute the video and ensure it's playing with sound
+                let unmuteScript = """
+                    // Find the video element and unmute it
+                    var video = document.querySelector('video');
+                    if (video) {
+                        video.muted = false;
+                        video.volume = 0.7; // Set to 70% volume
+                        
+                        // Try to play with sound
+                        video.play().then(() => {
+                            console.log('Video playing with sound');
+                        }).catch(e => {
+                            console.log('Autoplay failed, user interaction required');
+                        });
+                    }
+                    
+                    // Also try YouTube player API if available
+                    if (typeof YT !== 'undefined' && YT.Player) {
+                        var iframe = document.querySelector('iframe');
+                        if (iframe) {
+                            try {
+                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[70]}', '*');
+                            } catch(e) {
+                                console.log('YouTube API not available');
+                            }
+                        }
+                    }
+                """
+                
+                webView.evaluateJavaScript(unmuteScript) { result, error in
+                    if let error = error {
+                        print("📺 Error unmuting video: \(error)")
+                    } else {
+                        print("📺 Video unmuted successfully")
+                    }
+                }
+            }
+            
+            // Inject CSS to hide unnecessary YouTube UI elements
+            let css = """
+                var style = document.createElement('style');
+                style.innerHTML = `
+                    iframe { 
+                        border-radius: 12px !important;
+                    }
+                    .ytp-watermark { 
+                        display: none !important; 
+                    }
+                `;
+                document.head.appendChild(style);
+            """
+            
+            webView.evaluateJavaScript(css, completionHandler: nil)
+        }
     }
 }
 

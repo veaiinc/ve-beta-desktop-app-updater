@@ -253,9 +253,7 @@ const ChatBox = ({
 		if (chatBoxWrapperRef.current && chatbarContainerRef.current && getChatBoxHeight) {
 			const totalChatboxHeight =
 				(chatBoxWrapperRef.current?.clientHeight || 0) +
-				(chatbarContainerRef.current?.clientHeight || 0) +
-				12;
-
+				(chatbarContainerRef.current?.clientHeight ?? 0 + 12);
 			handleChatBoxHeight?.(totalChatboxHeight);
 		}
 	}, [

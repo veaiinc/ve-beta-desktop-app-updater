@@ -115,7 +115,7 @@ const CardMeetBot = () => {
 	// Load existing bots when component mounts
 	useEffect(() => {
 		// if (!pastMeetings?.data || pastMeetings.data.length === 0) {
-			handleGetExistingBots({ page: 1, limit: 10, append: false });
+		handleGetExistingBots({ page: 1, limit: 10, append: false });
 		// }
 	}, []); // Only run on mount
 
@@ -507,9 +507,11 @@ const CardMeetBot = () => {
 									)}
 								</div>
 							</div>
+
 							<button
 								className={styles.cardMeetBot_createNewBtn}
 								onClick={() => setInfo((prev) => ({ ...prev, modalOpen: true }))}
+								disabled={activeMeetingId !== null}
 							>
 								<AddIcon />
 								Create New

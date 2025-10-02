@@ -1,0 +1,247 @@
+.installation-steps {
+	width: 100%;
+	max-width: 1000px;
+	background: #fff;
+	border-radius: 8px;
+	border: 1px solid #b6b6b6;
+	box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 24px;
+	margin-top: 40px;
+
+	.steps-header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
+		width: 100%;
+
+		.tick-icon {
+			width: 20px;
+			height: 20px;
+			aspect-ratio: 1/1;
+		}
+
+		.steps-title {
+			color: #79ecc9;
+			font-family: 'General Sans', sans-serif;
+			font-size: 16px;
+			font-weight: 500;
+			line-height: normal;
+			margin: 0;
+		}
+	}
+
+	.installation-title {
+		color: #121212;
+		text-align: center;
+		font-family: 'General Sans', sans-serif;
+		font-size: 28px;
+		font-weight: 500;
+		line-height: normal;
+		margin: 0;
+	}
+
+	.steps-container {
+		display: flex;
+		gap: 32px;
+		width: 100%;
+		justify-content: center;
+		flex-wrap: wrap;
+
+		.step-container {
+			width: 300px;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			position: relative;
+
+			.step-number {
+				position: absolute;
+				top: -22px;
+				left: 18px;
+				z-index: 1;
+				width: 42px;
+				height: 42px;
+				background-color: #79ecc9;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #2c2d2e;
+				font-family: 'General Sans', sans-serif;
+				font-size: 24px;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			.preview-img {
+				width: 100%;
+				height: 200px;
+				object-fit: cover;
+				border-radius: 4px;
+			}
+
+			.step-description {
+				width: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+
+				p {
+					width: 160px;
+					color: #121212;
+					text-align: center;
+					font-family: 'General Sans', sans-serif;
+					font-size: 14px;
+					font-weight: 500;
+					line-height: normal;
+					margin: 0;
+
+					a {
+						color: #5089f9;
+						text-decoration: underline;
+					}
+				}
+			}
+		}
+	}
+
+	.download-again-link {
+		color: #121212;
+		text-align: center;
+		font-family: 'General Sans', sans-serif;
+		font-size: 14px;
+		font-weight: 500;
+		line-height: normal;
+		margin: 0;
+
+		button {
+			color: #5089f9;
+			font-family: 'General Sans', sans-serif;
+			font-size: 14px;
+			font-weight: 500;
+			line-height: normal;
+			text-decoration: underline;
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 0;
+
+			&:hover {
+				text-decoration: none;
+			}
+		}
+	}
+}
+
+// Responsive styles for installation steps
+@media (max-width: 1200px) {
+	.installation-steps {
+		margin-top: 30px;
+		padding: 18px;
+
+		.installation-title {
+			font-size: 24px;
+		}
+
+		.steps-container {
+			gap: 24px;
+
+			.step-container {
+				width: 280px;
+
+				.preview-img {
+					height: 180px;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 768px) {
+	.installation-steps {
+		margin-top: 20px;
+		padding: 16px;
+
+		.installation-title {
+			font-size: 22px;
+		}
+
+		.steps-container {
+			gap: 20px;
+			flex-direction: column;
+			align-items: center;
+
+			.step-container {
+				width: 100%;
+				max-width: 320px;
+
+				.preview-img {
+					height: 150px;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 480px) {
+	.installation-steps {
+		margin-top: 16px;
+		padding: 12px;
+
+		.installation-title {
+			font-size: 20px;
+		}
+
+		.steps-container {
+			gap: 16px;
+
+			.step-container {
+				width: 100%;
+				max-width: 280px;
+
+				.preview-img {
+					height: 120px;
+				}
+
+				.step-description p {
+					width: 100%;
+					font-size: 12px;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 360px) {
+	.installation-steps {
+		margin-top: 12px;
+		padding: 8px;
+
+		.installation-title {
+			font-size: 18px;
+		}
+
+		.steps-container {
+			gap: 12px;
+
+			.step-container {
+				width: 100%;
+				max-width: 260px;
+
+				.preview-img {
+					height: 100px;
+				}
+
+				.step-description p {
+					width: 100%;
+					font-size: 11px;
+				}
+			}
+		}
+	}
+}

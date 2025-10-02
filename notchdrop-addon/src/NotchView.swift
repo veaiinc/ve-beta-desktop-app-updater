@@ -1,7 +1,6 @@
 //
 //  NotchView.swift
 //  NotchDrop
-//
 //  Created by 秋星桥 on 2024/7/7.
 //
 
@@ -76,6 +75,18 @@ struct NotchView: View {
                         .foregroundColor(.white)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
+                } else if vm.hasActiveMusic || vm.hasActiveVideo {
+                    // Media is playing - show appropriate indicator
+                    if vm.hasActiveMusic && vm.hasActiveVideo {
+                        // Both music and video - show combined indicator
+                        MediaCollapsedIndicator(vm: vm, showMusic: vm.hasActiveMusic, showVideo: vm.hasActiveVideo)
+                    } else if vm.hasActiveMusic {
+                        // Music only - show music indicator
+                        MediaCollapsedIndicator(vm: vm, showMusic: vm.hasActiveMusic, showVideo: false)
+                    } else {
+                        // Video only - show video indicator
+                        MediaCollapsedIndicator(vm: vm, showMusic: false, showVideo: vm.hasActiveVideo)
+                    }
                 } else {
                     Text("")//empty state
                         .font(.system(size: 9, weight: .regular))
@@ -171,6 +182,193 @@ struct NotchView: View {
             .onAppear {
                 withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                     phase = .pi
+                }
+            }
+        }
+    }
+    
+    // Media indicator for collapsed state - supports both music and video
+    struct MediaCollapsedIndicator: View {
+        let vm: NotchViewModel
+        let showMusic: Bool
+        let showVideo: Bool
+        @State private var currentAlbumArt: NSImage? = nil
+        @State private var phase: CGFloat = 0
+        @State private var playbackPollTimer: Timer? = nil
+        @State private var waveTimer: Timer? = nil
+        
+        var body: some View {
+            HStack(spacing: 6) {
+                // Media indicators on the left
+                HStack(spacing: 4) {
+                    // Music indicator
+                    if showMusic {
+                        Group {
+                            if let artwork = currentAlbumArt {
+                                Image(nsImage: artwork)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 14, height: 14)
+                                    .clipShape(RoundedRectangle(cornerRadius: 2))
+                            } else {
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(LinearGradient(
+                                        colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ))
+                                    .frame(width: 14, height: 14)
+                                    .overlay(
+                                        Image(systemName: "music.note")
+                                            .font(.system(size: 7))
+                                            .foregroundColor(.white.opacity(0.8))
+                                    )
+                            }
+                        }
+                        .animation(.easeInOut(duration: 0.3), value: currentAlbumArt != nil)
+                    }
+                    
+                    // Video indicator  
+                    if showVideo {
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(LinearGradient(
+                                colors: [Color.red.opacity(0.7), Color.orange.opacity(0.5)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                            .frame(width: 14, height: 14)
+                            .overlay(
+                                Image(systemName: "play.rectangle.fill")
+                                    .font(.system(size: 7))
+                                    .foregroundColor(.white.opacity(0.8))
+                            )
+                    }
+                }
+                
+                Spacer()
+                
+                // Wave animation on the right
+                HStack(spacing: 1) {
+                    ForEach(0..<4, id: \.self) { i in
+                        let base: CGFloat = 3
+                        let peak: CGFloat = 8
+                        let progress = abs(sin((phase + CGFloat(i) * 0.6)))
+                        let h = base + (peak - base) * progress
+                        RoundedRectangle(cornerRadius: 0.5)
+                            .fill(.white.opacity(0.7))
+                            .frame(width: 1.5, height: h)
+                            .animation(
+                                .easeInOut(duration: 1.2)
+                                .repeatForever(autoreverses: true)
+                                .delay(Double(i) * 0.15),
+                                value: phase
+                            )
+                    }
+                }
+            }
+            .onAppear {
+                // Start/stop wave animation based on closed state and real playback
+                updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
+                
+                // Get current album artwork (only if showing music)
+                if showMusic {
+                    getCurrentAlbumArt()
+                    
+                    // Update album art periodically
+                    Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                        getCurrentAlbumArt()
+                    }
+                }
+
+                // Lightweight polling to keep collapsed indicator in sync
+                playbackPollTimer?.invalidate()
+                playbackPollTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { _ in
+                    updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
+                }
+            }
+            .onChange(of: vm.status) { _, newStatus in
+                updateWave(active: newStatus == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
+            }
+            .onChange(of: vm.isMusicPlaying) { _, isPlaying in
+                updateWave(active: vm.status == .closed && (isPlaying || vm.isVideoPlaying))
+            }
+            .onChange(of: vm.isVideoPlaying) { _, isPlaying in
+                updateWave(active: vm.status == .closed && (isPlaying || vm.isMusicPlaying))
+            }
+            .onDisappear {
+                playbackPollTimer?.invalidate()
+                playbackPollTimer = nil
+                stopWave()
+            }
+            .onChange(of: vm.hasActiveMusic) { _, _ in
+                updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
+            }
+        }
+        
+        private func startWave() {
+            stopWave()
+            // Drive phase manually for reliable animation
+            waveTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { _ in
+                phase += 0.2
+                if phase > .pi * 2 { phase = 0 }
+            }
+        }
+        
+        private func stopWave() {
+            waveTimer?.invalidate()
+            waveTimer = nil
+            phase = 0
+        }
+        
+        private func updateWave(active: Bool) {
+            if active {
+                startWave()
+            } else {
+                stopWave()
+            }
+        }
+
+        private func systemIsPlaying() -> Bool {
+            // Prefer view model's playback state to avoid MediaPlayer import in this file
+            return vm.isMusicPlaying
+        }
+        
+        private func getCurrentAlbumArt() {
+            // Try to get album artwork from Spotify
+            let spotifyScript = """
+                tell application "Spotify"
+                    if it is running then
+                        try
+                            set artworkURL to artwork url of current track
+                            return artworkURL
+                        on error
+                            return "missing value"
+                        end try
+                    end if
+                end tell
+            """
+            
+            if let appleScript = NSAppleScript(source: spotifyScript) {
+                var error: NSDictionary?
+                let result = appleScript.executeAndReturnError(&error)
+                
+                if error == nil, let urlString = result.stringValue,
+                   !urlString.isEmpty && urlString != "missing value",
+                   let url = URL(string: urlString) {
+                    
+                    // Download artwork in background
+                    DispatchQueue.global(qos: .background).async {
+                        do {
+                            let data = try Data(contentsOf: url)
+                            if let image = NSImage(data: data) {
+                                DispatchQueue.main.async {
+                                    self.currentAlbumArt = image
+                                }
+                            }
+                        } catch {
+                            // Failed to download, keep current artwork or fallback
+                        }
+                    }
                 }
             }
         }

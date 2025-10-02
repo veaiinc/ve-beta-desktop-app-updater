@@ -42,7 +42,6 @@ const menuData = [
 	{ label: 'Manifesto', path: '/manifesto', submenu: { manifesto: missionSubmenuList } },
 	{ label: 'For Enterprise', path: '/contact-us' },
 	{ label: 'Pricing', path: '/pricing' },
-	{ label: 'Explore', path: '/explore' },
 ];
 
 const MobileMenu = ({ open, onClose }) => {
@@ -76,15 +75,6 @@ const MobileMenu = ({ open, onClose }) => {
 							}}
 						>
 							Pricing
-						</button>
-						<button
-							className="mobile-nav-btn"
-							onClick={() => {
-								navigate('/explore');
-								onClose();
-							}}
-						>
-							Explore
 						</button>
 						<button
 							className="mobile-nav-btn"

@@ -30,9 +30,10 @@ import { ReactComponent as PlayIcon } from './assets/playIcon.svg';
 import { ReactComponent as PauseIcon } from './assets/pauseIcon.svg';
 import HeroSection from './heroSection/HeroSection';
 import VeSvg from '../../../assets/svg/veSvg';
+import TextOverlay from './TextOverlay';
 
 import '../../../assets/scss/landingScreen/index.scss';
-import DownloadVeAppPopup from '../../components/downloadVeAppPopup/DownloadVeAppPopup';
+import DownloadVeAppPopup from '../../components/desktopApp/DownloadVeAppPopup';
 
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
@@ -51,7 +52,7 @@ const getMacArchitecture = async () => {
 	}
 };
 
-// Function to get the appropriate desktop app download URL
+// Function to get the appropriate desktop app download
 const getDesktopAppDownloadUrl = async () => {
 	if (!isMac) return null;
 
@@ -93,6 +94,7 @@ const LandingPage = () => {
 		downloadSectionRef,
 		iMacFrameRef,
 		fullscreenIMacRef,
+		textOverlayRef,
 		backgroundRef,
 		productIntroRef,
 		videoRef: scrollVideoRef,
@@ -111,9 +113,13 @@ const LandingPage = () => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const isOnboard = JSON.parse(localStorage.getItem('isOnboard') || 'false');
 
-		if (token && region && workspaceId) {
-			if (!isOnboard) return navigate('/early-access');
-			return navigate('/home');
+		// Only redirect if we have all required authentication data
+		if (token && region && workspaceId && token.trim() !== '') {
+			if (!isOnboard) {
+				navigate('/early-access');
+			} else {
+				navigate('/home');
+			}
 		}
 	}, [navigate]);
 
@@ -229,12 +235,14 @@ const LandingPage = () => {
 				<FullscreenIMac ref={fullscreenIMacRef} />
 				{/* Additional content to ensure scrollable height for fullscreen animation and pinned text */}
 				<div
+					className="dummy-div"
 					style={{
 						height: '93vh',
 						background: 'transparent',
-						minHeight: '600px', // Ensure minimum height for small screens
+						minHeight: '100px',
 					}}
 				></div>
+				<TextOverlay ref={textOverlayRef} />
 
 				{/* Product Intro */}
 				<ProductIntro ref={productIntroRef} />
@@ -310,22 +318,19 @@ const LandingPage = () => {
 							{/* Navigation items will be added here if needed */}
 						</div>
 						<div className="right-container">
-							<Link className="login-btn-text hide-on-mobile" to="/verify-user">
-								Login
-							</Link>
-							<div className="login-container">
-								<button
-									className="login-btn"
-									onClick={() => navigate('/verify-user')}
-								>
-									Signup
-								</button>
-								<button
-									className="sidebar-button mobile-only"
-									onClick={() => setMobileMenuOpen(true)}
-								>
-									<MenuIcon />
-								</button>
+							<div className="nav-buttons">
+								<Link className="nav-btn" to="/pricing">
+									Pricing
+								</Link>
+								{/* <Link className="nav-btn" to="/explore">
+									Explore
+								</Link> */}
+								<Link className="nav-btn" to="/verify-user">
+									Sign In
+								</Link>
+								<Link className="nav-btn primary" to="/verify-user">
+									Get Started
+								</Link>
 							</div>
 						</div>
 					</div>

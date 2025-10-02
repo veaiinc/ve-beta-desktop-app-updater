@@ -575,6 +575,13 @@ class AssemblyAIService {
 			console.log('🚀 ========================================');
 			*/
 
+			if (window?.zubridge && window?.electronApi) {
+				window.zubridge.dispatch({
+					type: storeActions.meeting.ADD_SUMMARY_IN_PROGRESS,
+					payload: meetingId,
+				});
+			}
+
 			// Send to meeting summary API endpoint
 			const response = await fetch(apiUrl, {
 				method: 'POST',
