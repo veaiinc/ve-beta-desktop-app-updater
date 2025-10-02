@@ -143,9 +143,7 @@ const TopNavbar = () => {
 					item.label !== 'Vault' &&
 					item.label !== 'Tools' &&
 					item.label !== 'Proactive AI' &&
-					item.label !== 'Agents' &&
-					item.label !== 'Meetings' &&
-					item.type !== 'chat',
+					item.label !== 'Agents',
 			);
 		}
 
