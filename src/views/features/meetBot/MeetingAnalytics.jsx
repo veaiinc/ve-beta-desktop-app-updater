@@ -771,13 +771,13 @@ const MeetingAnalytics = ({ meetingId }) => {
 															</h3>
 															<div className={a.timeWithIcon}>
 																<span className={a.talkTime}>
-																	{participant.talkTime}
+																	{/* {participant.talkTime} */}
 																</span>
 																<span className={a.clockIcon}>
-																	<img
+																	{/* <img
 																		src={ClockSvg}
 																		alt="clock"
-																	/>
+																	/> */}
 																</span>
 															</div>
 														</div>
@@ -925,7 +925,7 @@ const MeetingAnalytics = ({ meetingId }) => {
 												{highlight.type}
 											</div>
 											<span className={a.highlightTime}>
-												{highlight.time}
+												{/* {highlight.time} */}
 											</span>
 											<div className={a.engagementBadge}>
 												<span>Engagement:</span>
