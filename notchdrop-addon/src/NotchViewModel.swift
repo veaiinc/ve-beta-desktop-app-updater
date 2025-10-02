@@ -803,6 +803,42 @@ class NotchViewModel: NSObject, ObservableObject {
         print("✅ Main screen navigation completed - all states reset")
     }
     
+    func resetToNotchHome() {
+        print("🏠 Resetting to NotchDrop Swift home - staying within NotchDrop interface")
+        
+        // Reset to default home mode (exit Teams view)
+        isTeamsView = false
+        
+        // Reset chat-related state
+        isChatMode = false
+        isChatExpanded = false
+        chatInput = ""
+        isSendingMessage = false
+        
+        // Reset voice interface state
+        if showVoiceInterface {
+            disconnectVoiceUI()
+        }
+        
+        // Reset recording state if active
+        if isRecording {
+            stopRecording()
+        }
+        
+        // Reset webcam state
+        if isCameraActive {
+            stopWebcam()
+        }
+        
+        // Reset notification overlay
+        if showNotificationOverlay {
+            hideNotification()
+        }
+        
+        // Do NOT send JavaScript action - stay within NotchDrop Swift interface
+        print("✅ NotchDrop Swift home reset completed - staying within NotchDrop")
+    }
+    
     // MARK: - Webcam Functionality
     
     /// Toggle webcam on/off
