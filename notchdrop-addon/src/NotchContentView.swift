@@ -350,6 +350,7 @@ struct DynamicIslandContentView: View {
                                         RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                             .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
                                     )
+                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help("Open Ve App")
@@ -375,6 +376,7 @@ struct DynamicIslandContentView: View {
                                     RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                         .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
                                 )
+                                .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
@@ -395,6 +397,7 @@ struct DynamicIslandContentView: View {
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
                                     )
+                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
