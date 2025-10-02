@@ -166,9 +166,9 @@ const MeetSummary = ({ meetingId }) => {
 	const getPriorityColor = (priority) => {
 		switch (priority) {
 			case 'High':
-				return '#E03F4F1A';
+				return '#E03F4F';
 			case 'Medium':
-				return '#EDA1451A';
+				return '#EDA145';
 			case 'Low':
 				return '#66bb6a';
 			default:
