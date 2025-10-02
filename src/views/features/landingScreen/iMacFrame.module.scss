@@ -63,19 +63,35 @@
 
 .screenImage {
 	width: calc(100% - 40px); // Account for 20px border on each side
-	height: 100vh;
-	// object-fit: cover;
+	height: calc(100% - 40px); // Account for 20px border on top and bottom
+	object-fit: contain;
 	position: absolute;
-	top: -243px; // Offset by border width
+	top: -106px; // Offset by border width
 	left: 20px; // Offset by border width
 	transition: opacity 0.8s ease-in-out;
 	will-change: opacity;
 	border-radius: 1.64px; // Slightly smaller radius to fit inside frame
-	@media (max-width: 1284px) {
-		top: -100px !important;
+
+	// Responsive adjustments for different screen sizes
+	@media (max-width: 1400px) {
+		width: calc(100% - 32px);
+		height: calc(100% - 32px);
+		top: -75px;
+		left: 16px;
 	}
-	@media (max-width: 1684px) {
-		top: -175px;
+
+	@media (max-width: 1200px) {
+		width: calc(100% - 28px);
+		height: calc(100% - 28px);
+		top: -91px;
+		left: 14px;
+	}
+
+	@media (max-width: 1024px) {
+		width: calc(100% - 24px);
+		height: calc(100% - 24px);
+		top: -97px;
+		left: 12px;
 	}
 
 	// Video - shows by default, hidden when zoomed (glow shows instead)

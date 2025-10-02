@@ -132,7 +132,7 @@ const NewsletterSection = () => {
 						</div> */}
 
 						{/* Resources Column */}
-						<div className={s.linkColumn}>
+						{/* <div className={s.linkColumn}>
 							<div className={s.linkItem}>
 								<span className={s.columnTitle}>Resources</span>
 							</div>
@@ -146,7 +146,7 @@ const NewsletterSection = () => {
 									Careers
 								</Link>
 							</div>
-						</div>
+						</div> */}
 
 						{/* Support Column */}
 						<div className={s.linkColumn}>
