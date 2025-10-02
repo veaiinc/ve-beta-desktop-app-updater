@@ -969,8 +969,8 @@ class NotchViewModel: NSObject, ObservableObject {
     func updateCameraError(_ error: String?) {
         DispatchQueue.main.async {
             self.cameraError = error
-            if let error = error {
-                // print("📹 Camera error: \(error)")
+            if error != nil {
+                // print("📹 Camera error: \(error ?? "Unknown error")")
             }
         }
     }
