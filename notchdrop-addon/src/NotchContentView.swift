@@ -9,8 +9,6 @@ import WebKit
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
-    @State private var showInfoPopup: Bool = false
-    @State private var infoPopupPosition: CGPoint = .zero
     
     var body: some View {
         ZStack {
@@ -22,17 +20,9 @@ struct NotchContentView: View {
                 // Normal content switching when no notification
                 switch vm.contentType {
                 case .normal:
-                    DynamicIslandContentView(vm: vm, showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                    DynamicIslandContentView(vm: vm)
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                 }
-            }
-            
-            // Info popup rendered outside the notch container
-            if showInfoPopup {
-                InfoPopupMenu()
-                    .offset(x: 400, y: 0) // Position to the right of the notch
-                    .zIndex(1000) // Ensure it appears above everything
-                    .transition(.scale(scale: 0.95).combined(with: .opacity))
             }
         }
         .animation(vm.animation, value: vm.contentType)
@@ -106,8 +96,6 @@ struct StartMeetingCard: View {
 // New Dynamic Island Content View matching JavaScript structure
 struct DynamicIslandContentView: View {
     @StateObject var vm: NotchViewModel
-    @Binding var showInfoPopup: Bool
-    @Binding var infoPopupPosition: CGPoint
     @FocusState private var isChatInputFocused: Bool
     @State private var isTextFieldActive: Bool = false
     @State private var textEditorHeight: CGFloat = 100 // Fixed height for textarea with scroll
@@ -344,7 +332,7 @@ struct DynamicIslandContentView: View {
                         HStack(spacing: 8) {
                             // VE icon with border styling (first icon)
                             Button(action: {
-                                vm.navigateToMainScreen()
+                                vm.resetToNotchHome()
                             }) {
                                 VEIcon(color: .white)
                                     .frame(width: 16, height: 16)
@@ -382,10 +370,7 @@ struct DynamicIslandContentView: View {
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
                             
-                            // Information icon (third icon) with popup menu
-                            InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
-                            
-                            // Lock/Unlock button (fourth icon)
+                            // Lock/Unlock button (third icon)
                             Button(action: {
                                 vm.toggleNotchLock()
                             }) {
@@ -1301,13 +1286,50 @@ struct ChatTextAreaView: View {
 
 
 
-// MARK: - VEIcon (VE text icon for navigation)
+// MARK: - VEIcon (VE logo icon for navigation)
 struct VEIcon: View {
     var color: Color = .white
     var body: some View {
-        Text("VE")
-            .font(.system(size: 10, weight: .bold, design: .rounded))
-            .foregroundColor(color)
+        // Simple, clean V and E representation
+        HStack(spacing: 1) {
+            // V shape
+            ZStack {
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: 0))
+                    path.addLine(to: CGPoint(x: 3, y: 8))
+                    path.addLine(to: CGPoint(x: 4, y: 8))
+                    path.addLine(to: CGPoint(x: 7, y: 0))
+                    path.addLine(to: CGPoint(x: 5.5, y: 0))
+                    path.addLine(to: CGPoint(x: 3.5, y: 6))
+                    path.addLine(to: CGPoint(x: 1.5, y: 0))
+                    path.closeSubpath()
+                }
+                .fill(color)
+            }
+            .frame(width: 7, height: 8)
+            
+            // E shape
+            ZStack {
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: 0))
+                    path.addLine(to: CGPoint(x: 0, y: 8))
+                    path.addLine(to: CGPoint(x: 6, y: 8))
+                    path.addLine(to: CGPoint(x: 6, y: 6.5))
+                    path.addLine(to: CGPoint(x: 1.5, y: 6.5))
+                    path.addLine(to: CGPoint(x: 1.5, y: 4.5))
+                    path.addLine(to: CGPoint(x: 5, y: 4.5))
+                    path.addLine(to: CGPoint(x: 5, y: 3.5))
+                    path.addLine(to: CGPoint(x: 1.5, y: 3.5))
+                    path.addLine(to: CGPoint(x: 1.5, y: 1.5))
+                    path.addLine(to: CGPoint(x: 6, y: 1.5))
+                    path.addLine(to: CGPoint(x: 6, y: 0))
+                    path.closeSubpath()
+                }
+                .fill(color)
+            }
+            .frame(width: 6, height: 8)
+        }
+        .frame(width: 14, height: 8)
     }
 }
 
@@ -1663,52 +1685,6 @@ struct PirateIcon: View {
     }
 }
 
-// MARK: - InfoIcon
-struct InfoIcon: View {
-    var color: Color = .white
-
-    var body: some View {
-        GeometryReader { geo in
-            let scale = min(geo.size.width, geo.size.height) / 24.0
-            let offsetX = (geo.size.width - 24.0 * scale) / 2.0
-            let offsetY = (geo.size.height - 24.0 * scale) / 2.0
-            let strokeStyle = StrokeStyle(lineWidth: 2.0 * scale, lineCap: .round, lineJoin: .round)
-            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
-                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
-            }
-            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
-                CGRect(
-                    x: offsetX + (centerX - radius) * scale,
-                    y: offsetY + (centerY - radius) * scale,
-                    width: radius * 2.0 * scale,
-                    height: radius * 2.0 * scale
-                )
-            }
-
-            ZStack {
-                // Outer circle
-                Path { path in
-                    path.addEllipse(in: circleRect(12.0, 12.0, 10.0))
-                }
-                .stroke(color, style: strokeStyle)
-
-                // Inner dot (i dot)
-                Path { path in
-                    path.addEllipse(in: circleRect(12.0, 8.0, 1.5))
-                }
-                .fill(color)
-
-                // Vertical line (i stem)
-                Path { path in
-                    path.move(to: point(12.0, 10.0))
-                    path.addLine(to: point(12.0, 16.0))
-                }
-                .stroke(color, style: strokeStyle)
-            }
-        }
-        .aspectRatio(1.0, contentMode: .fit)
-    }
-}
 
 // MARK: - Notification Overlay View
 struct NotificationOverlayView: View {
@@ -1846,129 +1822,6 @@ struct NotificationOverlayView: View {
 }
 
 
-// MARK: - Info Icon with Popup Menu
-struct InfoIconWithPopup: View {
-    @Binding var showInfoPopup: Bool
-    @Binding var infoPopupPosition: CGPoint
-    @State private var isHovered: Bool = false
-    
-    var body: some View {
-        // Info icon button
-        Button(action: {
-            print("🎯 Information icon clicked")
-            // Toggle popup on click as well
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showInfoPopup.toggle()
-            }
-        }) {
-            InfoIcon(color: .white)
-                .frame(width: 16, height: 16)
-                .padding(8) // Increased padding for larger clickable area
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                        .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                )
-        }
-        .buttonStyle(PlainButtonStyle())
-        .help("Information")
-        .onHover { hovering in
-            isHovered = hovering
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showInfoPopup = hovering
-            }
-        }
-    }
-}
-
-// MARK: - Info Popup Menu Component
-struct InfoPopupMenu: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Live Intelligence
-            InfoMenuItem(
-                title: "Live Intelligence",
-                shortcutKeys: ["⌘", "\\"]
-            )
-            
-            // Notch
-            InfoMenuItem(
-                title: "Notch",
-                shortcutKeys: ["⌘", "N"]
-            )
-            
-            // Ask Ve
-            InfoMenuItem(
-                title: "Ask Ve",
-                shortcutKeys: ["⌘", "⏎"]
-            )
-            
-            // Ve App
-            InfoMenuItem(
-                title: "Ve App",
-                shortcutKeys: ["⌘", "."]
-            )
-        }
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(red: 0.15, green: 0.15, blue: 0.15)) // Dark grey background
-                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
-        )
-        .frame(width: 200) // Fixed width to match design
-    }
-}
-
-// MARK: - Info Menu Item Component
-struct InfoMenuItem: View {
-    let title: String
-    let shortcutKeys: [String]
-    
-    var body: some View {
-        HStack {
-            // Menu item title
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.white)
-            
-            Spacer()
-            
-            // Keyboard shortcut
-            HStack(spacing: 4) {
-                ForEach(shortcutKeys, id: \.self) { key in
-                    ShortcutKeyView(keyText: key)
-                }
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            print("🎯 Menu item tapped: \(title)")
-            // Handle menu item actions here
-        }
-    }
-}
-
-// MARK: - Shortcut Key View Component
-struct ShortcutKeyView: View {
-    let keyText: String
-    
-    var body: some View {
-        Text(keyText)
-            .font(.system(size: 11, weight: .medium))
-            .foregroundColor(.white)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.white.opacity(0.15))
-            )
-    }
-}
 
 // MARK: - Spotify Media Controller
 struct SpotifyMediaController: View {
