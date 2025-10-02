@@ -364,14 +364,14 @@
 							}
 
 							&.denied {
-								background: rgba(239, 68, 68, 0.1);
-								border-color: rgba(239, 68, 68, 0.3);
-								color: #ef4444;
+								background: rgba(59, 130, 246, 0.1);
+								border-color: #ffff;
+								color: #ffff;
 
 								&:hover:not(:disabled) {
-									background: rgba(239, 68, 68, 0.2);
-									transform: translateY(-1px);
-									box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+									background: rgba(59, 130, 246, 0.1);
+									border-color: #ffff;
+									color: #ffff;
 								}
 							}
 
