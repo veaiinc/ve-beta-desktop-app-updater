@@ -1841,7 +1841,7 @@ struct SpotifyMediaController: View {
         Group {
             if vm.hasActiveMusic {
                 HStack(spacing: 12) {
-            // Large album artwork (left side)
+            
             Group {
                 if let artwork = albumArtwork {
                     Image(nsImage: artwork)
