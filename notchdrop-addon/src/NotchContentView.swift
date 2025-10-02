@@ -120,26 +120,33 @@ struct DynamicIslandContentView: View {
             if !vm.isAuthenticated {
                 // Welcome section when not authenticated
                 VStack(spacing: 8) {
-                   Text("Hello I’m Ve")
-                .font(.custom("Urbanist", size: 54)) // Use actual font name
-                .kerning(-0.03 * 54) // -3% of font size = -1.62
+                   Text("Hey")
+                .font(.custom("Urbanist", size: 48)) // Use actual font name
+                // .kerning(-0.03 * 54) // -3% of font size = -1.62
                 .lineSpacing(-4) // Optional: Adjust if you want total line height to be close to 50px
                 .foregroundColor(.white)
 
-                    // Text("Please log in to access features")
-                    //     .font(.system(size: 14, weight: .regular))
-                    //     .foregroundColor(.white.opacity(0.8))
+                    Text("I'm Ve, From the living intelligence company")
+                        .font(.custom("Urbanist", size: 13))
+                        .foregroundColor(.white.opacity(0.8))
+                        .lineSpacing(17)
+
+                    Text("of San Francisco")
+                    .font(.custom("Urbanist", size: 13))
+                    .foregroundColor(.white.opacity(0.8))
+                    .lineSpacing(17)
                     
                     // Test buttons
                     HStack(spacing: 8) {
                         Button("LOGIN") {
                             vm.navigateToMainScreen(path: "/verify-user")
                         }
-                        .font(.custom("Urbanist", size: 14))
+                        .font(.custom("Urbanist", size: 13))
+                        .lineSpacing(17)
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        // .background(Color.blue.opacity(0.3))
+                        .background(Color.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .buttonStyle(PlainButtonStyle())
 
