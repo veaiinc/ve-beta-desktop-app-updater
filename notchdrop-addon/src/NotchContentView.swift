@@ -340,19 +340,19 @@ struct DynamicIslandContentView: View {
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
                             // // VE icon with border styling (first icon)
-                            // Button(action: {
-                            //     vm.resetToNotchHome()
-                            // }) {
-                            //     VEIcon(color: .white)
-                            //         .frame(width: 16, height: 16)
-                            //         .padding(8) // Increased padding for larger clickable area
-                            //         .overlay(
-                            //             RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                            //                 .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                            //         )
-                            // }
-                            // .buttonStyle(PlainButtonStyle())
-                            // .help("VE")
+                            Button(action: {
+                                vm.resetToNotchHome()
+                            }) {
+                                VEIcon(color: .white)
+                                    .frame(width: 16, height: 16)
+                                    .padding(8) // Increased padding for larger clickable area
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
+                                            .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                                    )
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .help("VE")
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
@@ -1982,52 +1982,52 @@ struct PirateIcon: View {
 // }
 
 // MARK: - Info Menu Item Component
-struct InfoMenuItem: View {
-    let title: String
-    let shortcutKeys: [String]
+// struct InfoMenuItem: View {
+//     let title: String
+//     let shortcutKeys: [String]
     
-    var body: some View {
-        HStack {
-            // Menu item title
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.white)
+//     var body: some View {
+//         HStack {
+//             // Menu item title
+//             Text(title)
+//                 .font(.system(size: 14, weight: .medium))
+//                 .foregroundColor(.white)
             
-            Spacer()
+//             Spacer()
             
-            // Keyboard shortcut
-            HStack(spacing: 4) {
-                ForEach(shortcutKeys, id: \.self) { key in
-                    ShortcutKeyView(keyText: key)
-                }
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            print("🎯 Menu item tapped: \(title)")
-            // Handle menu item actions here
-        }
-    }
-}
+//             // Keyboard shortcut
+//             HStack(spacing: 4) {
+//                 ForEach(shortcutKeys, id: \.self) { key in
+//                     ShortcutKeyView(keyText: key)
+//                 }
+//             }
+//         }
+//         .padding(.horizontal, 16)
+//         .padding(.vertical, 8)
+//         .contentShape(Rectangle())
+//         .onTapGesture {
+//             print("🎯 Menu item tapped: \(title)")
+//             // Handle menu item actions here
+//         }
+//     }
+// }
 
 // MARK: - Shortcut Key View Component
-struct ShortcutKeyView: View {
-    let keyText: String
+// struct ShortcutKeyView: View {
+//     let keyText: String
     
-    var body: some View {
-        Text(keyText)
-            .font(.system(size: 11, weight: .medium))
-            .foregroundColor(.white)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color.white.opacity(0.15))
-            )
-    }
-}
+//     var body: some View {
+//         Text(keyText)
+//             .font(.system(size: 11, weight: .medium))
+//             .foregroundColor(.white)
+//             .padding(.horizontal, 6)
+//             .padding(.vertical, 2)
+//             .background(
+//                 RoundedRectangle(cornerRadius: 4)
+//                     .fill(Color.white.opacity(0.15))
+//             )
+//     }
+// }
 
 // MARK: - Spotify Media Controller
 struct SpotifyMediaController: View {
