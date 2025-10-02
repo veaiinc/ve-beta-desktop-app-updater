@@ -426,9 +426,12 @@ struct DynamicIslandContentView: View {
                             // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
                                 HStack(spacing: 12) {
-                                    // Boring Notch Style Calendar - always show when not in chat mode and not recording
-                                    BoringNotchCalendarWithPermissions()
-                                        .transition(.scale.combined(with: .opacity))
+                                    // NotchDrop Calendar - always show when not in chat mode and not recording
+                                    if vm.showCalendar {
+                                        NotchCalendarView(vm: vm)
+                                            .frame(width: 240, height: 100)
+                                            .transition(.scale(scale: 0.8).combined(with: .opacity))
+                                    }
                                         
                                     // Spotify Media Controller - only show when music is playing
                                     if vm.hasActiveMusic {

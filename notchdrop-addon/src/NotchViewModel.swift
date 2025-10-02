@@ -69,7 +69,7 @@ class NotchViewModel: NSObject, ObservableObject {
         } else {
             // Normal mode - show calendar and media controllers if available
             let baseWidth: CGFloat = 580  // Width without any additional components
-            let calendarWidth: CGFloat = 200  // Width of Boring Notch style calendar component
+            let calendarWidth: CGFloat = 240  // Width of Boring Notch style calendar component (increased for month header)
             let spotifyWidth: CGFloat = 160  // Width of Spotify controller
             let youtubeWidth: CGFloat = showVideoPlayer ? 300 : 200  // Width of YouTube player (300) vs controller (200)
             let mediaWidth = (hasActiveMusic ? spotifyWidth : 0) + (hasActiveVideo ? youtubeWidth : 0)
@@ -176,6 +176,9 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var showVoiceInterface: Bool = false
     @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
     @Published var isMicrophoneMuted: Bool = false
+    
+    // Calendar UI state
+    @Published var showCalendar: Bool = true // Show calendar by default in normal mode
     
     // Voice Assistant Integration (Web-based approach)
     @Published var voiceMessages: [VoiceMessage] = []
