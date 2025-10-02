@@ -5,6 +5,7 @@
 	position: relative;
 	z-index: 5; // Ensure FAQ section stays above background elements
 	width: 100%;
+	background: linear-gradient(270deg, rgba(1, 8, 65, 1) 0%, rgba(21, 26, 73, 1) 100%);
 
 	.container {
 		max-width: 1680px;
@@ -47,7 +48,13 @@
 		}
 
 		@media (max-width: 480px) {
-			font-size: 36px;
+			color: #fff;
+			text-align: center;
+			font-size: 40px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 58px; /* 112.5% */
+			letter-spacing: -1.2px;
 		}
 	}
 
@@ -55,10 +62,21 @@
 		display: flex;
 		justify-content: center;
 		gap: 8px;
-		flex-wrap: wrap;
 
 		@media (max-width: 768px) {
 			gap: 4px;
+			justify-content: flex-start;
+			overflow-x: auto;
+			overflow-y: hidden;
+			-webkit-overflow-scrolling: touch;
+			scrollbar-width: none;
+			-ms-overflow-style: none;
+			padding: 0 4px;
+			width: 100%;
+
+			&::-webkit-scrollbar {
+				display: none;
+			}
 		}
 	}
 
@@ -80,6 +98,8 @@
 		color: #fff;
 		cursor: pointer;
 		transition: all 0.2s ease;
+		white-space: nowrap;
+		flex-shrink: 0;
 
 		&:hover {
 			border-color: #79ecc9;
