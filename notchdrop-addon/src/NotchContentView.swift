@@ -13,9 +13,9 @@ struct NotchContentView: View {
     var body: some View {
         ZStack {
             if vm.showNotificationOverlay {
-                // When notification is showing, ONLY show the notification (no background content)
-                NotificationOverlayView(vm: vm)
-                    .transition(.scale(scale: 1.0).combined(with: .opacity))
+                // // When notification is showing, ONLY show the notification (no background content)
+                // NotificationOverlayView(vm: vm)
+                //     .transition(.scale(scale: 1.0).combined(with: .opacity))
             } else {
                 // Normal content switching when no notification
                 switch vm.contentType {
@@ -24,6 +24,15 @@ struct NotchContentView: View {
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                 }
             }
+            
+            // Info popup rendered outside the notch container
+            // Commented out since InfoPopupMenu was commented out
+            // if showInfoPopup {
+            //     InfoPopupMenu()
+            //         .offset(x: 400, y: 0) // Position to the right of the notch
+            //         .zIndex(1000) // Ensure it appears above everything
+            //         .transition(.scale(scale: 0.95).combined(with: .opacity))
+            // }
         }
         .animation(vm.animation, value: vm.contentType)
         .animation(vm.animation, value: vm.showNotificationOverlay)
@@ -330,20 +339,20 @@ struct DynamicIslandContentView: View {
 
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
-                            // VE icon with border styling (first icon)
-                            Button(action: {
-                                vm.resetToNotchHome()
-                            }) {
-                                VEIcon(color: .white)
-                                    .frame(width: 16, height: 16)
-                                    .padding(8) // Increased padding for larger clickable area
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                                            .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                                    )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .help("VE")
+                            // // VE icon with border styling (first icon)
+                            // Button(action: {
+                            //     vm.resetToNotchHome()
+                            // }) {
+                            //     VEIcon(color: .white)
+                            //         .frame(width: 16, height: 16)
+                            //         .padding(8) // Increased padding for larger clickable area
+                            //         .overlay(
+                            //             RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
+                            //                 .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                            //         )
+                            // }
+                            // .buttonStyle(PlainButtonStyle())
+                            // .help("VE")
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
@@ -370,7 +379,10 @@ struct DynamicIslandContentView: View {
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
                             
-                            // Lock/Unlock button (third icon)
+                            // Information icon (third icon) with popup menu
+                            // InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            
+                            // Lock/Unlock button (fourth icon)
                             Button(action: {
                                 vm.toggleNotchLock()
                             }) {
@@ -392,7 +404,10 @@ struct DynamicIslandContentView: View {
                     
                     // Main content area
                     HStack(alignment: .center, spacing: 8) {
-                        if vm.isTeamsView {
+                        if vm.showVoiceInterface {
+                            // Voice split layout (left conversation, right controls) - PRIORITY: Always show voice interface when active
+                            VoiceSplitLayout(vm: vm)
+                        } else if vm.isTeamsView {
                             // Teams view: maintain even spacing between three blocks
                             HStack(spacing: 12) {
                                 if !vm.isRecording {
@@ -409,9 +424,6 @@ struct DynamicIslandContentView: View {
                                 WebcamButton(vm: vm)
                                     .frame(width: 100, height: 100)
                             }
-                        } else if vm.showVoiceInterface {
-                            // Voice split layout (left conversation, right controls)
-                            VoiceSplitLayout(vm: vm)
                         } else {
                             // Chat input section with voice/arrow icon inside - matches image layout
                             ChatTextAreaView(
@@ -1058,6 +1070,7 @@ struct ChatTextAreaView: View {
                 HStack {
                     Spacer()
                     Button(action: {
+                        print("🔥 BUTTON CLICKED! isChatInputFocused: \(isChatInputFocused)")
                         if isChatInputFocused {
                             // Arrow mode - submit chat
                             print("🎯 Arrow button clicked - submitting chat")
@@ -1066,10 +1079,13 @@ struct ChatTextAreaView: View {
                             }
                         } else {
                             // Voice mode - activate voice assistant
-                            print("🎤 Voice button clicked - activating voice assistant")
+                            print("🎤 WAVE ICON CLICKED - activating voice assistant")
+                            print("🎤 Current showVoiceInterface: \(vm.showVoiceInterface)")
+                            print("🎤 Current voiceConnectionStatus: \(vm.voiceConnectionStatus)")
                             // Ensure we don't accidentally focus the text area
                             DispatchQueue.main.async {
                                 vm.connectVoiceAssistant()
+                                print("🎤 connectVoiceAssistant() called")
                             }
                         }
                     }) {
@@ -1080,15 +1096,51 @@ struct ChatTextAreaView: View {
                                 .frame(width: 24, height: 24)
                                 .clipShape(RoundedRectangle(cornerRadius: 4))
                         } else {
-                            WaveIcon(color: .white)
-                                .frame(width: 16, height: 16)
+                            ZStack {
+                                // Background with styling using brand primary green
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color.white.opacity(0.01)) // background: rgba(255, 255, 255, 0.01)
+                                    .frame(width: 24, height: 24)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4) // border-radius: 4px
+                                            .stroke(DynamicIslandTheme.primaryGreen.opacity(0.30), lineWidth: 0.6) // Use brand primary green
+                                    )
+                                    .overlay(
+                                        // Inner glow effect using brand primary green
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .stroke(
+                                                LinearGradient(
+                                                    colors: [
+                                                        DynamicIslandTheme.primaryGreen.opacity(0.30),
+                                                        DynamicIslandTheme.primaryGreen.opacity(0.15),
+                                                        DynamicIslandTheme.primaryGreen.opacity(0.05),
+                                                        Color.clear
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                ),
+                                                lineWidth: 3
+                                            )
+                                            .blur(radius: 3)
+                                            .blendMode(.overlay)
+                                    )
+                                
+                                // Wave icon on top - using brand primary green
+                                WaveIcon(color: DynamicIslandTheme.primaryGreen)
+                                    .frame(width: 14, height: 14) // Icon size: 14px
+                                    .allowsHitTesting(false) // Allow touches to pass through to button
+                            }
+                            .frame(width: 24, height: 24) // Container size: 24px
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
                     .padding(.trailing, 8)
                     .padding(.bottom, 8)
-                    .contentShape(Rectangle()) // Ensure button area is properly defined
+                    .contentShape(RoundedRectangle(cornerRadius: 4)) // Ensure button area matches the visual shape
                     .allowsHitTesting(true) // Ensure button can receive taps
+                    .onTapGesture {
+                        print("🔥 TAP GESTURE DETECTED ON WAVE ICON!")
+                    }
                 }
             }
                 .onKeyPress(keys: [.return]) { event in
@@ -1369,25 +1421,36 @@ struct WaveIcon: View {
 
 // MARK: - WebcamIcon (SVG path rendered in SwiftUI)
 struct WebcamIcon: View {
-    var color: Color = Color(red: 0.580, green: 0.596, blue: 0.620) // #94989e
+    var color: Color = .white
     var body: some View {
         GeometryReader { geo in
-            let w: CGFloat = 24.0
-            let h: CGFloat = 24.0
+            let w: CGFloat = 20.0
+            let h: CGFloat = 21.0
             let sx = geo.size.width / w
             let sy = geo.size.height / h
             let s = min(sx, sy)
             Path { p in
-                func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * sx, y: y * sy) }
-                // Camera icon path
-                // M12 15.5A3.5 3.5 0 1 0 12 8.5A3.5 3.5 0 0 0 12 15.5Z
-                p.addEllipse(in: CGRect(x: 8.5 * sx, y: 8.5 * sy, width: 7 * sx, height: 7 * sy))
-                // M20.84 4.61A5.5 5.5 0 0 0 19.5 4H4.5A5.5 5.5 0 0 0 3.16 4.61A2 2 0 0 0 2 6.5V17A2 2 0 0 0 3.16 19.39A5.5 5.5 0 0 0 4.5 20H19.5A5.5 5.5 0 0 0 20.84 19.39A2 2 0 0 0 22 17V6.5A2 2 0 0 0 20.84 4.61ZM12 17A5 5 0 1 1 12 7A5 5 0 0 1 12 17Z
-                p.addRoundedRect(in: CGRect(x: 2 * sx, y: 4 * sy, width: 20 * sx, height: 16 * sy), cornerSize: CGSize(width: 2 * sx, height: 2 * sy))
+                // Outer circle - camera body
+                // M10 14.25C13.1066 14.25 15.625 11.7316 15.625 8.625C15.625 5.5184 13.1066 3 10 3C6.8934 3 4.375 5.5184 4.375 8.625C4.375 11.7316 6.8934 14.25 10 14.25Z
+                p.addEllipse(in: CGRect(x: 4.375 * sx, y: 3 * sy, width: 11.25 * sx, height: 11.25 * sy))
+                
+                // Inner circle - lens
+                // M10 11.125C11.3807 11.125 12.5 10.0057 12.5 8.625C12.5 7.24429 11.3807 6.125 10 6.125C8.61929 6.125 7.5 7.24429 7.5 8.625C7.5 10.0057 8.61929 11.125 10 11.125Z
+                p.addEllipse(in: CGRect(x: 7.5 * sx, y: 6.125 * sy, width: 5 * sx, height: 5 * sy))
+                
+                // Vertical line from camera to tripod
+                // M10 14.25V16.75
+                p.move(to: CGPoint(x: 10 * sx, y: 14.25 * sy))
+                p.addLine(to: CGPoint(x: 10 * sx, y: 16.75 * sy))
+                
+                // Horizontal tripod base
+                // M2.5 16.75H17.5
+                p.move(to: CGPoint(x: 2.5 * sx, y: 16.75 * sy))
+                p.addLine(to: CGPoint(x: 17.5 * sx, y: 16.75 * sy))
             }
-            .stroke(color, style: StrokeStyle(lineWidth: 1.5 * s, lineCap: .round, lineJoin: .round))
+            .stroke(color, style: StrokeStyle(lineWidth: 1.25 * s, lineCap: .round, lineJoin: .round))
         }
-        .aspectRatio(1.0, contentMode: .fit)
+        .aspectRatio(20/21, contentMode: .fit)
     }
 }
 
@@ -1525,19 +1588,39 @@ struct WebcamButton: View {
                     // Default state - frosted circular button with icon and label
                     ZStack {
                         Circle()
-                            .fill(DynamicIslandTheme.cardMaterial)
+                            .fill(Color.white.opacity(0.05)) // background: rgba(255, 255, 255, 0.05)
                             .frame(width: 100, height: 100)
-                            .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 2)
+                            .background(.ultraThinMaterial) // backdrop-filter: blur(15px)
                             .overlay(
                                 Circle()
-                                    .stroke(Color.white.opacity(0.18), lineWidth: 1.5)
-                                    .blur(radius: 0.3)
+                                    .stroke(Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
                             )
+                            .overlay(
+                                // Inner shadow effect using gradient
+                                Circle()
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(0.30),
+                                                Color.white.opacity(0.15),
+                                                Color.white.opacity(0.05),
+                                                Color.clear
+                                            ],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        ),
+                                        lineWidth: 2
+                                    )
+                                    .blur(radius: 1)
+                                    .blendMode(.overlay)
+                            )
+                            .clipShape(Circle())
+                        
                         VStack(spacing: 10) {
                             WebcamIcon(color: .white)
                                 .frame(width: 28, height: 28)
-                            Text("WEBCAM")
-                                .font(.system(size: 13, weight: .semibold))
+                            Text("MIRROR")
+                                .font(.system(size: 11, weight: .medium))
                                 .kerning(0.6)
                                 .foregroundColor(.white)
                         }
@@ -1687,141 +1770,264 @@ struct PirateIcon: View {
 
 
 // MARK: - Notification Overlay View
-struct NotificationOverlayView: View {
-    @ObservedObject var vm: NotchViewModel
-    @State private var progressValue: Double = 0.0
-    @State private var progressTimer: Timer?
+// struct NotificationOverlayView: View {
+//     @ObservedObject var vm: NotchViewModel
+//     @State private var progressValue: Double = 0.0
+//     @State private var progressTimer: Timer?
 
-    var body: some View {
-        Group {
-            if vm.showNotificationOverlay {
-                let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
+//     var body: some View {
+//         Group {
+//             if vm.showNotificationOverlay {
+//                 let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
                 
-                // Center the notification content in the available space
-                VStack {
-                    Spacer()
+//                 // Center the notification content in the available space
+//                 VStack {
+//                     Spacer()
                     
-                    // Notification content matching the Figma design exactly
-                    VStack(spacing: 0) {
-                    // Main content area
-                    HStack(spacing: 16) {
-                        // Left content
-                        VStack(alignment: .leading, spacing: 4) {
-                            // Main title - "Meeting detected"
-                            Text("Meeting detected")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
+//                     // Notification content matching the Figma design exactly
+//                     VStack(spacing: 0) {
+//                     // Main content area
+//                     HStack(spacing: 16) {
+//                         // Left content
+//                         VStack(alignment: .leading, spacing: 4) {
+//                             // Main title - "Meeting detected"
+//                             Text("Meeting detected")
+//                                 .font(.system(size: 16, weight: .semibold))
+//                                 .foregroundColor(.white)
+//                                 .lineLimit(1)
                             
-                            // Subtitle - "Google meet • Starting in 2 min"
-                            Text("Google meet • Starting in 2 min")
-                                .font(.system(size: 13))
-                                .foregroundColor(.white.opacity(0.7))
-                                .lineLimit(1)
-                        }
+//                             // Subtitle - "Google meet • Starting in 2 min"
+//                             Text("Google meet • Starting in 2 min")
+//                                 .font(.system(size: 13))
+//                                 .foregroundColor(.white.opacity(0.7))
+//                                 .lineLimit(1)
+//                         }
                         
-                        Spacer()
+//                         Spacer()
                         
-                        // Join button on the right
-                        Button(action: {
-                            print("🎯 Join button tapped")
-                            vm.hideNotification()
-                        }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "waveform.path")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.white)
+//                         // Join button on the right
+//                         Button(action: {
+//                             print("🎯 Join button tapped")
+//                             vm.hideNotification()
+//                         }) {
+//                             HStack(spacing: 8) {
+//                                 Image(systemName: "waveform.path")
+//                                     .font(.system(size: 14))
+//                                     .foregroundColor(.white)
                                 
-                                Text("Join")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(.white.opacity(0.3), lineWidth: 1)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(.white.opacity(0.1))
-                                    )
-                            )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    .padding(.bottom, 12)
+//                                 Text("Join")
+//                                     .font(.system(size: 14, weight: .medium))
+//                                     .foregroundColor(.white)
+//                             }
+//                             .padding(.horizontal, 20)
+//                             .padding(.vertical, 10)
+//                             .background(
+//                                 RoundedRectangle(cornerRadius: 20)
+//                                     .stroke(.white.opacity(0.3), lineWidth: 1)
+//                                     .background(
+//                                         RoundedRectangle(cornerRadius: 20)
+//                                             .fill(.white.opacity(0.1))
+//                                     )
+//                             )
+//                         }
+//                         .buttonStyle(PlainButtonStyle())
+//                     }
+//                     .padding(.horizontal, 20)
+//                     .padding(.top, 16)
+//                     .padding(.bottom, 12)
                     
-                    // Green progress bar at the bottom
-                    VStack(spacing: 0) {
-                        Spacer()
+//                     // Green progress bar at the bottom
+//                     VStack(spacing: 0) {
+//                         Spacer()
                         
-                        // Progress bar
-                        GeometryReader { geometry in
-                            ZStack(alignment: .leading) {
-                                // Background
-                                Rectangle()
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(height: 3)
+//                         // Progress bar
+//                         GeometryReader { geometry in
+//                             ZStack(alignment: .leading) {
+//                                 // Background
+//                                 Rectangle()
+//                                     .fill(Color.white.opacity(0.1))
+//                                     .frame(height: 3)
                                 
-                                // Progress fill
-                                Rectangle()
-                                    .fill(Color.green)
-                                    .frame(width: geometry.size.width * progressValue, height: 3)
-                            }
-                        }
-                        .frame(height: 3)
-                    }
-                    }
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
-                    .frame(width: 370, height: 74) // Matching the Figma dimensions
-                    .onHover { isHovering in
-                        if isHovering {
-                            vm.pauseNotificationTimer()
-                        } else {
-                            vm.resumeNotificationTimer()
-                        }
-                    }
+//                                 // Progress fill
+//                                 Rectangle()
+//                                     .fill(Color.green)
+//                                     .frame(width: geometry.size.width * progressValue, height: 3)
+//                             }
+//                         }
+//                         .frame(height: 3)
+//                     }
+//                     }
+//                     .background(.ultraThinMaterial)
+//                     .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
+//                     .frame(width: 370, height: 74) // Matching the Figma dimensions
+//                     .onHover { isHovering in
+//                         if isHovering {
+//                             vm.pauseNotificationTimer()
+//                         } else {
+//                             vm.resumeNotificationTimer()
+//                         }
+//                     }
                     
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .transition(.scale(scale: 1.0).combined(with: .opacity)) // Remove scaling to prevent shadow artifacts
-                .onAppear {
-                    // Start progress bar animation that syncs with notification timer
-                    startProgressAnimation()
-                }
-                .onDisappear {
-                    // Clean up progress animation
-                    stopProgressAnimation()
+//                     Spacer()
+//                 }
+//                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                 .transition(.scale(scale: 1.0).combined(with: .opacity)) // Remove scaling to prevent shadow artifacts
+//                 .onAppear {
+//                     // Start progress bar animation that syncs with notification timer
+//                     startProgressAnimation()
+//                 }
+//                 .onDisappear {
+//                     // Clean up progress animation
+//                     stopProgressAnimation()
+//                 }
+//             }
+//         }
+//         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.showNotificationOverlay)
+//     }
+    
+//     // Progress animation methods
+//     private func startProgressAnimation() {
+//         progressValue = 0.0
+//         progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+//             if !vm.isNotificationHovered {
+//                 // Only advance progress when not hovering
+//                 let increment = 0.1 / 10.0 // 10 seconds total
+//                 progressValue = min(1.0, progressValue + increment)
+//             }
+//         }
+//     }
+    
+//     private func stopProgressAnimation() {
+//         progressTimer?.invalidate()
+//         progressTimer = nil
+//         progressValue = 0.0
+//     }
+// }
+
+
+// // MARK: - Info Icon with Popup Menu
+// struct InfoIconWithPopup: View {
+//     @Binding var showInfoPopup: Bool
+//     @Binding var infoPopupPosition: CGPoint
+//     @State private var isHovered: Bool = false
+    
+//     var body: some View {
+//         // Info icon button
+//         Button(action: {
+//             print("🎯 Information icon clicked")
+//             // Toggle popup on click as well
+//             withAnimation(.easeInOut(duration: 0.2)) {
+//                 showInfoPopup.toggle()
+//             }
+//         }) {
+//             InfoIcon(color: .white)
+//                 .frame(width: 16, height: 16)
+//                 .padding(8) // Increased padding for larger clickable area
+//                 .overlay(
+//                     RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
+//                         .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+//                 )
+//         }
+//         .buttonStyle(PlainButtonStyle())
+//         .help("Information")
+//         .onHover { hovering in
+//             isHovered = hovering
+//             withAnimation(.easeInOut(duration: 0.2)) {
+//                 showInfoPopup = hovering
+//             }
+//         }
+//     }
+// }
+
+// // MARK: - Info Popup Menu Component
+// struct InfoPopupMenu: View {
+//     var body: some View {
+//         VStack(alignment: .leading, spacing: 0) {
+//             // Live Intelligence
+//             InfoMenuItem(
+//                 title: "Live Intelligence",
+//                 shortcutKeys: ["⌘", "\\"]
+//             )
+            
+//             // Notch
+//             InfoMenuItem(
+//                 title: "Notch",
+//                 shortcutKeys: ["⌘", "N"]
+//             )
+            
+//             // Ask Ve
+//             InfoMenuItem(
+//                 title: "Ask Ve",
+//                 shortcutKeys: ["⌘", "⏎"]
+//             )
+            
+//             // Ve App
+//             InfoMenuItem(
+//                 title: "Ve App",
+//                 shortcutKeys: ["⌘", "."]
+//             )
+//         }
+//         .padding(.vertical, 8)
+//         .background(
+//             RoundedRectangle(cornerRadius: 8)
+//                 .fill(Color(red: 0.15, green: 0.15, blue: 0.15)) // Dark grey background
+//                 .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+//         )
+//         .overlay(
+//             RoundedRectangle(cornerRadius: 8)
+//                 .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+//         )
+//         .frame(width: 200) // Fixed width to match design
+//     }
+// }
+
+// MARK: - Info Menu Item Component
+struct InfoMenuItem: View {
+    let title: String
+    let shortcutKeys: [String]
+    
+    var body: some View {
+        HStack {
+            // Menu item title
+            Text(title)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            // Keyboard shortcut
+            HStack(spacing: 4) {
+                ForEach(shortcutKeys, id: \.self) { key in
+                    ShortcutKeyView(keyText: key)
                 }
             }
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.showNotificationOverlay)
-    }
-    
-    // Progress animation methods
-    private func startProgressAnimation() {
-        progressValue = 0.0
-        progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            if !vm.isNotificationHovered {
-                // Only advance progress when not hovering
-                let increment = 0.1 / 10.0 // 10 seconds total
-                progressValue = min(1.0, progressValue + increment)
-            }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            print("🎯 Menu item tapped: \(title)")
+            // Handle menu item actions here
         }
-    }
-    
-    private func stopProgressAnimation() {
-        progressTimer?.invalidate()
-        progressTimer = nil
-        progressValue = 0.0
     }
 }
 
-
+// MARK: - Shortcut Key View Component
+struct ShortcutKeyView: View {
+    let keyText: String
+    
+    var body: some View {
+        Text(keyText)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.white.opacity(0.15))
+            )
+    }
+}
 
 // MARK: - Spotify Media Controller
 struct SpotifyMediaController: View {
