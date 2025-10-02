@@ -69,7 +69,7 @@ class NotchViewModel: NSObject, ObservableObject {
         } else {
             // Normal mode - show calendar and media controllers if available
             let baseWidth: CGFloat = 580  // Width without any additional components
-            let calendarWidth: CGFloat = 200  // Width of Boring Notch style calendar component
+            let calendarWidth: CGFloat = 240  // Width of Boring Notch style calendar component (increased for month header)
             let spotifyWidth: CGFloat = 160  // Width of Spotify controller
             let youtubeWidth: CGFloat = showVideoPlayer ? 300 : 200  // Width of YouTube player (300) vs controller (200)
             let mediaWidth = (hasActiveMusic ? spotifyWidth : 0) + (hasActiveVideo ? youtubeWidth : 0)
@@ -144,6 +144,15 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var showVideoPlayer: Bool = false
     @Published var notchVisible: Bool = true
     @Published var isNotchLocked: Bool = true
+    
+    // Browser permission state for YouTube detection
+    @PublishedPersist(key: "hasBrowserPermission", defaultValue: false)
+    var hasBrowserPermission: Bool
+    @Published var browserPermissionRequested: Bool = false
+    @Published var showBrowserPermissionRequest: Bool = false
+    
+    // Browser permission window
+    private var browserPermissionWindow: NSWindow?
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
     var selectedLanguage: Language
@@ -176,6 +185,9 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var showVoiceInterface: Bool = false
     @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
     @Published var isMicrophoneMuted: Bool = false
+    
+    // Calendar UI state
+    @Published var showCalendar: Bool = true // Show calendar by default in normal mode
     
     // Voice Assistant Integration (Web-based approach)
     @Published var voiceMessages: [VoiceMessage] = []
@@ -961,6 +973,118 @@ class NotchViewModel: NSObject, ObservableObject {
                 // print("📹 Camera error: \(error)")
             }
         }
+    }
+    
+    // MARK: - Browser Permission Methods
+    
+    /// Set up browser permission window monitoring
+    func setupBrowserPermissionWindow() {
+        // Monitor showBrowserPermissionRequest changes
+        $showBrowserPermissionRequest
+            .sink { [weak self] shouldShow in
+                if shouldShow {
+                    self?.createBrowserPermissionWindow()
+                } else {
+                    self?.closeBrowserPermissionWindow()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    /// Request browser permission for YouTube detection
+    func requestBrowserPermission() {
+        print("🌐 Requesting browser permission for YouTube detection...")
+        
+        DispatchQueue.main.async {
+            self.browserPermissionRequested = true
+            self.showBrowserPermissionRequest = true
+        }
+    }
+    
+    /// Grant browser permission
+    func grantBrowserPermission() {
+        print("🌐 Browser permission granted")
+        
+        DispatchQueue.main.async {
+            self.hasBrowserPermission = true
+            self.showBrowserPermissionRequest = false
+        }
+    }
+    
+    /// Deny browser permission
+    func denyBrowserPermission() {
+        print("🌐 Browser permission denied")
+        
+        DispatchQueue.main.async {
+            self.hasBrowserPermission = false
+            self.showBrowserPermissionRequest = false
+        }
+    }
+    
+    /// Create centered browser permission window
+    private func createBrowserPermissionWindow() {
+        guard browserPermissionWindow == nil else { return }
+        
+        // Get the main screen
+        guard let screen = NSScreen.main else { return }
+        let screenFrame = screen.frame
+        
+        // Create a centered window like system notifications
+        let windowWidth: CGFloat = 360
+        let windowHeight: CGFloat = 200
+        let windowFrame = NSRect(
+            x: screenFrame.midX - windowWidth / 2,
+            y: screenFrame.midY - windowHeight / 2 + 100, // Slightly above center like system notifications
+            width: windowWidth,
+            height: windowHeight
+        )
+        
+        browserPermissionWindow = NSWindow(
+            contentRect: windowFrame,
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        
+        guard let window = browserPermissionWindow else { return }
+        
+        // Configure window like system notifications
+        window.level = .floating
+        window.isOpaque = false
+        window.backgroundColor = NSColor.clear
+        window.hasShadow = true
+        window.isMovable = false
+        window.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        window.animationBehavior = .documentWindow
+        
+        // Create the permission view
+        let permissionView = BrowserPermissionRequestView(vm: self)
+        let hostingView = NSHostingView(rootView: permissionView)
+        window.contentView = hostingView
+        
+        // Show with animation
+        window.alphaValue = 0
+        window.makeKeyAndOrderFront(nil)
+        
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.3
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            window.animator().alphaValue = 1.0
+        }
+    }
+    
+    /// Close browser permission window
+    private func closeBrowserPermissionWindow() {
+        guard let window = browserPermissionWindow else { return }
+        
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.2
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            window.animator().alphaValue = 0.0
+        }, completionHandler: {
+            window.close()
+            self.browserPermissionWindow = nil
+        })
     }
     
     // New method to send log messages to Electron

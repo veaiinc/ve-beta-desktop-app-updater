@@ -27,6 +27,10 @@ struct NotchContentView: View {
         }
         .animation(vm.animation, value: vm.contentType)
         .animation(vm.animation, value: vm.showNotificationOverlay)
+        .onAppear {
+            // Set up browser permission window monitoring
+            vm.setupBrowserPermissionWindow()
+        }
     }
 }
 
@@ -426,9 +430,12 @@ struct DynamicIslandContentView: View {
                             // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
                                 HStack(spacing: 12) {
-                                    // Boring Notch Style Calendar - always show when not in chat mode and not recording
-                                    BoringNotchCalendarWithPermissions()
-                                        .transition(.scale.combined(with: .opacity))
+                                    // NotchDrop Calendar - always show when not in chat mode and not recording
+                                    if vm.showCalendar {
+                                        NotchCalendarView(vm: vm)
+                                            .frame(width: 240, height: 100)
+                                            .transition(.scale(scale: 0.8).combined(with: .opacity))
+                                    }
                                         
                                     // Spotify Media Controller - only show when music is playing
                                     if vm.hasActiveMusic {
@@ -527,8 +534,17 @@ struct DynamicIslandContentView: View {
     }
     
     private func checkBrowserForYouTube() -> Bool {
-        // Check each browser separately for better reliability
-        let browsers = ["Safari", "Google Chrome", "Firefox", "Microsoft Edge", "Arc", "Brave Browser"]
+        // Only check browsers if we have permission
+        guard vm.hasBrowserPermission else {
+            // Request permission first time
+            if !vm.browserPermissionRequested {
+                vm.requestBrowserPermission()
+            }
+            return false
+        }
+        
+        // Check only major browsers: Safari, Chrome, Firefox
+        let browsers = ["Safari", "Google Chrome", "Firefox"]
         
         for browser in browsers {
             if let (url, title) = checkBrowserApp(browser) {
@@ -1838,7 +1854,7 @@ struct SpotifyMediaController: View {
         Group {
             if vm.hasActiveMusic {
                 HStack(spacing: 12) {
-            // Large album artwork (left side)
+            
             Group {
                 if let artwork = albumArtwork {
                     Image(nsImage: artwork)
@@ -2278,6 +2294,129 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
             
             webView.evaluateJavaScript(css, completionHandler: nil)
         }
+    }
+}
+
+// MARK: - Browser Permission Request View
+struct BrowserPermissionRequestView: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Icon
+            Image(systemName: "globe")
+                .font(.system(size: 28))
+                .foregroundColor(DynamicIslandTheme.primaryGreen)
+            
+            // Title and description
+            VStack(spacing: 8) {
+                Text("Browser Access")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+                
+                Text("Allow access to Safari, Chrome, and Firefox to detect YouTube videos playing in your browser")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            // Buttons
+            HStack(spacing: 12) {
+                Button("Not Now") {
+                    vm.denyBrowserPermission()
+                }
+                .buttonStyle(SystemSecondaryButtonStyle())
+                
+                Button("Allow") {
+                    vm.grantBrowserPermission()
+                }
+                .buttonStyle(SystemPrimaryButtonStyle())
+            }
+        }
+        .padding(24)
+        .frame(width: 360, height: 200)
+        .background(
+            // System notification-like background
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(.separator.opacity(0.5), lineWidth: 0.5)
+        )
+    }
+}
+
+// MARK: - System-like Button Styles for Permission Request
+struct SystemPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.accentColor)
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SystemSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.primary)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.quaternary)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(.separator.opacity(0.5), lineWidth: 0.5)
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Legacy Button Styles (kept for compatibility)
+struct PrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(DynamicIslandTheme.primaryGreen)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white.opacity(0.7))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.white.opacity(0.1))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 
