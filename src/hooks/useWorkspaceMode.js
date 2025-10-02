@@ -29,8 +29,8 @@ export const publicRoutesList = [
 const routeImports = {
 	publicRoutes: () => import('../routes/publicRoutes'),
 	stableRoutes: () => import('../routes/stableRoutes'),
-	betaRoutes: () => import('../routes/betaRoutes'),
-	internalRoutes: () => import('../routes/internalRoutes'),
+	// betaRoutes: () => import('../routes/betaRoutes'),
+	// internalRoutes: () => import('../routes/internalRoutes'),
 	workspaceNotFoundRoute: () => import('../routes/workspaceNotFoundRoute'),
 	suspendedRoute: () => import('../routes/suspendedRoute'),
 };
@@ -38,8 +38,8 @@ const routeImports = {
 const routeMap = {
 	null: 'fallbackRoute',
 	stable: 'stableRoutes',
-	beta: 'betaRoutes',
-	internal: 'internalRoutes',
+	beta: 'stableRoutes',
+	internal: 'stableRoutes',
 	suspended: 'suspendedRoute',
 };
 
