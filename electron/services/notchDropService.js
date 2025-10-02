@@ -545,8 +545,11 @@ class NotchDropService {
 
 		const { webContents } = windowInstance;
 		const sendNavigation = () => {
+			log.info('🏠 Main window navigated via NotchDrop request:', path);
 			try {
-				webContents.send('navigate-to', path);
+				if (path !=="/verify-user") {
+					webContents.send('navigate-to', path);
+				}
 				log.info('🏠 Main window navigated via NotchDrop request:', path);
 			} catch (error) {
 				log.error('❌ Failed to send navigation message to main window:', error);
@@ -554,9 +557,13 @@ class NotchDropService {
 		};
 
 		if (webContents.isLoading()) {
-			webContents.once('did-finish-load', sendNavigation);
+			if (path) {
+				webContents.once('did-finish-load', sendNavigation);
+			}
 		} else {
+			if (path) {
 			sendNavigation();
+			}
 		}
 
 		return true;
@@ -675,11 +682,11 @@ class NotchDropService {
 					typeof data === 'string' && data.trim().length > 0
 						? data.trim()
 						: '/verify-user';
-				const navigationSucceeded = this.navigateMainWindow(resolvedPath);
+				const navigationSucceeded = this.navigateMainWindow(null);
 				return {
 					success: navigationSucceeded,
 					action,
-					path: resolvedPath,
+					path: null,
 				};
 			}
 
