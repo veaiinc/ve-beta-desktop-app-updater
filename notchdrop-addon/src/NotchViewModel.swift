@@ -773,6 +773,9 @@ class NotchViewModel: NSObject, ObservableObject {
         lastNavigationPath = path
         print("🏠 Navigating to main screen - resetting UI state")
         
+        // Reset to default home mode (exit Teams view)
+        isTeamsView = false
+        
         // Reset chat-related state
         isChatMode = false
         isChatExpanded = false
