@@ -1,7 +1,7 @@
 .partnerSection {
 	position: relative;
 	width: 100%;
-	height: 800px;
+	height: 920px;
 	margin: 0 auto;
 	overflow: hidden;
 	background: linear-gradient(270deg, rgba(1, 8, 65, 1) 0%, rgba(21, 26, 73, 1) 100%);
@@ -40,7 +40,6 @@
 		letter-spacing: 24px;
 		line-height: normal;
 		text-align: center;
-		text-transform: uppercase;
 		justify-content: center;
 		align-content: center;
 		flex-direction: column;
@@ -81,7 +80,7 @@
 			position: absolute;
 			left: 50%;
 			transform: translateX(-50%);
-			top: 610px;
+			top: 577px;
 			width: 428px;
 			height: 32px;
 			font-size: 24px;
@@ -96,7 +95,7 @@
 		@media (max-width: 480px) {
 			color: #fff;
 			text-align: center;
-			font-size: 22px;
+			font-size: 27px;
 			font-style: normal;
 			font-weight: 400;
 			line-height: normal;
@@ -108,6 +107,7 @@
 	}
 
 	@media (max-width: 480px) {
-		height: 477px;
+		margin-top: 50px;
+		height: 565px;
 	}
 }

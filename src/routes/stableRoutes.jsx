@@ -8,14 +8,14 @@ const Public = lazy(() => import('../views/layouts/Public'));
 // lazy loaded pages
 // const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
-const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
+// const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
-const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
+// const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 // const Agents = lazy(() => import('../views/features/agents/Agents'));
 // const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
 // const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
-const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
-const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+// const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+// const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
 // const ProactiveSuggestions = lazy(() =>
 // 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 // );
