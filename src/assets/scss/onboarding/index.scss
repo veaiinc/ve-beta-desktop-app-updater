@@ -1,5 +1,5 @@
 .onboardingContainer {
-	background-color: #e3e3e3;
+	background: var(--background-color, #18191b);
 	height: 100vh;
 	width: 100%;
 
@@ -16,6 +16,7 @@
 		}
 
 		.main-content-container {
+			// width: 60%;
 			display: flex;
 			flex-direction: column;
 
@@ -23,7 +24,7 @@
 				display: flex;
 				width: 100%;
 				padding: 32px;
-				justify-content: space-between;
+				justify-content: center;
 				align-items: center;
 				flex-shrink: 0;
 			}
@@ -48,10 +49,10 @@
 			}
 		}
 
-		.description-section {
-			background-color: var(--primary-dark);
-			padding: 13px;
-		}
+		// .description-section {
+		// 	background-color: var(--primary-dark);
+		// 	padding: 13px;
+		// }
 	}
 }
 
@@ -59,6 +60,7 @@
 	.onboardingContainer {
 		.onboarding-page-container {
 			.main-content-container {
+				width: 100%;
 				padding: 20px 20px 20px;
 				.header-container {
 					padding: 0;

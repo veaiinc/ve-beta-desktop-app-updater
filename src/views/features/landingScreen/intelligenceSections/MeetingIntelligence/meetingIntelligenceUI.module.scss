@@ -5,9 +5,10 @@
 	z-index: 1000;
 	overflow: visible;
 
-	// Hide on mobile devices
+	// Mobile view adjustments
 	@media (max-width: 768px) {
-		display: none;
+		min-height: auto;
+		padding: 40px 0;
 	}
 }
 
@@ -23,13 +24,24 @@
 	gap: 30px; // Add gap between cards
 	z-index: 2;
 
+	// Mobile: Static layout with normal spacing
+	@media (max-width: 768px) {
+		min-height: auto;
+		padding: 20px 16px;
+		gap: 16px;
+		justify-content: flex-start;
+	}
+
 	.dotGrid {
 		position: absolute;
 		top: 200px;
 		left: 50%;
 		transform: translateX(-50%);
 		width: 955px;
-		height: 955px;
+
+		height: min(90vw, 955px);
+
+		max-height: 955px;
 		background-image: radial-gradient(circle, #2e3339 1px, transparent 1px);
 		background-size: 20px 20px;
 		opacity: 0.3;
@@ -40,21 +52,68 @@
 			position: absolute;
 			top: 124.65px;
 			left: 124.65px;
-			width: 704.69px;
+			width: 75%;
 			height: 704.69px;
 			background: rgba(121, 236, 201, 0.1);
 			border-radius: 50%;
 			filter: blur(293.3357849121094px);
 		}
+
+		/* Responsive adjustments for laptop screens */
+		@media (max-width: 1440px) {
+			height: min(85vw, 800px);
+
+			max-height: 800px;
+		}
+
+		@media (max-width: 1200px) {
+			width: min(80vw, 700px);
+			height: min(80vw, 700px);
+			max-width: 700px;
+			max-height: 700px;
+		}
+
+		@media (max-width: 1024px) {
+			width: min(75vw, 600px);
+			height: min(75vw, 600px);
+			max-width: 600px;
+			max-height: 600px;
+		}
+
+		// Mobile: Smaller and adjusted positioning
+		@media (max-width: 768px) {
+			top: 50px;
+			width: min(90vw, 400px);
+			height: min(90vw, 400px);
+			max-width: 400px;
+			max-height: 400px;
+			background-size: 15px 15px;
+
+			&::after {
+				top: 50px;
+				left: 50px;
+				width: 70%;
+				height: 300px;
+			}
+		}
 	}
 
 	.meetingOverlay {
-		max-width: 600px;
-		max-height: 300px;
+		max-height: min(40vw, 250px);
 		align-self: center;
 		justify-self: center;
 		margin: -35px 0 34px;
 		z-index: 2;
+
+		/* Responsive adjustments for laptop screens */
+		@media (max-width: 1440px) {
+			max-height: min(35vw, 225px);
+		}
+
+		@media (max-width: 1200px) {
+			max-width: min(90vw, 400px);
+			max-height: min(30vw, 200px);
+		}
 	}
 
 	.messageCard {
@@ -80,6 +139,65 @@
 			align-self: flex-end;
 			margin-left: auto;
 			margin-right: 350px;
+		}
+
+		/* Responsive adjustments for laptop screens */
+		@media (max-width: 1440px) {
+			&.leftSide {
+				margin-left: clamp(30px, 12vw, 150px);
+			}
+
+			&.rightSide {
+				margin-right: clamp(30px, 12vw, 150px);
+			}
+		}
+
+		@media (max-width: 1200px) {
+			&.leftSide {
+				margin-left: clamp(20px, 10vw, 100px);
+			}
+
+			&.rightSide {
+				margin-right: clamp(20px, 10vw, 100px);
+			}
+		}
+
+		@media (max-width: 1024px) {
+			&.leftSide {
+				margin-left: clamp(15px, 8vw, 80px);
+			}
+
+			&.rightSide {
+				margin-right: clamp(15px, 8vw, 80px);
+			}
+		}
+
+		// Mobile: Simplified positioning for scroll animations
+		@media (max-width: 768px) {
+			max-width: 100%;
+			width: 100%;
+			margin: 0;
+			padding: 12px;
+			border-radius: 12px;
+			gap: 10px;
+			position: relative;
+
+			&.leftSide,
+			&.rightSide {
+				align-self: stretch;
+				margin-left: 0 !important;
+				margin-right: 0 !important;
+			}
+
+			&.leftSide {
+				background: rgba(40, 44, 48, 0.6);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+			}
+
+			&.rightSide {
+				background: rgba(121, 236, 201, 0.1);
+				border: 1px solid rgba(121, 236, 201, 0.2);
+			}
 		}
 	}
 
@@ -119,10 +237,12 @@
 	.messageText {
 		font-family: var(--primary-font-family);
 		font-weight: 500;
-		font-size: 16px;
+		font-size: clamp(14px, 2vw, 16px);
 		line-height: 1.35em;
 		color: #f2f2f3;
 		text-align: left;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 	}
 
 	.suggestionCard {
@@ -144,6 +264,19 @@
 			align-self: center;
 			margin-left: auto;
 			margin-right: auto;
+		}
+
+		// Mobile: Full width for scroll animations
+		@media (max-width: 768px) {
+			width: 100%;
+			margin: 0;
+			position: relative;
+			gap: 8px;
+
+			&.leftSide,
+			&.rightSide {
+				width: 100%;
+			}
 		}
 	}
 
@@ -184,15 +317,24 @@
 		box-shadow: inset 0px 0px 20px 0px rgba(121, 236, 201, 0.15);
 		backdrop-filter: blur(10px);
 		width: 100%;
+
+		// Mobile: Adjusted padding and spacing
+		@media (max-width: 768px) {
+			padding: 16px;
+			gap: 20px;
+			border-radius: 12px;
+		}
 	}
 
 	.suggestionMessageText {
 		font-family: var(--primary-font-family);
 		font-weight: 600;
-		font-size: 18px;
+		font-size: clamp(16px, 2.2vw, 18px);
 		line-height: 1.78em;
 		color: #79ecc9;
 		width: auto;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 	}
 
 	.aiResponseCard {
@@ -210,17 +352,40 @@
 		margin: -20px 0; // Increased margin for better spacing
 		position: relative;
 		z-index: 10;
+		align-self: center;
+		margin-left: auto;
+		margin-right: auto;
 
 		&.leftSide {
-			align-self: flex-start;
-			margin-left: 350px;
+			align-self: center;
+			margin-left: auto;
 			margin-right: auto;
 		}
 
 		&.rightSide {
-			align-self: flex-end;
+			align-self: center;
 			margin-left: auto;
-			margin-right: 350px;
+			margin-right: auto;
+		}
+
+		/* Responsive adjustments for laptop screens */
+		@media (max-width: 1440px) {
+			margin: -120px 0; // Move up more on smaller screens
+		}
+
+		// Mobile: Full width for scroll animations
+		@media (max-width: 768px) {
+			width: 100%;
+			margin: 0;
+			padding: 16px;
+			gap: 16px;
+			border-radius: 16px;
+			position: relative;
+
+			&.leftSide,
+			&.rightSide {
+				width: 100%;
+			}
 		}
 	}
 
@@ -237,10 +402,12 @@
 	.aiResponseContent {
 		font-family: var(--primary-font-family);
 		font-weight: 500;
-		font-size: 16px;
+		font-size: clamp(14px, 2vw, 16px);
 		line-height: 1.75em;
 		color: #ffffff;
 		width: 100%;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
 	}
 
 	// Animation system - GSAP handles all animations
@@ -271,12 +438,12 @@
 	.suggestionCard.animatedCard {
 		&.topPosition {
 			box-shadow: 0px 12px 40px rgba(121, 236, 201, 0.4);
-			transform: scale(1.08);
+			transform: scale(1.05); // Reduced scale to prevent overlap
 			border: 2px solid rgba(121, 236, 201, 0.6);
 			// Center the suggestion card in the middle of the viewport
 			position: relative;
 			left: 50%;
-			transform: translateX(-50%) scale(1.08);
+			transform: translateX(-50%) scale(1.05); // Reduced scale
 			// Ensure consistent middle positioning
 			margin-left: auto;
 			margin-right: auto;

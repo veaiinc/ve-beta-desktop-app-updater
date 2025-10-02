@@ -478,6 +478,20 @@ class NotchDropService {
 			typeof path === 'string' && path.trim().length > 0 ? path.trim() : defaultPath;
 		const normalizedPath = resolvedPath.startsWith('/') ? resolvedPath : `/${resolvedPath}`;
 
+		// Debounce duplicate navigation requests to avoid loops/stack overflow
+		if (!this._lastNavigation) {
+			this._lastNavigation = { path: null, ts: 0 };
+		}
+		const now = Date.now();
+		if (
+			this._lastNavigation.path === normalizedPath &&
+			now - this._lastNavigation.ts < 400
+		) {
+			log.warn('⏱️ Skipping duplicate navigation (debounced):', normalizedPath);
+			return true;
+		}
+		this._lastNavigation = { path: normalizedPath, ts: now };
+
 		try {
 			if (this.focusAndNavigateWindow(this.mainWindow, normalizedPath)) {
 				return true;

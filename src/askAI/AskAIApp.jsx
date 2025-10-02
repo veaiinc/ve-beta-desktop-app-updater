@@ -9,6 +9,7 @@ import ChatBox from '../views/components/chat/ChatBox';
 import CustomToast from '../views/components/globalComponents/CustomToast';
 import { ReactComponent as ExpandSvg } from './expand.svg';
 import { ReactComponent as MinimizeSvg } from './minimize.svg';
+import { flushSync } from 'react-dom';
 
 const AskAIApp = () => {
 	const {
@@ -127,6 +128,12 @@ const AskAIApp = () => {
 			const isNotchDrop = chatMessage.type === 'notchdrop-chat';
 			const isOverlayThread = chatMessage.type === 'overlay-thread-question';
 			const isNeedHelp = chatMessage?.isNeedHelp;
+
+			if (chatMessage?.sessionId) {
+				flushSync(() => {
+					setInfo((prev) => ({ ...prev, sessionId: chatMessage?.sessionId }));
+				});
+			}
 
 			if ((isDynamicIsland || isNotchDrop || isOverlayThread) && chatMessage.message) {
 				// Process the message directly without showing it in input

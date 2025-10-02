@@ -16,6 +16,7 @@
 		text-align: center;
 		padding: 0 24px;
 		z-index: 2;
+		gap: 8px;
 
 		@media (min-width: 1025px) {
 			position: relative;
@@ -27,38 +28,36 @@
 	}
 
 	.heading {
-		font-family: 'Recoleta', serif;
-		font-weight: 400;
-		font-size: 50px;
-		line-height: 1.2;
-		text-transform: uppercase;
+		display: flex;
+		height: 100%;
+		color: #fff;
+		font-family: var(--primary-font-family);
+		font-size: 80px;
+		font-style: normal;
+		font-weight: 300;
+		letter-spacing: 24px;
+		line-height: normal;
 		text-align: center;
-		color: #ffffff;
-		margin: 0;
-		width: 276px;
-		height: 180px;
+		text-transform: uppercase;
+		justify-content: center;
+		align-content: center;
+		flex-direction: column;
 
 		@media (min-width: 1025px) {
-			position: absolute;
-			left: 50%;
-			transform: translateX(-50%);
-			top: 330px;
-			width: 817px;
-			height: 109px;
 			font-size: 80px;
-			line-height: 1.36;
 		}
 
 		@media (max-width: 768px) {
-			font-size: 70px;
+			font-size: 55px;
 			width: 100%;
 			height: auto;
 		}
 
 		@media (max-width: 480px) {
-			font-size: 70px;
+			font-size: 45px;
 			width: 100%;
 			height: auto;
+			line-height: 1.2;
 		}
 	}
 

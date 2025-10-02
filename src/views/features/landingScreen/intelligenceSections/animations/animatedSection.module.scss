@@ -10,18 +10,20 @@
 	backface-visibility: hidden;
 	transform: translateZ(0);
 	contain: layout style paint;
-	background: #000938;
+	background: linear-gradient(270deg, #010841 0%, #151a49 100%);
 
-	// Hide on mobile devices
+	// Show on mobile devices with adjusted layout
 	@media (max-width: 768px) {
-		display: none;
+		height: auto;
+		min-height: 100vh;
+		overflow: visible;
 	}
 }
 
 .introSection {
 	position: absolute;
 	inset: 0;
-	z-index: 10;
+	z-index: 1;
 	width: 100%;
 	height: 100vh;
 
@@ -30,12 +32,17 @@
 	backface-visibility: hidden;
 	transform: translateZ(0);
 	contain: layout style paint;
+
+	@media (max-width: 768px) {
+		height: auto;
+		min-height: 100vh;
+	}
 }
 
 .actionsSection {
 	position: absolute;
 	inset: 0;
-	z-index: 5;
+	z-index: 10;
 	width: 100%;
 	height: 100vh;
 
@@ -46,4 +53,10 @@
 	contain: layout style paint;
 	isolation: isolate;
 	transform-style: flat;
+
+	@media (max-width: 768px) {
+		position: relative;
+		height: auto;
+		min-height: 100vh;
+	}
 }

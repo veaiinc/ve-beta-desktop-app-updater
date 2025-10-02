@@ -22,6 +22,35 @@ class NotchViewModel: NSObject, ObservableObject {
     let animation: Animation = DynamicIslandTheme.expansionAnimation
     // Fixed size - no width expansion functionality
     var notchOpenedSize: CGSize {
+        // Teams view: fixed compact width
+        if isTeamsView {
+            // When meeting is active (start card hidden), fix width to 580 so chat + webcam fit
+            if isRecording {
+                let fixedWidth: CGFloat = 580
+                let maxAllowed = max(500, screenRect.width - 40)
+                return .init(
+                    width: min(fixedWidth, maxAllowed),
+                    height: DynamicIslandTheme.expandedHeight
+                )
+            }
+            // Responsive width for Meeting mode with Start card visible
+            let startWidth: CGFloat = 220
+            let chatWidth: CGFloat = 400 // Fixed chat width
+            let webcamWidth: CGFloat = 100
+            let innerGaps: CGFloat = 12 * 2 // spacing between the three items
+            let outerPadding: CGFloat = spacing * 2 // view padding
+            let buffer: CGFloat = 24 // breathing room for outlines/shadows
+            let desiredWidth = startWidth + chatWidth + webcamWidth + innerGaps + outerPadding + buffer
+            let minComfortableWidth: CGFloat = 800 // Increased minimum width for larger screens
+            let targetWidth = max(desiredWidth, minComfortableWidth)
+            let maxAllowed = max(600, screenRect.width - 40) // Increased minimum allowed width
+            let baseWidth = min(targetWidth, maxAllowed)
+            let adjustedWidth = max(600, baseWidth) // Increased minimum width
+            return .init(
+                width: adjustedWidth,
+                height: DynamicIslandTheme.expandedHeight
+            )
+        }
         // When showing notification, use notification-specific dimensions matching Figma
         if showNotificationOverlay {
             return .init(
@@ -121,7 +150,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var videoEmbedURL: String = ""
     @Published var showVideoPlayer: Bool = false
     @Published var notchVisible: Bool = true
-    @Published var isNotchLocked: Bool = false
+    @Published var isNotchLocked: Bool = true
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
     var selectedLanguage: Language
@@ -143,6 +172,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var controlledByDynamicIsland: Bool = false
     @Published var isConnecting = false
     @Published var isStealthModeEnabled: Bool = false
+    @Published var isTeamsView: Bool = false
     
     // Chat expansion state
     @Published var isChatExpanded: Bool = false // Deprecated - no longer used for width expansion
@@ -247,6 +277,8 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     private var timerCancellable: AnyCancellable?
+    private var lastNavigationTimestamp: Date = .distantPast
+    private var lastNavigationPath: String? = nil
 
     func notchOpen(_ reason: OpenReason) {
         openReason = reason
@@ -273,7 +305,9 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func toggleNotchLock() {
-        isNotchLocked.toggle()
+        let newValue = !isNotchLocked
+        print("🔒 Toggling notch lock -> \(newValue ? "LOCKED" : "UNLOCKED")")
+        isNotchLocked = newValue
         
         if isNotchLocked {
             // If locking, ensure notch is open
@@ -747,6 +781,15 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func navigateToMainScreen(path: String? = nil) {
+        // Throttle duplicate/rapid navigations to avoid feedback loops
+        let now = Date()
+        let since = now.timeIntervalSince(lastNavigationTimestamp)
+        if since < 0.5 && (path == nil || path == lastNavigationPath) {
+            print("⏱️ Throttled navigateToMainScreen to prevent rapid duplicate calls: \(path ?? "<default>")")
+            return
+        }
+        lastNavigationTimestamp = now
+        lastNavigationPath = path
         print("🏠 Navigating to main screen - resetting UI state")
         
         // Reset chat-related state

@@ -40,6 +40,69 @@ struct NotchContentView: View {
     }
 }
 
+// MARK: - MeetingCompactChatBox (non-expandable chat lookalike)
+struct MeetingCompactChatBox: View {
+    let placeholder: String
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(DynamicIslandTheme.primaryGreen.opacity(0.6), lineWidth: 1)
+                )
+
+            Text(placeholder)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(Color.white.opacity(0.6))
+                .padding(.horizontal, 18)
+        }
+    }
+}
+
+// MARK: - Start Meeting Card
+struct StartMeetingCard: View {
+    let vm: NotchViewModel
+
+    var body: some View {
+        GeometryReader { geo in
+            let h = geo.size.height
+            let corner: CGFloat = 12
+            let padding: CGFloat = 12
+            // Scale text to fit smaller height nicely (target 220x100 card)
+            let titleSize = max(16, min(22, h * 0.28))
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: corner, style: .continuous)
+                    .fill(Color.white.opacity(0.04))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: corner, style: .continuous)
+                            .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                    )
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Start")
+                        .font(.system(size: titleSize, weight: .medium))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text("Meeting")
+                        .font(.system(size: titleSize, weight: .medium))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .padding(padding)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
+            .onTapGesture { vm.startRecording() }
+        }
+        // Ensure the reader honors parent frame
+        .clipped()
+    }
+}
+
 // New Dynamic Island Content View matching JavaScript structure
 struct DynamicIslandContentView: View {
     @StateObject var vm: NotchViewModel
@@ -99,35 +162,46 @@ struct DynamicIslandContentView: View {
                 VStack(spacing: 12.0) {
                     // Top row with start button and icons
                     HStack(spacing: 0.0) {
-                        // Start button section
+                        // Start/Navigation section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Start button (starts transcription/recording) - matches image design
+                                // Home button → default home; also exit Teams view
                                 Button(action: {
-                                    vm.startRecording()
+                                    vm.isTeamsView = false
+                                    vm.navigateToMainScreen(path: nil)
                                 }) {
                                     HStack(spacing: 6.0) {
-                                        // Custom wave icon (SVG-based)
-                                        WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                            .frame(width: 16, height: 16)
-                                        Text(vm.isConnecting ? "Connecting..." : "Start")
-                                            .font(.system(size: 13, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                        Image(systemName: "house")
+                                            .font(.system(size: 14, weight: .regular))
+                                            .foregroundColor(vm.isTeamsView ? .white : .black)
                                     }
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
-                                    .overlay(
-                                        Capsule()
-                                            .stroke(DynamicIslandTheme.primaryGreen, lineWidth: 0.5)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
                                     )
-                                    .clipShape(Capsule())
                                 }
                                 .buttonStyle(PlainButtonStyle())
-                                .scaleEffect(1.0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
-                                .disabled(vm.isConnecting)
-                                .opacity(vm.isConnecting ? 0.8 : 1.0)
+
+                                // Teams pill (sets Teams view)
+                                Button(action: {
+                                    vm.isTeamsView = true
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Text("Meeting AI")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundColor(vm.isTeamsView ? .black : .white)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.clear)
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                // Removed desktop and VE icons per request
                                 
                                 // Tray button beside Start
                                 Button(action: {
@@ -153,21 +227,49 @@ struct DynamicIslandContentView: View {
                                 .scaleEffect(1.0)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isTrayMode)
                             } else if vm.showVoiceInterface {
-                                // Voice mode indicator (when split layout is visible)
-                                HStack(spacing: 8) {
-                                    WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                        .frame(width: 16, height: 16)
-                                    Text("Voice Agent")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                // Voice controls (mute/unmute and cancel buttons)
+                                HStack(spacing: 12) {
+                                    // Mute/Unmute toggle
+                                    Button(action: {
+                                        print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                                        vm.toggleVoiceMute()
+                                        print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+                                    }) {
+                                        Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.white)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                    
+                                    // Cancel/Disconnect button
+                                    Button(action: {
+                                        print("❌ Cancel button clicked")
+                                        vm.disconnectVoiceAssistant()
+                                    }) {
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .fill(Color.red)
+                                            .frame(width: 14, height: 14)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                                 .padding(.horizontal, 12)
-                                .padding(.vertical, 4)
-                                .background(DynamicIslandTheme.primaryGreen.opacity(0.1))
-                                .overlay(
-                                    Capsule().stroke(DynamicIslandTheme.primaryGreen.opacity(0.3), lineWidth: 1)
-                                )
-                                .clipShape(Capsule())
+                                .padding(.top, 2) // Move left icons up to align with right icons
+                                .padding(.bottom, 6)
+                                .background(Color.clear) // Transparent background
                             } else {
                                 // Recording controls
                                 HStack(spacing: 4) {
@@ -327,68 +429,61 @@ struct DynamicIslandContentView: View {
                     }
                     
                     
-                    // Main content area - show tray when tray mode is active
+                    // Main content area
                     HStack(alignment: .center, spacing: 16) {
-                        if vm.isTrayMode {
-                            // Tray/Shelf view with AirDrop functionality
-                            TrayView(vm: vm)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .transition(.scale.combined(with: .opacity))
-                        } else if vm.showVoiceInterface {
+                        if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls)
                             VoiceSplitLayout(vm: vm)
-                        } else {
-                            // Chat input section with arrow icon inside - matches image layout
+                        } else if vm.isTeamsView {
+                            // Teams view: maintain even spacing between three blocks
+                            HStack(spacing: 12) {
+                                if !vm.isRecording {
+                                    StartMeetingCard(vm: vm)
+                                        .frame(width: 220, height: 100)
+                                }
+                            }
                             ChatTextAreaView(
                                 chatInput: $vm.chatInput,
                                 isTextFieldActive: $isTextFieldActive,
                                 vm: vm
                             )
-                            .frame(width: (vm.isChatMode && !vm.isRecording) ? 510 : 400) // Dynamic width: 400px initially, 510px when focused (but 400px in meeting mode)
+                            .frame(width: 400, height: 100)
+                            .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
+                            WebcamButton(vm: vm)
+                                .frame(width: 100, height: 100)
+                        } else if vm.isTrayMode {
+                            // Tray view with AirDrop functionality
+                            TrayView(vm: vm)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .transition(.scale.combined(with: .opacity))
+                        } else {
+                            // Default chat input section with voice/arrow icon inside - matches image layout
+                            ChatTextAreaView(
+                                chatInput: $vm.chatInput,
+                                isTextFieldActive: $isTextFieldActive,
+                                vm: vm
+                            )
+                            .frame(width: vm.isRecording ? 410 : 510) // 410px in meeting mode, 510px otherwise
                             .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                             .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
                             
                             // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
-                                HStack(spacing: 16) {
-                                    // Voice Mode button
-                                    VoiceModeButton(vm: vm, onFocusChat: {
-                                        print("🎯 onFocusChat callback triggered")
-                                        // When voice mode button is clicked, focus the chat input
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                            print("🎯 Setting chat input focused: true")
-                                            isChatInputFocused = true
-                                            isTextFieldActive = true
-                                            
-                                            // Ensure window is key for cursor to appear
-                                            if let window = NSApp.keyWindow {
-                                                window.makeKeyAndOrderFront(nil)
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                                    window.makeFirstResponder(window.firstResponder)
-                                                }
-                                            }
-                                        }
-                                    })
-                                        .frame(width: 90, height: 90)
+                                HStack(spacing: 12) {
+                                    // Boring Notch Style Calendar - always show when not in chat mode and not recording
+                                    BoringNotchCalendarWithPermissions()
                                         .transition(.scale.combined(with: .opacity))
-                                    
-                                    // Media Controllers and Calendar Row
-                                    HStack(spacing: 12) {
-                                        // Boring Notch Style Calendar - always show when not in chat mode and not recording
-                                        BoringNotchCalendarWithPermissions()
+                                        
+                                    // Spotify Media Controller - only show when music is playing
+                                    if vm.hasActiveMusic {
+                                        SpotifyMediaController(vm: vm)
                                             .transition(.scale.combined(with: .opacity))
-                                        
-                                        // Spotify Media Controller - only show when music is playing
-                                        if vm.hasActiveMusic {
-                                            SpotifyMediaController(vm: vm)
-                                                .transition(.scale.combined(with: .opacity))
-                                        }
-                                        
-                                        // YouTube Media Controller - only show when video is playing
-                                        if vm.hasActiveVideo {
-                                            YouTubeMediaController(vm: vm)
-                                                .transition(.scale.combined(with: .opacity))
-                                        }
+                                    }
+                                    
+                                    // YouTube Media Controller - only show when video is playing
+                                    if vm.hasActiveVideo {
+                                        YouTubeMediaController(vm: vm)
+                                            .transition(.scale.combined(with: .opacity))
                                     }
                                 }
                                 .animation(.easeInOut(duration: 0.3), value: vm.hasActiveMusic)
@@ -667,66 +762,106 @@ struct DynamicIslandContentView: View {
     }
 }
 
-// MARK: - Voice Split Layout (UI parity)
+// MARK: - Voice Split Layout (New Design)
 struct VoiceSplitLayout: View {
     @ObservedObject var vm: NotchViewModel
 
     var body: some View {
-        HStack(spacing: 8) {
-            // Left: conversation list (real messages from LiveKit)
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 8) {
-                        if vm.voiceMessages.isEmpty {
-                            // Show connection status when no messages
-                            VoiceMessageBubble(
-                                sender: "System",
-                                text: vm.voiceConnectionStatus == .connected ?
-                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
-                                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected")
-                            )
-                        } else {
-                            // Show actual conversation messages
-                            ForEach(vm.voiceMessages) { message in
-                                VoiceMessageBubble(
-                                    sender: message.sender,
-                                    text: message.content,
-                                    isFromAgent: message.isFromAgent
-                                )
-                                .id(message.id)
-                            }
-                        }
-                        
-                        // Show current status only when there are no voice messages
-                        if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
-                            VoiceMessageBubble(
-                                sender: "Status",
-                                text: vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...",
-                                isStatus: true
-                            )
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
-                .onChange(of: vm.voiceMessages.count) { _, _ in
-                    // Auto-scroll to latest message
-                    if let lastMessage = vm.voiceMessages.last {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(8)
-            .background(Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            // .border(DynamicIslandTheme.stroke.opacity(0.3), lineWidth: 0.5)
-
-            // Right: assistant controls circle (restore original functionality)
-            VoiceControlsCircle(vm: vm)
+        VStack(spacing: 0) {
+            // Main content area with transcriptions (controls are now in top left)
+            VoiceTranscriptionArea(vm: vm)
         }
         .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain to dynamic island width minus padding
+        .background(Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - Voice Top Controls Component
+struct VoiceTopControls: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Left side: Mute/Unmute toggle
+            Button(action: {
+                print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                vm.toggleVoiceMute()
+                print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+            }) {
+                Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(vm.isMicrophoneMuted ? Color.red : DynamicIslandTheme.primaryGreen)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            // Cancel/Disconnect button
+            Button(action: {
+                print("❌ Cancel button clicked")
+                vm.disconnectVoiceAssistant()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            Spacer()
+        }
+        // .padding(.horizontal, 16)
+        // .padding(.vertical, 8)
+        // .background(Color(red: 0.1, green: 0.1, blue: 0.1)) // Darker background for controls
+    }
+}
+
+// MARK: - Voice Transcription Area Component
+struct VoiceTranscriptionArea: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            if vm.voiceMessages.isEmpty {
+                // Show connection status when no messages - centered text
+                Text(vm.voiceConnectionStatus == .connected ?
+                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
+                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
+            } else {
+                // Show only the most recent message - positioned towards top
+                if let lastMessage = vm.voiceMessages.last {
+                    Text(lastMessage.content)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 20)
+                        .id(lastMessage.id)
+                }
+            }
+            
+            // Show current status only when there are no voice messages
+            if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
+                Text(vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
     }
 }
 
@@ -739,37 +874,37 @@ struct VoiceMessageBubble: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
-                Circle()
-                    .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
-                          isStatus ? Color.yellow :
-                          Color(red: 0.173, green: 0.176, blue: 0.180))
-                    .frame(width: 6, height: 6)
+                // Circle()
+                //     .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
+                //           isStatus ? Color.yellow :
+                //           Color(red: 0.173, green: 0.176, blue: 0.180))
+                //     .frame(width: 6, height: 6)
                 Text(sender)
                     .font(.system(size: 9, weight: .medium))
-                    .foregroundColor(DynamicIslandTheme.textMuted)
+                    // .foregroundColor(DynamicIslandTheme.textMuted)
                 Spacer()
             }
             Text(text)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
+                .font(.system(size: 20, weight: .medium))
+                // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
                 .multilineTextAlignment(.leading)
         }
-        .padding(8)
-        .background(
-            isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
-            isStatus ? Color.clear :
-            Color.clear
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(
-                    isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
-                    isStatus ? Color.clear :
-                    DynamicIslandTheme.stroke.opacity(0.3),
-                    lineWidth: 0.5
-                )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        // .padding(8)
+        // .background(
+        //     isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
+        //     isStatus ? Color.clear :
+        //     Color.clear
+        // )
+        // .overlay(
+        //     RoundedRectangle(cornerRadius: 8)
+        //         .stroke(
+        //             isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
+        //             isStatus ? Color.clear :
+        //             DynamicIslandTheme.stroke.opacity(0.3),
+        //             lineWidth: 0.5
+        //         )
+        // )
+        // .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -917,7 +1052,8 @@ struct ChatTextAreaView: View {
                 .foregroundColor(DynamicIslandTheme.white)
                 .accentColor(DynamicIslandTheme.primaryGreen) // Green cursor for better visibility
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 16) // Extra bottom padding
                 .padding(.trailing, 40) // Add space for arrow icon
                 .background(Color.clear)
                 .focused($isChatInputFocused)
@@ -948,8 +1084,8 @@ struct ChatTextAreaView: View {
                     DispatchQueue.main.async {
                         isChatInputFocused = true
                         isTextFieldActive = true
-                        // Only enable chat mode if NOT in meeting mode (recording)
-                        if !vm.isRecording {
+                        // Only enable chat mode if NOT in meeting mode (recording) and NOT in Teams/Meeting layout
+                        if !vm.isRecording && !vm.isTeamsView {
                             vm.isChatMode = true
                         }
                         
@@ -960,27 +1096,43 @@ struct ChatTextAreaView: View {
                     }
                 }
             
-            // Arrow icon inside the input box (bottom-right)
+            // Voice/Arrow icon inside the input box (bottom-right)
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     Button(action: {
-                        print("🎯 Arrow button clicked - submitting chat")
-                        if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            vm.submitChat()
+                        if isChatInputFocused {
+                            // Arrow mode - submit chat
+                            print("🎯 Arrow button clicked - submitting chat")
+                            if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                vm.submitChat()
+                            }
+                        } else {
+                            // Voice mode - activate voice assistant
+                            print("🎤 Voice button clicked - activating voice assistant")
+                            // Ensure we don't accidentally focus the text area
+                            DispatchQueue.main.async {
+                                vm.connectVoiceAssistant()
+                            }
                         }
                     }) {
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white)
-                            .frame(width: 24, height: 24)
-                            // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                        if isChatInputFocused {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        } else {
+                            WaveIcon(color: .white)
+                                .frame(width: 16, height: 16)
+                        }
                     }
                     .buttonStyle(PlainButtonStyle())
                     .padding(.trailing, 8)
                     .padding(.bottom, 8)
+                    .contentShape(Rectangle()) // Ensure button area is properly defined
+                    .allowsHitTesting(true) // Ensure button can receive taps
                 }
             }
                 .onKeyPress(keys: [.return]) { event in
@@ -1046,11 +1198,31 @@ struct ChatTextAreaView: View {
                         calculateTextEditorWidth()
                     }
                 }
+                .onChange(of: vm.showVoiceInterface) { oldValue, newValue in
+                    // Adjust width when voice interface state changes
+                    withAnimation(DynamicIslandTheme.expansionAnimation) {
+                        calculateTextEditorWidth()
+                    }
+                }
         }
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
-        .onTapGesture {
-            print("🎯 Chat area tapped - attempting to focus text input")
+        .onTapGesture { location in
+            print("🎯 Chat area tapped at location: \(location) - attempting to focus text input")
+            
+            // Check if tap is in the button area (bottom-right corner)
+            let currentWidth = vm.isRecording ? 410 : 510
+            let buttonArea = CGRect(
+                x: currentWidth - 40, // 40px from right edge
+                y: 100 - 40, // 40px from bottom edge
+                width: 40,
+                height: 40
+            )
+            
+            if buttonArea.contains(location) {
+                print("🎯 Tap detected in button area - ignoring chat focus")
+                return
+            }
             
             // Find the NotchDrop window specifically
             var notchWindow: NSWindow?
@@ -1070,8 +1242,8 @@ struct ChatTextAreaView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     isChatInputFocused = true
                     isTextFieldActive = true
-                    // Only enable chat mode if NOT in meeting mode (recording)
-                    if !vm.isRecording {
+                    // Only enable chat mode if NOT in meeting mode (recording) and NOT in Teams/Meeting layout
+                    if !vm.isRecording && !vm.isTeamsView {
                         vm.isChatMode = true
                         vm.isChatInputFocused = true
                     }
@@ -1144,6 +1316,11 @@ struct ChatTextAreaView: View {
     
     // MARK: - Width Calculation Helper
     private func calculateTextEditorWidth() {
+        // In Teams/Meeting layout keep width strictly fixed regardless of focus/chat mode
+        if vm.isTeamsView {
+            textEditorWidth = 400
+            return
+        }
         // Dynamic width based on chat mode: 400px initially, 510px when focused (but 400px in meeting mode)
         let calculatedWidth: CGFloat = (vm.isChatMode && !vm.isRecording) ? 510 : 400
         
@@ -1352,13 +1529,25 @@ struct WebcamButton: View {
                             .multilineTextAlignment(.center)
                     }
                 } else {
-                    // Default state - webcam icon (always show unless camera preview is active)
-                    VStack(spacing: 4) {
-                        WebcamIcon(color: DynamicIslandTheme.textMuted)
-                            .frame(width: 24, height: 24)
-                        Text("Webcam")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(DynamicIslandTheme.textMuted)
+                    // Default state - frosted circular button with icon and label
+                    ZStack {
+                        Circle()
+                            .fill(DynamicIslandTheme.cardMaterial)
+                            .frame(width: 100, height: 100)
+                            .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 2)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.18), lineWidth: 1.5)
+                                    .blur(radius: 0.3)
+                            )
+                        VStack(spacing: 10) {
+                            WebcamIcon(color: .white)
+                                .frame(width: 28, height: 28)
+                            Text("WEBCAM")
+                                .font(.system(size: 13, weight: .semibold))
+                                .kerning(0.6)
+                                .foregroundColor(.white)
+                        }
                     }
                 }
                 
@@ -1685,63 +1874,6 @@ struct NotificationOverlayView: View {
     }
 }
 
-// MARK: - Voice Mode Button (Large circular button as shown in image)
-struct VoiceModeButton: View {
-    @ObservedObject var vm: NotchViewModel
-    @State private var isHovered: Bool = false
-    let onFocusChat: () -> Void
-    
-    var body: some View {
-        Button(action: {
-            print("🎤 Voice Mode button clicked - connecting to voice assistant")
-            // Connect to voice assistant instead of just enabling chat mode
-            vm.connectVoiceAssistant()
-        }) {
-            ZStack {
-                // Main circle with CSS properties
-                ZStack {
-                    // Background circle - border-radius: 100px; background: rgba(255, 255, 255, 0.01);
-                    Circle()
-                        .fill(Color.white.opacity(0.01))
-                        .frame(width: 90, height: 90)
-                    
-                  
-                    
-                    // Border - border: 1px solid #79ECC9;
-                     Circle()
-                         .stroke(Color(red: 0.475, green: 0.925, blue: 0.788), lineWidth: 1)
-                         .frame(width: 90, height: 90)
-                }
-                .scaleEffect(isHovered ? 1.05 : 1.0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-                
-                // Content with inline text
-                HStack(spacing: 2) {
-                    // "VOICE" text - bold
-                    Text("VOICE")
-                        .font(.custom("SF Pro Text", size: 10))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .tracking(1)
-                    
-                    // "MODE" text - semibold
-                    Text("MODE")
-                        .font(.custom("SF Pro Text", size: 10))
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .tracking(1)
-                }
-                .frame(width: 90, height: 90) // width: 90px; height: 90px;
-                .padding(.horizontal, 24) // padding: 6px 24px; (horizontal)
-                .padding(.vertical, 6)    // padding: 6px 24px; (vertical)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-        .onHover { hovering in
-            isHovered = hovering
-        }
-    }
-}
 
 // MARK: - Info Icon with Popup Menu
 struct InfoIconWithPopup: View {

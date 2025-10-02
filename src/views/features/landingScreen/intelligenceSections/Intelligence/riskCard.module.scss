@@ -1,11 +1,33 @@
 .riskCard {
 	position: absolute;
 	bottom: clamp(80px, 22vh, 225px);
-	right: clamp(16px, 37vw, 400px);
-	width: min(92vw, 500px);
+	left: 65%;
+	transform: translateX(-50%);
+	width: min(90vw, 500px);
+	max-width: 500px;
 	display: flex;
 	flex-direction: column;
 	gap: clamp(14px, 3vh, 32px);
+	top: 500px;
+
+	/* Responsive adjustments for laptop screens */
+	@media (max-width: 1440px) {
+		width: min(85vw, 450px);
+		left: 75%;
+		top: 255px;
+	}
+
+	/* Mobile responsive layout */
+	@media (max-width: 768px) {
+		position: relative;
+		bottom: auto;
+		left: auto;
+		top: auto;
+		transform: none;
+		width: 100%;
+		max-width: 300px;
+		margin: 0 auto;
+	}
 }
 
 .riskHeader {
@@ -23,6 +45,11 @@
 	line-height: 1.35em;
 	color: #f2f2f3;
 	width: min(90vw, 399px);
+
+	@media (max-width: 768px) {
+		font-size: 24px;
+		width: 100%;
+	}
 }
 
 .riskDescription {
@@ -32,6 +59,10 @@
 	line-height: 1.35em;
 	color: #f2f2f3;
 	width: 100%;
+
+	@media (max-width: 768px) {
+		font-size: 18px;
+	}
 }
 
 .riskActions {
@@ -67,4 +98,8 @@
 	font-size: clamp(13px, 2.4vw, 17px);
 	line-height: 1.35em;
 	color: #79ecc9;
+
+	@media (max-width: 768px) {
+		font-size: 15px;
+	}
 }

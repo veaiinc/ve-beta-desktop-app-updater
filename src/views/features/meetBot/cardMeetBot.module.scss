@@ -426,6 +426,12 @@
 			background: var(--primary-button, #cfff48);
 			color: var(--background-color, #202122);
 		}
+
+		&:disabled {
+			background: var(--card-hover, #202122);
+			color: var(--primary-font, #f2f2f3);
+			cursor: not-allowed;
+		}
 	}
 }
 

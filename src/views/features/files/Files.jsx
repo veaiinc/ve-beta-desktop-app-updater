@@ -344,7 +344,7 @@ const Files = () => {
 				options: [...filteredOptions],
 			}));
 		}
-	}, [tenantUserAccessControls, liteGalleryPaidPlan, shouldShowOption]);
+	}, [tenantUserAccessControls, liteGalleryPaidPlan]);
 
 	useEffect(() => {
 		if (activeTab) {
