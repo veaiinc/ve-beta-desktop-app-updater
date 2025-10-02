@@ -238,9 +238,9 @@ const NewsletterSection = () => {
 				</div>
 
 				{/* Bottom Section */}
-				<div className={s.bottomSection}>
+				{/* <div className={s.bottomSection}>
 					<div className={s.separator} />
-					{/* <div className={s.bottomContent}>
+					<div className={s.bottomContent}>
 						<div className={s.legalLinks}>
 							<Link to="/privacy-policy" className={s.legalLink}>
 								Privacy Policy
@@ -257,10 +257,10 @@ const NewsletterSection = () => {
 								Researched & Innovated in San Francisco
 							</span>
 						</div>
-					</div> */}
-				</div>
+					</div>
+				</div> */}
 
-				<div
+				{/* <div
 					className={s.locationCompanyContainer}
 					onClick={() => window.open('https://livingintelligencecompany.com', '_blank')}
 					style={{ cursor: 'pointer' }}
@@ -272,7 +272,7 @@ const NewsletterSection = () => {
 					<div className={s.locationDetail}>
 						<span>Company of </span> San Fransisco <SansLogo />
 					</div>
-				</div>
+				</div> */}
 			</div>
 		</section>
 	);

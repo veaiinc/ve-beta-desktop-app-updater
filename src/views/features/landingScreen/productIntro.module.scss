@@ -4,13 +4,20 @@
 	position: relative;
 	background: linear-gradient(270deg, rgba(1, 8, 65, 1) 0%, rgba(21, 26, 73, 1) 100%);
 	padding: 0;
-	z-index: 1000;
+	z-index: 175;
 	overflow: visible;
 
 	// Performance optimizations for smooth circular animation
 	will-change: clip-path, opacity, transform;
 	backface-visibility: hidden;
 	transform: translateZ(0);
+
+	@media (max-width: 768px) {
+		margin-top: 100px;
+	}
+	@media (max-width: 400px) {
+		margin-top: 0px;
+	}
 
 	.heroSection {
 		display: flex;
@@ -252,7 +259,7 @@
 
 				@media (max-width: 480px) {
 					margin-top: 60px;
-					gap: 60px;
+					gap: 80px;
 				}
 			}
 
@@ -317,7 +324,7 @@
 					position: static; // Fixed position, no sticky behavior
 					top: auto;
 					display: flex;
-					justify-content: center;
+					// justify-content: center;
 					align-items: center;
 				}
 
@@ -358,15 +365,15 @@
 
 				// Mobile screens
 				@media (max-width: 768px) {
-					max-width: 100%;
+					max-width: 90%;
 					gap: 60px;
 					bottom: 80px;
 				}
 
 				@media (max-width: 480px) {
-					gap: 40px;
-					bottom: 60px;
-					left: -1px;
+					bottom: 40px;
+					gap: 50px;
+					left: 18px;
 				}
 
 				@media (max-width: 360px) {
@@ -382,11 +389,7 @@
 
 					// Mobile screens
 					@media (max-width: 768px) {
-						gap: 20px;
-					}
-
-					@media (max-width: 480px) {
-						gap: 16px;
+						gap: 30px;
 					}
 
 					.powerHeader {
@@ -401,6 +404,7 @@
 
 						// Mobile screens
 						@media (max-width: 768px) {
+							justify-content: flex-start;
 							gap: 12px;
 						}
 
@@ -447,18 +451,18 @@
 
 							// Mobile screens
 							@media (max-width: 768px) {
-								font-size: 14px;
+								font-size: 18px;
 								letter-spacing: 2px;
 								line-height: 1.4;
 							}
 
 							@media (max-width: 480px) {
-								font-size: 12px;
+								font-size: 16px;
 								letter-spacing: 1.5px;
 							}
 
 							@media (max-width: 360px) {
-								font-size: 11px;
+								font-size: 14px;
 								letter-spacing: 1px;
 							}
 						}
@@ -491,12 +495,12 @@
 						}
 
 						@media (max-width: 480px) {
-							font-size: 14px;
+							font-size: 16px;
 							line-height: 1.4;
 						}
 
 						@media (max-width: 360px) {
-							font-size: 13px;
+							font-size: 14px;
 							line-height: 1.4;
 						}
 					}
@@ -514,12 +518,12 @@
 
 				.powersList {
 					.powerItem {
-						.powerHeader {
-							justify-content: center;
-						}
+						// .powerHeader {
+						// 	justify-content: center;
+						// }
 
 						.powerDescription {
-							text-align: center;
+							text-align: left;
 						}
 					}
 				}
@@ -538,7 +542,7 @@
 		position: relative;
 		z-index: 5;
 		text-align: center;
-		bottom: -330px;
+		bottom: -93px;
 
 		// Laptop screens (1366px and below)
 		@media (max-width: 1366px) {
@@ -565,14 +569,17 @@
 
 		@media (max-width: 480px) {
 			padding: 40px 12px;
-			margin-top: -80px;
-			gap: 20px;
+			margin-top: 400px;
+			gap: 40px;
+		}
+		@media (max-width: 400px) {
+			margin-top: 810px;
 		}
 
 		@media (max-width: 360px) {
 			padding: 30px 12px;
-			margin-top: 60px;
-			gap: 16px;
+			margin-top: 80px;
+			gap: 20px;
 		}
 
 		.coFounderTitle {
@@ -610,12 +617,12 @@
 
 			@media (max-width: 480px) {
 				font-size: 56px;
-				line-height: 0.8;
+				line-height: 1;
 			}
 
 			@media (max-width: 360px) {
 				font-size: 48px;
-				line-height: 0.75;
+				line-height: 1;
 			}
 		}
 

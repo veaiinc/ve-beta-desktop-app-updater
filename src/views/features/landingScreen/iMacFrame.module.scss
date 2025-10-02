@@ -72,7 +72,7 @@
 	will-change: opacity;
 	border-radius: 1.64px; // Slightly smaller radius to fit inside frame
 	@media (max-width: 1284px) {
-		top: -100px;
+		top: -100px !important;
 	}
 	@media (max-width: 1684px) {
 		top: -175px;
