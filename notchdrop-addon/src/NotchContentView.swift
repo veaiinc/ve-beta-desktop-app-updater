@@ -162,10 +162,10 @@ struct DynamicIslandContentView: View {
                         // Start/Navigation section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Home button → default home; also exit Teams view
+                                // Home button → Reset to NotchDrop default starting page (stays within NotchDrop)
                                 Button(action: {
                                     vm.isTeamsView = false
-                                    vm.navigateToMainScreen(path: nil)
+                                    vm.resetToNotchHome()
                                 }) {
                                     HStack(spacing: 6.0) {
                                         Image(systemName: "house")
@@ -339,9 +339,9 @@ struct DynamicIslandContentView: View {
 
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
-                            // // VE icon with border styling (first icon)
+                            // VE icon → Open Ve app (Electron main window)
                             Button(action: {
-                                vm.resetToNotchHome()
+                                vm.navigateToMainScreen(path: nil)
                             }) {
                                 VEIcon(color: .white)
                                     .frame(width: 16, height: 16)
@@ -352,7 +352,7 @@ struct DynamicIslandContentView: View {
                                     )
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help("VE")
+                            .help("Open Ve App")
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
