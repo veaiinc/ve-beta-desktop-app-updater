@@ -17,8 +17,8 @@ const plans = [
 	{
 		key: 'free',
 		name: 'Free',
-		price: { monthly: 0, yearly: 0 },
-		userInfo: { monthly: '1 User/48 Hours', yearly: '1 User/48 Hours' },
+		price: { monthly: '$0', yearly: '$0' },
+		userInfo: { monthly: '1 User', yearly: '1 User' },
 		subscribeLabel: 'Get Started',
 		features: [
 			`5 meetings/month`,
@@ -39,7 +39,7 @@ const plans = [
 	// {
 	// 	key: 'basic',
 	// 	name: 'Basic',
-	// 	price: { monthly: 19, yearly: 190 },
+	// 	price: { monthly: '$19', yearly: '$190' },
 	// 	userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
 	// 	subscribeLabel: 'Subscribe',
 	// 	//featuresTitle: 'Everything in Free',
@@ -58,7 +58,7 @@ const plans = [
 	{
 		key: 'Plus',
 		name: 'Plus',
-		price: { monthly: 39, yearly: 390 },
+		price: { monthly: '$39', yearly: '$390' },
 		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
 		subscribeLabel: 'Subscribe',
 		//featuresTitle: 'Everything in Free',
@@ -95,7 +95,7 @@ const plans = [
 	// {
 	// 	key: 'os',
 	// 	name: 'OS',
-	// 	price: { monthly: 35, yearly: 420 },
+	// 	price: { monthly: '$35', yearly: '$420' },
 	// 	userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
 	// 	subscribeLabel: 'Subscribe',
 	// 	featuresTitle: 'Everything in Plus',
@@ -134,7 +134,7 @@ const plans = [
 	// {
 	// 	key: 'pro',
 	// 	name: 'Pro',
-	// 	price: { monthly: 199, yearly: 1990 },
+	// 	price: { monthly: '$199', yearly: '$1990' },
 	// 	userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
 	// 	subscribeLabel: 'Subscribe',
 	// 	//featuresTitle: 'Everything in OS',
@@ -357,7 +357,7 @@ const PricingCard = memo(({ plan, price, userInfo, isHighlighted, onSubscribe })
 
 				<div className="price-container">
 					<span className={`price ${plan.key === 'enterprise' ? 'user-info' : 'price'}`}>
-						${price}
+						{price}
 					</span>
 					{plan.key !== 'enterprise' && <span className="user-info">{userInfo}</span>}
 				</div>
