@@ -150,6 +150,9 @@ class NotchViewModel: NSObject, ObservableObject {
     var hasBrowserPermission: Bool
     @Published var browserPermissionRequested: Bool = false
     @Published var showBrowserPermissionRequest: Bool = false
+    
+    // Browser permission window
+    private var browserPermissionWindow: NSWindow?
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
     var selectedLanguage: Language
@@ -974,6 +977,20 @@ class NotchViewModel: NSObject, ObservableObject {
     
     // MARK: - Browser Permission Methods
     
+    /// Set up browser permission window monitoring
+    func setupBrowserPermissionWindow() {
+        // Monitor showBrowserPermissionRequest changes
+        $showBrowserPermissionRequest
+            .sink { [weak self] shouldShow in
+                if shouldShow {
+                    self?.createBrowserPermissionWindow()
+                } else {
+                    self?.closeBrowserPermissionWindow()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
     /// Request browser permission for YouTube detection
     func requestBrowserPermission() {
         print("🌐 Requesting browser permission for YouTube detection...")
@@ -1002,6 +1019,72 @@ class NotchViewModel: NSObject, ObservableObject {
             self.hasBrowserPermission = false
             self.showBrowserPermissionRequest = false
         }
+    }
+    
+    /// Create centered browser permission window
+    private func createBrowserPermissionWindow() {
+        guard browserPermissionWindow == nil else { return }
+        
+        // Get the main screen
+        guard let screen = NSScreen.main else { return }
+        let screenFrame = screen.frame
+        
+        // Create a centered window like system notifications
+        let windowWidth: CGFloat = 360
+        let windowHeight: CGFloat = 200
+        let windowFrame = NSRect(
+            x: screenFrame.midX - windowWidth / 2,
+            y: screenFrame.midY - windowHeight / 2 + 100, // Slightly above center like system notifications
+            width: windowWidth,
+            height: windowHeight
+        )
+        
+        browserPermissionWindow = NSWindow(
+            contentRect: windowFrame,
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        
+        guard let window = browserPermissionWindow else { return }
+        
+        // Configure window like system notifications
+        window.level = .floating
+        window.isOpaque = false
+        window.backgroundColor = NSColor.clear
+        window.hasShadow = true
+        window.isMovable = false
+        window.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        window.animationBehavior = .documentWindow
+        
+        // Create the permission view
+        let permissionView = BrowserPermissionRequestView(vm: self)
+        let hostingView = NSHostingView(rootView: permissionView)
+        window.contentView = hostingView
+        
+        // Show with animation
+        window.alphaValue = 0
+        window.makeKeyAndOrderFront(nil)
+        
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.3
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            window.animator().alphaValue = 1.0
+        }
+    }
+    
+    /// Close browser permission window
+    private func closeBrowserPermissionWindow() {
+        guard let window = browserPermissionWindow else { return }
+        
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.2
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            window.animator().alphaValue = 0.0
+        }, completionHandler: {
+            window.close()
+            self.browserPermissionWindow = nil
+        })
     }
     
     // New method to send log messages to Electron

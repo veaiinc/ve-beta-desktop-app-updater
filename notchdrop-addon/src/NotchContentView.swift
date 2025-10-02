@@ -12,11 +12,7 @@ struct NotchContentView: View {
     
     var body: some View {
         ZStack {
-            if vm.showBrowserPermissionRequest {
-                // Browser permission request overlay
-                BrowserPermissionRequestView(vm: vm)
-                    .transition(.scale(scale: 1.0).combined(with: .opacity))
-            } else if vm.showNotificationOverlay {
+            if vm.showNotificationOverlay {
                 // When notification is showing, ONLY show the notification (no background content)
                 NotificationOverlayView(vm: vm)
                     .transition(.scale(scale: 1.0).combined(with: .opacity))
@@ -31,7 +27,10 @@ struct NotchContentView: View {
         }
         .animation(vm.animation, value: vm.contentType)
         .animation(vm.animation, value: vm.showNotificationOverlay)
-        .animation(vm.animation, value: vm.showBrowserPermissionRequest)
+        .onAppear {
+            // Set up browser permission window monitoring
+            vm.setupBrowserPermissionWindow()
+        }
     }
 }
 
@@ -2306,20 +2305,21 @@ struct BrowserPermissionRequestView: View {
         VStack(spacing: 16) {
             // Icon
             Image(systemName: "globe")
-                .font(.system(size: 24))
+                .font(.system(size: 28))
                 .foregroundColor(DynamicIslandTheme.primaryGreen)
             
             // Title and description
             VStack(spacing: 8) {
                 Text("Browser Access")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
                 
                 Text("Allow access to Safari, Chrome, and Firefox to detect YouTube videos playing in your browser")
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.7))
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             
             // Buttons
@@ -2327,26 +2327,67 @@ struct BrowserPermissionRequestView: View {
                 Button("Not Now") {
                     vm.denyBrowserPermission()
                 }
-                .buttonStyle(SecondaryButtonStyle())
+                .buttonStyle(SystemSecondaryButtonStyle())
                 
                 Button("Allow") {
                     vm.grantBrowserPermission()
                 }
-                .buttonStyle(PrimaryButtonStyle())
+                .buttonStyle(SystemPrimaryButtonStyle())
             }
         }
-        .padding(20)
-        .frame(width: 320, height: 180)
-        .background(DynamicIslandTheme.cardMaterial)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(DynamicIslandTheme.stroke, lineWidth: 0.5)
+        .padding(24)
+        .frame(width: 360, height: 200)
+        .background(
+            // System notification-like background
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(.separator.opacity(0.5), lineWidth: 0.5)
+        )
     }
 }
 
-// MARK: - Button Styles for Permission Request
+// MARK: - System-like Button Styles for Permission Request
+struct SystemPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.accentColor)
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SystemSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.primary)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.quaternary)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(.separator.opacity(0.5), lineWidth: 0.5)
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Legacy Button Styles (kept for compatibility)
 struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
