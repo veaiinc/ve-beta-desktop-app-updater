@@ -31,7 +31,7 @@ extension NotchViewModel {
                     if !notchOpenedRect.contains(mouseLocation), !isNotchLocked {
                         notchClose()
                         // click where user open the panel - but don't auto-close if video is playing or locked
-                    } else if deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation), !hasActiveVideo, !isNotchLocked {
+                    } else if notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation), !hasActiveVideo, !isNotchLocked {
                         notchClose()
                         // for the same height as device notch, open the url of project
                     } else if headlineOpenedRect.contains(mouseLocation) {
@@ -45,7 +45,7 @@ extension NotchViewModel {
                     }
                 case .closed, .popping:
                     // touch inside, open
-                    if deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
+                    if notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
                         notchOpen(.click)
                     }
                 }
@@ -66,7 +66,7 @@ extension NotchViewModel {
                 guard let self else { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
                 // Hover zones
-                let inClosedHoverZone = deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
+                let inClosedHoverZone = notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
                 let inOpenedHoverZone = notchOpenedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
 
                 switch status {
@@ -74,7 +74,7 @@ extension NotchViewModel {
                     // Fully expand on hover entry
                     if inClosedHoverZone { notchOpen(.hover) }
                 case .opened:
-                    // Auto-close only if we opened due to hover and the pointer leaves the opened island
+                    // Auto-close only if we opened due to hover and the pointer leaves the opened islandisland
                     // BUT don't close if video is playing or notch is locked
                     if openReason == .hover, !inOpenedHoverZone, !hasActiveVideo, !isNotchLocked { notchClose() }
                 case .popping:
