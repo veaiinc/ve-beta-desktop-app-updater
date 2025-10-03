@@ -401,6 +401,7 @@ struct DynamicIslandContentView: View {
                             // Lock/Unlock button (fourth icon)
                             Button(action: {
                                 vm.toggleNotchLock()
+                                
                             }) {
                                 Image(systemName: vm.isNotchLocked ? "lock.fill" : "lock.open.fill")
                                     .font(.system(size: 14, weight: .medium))

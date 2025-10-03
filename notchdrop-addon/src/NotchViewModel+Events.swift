@@ -27,6 +27,17 @@ extension NotchViewModel {
                         return
                     }
                     
+                    // For unauthenticated users: auto-unlock and collapse when clicking on opened notch
+                    if !isAuthenticated && notchOpenedRect.contains(mouseLocation) {
+                        if isNotchLocked {
+                            print("🔓 Auto-unlocking notch for unauthenticated user (opened state)")
+                            isNotchLocked = false
+                        }
+                        print("📱 Collapsing notch for unauthenticated user")
+                        notchClose()
+                        return
+                    }
+                    
                     // touch outside, close (but not if locked)
                     if !notchOpenedRect.contains(mouseLocation), !isNotchLocked {
                         notchClose()
@@ -46,6 +57,11 @@ extension NotchViewModel {
                 case .closed, .popping:
                     // touch inside, open
                     if notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
+                        // For unauthenticated users: auto-unlock and open
+                        if !isAuthenticated && isNotchLocked {
+                            print("🔓 Auto-unlocking notch for unauthenticated user")
+                            isNotchLocked = false
+                        }
                         notchOpen(.click)
                     }
                 }
