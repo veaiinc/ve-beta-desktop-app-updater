@@ -12,10 +12,15 @@ class NotchViewModel: NSObject, ObservableObject {
         self.inset = inset
         super.init()
         setupCancellables()
-        // Calendar will be initialized directly by CalendarView
+        // Calendar will be initialized directly by Calendar
     }
 
     deinit {
+        // Clean up browser permission window
+        if let window = browserPermissionWindow {
+            window.orderOut(nil)
+            browserPermissionWindow = nil
+        }
         destroy()
     }
 
@@ -1037,11 +1042,14 @@ class NotchViewModel: NSObject, ObservableObject {
     
     /// Grant browser permission
     func grantBrowserPermission() {
-        print("🌐 Browser permission granted")
+        print("🌐 Browser permission granted - starting permission flow")
         
         DispatchQueue.main.async {
+            print("🌐 Setting hasBrowserPermission = true")
             self.hasBrowserPermission = true
+            print("🌐 Setting showBrowserPermissionRequest = false")
             self.showBrowserPermissionRequest = false
+            print("🌐 Browser permission flow completed")
         }
     }
     
@@ -1057,10 +1065,18 @@ class NotchViewModel: NSObject, ObservableObject {
     
     /// Create centered browser permission window
     private func createBrowserPermissionWindow() {
-        guard browserPermissionWindow == nil else { return }
+        guard browserPermissionWindow == nil else { 
+            print("🌐 Browser permission window already exists, skipping creation")
+            return 
+        }
+        
+        print("🌐 Creating browser permission window...")
         
         // Get the main screen
-        guard let screen = NSScreen.main else { return }
+        guard let screen = NSScreen.main else { 
+            print("🌐 Error: Could not get main screen")
+            return 
+        }
         let screenFrame = screen.frame
         
         // Create a centered window like system notifications
@@ -1080,25 +1096,32 @@ class NotchViewModel: NSObject, ObservableObject {
             defer: false
         )
         
-        guard let window = browserPermissionWindow else { return }
+        guard let window = browserPermissionWindow else { 
+            print("🌐 Error: Failed to create browser permission window")
+            return 
+        }
         
-        // Configure window like system notifications
-        window.level = .floating
+        print("🌐 Browser permission window created successfully")
+        
+        // Configure window like system notifications - but safer settings
+        window.level = .modalPanel  // Use modalPanel instead of floating to avoid conflicts
         window.isOpaque = false
         window.backgroundColor = NSColor.clear
         window.hasShadow = true
         window.isMovable = false
         window.collectionBehavior = [.canJoinAllSpaces, .stationary]
         window.animationBehavior = .documentWindow
+        window.isReleasedWhenClosed = false  // Prevent automatic cleanup
+        window.hidesOnDeactivate = false     // Don't hide when app loses focus
         
         // Create the permission view
         let permissionView = BrowserPermissionRequestView(vm: self)
         let hostingView = NSHostingView(rootView: permissionView)
         window.contentView = hostingView
         
-        // Show with animation
+        // Show with animation - but don't make it key window
         window.alphaValue = 0
-        window.makeKeyAndOrderFront(nil)
+        window.orderFront(nil)  // Use orderFront instead of makeKeyAndOrderFront
         
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.3
@@ -1109,15 +1132,25 @@ class NotchViewModel: NSObject, ObservableObject {
     
     /// Close browser permission window
     private func closeBrowserPermissionWindow() {
-        guard let window = browserPermissionWindow else { return }
+        guard let window = browserPermissionWindow else { 
+            print("🌐 Browser permission window already closed")
+            return 
+        }
+        
+        print("🌐 Closing browser permission window...")
         
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.2
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             window.animator().alphaValue = 0.0
         }, completionHandler: {
-            window.close()
-            self.browserPermissionWindow = nil
+            // Safely close the window
+            DispatchQueue.main.async {
+                print("🌐 Ordering out browser permission window")
+                window.orderOut(nil)  // Use orderOut instead of close()
+                self.browserPermissionWindow = nil
+                print("🌐 Browser permission window closed successfully")
+            }
         })
     }
     
