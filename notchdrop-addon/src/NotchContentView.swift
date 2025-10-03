@@ -67,6 +67,7 @@ struct MeetingCompactChatBox: View {
 // MARK: - Start Meeting Card
 struct StartMeetingCard: View {
     let vm: NotchViewModel
+    @State private var isHovered: Bool = false
 
     var body: some View {
         GeometryReader { geo in
@@ -78,10 +79,10 @@ struct StartMeetingCard: View {
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: corner, style: .continuous)
-                    .fill(Color.white.opacity(0.04))
+                    .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.15) : Color.white.opacity(0.04))
                     .overlay(
                         RoundedRectangle(cornerRadius: corner, style: .continuous)
-                            .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                            .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.white.opacity(0.12), lineWidth: 0.8)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -100,6 +101,11 @@ struct StartMeetingCard: View {
             }
             .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
             .onTapGesture { vm.startRecording() }
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isHovered = hovering
+                }
+            }
         }
         // Ensure the reader honors parent frame
         .clipped()
@@ -114,6 +120,15 @@ struct DynamicIslandContentView: View {
     @State private var textEditorHeight: CGFloat = 100 // Fixed height for textarea with scroll
     @State private var receivedMessage: String = "" // Track received messages from Electron
     @State private var cancellables = Set<AnyCancellable>()
+    
+    // Hover states for right side icons
+    @State private var isVEIconHovered: Bool = false
+    @State private var isStealthIconHovered: Bool = false
+    @State private var isLockIconHovered: Bool = false
+    
+    // Hover states for left side buttons
+    @State private var isHomeButtonHovered: Bool = false
+    @State private var isMeetingButtonHovered: Bool = false
     
     var body: some View {
         VStack(spacing: 3.0) {
@@ -190,10 +205,18 @@ struct DynamicIslandContentView: View {
                                     .padding(.vertical, 6)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                            .fill(vm.isTeamsView ? 
+                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear) :
+                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                            )
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isHomeButtonHovered = hovering
+                                    }
+                                }
 
                                 // Teams pill (sets Teams view)
                                 Button(action: {
@@ -208,10 +231,18 @@ struct DynamicIslandContentView: View {
                                     .padding(.vertical, 8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.clear)
+                                            .fill(vm.isTeamsView ? 
+                                                (isMeetingButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                                (isMeetingButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isMeetingButtonHovered = hovering
+                                    }
+                                }
                                 // Removed desktop and VE icons per request
                             } else if vm.showVoiceInterface {
                                 // Voice controls (mute/unmute and cancel buttons)
@@ -360,6 +391,10 @@ struct DynamicIslandContentView: View {
                                 VEIcon(color: .white)
                                     .frame(width: 16, height: 16)
                                     .padding(8) // Increased padding for larger clickable area
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
+                                    )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                             .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
@@ -368,6 +403,11 @@ struct DynamicIslandContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help("Open Ve App")
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isVEIconHovered = hovering
+                                }
+                            }
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
@@ -386,6 +426,10 @@ struct DynamicIslandContentView: View {
                                 }
                                 .frame(width: 16, height: 16)
                                 .padding(8) // Increased padding for larger clickable area
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(isStealthIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                         .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
@@ -394,6 +438,11 @@ struct DynamicIslandContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isStealthIconHovered = hovering
+                                }
+                            }
                             
                             // Information icon (third icon) with popup menu
                             // InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
@@ -407,6 +456,10 @@ struct DynamicIslandContentView: View {
                                     .foregroundColor(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen : .white)
                                     .frame(width: 16, height: 16)
                                     .padding(8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(isLockIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.1) : Color.clear)
+                                    )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
@@ -415,6 +468,11 @@ struct DynamicIslandContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isLockIconHovered = hovering
+                                }
+                            }
                         }
                     }
                     
@@ -1571,9 +1629,11 @@ struct WebcamButton: View {
                 if !vm.showCameraPreview {
                     Circle()
                         .fill(DynamicIslandTheme.cardMaterial)
+                        .background(
+                            Circle()
+                                .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                        )
                         .frame(width: 90, height: 90)
-                        .scaleEffect(isHovered ? 1.05 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                 }
                 
                 // Content based on camera state
@@ -1593,6 +1653,10 @@ struct WebcamButton: View {
                         // Background circle for camera preview
                         Circle()
                             .fill(DynamicIslandTheme.cardMaterial)
+                            .background(
+                                Circle()
+                                    .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                            )
                             .frame(width: 90, height: 90)
                         
                         // Camera preview
@@ -1600,8 +1664,6 @@ struct WebcamButton: View {
                             .frame(width: 90, height: 90)
                             .clipShape(Circle())
                     }
-                    .scaleEffect(isHovered ? 1.05 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                 } else if vm.cameraPermission == "denied" || vm.cameraPermission == "restricted" {
                     // Permission denied state
                     VStack(spacing: 4) {
@@ -1617,19 +1679,24 @@ struct WebcamButton: View {
                     // Default state - frosted circular button with icon and label
                     ZStack {
                         Circle()
-                            .fill(Color.white.opacity(0.05)) // background: rgba(255, 255, 255, 0.05)
+                            .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.white.opacity(0.05)) // background: rgba(255, 255, 255, 0.05)
                             .frame(width: 100, height: 100)
                             .background(.ultraThinMaterial) // backdrop-filter: blur(15px)
                             .overlay(
                                 Circle()
-                                    .stroke(Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
+                                    .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
                             )
                             .overlay(
                                 // Inner shadow effect using gradient
                                 Circle()
                                     .stroke(
                                         LinearGradient(
-                                            colors: [
+                                            colors: isHovered ? [
+                                                DynamicIslandTheme.primaryGreen.opacity(0.30),
+                                                DynamicIslandTheme.primaryGreen.opacity(0.15),
+                                                DynamicIslandTheme.primaryGreen.opacity(0.05),
+                                                Color.clear
+                                            ] : [
                                                 Color.white.opacity(0.30),
                                                 Color.white.opacity(0.15),
                                                 Color.white.opacity(0.05),
