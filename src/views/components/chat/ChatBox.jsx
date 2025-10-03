@@ -253,9 +253,7 @@ const ChatBox = ({
 		if (chatBoxWrapperRef.current && chatbarContainerRef.current && getChatBoxHeight) {
 			const totalChatboxHeight =
 				(chatBoxWrapperRef.current?.clientHeight || 0) +
-				(chatbarContainerRef.current?.clientHeight || 0) +
-				12;
-
+				(chatbarContainerRef.current?.clientHeight ?? 0 + 12);
 			handleChatBoxHeight?.(totalChatboxHeight);
 		}
 	}, [
@@ -2011,7 +2009,7 @@ const ChatBox = ({
 			{showBottomTools && (
 				<div className="chat-payload-info">
 					<div className="left-container">
-						{isBuildEnbled &&
+						{/* {isBuildEnbled &&
 							!isPublicChat &&
 							showBottomTools &&
 							workspaceMode !== 'stable' && (
@@ -2021,7 +2019,7 @@ const ChatBox = ({
 										<div className="btn-text">Create</div>
 									</button>
 								</BuildTooltip>
-							)}
+							)} */}
 
 						{!isPublicChat && showBottomTools && (
 							<button

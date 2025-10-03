@@ -32,7 +32,7 @@ export const updateCitationIdsWithCitations = (input = '', citations = []) => {
 		const match = matches[index];
 		if (match) {
 			const id = match?.slice(1, -1);
-			result?.push(<CitationsTooltip key={index} citationId={id} citations={citations} />);
+			result?.push(<CitationsTooltip key={index} citationIds={[id]} citations={citations} />);
 		}
 	});
 

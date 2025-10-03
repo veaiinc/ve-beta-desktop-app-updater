@@ -303,20 +303,24 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			</div>
 
 			<div className="acknowledge-container">
-				<span className="acknowledge-text">By signing in, you agree to our </span>
-				<span
-					className="acknowledge-text-link"
-					onClick={() => window.open('/terms-of-service', '_blank')}
-				>
-					Terms & Conditions
-				</span>{' '}
-				<span className="acknowledge-text">and</span>{' '}
-				<span
-					className="acknowledge-text-link"
-					onClick={() => window.open('/privacy-policy', '_blank')}
-				>
-					Privacy Policy
-				</span>
+				<p className="acknowledge-text">
+					By continuing, you acknowledge that you understand
+					<br />
+					{' and agree to the '}
+					<span
+						className="acknowledge-text-link"
+						onClick={() => window.open('/terms-of-service', '_blank')}
+					>
+						Terms & Conditions
+					</span>{' '}
+					and{' '}
+					<span
+						className="acknowledge-text-link"
+						onClick={() => window.open('/privacy-policy', '_blank')}
+					>
+						Privacy Policy
+					</span>
+				</p>
 			</div>
 		</div>
 	);

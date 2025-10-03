@@ -1,0 +1,120 @@
+<svg width="228" height="2458" viewBox="0 0 228 2458" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Base path with subtle glow -->
+<path
+  d="M1 0V526.967C1 585.456 26.6035 641.014 71.0688 679.012L156.931 752.386C201.397 790.384 227 845.942 227 904.432V1480.79V1796.94V2304.92V2457.5"
+  stroke="url(#paint0_linear_1133_181)"
+  stroke-opacity="0.3"
+  stroke-width="1"
+/>
+
+<!-- Glowing path that will be animated -->
+<path
+  id="glow-path"
+  d="M1 0V526.967C1 585.456 26.6035 641.014 71.0688 679.012L156.931 752.386C201.397 790.384 227 845.942 227 904.432V1480.79V1796.94V2304.92V2457.5"
+  stroke="url(#glowGradient)"
+  stroke-width="0.8"
+  stroke-linecap="round"
+  filter="url(#glow)"
+/>
+
+<!-- Additional glow layer for more intensity -->
+<path
+  id="glow-path-intense"
+  d="M1 0V526.967C1 585.456 26.6035 641.014 71.0688 679.012L156.931 752.386C201.397 790.384 227 845.942 227 904.432V1480.79V1796.94V2304.92V2457.5"
+  stroke="url(#glowGradientIntense)"
+  stroke-width="0.4"
+  stroke-linecap="round"
+  filter="url(#glowIntense)"
+/>
+
+<!-- White glow layer for outer glow effect -->
+<path
+  id="white-glow-path"
+  d="M1 0V526.967C1 585.456 26.6035 641.014 71.0688 679.012L156.931 752.386C201.397 790.384 227 845.942 227 904.432V1480.79V1796.94V2304.92V2457.5"
+  stroke="url(#whiteGlowGradient)"
+  stroke-width="2"
+  stroke-linecap="round"
+  filter="url(#whiteGlow)"
+/>
+
+<!-- Extra wide white glow for soft outer edge -->
+<path
+  id="white-glow-outer"
+  d="M1 0V526.967C1 585.456 26.6035 641.014 71.0688 679.012L156.931 752.386C201.397 790.384 227 845.942 227 904.432V1480.79V1796.94V2304.92V2457.5"
+  stroke="url(#whiteGlowGradient)"
+  stroke-width="4"
+  stroke-linecap="round"
+  filter="url(#whiteGlowOuter)"
+/>
+
+<defs>
+<!-- Original gradient -->
+<linearGradient id="paint0_linear_1133_181" x1="114" y1="-87.1012" x2="114" y2="2458" gradientUnits="userSpaceOnUse">
+<stop stop-color="white" stop-opacity="0.2"/>
+<stop offset="0.5" stop-color="white"/>
+<stop offset="1" stop-color="white" stop-opacity="0.2"/>
+</linearGradient>
+
+<!-- Glow gradient -->
+<linearGradient id="glowGradient" x1="114" y1="0" x2="114" y2="2458" gradientUnits="userSpaceOnUse">
+<stop stop-color="#60a5fa" stop-opacity="0.6"/>
+<stop offset="0.3" stop-color="#3b82f6" stop-opacity="0.8"/>
+<stop offset="0.7" stop-color="#1e40af" stop-opacity="0.7"/>
+<stop offset="1" stop-color="#1e3a8a" stop-opacity="0.5"/>
+</linearGradient>
+
+<!-- Intense glow gradient -->
+<linearGradient id="glowGradientIntense" x1="114" y1="0" x2="114" y2="2458" gradientUnits="userSpaceOnUse">
+<stop stop-color="#dbeafe" stop-opacity="0.7"/>
+<stop offset="0.3" stop-color="#93c5fd" stop-opacity="0.9"/>
+<stop offset="0.7" stop-color="#60a5fa" stop-opacity="0.8"/>
+<stop offset="1" stop-color="#3b82f6" stop-opacity="0.6"/>
+</linearGradient>
+
+<!-- White glow gradient -->
+<linearGradient id="whiteGlowGradient" x1="114" y1="0" x2="114" y2="2458" gradientUnits="userSpaceOnUse">
+<stop stop-color="#ffffff" stop-opacity="0.4"/>
+<stop offset="0.2" stop-color="#f8fafc" stop-opacity="0.35"/>
+<stop offset="0.5" stop-color="#e2e8f0" stop-opacity="0.3"/>
+<stop offset="0.8" stop-color="#cbd5e1" stop-opacity="0.25"/>
+<stop offset="1" stop-color="#94a3b8" stop-opacity="0.2"/>
+</linearGradient>
+
+
+<!-- Glow filter -->
+<filter id="glow" x="-300%" y="-300%" width="700%" height="700%">
+  <feGaussianBlur stdDeviation="15" result="coloredBlur"/>
+  <feMerge> 
+    <feMergeNode in="coloredBlur"/>
+    <feMergeNode in="SourceGraphic"/>
+  </feMerge>
+</filter>
+
+<!-- Intense glow filter -->
+<filter id="glowIntense" x="-400%" y="-400%" width="900%" height="900%">
+  <feGaussianBlur stdDeviation="20" result="coloredBlur"/>
+  <feMerge> 
+    <feMergeNode in="coloredBlur"/>
+    <feMergeNode in="SourceGraphic"/>
+  </feMerge>
+</filter>
+
+<!-- White glow filter -->
+<filter id="whiteGlow" x="-500%" y="-500%" width="1100%" height="1100%">
+  <feGaussianBlur stdDeviation="18" result="whiteBlur"/>
+  <feMerge> 
+    <feMergeNode in="whiteBlur"/>
+    <feMergeNode in="SourceGraphic"/>
+  </feMerge>
+</filter>
+
+<!-- White glow outer filter -->
+<filter id="whiteGlowOuter" x="-600%" y="-600%" width="1300%" height="1300%">
+  <feGaussianBlur stdDeviation="25" result="whiteOuterBlur"/>
+  <feMerge> 
+    <feMergeNode in="whiteOuterBlur"/>
+    <feMergeNode in="SourceGraphic"/>
+  </feMerge>
+</filter>
+</defs>
+</svg>

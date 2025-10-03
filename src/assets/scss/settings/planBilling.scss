@@ -2,8 +2,6 @@
 	display: flex;
 	flex-direction: column;
 	gap: 48px;
-	flex-direction: column;
-	gap: 48px;
 
 	.planBillingTitle {
 		color: var(--primary-font, #f2f2f3);
@@ -967,7 +965,7 @@
 			}
 			.currentPlanBadge {
 				position: absolute;
-				height: 474px;
+				height: 300px;
 				width: 353px;
 				bottom: -1px;
 				left: 2px;

@@ -1,0 +1,121 @@
+.waveContainer {
+	display: block;
+	height: 31.7881px;
+	left: 707.946px;
+	overflow: visible;
+	position: absolute;
+	top: 58.1055px;
+	width: 79.4702px;
+}
+
+.waveSvg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.waveBar {
+	fill: white;
+	opacity: 0.8;
+	transform-box: fill-box;
+	transform-origin: center bottom;
+	animation: waveAnimation 2s ease-in-out infinite;
+	animation-delay: var(--delay);
+}
+
+.pillBar {
+	fill: white;
+	opacity: 1;
+	transform-box: fill-box;
+	transform-origin: center bottom;
+	animation: eqPulse var(--dur, 1.6s) ease-in-out infinite;
+	animation-delay: var(--delay);
+}
+
+@keyframes eqPulse {
+	0%,
+	100% {
+		transform: scaleY(0.5);
+		opacity: 0.9;
+	}
+	50% {
+		transform: scaleY(1);
+		opacity: 1;
+	}
+}
+
+@keyframes waveAnimation {
+	0%,
+	100% {
+		transform: scaleY(0.3);
+		opacity: 0.4;
+	}
+	50% {
+		transform: scaleY(1);
+		opacity: 0.9;
+	}
+}
+
+/* Alternative wave animation - more fluid */
+.waveContainer.alternative .waveBar {
+	animation: waveAnimationFluid 1.5s ease-in-out infinite;
+}
+
+@keyframes waveAnimationFluid {
+	0% {
+		transform: scaleY(0.2);
+		opacity: 0.3;
+	}
+	25% {
+		transform: scaleY(0.8);
+		opacity: 0.7;
+	}
+	50% {
+		transform: scaleY(1);
+		opacity: 1;
+	}
+	75% {
+		transform: scaleY(0.6);
+		opacity: 0.8;
+	}
+	100% {
+		transform: scaleY(0.2);
+		opacity: 0.3;
+	}
+}
+
+/* Pulse animation variant */
+.waveContainer.pulse .waveBar {
+	animation: waveAnimationPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes waveAnimationPulse {
+	0%,
+	100% {
+		transform: scaleY(0.4);
+		opacity: 0.5;
+	}
+	50% {
+		transform: scaleY(1.2);
+		opacity: 1;
+	}
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.waveContainer {
+		top: 35px;
+		left: 110px;
+		width: 60px;
+		height: 25px;
+	}
+}
+
+@media (max-width: 480px) {
+	.waveContainer {
+		top: 30px;
+		left: 90px;
+		width: 50px;
+		height: 20px;
+	}
+}

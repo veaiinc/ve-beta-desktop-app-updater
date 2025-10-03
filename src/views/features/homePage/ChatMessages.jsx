@@ -1,8 +1,8 @@
-import { memo, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useLayoutEffect, useRef, useState, lazy, Suspense } from 'react';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import s from '../../../assets/scss/home_page/chatMessages.module.scss';
-import NoteComponentModal from '../../components/notes/NoteComponentModal';
+const NoteComponentModal = lazy(() => import('../../components/notes/NoteComponentModal'));
 
 const ChatMessages = ({ messages = [], sessionId = null }) => {
 	const containerRef = useRef(null);
@@ -54,11 +54,15 @@ const ChatMessages = ({ messages = [], sessionId = null }) => {
 					),
 				)}
 			</div>
-			<NoteComponentModal
-				modalIsOpen={info?.noteModalIsOpen}
-				closeModal={handleNoteComponentModalClose}
-				sessionId={sessionId}
-			/>
+			{info?.noteModalIsOpen && (
+				<Suspense fallback={'Loading...'}>
+					<NoteComponentModal
+						modalIsOpen={info?.noteModalIsOpen}
+						closeModal={handleNoteComponentModalClose}
+						sessionId={sessionId}
+					/>
+				</Suspense>
+			)}
 		</>
 	);
 };

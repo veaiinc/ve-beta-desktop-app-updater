@@ -114,7 +114,6 @@ export const intialState = {
 	chatSources: null,
 	chatLoadingSessions: {},
 	chatReplyData: null,
-	citationChunks: {},
 	currentChatData: null,
 	galleryFile: null,
 	userEditedQuery: null,
@@ -2007,20 +2006,6 @@ export const TemplatesState = (props) => {
 			return [true, 'We made the changes accordingly'];
 		} catch (error) {}
 	};
-	const getCitationData = async (sessionId, sourceId) => {
-		try {
-			let workspaceId = localStorage.getItem('workspaceId');
-			const url = `/${workspaceId}/${sessionId}/${sourceId}/get_chunk`;
-
-			const usertoken = localStorage.getItem('usertoken');
-			const response = await Service.fetchGet(url, usertoken, 'ai_predictions');
-			if (response?.[0]) {
-				return response?.[1]?.chunk;
-			}
-		} catch (error) {
-			console.log('errror ==>getCitationData', error);
-		}
-	};
 
 	// const handleGlobalChatMessages = async (
 	// 	payload,
@@ -2963,14 +2948,6 @@ export const TemplatesState = (props) => {
 		}
 	};
 
-	const updateCitationChunks = async (payload) => {
-		try {
-			dispatch({ type: Actions?.UPDATE_CITATION_CHUNKS, payload });
-		} catch (error) {
-			console.log('error==>updateCitationChunks', error);
-		}
-	};
-
 	const deleteChatSession = async (sessionId) => {
 		try {
 			const workspaceId = localStorage.getItem('workspaceId');
@@ -3223,7 +3200,6 @@ export const TemplatesState = (props) => {
 		getFormResponsesList,
 		updateAiChatMessageRating,
 		getModuleTemplate,
-		getCitationData,
 		getRecentChatMessages,
 		handleStreamSendMessage,
 		getLLMModels,
@@ -3236,7 +3212,6 @@ export const TemplatesState = (props) => {
 		updateWorkflowTemplate,
 		pendingActionsUpdate,
 		duplicateSmartFile,
-		updateCitationChunks,
 		getFormResponseAnalytics,
 		pendingActionsFeedback,
 		getAiQuestions,
