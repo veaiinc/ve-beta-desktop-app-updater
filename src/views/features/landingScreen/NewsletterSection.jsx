@@ -5,6 +5,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
 import { ReactComponent as LinkedinLogo } from '../../../assets/svg/landingScreen/linkedinLogo.svg';
 import { ReactComponent as InstagramLogo } from '../../../assets/svg/landingScreen/instagramLogo.svg';
+import { ReactComponent as SansLogo } from '../../../assets/svg/landingScreen/logo.svg';
 import { ReactComponent as FacebookLogo } from '../../../assets/svg/landingScreen/facebookLogo.svg';
 import { ReactComponent as YoutubeLogo } from '../../../assets/svg/landingScreen/youtubeLogo.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
@@ -131,7 +132,7 @@ const NewsletterSection = () => {
 						</div> */}
 
 						{/* Resources Column */}
-						<div className={s.linkColumn}>
+						{/* <div className={s.linkColumn}>
 							<div className={s.linkItem}>
 								<span className={s.columnTitle}>Resources</span>
 							</div>
@@ -145,7 +146,7 @@ const NewsletterSection = () => {
 									Careers
 								</Link>
 							</div>
-						</div>
+						</div> */}
 
 						{/* Support Column */}
 						<div className={s.linkColumn}>
@@ -153,7 +154,11 @@ const NewsletterSection = () => {
 								<span className={s.columnTitle}>Support</span>
 							</div>
 							<div className={s.linkItem}>
-								<Link to="https://intercom.help/veai-3b653317fa86/en" className={s.linkText}>
+								<Link
+									to="https://intercom.help/Ve_ai/en"
+									target="_blank"
+									className={s.linkText}
+								>
 									Help Center
 								</Link>
 							</div>
@@ -233,7 +238,7 @@ const NewsletterSection = () => {
 				</div>
 
 				{/* Bottom Section */}
-				<div className={s.bottomSection}>
+				{/* <div className={s.bottomSection}>
 					<div className={s.separator} />
 					<div className={s.bottomContent}>
 						<div className={s.legalLinks}>
@@ -253,7 +258,21 @@ const NewsletterSection = () => {
 							</span>
 						</div>
 					</div>
-				</div>
+				</div> */}
+
+				{/* <div
+					className={s.locationCompanyContainer}
+					onClick={() => window.open('https://livingintelligencecompany.com', '_blank')}
+					style={{ cursor: 'pointer' }}
+				>
+					<div className={s.locationCompany}>
+						<span>The</span> <br />
+						Living Intelligence
+					</div>
+					<div className={s.locationDetail}>
+						<span>Company of </span> San Fransisco <SansLogo />
+					</div>
+				</div> */}
 			</div>
 		</section>
 	);

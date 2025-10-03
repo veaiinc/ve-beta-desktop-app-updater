@@ -834,6 +834,7 @@ const OverlayApp = () => {
 						timer={timer}
 						formatTime={formatTime}
 						socketData={info?.liveIntelligenceData}
+						sessionId={info?.meetingData?._id}
 					/>
 				</div>
 			)}

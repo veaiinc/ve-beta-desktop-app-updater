@@ -22,6 +22,7 @@ import Context from '../../../context/context';
 import { Tag, Input } from 'antd';
 import jwtDecode from 'jwt-decode';
 import { message } from '../../components/globalComponents/CustomToast';
+import { isCurrentWorkspaceOnboarded } from '../../../helpers/workspaceHelpers';
 
 const navItems = [
 	{ name: 'Privacy', route: '/privacy-policy' },
@@ -72,36 +73,52 @@ const EarlyAccess = () => {
 	const referralLink = `${REFERRAL_BASE_URL}${referralData?.referralDetails?.referralCode}`;
 
 	useEffect(() => {
-		getUserWorkSpaceList();
-		getShareAndEarn();
-		getReferralDetails();
-		getOnboardPosition();
-	}, []);
+		// Only make API calls if user has a valid token
+		if (usertoken?.length > 0) {
+			// First get workspace list to determine onboard status
+			getUserWorkSpaceList();
+		}
+	}, [usertoken]);
 
 	useEffect(() => {
 		if (usertoken?.length === 0) {
 			window.location.replace('/');
+			return;
 		}
+
 		if (userWorkSpaceList) {
 			checkIsOnBoardUser();
 		}
 	}, [userWorkSpaceList]);
 
-	const checkIsOnBoardUser = useCallback(() => {
-		let isOnboard = JSON.parse(localStorage.getItem('isOnboard'));
+	// Separate effect for other API calls - only after confirming user is not onboarded
+	useEffect(() => {
+		if (usertoken?.length > 0 && userWorkSpaceList) {
+			const isWorkspaceOnboarded = isCurrentWorkspaceOnboarded(
+				userWorkSpaceList,
+				workspaceId,
+			);
 
-		const currentWorkspaceData = (userWorkSpaceList || [])?.filter(
-			(ele) => ele?.activeWorkspaceId === workspaceId,
-		);
-
-		if (currentWorkspaceData) {
-			isOnboard = currentWorkspaceData[0]?.isOnboard;
+			// Only make these API calls if user is confirmed to be on early access (not onboarded)
+			if (!isWorkspaceOnboarded) {
+				getShareAndEarn();
+				getReferralDetails();
+				getOnboardPosition();
+			}
 		}
-		if (isOnboard) {
+	}, [usertoken, userWorkSpaceList, workspaceId]);
+
+	const checkIsOnBoardUser = useCallback(() => {
+		const isWorkspaceOnboarded = isCurrentWorkspaceOnboarded(userWorkSpaceList, workspaceId);
+
+		if (isWorkspaceOnboarded) {
 			localStorage.setItem('isOnboard', true);
 			navigate('/home');
+		} else {
+			// Update localStorage to reflect current workspace onboard status
+			localStorage.setItem('isOnboard', false);
 		}
-	}, [userWorkSpaceList]);
+	}, [userWorkSpaceList, workspaceId, navigate]);
 
 	const handleCopyReferralLink = useCallback(() => {
 		const referralCode = referralData?.referralDetails?.referralCode;

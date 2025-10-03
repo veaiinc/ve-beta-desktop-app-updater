@@ -603,16 +603,6 @@ const actionHandlers = {
 		...state,
 		connectedThirdParties: action?.payload,
 	}),
-	UPDATE_CITATION_CHUNKS: (state, action) => {
-		const sourceId = Object?.keys(action?.payload)?.[0];
-		if (state?.citationChunks?.[sourceId]) {
-			return state;
-		}
-		return {
-			...state,
-			citationChunks: { ...state?.citationChunks, [sourceId]: action?.payload?.[sourceId] },
-		};
-	},
 	GET_AI_QUESTIONS_SUCCESS: (state, action) => ({
 		...state,
 		aiQuestions: action?.payload,

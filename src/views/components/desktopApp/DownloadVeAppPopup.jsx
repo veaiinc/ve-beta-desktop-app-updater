@@ -22,11 +22,56 @@ const customStyles = {
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
+		maxWidth: '95vw',
+		maxHeight: '95vh',
+		overflow: 'auto',
 	},
 	overlay: {
 		backdropFilter: 'blur(8px)',
 		zIndex: 1,
 	},
+};
+
+// Responsive styles for different screen sizes
+const getResponsiveStyles = () => {
+	const screenWidth = window.innerWidth;
+
+	if (screenWidth <= 768) {
+		return {
+			content: {
+				width: '95vw',
+				height: 'auto',
+				minHeight: '400px',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+				padding: '20px',
+				margin: '20px',
+			},
+			overlay: {
+				backdropFilter: 'blur(8px)',
+				zIndex: 1,
+			},
+		};
+	} else if (screenWidth <= 1024) {
+		return {
+			content: {
+				width: '90vw',
+				height: 'auto',
+				minHeight: '450px',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+				padding: '20px',
+			},
+			overlay: {
+				backdropFilter: 'blur(8px)',
+				zIndex: 1,
+			},
+		};
+	}
+
+	return customStyles;
 };
 const steps = [
 	{
@@ -63,7 +108,7 @@ const steps = [
 
 const DownloadVeAppPopup = ({ isOpen, closeModal, downloadUrl }) => {
 	return (
-		<ReactModal isOpen={isOpen} closeModal={closeModal} customStyles={customStyles}>
+		<ReactModal isOpen={isOpen} closeModal={closeModal} customStyles={getResponsiveStyles()}>
 			<div className={s.container}>
 				<div className={s.heading}>
 					<TickIcon className={s.tickIcon} />

@@ -9,45 +9,109 @@ import WebKit
 
 struct NotchContentView: View {
     @StateObject var vm: NotchViewModel
-    @State private var showInfoPopup: Bool = false
-    @State private var infoPopupPosition: CGPoint = .zero
     
     var body: some View {
         ZStack {
             if vm.showNotificationOverlay {
-                // When notification is showing, ONLY show the notification (no background content)
-                NotificationOverlayView(vm: vm)
-                    .transition(.scale(scale: 1.0).combined(with: .opacity))
+                // // When notification is showing, ONLY show the notification (no background content)
+                // NotificationOverlayView(vm: vm)
+                //     .transition(.scale(scale: 1.0).combined(with: .opacity))
             } else {
                 // Normal content switching when no notification
                 switch vm.contentType {
                 case .normal:
-                    DynamicIslandContentView(vm: vm, showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                    DynamicIslandContentView(vm: vm)
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                 }
             }
             
             // Info popup rendered outside the notch container
-            if showInfoPopup {
-                InfoPopupMenu()
-                    .offset(x: 400, y: 0) // Position to the right of the notch
-                    .zIndex(1000) // Ensure it appears above everything
-                    .transition(.scale(scale: 0.95).combined(with: .opacity))
-            }
+            // Commented out since InfoPopupMenu was commented out
+            // if showInfoPopup {
+            //     InfoPopupMenu()
+            //         .offset(x: 400, y: 0) // Position to the right of the notch
+            //         .zIndex(1000) // Ensure it appears above everything
+            //         .transition(.scale(scale: 0.95).combined(with: .opacity))
+            // }
         }
         .animation(vm.animation, value: vm.contentType)
         .animation(vm.animation, value: vm.showNotificationOverlay)
+        .onAppear {
+            // Set up browser permission window monitoring
+            vm.setupBrowserPermissionWindow()
+        }
+    }
+}
+
+// MARK: - MeetingCompactChatBox (non-expandable chat lookalike)
+struct MeetingCompactChatBox: View {
+    let placeholder: String
+
+    var body: some View {
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color.white.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(DynamicIslandTheme.primaryGreen.opacity(0.6), lineWidth: 1)
+                )
+
+            Text(placeholder)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(Color.white.opacity(0.6))
+                .padding(.horizontal, 18)
+        }
+    }
+}
+
+// MARK: - Start Meeting Card
+struct StartMeetingCard: View {
+    let vm: NotchViewModel
+
+    var body: some View {
+        GeometryReader { geo in
+            let h = geo.size.height
+            let corner: CGFloat = 12
+            let padding: CGFloat = 12
+            // Scale text to fit smaller height nicely (target 220x100 card)
+            let titleSize = max(16, min(22, h * 0.28))
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: corner, style: .continuous)
+                    .fill(Color.white.opacity(0.04))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: corner, style: .continuous)
+                            .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                    )
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Start")
+                        .font(.system(size: titleSize, weight: .medium))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text("Meeting")
+                        .font(.system(size: titleSize, weight: .medium))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                }
+                .padding(padding)
+            }
+            .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
+            .onTapGesture { vm.startRecording() }
+        }
+        // Ensure the reader honors parent frame
+        .clipped()
     }
 }
 
 // New Dynamic Island Content View matching JavaScript structure
 struct DynamicIslandContentView: View {
     @StateObject var vm: NotchViewModel
-    @Binding var showInfoPopup: Bool
-    @Binding var infoPopupPosition: CGPoint
     @FocusState private var isChatInputFocused: Bool
     @State private var isTextFieldActive: Bool = false
-    @State private var textEditorHeight: CGFloat = 100 // Dynamic height for textarea
+    @State private var textEditorHeight: CGFloat = 100 // Fixed height for textarea with scroll
     @State private var receivedMessage: String = "" // Track received messages from Electron
     @State private var cancellables = Set<AnyCancellable>()
     
@@ -56,23 +120,33 @@ struct DynamicIslandContentView: View {
             if !vm.isAuthenticated {
                 // Welcome section when not authenticated
                 VStack(spacing: 8) {
-                    Text("hello")
-                        .font(.system(size: 48, weight: .light, design: .default))
-                        .foregroundColor(.white)
-                    Text("Please log in to access features")
-                        .font(.system(size: 14, weight: .regular))
+                   Text("Hey")
+                .font(.custom("Urbanist", size: 48)) // Use actual font name
+                // .kerning(-0.03 * 54) // -3% of font size = -1.62
+                .lineSpacing(-4) // Optional: Adjust if you want total line height to be close to 50px
+                .foregroundColor(.white)
+
+                    Text("I'm Ve, From the living intelligence company")
+                        .font(.custom("Urbanist", size: 13))
                         .foregroundColor(.white.opacity(0.8))
+                        .lineSpacing(17)
+
+                    Text("of San Francisco")
+                    .font(.custom("Urbanist", size: 13))
+                    .foregroundColor(.white.opacity(0.8))
+                    .lineSpacing(17)
                     
                     // Test buttons
                     HStack(spacing: 8) {
-                        Button("Login") {
+                        Button("LOGIN") {
                             vm.navigateToMainScreen(path: "/verify-user")
                         }
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.custom("Urbanist", size: 13))
+                        .lineSpacing(17)
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.blue.opacity(0.3))
+                        .background(Color.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .buttonStyle(PlainButtonStyle())
 
@@ -99,51 +173,90 @@ struct DynamicIslandContentView: View {
                 VStack(spacing: 12.0) {
                     // Top row with start button and icons
                     HStack(spacing: 0.0) {
-                        // Start button section
+                        // Start/Navigation section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Start button (starts transcription/recording) - matches image design
+                                // Home button → Reset to NotchDrop default starting page (stays within NotchDrop)
                                 Button(action: {
-                                    vm.startRecording()
+                                    vm.isTeamsView = false
+                                    vm.resetToNotchHome()
                                 }) {
                                     HStack(spacing: 6.0) {
-                                        // Custom wave icon (SVG-based)
-                                        WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                            .frame(width: 16, height: 16)
-                                        Text(vm.isConnecting ? "Connecting..." : "Start")
-                                            .font(.system(size: 13, weight: .medium))
-                                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                        Image(systemName: "house")
+                                            .font(.system(size: 14, weight: .regular))
+                                            .foregroundColor(vm.isTeamsView ? .white : .black)
                                     }
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
-                                    .overlay(
-                                        Capsule()
-                                            .stroke(DynamicIslandTheme.primaryGreen, lineWidth: 0.5)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
                                     )
-                                    .clipShape(Capsule())
                                 }
                                 .buttonStyle(PlainButtonStyle())
-                                .scaleEffect(1.0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
-                                .disabled(vm.isConnecting)
-                                .opacity(vm.isConnecting ? 0.8 : 1.0)
+
+                                // Teams pill (sets Teams view)
+                                Button(action: {
+                                    vm.isTeamsView = true
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Text("Meeting AI")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundColor(vm.isTeamsView ? .black : .white)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.clear)
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                // Removed desktop and VE icons per request
                             } else if vm.showVoiceInterface {
-                                // Voice mode indicator (when split layout is visible)
-                                HStack(spacing: 8) {
-                                    WaveIcon(color: DynamicIslandTheme.primaryGreen)
-                                        .frame(width: 16, height: 16)
-                                    Text("Voice Agent")
-                                        .font(.system(size: 12, weight: .medium))
-                                        .foregroundColor(DynamicIslandTheme.primaryGreen)
+                                // Voice controls (mute/unmute and cancel buttons)
+                                HStack(spacing: 12) {
+                                    // Mute/Unmute toggle
+                                    Button(action: {
+                                        print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                                        vm.toggleVoiceMute()
+                                        print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+                                    }) {
+                                        Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.white)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                    
+                                    // Cancel/Disconnect button
+                                    Button(action: {
+                                        print("❌ Cancel button clicked")
+                                        vm.disconnectVoiceAssistant()
+                                    }) {
+                                        RoundedRectangle(cornerRadius: 2)
+                                            .fill(Color.red)
+                                            .frame(width: 14, height: 14)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
                                 .padding(.horizontal, 12)
-                                .padding(.vertical, 4)
-                                .background(DynamicIslandTheme.primaryGreen.opacity(0.1))
-                                .overlay(
-                                    Capsule().stroke(DynamicIslandTheme.primaryGreen.opacity(0.3), lineWidth: 1)
-                                )
-                                .clipShape(Capsule())
+                                .padding(.top, 2) // Move left icons up to align with right icons
+                                .padding(.bottom, 6)
+                                .background(Color.clear) // Transparent background
                             } else {
                                 // Recording controls
                                 HStack(spacing: 4) {
@@ -240,9 +353,9 @@ struct DynamicIslandContentView: View {
 
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
-                            // VE icon with border styling (first icon)
+                            // VE icon → Open Ve app (Electron main window)
                             Button(action: {
-                                vm.navigateToMainScreen()
+                                vm.navigateToMainScreen(path: nil)
                             }) {
                                 VEIcon(color: .white)
                                     .frame(width: 16, height: 16)
@@ -251,9 +364,10 @@ struct DynamicIslandContentView: View {
                                         RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                             .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
                                     )
+                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help("VE")
+                            .help("Open Ve App")
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
@@ -276,16 +390,23 @@ struct DynamicIslandContentView: View {
                                     RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                         .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
                                 )
+                                .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
                             
                             // Information icon (third icon) with popup menu
-                            InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            // InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
                             
                             // Lock/Unlock button (fourth icon)
                             Button(action: {
+                                print("🔒 Lock button clicked - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
                                 vm.toggleNotchLock()
+                                
+                                // Force state validation after toggle
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    vm.forceLockStateRefresh()
+                                }
                             }) {
                                 Image(systemName: vm.isNotchLocked ? "lock.fill" : "lock.open.fill")
                                     .font(.system(size: 14, weight: .medium))
@@ -296,71 +417,79 @@ struct DynamicIslandContentView: View {
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
                                     )
+                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
+                            .onAppear {
+                                print("🔒 Lock button appeared - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
+                                // Validate state on appearance
+                                vm.forceLockStateRefresh()
+                            }
+                            .onChange(of: vm.isNotchLocked) { newValue in
+                                print("🔒 Lock state changed in UI: \(newValue ? "LOCKED" : "UNLOCKED")")
+                                // Force UI refresh when state changes
+                                DispatchQueue.main.async {
+                                    vm.objectWillChange.send()
+                                }
+                            }
                         }
                     }
                     
                     
-                    // Main content area - always show chat box with Voice Mode button
-                    HStack(alignment: .center, spacing: 16) {
+                    // Main content area
+                    HStack(alignment: .center, spacing: 8) {
                         if vm.showVoiceInterface {
-                            // Voice split layout (left conversation, right controls)
+                            // Voice split layout (left conversation, right controls) - PRIORITY: Always show voice interface when active
                             VoiceSplitLayout(vm: vm)
+                        } else if vm.isTeamsView {
+                            // Teams view: maintain even spacing between three blocks
+                            HStack(spacing: 12) {
+                                if !vm.isRecording {
+                                    StartMeetingCard(vm: vm)
+                                        .frame(width: 220, height: 100)
+                                }
+                                ChatTextAreaView(
+                                    chatInput: $vm.chatInput,
+                                    isTextFieldActive: $isTextFieldActive,
+                                    vm: vm
+                                )
+                                .frame(width: 400, height: 100)
+                                .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
+                                WebcamButton(vm: vm)
+                                    .frame(width: 100, height: 100)
+                            }
                         } else {
-                            // Chat input section with arrow icon inside - matches image layout
+                            // Chat input section with voice/arrow icon inside - matches image layout
                             ChatTextAreaView(
                                 chatInput: $vm.chatInput,
-                                textEditorHeight: $textEditorHeight,
                                 isTextFieldActive: $isTextFieldActive,
                                 vm: vm
                             )
-                            .frame(width: (vm.isChatMode && !vm.isRecording) ? 510 : 400) // Dynamic width: 400px initially, 510px when focused (but 400px in meeting mode)
+                            .frame(width: vm.isRecording ? 410 : 510) // 410px in meeting mode, 510px otherwise
                             .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                             .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
                             
                             // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
-                                HStack(spacing: 16) {
-                                    // Voice Mode button
-                                    VoiceModeButton(vm: vm, onFocusChat: {
-                                        print("🎯 onFocusChat callback triggered")
-                                        // When voice mode button is clicked, focus the chat input
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                            print("🎯 Setting chat input focused: true")
-                                            isChatInputFocused = true
-                                            isTextFieldActive = true
-                                            
-                                            // Ensure window is key for cursor to appear
-                                            if let window = NSApp.keyWindow {
-                                                window.makeKeyAndOrderFront(nil)
-                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                                                    window.makeFirstResponder(window.firstResponder)
-                                                }
-                                            }
-                                        }
-                                    })
-                                        .frame(width: 90, height: 90)
-                                        .transition(.scale.combined(with: .opacity))
-                                    
-                                    // Media Controllers and Calendar Row
-                                    HStack(spacing: 12) {
-                                        // Boring Notch Style Calendar - always show when not in chat mode and not recording
-                                        BoringNotchCalendarWithPermissions()
+                                HStack(spacing: 12) {
+                                    // NotchDrop Calendar - always show when not in chat mode and not recording
+                                    if vm.showCalendar {
+                                        NotchCalendarView(vm: vm)
+                                            .frame(width: 240, height: 100)
+                                            .transition(.scale(scale: 0.8).combined(with: .opacity))
+                                    }
+                                        
+                                    // Spotify Media Controller - only show when music is playing
+                                    if vm.hasActiveMusic {
+                                        SpotifyMediaController(vm: vm)
                                             .transition(.scale.combined(with: .opacity))
-                                        
-                                        // Spotify Media Controller - only show when music is playing
-                                        if vm.hasActiveMusic {
-                                            SpotifyMediaController(vm: vm)
-                                                .transition(.scale.combined(with: .opacity))
-                                        }
-                                        
-                                        // YouTube Media Controller - only show when video is playing
-                                        if vm.hasActiveVideo {
-                                            YouTubeMediaController(vm: vm)
-                                                .transition(.scale.combined(with: .opacity))
-                                        }
+                                    }
+                                    
+                                    // YouTube Media Controller - only show when video is playing
+                                    if vm.hasActiveVideo {
+                                        YouTubeMediaController(vm: vm)
+                                            .transition(.scale.combined(with: .opacity))
                                     }
                                 }
                                 .animation(.easeInOut(duration: 0.3), value: vm.hasActiveMusic)
@@ -448,8 +577,17 @@ struct DynamicIslandContentView: View {
     }
     
     private func checkBrowserForYouTube() -> Bool {
-        // Check each browser separately for better reliability
-        let browsers = ["Safari", "Google Chrome", "Firefox", "Microsoft Edge", "Arc", "Brave Browser"]
+        // Only check browsers if we have permission
+        guard vm.hasBrowserPermission else {
+            // Request permission first time
+            if !vm.browserPermissionRequested {
+                vm.requestBrowserPermission()
+            }
+            return false
+        }
+        
+        // Check only major browsers: Safari, Chrome, Firefox
+        let browsers = ["Safari", "Google Chrome", "Firefox"]
         
         for browser in browsers {
             if let (url, title) = checkBrowserApp(browser) {
@@ -567,7 +705,9 @@ struct DynamicIslandContentView: View {
         // Extract video ID from YouTube URL
         let patterns = [
             "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
-            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
         ]
         
         var videoId: String?
@@ -583,8 +723,23 @@ struct DynamicIslandContentView: View {
         
         guard let id = videoId else { return "" }
         
-        // Return YouTube embed URL with autoplay and minimal UI
-        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=0&disablekb=1"
+        // RADICAL FIX: Use nocookie domain and minimal parameters to bypass Error 153
+        // This approach uses YouTube's nocookie domain which has fewer restrictions
+        return "https://www.youtube-nocookie.com/embed/\(id)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1"
+    }
+    
+    /// Creates alternative embed URLs for fallback if Error 153 occurs
+    private func createAlternativeEmbedURLs(videoId: String) -> [String] {
+        return [
+            // Primary: nocookie domain
+            "https://www.youtube-nocookie.com/embed/\(videoId)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1",
+            // Fallback 1: Standard domain with minimal params
+            "https://www.youtube.com/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            // Fallback 2: No autoplay
+            "https://www.youtube-nocookie.com/embed/\(videoId)?controls=1&rel=0",
+            // Fallback 3: Absolute minimal
+            "https://www.youtube.com/embed/\(videoId)"
+        ]
     }
     
     private func extractYouTubeThumbnail(from url: String) {
@@ -639,66 +794,106 @@ struct DynamicIslandContentView: View {
     }
 }
 
-// MARK: - Voice Split Layout (UI parity)
+// MARK: - Voice Split Layout (New Design)
 struct VoiceSplitLayout: View {
     @ObservedObject var vm: NotchViewModel
 
     var body: some View {
-        HStack(spacing: 8) {
-            // Left: conversation list (real messages from LiveKit)
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 8) {
-                        if vm.voiceMessages.isEmpty {
-                            // Show connection status when no messages
-                            VoiceMessageBubble(
-                                sender: "System",
-                                text: vm.voiceConnectionStatus == .connected ?
-                                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
-                                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected")
-                            )
-                        } else {
-                            // Show actual conversation messages
-                            ForEach(vm.voiceMessages) { message in
-                                VoiceMessageBubble(
-                                    sender: message.sender,
-                                    text: message.content,
-                                    isFromAgent: message.isFromAgent
-                                )
-                                .id(message.id)
-                            }
-                        }
-                        
-                        // Show current status only when there are no voice messages
-                        if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
-                            VoiceMessageBubble(
-                                sender: "Status",
-                                text: vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...",
-                                isStatus: true
-                            )
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
-                .onChange(of: vm.voiceMessages.count) { _, _ in
-                    // Auto-scroll to latest message
-                    if let lastMessage = vm.voiceMessages.last {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(8)
-            .background(Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            // .border(DynamicIslandTheme.stroke.opacity(0.3), lineWidth: 0.5)
-
-            // Right: assistant controls circle (restore original functionality)
-            VoiceControlsCircle(vm: vm)
+        VStack(spacing: 0) {
+            // Main content area with transcriptions (controls are now in top left)
+            VoiceTranscriptionArea(vm: vm)
         }
         .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain to dynamic island width minus padding
+        .background(Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// MARK: - Voice Top Controls Component
+struct VoiceTopControls: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Left side: Mute/Unmute toggle
+            Button(action: {
+                print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                vm.toggleVoiceMute()
+                print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+            }) {
+                Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(vm.isMicrophoneMuted ? Color.red : DynamicIslandTheme.primaryGreen)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            // Cancel/Disconnect button
+            Button(action: {
+                print("❌ Cancel button clicked")
+                vm.disconnectVoiceAssistant()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            Spacer()
+        }
+        // .padding(.horizontal, 16)
+        // .padding(.vertical, 8)
+        // .background(Color(red: 0.1, green: 0.1, blue: 0.1)) // Darker background for controls
+    }
+}
+
+// MARK: - Voice Transcription Area Component
+struct VoiceTranscriptionArea: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            if vm.voiceMessages.isEmpty {
+                // Show connection status when no messages - centered text
+                Text(vm.voiceConnectionStatus == .connected ?
+                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
+                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
+            } else {
+                // Show only the most recent message - positioned towards top
+                if let lastMessage = vm.voiceMessages.last {
+                    Text(lastMessage.content)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 20)
+                        .id(lastMessage.id)
+                }
+            }
+            
+            // Show current status only when there are no voice messages
+            if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
+                Text(vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
     }
 }
 
@@ -711,37 +906,37 @@ struct VoiceMessageBubble: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
-                Circle()
-                    .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
-                          isStatus ? Color.yellow :
-                          Color(red: 0.173, green: 0.176, blue: 0.180))
-                    .frame(width: 6, height: 6)
+                // Circle()
+                //     .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
+                //           isStatus ? Color.yellow :
+                //           Color(red: 0.173, green: 0.176, blue: 0.180))
+                //     .frame(width: 6, height: 6)
                 Text(sender)
                     .font(.system(size: 9, weight: .medium))
-                    .foregroundColor(DynamicIslandTheme.textMuted)
+                    // .foregroundColor(DynamicIslandTheme.textMuted)
                 Spacer()
             }
             Text(text)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
+                .font(.system(size: 20, weight: .medium))
+                // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
                 .multilineTextAlignment(.leading)
         }
-        .padding(8)
-        .background(
-            isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
-            isStatus ? Color.clear :
-            Color.clear
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(
-                    isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
-                    isStatus ? Color.clear :
-                    DynamicIslandTheme.stroke.opacity(0.3),
-                    lineWidth: 0.5
-                )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        // .padding(8)
+        // .background(
+        //     isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
+        //     isStatus ? Color.clear :
+        //     Color.clear
+        // )
+        // .overlay(
+        //     RoundedRectangle(cornerRadius: 8)
+        //         .stroke(
+        //             isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
+        //             isStatus ? Color.clear :
+        //             DynamicIslandTheme.stroke.opacity(0.3),
+        //             lineWidth: 0.5
+        //         )
+        // )
+        // .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -847,7 +1042,6 @@ struct VoiceControlsCircle: View {
 struct ChatTextAreaView: View {
     @Binding var chatInput: String
     @FocusState var isChatInputFocused: Bool
-    @Binding var textEditorHeight: CGFloat
     @Binding var isTextFieldActive: Bool
     @ObservedObject var vm: NotchViewModel
     @State private var textEditorWidth: CGFloat = 0 // Will be calculated based on available space
@@ -856,25 +1050,22 @@ struct ChatTextAreaView: View {
         ZStack(alignment: .topLeading) {
             // Background for the textarea with active effect
             RoundedRectangle(cornerRadius: 8)
-                .fill(isChatInputFocused ? Color.white.opacity(0.05) : Color.clear) // Subtle background when active
+                .fill(isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.02) : Color.clear) // Subtle background when active
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(
-                            isChatInputFocused ? 
-                            DynamicIslandTheme.primaryGreen.opacity(0.8) : // Green border when active
-                            DynamicIslandTheme.white.opacity(0.7), 
-                            lineWidth: isChatInputFocused ? 1.5 : 1 // Thicker border when active
+                            DynamicIslandTheme.primaryGreen, // White border for chat box area
+                            lineWidth: 1.5 // Consistent border width
                         )
                 )
-                .frame(width: .infinity, height: textEditorHeight)
-                .shadow(
-                    color: isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear,
-                    radius: isChatInputFocused ? 4 : 0,
-                    x: 0,
-                    y: 0
-                )
+                .frame(width: .infinity, height: 100) // Fixed height
+//                 .shadow(
+// color: isChatInputFocused ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear,
+//                     radius: isChatInputFocused ? 4 : 0,
+//                     x: 0,
+//                     y: 0
+//                 )
                 .animation(DynamicIslandTheme.expansionAnimation, value: textEditorWidth)
-                .animation(.easeInOut(duration: 0.25), value: textEditorHeight)
                 .animation(.easeInOut(duration: 0.2), value: isChatInputFocused) // Smooth transition for active state
             
             // Placeholder text when empty - matches image
@@ -887,54 +1078,133 @@ struct ChatTextAreaView: View {
                     .allowsHitTesting(false) // Allow taps to pass through to TextEditor
             }
             
-            // TextEditor (multi-line text input)
+            // TextEditor (multi-line text input) with fixed height and scroll
             TextEditor(text: $chatInput)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(DynamicIslandTheme.white)
-                .accentColor(DynamicIslandTheme.white) // Ensure cursor and selection are white
+                .accentColor(DynamicIslandTheme.primaryGreen) // Green cursor for better visibility
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 16) // Extra bottom padding
                 .padding(.trailing, 40) // Add space for arrow icon
                 .background(Color.clear)
                 .focused($isChatInputFocused)
-                .frame(width: textEditorWidth, height: textEditorHeight)
+                .frame(width: textEditorWidth, height: 100) // Fixed height - no dynamic resizing
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .scrollContentBackground(.hidden) // Hide default TextEditor background
+                .scrollDisabled(false) // Enable scrolling when content exceeds height
                 .allowsHitTesting(true) // Ensure TextEditor can receive mouse events
+                .onKeyPress(keys: [.return]) { event in
+                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
+                    if event.modifiers == .shift {
+                        // Shift+Enter: Insert new line manually
+                        print("🎯 Shift+Enter detected - inserting new line")
+                        chatInput.append("\n")
+                        return .handled
+                    } else {
+                        // Enter alone: Submit chat
+                        print("🎯 Enter alone detected - submitting chat")
+                        if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            vm.submitChat()
+                        }
+                        return .handled
+                    }
+                }
                 .onTapGesture {
                     // Direct tap on TextEditor to ensure focus and cursor
                     print("🎯 TextEditor directly tapped")
                     DispatchQueue.main.async {
                         isChatInputFocused = true
                         isTextFieldActive = true
-                        // Only enable chat mode if NOT in meeting mode (recording)
-                        if !vm.isRecording {
+                        // Only enable chat mode if NOT in meeting mode (recording) and NOT in Teams/Meeting layout
+                        if !vm.isRecording && !vm.isTeamsView {
                             vm.isChatMode = true
+                        }
+                        
+                        // Force focus with a slight delay to ensure cursor appears
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isChatInputFocused = true
                         }
                     }
                 }
             
-            // Arrow icon inside the input box (bottom-right)
+            // Voice/Arrow icon inside the input box (bottom-right)
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
                     Button(action: {
-                        print("🎯 Arrow button clicked - submitting chat")
-                        if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            vm.submitChat()
+                        print("🔥 BUTTON CLICKED! isChatInputFocused: \(isChatInputFocused)")
+                        if isChatInputFocused {
+                            // Arrow mode - submit chat
+                            print("🎯 Arrow button clicked - submitting chat")
+                            if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                vm.submitChat()
+                            }
+                        } else {
+                            // Voice mode - activate voice assistant
+                            print("🎤 WAVE ICON CLICKED - activating voice assistant")
+                            print("🎤 Current showVoiceInterface: \(vm.showVoiceInterface)")
+                            print("🎤 Current voiceConnectionStatus: \(vm.voiceConnectionStatus)")
+                            // Ensure we don't accidentally focus the text area
+                            DispatchQueue.main.async {
+                                vm.connectVoiceAssistant()
+                                print("🎤 connectVoiceAssistant() called")
+                            }
                         }
                     }) {
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 14))
-                            .foregroundColor(.white)
-                            .frame(width: 24, height: 24)
-                            // .background(Color(red: 0.067, green: 0.184, blue: 0.165)) // Dark green background
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                        if isChatInputFocused {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                                .frame(width: 24, height: 24)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        } else {
+                            ZStack {
+                                // Background with styling using brand primary green
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color.white.opacity(0.01)) // background: rgba(255, 255, 255, 0.01)
+                                    .frame(width: 24, height: 24)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4) // border-radius: 4px
+                                            .stroke(DynamicIslandTheme.primaryGreen.opacity(0.30), lineWidth: 0.6) // Use brand primary green
+                                    )
+                                    .overlay(
+                                        // Inner glow effect using brand primary green
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .stroke(
+                                                LinearGradient(
+                                                    colors: [
+                                                        DynamicIslandTheme.primaryGreen.opacity(0.30),
+                                                        DynamicIslandTheme.primaryGreen.opacity(0.15),
+                                                        DynamicIslandTheme.primaryGreen.opacity(0.05),
+                                                        Color.clear
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                ),
+                                                lineWidth: 3
+                                            )
+                                            .blur(radius: 3)
+                                            .blendMode(.overlay)
+                                    )
+                                
+                                // Wave icon on top - using brand primary green
+                                WaveIcon(color: DynamicIslandTheme.primaryGreen)
+                                    .frame(width: 14, height: 14) // Icon size: 14px
+                                    .allowsHitTesting(false) // Allow touches to pass through to button
+                            }
+                            .frame(width: 24, height: 24) // Container size: 24px
+                        }
                     }
                     .buttonStyle(PlainButtonStyle())
                     .padding(.trailing, 8)
                     .padding(.bottom, 8)
+                    .contentShape(RoundedRectangle(cornerRadius: 4)) // Ensure button area matches the visual shape
+                    .allowsHitTesting(true) // Ensure button can receive taps
+                    .onTapGesture {
+                        print("🔥 TAP GESTURE DETECTED ON WAVE ICON!")
+                    }
                 }
             }
                 .onKeyPress(keys: [.return]) { event in
@@ -1000,11 +1270,31 @@ struct ChatTextAreaView: View {
                         calculateTextEditorWidth()
                     }
                 }
+                .onChange(of: vm.showVoiceInterface) { oldValue, newValue in
+                    // Adjust width when voice interface state changes
+                    withAnimation(DynamicIslandTheme.expansionAnimation) {
+                        calculateTextEditorWidth()
+                    }
+                }
         }
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
-        .onTapGesture {
-            print("🎯 Chat area tapped - attempting to focus text input")
+        .onTapGesture { location in
+            print("🎯 Chat area tapped at location: \(location) - attempting to focus text input")
+            
+            // Check if tap is in the button area (bottom-right corner)
+            let currentWidth = vm.isRecording ? 410 : 510
+            let buttonArea = CGRect(
+                x: currentWidth - 40, // 40px from right edge
+                y: 100 - 40, // 40px from bottom edge
+                width: 40,
+                height: 40
+            )
+            
+            if buttonArea.contains(location) {
+                print("🎯 Tap detected in button area - ignoring chat focus")
+                return
+            }
             
             // Find the NotchDrop window specifically
             var notchWindow: NSWindow?
@@ -1024,8 +1314,8 @@ struct ChatTextAreaView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     isChatInputFocused = true
                     isTextFieldActive = true
-                    // Only enable chat mode if NOT in meeting mode (recording)
-                    if !vm.isRecording {
+                    // Only enable chat mode if NOT in meeting mode (recording) and NOT in Teams/Meeting layout
+                    if !vm.isRecording && !vm.isTeamsView {
                         vm.isChatMode = true
                         vm.isChatInputFocused = true
                     }
@@ -1047,50 +1337,12 @@ struct ChatTextAreaView: View {
 
     
     private func handleTextChange(_ newValue: String) {
+        // Fixed height implementation - no dynamic resizing
+        // TextEditor will scroll when content exceeds the fixed height of 100px
+        print("🎯 Text changed: \(newValue.count) characters")
         
-        // Only resize based on actual content, not placeholder
-        if !newValue.isEmpty {
-
-            // Auto-resize functionality - use correct font size (13, same as TextEditor)
-            let font = NSFont.systemFont(ofSize: 13, weight: .medium)
-            let textAttributes: [NSAttributedString.Key: Any] = [
-                .font: font
-            ]
-            
-            let attributedString = NSAttributedString(string: newValue, attributes: textAttributes)
-            
-            // Calculate text size with padding constraints - match TextEditor's actual available width
-            let textWidth: CGFloat = textEditorWidth - 36 // TextEditor horizontal padding (16px each side) + small buffer for text rendering
-            print("🎯 Available text width: \(textWidth)px")
-            let boundingRect = attributedString.boundingRect(
-                with: CGSize(width: textWidth, height: .greatestFiniteMagnitude),
-                options: [.usesLineFragmentOrigin, .usesFontLeading, .usesDeviceMetrics],
-                context: nil
-            )
-            print("🎯 Calculated text height: \(boundingRect.height)px")
-            
-            // Calculate new height with min/max constraints
-            let minHeight: CGFloat = 100 // Minimum height
-            let maxHeight: CGFloat = 200 // Maximum height
-            let contentHeight = boundingRect.height + 30 // Add vertical padding for TextEditor
-            
-            let newHeight = max(minHeight, min(maxHeight, contentHeight))
-            
-            // Update height with animation if it changed significantly
-            if abs(textEditorHeight - newHeight) > 5 {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    textEditorHeight = newHeight
-                }
-            }
-        } else {
-            // Reset to minimum height when empty
-            let minHeight: CGFloat = 100
-            if abs(textEditorHeight - minHeight) > 5 {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    textEditorHeight = minHeight
-                }
-            }
-        }
+        // Keep the height fixed at 100px - scrolling will handle overflow
+        // No need to calculate or change textEditorHeight
     }
     
     private func handleFocusChange(_ newValue: Bool) {
@@ -1109,11 +1361,9 @@ struct ChatTextAreaView: View {
             calculateTextEditorWidth()
         }
         
-        // When unfocused and no text, clear chat input and reset height
+        // When unfocused and no text, clear chat input (height stays fixed)
         if !newValue && chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            withAnimation(.easeInOut(duration: 0.25)) {
-                textEditorHeight = 100 // Reset to minimum height
-            }
+            // Height remains fixed at 100px - no need to reset
         }
         
         // When focused, ensure window is key and cursor appears
@@ -1138,6 +1388,11 @@ struct ChatTextAreaView: View {
     
     // MARK: - Width Calculation Helper
     private func calculateTextEditorWidth() {
+        // In Teams/Meeting layout keep width strictly fixed regardless of focus/chat mode
+        if vm.isTeamsView {
+            textEditorWidth = 400
+            return
+        }
         // Dynamic width based on chat mode: 400px initially, 510px when focused (but 400px in meeting mode)
         let calculatedWidth: CGFloat = (vm.isChatMode && !vm.isRecording) ? 510 : 400
         
@@ -1147,13 +1402,50 @@ struct ChatTextAreaView: View {
 
 
 
-// MARK: - VEIcon (VE text icon for navigation)
+// MARK: - VEIcon (VE logo icon for navigation)
 struct VEIcon: View {
     var color: Color = .white
     var body: some View {
-        Text("VE")
-            .font(.system(size: 10, weight: .bold, design: .rounded))
-            .foregroundColor(color)
+        // Simple, clean V and E representation
+        HStack(spacing: 1) {
+            // V shape
+            ZStack {
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: 0))
+                    path.addLine(to: CGPoint(x: 3, y: 8))
+                    path.addLine(to: CGPoint(x: 4, y: 8))
+                    path.addLine(to: CGPoint(x: 7, y: 0))
+                    path.addLine(to: CGPoint(x: 5.5, y: 0))
+                    path.addLine(to: CGPoint(x: 3.5, y: 6))
+                    path.addLine(to: CGPoint(x: 1.5, y: 0))
+                    path.closeSubpath()
+                }
+                .fill(color)
+            }
+            .frame(width: 7, height: 8)
+            
+            // E shape
+            ZStack {
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: 0))
+                    path.addLine(to: CGPoint(x: 0, y: 8))
+                    path.addLine(to: CGPoint(x: 6, y: 8))
+                    path.addLine(to: CGPoint(x: 6, y: 6.5))
+                    path.addLine(to: CGPoint(x: 1.5, y: 6.5))
+                    path.addLine(to: CGPoint(x: 1.5, y: 4.5))
+                    path.addLine(to: CGPoint(x: 5, y: 4.5))
+                    path.addLine(to: CGPoint(x: 5, y: 3.5))
+                    path.addLine(to: CGPoint(x: 1.5, y: 3.5))
+                    path.addLine(to: CGPoint(x: 1.5, y: 1.5))
+                    path.addLine(to: CGPoint(x: 6, y: 1.5))
+                    path.addLine(to: CGPoint(x: 6, y: 0))
+                    path.closeSubpath()
+                }
+                .fill(color)
+            }
+            .frame(width: 6, height: 8)
+        }
+        .frame(width: 14, height: 8)
     }
 }
 
@@ -1193,25 +1485,36 @@ struct WaveIcon: View {
 
 // MARK: - WebcamIcon (SVG path rendered in SwiftUI)
 struct WebcamIcon: View {
-    var color: Color = Color(red: 0.580, green: 0.596, blue: 0.620) // #94989e
+    var color: Color = .white
     var body: some View {
         GeometryReader { geo in
-            let w: CGFloat = 24.0
-            let h: CGFloat = 24.0
+            let w: CGFloat = 20.0
+            let h: CGFloat = 21.0
             let sx = geo.size.width / w
             let sy = geo.size.height / h
             let s = min(sx, sy)
             Path { p in
-                func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * sx, y: y * sy) }
-                // Camera icon path
-                // M12 15.5A3.5 3.5 0 1 0 12 8.5A3.5 3.5 0 0 0 12 15.5Z
-                p.addEllipse(in: CGRect(x: 8.5 * sx, y: 8.5 * sy, width: 7 * sx, height: 7 * sy))
-                // M20.84 4.61A5.5 5.5 0 0 0 19.5 4H4.5A5.5 5.5 0 0 0 3.16 4.61A2 2 0 0 0 2 6.5V17A2 2 0 0 0 3.16 19.39A5.5 5.5 0 0 0 4.5 20H19.5A5.5 5.5 0 0 0 20.84 19.39A2 2 0 0 0 22 17V6.5A2 2 0 0 0 20.84 4.61ZM12 17A5 5 0 1 1 12 7A5 5 0 0 1 12 17Z
-                p.addRoundedRect(in: CGRect(x: 2 * sx, y: 4 * sy, width: 20 * sx, height: 16 * sy), cornerSize: CGSize(width: 2 * sx, height: 2 * sy))
+                // Outer circle - camera body
+                // M10 14.25C13.1066 14.25 15.625 11.7316 15.625 8.625C15.625 5.5184 13.1066 3 10 3C6.8934 3 4.375 5.5184 4.375 8.625C4.375 11.7316 6.8934 14.25 10 14.25Z
+                p.addEllipse(in: CGRect(x: 4.375 * sx, y: 3 * sy, width: 11.25 * sx, height: 11.25 * sy))
+                
+                // Inner circle - lens
+                // M10 11.125C11.3807 11.125 12.5 10.0057 12.5 8.625C12.5 7.24429 11.3807 6.125 10 6.125C8.61929 6.125 7.5 7.24429 7.5 8.625C7.5 10.0057 8.61929 11.125 10 11.125Z
+                p.addEllipse(in: CGRect(x: 7.5 * sx, y: 6.125 * sy, width: 5 * sx, height: 5 * sy))
+                
+                // Vertical line from camera to tripod
+                // M10 14.25V16.75
+                p.move(to: CGPoint(x: 10 * sx, y: 14.25 * sy))
+                p.addLine(to: CGPoint(x: 10 * sx, y: 16.75 * sy))
+                
+                // Horizontal tripod base
+                // M2.5 16.75H17.5
+                p.move(to: CGPoint(x: 2.5 * sx, y: 16.75 * sy))
+                p.addLine(to: CGPoint(x: 17.5 * sx, y: 16.75 * sy))
             }
-            .stroke(color, style: StrokeStyle(lineWidth: 1.5 * s, lineCap: .round, lineJoin: .round))
+            .stroke(color, style: StrokeStyle(lineWidth: 1.25 * s, lineCap: .round, lineJoin: .round))
         }
-        .aspectRatio(1.0, contentMode: .fit)
+        .aspectRatio(20/21, contentMode: .fit)
     }
 }
 
@@ -1346,28 +1649,60 @@ struct WebcamButton: View {
                             .multilineTextAlignment(.center)
                     }
                 } else {
-                    // Default state - webcam icon (always show unless camera preview is active)
-                    VStack(spacing: 4) {
-                        WebcamIcon(color: DynamicIslandTheme.textMuted)
-                            .frame(width: 24, height: 24)
-                        Text("Webcam")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(DynamicIslandTheme.textMuted)
+                    // Default state - frosted circular button with icon and label
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.05)) // background: rgba(255, 255, 255, 0.05)
+                            .frame(width: 100, height: 100)
+                            .background(.ultraThinMaterial) // backdrop-filter: blur(15px)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
+                            )
+                            .overlay(
+                                // Inner shadow effect using gradient
+                                Circle()
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(0.30),
+                                                Color.white.opacity(0.15),
+                                                Color.white.opacity(0.05),
+                                                Color.clear
+                                            ],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        ),
+                                        lineWidth: 2
+                                    )
+                                    .blur(radius: 1)
+                                    .blendMode(.overlay)
+                            )
+                            .clipShape(Circle())
+                        
+                        VStack(spacing: 10) {
+                            WebcamIcon(color: .white)
+                                .frame(width: 28, height: 28)
+                            Text("MIRROR")
+                                .font(.system(size: 11, weight: .medium))
+                                .kerning(0.6)
+                                .foregroundColor(.white)
+                        }
                     }
                 }
                 
-                // Error overlay
-                if let error = vm.cameraError {
-                    VStack {
-                        Spacer()
-                        Text(error)
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.red)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 8)
-                            .padding(.bottom, 4)
-                    }
-                }
+                // // Error overlay
+                // if let error = vm.cameraError {
+                //     VStack {
+                //         Spacer()
+                //         Text(error)
+                //             .font(.system(size: 9, weight: .medium))
+                //             .foregroundColor(.red)
+                //             .multilineTextAlignment(.center)
+                //             .padding(.horizontal, 8)
+                //             .padding(.bottom, 4)
+                //     }
+                // }
             }
         }
         .buttonStyle(PlainButtonStyle())
@@ -1497,352 +1832,249 @@ struct PirateIcon: View {
     }
 }
 
-// MARK: - InfoIcon
-struct InfoIcon: View {
-    var color: Color = .white
-
-    var body: some View {
-        GeometryReader { geo in
-            let scale = min(geo.size.width, geo.size.height) / 24.0
-            let offsetX = (geo.size.width - 24.0 * scale) / 2.0
-            let offsetY = (geo.size.height - 24.0 * scale) / 2.0
-            let strokeStyle = StrokeStyle(lineWidth: 2.0 * scale, lineCap: .round, lineJoin: .round)
-            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
-                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
-            }
-            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
-                CGRect(
-                    x: offsetX + (centerX - radius) * scale,
-                    y: offsetY + (centerY - radius) * scale,
-                    width: radius * 2.0 * scale,
-                    height: radius * 2.0 * scale
-                )
-            }
-
-            ZStack {
-                // Outer circle
-                Path { path in
-                    path.addEllipse(in: circleRect(12.0, 12.0, 10.0))
-                }
-                .stroke(color, style: strokeStyle)
-
-                // Inner dot (i dot)
-                Path { path in
-                    path.addEllipse(in: circleRect(12.0, 8.0, 1.5))
-                }
-                .fill(color)
-
-                // Vertical line (i stem)
-                Path { path in
-                    path.move(to: point(12.0, 10.0))
-                    path.addLine(to: point(12.0, 16.0))
-                }
-                .stroke(color, style: strokeStyle)
-            }
-        }
-        .aspectRatio(1.0, contentMode: .fit)
-    }
-}
 
 // MARK: - Notification Overlay View
-struct NotificationOverlayView: View {
-    @ObservedObject var vm: NotchViewModel
-    @State private var progressValue: Double = 0.0
-    @State private var progressTimer: Timer?
+// struct NotificationOverlayView: View {
+//     @ObservedObject var vm: NotchViewModel
+//     @State private var progressValue: Double = 0.0
+//     @State private var progressTimer: Timer?
 
-    var body: some View {
-        Group {
-            if vm.showNotificationOverlay {
-                let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
+//     var body: some View {
+//         Group {
+//             if vm.showNotificationOverlay {
+//                 let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
                 
-                // Center the notification content in the available space
-                VStack {
-                    Spacer()
+//                 // Center the notification content in the available space
+//                 VStack {
+//                     Spacer()
                     
-                    // Notification content matching the Figma design exactly
-                    VStack(spacing: 0) {
-                    // Main content area
-                    HStack(spacing: 16) {
-                        // Left content
-                        VStack(alignment: .leading, spacing: 4) {
-                            // Main title - "Meeting detected"
-                            Text("Meeting detected")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
+//                     // Notification content matching the Figma design exactly
+//                     VStack(spacing: 0) {
+//                     // Main content area
+//                     HStack(spacing: 16) {
+//                         // Left content
+//                         VStack(alignment: .leading, spacing: 4) {
+//                             // Main title - "Meeting detected"
+//                             Text("Meeting detected")
+//                                 .font(.system(size: 16, weight: .semibold))
+//                                 .foregroundColor(.white)
+//                                 .lineLimit(1)
                             
-                            // Subtitle - "Google meet • Starting in 2 min"
-                            Text("Google meet • Starting in 2 min")
-                                .font(.system(size: 13))
-                                .foregroundColor(.white.opacity(0.7))
-                                .lineLimit(1)
-                        }
+//                             // Subtitle - "Google meet • Starting in 2 min"
+//                             Text("Google meet • Starting in 2 min")
+//                                 .font(.system(size: 13))
+//                                 .foregroundColor(.white.opacity(0.7))
+//                                 .lineLimit(1)
+//                         }
                         
-                        Spacer()
+//                         Spacer()
                         
-                        // Join button on the right
-                        Button(action: {
-                            print("🎯 Join button tapped")
-                            vm.hideNotification()
-                        }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "waveform.path")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.white)
+//                         // Join button on the right
+//                         Button(action: {
+//                             print("🎯 Join button tapped")
+//                             vm.hideNotification()
+//                         }) {
+//                             HStack(spacing: 8) {
+//                                 Image(systemName: "waveform.path")
+//                                     .font(.system(size: 14))
+//                                     .foregroundColor(.white)
                                 
-                                Text("Join")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(.white.opacity(0.3), lineWidth: 1)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(.white.opacity(0.1))
-                                    )
-                            )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    .padding(.bottom, 12)
+//                                 Text("Join")
+//                                     .font(.system(size: 14, weight: .medium))
+//                                     .foregroundColor(.white)
+//                             }
+//                             .padding(.horizontal, 20)
+//                             .padding(.vertical, 10)
+//                             .background(
+//                                 RoundedRectangle(cornerRadius: 20)
+//                                     .stroke(.white.opacity(0.3), lineWidth: 1)
+//                                     .background(
+//                                         RoundedRectangle(cornerRadius: 20)
+//                                             .fill(.white.opacity(0.1))
+//                                     )
+//                             )
+//                         }
+//                         .buttonStyle(PlainButtonStyle())
+//                     }
+//                     .padding(.horizontal, 20)
+//                     .padding(.top, 16)
+//                     .padding(.bottom, 12)
                     
-                    // Green progress bar at the bottom
-                    VStack(spacing: 0) {
-                        Spacer()
+//                     // Green progress bar at the bottom
+//                     VStack(spacing: 0) {
+//                         Spacer()
                         
-                        // Progress bar
-                        GeometryReader { geometry in
-                            ZStack(alignment: .leading) {
-                                // Background
-                                Rectangle()
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(height: 3)
+//                         // Progress bar
+//                         GeometryReader { geometry in
+//                             ZStack(alignment: .leading) {
+//                                 // Background
+//                                 Rectangle()
+//                                     .fill(Color.white.opacity(0.1))
+//                                     .frame(height: 3)
                                 
-                                // Progress fill
-                                Rectangle()
-                                    .fill(Color.green)
-                                    .frame(width: geometry.size.width * progressValue, height: 3)
-                            }
-                        }
-                        .frame(height: 3)
-                    }
-                    }
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
-                    .frame(width: 370, height: 74) // Matching the Figma dimensions
-                    .onHover { isHovering in
-                        if isHovering {
-                            vm.pauseNotificationTimer()
-                        } else {
-                            vm.resumeNotificationTimer()
-                        }
-                    }
+//                                 // Progress fill
+//                                 Rectangle()
+//                                     .fill(Color.green)
+//                                     .frame(width: geometry.size.width * progressValue, height: 3)
+//                             }
+//                         }
+//                         .frame(height: 3)
+//                     }
+//                     }
+//                     .background(.ultraThinMaterial)
+//                     .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
+//                     .frame(width: 370, height: 74) // Matching the Figma dimensions
+//                     .onHover { isHovering in
+//                         if isHovering {
+//                             vm.pauseNotificationTimer()
+//                         } else {
+//                             vm.resumeNotificationTimer()
+//                         }
+//                     }
                     
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .transition(.scale(scale: 1.0).combined(with: .opacity)) // Remove scaling to prevent shadow artifacts
-                .onAppear {
-                    // Start progress bar animation that syncs with notification timer
-                    startProgressAnimation()
-                }
-                .onDisappear {
-                    // Clean up progress animation
-                    stopProgressAnimation()
-                }
-            }
-        }
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.showNotificationOverlay)
-    }
+//                     Spacer()
+//                 }
+//                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                 .transition(.scale(scale: 1.0).combined(with: .opacity)) // Remove scaling to prevent shadow artifacts
+//                 .onAppear {
+//                     // Start progress bar animation that syncs with notification timer
+//                     startProgressAnimation()
+//                 }
+//                 .onDisappear {
+//                     // Clean up progress animation
+//                     stopProgressAnimation()
+//                 }
+//             }
+//         }
+//         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.showNotificationOverlay)
+//     }
     
-    // Progress animation methods
-    private func startProgressAnimation() {
-        progressValue = 0.0
-        progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            if !vm.isNotificationHovered {
-                // Only advance progress when not hovering
-                let increment = 0.1 / 10.0 // 10 seconds total
-                progressValue = min(1.0, progressValue + increment)
-            }
-        }
-    }
+//     // Progress animation methods
+//     private func startProgressAnimation() {
+//         progressValue = 0.0
+//         progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+//             if !vm.isNotificationHovered {
+//                 // Only advance progress when not hovering
+//                 let increment = 0.1 / 10.0 // 10 seconds total
+//                 progressValue = min(1.0, progressValue + increment)
+//             }
+//         }
+//     }
     
-    private func stopProgressAnimation() {
-        progressTimer?.invalidate()
-        progressTimer = nil
-        progressValue = 0.0
-    }
-}
+//     private func stopProgressAnimation() {
+//         progressTimer?.invalidate()
+//         progressTimer = nil
+//         progressValue = 0.0
+//     }
+// }
 
-// MARK: - Voice Mode Button (Large circular button as shown in image)
-struct VoiceModeButton: View {
-    @ObservedObject var vm: NotchViewModel
-    @State private var isHovered: Bool = false
-    let onFocusChat: () -> Void
-    
-    var body: some View {
-        Button(action: {
-            print("🎤 Voice Mode button clicked - connecting to voice assistant")
-            // Connect to voice assistant instead of just enabling chat mode
-            vm.connectVoiceAssistant()
-        }) {
-            ZStack {
-                // Main circle with CSS properties
-                ZStack {
-                    // Background circle - border-radius: 100px; background: rgba(255, 255, 255, 0.01);
-                    Circle()
-                        .fill(Color.white.opacity(0.01))
-                        .frame(width: 90, height: 90)
-                    
-                  
-                    
-                    // Border - border: 1px solid #79ECC9;
-                     Circle()
-                         .stroke(Color(red: 0.475, green: 0.925, blue: 0.788), lineWidth: 1)
-                         .frame(width: 90, height: 90)
-                }
-                .scaleEffect(isHovered ? 1.05 : 1.0)
-                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-                
-                // Content with inline text
-                HStack(spacing: 2) {
-                    // "VOICE" text - bold
-                    Text("VOICE")
-                        .font(.custom("SF Pro Text", size: 10))
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .tracking(1)
-                    
-                    // "MODE" text - semibold
-                    Text("MODE")
-                        .font(.custom("SF Pro Text", size: 10))
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .tracking(1)
-                }
-                .frame(width: 90, height: 90) // width: 90px; height: 90px;
-                .padding(.horizontal, 24) // padding: 6px 24px; (horizontal)
-                .padding(.vertical, 6)    // padding: 6px 24px; (vertical)
-            }
-        }
-        .buttonStyle(PlainButtonStyle())
-        .onHover { hovering in
-            isHovered = hovering
-        }
-    }
-}
 
-// MARK: - Info Icon with Popup Menu
-struct InfoIconWithPopup: View {
-    @Binding var showInfoPopup: Bool
-    @Binding var infoPopupPosition: CGPoint
-    @State private var isHovered: Bool = false
+// // MARK: - Info Icon with Popup Menu
+// struct InfoIconWithPopup: View {
+//     @Binding var showInfoPopup: Bool
+//     @Binding var infoPopupPosition: CGPoint
+//     @State private var isHovered: Bool = false
     
-    var body: some View {
-        // Info icon button
-        Button(action: {
-            print("🎯 Information icon clicked")
-            // Toggle popup on click as well
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showInfoPopup.toggle()
-            }
-        }) {
-            InfoIcon(color: .white)
-                .frame(width: 16, height: 16)
-                .padding(8) // Increased padding for larger clickable area
-                .overlay(
-                    RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                        .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                )
-        }
-        .buttonStyle(PlainButtonStyle())
-        .help("Information")
-        .onHover { hovering in
-            isHovered = hovering
-            withAnimation(.easeInOut(duration: 0.2)) {
-                showInfoPopup = hovering
-            }
-        }
-    }
-}
+//     var body: some View {
+//         // Info icon button
+//         Button(action: {
+//             print("🎯 Information icon clicked")
+//             // Toggle popup on click as well
+//             withAnimation(.easeInOut(duration: 0.2)) {
+//                 showInfoPopup.toggle()
+//             }
+//         }) {
+//             InfoIcon(color: .white)
+//                 .frame(width: 16, height: 16)
+//                 .padding(8) // Increased padding for larger clickable area
+//                 .overlay(
+//                     RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
+//                         .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+//                 )
+//         }
+//         .buttonStyle(PlainButtonStyle())
+//         .help("Information")
+//         .onHover { hovering in
+//             isHovered = hovering
+//             withAnimation(.easeInOut(duration: 0.2)) {
+//                 showInfoPopup = hovering
+//             }
+//         }
+//     }
+// }
 
-// MARK: - Info Popup Menu Component
-struct InfoPopupMenu: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Live Intelligence
-            InfoMenuItem(
-                title: "Live Intelligence",
-                shortcutKeys: ["⌘", "\\"]
-            )
+// // MARK: - Info Popup Menu Component
+// struct InfoPopupMenu: View {
+//     var body: some View {
+//         VStack(alignment: .leading, spacing: 0) {
+//             // Live Intelligence
+//             InfoMenuItem(
+//                 title: "Live Intelligence",
+//                 shortcutKeys: ["⌘", "\\"]
+//             )
             
-            // Notch
-            InfoMenuItem(
-                title: "Notch",
-                shortcutKeys: ["⌘", "N"]
-            )
+//             // Notch
+//             InfoMenuItem(
+//                 title: "Notch",
+//                 shortcutKeys: ["⌘", "N"]
+//             )
             
-            // Ask Ve
-            InfoMenuItem(
-                title: "Ask Ve",
-                shortcutKeys: ["⌘", "⏎"]
-            )
+//             // Ask Ve
+//             InfoMenuItem(
+//                 title: "Ask Ve",
+//                 shortcutKeys: ["⌘", "⏎"]
+//             )
             
-            // Ve App
-            InfoMenuItem(
-                title: "Ve App",
-                shortcutKeys: ["⌘", "."]
-            )
-        }
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(red: 0.15, green: 0.15, blue: 0.15)) // Dark grey background
-                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
-        )
-        .frame(width: 200) // Fixed width to match design
-    }
-}
+//             // Ve App
+//             InfoMenuItem(
+//                 title: "Ve App",
+//                 shortcutKeys: ["⌘", "."]
+//             )
+//         }
+//         .padding(.vertical, 8)
+//         .background(
+//             RoundedRectangle(cornerRadius: 8)
+//                 .fill(Color(red: 0.15, green: 0.15, blue: 0.15)) // Dark grey background
+//                 .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+//         )
+//         .overlay(
+//             RoundedRectangle(cornerRadius: 8)
+//                 .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+//         )
+//         .frame(width: 200) // Fixed width to match design
+//     }
+// }
 
 // MARK: - Info Menu Item Component
-struct InfoMenuItem: View {
-    let title: String
-    let shortcutKeys: [String]
+// struct InfoMenuItem: View {
+//     let title: String
+//     let shortcutKeys: [String]
     
-    var body: some View {
-        HStack {
-            // Menu item title
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.white)
+//     var body: some View {
+//         HStack {
+//             // Menu item title
+//             Text(title)
+//                 .font(.system(size: 14, weight: .medium))
+//                 .foregroundColor(.white)
             
-            Spacer()
+//             Spacer()
             
-            // Keyboard shortcut
-            HStack(spacing: 4) {
-                ForEach(shortcutKeys, id: \.self) { key in
-                    ShortcutKeyView(keyText: key)
-                }
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            print("🎯 Menu item tapped: \(title)")
-            // Handle menu item actions here
-        }
-    }
-}
+//             // Keyboard shortcut
+//             HStack(spacing: 4) {
+//                 ForEach(shortcutKeys, id: \.self) { key in
+//                     ShortcutKeyView(keyText: key)
+//                 }
+//             }
+//         }
+//         .padding(.horizontal, 16)
+//         .padding(.vertical, 8)
+//         .contentShape(Rectangle())
+//         .onTapGesture {
+//             print("🎯 Menu item tapped: \(title)")
+//             // Handle menu item actions here
+//         }
+//     }
+// }
 
 // MARK: - Shortcut Key View Component
 struct ShortcutKeyView: View {
@@ -1876,7 +2108,7 @@ struct SpotifyMediaController: View {
         Group {
             if vm.hasActiveMusic {
                 HStack(spacing: 12) {
-            // Large album artwork (left side)
+            
             Group {
                 if let artwork = albumArtwork {
                     Image(nsImage: artwork)
@@ -1989,7 +2221,7 @@ struct SpotifyMediaController: View {
        
         .onAppear {
             updateCurrentTrackInfo()
-                }
+        }
             }
         }
     }
@@ -2220,24 +2452,36 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         
-        // Configure for video playback with sound
+        // RADICAL FIX: Minimal configuration to avoid YouTube restrictions
         configuration.allowsAirPlayForMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
+        configuration.preferences.isElementFullscreenEnabled = true
         
-        // Set user agent to avoid mobile YouTube version
-        configuration.applicationNameForUserAgent = "Version/14.1.2 Safari/605.1.15"
+        // Use a simple, clean user agent that YouTube accepts
+        configuration.applicationNameForUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
         
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
+        webView.uiDelegate = context.coordinator
         
-        // Allow sound playback
+        // Minimal settings to avoid restrictions
         webView.allowsMagnification = false
         webView.allowsBackForwardNavigationGestures = false
+        webView.allowsLinkPreview = false
+        webView.customUserAgent = configuration.applicationNameForUserAgent
         
-        // Load the YouTube embed URL
+        // Load the YouTube embed URL with minimal headers
         if let url = URL(string: embedURL) {
-            let request = URLRequest(url: url)
+            var request = URLRequest(url: url)
+            
+            // Minimal headers to avoid triggering restrictions
+            request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
+            
+            print("📺 Loading YouTube embed URL (nocookie): \(embedURL)")
             webView.load(request)
+        } else {
+            print("📺 ❌ Failed to create URL from embed URL: \(embedURL)")
         }
         
         return webView
@@ -2257,47 +2501,13 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         Coordinator()
     }
     
-    class Coordinator: NSObject, WKNavigationDelegate {
+    class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Wait a moment for the video to load, then unmute it
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                // Unmute the video and ensure it's playing with sound
-                let unmuteScript = """
-                    // Find the video element and unmute it
-                    var video = document.querySelector('video');
-                    if (video) {
-                        video.muted = false;
-                        video.volume = 0.7; // Set to 70% volume
-                        
-                        // Try to play with sound
-                        video.play().then(() => {
-                            console.log('Video playing with sound');
-                        }).catch(e => {
-                            console.log('Autoplay failed, user interaction required');
-                        });
-                    }
-                    
-                    // Also try YouTube player API if available
-                    if (typeof YT !== 'undefined' && YT.Player) {
-                        var iframe = document.querySelector('iframe');
-                        if (iframe) {
-                            try {
-                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
-                                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[70]}', '*');
-                            } catch(e) {
-                                console.log('YouTube API not available');
-                            }
-                        }
-                    }
-                """
-                
-                webView.evaluateJavaScript(unmuteScript) { result, error in
-                    if let error = error {
-                        print("📺 Error unmuting video: \(error)")
-                    } else {
-                        print("📺 Video unmuted successfully")
-                    }
-                }
+            print("📺 YouTube video page loaded successfully")
+            
+            // Wait a moment for the video to load, then configure it for production
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.configureVideoPlayer(webView: webView)
             }
             
             // Inject CSS to hide unnecessary YouTube UI elements
@@ -2310,12 +2520,249 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     .ytp-watermark { 
                         display: none !important; 
                     }
+                    .ytp-chrome-top { 
+                        display: none !important; 
+                    }
+                    .ytp-show-cards-title { 
+                        display: none !important; 
+                    }
                 `;
                 document.head.appendChild(style);
             """
             
-            webView.evaluateJavaScript(css, completionHandler: nil)
+            webView.evaluateJavaScript(css) { result, error in
+                if let error = error {
+                    print("📺 Error injecting CSS: \(error)")
+                } else {
+                    print("📺 CSS injected successfully")
+                }
+            }
         }
+        
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            print("📺 YouTube video failed to load: \(error.localizedDescription)")
+            
+            // Try to load a fallback or show error message
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.handleVideoLoadError(webView: webView, error: error)
+            }
+        }
+        
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            print("📺 YouTube video provisional navigation failed: \(error.localizedDescription)")
+        }
+        
+        private func configureVideoPlayer(webView: WKWebView) {
+            // RADICAL FIX: Multi-level Error 153 detection and recovery
+            let configureScript = """
+                (function() {
+                    console.log('📺 Checking for Error 153...');
+                    
+                    // Check for Error 153 specifically
+                    setTimeout(() => {
+                        var errorText = document.body.innerText.toLowerCase();
+                        if (errorText.includes('error 153') || errorText.includes('video player configuration error')) {
+                            console.log('📺 Error 153 detected! Attempting multiple recovery methods...');
+                            
+                            var iframe = document.querySelector('iframe');
+                            if (iframe && iframe.src.includes('youtube')) {
+                                var videoId = iframe.src.match(/embed\\/([a-zA-Z0-9_-]{11})/);
+                                if (videoId && videoId[1]) {
+                                    var fallbackUrls = [
+                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
+                                        'https://www.youtube.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?controls=1&rel=0',
+                                        'https://www.youtube.com/embed/' + videoId[1]
+                                    ];
+                                    
+                                    // Try each fallback URL
+                                    var currentIndex = 0;
+                                    function tryNextFallback() {
+                                        if (currentIndex < fallbackUrls.length) {
+                                            console.log('📺 Trying fallback URL ' + (currentIndex + 1) + ':', fallbackUrls[currentIndex]);
+                                            iframe.src = fallbackUrls[currentIndex];
+                                            currentIndex++;
+                                            
+                                            // Check if this one worked after 3 seconds
+                                            setTimeout(() => {
+                                                var newErrorText = document.body.innerText.toLowerCase();
+                                                if (newErrorText.includes('error 153') || newErrorText.includes('video player configuration error')) {
+                                                    console.log('📺 Fallback ' + currentIndex + ' failed, trying next...');
+                                                    tryNextFallback();
+                                                } else {
+                                                    console.log('📺 Fallback ' + currentIndex + ' succeeded!');
+                                                }
+                                            }, 3000);
+                                        } else {
+                                            console.log('📺 All fallback URLs failed');
+                                        }
+                                    }
+                                    
+                                    tryNextFallback();
+                                }
+                            }
+                        } else {
+                            console.log('📺 No Error 153 detected - video should work');
+                        }
+                    }, 2000);
+                })();
+            """
+            
+            webView.evaluateJavaScript(configureScript) { result, error in
+                if let error = error {
+                    print("📺 Error in configure script: \(error)")
+                } else {
+                    print("📺 Error 153 multi-fallback detection script executed")
+                }
+            }
+        }
+        
+        private func handleVideoLoadError(webView: WKWebView, error: Error) {
+            let errorScript = """
+                (function() {
+                    console.log('📺 Handling video load error...');
+                    
+                    // Try to show a user-friendly error message
+                    var errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; text-align: center; font-family: system-ui;';
+                    errorDiv.innerHTML = '<h3>Video Error</h3><p>Unable to load YouTube video</p><button onclick="location.reload()" style="background: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Retry</button>';
+                    
+                    document.body.appendChild(errorDiv);
+                    
+                    // Try to reload after 3 seconds
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                })();
+            """
+            
+            webView.evaluateJavaScript(errorScript) { result, error in
+                print("📺 Error handling script executed")
+            }
+        }
+    }
+}
+
+// MARK: - Browser Permission Request View
+struct BrowserPermissionRequestView: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Icon
+            Image(systemName: "globe")
+                .font(.system(size: 28))
+                .foregroundColor(DynamicIslandTheme.primaryGreen)
+            
+            // Title and description
+            VStack(spacing: 8) {
+                Text("Browser Access")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+                
+                Text("Allow access to Safari, Chrome, and Firefox to detect YouTube videos playing in your browser")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            // Buttons
+            HStack(spacing: 12) {
+                Button("Not Now") {
+                    vm.denyBrowserPermission()
+                }
+                .buttonStyle(SystemSecondaryButtonStyle())
+                
+                Button("Allow") {
+                    vm.grantBrowserPermission()
+                }
+                .buttonStyle(SystemPrimaryButtonStyle())
+            }
+        }
+        .padding(24)
+        .frame(width: 360, height: 200)
+        .background(
+            // System notification-like background
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(.separator.opacity(0.5), lineWidth: 0.5)
+        )
+    }
+}
+
+// MARK: - System-like Button Styles for Permission Request
+struct SystemPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.accentColor)
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SystemSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.primary)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.quaternary)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(.separator.opacity(0.5), lineWidth: 0.5)
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Legacy Button Styles (kept for compatibility)
+struct PrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(DynamicIslandTheme.primaryGreen)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white.opacity(0.7))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.white.opacity(0.1))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 

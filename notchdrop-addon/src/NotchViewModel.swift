@@ -12,16 +12,57 @@ class NotchViewModel: NSObject, ObservableObject {
         self.inset = inset
         super.init()
         setupCancellables()
-        // Calendar will be initialized directly by CalendarView
+        
+        // CRITICAL: Validate lock state on initialization
+        print("🔒 Initializing NotchViewModel - validating lock state...")
+        DispatchQueue.main.async { [weak self] in
+            self?.validateLockState()
+        }
+        
+        // Calendar will be initialized directly by Calendar
     }
 
     deinit {
+        // Clean up browser permission window
+        if let window = browserPermissionWindow {
+            window.orderOut(nil)
+            browserPermissionWindow = nil
+        }
         destroy()
     }
 
     let animation: Animation = DynamicIslandTheme.expansionAnimation
     // Fixed size - no width expansion functionality
     var notchOpenedSize: CGSize {
+        // Teams view: fixed compact width
+        if isTeamsView {
+            // When meeting is active (start card hidden), fix width to 580 so chat + webcam fit
+            if isRecording {
+                let fixedWidth: CGFloat = 580
+                let maxAllowed = max(500, screenRect.width - 40)
+                return .init(
+                    width: min(fixedWidth, maxAllowed),
+                    height: DynamicIslandTheme.expandedHeight
+                )
+            }
+            // Responsive width for Meeting mode with Start card visible
+            let startWidth: CGFloat = 220
+            let chatWidth: CGFloat = 400 // Fixed chat width
+            let webcamWidth: CGFloat = 100
+            let innerGaps: CGFloat = 12 * 2 // spacing between the three items
+            let outerPadding: CGFloat = spacing * 2 // view padding
+            let buffer: CGFloat = 24 // breathing room for outlines/shadows
+            let desiredWidth = startWidth + chatWidth + webcamWidth + innerGaps + outerPadding + buffer
+            let minComfortableWidth: CGFloat = 800 // Increased minimum width for larger screens
+            let targetWidth = max(desiredWidth, minComfortableWidth)
+            let maxAllowed = max(600, screenRect.width - 40) // Increased minimum allowed width
+            let baseWidth = min(targetWidth, maxAllowed)
+            let adjustedWidth = max(600, baseWidth) // Increased minimum width
+            return .init(
+                width: adjustedWidth,
+                height: DynamicIslandTheme.expandedHeight
+            )
+        }
         // When showing notification, use notification-specific dimensions matching Figma
         if showNotificationOverlay {
             return .init(
@@ -40,7 +81,7 @@ class NotchViewModel: NSObject, ObservableObject {
         } else {
             // Normal mode - show calendar and media controllers if available
             let baseWidth: CGFloat = 580  // Width without any additional components
-            let calendarWidth: CGFloat = 200  // Width of Boring Notch style calendar component
+            let calendarWidth: CGFloat = 240  // Width of Boring Notch style calendar component (increased for month header)
             let spotifyWidth: CGFloat = 160  // Width of Spotify controller
             let youtubeWidth: CGFloat = showVideoPlayer ? 300 : 200  // Width of YouTube player (300) vs controller (200)
             let mediaWidth = (hasActiveMusic ? spotifyWidth : 0) + (hasActiveVideo ? youtubeWidth : 0)
@@ -82,6 +123,21 @@ class NotchViewModel: NSObject, ObservableObject {
             height: notchOpenedSize.height
         )
     }
+    
+    var notchClosedRect: CGRect {
+        // Calculate the actual visual size of the closed notch (including our width increase)
+        let isMacBookPro = deviceNotchRect.width > 180
+        let widthIncrease: CGFloat = isMacBookPro ? 200 : 160
+        let visualWidth = deviceNotchRect.width + widthIncrease
+        let visualHeight = max(0, deviceNotchRect.height - 8)
+        
+        return .init(
+            x: screenRect.origin.x + (screenRect.width - visualWidth) / 2,
+            y: screenRect.origin.y + screenRect.height - visualHeight,
+            width: visualWidth,
+            height: visualHeight
+        )
+    }
 
     var headlineOpenedRect: CGRect {
         .init(
@@ -114,7 +170,17 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var videoEmbedURL: String = ""
     @Published var showVideoPlayer: Bool = false
     @Published var notchVisible: Bool = true
-    @Published var isNotchLocked: Bool = false
+    @PublishedPersist(key: "isNotchLocked", defaultValue: true)
+    var isNotchLocked: Bool
+    
+    // Browser permission state for YouTube detection
+    @PublishedPersist(key: "hasBrowserPermission", defaultValue: false)
+    var hasBrowserPermission: Bool
+    @Published var browserPermissionRequested: Bool = false
+    @Published var showBrowserPermissionRequest: Bool = false
+    
+    // Browser permission window
+    private var browserPermissionWindow: NSWindow?
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
     var selectedLanguage: Language
@@ -136,6 +202,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var controlledByDynamicIsland: Bool = false
     @Published var isConnecting = false
     @Published var isStealthModeEnabled: Bool = false
+    @Published var isTeamsView: Bool = false
     
     // Chat expansion state
     @Published var isChatExpanded: Bool = false // Deprecated - no longer used for width expansion
@@ -146,6 +213,9 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var showVoiceInterface: Bool = false
     @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
     @Published var isMicrophoneMuted: Bool = false
+    
+    // Calendar UI state
+    @Published var showCalendar: Bool = true // Show calendar by default in normal mode
     
     // Voice Assistant Integration (Web-based approach)
     @Published var voiceMessages: [VoiceMessage] = []
@@ -237,6 +307,8 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     private var timerCancellable: AnyCancellable?
+    private var lastNavigationTimestamp: Date = .distantPast
+    private var lastNavigationPath: String? = nil
 
     func notchOpen(_ reason: OpenReason) {
         openReason = reason
@@ -251,8 +323,17 @@ class NotchViewModel: NSObject, ObservableObject {
     }
 
     func notchClose() {
+        // CRITICAL: Always validate lock state before attempting to close
+        print("🔒 Attempting to close notch - current lock state: \(isNotchLocked ? "LOCKED" : "UNLOCKED")")
+        
         // Don't close if notch is locked
-        guard !isNotchLocked else { return }
+        guard !isNotchLocked else { 
+            print("🔒 ❌ Notch close BLOCKED - notch is locked (isNotchLocked: \(isNotchLocked))")
+            print("🔒 💡 User must unlock the notch first by clicking the lock button")
+            return 
+        }
+        
+        print("🔒 ✅ Closing notch - unlocked state confirmed (isNotchLocked: \(isNotchLocked))")
         
         openReason = .unknown
         status = .closed
@@ -260,15 +341,59 @@ class NotchViewModel: NSObject, ObservableObject {
         
         // Emit collapse action for JavaScript
         swiftActionSender.send(.collapse)
+        
+        print("🔒 ✅ Notch closed successfully")
     }
     
     func toggleNotchLock() {
-        isNotchLocked.toggle()
+        let currentState = isNotchLocked
+        let newValue = !currentState
+        
+        print("🔒 Toggling notch lock: \(currentState ? "LOCKED" : "UNLOCKED") -> \(newValue ? "LOCKED" : "UNLOCKED")")
+        
+        // IMMEDIATE synchronous state update to prevent race conditions
+        isNotchLocked = newValue
+        
+        // Verify state was actually updated
+        print("🔒 Lock state immediately after update: \(isNotchLocked ? "LOCKED" : "UNLOCKED")")
+        
+        // Force UI refresh immediately
+        objectWillChange.send()
         
         if isNotchLocked {
             // If locking, ensure notch is open
             notchOpen(.click)
+        } else {
+            // If unlocking, log the state change
+            print("🔒 Notch UNLOCKED - click outside should now work")
+            
+            // Force another UI update to ensure consistency
+            DispatchQueue.main.async { [weak self] in
+                self?.objectWillChange.send()
+            }
         }
+    }
+
+    // MARK: - Lock State Validation
+    
+    /// Validates and ensures lock state consistency
+    private func validateLockState() {
+        print("🔒 Validating lock state: \(isNotchLocked ? "LOCKED" : "UNLOCKED")")
+        
+        // Force UI update to ensure consistency
+        objectWillChange.send()
+        
+        // Log current state for debugging
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            print("🔒 Lock state validation complete: \(self.isNotchLocked ? "LOCKED" : "UNLOCKED")")
+        }
+    }
+    
+    /// Forces a complete state refresh
+    func forceLockStateRefresh() {
+        print("🔒 Force refreshing lock state...")
+        validateLockState()
     }
 
     func showSettings() {
@@ -728,7 +853,19 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func navigateToMainScreen(path: String? = nil) {
+        // Throttle duplicate/rapid navigations to avoid feedback loops
+        let now = Date()
+        let since = now.timeIntervalSince(lastNavigationTimestamp)
+        if since < 0.5 && (path == nil || path == lastNavigationPath) {
+            print("⏱️ Throttled navigateToMainScreen to prevent rapid duplicate calls: \(path ?? "<default>")")
+            return
+        }
+        lastNavigationTimestamp = now
+        lastNavigationPath = path
         print("🏠 Navigating to main screen - resetting UI state")
+        
+        // Reset to default home mode (exit Teams view)
+        isTeamsView = false
         
         // Reset chat-related state
         isChatMode = false
@@ -755,6 +892,42 @@ class NotchViewModel: NSObject, ObservableObject {
         swiftActionSender.send(.navigateToMainScreen(path))
         
         print("✅ Main screen navigation completed - all states reset")
+    }
+    
+    func resetToNotchHome() {
+        print("🏠 Resetting to NotchDrop Swift home - staying within NotchDrop interface")
+        
+        // Reset to default home mode (exit Teams view)
+        isTeamsView = false
+        
+        // Reset chat-related state
+        isChatMode = false
+        isChatExpanded = false
+        chatInput = ""
+        isSendingMessage = false
+        
+        // Reset voice interface state
+        if showVoiceInterface {
+            disconnectVoiceUI()
+        }
+        
+        // Reset recording state if active
+        if isRecording {
+            stopRecording()
+        }
+        
+        // Reset webcam state
+        if isCameraActive {
+            stopWebcam()
+        }
+        
+        // Reset notification overlay
+        if showNotificationOverlay {
+            hideNotification()
+        }
+        
+        // Do NOT send JavaScript action - stay within NotchDrop Swift interface
+        print("✅ NotchDrop Swift home reset completed - staying within NotchDrop")
     }
     
     // MARK: - Webcam Functionality
@@ -875,10 +1048,150 @@ class NotchViewModel: NSObject, ObservableObject {
     func updateCameraError(_ error: String?) {
         DispatchQueue.main.async {
             self.cameraError = error
-            if let error = error {
-                // print("📹 Camera error: \(error)")
+            if error != nil {
+                // print("📹 Camera error: \(error ?? "Unknown error")")
             }
         }
+    }
+    
+    // MARK: - Browser Permission Methods
+    
+    /// Set up browser permission window monitoring
+    func setupBrowserPermissionWindow() {
+        // Monitor showBrowserPermissionRequest changes
+        $showBrowserPermissionRequest
+            .sink { [weak self] shouldShow in
+                if shouldShow {
+                    self?.createBrowserPermissionWindow()
+                } else {
+                    self?.closeBrowserPermissionWindow()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    /// Request browser permission for YouTube detection
+    func requestBrowserPermission() {
+        print("🌐 Requesting browser permission for YouTube detection...")
+        
+        DispatchQueue.main.async {
+            self.browserPermissionRequested = true
+            self.showBrowserPermissionRequest = true
+        }
+    }
+    
+    /// Grant browser permission
+    func grantBrowserPermission() {
+        print("🌐 Browser permission granted - starting permission flow")
+        
+        DispatchQueue.main.async {
+            print("🌐 Setting hasBrowserPermission = true")
+            self.hasBrowserPermission = true
+            print("🌐 Setting showBrowserPermissionRequest = false")
+            self.showBrowserPermissionRequest = false
+            print("🌐 Browser permission flow completed")
+        }
+    }
+    
+    /// Deny browser permission
+    func denyBrowserPermission() {
+        print("🌐 Browser permission denied")
+        
+        DispatchQueue.main.async {
+            self.hasBrowserPermission = false
+            self.showBrowserPermissionRequest = false
+        }
+    }
+    
+    /// Create centered browser permission window
+    private func createBrowserPermissionWindow() {
+        guard browserPermissionWindow == nil else { 
+            print("🌐 Browser permission window already exists, skipping creation")
+            return 
+        }
+        
+        print("🌐 Creating browser permission window...")
+        
+        // Get the main screen
+        guard let screen = NSScreen.main else { 
+            print("🌐 Error: Could not get main screen")
+            return 
+        }
+        let screenFrame = screen.frame
+        
+        // Create a centered window like system notifications
+        let windowWidth: CGFloat = 360
+        let windowHeight: CGFloat = 200
+        let windowFrame = NSRect(
+            x: screenFrame.midX - windowWidth / 2,
+            y: screenFrame.midY - windowHeight / 2 + 100, // Slightly above center like system notifications
+            width: windowWidth,
+            height: windowHeight
+        )
+        
+        browserPermissionWindow = NSWindow(
+            contentRect: windowFrame,
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        
+        guard let window = browserPermissionWindow else { 
+            print("🌐 Error: Failed to create browser permission window")
+            return 
+        }
+        
+        print("🌐 Browser permission window created successfully")
+        
+        // Configure window like system notifications - but safer settings
+        window.level = .modalPanel  // Use modalPanel instead of floating to avoid conflicts
+        window.isOpaque = false
+        window.backgroundColor = NSColor.clear
+        window.hasShadow = true
+        window.isMovable = false
+        window.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        window.animationBehavior = .documentWindow
+        window.isReleasedWhenClosed = false  // Prevent automatic cleanup
+        window.hidesOnDeactivate = false     // Don't hide when app loses focus
+        
+        // Create the permission view
+        let permissionView = BrowserPermissionRequestView(vm: self)
+        let hostingView = NSHostingView(rootView: permissionView)
+        window.contentView = hostingView
+        
+        // Show with animation - but don't make it key window
+        window.alphaValue = 0
+        window.orderFront(nil)  // Use orderFront instead of makeKeyAndOrderFront
+        
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.3
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            window.animator().alphaValue = 1.0
+        }
+    }
+    
+    /// Close browser permission window
+    private func closeBrowserPermissionWindow() {
+        guard let window = browserPermissionWindow else { 
+            print("🌐 Browser permission window already closed")
+            return 
+        }
+        
+        print("🌐 Closing browser permission window...")
+        
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.2
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            window.animator().alphaValue = 0.0
+        }, completionHandler: {
+            // Safely close the window
+            DispatchQueue.main.async {
+                print("🌐 Ordering out browser permission window")
+                window.orderOut(nil)  // Use orderOut instead of close()
+                self.browserPermissionWindow = nil
+                print("🌐 Browser permission window closed successfully")
+            }
+        })
     }
     
     // New method to send log messages to Electron

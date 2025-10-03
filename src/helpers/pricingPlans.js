@@ -3,18 +3,27 @@ export const pricingPlansData = {
 		free: {
 			name: 'Free',
 			features: [
-				'5 meetings/month',
-				'30 mins/meeting',
-				// 'Live summaries',
-				// 'Speaker ID',
-				// '5 Pro Queries/meeting',
-				// '1 personal agent',
-				// `100 runs/month`,
-				// 'No multi-agent support',
-				// `10 files (100MB total, 5MB/file)`,
-				`100 credits/day`,
-				`Basic auth`,
+				`5 meetings/month`,
+
+				`30 mins/meeting`,
+
+				`Meeting transcripts + summaries`,
+
+				`AskVe (last 7 days of mail/docs)`,
+
+				`100 credits/day (~3,000/month)`,
+
 				`Help Center`,
+			],
+			isSeatBased: false,
+		},
+		basic: {
+			name: 'Basic',
+			features: [
+				`Unlimited meetings (60 mins each)`,
+				`AskVe search (Gmail + Calendar)`,
+				`1,990 credits/month`,
+				`Email support (48 hr response)`,
 			],
 			isSeatBased: false,
 		},
@@ -35,25 +44,23 @@ export const pricingPlansData = {
 		Plus: {
 			name: 'Plus',
 			features: [
-				'Unlimited meetings/month',
-				'Unlimited mins/meeting',
-				'Multi-agent support',
-				'1,990 credits/month',
-				// 'Help Centre',
-				'Email support (12–24 hr response)',
+				'Unlimited meetings (no time limit)',
+				'AskVe search (Gmail + Calendar + Outlook)',
+				'Proactive meeting insights (summaries + action items)',
+				'3,990 credits/month',
+				'Priority email support (12–24 hr response)',
 			],
 			isSeatBased: true,
 		},
 		Pro: {
 			name: 'Pro',
 			features: [
-				`Unlimited meetings`,
-				`Unlimited Pro Queries`,
-				// `Unlimited runs`,
-				`Multi-agent support`,
-				`Marketplace integrations`,
-				`3,900 credits/month`,
-				`Priority support`,
+				'Unlimited meetings',
+				'AskVe full enterprise search (Gmail, Outlook, Drive, Docs, PDFs)',
+				'Advanced AskVe queries (multi-agent cross-search reasoning)',
+				'Marketplace integrations (Slack, Notion, Jira)',
+				'19,900 credits/month',
+				'Priority support (live chat, faster SLA)',
 			],
 			isSeatBased: true,
 			defaultUsers: 1,
@@ -64,11 +71,11 @@ export const pricingPlansData = {
 		enterprise: {
 			name: 'Enterprise',
 			features: [
-				'Unlimited meetings & mins',
-				'Unlimited Pro Queries',
+				'Everything in Pro',
 				'Unlimited/custom integrations',
-				'Marketplace integrations',
-				'Early access to experimental features',
+				'Dedicated onboarding & account manager',
+				'Early access to new features (voice agent, desktop intelligence, etc.)',
+				'Compliance & admin controls',
 			],
 			price: 'Custom',
 			_id: 'enterprise-plan',

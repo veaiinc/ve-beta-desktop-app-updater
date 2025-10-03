@@ -1,11 +1,10 @@
-import { Tooltip } from 'antd';
+// import { Tooltip } from 'antd';
 import { memo } from 'react';
 import DomainInfo from './DomainInfo';
-import ToolTipContainer from '../popover/ToolTipContainer';
+// import ToolTipContainer from '../popover/ToolTipContainer';
 import InfoToolTip from './InfoToolTip';
 
-const workspaceHandleInfoText =
-	'This is your workspace’s unique identity across Ve.ai like your team’s online home.';
+const workspaceHandleInfoText = 'any sharable links will be using this sub domain';
 const WorkspaceHandle = ({
 	companyName,
 	handleSetCompanyName,
@@ -19,7 +18,8 @@ const WorkspaceHandle = ({
 	return (
 		<div className="companyNameContainer">
 			<p className="question">
-				Name of your Workspace handle? <InfoToolTip text={workspaceHandleInfoText} />
+				What's the name of your company or business?{' '}
+				<InfoToolTip text={workspaceHandleInfoText} />
 			</p>
 			<div className="companyNameAndLogoInputs">
 				<input

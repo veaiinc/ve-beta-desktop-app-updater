@@ -1,4 +1,5 @@
 import { useState, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../../assets/scss/pricingPlans/webSitePricingPage.scss';
 // import QuickActions from '../../components/globalComponents/QuickActions';
 import { ReactComponent as CheckmarkSVG } from '../../../assets/svg/Settings/PricingCheck.svg';
@@ -10,16 +11,22 @@ import { ReactComponent as CloseSVG } from '../../../assets/svg/close.svg';
 import { ReactComponent as SlackIcon } from '../../../assets/svg/slack.svg';
 import { ReactComponent as GoogleDriveIcon } from '../../../assets/svg/Settings/google-drive.svg';
 import { ReactComponent as MailIcon } from '../../../assets/svg/mail.svg';
+import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
 
 const plans = [
 	{
 		key: 'free',
 		name: 'Free',
-		price: { monthly: 0, yearly: 0 },
-		userInfo: { monthly: '1 User/48 Hours', yearly: '1 User/48 Hours' },
+		price: { monthly: '$0', yearly: '$0' },
+		userInfo: { monthly: '1 User', yearly: '1 User' },
 		subscribeLabel: 'Get Started',
 		features: [
-			'Get full access to all features (except Proactive AI) for 48 hours, including 5,000 tokens.',
+			`5 meetings/month`,
+			`30 mins/meeting`,
+			`Meeting transcripts + summaries`,
+			`AskVe (last 7 days of mail/docs)`,
+			`100 credits/day (~3,000/month)`,
+			`Help Center`,
 		],
 		description: 'Start free upgrade anytime to keep your data!',
 		featuresTitle: '',
@@ -29,30 +36,53 @@ const plans = [
 		isBasicIntegrationAvailable: false,
 		basicIntegration: [],
 	},
+	// {
+	// 	key: 'basic',
+	// 	name: 'Basic',
+	// 	price: { monthly: '$19', yearly: '$190' },
+	// 	userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
+	// 	subscribeLabel: 'Subscribe',
+	// 	//featuresTitle: 'Everything in Free',
+	// 	features: [
+	// 		`Unlimited meetings (60 mins each)`,
+	// 		`AskVe search (Gmail + Calendar)`,
+	// 		`1,990 credits/month`,
+	// 		`Email support (48 hr response)`,
+	// 	],
+	// 	tokens: null,
+	// 	highlight: false,
+	// 	isBasicIntegrationAvailable: false,
+	// 	basicIntegration: [{ label: 'Mail', icon: <MailIcon width={16} height={16} /> }],
+	// },
+
 	{
 		key: 'Plus',
 		name: 'Plus',
-		price: { monthly: 10, yearly: 120 },
+		price: { monthly: '$39', yearly: '$390' },
 		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
 		subscribeLabel: 'Subscribe',
-		featuresTitle: 'Everything in Free',
+		//featuresTitle: 'Everything in Free',
 		features: [
-			'LLM selection',
-			'Unified Memory Graph',
-			'Enterprise Search',
-			'Unlimited Storage',
-			'Basic integrations',
+			`Unlimited meetings (no time limit)`,
+
+			`AskVe search (Gmail + Calendar + Outlook)`,
+
+			`Proactive meeting insights (summaries + action items)`,
+
+			`3,990 credits/month`,
+
+			`Priority email support (12–24 hr response)`,
 		],
-		aiFeatures: [
-			'AI included',
-			'Enterprise Search',
-			'AI Note Taker',
-			'AI Meeting Notes',
-			'Presentations',
-			'AI Research Mode',
-			'Proactive AI',
-			'AI Agents',
-		],
+		// aiFeatures: [
+		// 	'AI included',
+		// 	'Enterprise Search',
+		// 	'AI Note Taker',
+		// 	'AI Meeting Notes',
+		// 	'Presentations',
+		// 	'AI Research Mode',
+		// 	'Proactive AI',
+		// 	'AI Agents',
+		// ],
 		tokens: 2500,
 		highlight: false,
 		isBasicIntegrationAvailable: true,
@@ -62,100 +92,106 @@ const plans = [
 			{ label: 'Mail', icon: <MailIcon width={16} height={16} /> },
 		],
 	},
-	{
-		key: 'os',
-		name: 'OS',
-		price: { monthly: 35, yearly: 420 },
-		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
-		subscribeLabel: 'Subscribe',
-		featuresTitle: 'Everything in Plus',
-		features: [
-			'Forms',
-			'AI Files Hub',
-			'Website',
-			'Presentations',
-			'Database & Pages',
-			'Unlimited Clients & Pages',
-			'Invoices & Payments',
-			'Proposals & Contracts',
-			'Calendar',
-			'All Professional Templates',
-			'Client Portal',
-			'Scheduler',
-			'Automations',
-			'Calendar Scheduler',
-		],
-		aiFeatures: [
-			'AI included',
-			'Enterprise Search',
-			'AI Note Taker',
-			'AI Meeting Notes',
-			'Presentations',
-			'AI Research Mode',
-			'Proactive AI',
-			'AI Agents',
-		],
-		tokens: null,
-		highlight: false,
-		badge: { label: 'Recommended' },
-		isBasicIntegrationAvailable: false,
-		basicIntegration: [],
-	},
-	{
-		key: 'proactive',
-		name: 'Pro Active',
-		price: { monthly: 60, yearly: 720 },
-		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
-		subscribeLabel: 'Subscribe',
-		featuresTitle: 'Everything in OS',
-		features: [
-			'24x7 Support',
-			'Security & Compliance',
-			'Unlimited AI',
-			'Customer Success Manager',
-			'Advanced Integration',
-		],
-		aiFeatures: [
-			'AI included',
-			'Enterprise Search',
-			'AI Note Taker',
-			'AI Meeting Notes',
-			'Presentations',
-			'AI Research Mode',
-			'Proactive AI',
-			'AI Agents',
-		],
-		tokens: null,
-		highlight: false,
-		isBasicIntegrationAvailable: false,
-		basicIntegration: [],
-	},
+	// {
+	// 	key: 'os',
+	// 	name: 'OS',
+	// 	price: { monthly: '$35', yearly: '$420' },
+	// 	userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
+	// 	subscribeLabel: 'Subscribe',
+	// 	featuresTitle: 'Everything in Plus',
+	// 	features: [
+	// 		'Forms',
+	// 		'AI Files Hub',
+	// 		'Website',
+	// 		'Presentations',
+	// 		'Database & Pages',
+	// 		'Unlimited Clients & Pages',
+	// 		'Invoices & Payments',
+	// 		'Proposals & Contracts',
+	// 		'Calendar',
+	// 		'All Professional Templates',
+	// 		'Client Portal',
+	// 		'Scheduler',
+	// 		'Automations',
+	// 		'Calendar Scheduler',
+	// 	],
+	// 	// aiFeatures: [
+	// 	// 	'AI included',
+	// 	// 	'Enterprise Search',
+	// 	// 	'AI Note Taker',
+	// 	// 	'AI Meeting Notes',
+	// 	// 	'Presentations',
+	// 	// 	'AI Research Mode',
+	// 	// 	'Proactive AI',
+	// 	// 	'AI Agents',
+	// 	// ],
+	// 	tokens: null,
+	// 	highlight: false,
+	// 	badge: { label: 'Recommended' },
+	// 	isBasicIntegrationAvailable: false,
+	// 	basicIntegration: [],
+	// },
+	// {
+	// 	key: 'pro',
+	// 	name: 'Pro',
+	// 	price: { monthly: '$199', yearly: '$1990' },
+	// 	userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
+	// 	subscribeLabel: 'Subscribe',
+	// 	//featuresTitle: 'Everything in OS',
+	// 	features: [
+	// 		`Unlimited meetings`,
+
+	// 		`AskVe full enterprise search (Gmail, Outlook, Drive, Docs, PDFs)`,
+
+	// 		`Advanced AskVe queries (multi-agent cross-search reasoning)`,
+
+	// 		`Marketplace integrations (Slack, Notion, Jira)`,
+
+	// 		`19,900 credits/month`,
+
+	// 		`Priority support (live chat, faster SLA)`,
+	// 	],
+	// 	// aiFeatures: [
+	// 	// 	'AI included',
+	// 	// 	'Enterprise Search',
+	// 	// 	'AI Note Taker',
+	// 	// 	'AI Meeting Notes',
+	// 	// 	'Presentations',
+	// 	// 	'AI Research Mode',
+	// 	// 	'Proactive AI',
+	// 	// 	'AI Agents',
+	// 	// ],
+	// 	tokens: null,
+	// 	highlight: false,
+	// 	isBasicIntegrationAvailable: false,
+	// 	basicIntegration: [],
+	// },
 	{
 		key: 'enterprise',
 		name: 'Enterprise',
 		price: { monthly: 'Custom Pricing ', yearly: 'Custom Pricing' },
 		userInfo: { monthly: '1 User/Month', yearly: '1 User/Year' },
 		subscribeLabel: 'Contact Sales',
-		featuresTitle: 'Everything in Pro Active',
+		featuresTitle: 'Everything in Pro ',
 		features: [
-			'User provisioning (SCIM)',
-			'Advanced security & controls',
-			'Audit log',
-			'Customer Success Manager',
-			'Security & Compliance integrations (DLP, SIEM)',
-			'Domain management',
-			'Advanced integrations',
+			`Unlimited/custom integrations`,
+
+			`Dedicated onboarding & account manager`,
+
+			`Early access to new features (voice agent, desktop intelligence, etc.)`,
+
+			`Compliance & admin controls`,
 		],
-		aiFeatures: [
-			'AI included',
-			'Enterprise Search',
-			'AI Note Taker',
-			'AI Meeting Notes',
-			'Presentations',
-			'AI Research Mode',
-			'Proactive AI',
-			'AI Agents',
-		],
+		// aiFeatures: [
+		// 	'AI included',
+		// 	'Enterprise Search',
+		// 	'AI Note Taker',
+		// 	'AI Meeting Notes',
+		// 	'Presentations',
+		// 	'AI Research Mode',
+		// 	'Proactive AI',
+		// 	'AI Agents',
+		// ],
 		tokens: null,
 		highlight: false,
 		isBasicIntegrationAvailable: false,
@@ -287,6 +323,8 @@ const FeatureList = memo(
 	),
 );
 
+FeatureList.displayName = 'FeatureList';
+
 const AIFeatureList = memo(({ aiFeatures }) => (
 	<div className="ai-features">
 		<span className="ai-label">AI Features</span>
@@ -303,7 +341,9 @@ const AIFeatureList = memo(({ aiFeatures }) => (
 	</div>
 ));
 
-const PricingCard = memo(({ plan, price, userInfo, isHighlighted }) => (
+AIFeatureList.displayName = 'AIFeatureList';
+
+const PricingCard = memo(({ plan, price, userInfo, isHighlighted, onSubscribe }) => (
 	<div
 		className={`pricing-card ${plan.key}${isHighlighted ? ' highlighted' : ''}`.trim()}
 		style={plan.badge && { border: '1px solid var(--primary-button)' }}
@@ -317,12 +357,14 @@ const PricingCard = memo(({ plan, price, userInfo, isHighlighted }) => (
 
 				<div className="price-container">
 					<span className={`price ${plan.key === 'enterprise' ? 'user-info' : 'price'}`}>
-						${price}
+						{price}
 					</span>
 					{plan.key !== 'enterprise' && <span className="user-info">{userInfo}</span>}
 				</div>
 			</div>
-			<div className="subscribe-btn">{plan.subscribeLabel}</div>
+			<div className="subscribe-btn" onClick={onSubscribe}>
+				{plan.subscribeLabel}
+			</div>
 			<div className="features-container">
 				{plan.featuresTitle && <div className="features-title">{plan.featuresTitle}</div>}
 				<FeatureList
@@ -338,12 +380,24 @@ const PricingCard = memo(({ plan, price, userInfo, isHighlighted }) => (
 	</div>
 ));
 
+PricingCard.displayName = 'PricingCard';
+
 const WebsitePricingPage = () => {
 	const [billing, setBilling] = useState('monthly');
+	const navigate = useNavigate();
+
+	const handleLogoClick = () => {
+		navigate('/');
+	};
 
 	return (
 		<div className="pricing-page" id="pricing-page-scroll">
 			{/* <QuickActions /> */}
+			<div className="pricing-page-header-container">
+				<div className="logo" onClick={handleLogoClick}>
+					<VeLogo />
+				</div>
+			</div>
 			<div className="pricing-header">
 				<h1 className="pricing-header-title">Get world's first AI Memory OS</h1>
 				<p className="pricing-header-description">
@@ -371,11 +425,13 @@ const WebsitePricingPage = () => {
 				<div className="pricing-cards">
 					{plans.map((plan) => (
 						<PricingCard
+							key={plan.key}
 							name={plan.name}
 							plan={plan}
 							price={plan.price[billing]}
 							userInfo={plan.userInfo[billing]}
 							isHighlighted={plan.highlight}
+							onSubscribe={() => navigate('/verify-user')}
 						/>
 					))}
 				</div>
@@ -419,7 +475,10 @@ const WebsitePricingPage = () => {
 									)}
 								</div>
 							</div>
-							<div className={`plan-table-btn${plan.key === 'free' ? ' free' : ''}`}>
+							<div
+								className={`plan-table-btn${plan.key === 'free' ? ' free' : ''}`}
+								onClick={() => navigate('/verify-user')}
+							>
 								{plan.key === 'enterprise' ? 'Contact Sales' : plan.subscribeLabel}
 							</div>
 						</div>
@@ -465,7 +524,7 @@ const WebsitePricingPage = () => {
 					</table>
 				</div>
 			</div>
-			<div className="faq-section">
+			{/* <div className="faq-section">
 				<h2 className="faq-title">Questions & Answers</h2>
 				<Collapse
 					accordion
@@ -484,7 +543,7 @@ const WebsitePricingPage = () => {
 						)
 					}
 				/>
-			</div>
+			</div> */}
 			<Footer />
 		</div>
 	);

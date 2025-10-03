@@ -42,143 +42,59 @@ const menuData = [
 	{ label: 'Manifesto', path: '/manifesto', submenu: { manifesto: missionSubmenuList } },
 	{ label: 'For Enterprise', path: '/contact-us' },
 	{ label: 'Pricing', path: '/pricing' },
-	{ label: 'Explore', path: '/explore' },
 ];
 
 const MobileMenu = ({ open, onClose }) => {
 	const navigate = useNavigate();
-	const [info, setInfo] = useState({ activeMenu: 'main', submenu: null });
 
-	const handleMenuClick = (item) => {
-		if (item.submenu) {
-			setInfo({ activeMenu: 'submenu', submenu: item });
-		} else {
-			if (item.path) {
-				navigate(item.path);
-			}
-			onClose();
-		}
+	const handleNavigation = (path) => {
+		navigate(path);
+		onClose();
 	};
-
-	const handleBack = () => setInfo({ activeMenu: 'main', submenu: null });
 
 	return (
 		<div className={`mobile-menu-overlay${open ? ' open' : ''}`}>
-			<div className="mobile-menu-header">
-				<VeLogo className="ve-logo" />
-				<div className="mobile-menu-header-right">
-					<div className="mobile-nav-buttons">
-						<button
-							className="mobile-nav-btn"
-							onClick={() => {
-								navigate('/pricing');
-								onClose();
-							}}
-						>
-							Pricing
-						</button>
-						<button
-							className="mobile-nav-btn"
-							onClick={() => {
-								navigate('/explore');
-								onClose();
-							}}
-						>
-							Explore
-						</button>
-						<button
-							className="mobile-nav-btn"
-							onClick={() => {
-								navigate('/verify-user');
-								onClose();
-							}}
-						>
-							Sign In
-						</button>
-						<button
-							className="mobile-nav-btn primary"
-							onClick={() => {
-								navigate('/verify-user');
-								onClose();
-							}}
-						>
-							Get Started
-						</button>
-					</div>
-					<button className="close-btn" onClick={onClose}>
-						&times;
+			<div className="mobile-menu-content">
+				{/* Main Navigation Links */}
+				<div className="mobile-menu-nav">
+					{/* <button className="mobile-menu-item" onClick={() => handleNavigation('/')}>
+						Home
+					</button> */}
+					<button
+						className="mobile-menu-item"
+						onClick={() => handleNavigation('/pricing')}
+					>
+						Pricing
+					</button>
+					{/* <button
+						className="mobile-menu-item"
+						onClick={() => handleNavigation('/manifesto')}
+					>
+						Manifesto
+					</button> */}
+					<button
+						className="mobile-menu-item"
+						onClick={() => handleNavigation('/verify-user')}
+					>
+						Sign In
 					</button>
 				</div>
-			</div>
 
-			<div className="mobile-menu-content">
-				{info.activeMenu === 'main' && (
-					<ul className="mobile-menu-list">
-						{menuData.map((item, idx) => (
-							<li key={idx} onClick={() => handleMenuClick(item)}>
-								<span>{item.label}</span>
-								{item.submenu && (
-									<span className="submenu-arrow">
-										<CaretDonw />
-									</span>
-								)}
-							</li>
-						))}
-					</ul>
-				)}
-
-				{info.activeMenu === 'submenu' && info.submenu && (
-					<div className="mobile-submenu">
-						<button className="back-btn" onClick={handleBack}>
-							<CaretDonw style={{ transform: 'rotate(180deg)' }} /> <span>Back</span>
-						</button>
-
-						{Object.entries(info.submenu.submenu).map(([sectionKey, items]) => (
-							<div key={sectionKey} className="submenu-section-container">
-								<div
-									className="submenu-section"
-									style={{ marginTop: sectionKey === 'search' ? 32 : 0 }}
-								>
-									{sectionKey === 'features' ? <Sparkle /> : <Binoculars />}
-									<span className="submenu-section-title">{sectionKey}</span>
-								</div>
-
-								<ul className="submenu-list">
-									{items.map((sub, idx) => (
-										<li
-											key={idx}
-											className="submenu-item"
-											onClick={() => {
-												if (sub.path) {
-													navigate(sub.path);
-												}
-												onClose();
-											}}
-										>
-											{sub.label}
-											{sub.submenu && (
-												<span className="submenu-arrow">
-													<CaretDonw />
-												</span>
-											)}
-										</li>
-									))}
-								</ul>
-
-								<div className="divider" />
-							</div>
-						))}
-					</div>
-				)}
-			</div>
-
-			<div className="mobile-menu-footer">
-				<div className="login-btn" onClick={() => navigate('/verify-user')}>
-					Login
+				{/* Action Buttons */}
+				<div className="mobile-menu-actions">
+					{/* <button
+						className="mobile-action-btn secondary"
+						onClick={() => handleNavigation('/verify-user')}
+					>
+						Sign In
+					</button> */}
+					<button
+						className="mobile-action-btn primary"
+						onClick={() => handleNavigation('/verify-user')}
+					>
+						Get Started
+					</button>
 				</div>
-				<button className="get-ve-free-btn" onClick={() => navigate('/verify-user')}>
-					Get VE Free
-				</button>
 			</div>
 		</div>
 	);
