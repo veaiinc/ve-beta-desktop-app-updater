@@ -3545,7 +3545,7 @@ const GalleryPage = () => {
 	// };
 
 	// ... existing code ...
-	const handleDownload = async () => {
+	const handleDownload = async (type = null) => {
 		if (
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
@@ -3626,7 +3626,7 @@ const GalleryPage = () => {
 				// Handle bulk download (more than 10 images)
 				const payload = {
 					image_ids: info?.selectedImages,
-					imageType: 'optimized',
+					imageType: type,
 				};
 				const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
 
@@ -6183,9 +6183,26 @@ const GalleryPage = () => {
 										<ExpandIcon />
 									</div>
 								)}
-								<div onClick={handleDownload}>
-									<DownloadIcon />
-								</div>
+								<Tooltip
+									title={
+										<div className="galleryEditOptions">
+											<li onClick={() => handleDownload('original')}>
+												Originals
+											</li>
+											<li onClick={() => handleDownload('optimized')}>
+												Optimized
+											</li>
+										</div>
+									}
+									placement="top"
+									arrow={false}
+									trigger={'click'}
+									color="transparent"
+								>
+									<div>
+										<DownloadIcon />
+									</div>
+								</Tooltip>
 								{info?.activeTab !== 'Collections' && (
 									<div
 										onClick={() =>
