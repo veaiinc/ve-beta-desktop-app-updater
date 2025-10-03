@@ -8,13 +8,15 @@ import ConfirmationModal from '../../components/modalsV2/settings/ai_setup/Confi
 const AiSetup = () => {
 	const {
 		aiSetup: {
-			getAiSetup,
-			aiSetupData,
-			aiSetupDataUser,
+			// getAiSetup,
+			// aiSetupData,
+			// aiSetupDataUser,
 			updateAiSetupData,
 			resetAiSetupData,
 			deleteAiSetupData,
 			editAiSetupData,
+			getAIMemoryInfo,
+			AIMemoryInfo,
 		},
 		profileInfo: { tenantUserAccessControls },
 	} = useContext(Context);
@@ -35,35 +37,35 @@ const AiSetup = () => {
 		isAdmin: false,
 	});
 
-	useEffect(() => {
-		if (info?.activeTab === 'workspace') {
-			if (aiSetupData) {
-				updateState({ aiSetup: { ...aiSetupData }, loading: false });
-			}
-		} else {
-			if (aiSetupDataUser) {
-				updateState({ aiSetup: { ...aiSetupDataUser }, loading: false });
-			}
-		}
-	}, [aiSetupData, aiSetupDataUser]);
+	// useEffect(() => {
+	// 	if (info?.activeTab === 'workspace') {
+	// 		if (aiSetupData) {
+	// 			updateState({ aiSetup: { ...aiSetupData }, loading: false });
+	// 		}
+	// 	} else {
+	// 		if (aiSetupDataUser) {
+	// 			updateState({ aiSetup: { ...aiSetupDataUser }, loading: false });
+	// 		}
+	// 	}
+	// }, [aiSetupData, aiSetupDataUser]);
 
-	useEffect(() => {
-		if (info?.activeTab === 'workspace') {
-			if (!aiSetupData) {
-				updateState({ loading: true });
-				getAiSetup(true);
-			} else {
-				updateState({ aiSetup: { ...aiSetupData }, loading: false });
-			}
-		} else {
-			if (!aiSetupDataUser) {
-				updateState({ loading: true });
-				getAiSetup(false);
-			} else {
-				updateState({ aiSetup: { ...aiSetupDataUser }, loading: false });
-			}
-		}
-	}, [info?.activeTab]);
+	// useEffect(() => {
+	// 	if (info?.activeTab === 'workspace') {
+	// 		if (!aiSetupData) {
+	// 			updateState({ loading: true });
+	// 			getAiSetup(true);
+	// 		} else {
+	// 			updateState({ aiSetup: { ...aiSetupData }, loading: false });
+	// 		}
+	// 	} else {
+	// 		if (!aiSetupDataUser) {
+	// 			updateState({ loading: true });
+	// 			getAiSetup(false);
+	// 		} else {
+	// 			updateState({ aiSetup: { ...aiSetupDataUser }, loading: false });
+	// 		}
+	// 	}
+	// }, [info?.activeTab]);
 
 	useEffect(() => {
 		if (!tenantUserAccessControls) {
@@ -75,6 +77,14 @@ const AiSetup = () => {
 			updateState({ activeTab: 'user', isAdmin: false });
 		}
 	}, [tenantUserAccessControls]);
+
+	// Fetch AI Memory Info on component mount
+	useEffect(() => {
+		if (!AIMemoryInfo) {
+			getAIMemoryInfo({ page: 1, limit: 10 });
+			updateState({ loading: false });
+		}
+	}, [AIMemoryInfo]);
 
 	const updateState = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -253,7 +263,7 @@ const AiSetup = () => {
 							openAddNewGoalModal={handleOpenAddNewGoalModal}
 							title="Memory"
 							type="memory"
-							data={info?.aiSetup?.memory}
+							data={AIMemoryInfo?.data}
 							loading={info?.loading}
 							onResetClick={handleResetBtnClick}
 							onDeleteClick={handleDeleteButtonClick}
