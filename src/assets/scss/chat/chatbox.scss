@@ -1,8 +1,10 @@
+$primary-font-family: 'GeneralSans';
 .chatBoxParentWrapper {
 	position: absolute;
+	font-family: $primary-font-family;
 	left: 0;
 	bottom: 0;
-	width: 100%;
+	width: 95%;
 	// z-index: 20;
 	display: flex;
 	flex-direction: column;
@@ -274,6 +276,8 @@
 			display: flex;
 			width: 100%;
 			align-items: flex-end;
+			// height: 22px;
+		
 			gap: 8px;
 			overflow: hidden;
 			position: relative;
