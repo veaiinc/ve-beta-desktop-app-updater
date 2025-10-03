@@ -2,6 +2,7 @@ import { memo, useEffect, useContext, useState, useMemo, useCallback, useRef } f
 import styles from './proactiveCards.module.scss';
 import Context from '../../../../context/context';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 import { ReactComponent as FilterIcon } from '../../../../assets/svg/tasks/newFiltersIcon.svg';
 import { ReactComponent as TickIcon } from '../../../../assets/svg/tick.svg';
 import { ReactComponent as CloseSvg } from '../../../../assets/svg/close.svg';
@@ -167,6 +168,7 @@ const ProactiveCards = () => {
 
 	const searchContainerRef = useRef(null);
 	const searchInputRef = useRef(null);
+	const navigate = useNavigate();
 	const isInitialLoad = useRef(true);
 
 	useEffect(() => {
@@ -947,8 +949,45 @@ const ProactiveCards = () => {
 											}
 										>
 											{action?.type === 'upgrade' && action?.background && (
-												<div className={styles.upgradeCardBackground}>
-													<img src={action.background} alt="Upgrade" />
+												<div
+													style={{
+														position: 'absolute',
+														width: '100%',
+														height: '80px',
+														left: 0,
+														display: 'flex',
+														justifyContent: 'center',
+														alignItems: 'center',
+														color: 'var(--primary-font)',
+														fontSize: '14px',
+														fontWeight: '600',
+														lineHeight: 'normal',
+														fontFamily: 'var(--primary-font-family)',
+													}}
+												>
+													<p
+														style={{
+															color: 'rgba(242, 242, 243, 0.90)',
+															fontFamily:
+																'var(--primary-font-family)',
+															fontSize: '19px',
+															fontStyle: 'normal',
+															fontWeight: '500',
+															lineHeight: '22px',
+															letterSpacing: '-0.76px',
+															textAlign: 'center',
+														}}
+													>
+														Upgrade to{' '}
+														<span
+															style={{
+																color: 'var(--primary-button)',
+															}}
+														>
+															Pro Plan
+														</span>{' '}
+														to see Proactive Insights
+													</p>
 												</div>
 											)}
 											<div className={styles.proactiveCardTitle}>
