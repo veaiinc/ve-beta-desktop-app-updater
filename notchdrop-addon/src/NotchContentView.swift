@@ -2442,21 +2442,21 @@ struct PirateIcon: View {
 // }
 
 // MARK: - Shortcut Key View Component
-// struct ShortcutKeyView: View {
-//     let keyText: String
+struct ShortcutKeyView: View {
+    let keyText: String
     
-//     var body: some View {
-//         Text(keyText)
-//             .font(.system(size: 11, weight: .medium))
-//             .foregroundColor(.white)
-//             .padding(.horizontal, 6)
-//             .padding(.vertical, 2)
-//             .background(
-//                 RoundedRectangle(cornerRadius: 4)
-//                     .fill(Color.white.opacity(0.15))
-//             )
-//     }
-// }
+    var body: some View {
+        Text(keyText)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.white.opacity(0.15))
+            )
+    }
+}
 
 // MARK: - Music Media Controller (Apple Music, Spotify, etc.)
 struct MusicMediaController: View {
