@@ -214,7 +214,13 @@ struct DynamicIslandContentView: View {
                                 .buttonStyle(PlainButtonStyle())
                                 .onHover { hovering in
                                     withAnimation(.easeInOut(duration: 0.2)) {
-                                        isHomeButtonHovered = hovering
+                                        isHomeButtonHovered = hovering && vm.isTeamsView
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Home button is now active, reset hover state
+                                        isHomeButtonHovered = false
                                     }
                                 }
 
@@ -240,7 +246,13 @@ struct DynamicIslandContentView: View {
                                 .buttonStyle(PlainButtonStyle())
                                 .onHover { hovering in
                                     withAnimation(.easeInOut(duration: 0.2)) {
-                                        isMeetingButtonHovered = hovering
+                                        isMeetingButtonHovered = hovering && !vm.isTeamsView
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if newValue {
+                                        // Meeting AI button is now active, reset hover state
+                                        isMeetingButtonHovered = false
                                     }
                                 }
                                 // Removed desktop and VE icons per request
