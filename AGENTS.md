@@ -83,7 +83,7 @@
 -   **Preload**: exposes `window.electronApi` for secure IPC to renderer (`electron/preload.js`)
 -   **Main process**: registers handlers (`electron/main.js`)
 -   **IPC Channels (non-exhaustive):**
-    -   Overlay controls: `overlay-start-recording`, `overlay-stop-recording`, `overlay-pause-recording`, `overlay-resume-recording`, `overlay-toggle-live-intelligence`, `overlay-get-recording-state`, `overlay-state-update`, `overlay-command`, `hide-overlay-window`
+    -   Overlay controls: `overlay-start-recording`, `overlay-stop-recording`, `overlay-pause-recording`, `overlay-resume-recording`, `overlay-toggle-live-intelligence`, `overlay-get-recording-state`, `overlay-state-update`, `overlay-command`, `overlay-send-transcription-data`, `notchdrop-add-transcription-data`, `hide-overlay-window`
     -   Dynamic Island: `dynamic-island-expand`, `dynamic-island-collapse`, `dynamic-island-toggle`, `dynamic-island-show|hide|focus`, `dynamic-island-chat-mode`, `dynamic-island-set-mouse-events`, `dynamic-island-state`, `overlay-state-changed`
     -   Ask AI window: `toggle-askAI-window`, `show-askAI-window`, `is-askAI-window-visible`, `update-askAI-dimensions`, `set-askAI-ignore-mouse-events`, `set-askAI-input-focus`, `get-askAI-input-focus`, `send-chat-message-to-askai`, `force-open-askai-window`
     -   NotchDrop: `notchdrop-enable|disable|toggle`, `notchdrop-is-visible`, `notchdrop-set-status`, `notchdrop-get-status`, `notchdrop-handle-files`, `notchdrop-set-auto-open|get-auto-open`, `notchdrop-set-haptic-feedback|get-haptic-feedback`, `update-notchdrop-menu`, `notchdrop-open-airdrop|open-share|open-file|delete-file`, `notchdrop:triggerOverlay*`
@@ -227,6 +227,7 @@ Note: See the NotchDrop events list above for emitted events from the native lay
     If needed, then: `npx electron-rebuild -f -w notchdrop-addon`
 -   Ensure add-on is unpacked in Electron ASAR. See `package.json > build.mac.asarUnpack` and `extraResources` entries for `notchdrop-addon/**`.
 -   Exposed events: `statusChanged`, `fileDropped`, `itemAdded`, `itemRemoved`, `swiftAction`, `swiftLog`, `requestOverlayRecording`, `submitChat`, `startVoiceAgent`, `disconnectVoice`, `toggleVoiceMute`, `messageReceived`, `navigateToMainScreen`
+-   Methods: `sendTranscriptionData(transcriptionData)`, `addTranscriptionData(transcriptionData)` - sends transcription data from overlay to NotchDrop service with console logging
 -   Extend Swift actions: add in bridge, wire through Electron, update docs here.
 
 ---

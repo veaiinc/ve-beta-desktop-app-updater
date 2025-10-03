@@ -75,6 +75,11 @@
 + (void)updateVoiceConnectionState:(NSString*)status;
 + (void)updateVoiceMuteState:(BOOL)isMuted;
 + (void)addVoiceMessage:(NSString*)messageJson;
++ (void)addTranscriptionData:(NSString*)messageJson;
++ (void)sendLiveIntelligenceData:(NSString*)messageJson;
+ + (void)replaceTranscriptions:(NSString*)messagesJson;
+// Toggle panel mode during recording ("transcription" | "live-intel")
+ + (void)setRecordingPanelMode:(NSString*)mode;
 + (void)updateStealthModeState:(BOOL)isEnabled;
 
 // Wake Word Detection Integration

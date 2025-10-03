@@ -64,8 +64,8 @@ struct MeetingCompactChatBox: View {
     }
 }
 
-// MARK: - Start Meeting Card
-struct StartMeetingCard: View {
+// MARK: - Smart Meeting Card (replaces StartMeetingCard with alignment logic)
+struct SmartMeetingCard: View {
     let vm: NotchViewModel
     @State private var isHovered: Bool = false
 
@@ -79,28 +79,49 @@ struct StartMeetingCard: View {
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: corner, style: .continuous)
-                    .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.15) : Color.white.opacity(0.04))
+                    .fill(getBackgroundColor())
                     .overlay(
                         RoundedRectangle(cornerRadius: corner, style: .continuous)
-                            .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.white.opacity(0.12), lineWidth: 0.8)
+                            .stroke(getBorderColor(), lineWidth: 0.8)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Start")
-                        .font(.system(size: titleSize, weight: .medium))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Text("Meeting")
-                        .font(.system(size: titleSize, weight: .medium))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                    if vm.isRecording {
+                        // Stop meeting state
+                        Text("Stop")
+                            .font(.system(size: titleSize, weight: .medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Text("Meeting")
+                            .font(.system(size: titleSize, weight: .medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    } else {
+                        // Start meeting state
+                        Text("Start")
+                            .font(.system(size: titleSize, weight: .medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Text("Meeting")
+                            .font(.system(size: titleSize, weight: .medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
                 }
                 .padding(padding)
             }
             .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
-            .onTapGesture { vm.startRecording() }
+            .onTapGesture { 
+                if vm.isRecording {
+                    vm.stopRecording()
+                } else {
+                    vm.startRecording()
+                }
+            }
             .onHover { hovering in
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isHovered = hovering
@@ -109,6 +130,22 @@ struct StartMeetingCard: View {
         }
         // Ensure the reader honors parent frame
         .clipped()
+    }
+    
+    private func getBackgroundColor() -> Color {
+        if isHovered {
+            return DynamicIslandTheme.primaryGreen.opacity(0.15)
+        } else {
+            return Color.white.opacity(0.04)
+        }
+    }
+    
+    private func getBorderColor() -> Color {
+        if isHovered {
+            return DynamicIslandTheme.primaryGreen.opacity(0.4)
+        } else {
+            return Color.white.opacity(0.12)
+        }
     }
 }
 
@@ -500,23 +537,89 @@ struct DynamicIslandContentView: View {
                     
                     // Main content area
                     HStack(alignment: .center, spacing: 8) {
+                        if vm.isRecording && vm.showTranscriptionDuringRecording {
+                            // Show transcription data in chat-like format
+                            ScrollView(.vertical, showsIndicators: true) {
+                                LazyVStack(spacing: 12) {
+                                    if vm.voiceMessages.isEmpty {
+                                        Text("No transcription data yet...")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.white.opacity(0.6))
+                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            .padding()
+                                    } else {
+                                        ForEach(vm.voiceMessages) { message in
+                                            TranscriptionMessageView(message: message)
+                                                .padding(.horizontal, 4)
+                                        }
+                                    }
+                                }
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                            }
+                            .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 120)
+                            .background(Color.black.opacity(0.4))
+                            .cornerRadius(10)
+                        } else if vm.isRecording && !vm.showTranscriptionDuringRecording {
+                            // Show live intelligence data in chat-like format
+                            ScrollView(.vertical, showsIndicators: true) {
+                                LazyVStack(spacing: 12) {
+                                    if vm.liveIntelligenceMessages.isEmpty {
+                                        Text("No live intelligence data yet...")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.white.opacity(0.6))
+                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                            .padding()
+                                    } else {
+                                        ForEach(vm.liveIntelligenceMessages) { message in
+                                            TranscriptionMessageView(message: message)
+                                                .padding(.horizontal, 4)
+                                        }
+                                    }
+                                }
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                            }
+                            .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 120)
+                            .background(Color.black.opacity(0.4))
+                            .cornerRadius(10)
+                            // .onAppear {
+                            //     // Console log live intelligence data display in SwiftUI
+                            //     print("🧠 NotchContentView: Displaying live intelligence data")
+                            //     print("🧠 Total live intelligence messages: \(vm.liveIntelligenceMessages.count)")
+                            //     if let lastMessage = vm.liveIntelligenceMessages.last {
+                            //         print("🧠 Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
+                            //     }
+                            // }
+                            .onChange(of: vm.liveIntelligenceMessages.count) { newCount in
+                                // Console log when live intelligence messages count changes
+                                print("🧠 NotchContentView: Live intelligence messages count changed to: \(newCount)")
+                                if let lastMessage = vm.liveIntelligenceMessages.last {
+                                    print("🧠 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
+                                }
+                            }
+                        }
+
                         if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls) - PRIORITY: Always show voice interface when active
                             VoiceSplitLayout(vm: vm)
                         } else if vm.isTeamsView {
-                            // Teams view: maintain even spacing between three blocks
+                            // Teams view: maintain even spacing between components
                             HStack(spacing: 12) {
+                                // Smart meeting card - only show when not recording
                                 if !vm.isRecording {
-                                    StartMeetingCard(vm: vm)
+                                    SmartMeetingCard(vm: vm)
                                         .frame(width: 220, height: 100)
                                 }
+                                
                                 ChatTextAreaView(
                                     chatInput: $vm.chatInput,
                                     isTextFieldActive: $isTextFieldActive,
                                     vm: vm
                                 )
-                                .frame(width: 400, height: 100)
+                                .frame(width: vm.isRecording ? 400 : 400, height: 100)
                                 .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
+                                
                                 WebcamButton(vm: vm)
                                     .frame(width: 100, height: 100)
                             }
@@ -527,7 +630,7 @@ struct DynamicIslandContentView: View {
                                 isTextFieldActive: $isTextFieldActive,
                                 vm: vm
                             )
-                            .frame(width: vm.isRecording ? 410 : 510) // 410px in meeting mode, 510px otherwise
+                            .frame(width: vm.isRecording ? (vm.showTranscriptionDuringRecording ? 240 : 410) : 510) // Adaptive width
                             .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                             .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
                             
@@ -540,7 +643,7 @@ struct DynamicIslandContentView: View {
                                             .frame(width: 240, height: 100)
                                             .transition(.scale(scale: 0.8).combined(with: .opacity))
                                     }
-                                        
+                                    
                                     // Spotify Media Controller - only show when music is playing
                                     if vm.hasActiveMusic {
                                         SpotifyMediaController(vm: vm)
@@ -559,12 +662,13 @@ struct DynamicIslandContentView: View {
                             
                             // Webcam button - only show when recording
                             if vm.isRecording {
+                                Spacer(minLength: 0)
                                 WebcamButton(vm: vm)
-                                    .frame(width: 90, height: 90) // Larger webcam button as requested
+                                    .frame(width: 80, height: 80)
                             }
                         }
                     }
-                    .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain main content area
+                    .frame(maxWidth: vm.notchOpenedSize.width - 32)
                     .clipped() // Ensure content doesn't overflow
                     .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                     .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
@@ -938,6 +1042,15 @@ struct VoiceTranscriptionArea: View {
                         .padding(.top, 8)
                         .padding(.bottom, 20)
                         .id(lastMessage.id)
+                        // .onAppear {
+                        //     // Console log transcription data display in SwiftUI
+                        //     print("📝 NotchContentView: Displaying transcription data:")
+                        //     print("📝 Sender: \(lastMessage.sender)")
+                        //     print("📝 Content: \(lastMessage.content)")
+                        //     print("📝 Is from agent: \(lastMessage.isFromAgent)")
+                        //     print("📝 Message ID: \(lastMessage.id)")
+                        //     print("📝 Total voice messages: \(vm.voiceMessages.count)")
+                        // }
                 }
             }
             
@@ -954,6 +1067,45 @@ struct VoiceTranscriptionArea: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.clear)
+        .onChange(of: vm.voiceMessages.count) { newCount in
+            // Console log when voice messages count changes (new transcription data added)
+            print("📝 NotchContentView: Voice messages count changed to: \(newCount)")
+            if let lastMessage = vm.voiceMessages.last {
+                print("📝 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
+            }
+        }
+    }
+}
+
+
+// MARK: - Transcription Message View Component
+struct TranscriptionMessageView: View {
+    let message: NotchViewModel.VoiceMessage
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 8) {
+            // Sender label
+            Text(message.sender)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white.opacity(0.8))
+                .frame(width: 40, alignment: .leading)
+            
+            // Message content
+            Text(message.content)
+                .font(.system(size: 13))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.leading)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(message.isFromAgent ? Color.blue.opacity(0.2) : Color.gray.opacity(0.2))
+                )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
