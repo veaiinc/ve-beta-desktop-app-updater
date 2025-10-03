@@ -15,9 +15,21 @@
 	--pending: rgb(255, 163, 47); /* #ffa32f */
 	--info: rgb(80, 137, 249); /* #5089f9 */
 
-	/* main colors */
-	--background-color: #121212; /* #0f0f10 */
-	--chat-background-color: #19191a;
+	/* main colors - Enhanced for translucency */
+	--background-color: transparent;
+	--chat-background-color: transparent;
+	--translucency-bg: rgba(18, 18, 18, 0.2);
+	--translucency-blur: blur(20px) saturate(180%);
+
+	/* Beautiful glass morphism for components */
+	--card: rgba(18, 18, 18, 0.12);
+	--new-card: rgba(18, 18, 18, 0.12);
+	--card-hover: rgba(18, 18, 18, 0.18);
+	--card-over-card: rgba(18, 18, 18, 0.12);
+	--card-over-card-hover: rgba(18, 18, 18, 0.18);
+	--popup: rgba(18, 18, 18, 0.15);
+	--navbar: rgba(18, 18, 18, 0.05);
+	--right-bar: rgba(18, 18, 18, 0.12);
 
 	/* font colors */
 	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
@@ -35,7 +47,7 @@
 	--backdrop: #0f0f10;
 
 	/* stroke colors */
-	--stroke: rgb(44, 45, 46); /* #2c2d2e */
+	--stroke: #2c2d2e; /* #2c2d2e */
 	--stroke-hover: rgb(66, 69, 72); /* #424548 */
 	--stroke-active: rgb(32, 33, 35); /* #202123 */
 	--dividers: rgba(30, 31, 32, 1);
@@ -95,9 +107,11 @@
 
 /* light theme global css variables */
 [theme='light'] {
-	/* main colors */
+	/* main colors - Enhanced for translucency */
 	--background-color: #ffffff; /* #fafafa */
 	--chat-background-color: #f4f5f5;
+	--translucency-bg: rgba(255, 255, 255, 0.8);
+	--translucency-blur: blur(20px) saturate(180%);
 
 	/* common colors */
 	--info: #5089f9; /* #5089f9 */

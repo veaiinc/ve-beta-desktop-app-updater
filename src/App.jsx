@@ -7,6 +7,8 @@ import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
 import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
+import TranslucencyHelper from './components/TranslucencyHelper';
+import { initializeTranslucency } from './helpers/translucencyUtils';
 
 const App = () => {
 	const { routes } = useWorkspaceMode();
@@ -286,13 +288,27 @@ const App = () => {
 		};
 	}, []);
 
-	return (
-		<>
-			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
-			<NotchDropVoiceActivator />
+	// Initialize translucency on app start
+	useEffect(() => {
+		initializeTranslucency({
+			level: 'medium',
+			performanceOptimized: true,
+			applyToMainElements: true,
+		});
+	}, []);
 
-			{/* Test Permission Overlay Button - Remove in production */}
-			{/* {process.env.NODE_ENV === 'development' && (
+	return (
+		<div className="app-content glass-app">
+			<TranslucencyHelper
+				className="app-translucency-wrapper"
+				translucencyLevel="medium"
+				enablePerformanceOptimization={true}
+			>
+				{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
+				<NotchDropVoiceActivator />
+
+				{/* Test Permission Overlay Button - Remove in production */}
+				{/* {process.env.NODE_ENV === 'development' && (
 				<button
 					onClick={() => window.electronApi?.permission?.showWindow()}
 					style={{
@@ -314,7 +330,7 @@ const App = () => {
 					Test Permission Overlay
 				</button>
 			)} */}
-			{/* <button
+				{/* <button
 					onClick={() => window.electronApi?.permission?.showWindow()}
 					style={{
 						position: 'fixed',
@@ -335,8 +351,8 @@ const App = () => {
 					Test Permission Overlay
 				</button> */}
 
-			{/* Update Notification - Commented out for auto restart */}
-			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
+				{/* Update Notification - Commented out for auto restart */}
+				{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
 				<div
 					style={{
 						position: 'fixed',
@@ -389,29 +405,30 @@ const App = () => {
 				</div>
 			)} */}
 
-			<Routes>
-				{routes?.map((route) => (
-					<Route key={route.path} path={route.path} element={route.element} />
-				))}
-			</Routes>
+				<Routes>
+					{routes?.map((route) => (
+						<Route key={route.path} path={route.path} element={route.element} />
+					))}
+				</Routes>
 
-			{/* NotchDrop Voice Agent Integration - DIRECT */}
-			{showVoiceFromNotch && <VoiceAgentParent />}
+				{/* NotchDrop Voice Agent Integration - DIRECT */}
+				{showVoiceFromNotch && <VoiceAgentParent />}
 
-			{/* Global Upload Progress Popup - persists across all routes */}
-			<UploadProgressPopup />
+				{/* Global Upload Progress Popup - persists across all routes */}
+				<UploadProgressPopup />
 
-			{/* Global Download Progress Popup - persists across all routes */}
-			<DownloadProgressPopup />
+				{/* Global Download Progress Popup - persists across all routes */}
+				<DownloadProgressPopup />
 
-			{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
-				<UpdateReadyPopup
-					updateInfo={updateStatus}
-					onRestart={handleRestartApp}
-					onDismiss={() => setIsUpdatePopupVisible(false)}
-				/>
-			)}
-		</>
+				{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
+					<UpdateReadyPopup
+						updateInfo={updateStatus}
+						onRestart={handleRestartApp}
+						onDismiss={() => setIsUpdatePopupVisible(false)}
+					/>
+				)}
+			</TranslucencyHelper>
+		</div>
 	);
 };
 

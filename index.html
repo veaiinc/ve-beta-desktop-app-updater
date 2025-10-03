@@ -51,6 +51,12 @@
 			href="/src/assets/scss/global.scss"
 			onload="this.rel='stylesheet'"
 		/>
+		<link rel="preload" as="style" href="/src/assets/scss/glass-effects.scss" />
+		<link
+			rel="stylesheet"
+			href="/src/assets/scss/force-glass-effect.scss"
+			onload="this.rel='stylesheet'"
+		/>
 		<link rel="preload" as="style" href="/src/index.css" onload="this.rel='stylesheet'" />
 
 		<!-- Adaptive theme‑color for address‑bar tinting -->
@@ -169,6 +175,19 @@
 			href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap"
 			rel="stylesheet"
 		/>
+
+		<!-- TRUE TRANSPARENCY styles - NO backdrop-filter on main elements -->
+		<style>
+			/* Glass morphism effect for the main app content */
+			/* .app-content {
+				background: transparent;
+				backdrop-filter: blur(20px) saturate(180%);
+				-webkit-backdrop-filter: blur(20px) saturate(180%);
+				border-radius: 16px;
+				box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+				height: 100%;
+			} */
+		</style>
 	</head>
 	<body>
 		<noscript>
@@ -181,11 +200,106 @@
 				<link rel="stylesheet" href="/src/assets/fonts/generalSans/general-sans.css" />
 				<link rel="stylesheet" href="/src/assets/fonts/Inter/inter.css" />
 				<link rel="stylesheet" href="/src/assets/scss/global.scss" />
+				<link rel="stylesheet" href="/src/assets/scss/glass-effects.scss" />
+				<link rel="stylesheet" href="/src/assets/scss/force-glass-effect.scss" />
+				<link rel="stylesheet" href="/src/assets/scss/beautiful-glass.scss" />
 				<link rel="stylesheet" href="/src/index.css" />
 			</noscript>
 		</noscript>
 
 		<div id="root"></div>
+
+		<!-- TRUE TRANSPARENCY JavaScript - NO backdrop-filter on main elements -->
+		<script>
+			// CRITICAL: Ensure main elements are FULLY transparent
+			function ensureTransparency() {
+				const mainElements = ['html', 'body', '#root', '.App'];
+				mainElements.forEach((selector) => {
+					const element = document.querySelector(selector);
+					if (element) {
+						// Force full transparency - NO backdrop-filter on main elements
+						element.style.background = 'transparent';
+						element.style.backdropFilter = 'none';
+						element.style.webkitBackdropFilter = 'none';
+						element.style.backgroundColor = 'transparent';
+					}
+				});
+			}
+
+			// Apply transparency immediately when DOM loads
+			document.addEventListener('DOMContentLoaded', ensureTransparency);
+
+			// Apply beautiful glass morphism with native vibrancy support
+			function applyGlassMorphism() {
+				// Apply to main app container - works with native vibrancy
+				const appContent = document.querySelector('.app-content');
+				if (appContent) {
+					appContent.style.background = 'rgba(18, 18, 18, 0.12)';
+					// Minimal CSS blur since native vibrancy handles the main blur
+					appContent.style.backdropFilter = 'blur(8px) saturate(110%)';
+					appContent.style.webkitBackdropFilter = 'blur(8px) saturate(110%)';
+					appContent.style.borderRadius = '20px';
+					appContent.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+				}
+
+				// Apply to specific card/panel elements - enhanced for content
+				const cards = document.querySelectorAll('.card, .panel, .sidebar, .content-panel');
+				cards.forEach((card) => {
+					card.style.background = 'rgba(18, 18, 18, 0.15)';
+					card.style.backdropFilter = 'blur(12px) saturate(130%)';
+					card.style.webkitBackdropFilter = 'blur(12px) saturate(130%)';
+					card.style.borderRadius = '16px';
+					card.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+				});
+
+				// Ensure text elements are never blurred
+				const textElements = document.querySelectorAll(
+					'p, h1, h2, h3, h4, h5, h6, span, div, a, button, input, textarea, select',
+				);
+				textElements.forEach((element) => {
+					element.style.backdropFilter = 'none';
+					element.style.webkitBackdropFilter = 'none';
+					element.style.background = 'transparent';
+				});
+			}
+
+			// Apply glass morphism after DOM is ready
+			document.addEventListener('DOMContentLoaded', applyGlassMorphism);
+
+			// Monitor for new content containers
+			const observer = new MutationObserver((mutations) => {
+				mutations.forEach((mutation) => {
+					if (mutation.type === 'childList') {
+						mutation.addedNodes.forEach((node) => {
+							if (node.nodeType === Node.ELEMENT_NODE) {
+								// Only apply glass morphism to specific content containers
+								if (
+									node.classList &&
+									(node.classList.contains('app-content') ||
+										node.classList.contains('glass-effect') ||
+										node.classList.contains('translucent') ||
+										node.classList.contains('glass-effect-main'))
+								) {
+									node.style.background = 'rgba(18, 18, 18, 0.15)';
+									node.style.backdropFilter = 'blur(20px) saturate(180%)';
+									node.style.webkitBackdropFilter = 'blur(20px) saturate(180%)';
+									node.style.borderRadius = '16px';
+									node.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+								}
+							}
+						});
+					}
+				});
+			});
+
+			// Start observing after DOM is ready
+			document.addEventListener('DOMContentLoaded', () => {
+				observer.observe(document.body, {
+					childList: true,
+					subtree: true,
+				});
+			});
+		</script>
 
 		<!-- Main bundle -->
 		<script type="module" src="/src/main.jsx"></script>
