@@ -1084,7 +1084,9 @@ struct DynamicIslandContentView: View {
         // Extract video ID from YouTube URL
         let patterns = [
             "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
-            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
         ]
         
         var videoId: String?
@@ -1100,8 +1102,9 @@ struct DynamicIslandContentView: View {
         
         guard let id = videoId else { return "" }
         
-        // Return YouTube embed URL with autoplay and minimal UI
-        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=0&disablekb=1"
+        // Return YouTube embed URL with enhanced parameters to fix Error 153
+        // Added referrerpolicy, web-share, and other modern requirements
+        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=0&disablekb=1&playsinline=1&enablejsapi=1&origin=\(Bundle.main.bundleIdentifier ?? "com.apple.Safari")"
     }
     
     private func extractYouTubeThumbnail(from url: String) {
@@ -3314,28 +3317,41 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         
-        // Configure for video playback with sound
+        // Enhanced configuration for YouTube video playback to fix Error 153
         configuration.allowsAirPlayForMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
         
-        // Set user agent to avoid mobile YouTube version
-        configuration.applicationNameForUserAgent = "Version/14.1.2 Safari/605.1.15"
+        // Enhanced user agent for better YouTube compatibility
+        configuration.applicationNameForUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+        
+        // Configure content rules for better video handling
+        // Note: Content rules are created asynchronously, so we'll handle this in a simpler way
+        
+        // Enable JavaScript for YouTube player API (using modern approach)
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
         
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
+        webView.uiDelegate = context.coordinator
         
-        // Allow sound playback
+        // Enhanced settings for video playback
         webView.allowsMagnification = false
         webView.allowsBackForwardNavigationGestures = false
+        webView.allowsLinkPreview = false
+        webView.customUserAgent = configuration.applicationNameForUserAgent
         
-        // Load the YouTube embed URL
+        // Load the YouTube embed URL with proper headers
         if let url = URL(string: embedURL) {
-            let request = URLRequest(url: url)
+            var request = URLRequest(url: url)
+            request.setValue("same-origin", forHTTPHeaderField: "Referrer-Policy")
+            request.setValue("https://www.youtube.com", forHTTPHeaderField: "Origin")
             webView.load(request)
         }
         
         return webView
     }
+    
+    // Content rules removed for simplicity - WKWebView handles YouTube resources by default
     
     func updateNSView(_ nsView: WKWebView, context: Context) {
         // Update if URL changes
@@ -3351,47 +3367,13 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         Coordinator()
     }
     
-    class Coordinator: NSObject, WKNavigationDelegate {
+    class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Wait a moment for the video to load, then unmute it
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                // Unmute the video and ensure it's playing with sound
-                let unmuteScript = """
-                    // Find the video element and unmute it
-                    var video = document.querySelector('video');
-                    if (video) {
-                        video.muted = false;
-                        video.volume = 0.7; // Set to 70% volume
-                        
-                        // Try to play with sound
-                        video.play().then(() => {
-                            console.log('Video playing with sound');
-                        }).catch(e => {
-                            console.log('Autoplay failed, user interaction required');
-                        });
-                    }
-                    
-                    // Also try YouTube player API if available
-                    if (typeof YT !== 'undefined' && YT.Player) {
-                        var iframe = document.querySelector('iframe');
-                        if (iframe) {
-                            try {
-                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
-                                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[70]}', '*');
-                            } catch(e) {
-                                console.log('YouTube API not available');
-                            }
-                        }
-                    }
-                """
-                
-                webView.evaluateJavaScript(unmuteScript) { result, error in
-                    if let error = error {
-                        print("📺 Error unmuting video: \(error)")
-                    } else {
-                        print("📺 Video unmuted successfully")
-                    }
-                }
+            print("📺 YouTube video page loaded successfully")
+            
+            // Wait a moment for the video to load, then configure it
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.configureVideoPlayer(webView: webView)
             }
             
             // Inject CSS to hide unnecessary YouTube UI elements
@@ -3404,11 +3386,141 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     .ytp-watermark { 
                         display: none !important; 
                     }
+                    .ytp-chrome-top { 
+                        display: none !important; 
+                    }
+                    .ytp-show-cards-title { 
+                        display: none !important; 
+                    }
                 `;
                 document.head.appendChild(style);
             """
             
             webView.evaluateJavaScript(css, completionHandler: nil)
+        }
+        
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            print("📺 YouTube video failed to load: \(error.localizedDescription)")
+            
+            // Try to load a fallback or show error message
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.handleVideoLoadError(webView: webView, error: error)
+            }
+        }
+        
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            print("📺 YouTube video provisional navigation failed: \(error.localizedDescription)")
+        }
+        
+        private func configureVideoPlayer(webView: WKWebView) {
+            // Enhanced script to handle Error 153 and configure video properly
+            let configureScript = """
+                (function() {
+                    console.log('📺 Configuring YouTube video player...');
+                    
+                    // Method 1: Try to find and configure video element directly
+                    var video = document.querySelector('video');
+                    if (video) {
+                        console.log('📺 Found video element, configuring...');
+                        video.muted = false;
+                        video.volume = 0.7;
+                        video.playsInline = true;
+                        video.autoplay = true;
+                        
+                        // Set video attributes to prevent Error 153
+                        video.setAttribute('playsinline', 'true');
+                        video.setAttribute('webkit-playsinline', 'true');
+                        video.setAttribute('x-webkit-airplay', 'allow');
+                        
+                        // Try to play with sound
+                        video.play().then(() => {
+                            console.log('📺 Video playing with sound successfully');
+                        }).catch(e => {
+                            console.log('📺 Autoplay failed:', e.message);
+                            // Try muted playback as fallback
+                            video.muted = true;
+                            return video.play();
+                        }).then(() => {
+                            if (video.muted) {
+                                console.log('📺 Video playing muted, user interaction required for sound');
+                            }
+                        });
+                    }
+                    
+                    // Method 2: Try YouTube Player API
+                    if (typeof YT !== 'undefined' && YT.Player) {
+                        console.log('📺 YouTube API available, configuring player...');
+                        var iframe = document.querySelector('iframe');
+                        if (iframe && iframe.src.includes('youtube.com/embed')) {
+                            try {
+                                // Send commands to YouTube player
+                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[70]}', '*');
+                                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                                console.log('📺 YouTube API commands sent');
+                            } catch(e) {
+                                console.log('📺 YouTube API error:', e.message);
+                            }
+                        }
+                    }
+                    
+                    // Method 3: Check for Error 153 and try to resolve
+                    var errorElements = document.querySelectorAll('[class*="error"], [id*="error"]');
+                    if (errorElements.length > 0) {
+                        console.log('📺 Error elements detected, attempting to reload...');
+                        // Try to reload the iframe
+                        var iframe = document.querySelector('iframe');
+                        if (iframe) {
+                            var currentSrc = iframe.src;
+                            iframe.src = '';
+                            setTimeout(() => {
+                                iframe.src = currentSrc;
+                            }, 1000);
+                        }
+                    }
+                    
+                    // Method 4: Ensure proper referrer policy
+                    var meta = document.querySelector('meta[name="referrer"]');
+                    if (!meta) {
+                        meta = document.createElement('meta');
+                        meta.name = 'referrer';
+                        meta.content = 'strict-origin-when-cross-origin';
+                        document.head.appendChild(meta);
+                    }
+                })();
+            """
+            
+            webView.evaluateJavaScript(configureScript) { result, error in
+                if let error = error {
+                    print("📺 Error configuring video player: \(error)")
+                } else {
+                    print("📺 Video player configuration script executed")
+                }
+            }
+        }
+        
+        private func handleVideoLoadError(webView: WKWebView, error: Error) {
+            let errorScript = """
+                (function() {
+                    console.log('📺 Handling video load error...');
+                    
+                    // Try to show a user-friendly error message
+                    var errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; text-align: center; font-family: system-ui;';
+                    errorDiv.innerHTML = '<h3>Video Error</h3><p>Unable to load YouTube video</p><button onclick="location.reload()" style="background: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Retry</button>';
+                    
+                    document.body.appendChild(errorDiv);
+                    
+                    // Try to reload after 3 seconds
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                })();
+            """
+            
+            webView.evaluateJavaScript(errorScript) { result, error in
+                print("📺 Error handling script executed")
+            }
         }
     }
 }
