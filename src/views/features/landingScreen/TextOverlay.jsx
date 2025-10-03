@@ -30,6 +30,38 @@ const TextOverlay = forwardRef((props, ref) => {
 
 		if (!veText || !descriptionText) return;
 
+		// Check if mobile/tablet - skip scroll animation
+		const isMobile = window.innerWidth <= 1024;
+
+		if (isMobile) {
+			// On mobile, show text immediately without scroll animation
+			gsap.set(veText, {
+				opacity: 1,
+				y: 0,
+			});
+
+			gsap.set(descriptionText, {
+				opacity: 1,
+				y: 0,
+				scale: 1,
+			});
+
+			// Simple fade-in animation for mobile
+			gsap.fromTo(
+				veText,
+				{ opacity: 0, y: 30 },
+				{ opacity: 1, y: 0, duration: 1, ease: 'power2.out' },
+			);
+
+			gsap.fromTo(
+				descriptionText,
+				{ opacity: 0, y: 30 },
+				{ opacity: 1, y: 0, duration: 1, delay: 0.5, ease: 'power2.out' },
+			);
+
+			return; // Exit early for mobile
+		}
+
 		// Set initial states for text elements
 		gsap.set(veText, {
 			opacity: 0,

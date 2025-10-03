@@ -3,7 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import s from './productIntro.module.scss';
 import { ReactComponent as LightPassingSvg } from '../../../assets/svg/landingScreen/LightPassing.svg';
-import AnimatedGlowBackground from '../../components/globalComponents/AnimatedGlowBackground';
+
 
 gsap.registerPlugin(ScrollTrigger);
 

@@ -15,9 +15,13 @@ struct NotchView: View {
     var notchSize: CGSize {
         switch vm.status {
         case .closed:
+            // Detect MacBook Pro by notch width (MacBook Pro has wider notches ~200px+)
+            let isMacBookPro = vm.deviceNotchRect.width > 180
+            let widthIncrease: CGFloat = isMacBookPro ? 200 : 160 // More width for MacBook Pro
+            
             var ans = CGSize(
-                width: vm.deviceNotchRect.width - 4,
-                height: vm.deviceNotchRect.height - 4
+                width: vm.deviceNotchRect.width + widthIncrease, // Dynamic width based on device
+                height: vm.deviceNotchRect.height - 8 // changed height by -8 from -4  for relaxed state
             )
             if ans.width < 0 { ans.width = 0 }
             if ans.height < 0 { ans.height = 0 }

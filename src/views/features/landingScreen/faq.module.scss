@@ -5,6 +5,7 @@
 	position: relative;
 	z-index: 5; // Ensure FAQ section stays above background elements
 	width: 100%;
+	background: linear-gradient(270deg, rgba(1, 8, 65, 1) 0%, rgba(21, 26, 73, 1) 100%);
 
 	.container {
 		max-width: 1680px;
@@ -20,16 +21,17 @@
 
 	.heading {
 		font-family: var(--primary-font-family);
-		font-weight: 400;
-		font-size: 70px;
-		line-height: 1.14;
-		letter-spacing: -3%;
+		color: #fff;
 		text-align: center;
-		color: #ffffff;
-		margin: 0;
-		max-width: 546px;
+		font-size: 70px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 80px; /* 114.286% */
+		letter-spacing: -2.1px;
+
 		span {
-			color: #94989e;
+			color: rgba(255, 255, 255, 0.5);
+			font-family: var(--primary-font-family);
 			font-size: 70px;
 			font-style: normal;
 			font-weight: 400;
@@ -47,7 +49,13 @@
 		}
 
 		@media (max-width: 480px) {
-			font-size: 36px;
+			color: #fff;
+			text-align: center;
+			font-size: 48px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 58px;
+			letter-spacing: -1.2px;
 		}
 	}
 
@@ -55,10 +63,21 @@
 		display: flex;
 		justify-content: center;
 		gap: 8px;
-		flex-wrap: wrap;
 
 		@media (max-width: 768px) {
 			gap: 4px;
+			justify-content: flex-start;
+			overflow-x: auto;
+			overflow-y: hidden;
+			-webkit-overflow-scrolling: touch;
+			scrollbar-width: none;
+			-ms-overflow-style: none;
+			padding: 0 4px;
+			width: 100%;
+
+			&::-webkit-scrollbar {
+				display: none;
+			}
 		}
 	}
 
@@ -80,6 +99,8 @@
 		color: #fff;
 		cursor: pointer;
 		transition: all 0.2s ease;
+		white-space: nowrap;
+		flex-shrink: 0;
 
 		&:hover {
 			border-color: #79ecc9;

@@ -111,6 +111,21 @@ class NotchViewModel: NSObject, ObservableObject {
             height: notchOpenedSize.height
         )
     }
+    
+    var notchClosedRect: CGRect {
+        // Calculate the actual visual size of the closed notch (including our width increase)
+        let isMacBookPro = deviceNotchRect.width > 180
+        let widthIncrease: CGFloat = isMacBookPro ? 200 : 160
+        let visualWidth = deviceNotchRect.width + widthIncrease
+        let visualHeight = max(0, deviceNotchRect.height - 8)
+        
+        return .init(
+            x: screenRect.origin.x + (screenRect.width - visualWidth) / 2,
+            y: screenRect.origin.y + screenRect.height - visualHeight,
+            width: visualWidth,
+            height: visualHeight
+        )
+    }
 
     var headlineOpenedRect: CGRect {
         .init(
@@ -969,8 +984,8 @@ class NotchViewModel: NSObject, ObservableObject {
     func updateCameraError(_ error: String?) {
         DispatchQueue.main.async {
             self.cameraError = error
-            if let error = error {
-                // print("📹 Camera error: \(error)")
+            if error != nil {
+                // print("📹 Camera error: \(error ?? "Unknown error")")
             }
         }
     }
