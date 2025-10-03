@@ -119,7 +119,8 @@ const AskAIApp = () => {
 			const shouldUseDirectSearch =
 				tabContent.tabKey === 'all-threads' && tabContent.tabKey === 'need-help';
 			// Automatically send the request to Ask AI with the generated prompt
-			handleSubmit(prompt, shouldUseDirectSearch);
+			// Skip screenshot for tab content from overlay
+			handleSubmit(prompt, shouldUseDirectSearch, true);
 		};
 
 		// Listen for chat messages from Dynamic Island or NotchDrop
@@ -137,7 +138,9 @@ const AskAIApp = () => {
 
 			if ((isDynamicIsland || isNotchDrop || isOverlayThread) && chatMessage.message) {
 				// Process the message directly without showing it in input
-				handleSubmit(chatMessage.message, isNeedHelp);
+				// Skip screenshot for ALL meeting intelligence insights (overlay thread questions)
+				const shouldSkipScreenshot = isOverlayThread;
+				handleSubmit(chatMessage.message, isNeedHelp, shouldSkipScreenshot);
 			}
 		};
 
@@ -228,7 +231,7 @@ const AskAIApp = () => {
 		}
 	};
 
-	const handleSubmit = async (customInput = null, isNeedHelp = null) => {
+	const handleSubmit = async (customInput = null, isNeedHelp = null, skipScreenshot = false) => {
 		const queryValue = customInput;
 		if (!queryValue) return;
 
@@ -236,7 +239,11 @@ const AskAIApp = () => {
 		const shouldUseDirectSearch = isNeedHelp;
 
 		try {
-			let base64Image = await getCapturedScreenshot();
+			let base64Image = null;
+			// Skip screenshot capture for overlay thread questions (Need Help insights)
+			if (!skipScreenshot) {
+				base64Image = await getCapturedScreenshot();
+			}
 			const imageArray = base64Image ? [base64Image] : [];
 			// Prepare message data
 			const messageData = {
