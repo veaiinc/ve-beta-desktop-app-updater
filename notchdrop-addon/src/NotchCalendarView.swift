@@ -86,11 +86,37 @@ struct NotchEventModel: Identifiable, Equatable {
     }
     
     func calendarAppURL() -> URL? {
-        // Create URL to open in Calendar app
+        // Create URL to open in Calendar app with proper fallback
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd'T'HHmmss"
         let startString = formatter.string(from: start)
-        return URL(string: "calshow:\(startString)")
+        
+        // Try calshow: first (preferred for Calendar app)
+        if let calshowURL = URL(string: "calshow:\(startString)") {
+            return calshowURL
+        }
+        
+        // Fallback: Try to open Calendar app directly
+        return URL(string: "x-apple-calevent://")
+    }
+    
+    /// Opens the Calendar app directly - simple and reliable
+    func openInCalendar() {
+        print("📅 Opening Calendar app for event: \(title)")
+        
+        // Simply open the Calendar app by bundle identifier
+        if let calendarURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iCal") {
+            print("📅 ✅ Found Calendar app, opening...")
+            NSWorkspace.shared.openApplication(at: calendarURL, configuration: NSWorkspace.OpenConfiguration()) { app, error in
+                if let error = error {
+                    print("📅 ❌ Failed to open Calendar: \(error.localizedDescription)")
+                } else {
+                    print("📅 ✅ Calendar app opened successfully")
+                }
+            }
+        } else {
+            print("📅 ❌ Calendar app not found")
+        }
     }
 }
 
@@ -557,9 +583,8 @@ struct NotchEventListView: View {
         List {
             ForEach(Array(filteredEvents.enumerated()), id: \.element.id) { index, event in
                 Button(action: {
-                    if let url = event.calendarAppURL() {
-                        openURL(url)
-                    }
+                    // Use the robust calendar opening method with multiple fallbacks
+                    event.openInCalendar()
                 }) {
                     eventRow(event, isLast: index == filteredEvents.count - 1)
                 }

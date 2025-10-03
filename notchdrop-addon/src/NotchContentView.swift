@@ -426,7 +426,13 @@ struct DynamicIslandContentView: View {
                             
                             // Lock/Unlock button (fourth icon)
                             Button(action: {
+                                print("🔒 Lock button clicked - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
                                 vm.toggleNotchLock()
+                                
+                                // Force state validation after toggle
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    vm.forceLockStateRefresh()
+                                }
                             }) {
                                 Image(systemName: vm.isNotchLocked ? "lock.fill" : "lock.open.fill")
                                     .font(.system(size: 14, weight: .medium))
@@ -441,6 +447,18 @@ struct DynamicIslandContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
+                            .onAppear {
+                                print("🔒 Lock button appeared - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
+                                // Validate state on appearance
+                                vm.forceLockStateRefresh()
+                            }
+                            .onChange(of: vm.isNotchLocked) { newValue in
+                                print("🔒 Lock state changed in UI: \(newValue ? "LOCKED" : "UNLOCKED")")
+                                // Force UI refresh when state changes
+                                DispatchQueue.main.async {
+                                    vm.objectWillChange.send()
+                                }
+                            }
                         }
                     }
                     
@@ -1087,6 +1105,9 @@ struct DynamicIslandContentView: View {
             "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
             "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
             "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
         ]
         
         var videoId: String?
@@ -1102,9 +1123,23 @@ struct DynamicIslandContentView: View {
         
         guard let id = videoId else { return "" }
         
-        // Return YouTube embed URL with enhanced parameters to fix Error 153
-        // Added referrerpolicy, web-share, and other modern requirements
-        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=0&disablekb=1&playsinline=1&enablejsapi=1&origin=\(Bundle.main.bundleIdentifier ?? "com.apple.Safari")"
+        // RADICAL FIX: Use nocookie domain and minimal parameters to bypass Error 153
+        // This approach uses YouTube's nocookie domain which has fewer restrictions
+        return "https://www.youtube-nocookie.com/embed/\(id)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1"
+    }
+    
+    /// Creates alternative embed URLs for fallback if Error 153 occurs
+    private func createAlternativeEmbedURLs(videoId: String) -> [String] {
+        return [
+            // Primary: nocookie domain
+            "https://www.youtube-nocookie.com/embed/\(videoId)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1",
+            // Fallback 1: Standard domain with minimal params
+            "https://www.youtube.com/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            // Fallback 2: No autoplay
+            "https://www.youtube-nocookie.com/embed/\(videoId)?controls=1&rel=0",
+            // Fallback 3: Absolute minimal
+            "https://www.youtube.com/embed/\(videoId)"
+        ]
     }
     
     private func extractYouTubeThumbnail(from url: String) {
@@ -3317,35 +3352,36 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         
-        // Enhanced configuration for YouTube video playback to fix Error 153
+        // RADICAL FIX: Minimal configuration to avoid YouTube restrictions
         configuration.allowsAirPlayForMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
-        
-        // Enhanced user agent for better YouTube compatibility
-        configuration.applicationNameForUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
-        
-        // Configure content rules for better video handling
-        // Note: Content rules are created asynchronously, so we'll handle this in a simpler way
-        
-        // Enable JavaScript for YouTube player API (using modern approach)
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
+        configuration.preferences.isElementFullscreenEnabled = true
+        
+        // Use a simple, clean user agent that YouTube accepts
+        configuration.applicationNameForUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
         
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
         
-        // Enhanced settings for video playback
+        // Minimal settings to avoid restrictions
         webView.allowsMagnification = false
         webView.allowsBackForwardNavigationGestures = false
         webView.allowsLinkPreview = false
         webView.customUserAgent = configuration.applicationNameForUserAgent
         
-        // Load the YouTube embed URL with proper headers
+        // Load the YouTube embed URL with minimal headers
         if let url = URL(string: embedURL) {
             var request = URLRequest(url: url)
-            request.setValue("same-origin", forHTTPHeaderField: "Referrer-Policy")
-            request.setValue("https://www.youtube.com", forHTTPHeaderField: "Origin")
+            
+            // Minimal headers to avoid triggering restrictions
+            request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
+            
+            print("📺 Loading YouTube embed URL (nocookie): \(embedURL)")
             webView.load(request)
+        } else {
+            print("📺 ❌ Failed to create URL from embed URL: \(embedURL)")
         }
         
         return webView
@@ -3371,7 +3407,7 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             print("📺 YouTube video page loaded successfully")
             
-            // Wait a moment for the video to load, then configure it
+            // Wait a moment for the video to load, then configure it for production
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 self.configureVideoPlayer(webView: webView)
             }
@@ -3396,7 +3432,13 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                 document.head.appendChild(style);
             """
             
-            webView.evaluateJavaScript(css, completionHandler: nil)
+            webView.evaluateJavaScript(css) { result, error in
+                if let error = error {
+                    print("📺 Error injecting CSS: \(error)")
+                } else {
+                    print("📺 CSS injected successfully")
+                }
+            }
         }
         
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -3413,88 +3455,66 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         }
         
         private func configureVideoPlayer(webView: WKWebView) {
-            // Enhanced script to handle Error 153 and configure video properly
+            // RADICAL FIX: Multi-level Error 153 detection and recovery
             let configureScript = """
                 (function() {
-                    console.log('📺 Configuring YouTube video player...');
+                    console.log('📺 Checking for Error 153...');
                     
-                    // Method 1: Try to find and configure video element directly
-                    var video = document.querySelector('video');
-                    if (video) {
-                        console.log('📺 Found video element, configuring...');
-                        video.muted = false;
-                        video.volume = 0.7;
-                        video.playsInline = true;
-                        video.autoplay = true;
-                        
-                        // Set video attributes to prevent Error 153
-                        video.setAttribute('playsinline', 'true');
-                        video.setAttribute('webkit-playsinline', 'true');
-                        video.setAttribute('x-webkit-airplay', 'allow');
-                        
-                        // Try to play with sound
-                        video.play().then(() => {
-                            console.log('📺 Video playing with sound successfully');
-                        }).catch(e => {
-                            console.log('📺 Autoplay failed:', e.message);
-                            // Try muted playback as fallback
-                            video.muted = true;
-                            return video.play();
-                        }).then(() => {
-                            if (video.muted) {
-                                console.log('📺 Video playing muted, user interaction required for sound');
+                    // Check for Error 153 specifically
+                    setTimeout(() => {
+                        var errorText = document.body.innerText.toLowerCase();
+                        if (errorText.includes('error 153') || errorText.includes('video player configuration error')) {
+                            console.log('📺 Error 153 detected! Attempting multiple recovery methods...');
+                            
+                            var iframe = document.querySelector('iframe');
+                            if (iframe && iframe.src.includes('youtube')) {
+                                var videoId = iframe.src.match(/embed\\/([a-zA-Z0-9_-]{11})/);
+                                if (videoId && videoId[1]) {
+                                    var fallbackUrls = [
+                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
+                                        'https://www.youtube.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?controls=1&rel=0',
+                                        'https://www.youtube.com/embed/' + videoId[1]
+                                    ];
+                                    
+                                    // Try each fallback URL
+                                    var currentIndex = 0;
+                                    function tryNextFallback() {
+                                        if (currentIndex < fallbackUrls.length) {
+                                            console.log('📺 Trying fallback URL ' + (currentIndex + 1) + ':', fallbackUrls[currentIndex]);
+                                            iframe.src = fallbackUrls[currentIndex];
+                                            currentIndex++;
+                                            
+                                            // Check if this one worked after 3 seconds
+                                            setTimeout(() => {
+                                                var newErrorText = document.body.innerText.toLowerCase();
+                                                if (newErrorText.includes('error 153') || newErrorText.includes('video player configuration error')) {
+                                                    console.log('📺 Fallback ' + currentIndex + ' failed, trying next...');
+                                                    tryNextFallback();
+                                                } else {
+                                                    console.log('📺 Fallback ' + currentIndex + ' succeeded!');
+                                                }
+                                            }, 3000);
+                                        } else {
+                                            console.log('📺 All fallback URLs failed');
+                                        }
+                                    }
+                                    
+                                    tryNextFallback();
+                                }
                             }
-                        });
-                    }
-                    
-                    // Method 2: Try YouTube Player API
-                    if (typeof YT !== 'undefined' && YT.Player) {
-                        console.log('📺 YouTube API available, configuring player...');
-                        var iframe = document.querySelector('iframe');
-                        if (iframe && iframe.src.includes('youtube.com/embed')) {
-                            try {
-                                // Send commands to YouTube player
-                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
-                                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[70]}', '*');
-                                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-                                console.log('📺 YouTube API commands sent');
-                            } catch(e) {
-                                console.log('📺 YouTube API error:', e.message);
-                            }
+                        } else {
+                            console.log('📺 No Error 153 detected - video should work');
                         }
-                    }
-                    
-                    // Method 3: Check for Error 153 and try to resolve
-                    var errorElements = document.querySelectorAll('[class*="error"], [id*="error"]');
-                    if (errorElements.length > 0) {
-                        console.log('📺 Error elements detected, attempting to reload...');
-                        // Try to reload the iframe
-                        var iframe = document.querySelector('iframe');
-                        if (iframe) {
-                            var currentSrc = iframe.src;
-                            iframe.src = '';
-                            setTimeout(() => {
-                                iframe.src = currentSrc;
-                            }, 1000);
-                        }
-                    }
-                    
-                    // Method 4: Ensure proper referrer policy
-                    var meta = document.querySelector('meta[name="referrer"]');
-                    if (!meta) {
-                        meta = document.createElement('meta');
-                        meta.name = 'referrer';
-                        meta.content = 'strict-origin-when-cross-origin';
-                        document.head.appendChild(meta);
-                    }
+                    }, 2000);
                 })();
             """
             
             webView.evaluateJavaScript(configureScript) { result, error in
                 if let error = error {
-                    print("📺 Error configuring video player: \(error)")
+                    print("📺 Error in configure script: \(error)")
                 } else {
-                    print("📺 Video player configuration script executed")
+                    print("📺 Error 153 multi-fallback detection script executed")
                 }
             }
         }
