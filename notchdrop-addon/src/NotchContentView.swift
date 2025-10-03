@@ -1105,9 +1105,6 @@ struct DynamicIslandContentView: View {
             "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
             "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
             "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
-            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
-            "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
-            "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
         ]
         
         var videoId: String?
