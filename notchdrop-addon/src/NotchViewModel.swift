@@ -12,7 +12,7 @@ class NotchViewModel: NSObject, ObservableObject {
         self.inset = inset
         super.init()
         setupCancellables()
-        // Calendar will be initialized directly by CalendarView
+        // Calendar will be initialized directly by Calendar
     }
 
     deinit {
