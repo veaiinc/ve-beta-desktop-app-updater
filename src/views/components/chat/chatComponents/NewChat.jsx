@@ -5,6 +5,7 @@ import ObjectID from 'bson-objectid';
 import Context from '../../../../context/context';
 import jwtDecode from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
+import ProactiveCards from './NewProactiveCards';
 
 const NewChat = () => {
 	const {
@@ -47,6 +48,7 @@ const NewChat = () => {
 						showUpgradeSubscriptionBtn={false}
 					/>
 				</div>
+				<ProactiveCards />
 			</div>
 		</div>
 	);
