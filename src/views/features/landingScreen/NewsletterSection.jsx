@@ -132,7 +132,7 @@ const NewsletterSection = () => {
 						</div> */}
 
 						{/* Resources Column */}
-						<div className={s.linkColumn}>
+						{/* <div className={s.linkColumn}>
 							<div className={s.linkItem}>
 								<span className={s.columnTitle}>Resources</span>
 							</div>
@@ -146,7 +146,7 @@ const NewsletterSection = () => {
 									Careers
 								</Link>
 							</div>
-						</div>
+						</div> */}
 
 						{/* Support Column */}
 						<div className={s.linkColumn}>
@@ -238,9 +238,9 @@ const NewsletterSection = () => {
 				</div>
 
 				{/* Bottom Section */}
-				<div className={s.bottomSection}>
+				{/* <div className={s.bottomSection}>
 					<div className={s.separator} />
-					{/* <div className={s.bottomContent}>
+					<div className={s.bottomContent}>
 						<div className={s.legalLinks}>
 							<Link to="/privacy-policy" className={s.legalLink}>
 								Privacy Policy
@@ -257,18 +257,22 @@ const NewsletterSection = () => {
 								Researched & Innovated in San Francisco
 							</span>
 						</div>
-					</div> */}
-				</div>
+					</div>
+				</div> */}
 
-				<div className={s.locationCompanyContainer}>
+				{/* <div
+					className={s.locationCompanyContainer}
+					onClick={() => window.open('https://livingintelligencecompany.com', '_blank')}
+					style={{ cursor: 'pointer' }}
+				>
 					<div className={s.locationCompany}>
 						<span>The</span> <br />
-						Singularity Intelligence
+						Living Intelligence
 					</div>
 					<div className={s.locationDetail}>
 						<span>Company of </span> San Fransisco <SansLogo />
 					</div>
-				</div>
+				</div> */}
 			</div>
 		</section>
 	);

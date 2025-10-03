@@ -1,6 +1,5 @@
 .newsletterSection {
-	border-radius: 32px;
-
+	background: linear-gradient(270deg, rgba(1, 8, 65, 1) 0%, rgba(21, 26, 73, 1) 100%);
 	margin: 0;
 	padding: 50px 120px;
 	width: 100%;
@@ -105,9 +104,11 @@
 	.emailInput {
 		width: 372px;
 		height: 46px;
-		padding: 14px;
-		background: #ffffff;
-		border: 1px solid #e5e5e5;
+		display: flex;
+		padding: 14.439px 17px 14.561px 14px;
+
+		background: rgba(255, 255, 255, 0.06);
+
 		border-radius: 100px;
 		font-family: 'Inter', sans-serif;
 		font-weight: 400;

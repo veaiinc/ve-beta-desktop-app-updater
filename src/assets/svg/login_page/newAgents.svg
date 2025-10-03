@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
   <g clip-path="url(#clip0_4150_3660)">
-    <path d="M10.0006 6.26525V2.53125H6.2666" stroke="#7F858F" stroke-width="1.40025" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M15.6009 6.2666H4.39886C3.36774 6.2666 2.53186 7.10249 2.53186 8.1336V15.6016C2.53186 16.6327 3.36774 17.4686 4.39886 17.4686H15.6009C16.632 17.4686 17.4679 16.6327 17.4679 15.6016V8.1336C17.4679 7.10249 16.632 6.2666 15.6009 6.2666Z" stroke="#7F858F" stroke-width="1.40025" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M0.665283 10.8671H2.53228M17.4683 10.8671H19.3353M12.8008 9.93359V11.8006M7.19978 9.93359V11.8006" stroke="#7F858F" stroke-width="1.40025" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M10.0006 6.26525V2.53125H6.2666" stroke="var(--primary-button)" stroke-width="1.40025" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M15.6009 6.2666H4.39886C3.36774 6.2666 2.53186 7.10249 2.53186 8.1336V15.6016C2.53186 16.6327 3.36774 17.4686 4.39886 17.4686H15.6009C16.632 17.4686 17.4679 16.6327 17.4679 15.6016V8.1336C17.4679 7.10249 16.632 6.2666 15.6009 6.2666Z" stroke="var(--primary-button)" stroke-width="1.40025" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M0.665283 10.8671H2.53228M17.4683 10.8671H19.3353M12.8008 9.93359V11.8006M7.19978 9.93359V11.8006" stroke="var(--primary-button)" stroke-width="1.40025" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <defs>
     <clipPath id="clip0_4150_3660">

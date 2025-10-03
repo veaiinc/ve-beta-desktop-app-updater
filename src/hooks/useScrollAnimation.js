@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -12,15 +12,14 @@ export const useScrollAnimation = () => {
 	const headerRef = useRef(null);
 	const videoRef = useRef(null);
 
+	// Memoize the resize handler
+	const handleResize = useCallback(() => {
+		ScrollTrigger.refresh();
+	}, []);
+
 	useEffect(() => {
 		if (!downloadSectionRef.current || !iMacFrameRef.current || !fullscreenIMacRef.current)
 			return;
-
-		// Handle window resize to recalculate responsive values
-		const handleResize = () => {
-			// Force ScrollTrigger refresh to recalculate responsive values
-			ScrollTrigger.refresh();
-		};
 
 		window.addEventListener('resize', handleResize);
 
@@ -30,9 +29,11 @@ export const useScrollAnimation = () => {
 			return ref?.current || ref;
 		};
 
-		// Grab header
+		// Grab header - use a more stable approach
 		const headerElement = document.querySelector('.page-header');
-		if (headerElement) headerRef.current = headerElement;
+		if (headerElement) {
+			headerRef.current = headerElement;
+		}
 
 		// Reset initial states
 		gsap.set(fullscreenIMacRef.current, {
@@ -109,15 +110,15 @@ export const useScrollAnimation = () => {
 					const isScrollingDown = self.direction === 1;
 
 					// Phase 1: DownloadSection scaling (0-30% progress) with responsive adjustments
-					const screenWidth = window.innerWidth;
+					const currentScreenWidth = window.innerWidth;
 					let maxScaleReduction = 0.3; // Default reduction
 
 					// Adjust scaling reduction based on screen size
-					if (screenWidth <= 1400) {
+					if (currentScreenWidth <= 1400) {
 						maxScaleReduction = 0.25;
-					} else if (screenWidth <= 1200) {
+					} else if (currentScreenWidth <= 1200) {
 						maxScaleReduction = 0.2;
-					} else if (screenWidth <= 1024) {
+					} else if (currentScreenWidth <= 1024) {
 						maxScaleReduction = 0.15;
 					}
 
@@ -138,15 +139,15 @@ export const useScrollAnimation = () => {
 					let stage1End = 1.8;
 					let stage2End = 3.0;
 
-					if (screenWidth <= 1400) {
+					if (currentScreenWidth <= 1400) {
 						maxScale = 3.5;
 						stage1End = 1.6;
 						stage2End = 2.5;
-					} else if (screenWidth <= 1200) {
+					} else if (currentScreenWidth <= 1200) {
 						maxScale = 3.0;
 						stage1End = 1.4;
 						stage2End = 2.2;
-					} else if (screenWidth <= 1024) {
+					} else if (currentScreenWidth <= 1024) {
 						maxScale = 2.5;
 						stage1End = 1.2;
 						stage2End = 1.8;
@@ -227,13 +228,13 @@ export const useScrollAnimation = () => {
 						let baseScale = 0.3;
 						let maxScale = 1.0;
 
-						if (screenWidth <= 1400) {
+						if (currentScreenWidth <= 1400) {
 							baseScale = 0.4;
 							maxScale = 0.8;
-						} else if (screenWidth <= 1200) {
+						} else if (currentScreenWidth <= 1200) {
 							baseScale = 0.5;
 							maxScale = 0.7;
-						} else if (screenWidth <= 1024) {
+						} else if (currentScreenWidth <= 1024) {
 							baseScale = 0.6;
 							maxScale = 0.6;
 						}
@@ -277,7 +278,7 @@ export const useScrollAnimation = () => {
 				gsap.set(downloadSectionRef.current, { scale: 1, zIndex: 1 });
 			}
 		};
-	}, []);
+	}, [handleResize]);
 
 	return {
 		downloadSectionRef,

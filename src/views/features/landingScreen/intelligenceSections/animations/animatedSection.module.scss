@@ -10,7 +10,7 @@
 	backface-visibility: hidden;
 	transform: translateZ(0);
 	contain: layout style paint;
-	background: #000938;
+	background: linear-gradient(270deg, #010841 0%, #151a49 100%);
 
 	// Show on mobile devices with adjusted layout
 	@media (max-width: 768px) {

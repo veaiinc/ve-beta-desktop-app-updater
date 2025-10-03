@@ -53,20 +53,29 @@ const Email = ({
 		? location?.pathname?.split('/referral/')[1]
 		: false;
 
-	useEffect(() => {
-		getLocationDetails();
-		const isHostnameVeDotAi =
-			typeof window !== 'undefined' && window.location.hostname.endsWith('ve.ai');
-		setInfo((prev) => ({ ...prev, isHostnameVeDotAi, googleLoading: false }));
+	let locationDetails =
+		JSON.parse(localStorage.getItem('locationDetails')) || info?.locationDetails;
 
-		if (referralCode) {
-			handleGetAndSetReferrerUserName();
-		}
-		const isValid = validator?.isEmail(email);
-		setInfo((prev) => ({
-			...prev,
-			isEmailValid: isValid,
-		}));
+	useEffect(() => {
+		const initializeComponent = async () => {
+			if (!locationDetails || locationDetails === null || locationDetails === 'undefined') {
+				await getLocationDetails();
+			}
+			const isHostnameVeDotAi =
+				typeof window !== 'undefined' && window.location.hostname.endsWith('ve.ai');
+			setInfo((prev) => ({ ...prev, isHostnameVeDotAi, googleLoading: false }));
+
+			if (referralCode) {
+				handleGetAndSetReferrerUserName();
+			}
+			const isValid = validator?.isEmail(email);
+			setInfo((prev) => ({
+				...prev,
+				isEmailValid: isValid,
+			}));
+		};
+
+		initializeComponent();
 
 		return () => {
 			setInfo((prev) => ({
@@ -77,13 +86,13 @@ const Email = ({
 	}, []);
 
 	useEffect(() => {
-		if (invitedWorkspaceId && invitedUserEmail && info?.locationDetails) {
+		if (invitedWorkspaceId && invitedUserEmail && locationDetails) {
 			localStorage?.clear();
 			localStorage?.setItem('invitedWorkspaceId', invitedWorkspaceId);
 			localStorage?.setItem('invitedUserEmail', invitedUserEmail);
 			handleSetEmail(null, invitedUserEmail);
 		}
-	}, [invitedWorkspaceId, invitedUserEmail, info?.locationDetails]);
+	}, [invitedWorkspaceId, invitedUserEmail, locationDetails]);
 
 	useEffect(() => {
 		if (arrowRef.current && info.isEmailValid) {
@@ -116,9 +125,7 @@ const Email = ({
 	};
 
 	const handleLocationDetailsData = useCallback(async () => {
-		let locationDetails;
-		locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
-		if (!locationDetails) {
+		if (!locationDetails || locationDetails === null || locationDetails === 'undefined') {
 			const response = await getLocationDetails();
 			if (response?.[0] === true) {
 				locationDetails = response?.[1];
@@ -126,6 +133,7 @@ const Email = ({
 				message?.error(response?.[1]?.message);
 			}
 		}
+		localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
 		setInfo((prev) => ({ ...prev, locationDetails }));
 		return locationDetails;
 	}, []);
@@ -134,14 +142,14 @@ const Email = ({
 		if (info?.isLoading) return;
 		setInfo((prev) => ({ ...prev, isLoading: true }));
 
-		let locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
-		if (!locationDetails) {
+		if (!locationDetails || locationDetails === null || locationDetails === 'undefined') {
+			console.log('locationDetails is null');
 			locationDetails = await handleLocationDetailsData();
 		}
 
 		const response = referralCode
-			? await createAccountUsingEmail(email, info?.locationDetails, referralCode)
-			: await createAccountUsingEmail(email, info?.locationDetails);
+			? await createAccountUsingEmail(email, locationDetails, referralCode)
+			: await createAccountUsingEmail(email, locationDetails);
 		if (response[0] === true) {
 			setActiveStage('verificationCode');
 			setEmailVerified(false);
@@ -156,8 +164,7 @@ const Email = ({
 		if (info?.googleLoading) {
 			return;
 		}
-		let locationDetails = JSON.parse(localStorage?.getItem('locationDetails'));
-		if (!locationDetails) {
+		if (!locationDetails || locationDetails === null || locationDetails === 'undefined') {
 			const response = await getLocationDetails();
 			if (response?.[0] === true) {
 				locationDetails = response?.[1];
@@ -190,6 +197,15 @@ const Email = ({
 	const handleContinueWithEmail = async (e, type, invitedUserEmail = false) => {
 		if (e?.key !== 'Enter' && type !== 'click') {
 			return;
+		}
+
+		if (!locationDetails || locationDetails === null || locationDetails === 'undefined') {
+			const response = await getLocationDetails();
+			if (response?.[0] === true) {
+				locationDetails = response?.[1];
+			} else {
+				message?.error(response?.[1]?.message);
+			}
 		}
 
 		const currentEmail = email || invitedUserEmail;
@@ -247,10 +263,14 @@ const Email = ({
 				)}
 				<div className="login-page-title">
 					{/* <span className="title-one">AI.&nbsp; </span> */}
-					<span className="meetVeIndicator">MEET VE</span>
+					{/* <span className="meetVeIndicator">MEET VE</span> */}
 					<div className="titleContainer">
-						<span className="title-two">Your Living Intelligence </span>
-						<span className="title-three">OS for work</span>
+						<span className="title-two">
+							AI That Minds
+							<br />
+							Your Business
+						</span>
+						{/* <span className="title-three">Your Business</span> */}
 					</div>
 					<span className="login-page-subtitle">
 						An always-on, Real time, Proactive AI
@@ -263,7 +283,7 @@ const Email = ({
 						<DesktopImage />
 					</div>
 					<div className="eachOptionDetails">
-						<div className="eachOptionTitle">Meeting & Desktop intelligence</div>
+						<div className="eachOptionTitle">Meeting intelligence</div>
 						<div className="eachOptionDesc">
 							Sees what’s said. Remembers what matters.
 						</div>
@@ -285,7 +305,7 @@ const Email = ({
 						<InfinityIcon />
 					</div>
 					<div className="eachOptionDetails">
-						<div className="eachOptionTitle">Ambient Cards</div>
+						<div className="eachOptionTitle">Proactive AI</div>
 						<div className="eachOptionDesc">Plans, builds, and acts end to end.</div>
 					</div>
 				</div>
@@ -319,7 +339,6 @@ const Email = ({
 					</div>
 				</>
 			)}
-
 			<div className="login-content-wrapper">
 				<div className="login-button-container">
 					<div className="email-input-container">
@@ -363,7 +382,9 @@ const Email = ({
 			</div>
 			<div className="acknowledge-container">
 				<p className="acknowledge-text">
-					By signing in, you agree to our{' '}
+					By continuing, you acknowledge that you understand
+					<br />
+					{' and agree to the '}
 					<span
 						className="acknowledge-text-link"
 						onClick={() => window.open('/terms-of-service', '_blank')}

@@ -188,27 +188,14 @@ const MeetingIntelligence = memo(function MeetingIntelligence() {
 		};
 	}, []);
 
-	const handleDismiss = () => {
-		console.log('Meeting Intelligence: Dismiss clicked');
-	};
-
-	const handleSend = () => {
-		console.log('Meeting Intelligence: Send clicked');
-	};
-
 	return (
 		<div ref={containerRef} className={s.animatedSectionContainer}>
 			<div ref={introRef} className={s.introSection}>
-				<AnimatedIntro
-					title="Meeting Intelligence"
-					subhead="Not just notes. True awareness. It remembers, decides, and follows up."
-				/>
+				<AnimatedIntro title="" subhead="" />
 			</div>
 			<div ref={actionsRef} className={s.actionsSection}>
 				<MeetingIntelligenceUI
 					parentScrollProgress={currentActionsCard}
-					onDismiss={handleDismiss}
-					onSend={handleSend}
 					sectionId="MeetingIntelligence"
 				/>
 			</div>
