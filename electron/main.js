@@ -1397,7 +1397,6 @@ function createWindow(restoreState = false) {
 		resizable: true, // Allow resizing for better UX
 		movable: true,
 		transparent: true,
-		frame: false, // Frameless for native vibrancy
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
@@ -1429,22 +1428,6 @@ function createWindow(restoreState = false) {
 
 	mainWindow = new BrowserWindow(mainWindowSettings);
 
-	// // Apply additional vibrancy settings after window creation
-	// if (isMacOS) {
-	// 	try {
-	// 		mainWindow.setVibrancy('fullscreen-ui');
-	// 	} catch (error) {
-	// 		log.warn('⚠️ Failed to apply macOS vibrancy:', error.message);
-	// 	}
-	// } else if (isWindows) {
-	// 	try {
-	// 		mainWindow.setBackgroundMaterial('acrylic');
-	// 		log.info('✅ Windows acrylic material applied');
-	// 	} catch (error) {
-	// 		log.warn('⚠️ Failed to apply Windows acrylic material:', error.message);
-	// 	}
-	// }
-
 	if (notchDropService) {
 		notchDropService.setMainWindow(mainWindow);
 	}
@@ -1462,13 +1445,6 @@ function createWindow(restoreState = false) {
 				log.info(
 					'🔍 Main window focused but permissions missing, showing permission overlay',
 				);
-				setTimeout(() => {
-					try {
-						// windowHelper?.showPermissionWindow();
-					} catch (error) {
-						log.error('❌ Error showing permission overlay on focus:', error);
-					}
-				}, 500);
 			}
 		} catch (error) {
 			log.error('❌ Error checking permissions on window focus:', error);

@@ -1678,6 +1678,9 @@ class WindowHelper {
 			return;
 		}
 
+		// Initialize translucency state
+		this.isTranslucencyEnabled = this.isTranslucencyEnabled ?? false;
+
 		// Register Cmd+\ to toggle overlay window only (independent of main window)
 		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
 			// Check if overlay window is visible
@@ -1822,6 +1825,34 @@ class WindowHelper {
 						process.emit('recreate-main-window');
 					}
 				});
+			}
+		}
+
+		// Register Cmd+G to toggle translucency (macOS only)
+		if (process.platform === 'darwin') {
+			const cmdGRegistered = globalShortcut.register('Command+G', () => {
+				this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+				try {
+					if (
+						this.mainWindow &&
+						!this.mainWindow.isDestroyed() &&
+						this.mainWindow.setVibrancy
+					) {
+						this.mainWindow.setVibrancy(
+							this.isTranslucencyEnabled ? 'fullscreen-ui' : null,
+						);
+					}
+					// Notify renderer to toggle CSS/UI glass state
+					this.mainWindow?.webContents?.send('translucency-changed', {
+						enabled: this.isTranslucencyEnabled,
+						platform: 'darwin',
+					});
+				} catch (e) {
+					log.error('Translucency toggle failed:', e);
+				}
+			});
+			if (!cmdGRegistered) {
+				log.error('❌ Failed to register Cmd+G translucency toggle');
 			}
 		}
 	}
