@@ -410,6 +410,7 @@ export const Calendar = () => {
 					},
 				});
 			}
+			return response;
 		} catch (error) {
 			console.log('error ==> fetchingCalendarEvents', error);
 		}

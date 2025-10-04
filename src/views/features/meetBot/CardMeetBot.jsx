@@ -15,6 +15,17 @@ import { useDispatch } from '@zubridge/electron';
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+const actionTabs = [
+	{
+		label: 'Upcoming meetings',
+		value: 'upcoming',
+	},
+	{
+		label: 'Past meetings',
+		value: 'past',
+	},
+];
+
 function formatDate(timestamp) {
 	const date = new Date(Number(timestamp) * 1000);
 	return date.toLocaleDateString(undefined, {
@@ -27,7 +38,7 @@ function formatDate(timestamp) {
 
 const CardMeetBot = () => {
 	const {
-		notes: { getExistingBots, createMeetBot },
+		notes: { getExistingBots, createMeetBot, getAllCalendarEventsForMeetings },
 		templates: { updateStateValues },
 		aiSetup: { proactiveHeadings, getProactiveHeadings },
 	} = useContext(Context);
@@ -39,17 +50,53 @@ const CardMeetBot = () => {
 		cards: [],
 		guideMePopupOpen: false,
 		apiFetching: false,
+		activeTab: 'upcoming',
 	});
 	const searchInputRef = useRef(null);
 
 	const dispatch = useDispatch();
-	const { pastMeetings, activeMeetingId } = useStore((state) => state.meeting) || {};
+	const { pastMeetings, activeMeetingId, upcomingMeetings } =
+		useStore((state) => state.meeting) || {};
 
-	const meetings = useMemo(() => pastMeetings?.data || [], [pastMeetings?.data]);
-	const loadingMeetings = pastMeetings?.data ? false : true;
-	const hasNextPage = pastMeetings?.hasNextPage || false;
-	const nextPage = pastMeetings?.nextPage || 1;
-	const totalDocs = pastMeetings?.totalDocs || 0;
+	// Get meetings based on active tab
+	const meetings = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			return upcomingMeetings?.data || [];
+		}
+		return pastMeetings?.data || [];
+	}, [info.activeTab, pastMeetings?.data, upcomingMeetings?.data]);
+
+	const loadingMeetings = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			return upcomingMeetings?.data ? false : true;
+		}
+		return pastMeetings?.data ? false : true;
+	}, [info.activeTab, pastMeetings?.data, upcomingMeetings?.data]);
+
+	const hasNextPage = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			return upcomingMeetings?.hasNextPage || false;
+		}
+		return pastMeetings?.hasNextPage || false;
+	}, [info.activeTab, pastMeetings?.hasNextPage, upcomingMeetings?.hasNextPage]);
+
+	const nextPage = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			return upcomingMeetings?.nextPage || 1;
+		}
+		return pastMeetings?.nextPage || 1;
+	}, [info.activeTab, pastMeetings?.nextPage, upcomingMeetings?.nextPage]);
+
+	const totalDocs = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			return upcomingMeetings?.totalDocs || 0;
+		}
+		return pastMeetings?.totalDocs || 0;
+	}, [info.activeTab, pastMeetings?.totalDocs, upcomingMeetings?.totalDocs]);
+
+	const handleTabChange = (tab) => {
+		setInfo((prev) => ({ ...prev, activeTab: tab, currentIndex: 0 }));
+	};
 
 	// Modified API call handler to dispatch to store
 	const handleGetExistingBots = useCallback(
@@ -112,12 +159,89 @@ const CardMeetBot = () => {
 		[getExistingBots, dispatch, pastMeetings?.data],
 	);
 
+	const handleGetUpcomingMeetings = useCallback(
+		async (params) => {
+			setInfo((prevInfo) => ({ ...prevInfo, apiFetching: true }));
+
+			try {
+				const result = await getAllCalendarEventsForMeetings(
+					params.page,
+					params.limit,
+					params.payload,
+				);
+
+				let payload = {};
+
+				if (result[0]) {
+					console.log('result==>handleGetUpcomingMeetings', result);
+
+					const data = result[1];
+					const currentPageMeetingsList = data?.data || [];
+
+					let mergedData;
+					if (params.append) {
+						const existing = upcomingMeetings?.data || [];
+
+						// Merge + deduplicate by "_id"
+						const combined = [...existing, ...currentPageMeetingsList];
+						const seen = new Set();
+						mergedData = combined.filter((meeting) => {
+							if (!meeting?._id) return false; // skip invalid entries
+							if (seen.has(meeting._id)) return false; // skip duplicates
+							seen.add(meeting._id);
+							return true;
+						});
+					} else {
+						// For fresh load, still check for duplicates in the new data itself
+						const seen = new Set();
+						mergedData = currentPageMeetingsList.filter((meeting) => {
+							if (!meeting?._id) return false; // skip invalid entries
+							if (seen.has(meeting._id)) return false; // skip duplicates
+							seen.add(meeting._id);
+							return true;
+						});
+					}
+
+					payload = {
+						data: mergedData,
+						hasNextPage: data.hasNextPage,
+						nextPage: data.nextPage,
+						totalDocs: data.totalDocs,
+						append: params.append || false,
+					};
+				}
+
+				dispatch({
+					type: storeActions.meeting.SET_UPCOMING_MEETINGS,
+					payload,
+				});
+			} catch (error) {
+				console.error('Error fetching meetings:', error);
+			} finally {
+				setInfo((prevInfo) => ({ ...prevInfo, apiFetching: false }));
+			}
+		},
+		[getAllCalendarEventsForMeetings, dispatch, upcomingMeetings?.data],
+	);
+
 	// Load existing bots when component mounts
 	useEffect(() => {
 		// if (!pastMeetings?.data || pastMeetings.data.length === 0) {
 		handleGetExistingBots({ page: 1, limit: 10, append: false });
+		handleGetUpcomingMeetings({ page: 1, limit: 10, append: false });
 		// }
 	}, []); // Only run on mount
+
+	// Auto-switch to past tab if upcoming meetings are empty
+	useEffect(() => {
+		if (
+			upcomingMeetings?.data &&
+			upcomingMeetings.data.length === 0 &&
+			info.activeTab === 'upcoming'
+		) {
+			setInfo((prev) => ({ ...prev, activeTab: 'past', currentIndex: 0 }));
+		}
+	}, [upcomingMeetings?.data, info.activeTab]);
 
 	// Carousel navigation handlers
 	const handleLeft = useCallback(() => {
@@ -130,7 +254,11 @@ const CardMeetBot = () => {
 	const handleRight = useCallback(() => {
 		if (hasNextPage && info?.currentIndex > meetings?.length - 5) {
 			if (!info?.apiFetching) {
-				handleGetExistingBots({ page: nextPage, limit: 10, append: true });
+				if (info.activeTab === 'upcoming') {
+					handleGetUpcomingMeetings({ page: nextPage, limit: 10, append: true });
+				} else {
+					handleGetExistingBots({ page: nextPage, limit: 10, append: true });
+				}
 			}
 		}
 		setInfo((prev) => ({
@@ -143,7 +271,9 @@ const CardMeetBot = () => {
 		info?.apiFetching,
 		meetings?.length,
 		nextPage,
+		info.activeTab,
 		handleGetExistingBots,
+		handleGetUpcomingMeetings,
 	]);
 
 	useEffect(() => {
@@ -508,14 +638,49 @@ const CardMeetBot = () => {
 								</div>
 							</div>
 
-							<button
-								className={styles.cardMeetBot_createNewBtn}
-								onClick={() => setInfo((prev) => ({ ...prev, modalOpen: true }))}
-								disabled={activeMeetingId !== null}
-							>
-								<AddIcon />
-								Create New
-							</button>
+							<div className={styles.cardMeetBot_actionButtonsContainer}>
+								<button
+									className={styles.createNewBtn}
+									onClick={() =>
+										setInfo((prev) => ({ ...prev, modalOpen: true }))
+									}
+									disabled={activeMeetingId !== null}
+								>
+									<div className={styles.iconContainer}>
+										<AddIcon />
+									</div>
+									<div className={styles.text}>Create New</div>
+								</button>
+								{actionTabs
+									.filter((tab) => {
+										// Hide upcoming tab if no upcoming meetings exist
+										if (
+											tab.value === 'upcoming' &&
+											upcomingMeetings?.data &&
+											upcomingMeetings.data.length === 0
+										) {
+											return false;
+										}
+										return true;
+									})
+									.map((tab) => {
+										return (
+											<div
+												className={`${styles.actionItem} ${
+													info.activeTab === tab.value
+														? styles.active
+														: ''
+												}`}
+												onClick={() => handleTabChange(tab.value)}
+												key={tab.value}
+											>
+												<div className={styles.indicatorDot}></div>
+												<div className={styles.text}>{tab.label}</div>
+												{/* {<div className={styles.count}>{0}</div>} */}
+											</div>
+										);
+									})}
+							</div>
 						</div>
 					</div>
 				</div>
