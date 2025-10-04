@@ -2668,6 +2668,10 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                 let savedVideoState = null;
                 let videoStateInterval = null;
                 let videoStartTime = Date.now();
+                let hasRestoredPosition = false;
+                let restoreAttempts = 0;
+                let lastKnownVideoTime = 0;
+                let videoTimeTrackingInterval = null;
                 
                 const fallbackUrls = [
                     'https://www.youtube.com/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
@@ -2696,7 +2700,7 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                 function saveCurrentVideoState() {
                     try {
                         const player = document.getElementById('player');
-                        if (player && player.contentWindow) {
+                        if (player) {
                             const playerState = {
                                 videoId: currentVideoId,
                                 timestamp: Date.now(),
@@ -2705,21 +2709,21 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                 isPlaying: false
                             };
                             
-                            // Method 1: Try to access iframe content directly
+                            // Method 1: Try to access iframe content directly (most reliable)
                             try {
                                 const iframeDoc = player.contentDocument || player.contentWindow.document;
                                 if (iframeDoc) {
                                     // Look for video element in iframe
                                     const videoElement = iframeDoc.querySelector('video');
-                                    if (videoElement) {
+                                    if (videoElement && videoElement.readyState >= 2) {
                                         playerState.currentTime = videoElement.currentTime;
                                         playerState.duration = videoElement.duration;
                                         playerState.isPlaying = !videoElement.paused;
                                         console.log('📺 Got video state from iframe video element:', playerState);
-                    } else {
+                                    } else {
                                         // Try to get time from YouTube player object
                                         const ytPlayer = iframeDoc.querySelector('#movie_player');
-                                        if (ytPlayer && ytPlayer.getCurrentTime) {
+                                        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
                                             playerState.currentTime = ytPlayer.getCurrentTime();
                                             playerState.duration = ytPlayer.getDuration();
                                             playerState.isPlaying = ytPlayer.getPlayerState() === 1;
@@ -2728,7 +2732,7 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                     }
                                 }
                             } catch (e) {
-                                console.log('📺 Could not access iframe content:', e);
+                                console.log('📺 Could not access iframe content (cross-origin):', e.message);
                             }
                             
                             // Method 2: Try YouTube API if iframe access failed
@@ -2736,7 +2740,7 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                 try {
                                     if (window.YT && window.YT.Player) {
                                         const ytPlayer = new YT.Player('player');
-                                        if (ytPlayer && ytPlayer.getCurrentTime) {
+                                        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
                                             playerState.currentTime = ytPlayer.getCurrentTime();
                                             playerState.duration = ytPlayer.getDuration();
                                             playerState.isPlaying = ytPlayer.getPlayerState() === 1;
@@ -2748,16 +2752,30 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                 }
                             }
                             
-                            // Method 3: Use a reasonable estimate if all else fails
+                            // Method 3: Use tracked time from our time tracking system
                             if (playerState.currentTime === 0) {
-                                // Estimate based on how long the video has been playing
                                 const timeSinceStart = (Date.now() - videoStartTime) / 1000;
-                                playerState.currentTime = Math.min(timeSinceStart, 300); // Cap at 5 minutes
-                                console.log('📺 Using estimated video time:', playerState.currentTime);
+                                if (timeSinceStart > 5) { // Only estimate if video has been playing for more than 5 seconds
+                                    playerState.currentTime = Math.min(timeSinceStart, 600); // Cap at 10 minutes
+                                    playerState.isPlaying = true; // Assume playing if we're estimating
+                                    console.log('📺 Using tracked video time:', playerState.currentTime);
+                                }
                             }
                             
-                            localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
-                            console.log('📺 Video state saved:', playerState);
+                            // Method 4: Use last known video time from monitoring
+                            if (playerState.currentTime === 0 && lastKnownVideoTime > 0) {
+                                playerState.currentTime = lastKnownVideoTime;
+                                playerState.isPlaying = true;
+                                console.log('📺 Using last known video time:', playerState.currentTime);
+                            }
+                            
+                            // Only save if we have a meaningful current time
+                            if (playerState.currentTime > 0) {
+                                localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
+                                console.log('📺 Video state saved:', playerState);
+                            } else {
+                                console.log('📺 No meaningful video state to save (currentTime: 0)');
+                            }
                         }
                     } catch (e) {
                         console.log('📺 Could not save video state:', e);
@@ -2766,9 +2784,18 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                 
                 // Restore video to saved position using multiple methods
                 function restoreVideoPosition() {
+                    // Only prevent if we've already successfully restored
+                    if (hasRestoredPosition) {
+                        console.log('📺 Position restoration already completed');
+                        return false;
+                    }
+                    
                     const saved = getSavedVideoState();
                     if (saved && saved.currentTime > 0) {
-                        console.log('📺 Restoring video position to:', saved.currentTime + 's');
+                        restoreAttempts++;
+                        console.log('📺 Attempting to restore video position to:', saved.currentTime + 's (attempt ' + restoreAttempts + ')');
+                        
+                        let restorationSuccessful = false;
                         
                         // Method 1: Try direct iframe access
                         try {
@@ -2777,24 +2804,26 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                 const iframeDoc = player.contentDocument || player.contentWindow.document;
                                 if (iframeDoc) {
                                     const videoElement = iframeDoc.querySelector('video');
-                                    if (videoElement) {
+                                    if (videoElement && videoElement.readyState >= 2) {
                                         videoElement.currentTime = saved.currentTime;
                                         if (saved.isPlaying) {
                                             videoElement.play();
                                         }
+                                        restorationSuccessful = true;
                                         console.log('📺 Video position restored via iframe video element');
-                                        return true;
                                     }
                                     
-                                    // Try YouTube player object
-                                    const ytPlayer = iframeDoc.querySelector('#movie_player');
-                                    if (ytPlayer && ytPlayer.seekTo) {
-                                        ytPlayer.seekTo(saved.currentTime, true);
-                                        if (saved.isPlaying) {
-                                            ytPlayer.playVideo();
+                                    // Try YouTube player object if video element didn't work
+                                    if (!restorationSuccessful) {
+                                        const ytPlayer = iframeDoc.querySelector('#movie_player');
+                                        if (ytPlayer && ytPlayer.seekTo) {
+                                            ytPlayer.seekTo(saved.currentTime, true);
+                                            if (saved.isPlaying) {
+                                                ytPlayer.playVideo();
+                                            }
+                                            restorationSuccessful = true;
+                                            console.log('📺 Video position restored via YouTube player object');
                                         }
-                                        console.log('📺 Video position restored via YouTube player object');
-                                        return true;
                                     }
                                 }
                             }
@@ -2803,28 +2832,43 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                         }
                         
                         // Method 2: Try YouTube Player API
-                        try {
-                            if (window.YT && window.YT.Player) {
-                                const ytPlayer = new YT.Player('player');
-                                if (ytPlayer && ytPlayer.seekTo) {
-                                    ytPlayer.seekTo(saved.currentTime, true);
-                                    if (saved.isPlaying) {
-                                        ytPlayer.playVideo();
+                        if (!restorationSuccessful) {
+                            try {
+                                if (window.YT && window.YT.Player) {
+                                    const ytPlayer = new YT.Player('player');
+                                    if (ytPlayer && ytPlayer.seekTo) {
+                                        ytPlayer.seekTo(saved.currentTime, true);
+                                        if (saved.isPlaying) {
+                                            ytPlayer.playVideo();
+                                        }
+                                        restorationSuccessful = true;
+                                        console.log('📺 Video position restored via YouTube API');
                                     }
-                                    console.log('📺 Video position restored via YouTube API');
-                                    return true;
                                 }
+                            } catch (e) {
+                                console.log('📺 YouTube API method failed:', e);
                             }
-                        } catch (e) {
-                            console.log('📺 YouTube API method failed:', e);
                         }
                         
-                        // Method 3: Return time for URL parameter
-                        const currentTimeSeconds = Math.floor(saved.currentTime);
-                        if (currentTimeSeconds > 0) {
-                            console.log('📺 Will add start time parameter for next load');
-                            return currentTimeSeconds;
+                        // If restoration was successful, mark as completed
+                        if (restorationSuccessful) {
+                            hasRestoredPosition = true;
+                            // Clear the saved state to prevent repeated restorations
+                            localStorage.removeItem('notchVideoState_' + currentVideoId);
+                            console.log('📺 ✅ Video position restoration SUCCESSFUL!');
+                            return true;
+                        } else {
+                            // Method 3: Return time for URL parameter (fallback)
+                            const currentTimeSeconds = Math.floor(saved.currentTime);
+                            if (currentTimeSeconds > 0 && restoreAttempts >= 2) {
+                                console.log('📺 Will add start time parameter for next load (fallback)');
+                                hasRestoredPosition = true;
+                                localStorage.removeItem('notchVideoState_' + currentVideoId);
+                                return true; // Return true to indicate we have a fallback plan
+                            }
                         }
+                    } else {
+                        console.log('📺 No saved video state found or currentTime is 0');
                     }
                     return false;
                 }
@@ -2841,18 +2885,28 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     }
                     
                     let videoUrl = fallbackUrls[fallbackIndex];
+                    let savedState = null;
                     
-                    // If we have saved state and this is the first attempt, add start time parameter
+                    // Check for saved state first to determine if we need to restore
                     if (fallbackIndex === 0) {
-                        const savedPosition = restoreVideoPosition();
-                        if (typeof savedPosition === 'number' && savedPosition > 0) {
-                            console.log('📺 Adding start time parameter:', savedPosition + 's');
-                            // Add start time parameter to YouTube URLs
-                            if (videoUrl.includes('youtube.com') || videoUrl.includes('youtube-nocookie.com')) {
-                                videoUrl += '&start=' + savedPosition;
-                            } else if (videoUrl.includes('inv.')) {
-                                videoUrl += '&t=' + savedPosition;
-                            }
+                        savedState = getSavedVideoState();
+                        if (savedState && savedState.currentTime > 0) {
+                            console.log('📺 Found saved video state:', savedState);
+                            // Keep loading overlay visible during restoration to hide the glitch
+                            loading.style.display = 'flex';
+                            loading.innerHTML = '<div class="spinner"></div><p>Resuming video...</p>';
+                        }
+                    }
+                    
+                    // If we have saved state, add start time parameter to URL
+                    if (savedState && savedState.currentTime > 0) {
+                        const savedPosition = Math.floor(savedState.currentTime);
+                        console.log('📺 Adding start time parameter:', savedPosition + 's');
+                        // Add start time parameter to YouTube URLs
+                        if (videoUrl.includes('youtube.com') || videoUrl.includes('youtube-nocookie.com')) {
+                            videoUrl += '&start=' + savedPosition;
+                        } else if (videoUrl.includes('inv.')) {
+                            videoUrl += '&t=' + savedPosition;
                         }
                     }
                     
@@ -2862,35 +2916,55 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     
                     // Check if video loads successfully
                     player.onload = function() {
-                        loading.style.display = 'none';
                         console.log('📺 Video loaded successfully!');
                         
-                        // Try to restore position after video loads - multiple attempts
-                        setTimeout(() => {
-                            const saved = getSavedVideoState();
-                            if (saved && saved.currentTime > 0) {
-                                console.log('📺 Attempting to restore position after load...');
-                                restoreVideoPosition();
-                            }
-                        }, 2000); // Wait 2 seconds for video to be ready
-                        
-                        // Try again after 5 seconds (in case first attempt failed)
-                        setTimeout(() => {
-                            const saved = getSavedVideoState();
-                            if (saved && saved.currentTime > 0) {
-                                console.log('📺 Second attempt to restore position...');
-                                restoreVideoPosition();
-                            }
-                        }, 5000);
-                        
-                        // Final attempt after 8 seconds
-                        setTimeout(() => {
-                            const saved = getSavedVideoState();
-                            if (saved && saved.currentTime > 0) {
-                                console.log('📺 Final attempt to restore position...');
-                                restoreVideoPosition();
-                            }
-                        }, 8000);
+                        // If we have saved state, hide the video initially and restore position
+                        if (savedState && savedState.currentTime > 0) {
+                            console.log('📺 Hiding video during restoration to prevent visual glitch');
+                            player.style.display = 'none';
+                            
+                            // Try to restore position after video loads
+                            setTimeout(() => {
+                                if (!hasRestoredPosition) {
+                                    console.log('📺 First restoration attempt after load...');
+                                    const restored = restoreVideoPosition();
+                                    if (restored) {
+                                        // Show the video after successful restoration
+                                        player.style.display = 'block';
+                                        loading.style.display = 'none';
+                                        console.log('📺 Video restored and displayed successfully!');
+                                    }
+                                }
+                            }, 1000); // Faster restoration attempt
+                            
+                            // Second attempt after 2 seconds
+                            setTimeout(() => {
+                                if (!hasRestoredPosition) {
+                                    console.log('📺 Second restoration attempt...');
+                                    const restored = restoreVideoPosition();
+                                    if (restored) {
+                                        player.style.display = 'block';
+                                        loading.style.display = 'none';
+                                        console.log('📺 Video restored and displayed successfully!');
+                                    }
+                                }
+                            }, 2000);
+                            
+                            // Final attempt after 3 seconds - show video regardless
+                            setTimeout(() => {
+                                if (!hasRestoredPosition) {
+                                    console.log('📺 Final restoration attempt...');
+                                    restoreVideoPosition();
+                                }
+                                // Always show video after 3 seconds to prevent infinite loading
+                                player.style.display = 'block';
+                                loading.style.display = 'none';
+                                console.log('📺 Video displayed (restoration may have failed)');
+                            }, 3000);
+                        } else {
+                            // No saved state, show video immediately
+                            loading.style.display = 'none';
+                        }
                         
                         // Start monitoring video state
                         startVideoStateMonitoring();
@@ -2904,8 +2978,11 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                 }
                 
                 function startVideoStateMonitoring() {
-                    // Monitor video state every 1 second for maximum accuracy
-                    videoStateInterval = setInterval(saveCurrentVideoState, 1000);
+                    // Start time tracking system
+                    startVideoTimeTracking();
+                    
+                    // Monitor video state every 2 seconds for better performance
+                    videoStateInterval = setInterval(saveCurrentVideoState, 2000);
                     
                     // Save state when page is about to unload
                     window.addEventListener('beforeunload', saveCurrentVideoState);
@@ -2922,6 +2999,7 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     window.addEventListener('message', function(event) {
                         if (event.data && event.data.type === 'VIDEO_TIME_UPDATE') {
                             console.log('📺 Received time update from iframe:', event.data);
+                            lastKnownVideoTime = event.data.currentTime || 0;
                             const playerState = {
                                 videoId: currentVideoId,
                                 timestamp: Date.now(),
@@ -2946,7 +3024,7 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                             setInterval(() => {
                                                 try {
                                                     const video = document.querySelector('video');
-                                                    if (video) {
+                                                    if (video && video.readyState >= 2) {
                                                         window.parent.postMessage({
                                                             type: 'VIDEO_TIME_UPDATE',
                                                             currentTime: video.currentTime,
@@ -2973,9 +3051,20 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     }
                 }
                 
+                function startVideoTimeTracking() {
+                    // Track video time based on elapsed time since start
+                    videoTimeTrackingInterval = setInterval(() => {
+                        const timeSinceStart = (Date.now() - videoStartTime) / 1000;
+                        lastKnownVideoTime = timeSinceStart;
+                        console.log('📺 Time tracking: ' + timeSinceStart.toFixed(1) + 's elapsed');
+                    }, 1000);
+                }
+                
                 function retryVideo() {
                     fallbackIndex = 0;
                     savedVideoState = null; // Clear saved state on retry
+                    hasRestoredPosition = false; // Reset restoration flag
+                    restoreAttempts = 0; // Reset attempt counter
                     document.getElementById('error').style.display = 'none';
                     document.getElementById('loading').style.display = 'block';
                     document.getElementById('player').style.display = 'none';
