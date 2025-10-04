@@ -639,11 +639,12 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			history === true &&
 			(!activeMeetingRevampedPrompt ||
 				meetingId !== activeMeetingRevampedPrompt?.meetingId) &&
-			!info?.summaryInProgress
+			!info?.summaryInProgress &&
+			activeTab === 'all'
 		) {
 			getRevampedPrompt({ meetingId });
 		}
-	}, [history, meetingId, activeMeetingRevampedPrompt, info?.summaryInProgress]);
+	}, [history, meetingId, activeMeetingRevampedPrompt, info?.summaryInProgress, activeTab]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
