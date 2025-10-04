@@ -67,13 +67,68 @@ const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
 
-// Startup diagnostic function
-const runStartupDiagnostics = () => {
+// LIGHTNING FAST: Optimized IPC handler with caching and batching
+const ipcCache = new Map();
+const ipcBatchQueue = new Map();
+
+const withTimeout = (handler, timeoutMs = 30000, cacheKey = null) => {
+	return async (...args) => {
+		try {
+			// LIGHTNING FAST: Check cache first for repeated calls
+			if (cacheKey) {
+				const cacheEntry = ipcCache.get(cacheKey);
+				if (cacheEntry && Date.now() - cacheEntry.timestamp < 5000) { // 5 second cache
+					return cacheEntry.result;
+				}
+			}
+
+			const timeoutPromise = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error(`IPC handler timeout after ${timeoutMs}ms`)), timeoutMs)
+			);
+			
+			const handlerPromise = handler(...args);
+			const result = await Promise.race([handlerPromise, timeoutPromise]);
+			
+			// LIGHTNING FAST: Cache successful results
+			if (cacheKey && result.success !== false) {
+				ipcCache.set(cacheKey, {
+					result,
+					timestamp: Date.now()
+				});
+			}
+			
+			return result;
+		} catch (error) {
+			log.error('❌ IPC handler failed:', error);
+			return { success: false, error: error.message };
+		}
+	};
+};
+
+// LIGHTNING FAST: Batch IPC calls for better performance
+const batchIPC = (channel, delay = 16) => {
+	if (!ipcBatchQueue.has(channel)) {
+		ipcBatchQueue.set(channel, []);
+	}
+	
+	return new Promise((resolve) => {
+		ipcBatchQueue.get(channel).push(resolve);
+		
+		if (ipcBatchQueue.get(channel).length === 1) {
+			setTimeout(() => {
+				const batch = ipcBatchQueue.get(channel);
+				ipcBatchQueue.set(channel, []);
+				batch.forEach(resolve => resolve());
+			}, delay);
+		}
+	});
+};
+
+// LIGHTNING FAST: Optimized startup diagnostics with async operations
+const runStartupDiagnostics = async () => {
 	log.info('🔍 Running startup diagnostics...');
 
-	// TODO: PERFORMANCE - Multiple synchronous fs.existsSync() calls block main thread
-	// TODO: PERFORMANCE - Move to async fs.promises.access() or batch operations
-	// Check critical paths
+	// LIGHTNING FAST: Use async fs operations to prevent blocking
 	const criticalPaths = [
 		{ name: 'App path', path: app.getAppPath() },
 		{ name: 'User data path', path: app.getPath('userData') },
@@ -81,17 +136,20 @@ const runStartupDiagnostics = () => {
 		{ name: 'Main script directory', path: __dirname },
 	];
 
-	criticalPaths.forEach(({ name, path }) => {
+	// LIGHTNING FAST: Batch all async operations
+	const pathChecks = criticalPaths.map(async ({ name, path }) => {
 		try {
-			if (fs.existsSync(path)) {
-				log.info(`✅ ${name}: ${path} (exists)`);
-			} else {
-				log.warn(`⚠️ ${name}: ${path} (does not exist)`);
-			}
+			await fs.promises.access(path, fs.constants.F_OK);
+			log.info(`✅ ${name}: ${path} (exists)`);
+			return { name, path, exists: true };
 		} catch (error) {
-			log.error(`❌ ${name}: ${path} (error checking: ${error.message})`);
+			log.warn(`⚠️ ${name}: ${path} (does not exist)`);
+			return { name, path, exists: false };
 		}
 	});
+
+	// LIGHTNING FAST: Wait for all checks in parallel
+	await Promise.allSettled(pathChecks);
 
 	// Check build files in production
 	if (!process.env.VITE_DEV_SERVER_URL) {
@@ -483,20 +541,46 @@ function handleOverlayWindowReady(overlayWindow) {
 // IPC Handlers for updates
 ipcMain.handle(
 	'check-for-updates',
-	async () =>
-		await ipcMainHandleCheckForUpdates({
-			getIsUpdateInProgress,
-			setIsUpdateInProgress,
-		}),
+	async () => {
+		try {
+			// Add timeout to prevent hanging
+			const timeoutPromise = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error('Update check timeout')), 30000)
+			);
+			
+			const updatePromise = ipcMainHandleCheckForUpdates({
+				getIsUpdateInProgress,
+				setIsUpdateInProgress,
+			});
+			
+			return await Promise.race([updatePromise, timeoutPromise]);
+		} catch (error) {
+			log.error('❌ Update check failed:', error);
+			return { success: false, error: error.message };
+		}
+	}
 );
 
 ipcMain.handle(
 	'download-update',
-	async () =>
-		await ipcMainHandleDownloadUpdates({
-			getIsUpdateInProgress,
-			setIsUpdateInProgress,
-		}),
+	async () => {
+		try {
+			// Add timeout to prevent hanging
+			const timeoutPromise = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error('Download update timeout')), 60000)
+			);
+			
+			const downloadPromise = ipcMainHandleDownloadUpdates({
+				getIsUpdateInProgress,
+				setIsUpdateInProgress,
+			});
+			
+			return await Promise.race([downloadPromise, timeoutPromise]);
+		} catch (error) {
+			log.error('❌ Download update failed:', error);
+			return { success: false, error: error.message };
+		}
+	}
 );
 
 ipcMain.handle('restart-app', () =>
@@ -1953,7 +2037,24 @@ function createWindow(restoreState = false) {
 	// Add error handling for unresponsive renderer
 	mainWindow.webContents.on('unresponsive', () => {
 		log.warn('⚠️ Renderer process became unresponsive');
-		// Don't show error page immediately, just log it
+		// Force reload after 5 seconds if still unresponsive
+		setTimeout(() => {
+			if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents.isLoading() === false) {
+				log.warn('🔄 Force reloading unresponsive renderer...');
+				mainWindow.webContents.reload();
+			}
+		}, 5000);
+	});
+	
+	// CRITICAL: Add recovery mechanism for completely frozen windows
+	mainWindow.webContents.on('crashed', () => {
+		log.error('❌ Renderer process crashed - attempting recovery...');
+		setTimeout(() => {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				log.warn('🔄 Attempting to recover crashed renderer...');
+				mainWindow.webContents.reload();
+			}
+		}, 2000);
 	});
 
 	mainWindow.webContents.on('responsive', () => {
@@ -2206,6 +2307,19 @@ async function checkAllPermissions() {
 	}
 }
 
+// LIGHTNING FAST: Performance flags for maximum speed
+app.commandLine.appendSwitch('--enable-gpu-rasterization');
+app.commandLine.appendSwitch('--enable-zero-copy');
+app.commandLine.appendSwitch('--disable-background-timer-throttling');
+app.commandLine.appendSwitch('--disable-renderer-backgrounding');
+app.commandLine.appendSwitch('--disable-backgrounding-occluded-windows');
+app.commandLine.appendSwitch('--enable-features', 'VaapiVideoDecoder');
+app.commandLine.appendSwitch('--disable-features', 'VizDisplayCompositor');
+app.commandLine.appendSwitch('--max-active-webgl-contexts', '16');
+app.commandLine.appendSwitch('--enable-accelerated-2d-canvas');
+app.commandLine.appendSwitch('--enable-accelerated-mjpeg-decode');
+app.commandLine.appendSwitch('--enable-accelerated-video-decode');
+
 // App lifecycle
 app.whenReady().then(async () => {
 	log.info('🚀 App is ready - starting initialization...');
@@ -2218,8 +2332,71 @@ app.whenReady().then(async () => {
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
 
-	// Run startup diagnostics
-	runStartupDiagnostics();
+	// CRITICAL: Add watchdog timer to prevent main process hanging
+	let lastHeartbeat = Date.now();
+	const watchdogInterval = setInterval(() => {
+		const now = Date.now();
+		if (now - lastHeartbeat > 30000) { // 30 seconds without heartbeat
+			log.error('❌ Main process appears to be hanging - forcing restart...');
+			app.relaunch();
+			app.exit(1);
+		}
+		lastHeartbeat = now;
+	}, 5000); // Check every 5 seconds
+
+	// Update heartbeat on any activity
+	process.on('message', () => { lastHeartbeat = Date.now(); });
+	process.on('uncaughtException', (error) => { 
+		lastHeartbeat = Date.now();
+		log.error('❌ Uncaught exception:', error);
+	});
+	process.on('unhandledRejection', (reason) => { 
+		lastHeartbeat = Date.now();
+		log.error('❌ Unhandled rejection:', reason);
+	});
+	
+	// LIGHTNING FAST: Optimized process monitoring with smart GC
+	const processMonitor = setInterval(() => {
+		const memUsage = process.memoryUsage();
+		const cpuUsage = process.cpuUsage();
+		
+		// LIGHTNING FAST: Only log memory usage every 60 seconds to reduce overhead
+		if (Date.now() % 60000 < 5000) {
+			log.info('📊 Process stats:', {
+				memory: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
+				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB'
+			});
+		}
+		
+		// LIGHTNING FAST: Smart garbage collection with progressive thresholds
+		const heapUsedMB = memUsage.heapUsed / 1024 / 1024;
+		if (heapUsedMB > 300 && global.gc) { // Lower threshold for faster response
+			log.warn('⚠️ High memory usage detected, forcing garbage collection...');
+			global.gc();
+			
+			// LIGHTNING FAST: Clear IPC cache if memory is still high after GC
+			if (memUsage.heapUsed > 400 * 1024 * 1024) {
+				ipcCache.clear();
+				log.info('🧹 Cleared IPC cache due to high memory usage');
+			}
+		}
+		
+		// LIGHTNING FAST: Clear old cache entries periodically
+		if (Date.now() % 300000 < 5000) { // Every 5 minutes
+			const now = Date.now();
+			for (const [key, entry] of ipcCache.entries()) {
+				if (now - entry.timestamp > 30000) { // 30 second TTL
+					ipcCache.delete(key);
+				}
+			}
+		}
+	}, 10000); // Reduced frequency to 10 seconds for better performance
+
+	// LIGHTNING FAST: Run startup diagnostics asynchronously to not block app startup
+	runStartupDiagnostics().catch(error => {
+		log.error('❌ Startup diagnostics failed:', error);
+	});
 
 	// Set application branding for Windows
 	if (process.platform === 'win32') {
@@ -2911,10 +3088,24 @@ app.whenReady().then(async () => {
 
 			// Initialize NotchDrop in background without blocking main window
 			try {
-				await notchDropService.initialize();
+				// Add timeout to prevent hanging during NotchDrop initialization
+				const notchDropInitTimeout = new Promise((_, reject) => 
+					setTimeout(() => reject(new Error('NotchDrop initialization timeout')), 20000)
+				);
+				
+				await Promise.race([notchDropService.initialize(), notchDropInitTimeout]);
 				// log.info('✅ NotchDrop service initialized successfully');
 			} catch (error) {
 				log.error('❌ NotchDrop service initialization failed:', error);
+				// Clean up any partial initialization
+				if (notchDropService) {
+					try {
+						notchDropService.cleanup();
+					} catch (cleanupError) {
+						log.error('❌ Error cleaning up NotchDrop service:', cleanupError);
+					}
+					notchDropService = null;
+				}
 				// Continue without NotchDrop - app should still work
 			}
 		} else if (isIntelMac) {
@@ -5551,6 +5742,30 @@ app.on('before-quit', (event) => {
 	} else {
 		// Allow quit for updates
 		log.info('🔄 Allowing quit for update installation...');
+	}
+});
+
+// CRITICAL: Add cleanup for watchdog and process monitor
+app.on('will-quit', (event) => {
+	try {
+		// Clear watchdog interval
+		if (typeof watchdogInterval !== 'undefined') {
+			clearInterval(watchdogInterval);
+		}
+		
+		// Clear process monitor
+		if (typeof processMonitor !== 'undefined') {
+			clearInterval(processMonitor);
+		}
+		
+		// Clean up NotchDrop service
+		if (notchDropService) {
+			notchDropService.cleanup();
+		}
+		
+		log.info('🧹 App cleanup completed');
+	} catch (error) {
+		log.error('❌ Error during app cleanup:', error);
 	}
 });
 

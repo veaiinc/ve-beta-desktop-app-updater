@@ -49,9 +49,8 @@ class NotchDropPanel: NSPanel {
     private var hapticFeedback: Bool = true
     private var notchViewModel: NotchViewModel?
     private let notchWindowLevel: NSWindow.Level = {
-        let assistive = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
-        let statusBar = NSWindow.Level.statusBar
-        return assistive.rawValue > statusBar.rawValue ? assistive : statusBar
+        // Use a high level to ensure it stays above all other windows
+        return NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
     }()
 
     // MARK: - Callbacks
@@ -120,10 +119,8 @@ class NotchDropPanel: NSPanel {
         window.isMovable = false
         window.hasShadow = false
         window.collectionBehavior = [
-            .fullScreenAuxiliary,
             .canJoinAllSpaces,
             .stationary,
-            .transient,
             .ignoresCycle,
         ]
         window.isExcludedFromWindowsMenu = true
@@ -133,6 +130,12 @@ class NotchDropPanel: NSPanel {
         // CRITICAL: Enable keyboard input and first responder capabilities
         window.acceptsMouseMovedEvents = true
         window.setFrame(topRect, display: false)
+        
+        // Make window completely fixed like Boring Notch
+        window.isMovableByWindowBackground = false
+        window.isMovable = false
+        window.ignoresMouseEvents = false
+        window.hidesOnDeactivate = false
 
         // Don't set initial first responder - let SwiftUI manage TextField focus
 
@@ -555,12 +558,12 @@ class NotchDropPanel: NSPanel {
         }
     }
 
-    @objc public func updateStealthModeState(_ isEnabled: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, let viewModel = self.notchViewModel else { return }
-            viewModel.updateStealthModeState(isEnabled)
-        }
-    }
+    // @objc public func updateStealthModeState(_ isEnabled: Bool) {
+    //     DispatchQueue.main.async { [weak self] in
+    //         guard let self = self, let viewModel = self.notchViewModel else { return }
+    //         viewModel.updateStealthModeState(isEnabled)
+    //     }
+    // }
     
     @objc public func addVoiceMessage(_ messageJson: String) {
         DispatchQueue.main.async { [weak self] in
@@ -663,4 +666,52 @@ class NotchDropPanel: NSPanel {
             swiftActionCallback?("restoreVideoState", "")
         }
     }
+    // MARK: - Stealth Mode
+    @objc public func updateStealthModeState(_ isEnabled: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let window = self.notchWindow else {
+                print(":pirate_flag: NotchDropCore: No window available for stealth mode")
+                return
+            }
+            print(":pirate_flag: NotchDropCore: Applying stealth mode: \(isEnabled)")
+            print(":pirate_flag: NotchDropCore: Window type: \(type(of: window))")
+            print(":pirate_flag: NotchDropCore: Window title: \(window.title)")
+            print(":pirate_flag: NotchDropCore: Window isVisible: \(window.isVisible)")
+            if isEnabled {
+                // STEALTH MODE ON: Hide from screen recordings but keep visible to user
+                print(":pirate_flag: NotchDropCore: ENABLING stealth mode - hiding from recordings only")
+                // Method 1: Set sharing type to exclude from screen recording
+                if #available(macOS 10.13, *) {
+                    window.sharingType = .none
+                    print(":pirate_flag: NotchDropCore: Window sharingType set to .none (hidden from recordings)")
+                }
+                // Method 2: Set window level to be above screen recording level
+                window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.maximumWindow)))
+                print(":pirate_flag: NotchDropCore: Window level set to maximum (above recording)")
+                // Keep window visible to user - DO NOT hide or make transparent
+                print(":pirate_flag: NotchDropCore: Window remains visible to user")
+            } else {
+                // STEALTH MODE OFF: Restore normal behavior
+                print(":pirate_flag: NotchDropCore: DISABLING stealth mode - restoring normal recording")
+                // Restore normal sharing type
+                if #available(macOS 10.13, *) {
+                    window.sharingType = .readOnly
+                    print(":pirate_flag: NotchDropCore: Window sharingType restored to .readOnly")
+                }
+                // Restore ORIGINAL window level (not normal, but the custom notch level)
+                window.level = self.notchWindowLevel
+                print(":pirate_flag: NotchDropCore: Window level restored to normal")
+                // Ensure window is visible
+                if !window.isVisible {
+                    window.orderFront(nil)
+                    window.makeKeyAndOrderFront(nil)
+                    self.enforceWindowPresentation()
+                    print(":pirate_flag: NotchDropCore: Window restored to visible state")
+                }
+            }
+            print(":pirate_flag: NotchDropCore: Stealth mode \(isEnabled ? "ENABLED" : "DISABLED")")
+        }
+    }
+
+
 }

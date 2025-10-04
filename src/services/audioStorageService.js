@@ -103,17 +103,17 @@ class AudioStorageService {
 
 			console.log('Audio saved successfully:', audioFilePath);
 
-			// Automatically trigger upload to AssemblyAI after successful save
-			console.log('🚀 Automatically triggering upload to AssemblyAI...');
+			// Skip audio operations and directly call workspace API for meeting analytics
+			console.log('🚀 Skipping audio operations, directly calling workspace API...');
 			try {
-				const uploadResult = await this.uploadToAssemblyAI(meetingId);
-				if (uploadResult.success) {
-					console.log('✅ Auto-upload to AssemblyAI successful!');
+				const workspaceResult = await this.sendToWorkspaceAPI(meetingId);
+				if (workspaceResult.success) {
+					console.log('✅ Direct workspace API call successful!');
 				} else {
-					console.error('❌ Auto-upload to AssemblyAI failed:', uploadResult.error);
+					console.error('❌ Direct workspace API call failed:', workspaceResult.error);
 				}
 			} catch (error) {
-				console.error('❌ Error during auto-upload:', error);
+				console.error('❌ Error during direct workspace API call:', error);
 			}
 
 			return {
@@ -497,7 +497,6 @@ class AudioStorageService {
 						try {
 							const workspaceResult = await assemblyAIService.sendToWorkspaceAPI(
 								meetingId,
-								uploadResult.uploadUrl,
 								jwtToken,
 							);
 
@@ -633,6 +632,59 @@ class AudioStorageService {
 			return transcriptionResult;
 		} catch (error) {
 			console.error('Error getting AssemblyAI transcription:', error);
+			return {
+				success: false,
+				error: error.message,
+			};
+		}
+	}
+
+	/**
+	 * Send meeting ID directly to workspace API for meeting analytics (without audio)
+	 * @param {string} meetingId - Meeting ID
+	 * @returns {Promise<{success: boolean, result?: object, error?: string}>}
+	 */
+	async sendToWorkspaceAPI(meetingId) {
+		try {
+			console.log('🚀 Sending meeting ID to workspace API for analytics...');
+			const jwtToken = localStorage.getItem('usertoken');
+			if (!jwtToken) {
+				throw new Error('JWT token not found');
+			}
+
+			const workspaceResult = await assemblyAIService.sendToWorkspaceAPI(
+				meetingId,
+				jwtToken,
+			);
+
+			if (workspaceResult.success) {
+				console.log('✅ Successfully sent meeting ID to workspace API!');
+			} else {
+				console.error('❌ Failed to send to workspace API:', workspaceResult.error);
+			}
+
+			return workspaceResult;
+		} catch (error) {
+			console.error('❌ Error calling workspace API:', error);
+			return {
+				success: false,
+				error: error.message,
+			};
+		}
+	}
+
+	/**
+	 * Generate meeting analytics without audio recording
+	 * This is the main method to call for meeting analytics
+	 * @param {string} meetingId - Meeting ID
+	 * @returns {Promise<{success: boolean, result?: object, error?: string}>}
+	 */
+	async generateMeetingAnalytics(meetingId) {
+		try {
+			console.log('🚀 Generating meeting analytics for meeting:', meetingId);
+			return await this.sendToWorkspaceAPI(meetingId);
+		} catch (error) {
+			console.error('❌ Error generating meeting analytics:', error);
 			return {
 				success: false,
 				error: error.message,
