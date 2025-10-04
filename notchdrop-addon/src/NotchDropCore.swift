@@ -49,9 +49,8 @@ class NotchDropPanel: NSPanel {
     private var hapticFeedback: Bool = true
     private var notchViewModel: NotchViewModel?
     private let notchWindowLevel: NSWindow.Level = {
-        let assistive = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
-        let statusBar = NSWindow.Level.statusBar
-        return assistive.rawValue > statusBar.rawValue ? assistive : statusBar
+        // Use a high level to ensure it stays above all other windows
+        return NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
     }()
 
     // MARK: - Callbacks
@@ -120,10 +119,8 @@ class NotchDropPanel: NSPanel {
         window.isMovable = false
         window.hasShadow = false
         window.collectionBehavior = [
-            .fullScreenAuxiliary,
             .canJoinAllSpaces,
             .stationary,
-            .transient,
             .ignoresCycle,
         ]
         window.isExcludedFromWindowsMenu = true
@@ -133,6 +130,12 @@ class NotchDropPanel: NSPanel {
         // CRITICAL: Enable keyboard input and first responder capabilities
         window.acceptsMouseMovedEvents = true
         window.setFrame(topRect, display: false)
+        
+        // Make window completely fixed like Boring Notch
+        window.isMovableByWindowBackground = false
+        window.isMovable = false
+        window.ignoresMouseEvents = false
+        window.hidesOnDeactivate = false
 
         // Don't set initial first responder - let SwiftUI manage TextField focus
 
