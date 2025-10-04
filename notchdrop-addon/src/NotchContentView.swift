@@ -261,9 +261,7 @@ struct DynamicIslandContentView: View {
                                 HStack(spacing: 12) {
                                     // Mute/Unmute toggle
                                     Button(action: {
-                                        print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
                                         vm.toggleVoiceMute()
-                                        print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
                                     }) {
                                         Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
                                             .font(.system(size: 14))
@@ -280,7 +278,6 @@ struct DynamicIslandContentView: View {
                                     
                                     // Cancel/Disconnect button
                                     Button(action: {
-                                        print("❌ Cancel button clicked")
                                         vm.disconnectVoiceAssistant()
                                     }) {
                                         RoundedRectangle(cornerRadius: 2)
@@ -385,7 +382,6 @@ struct DynamicIslandContentView: View {
                             .onTapGesture {
                                 // Click on spacer area should unfocus chat input
                                 if isChatInputFocused {
-                                    print("🎯 Clicked on spacer area - removing focus from chat input")
                                     DispatchQueue.main.async {
                                         isChatInputFocused = false
                                         isTextFieldActive = false
@@ -423,9 +419,7 @@ struct DynamicIslandContentView: View {
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
-                                print("🎯 Stealth mode icon clicked - current stealth state: \(vm.isStealthModeEnabled)")
                                 vm.toggleStealthMode()
-                                print("🎯 After toggle - new stealth state: \(vm.isStealthModeEnabled)")
                             }) {
                                 Group {
                                     if vm.isStealthModeEnabled {
@@ -461,7 +455,6 @@ struct DynamicIslandContentView: View {
                             
                             // Lock/Unlock button (fourth icon)
                             Button(action: {
-                                print("🔒 Lock button clicked - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
                                 vm.toggleNotchLock()
                                 
                                 // Force state validation after toggle
@@ -487,12 +480,10 @@ struct DynamicIslandContentView: View {
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
                             .onAppear {
-                                print("🔒 Lock button appeared - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
                                 // Validate state on appearance
                                 vm.forceLockStateRefresh()
                             }
                             .onChange(of: vm.isNotchLocked) { newValue in
-                                print("🔒 Lock state changed in UI: \(newValue ? "LOCKED" : "UNLOCKED")")
                                 // Force UI refresh when state changes
                                 DispatchQueue.main.async {
                                     vm.objectWillChange.send()
@@ -857,7 +848,6 @@ struct DynamicIslandContentView: View {
             .sink { action in
                 switch action {
                 case .receiveMessage(let message):
-                    print("📨 Swift UI received message from Electron: \(message)")
                     receivedMessage = message
                 default:
                     break
@@ -890,9 +880,7 @@ struct VoiceTopControls: View {
         HStack(spacing: 16) {
             // Left side: Mute/Unmute toggle
             Button(action: {
-                print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
                 vm.toggleVoiceMute()
-                print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
             }) {
                 Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
                     .font(.system(size: 16))
@@ -903,7 +891,6 @@ struct VoiceTopControls: View {
             
             // Cancel/Disconnect button
             Button(action: {
-                print("❌ Cancel button clicked")
                 vm.disconnectVoiceAssistant()
             }) {
                 Image(systemName: "xmark")
@@ -1168,15 +1155,12 @@ struct ChatTextAreaView: View {
                 .scrollDisabled(false) // Enable scrolling when content exceeds height
                 .allowsHitTesting(true) // Ensure TextEditor can receive mouse events
                 .onKeyPress(keys: [.return]) { event in
-                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
                     if event.modifiers == .shift {
                         // Shift+Enter: Insert new line manually
-                        print("🎯 Shift+Enter detected - inserting new line")
                         chatInput.append("\n")
                         return .handled
                     } else {
                         // Enter alone: Submit chat
-                        print("🎯 Enter alone detected - submitting chat")
                         if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             vm.submitChat()
                         }
@@ -1185,7 +1169,6 @@ struct ChatTextAreaView: View {
                 }
                 .onTapGesture {
                     // Direct tap on TextEditor to ensure focus and cursor
-                    print("🎯 TextEditor directly tapped")
                     DispatchQueue.main.async {
                         isChatInputFocused = true
                         isTextFieldActive = true
@@ -1207,22 +1190,16 @@ struct ChatTextAreaView: View {
                 HStack {
                     Spacer()
                     Button(action: {
-                        print("🔥 BUTTON CLICKED! isChatInputFocused: \(isChatInputFocused)")
                         if isChatInputFocused {
                             // Arrow mode - submit chat
-                            print("🎯 Arrow button clicked - submitting chat")
                             if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 vm.submitChat()
                             }
                         } else {
                             // Voice mode - activate voice assistant
-                            print("🎤 WAVE ICON CLICKED - activating voice assistant")
-                            print("🎤 Current showVoiceInterface: \(vm.showVoiceInterface)")
-                            print("🎤 Current voiceConnectionStatus: \(vm.voiceConnectionStatus)")
                             // Ensure we don't accidentally focus the text area
                             DispatchQueue.main.async {
                                 vm.connectVoiceAssistant()
-                                print("🎤 connectVoiceAssistant() called")
                             }
                         }
                     }) {
@@ -1276,20 +1253,16 @@ struct ChatTextAreaView: View {
                     .contentShape(RoundedRectangle(cornerRadius: 4)) // Ensure button area matches the visual shape
                     .allowsHitTesting(true) // Ensure button can receive taps
                     .onTapGesture {
-                        print("🔥 TAP GESTURE DETECTED ON WAVE ICON!")
                     }
                 }
             }
                 .onKeyPress(keys: [.return]) { event in
-                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
                     if event.modifiers == .shift {
                         // Shift+Enter: Insert new line manually
-                        print("🎯 Shift+Enter detected - inserting new line")
                         chatInput.append("\n")
                         return .handled
                     } else {
                         // Enter alone: Submit chat
-                        print("🎯 Enter alone detected - submitting chat")
                         if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             vm.submitChat()
                             return .handled
@@ -1315,7 +1288,6 @@ struct ChatTextAreaView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             isChatInputFocused = true
                             vm.isChatInputFocused = true
-                            print("🎯 Auto-focusing TextEditor when chat mode activated")
                         }
                     }
                 }
@@ -1328,7 +1300,6 @@ struct ChatTextAreaView: View {
                         if vm.isChatMode {
                             isChatInputFocused = true
                             vm.isChatInputFocused = true
-                            print("🎯 Auto-focusing TextEditor on appear")
                         }
                     }
                 }
@@ -1353,7 +1324,6 @@ struct ChatTextAreaView: View {
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
         .onTapGesture { location in
-            print("🎯 Chat area tapped at location: \(location) - attempting to focus text input")
             
             // Check if tap is in the button area (bottom-right corner)
             let currentWidth = vm.isRecording ? 410 : 510
@@ -1365,7 +1335,6 @@ struct ChatTextAreaView: View {
             )
             
             if buttonArea.contains(location) {
-                print("🎯 Tap detected in button area - ignoring chat focus")
                 return
             }
             
@@ -1380,7 +1349,6 @@ struct ChatTextAreaView: View {
             
             // Ensure window is key first
             if let window = notchWindow ?? NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
-                print("🎯 Making window key: \(window.className)")
                 window.makeKeyAndOrderFront(nil)
                 
                 // Set focus with proper timing to ensure cursor appears
@@ -1400,8 +1368,6 @@ struct ChatTextAreaView: View {
                         }
                     }
                 }
-            } else {
-                print("🎯 No suitable window found for focus")
             }
         }
         .zIndex(2) // Ensure chat input is above the background overlay
@@ -1412,14 +1378,12 @@ struct ChatTextAreaView: View {
     private func handleTextChange(_ newValue: String) {
         // Fixed height implementation - no dynamic resizing
         // TextEditor will scroll when content exceeds the fixed height of 100px
-        print("🎯 Text changed: \(newValue.count) characters")
         
         // Keep the height fixed at 100px - scrolling will handle overflow
         // No need to calculate or change textEditorHeight
     }
     
     private func handleFocusChange(_ newValue: Bool) {
-        print("🎯 TextEditor focus changed: \(newValue)")
         isTextFieldActive = newValue
         
         // Enable chat mode to hide Voice Mode button and expand chat (but not in meeting mode)
@@ -1624,7 +1588,6 @@ class CameraPreviewNSView: NSView {
         
         // Get default camera
         guard let camera = AVCaptureDevice.default(for: .video) else {
-            print("📹 No camera available")
             return
         }
         
@@ -1651,7 +1614,7 @@ class CameraPreviewNSView: NSView {
             }
             
         } catch {
-            print("📹 Error setting up camera: \(error)")
+            // Camera setup error
         }
     }
     
@@ -2687,11 +2650,9 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                         const saved = localStorage.getItem('notchVideoState_' + currentVideoId);
                         if (saved) {
                             savedVideoState = JSON.parse(saved);
-                            console.log('📺 Found saved video state:', savedVideoState);
                             return savedVideoState;
                         }
                     } catch (e) {
-                        console.log('📺 No saved video state found');
                     }
                     return null;
                 }
@@ -2719,7 +2680,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                         playerState.currentTime = videoElement.currentTime;
                                         playerState.duration = videoElement.duration;
                                         playerState.isPlaying = !videoElement.paused;
-                                        console.log('📺 Got video state from iframe video element:', playerState);
                                     } else {
                                         // Try to get time from YouTube player object
                                         const ytPlayer = iframeDoc.querySelector('#movie_player');
@@ -2727,12 +2687,10 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                             playerState.currentTime = ytPlayer.getCurrentTime();
                                             playerState.duration = ytPlayer.getDuration();
                                             playerState.isPlaying = ytPlayer.getPlayerState() === 1;
-                                            console.log('📺 Got video state from YouTube player:', playerState);
                                         }
                                     }
                                 }
                             } catch (e) {
-                                console.log('📺 Could not access iframe content (cross-origin):', e.message);
                             }
                             
                             // Method 2: Try YouTube API if iframe access failed
@@ -2744,11 +2702,9 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                             playerState.currentTime = ytPlayer.getCurrentTime();
                                             playerState.duration = ytPlayer.getDuration();
                                             playerState.isPlaying = ytPlayer.getPlayerState() === 1;
-                                            console.log('📺 Got video state from YouTube API:', playerState);
                                         }
                                     }
                                 } catch (e) {
-                                    console.log('📺 YouTube API failed:', e);
                                 }
                             }
                             
@@ -2758,7 +2714,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                 if (timeSinceStart > 5) { // Only estimate if video has been playing for more than 5 seconds
                                     playerState.currentTime = Math.min(timeSinceStart, 600); // Cap at 10 minutes
                                     playerState.isPlaying = true; // Assume playing if we're estimating
-                                    console.log('📺 Using tracked video time:', playerState.currentTime);
                                 }
                             }
                             
@@ -2766,19 +2721,15 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                             if (playerState.currentTime === 0 && lastKnownVideoTime > 0) {
                                 playerState.currentTime = lastKnownVideoTime;
                                 playerState.isPlaying = true;
-                                console.log('📺 Using last known video time:', playerState.currentTime);
                             }
                             
                             // Only save if we have a meaningful current time
                             if (playerState.currentTime > 0) {
                                 localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
-                                console.log('📺 Video state saved:', playerState);
                             } else {
-                                console.log('📺 No meaningful video state to save (currentTime: 0)');
                             }
                         }
                     } catch (e) {
-                        console.log('📺 Could not save video state:', e);
                     }
                 }
                 
@@ -2786,14 +2737,12 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                 function restoreVideoPosition() {
                     // Only prevent if we've already successfully restored
                     if (hasRestoredPosition) {
-                        console.log('📺 Position restoration already completed');
                         return false;
                     }
                     
                     const saved = getSavedVideoState();
                     if (saved && saved.currentTime > 0) {
                         restoreAttempts++;
-                        console.log('📺 Attempting to restore video position to:', saved.currentTime + 's (attempt ' + restoreAttempts + ')');
                         
                         let restorationSuccessful = false;
                         
@@ -2810,7 +2759,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                             videoElement.play();
                                         }
                                         restorationSuccessful = true;
-                                        console.log('📺 Video position restored via iframe video element');
                                     }
                                     
                                     // Try YouTube player object if video element didn't work
@@ -2822,13 +2770,11 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                                 ytPlayer.playVideo();
                                             }
                                             restorationSuccessful = true;
-                                            console.log('📺 Video position restored via YouTube player object');
                                         }
                                     }
                                 }
                             }
                         } catch (e) {
-                            console.log('📺 Direct iframe access failed:', e);
                         }
                         
                         // Method 2: Try YouTube Player API
@@ -2842,11 +2788,9 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                             ytPlayer.playVideo();
                                         }
                                         restorationSuccessful = true;
-                                        console.log('📺 Video position restored via YouTube API');
                                     }
                                 }
                             } catch (e) {
-                                console.log('📺 YouTube API method failed:', e);
                             }
                         }
                         
@@ -2855,20 +2799,17 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                             hasRestoredPosition = true;
                             // Clear the saved state to prevent repeated restorations
                             localStorage.removeItem('notchVideoState_' + currentVideoId);
-                            console.log('📺 ✅ Video position restoration SUCCESSFUL!');
                             return true;
                         } else {
                             // Method 3: Return time for URL parameter (fallback)
                             const currentTimeSeconds = Math.floor(saved.currentTime);
                             if (currentTimeSeconds > 0 && restoreAttempts >= 2) {
-                                console.log('📺 Will add start time parameter for next load (fallback)');
                                 hasRestoredPosition = true;
                                 localStorage.removeItem('notchVideoState_' + currentVideoId);
                                 return true; // Return true to indicate we have a fallback plan
                             }
                         }
                     } else {
-                        console.log('📺 No saved video state found or currentTime is 0');
                     }
                     return false;
                 }
@@ -2891,7 +2832,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     if (fallbackIndex === 0) {
                         savedState = getSavedVideoState();
                         if (savedState && savedState.currentTime > 0) {
-                            console.log('📺 Found saved video state:', savedState);
                             // Keep loading overlay visible during restoration to hide the glitch
                             loading.style.display = 'flex';
                             loading.innerHTML = '<div class="spinner"></div><p>Resuming video...</p>';
@@ -2901,7 +2841,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     // If we have saved state, add start time parameter to URL
                     if (savedState && savedState.currentTime > 0) {
                         const savedPosition = Math.floor(savedState.currentTime);
-                        console.log('📺 Adding start time parameter:', savedPosition + 's');
                         // Add start time parameter to YouTube URLs
                         if (videoUrl.includes('youtube.com') || videoUrl.includes('youtube-nocookie.com')) {
                             videoUrl += '&start=' + savedPosition;
@@ -2910,29 +2849,24 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                         }
                     }
                     
-                    console.log('📺 Loading video from:', videoUrl);
                     player.src = videoUrl;
                     player.style.display = 'block';
                     
                     // Check if video loads successfully
                     player.onload = function() {
-                        console.log('📺 Video loaded successfully!');
                         
                         // If we have saved state, hide the video initially and restore position
                         if (savedState && savedState.currentTime > 0) {
-                            console.log('📺 Hiding video during restoration to prevent visual glitch');
                             player.style.display = 'none';
                             
                             // Try to restore position after video loads
                             setTimeout(() => {
                                 if (!hasRestoredPosition) {
-                                    console.log('📺 First restoration attempt after load...');
                                     const restored = restoreVideoPosition();
                                     if (restored) {
                                         // Show the video after successful restoration
                                         player.style.display = 'block';
                                         loading.style.display = 'none';
-                                        console.log('📺 Video restored and displayed successfully!');
                                     }
                                 }
                             }, 1000); // Faster restoration attempt
@@ -2940,12 +2874,10 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                             // Second attempt after 2 seconds
                             setTimeout(() => {
                                 if (!hasRestoredPosition) {
-                                    console.log('📺 Second restoration attempt...');
                                     const restored = restoreVideoPosition();
                                     if (restored) {
                                         player.style.display = 'block';
                                         loading.style.display = 'none';
-                                        console.log('📺 Video restored and displayed successfully!');
                                     }
                                 }
                             }, 2000);
@@ -2953,13 +2885,11 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                             // Final attempt after 3 seconds - show video regardless
                             setTimeout(() => {
                                 if (!hasRestoredPosition) {
-                                    console.log('📺 Final restoration attempt...');
                                     restoreVideoPosition();
                                 }
                                 // Always show video after 3 seconds to prevent infinite loading
                                 player.style.display = 'block';
                                 loading.style.display = 'none';
-                                console.log('📺 Video displayed (restoration may have failed)');
                             }, 3000);
                         } else {
                             // No saved state, show video immediately
@@ -2971,7 +2901,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     };
                     
                     player.onerror = function() {
-                        console.log('📺 Video failed to load, trying next fallback...');
                         fallbackIndex++;
                         setTimeout(loadVideo, 1000);
                     };
@@ -2990,7 +2919,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     // Save state when notch closes (if we can detect it)
                     document.addEventListener('visibilitychange', function() {
                         if (document.hidden) {
-                            console.log('📺 Notch becoming hidden - saving video state');
                             saveCurrentVideoState();
                         }
                     });
@@ -2998,7 +2926,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     // Listen for message events from iframe
                     window.addEventListener('message', function(event) {
                         if (event.data && event.data.type === 'VIDEO_TIME_UPDATE') {
-                            console.log('📺 Received time update from iframe:', event.data);
                             lastKnownVideoTime = event.data.currentTime || 0;
                             const playerState = {
                                 videoId: currentVideoId,
@@ -3016,7 +2943,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                         const player = document.getElementById('player');
                         if (player && player.contentWindow) {
                             player.addEventListener('load', function() {
-                                console.log('📺 Player iframe loaded - injecting monitoring script');
                                 setTimeout(() => {
                                     try {
                                         // Inject script to monitor video state and send updates
@@ -3033,21 +2959,17 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                                         }, '*');
                                                     }
                                                 } catch (e) {
-                                                    console.log('Video monitoring error:', e);
                                                 }
                                             }, 1000);
                                         `;
                                         
                                         player.contentWindow.eval(monitoringScript);
-                                        console.log('📺 Video monitoring script injected successfully');
                                     } catch (e) {
-                                        console.log('📺 Could not inject monitoring script:', e);
                                     }
                                 }, 3000);
                             });
                         }
                     } catch (e) {
-                        console.log('📺 Enhanced monitoring setup failed:', e);
                     }
                 }
                 
@@ -3056,7 +2978,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     videoTimeTrackingInterval = setInterval(() => {
                         const timeSinceStart = (Date.now() - videoStartTime) / 1000;
                         lastKnownVideoTime = timeSinceStart;
-                        console.log('📺 Time tracking: ' + timeSinceStart.toFixed(1) + 's elapsed');
                     }, 1000);
                 }
                 
@@ -3138,7 +3059,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
             // NUCLEAR SOLUTION: Universal YouTube video compatibility
             let configureScript = """
                 (function() {
-                    console.log('📺 NUCLEAR SOLUTION: Checking for any video issues...');
                     
                     // Check for ANY video problems (Error 153, Video unavailable, etc.)
                     setTimeout(() => {
@@ -3151,7 +3071,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                       errorText.includes('video unavailable');
                         
                         if (hasError) {
-                            console.log('📺 Video issue detected! NUCLEAR FALLBACK ACTIVATED...');
                             
                             var iframe = document.querySelector('iframe');
                             if (iframe && (iframe.src.includes('youtube') || iframe.src.includes('inv.'))) {
@@ -3173,7 +3092,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                     var currentIndex = 0;
                                     function tryNuclearFallback() {
                                         if (currentIndex < nuclearUrls.length) {
-                                            console.log('📺 NUCLEAR: Trying proxy ' + (currentIndex + 1) + ':', nuclearUrls[currentIndex]);
                                             iframe.src = nuclearUrls[currentIndex];
                                             currentIndex++;
                                             
@@ -3187,14 +3105,11 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                                                    newErrorText.includes('private video');
                                                 
                                                 if (stillHasError) {
-                                                    console.log('📺 NUCLEAR: Proxy ' + currentIndex + ' failed, trying next...');
                                                     tryNuclearFallback();
                                                 } else {
-                                                    console.log('📺 NUCLEAR: Proxy ' + currentIndex + ' SUCCESS! Video working!');
                                                 }
                                             }, 4000);
                                         } else {
-                                            console.log('📺 NUCLEAR: All proxies failed - this video may be truly restricted');
                                         }
                                     }
                                     
@@ -3202,7 +3117,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                                 }
                             }
                         } else {
-                            console.log('📺 NUCLEAR: No video issues detected - working perfectly!');
                         }
                     }, 3000);
                 })();
@@ -3220,7 +3134,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         private func handleVideoLoadError(webView: WKWebView, error: Error) {
             let errorScript = """
                 (function() {
-                    console.log('📺 Handling video load error...');
                     
                     // Try to show a user-friendly error message
                     var errorDiv = document.createElement('div');
