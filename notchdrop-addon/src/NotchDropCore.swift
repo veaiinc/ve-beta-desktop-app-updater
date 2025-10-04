@@ -134,7 +134,7 @@ class NotchDropPanel: NSPanel {
         // Make window completely fixed like Boring Notch
         window.isMovableByWindowBackground = false
         window.isMovable = false
-        window.ignoresMouseEvents = false
+        // window.ignoresMouseEvents = false
         window.hidesOnDeactivate = false
 
         // Don't set initial first responder - let SwiftUI manage TextField focus
