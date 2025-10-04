@@ -463,7 +463,7 @@ class NotchDropPanel: NSPanel {
             case "receiveMessage":
                 viewModel.receiveMessage(data)
             default:
-                print("⚠️ Unknown incoming action: \(action)")
+                break
             }
         }
     }
@@ -472,33 +472,27 @@ class NotchDropPanel: NSPanel {
     @objc public func onOverlayStateChange(_ state: [String: Any]) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { 
-                print("❌ NotchDropCore: No viewModel available for state update")
                 return 
             }
             
-            print("📊 NotchDropCore: Received overlay state:", state)
             
             // Update recording state
             if let isRecording = state["isRecording"] as? Bool {
-                print("📊 Updating recording state: \(isRecording)")
                 viewModel.isRecording = isRecording
                 
                 // Stop the timer if recording stopped
                 if !isRecording {
-                    print("📊 Recording stopped - calling stopRecording to stop timer")
                     viewModel.stopRecording()
                 }
             }
             
             // Update pause state
             if let isPaused = state["isPaused"] as? Bool {
-                print("📊 Updating pause state: \(isPaused)")
                 viewModel.isPaused = isPaused
             }
             
             // Update timer
             if let timer = state["timer"] as? Int {
-                print("📊 Updating timer: \(timer)")
                 viewModel.timer = timer
             }
             
@@ -506,17 +500,14 @@ class NotchDropPanel: NSPanel {
             
             // Update authentication state
             if let isAuthenticated = state["isAuthenticated"] as? Bool {
-                print("📊 Updating authentication: \(isAuthenticated)")
                 viewModel.isAuthenticated = isAuthenticated
             }
             
             // Update controlled by dynamic island state
             if let controlledByDynamicIsland = state["controlledByDynamicIsland"] as? Bool {
-                print("📊 Updating controlled by dynamic island: \(controlledByDynamicIsland)")
                 viewModel.controlledByDynamicIsland = controlledByDynamicIsland
             }
             
-            print("📊 NotchDropCore: Final state - Recording: \(viewModel.isRecording), Paused: \(viewModel.isPaused), Timer: \(viewModel.timer)")
         }
     }
     
@@ -524,11 +515,9 @@ class NotchDropPanel: NSPanel {
     @objc public func configureVoice(_ url: String, token: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { 
-                print("❌ NotchDropCore: No viewModel available for voice configuration")
                 return 
             }
             
-            print("🎤 NotchDropCore: Configuring voice with URL: \(url)")
             viewModel.configureVoice(url: url, token: token)
         }
     }
@@ -555,7 +544,6 @@ class NotchDropPanel: NSPanel {
     @objc public func updateVoiceConnectionState(_ status: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
-            print("🔄 NotchDropCore: Updating voice connection state to: \(status)")
             viewModel.updateVoiceConnectionState(status)
         }
     }
@@ -563,7 +551,6 @@ class NotchDropPanel: NSPanel {
     @objc public func updateVoiceMuteState(_ isMuted: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
-            print("🔇 NotchDropCore: Updating voice mute state: \(isMuted)")
             viewModel.isMicrophoneMuted = isMuted
         }
     }
@@ -578,14 +565,12 @@ class NotchDropPanel: NSPanel {
     @objc public func addVoiceMessage(_ messageJson: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
-            print("💬 NotchDropCore: Adding voice message: \(messageJson)")
             
             // Parse JSON message
             guard let messageData = messageJson.data(using: .utf8),
                   let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
                   let sender = json["sender"] as? String,
                   let content = json["content"] as? String else {
-                print("❌ Failed to parse voice message JSON")
                 return
             }
             
@@ -605,7 +590,6 @@ class NotchDropPanel: NSPanel {
     
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
-        // print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")
         switch action {
         case .startRecording:
             swiftActionCallback?("startRecording", "")
@@ -672,6 +656,11 @@ class NotchDropPanel: NSPanel {
             swiftActionCallback?("requestCameraPermission", "")
         case .toggleStealthMode:
             swiftActionCallback?("toggleStealthMode", "")
+        // Video State Actions
+        case .saveVideoState:
+            swiftActionCallback?("saveVideoState", "")
+        case .restoreVideoState:
+            swiftActionCallback?("restoreVideoState", "")
         }
     }
 }
