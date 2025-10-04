@@ -67,6 +67,24 @@ const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
 
+// CRITICAL: IPC handler timeout wrapper to prevent hanging
+const withTimeout = (handler, timeoutMs = 30000) => {
+	return async (...args) => {
+		try {
+			const timeoutPromise = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error(`IPC handler timeout after ${timeoutMs}ms`)), timeoutMs)
+			);
+			
+			const handlerPromise = handler(...args);
+			
+			return await Promise.race([handlerPromise, timeoutPromise]);
+		} catch (error) {
+			log.error('❌ IPC handler failed:', error);
+			return { success: false, error: error.message };
+		}
+	};
+};
+
 // Startup diagnostic function
 const runStartupDiagnostics = () => {
 	log.info('🔍 Running startup diagnostics...');
@@ -483,20 +501,46 @@ function handleOverlayWindowReady(overlayWindow) {
 // IPC Handlers for updates
 ipcMain.handle(
 	'check-for-updates',
-	async () =>
-		await ipcMainHandleCheckForUpdates({
-			getIsUpdateInProgress,
-			setIsUpdateInProgress,
-		}),
+	async () => {
+		try {
+			// Add timeout to prevent hanging
+			const timeoutPromise = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error('Update check timeout')), 30000)
+			);
+			
+			const updatePromise = ipcMainHandleCheckForUpdates({
+				getIsUpdateInProgress,
+				setIsUpdateInProgress,
+			});
+			
+			return await Promise.race([updatePromise, timeoutPromise]);
+		} catch (error) {
+			log.error('❌ Update check failed:', error);
+			return { success: false, error: error.message };
+		}
+	}
 );
 
 ipcMain.handle(
 	'download-update',
-	async () =>
-		await ipcMainHandleDownloadUpdates({
-			getIsUpdateInProgress,
-			setIsUpdateInProgress,
-		}),
+	async () => {
+		try {
+			// Add timeout to prevent hanging
+			const timeoutPromise = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error('Download update timeout')), 60000)
+			);
+			
+			const downloadPromise = ipcMainHandleDownloadUpdates({
+				getIsUpdateInProgress,
+				setIsUpdateInProgress,
+			});
+			
+			return await Promise.race([downloadPromise, timeoutPromise]);
+		} catch (error) {
+			log.error('❌ Download update failed:', error);
+			return { success: false, error: error.message };
+		}
+	}
 );
 
 ipcMain.handle('restart-app', () =>
@@ -1953,7 +1997,24 @@ function createWindow(restoreState = false) {
 	// Add error handling for unresponsive renderer
 	mainWindow.webContents.on('unresponsive', () => {
 		log.warn('⚠️ Renderer process became unresponsive');
-		// Don't show error page immediately, just log it
+		// Force reload after 5 seconds if still unresponsive
+		setTimeout(() => {
+			if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents.isLoading() === false) {
+				log.warn('🔄 Force reloading unresponsive renderer...');
+				mainWindow.webContents.reload();
+			}
+		}, 5000);
+	});
+	
+	// CRITICAL: Add recovery mechanism for completely frozen windows
+	mainWindow.webContents.on('crashed', () => {
+		log.error('❌ Renderer process crashed - attempting recovery...');
+		setTimeout(() => {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				log.warn('🔄 Attempting to recover crashed renderer...');
+				mainWindow.webContents.reload();
+			}
+		}, 2000);
 	});
 
 	mainWindow.webContents.on('responsive', () => {
@@ -2217,6 +2278,52 @@ app.whenReady().then(async () => {
 	log.info('🔍 Working directory:', process.cwd());
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
+
+	// CRITICAL: Add watchdog timer to prevent main process hanging
+	let lastHeartbeat = Date.now();
+	const watchdogInterval = setInterval(() => {
+		const now = Date.now();
+		if (now - lastHeartbeat > 30000) { // 30 seconds without heartbeat
+			log.error('❌ Main process appears to be hanging - forcing restart...');
+			app.relaunch();
+			app.exit(1);
+		}
+		lastHeartbeat = now;
+	}, 5000); // Check every 5 seconds
+
+	// Update heartbeat on any activity
+	process.on('message', () => { lastHeartbeat = Date.now(); });
+	process.on('uncaughtException', (error) => { 
+		lastHeartbeat = Date.now();
+		log.error('❌ Uncaught exception:', error);
+	});
+	process.on('unhandledRejection', (reason) => { 
+		lastHeartbeat = Date.now();
+		log.error('❌ Unhandled rejection:', reason);
+	});
+	
+	// CRITICAL: Add process monitoring to detect hanging
+	const processMonitor = setInterval(() => {
+		const memUsage = process.memoryUsage();
+		const cpuUsage = process.cpuUsage();
+		
+		// Log memory usage every 30 seconds
+		if (Date.now() % 30000 < 5000) {
+			log.info('📊 Process stats:', {
+				memory: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
+				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB'
+			});
+		}
+		
+		// Force garbage collection if memory usage is too high
+		if (memUsage.heapUsed > 500 * 1024 * 1024) { // 500MB
+			log.warn('⚠️ High memory usage detected, forcing garbage collection...');
+			if (global.gc) {
+				global.gc();
+			}
+		}
+	}, 5000);
 
 	// Run startup diagnostics
 	runStartupDiagnostics();
@@ -2911,10 +3018,24 @@ app.whenReady().then(async () => {
 
 			// Initialize NotchDrop in background without blocking main window
 			try {
-				await notchDropService.initialize();
+				// Add timeout to prevent hanging during NotchDrop initialization
+				const notchDropInitTimeout = new Promise((_, reject) => 
+					setTimeout(() => reject(new Error('NotchDrop initialization timeout')), 20000)
+				);
+				
+				await Promise.race([notchDropService.initialize(), notchDropInitTimeout]);
 				// log.info('✅ NotchDrop service initialized successfully');
 			} catch (error) {
 				log.error('❌ NotchDrop service initialization failed:', error);
+				// Clean up any partial initialization
+				if (notchDropService) {
+					try {
+						notchDropService.cleanup();
+					} catch (cleanupError) {
+						log.error('❌ Error cleaning up NotchDrop service:', cleanupError);
+					}
+					notchDropService = null;
+				}
 				// Continue without NotchDrop - app should still work
 			}
 		} else if (isIntelMac) {
@@ -5551,6 +5672,30 @@ app.on('before-quit', (event) => {
 	} else {
 		// Allow quit for updates
 		log.info('🔄 Allowing quit for update installation...');
+	}
+});
+
+// CRITICAL: Add cleanup for watchdog and process monitor
+app.on('will-quit', (event) => {
+	try {
+		// Clear watchdog interval
+		if (typeof watchdogInterval !== 'undefined') {
+			clearInterval(watchdogInterval);
+		}
+		
+		// Clear process monitor
+		if (typeof processMonitor !== 'undefined') {
+			clearInterval(processMonitor);
+		}
+		
+		// Clean up NotchDrop service
+		if (notchDropService) {
+			notchDropService.cleanup();
+		}
+		
+		log.info('🧹 App cleanup completed');
+	} catch (error) {
+		log.error('❌ Error during app cleanup:', error);
 	}
 });
 
