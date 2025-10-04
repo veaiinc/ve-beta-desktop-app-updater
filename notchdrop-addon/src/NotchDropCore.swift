@@ -567,13 +567,6 @@ class NotchDropPanel: NSPanel {
             viewModel.isMicrophoneMuted = isMuted
         }
     }
-
-    @objc public func updateStealthModeState(_ isEnabled: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, let viewModel = self.notchViewModel else { return }
-            viewModel.updateStealthModeState(isEnabled)
-        }
-    }
     
     @objc public func addVoiceMessage(_ messageJson: String) {
         DispatchQueue.main.async { [weak self] in
@@ -672,6 +665,63 @@ class NotchDropPanel: NSPanel {
             swiftActionCallback?("requestCameraPermission", "")
         case .toggleStealthMode:
             swiftActionCallback?("toggleStealthMode", "")
+        }
+    }
+    
+    // MARK: - Stealth Mode
+    @objc public func updateStealthModeState(_ isEnabled: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let window = self.notchWindow else {
+                print("🏴‍☠️ NotchDropCore: No window available for stealth mode")
+                return
+            }
+            
+            print("🏴‍☠️ NotchDropCore: Applying stealth mode: \(isEnabled)")
+            print("🏴‍☠️ NotchDropCore: Window type: \(type(of: window))")
+            print("🏴‍☠️ NotchDropCore: Window title: \(window.title)")
+            print("🏴‍☠️ NotchDropCore: Window isVisible: \(window.isVisible)")
+            
+            if isEnabled {
+                // STEALTH MODE ON: Hide from screen recordings but keep visible to user
+                print("🏴‍☠️ NotchDropCore: ENABLING stealth mode - hiding from recordings only")
+                
+                // Method 1: Set sharing type to exclude from screen recording
+                if #available(macOS 10.13, *) {
+                    window.sharingType = .none
+                    print("🏴‍☠️ NotchDropCore: Window sharingType set to .none (hidden from recordings)")
+                }
+                
+                // Method 2: Set window level to be above screen recording level
+                window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.maximumWindow)))
+                print("🏴‍☠️ NotchDropCore: Window level set to maximum (above recording)")
+                
+                // Keep window visible to user - DO NOT hide or make transparent
+                print("🏴‍☠️ NotchDropCore: Window remains visible to user")
+                
+            } else {
+                // STEALTH MODE OFF: Restore normal behavior
+                print("🏴‍☠️ NotchDropCore: DISABLING stealth mode - restoring normal recording")
+                
+                // Restore normal sharing type
+                if #available(macOS 10.13, *) {
+                    window.sharingType = .readOnly
+                    print("🏴‍☠️ NotchDropCore: Window sharingType restored to .readOnly")
+                }
+                
+                // Restore normal window level
+                window.level = NSWindow.Level.normal
+                print("🏴‍☠️ NotchDropCore: Window level restored to normal")
+                
+                // Ensure window is visible
+                if !window.isVisible {
+                    window.orderFront(nil)
+                    window.makeKeyAndOrderFront(nil)
+                    self.enforceWindowPresentation()
+                    print("🏴‍☠️ NotchDropCore: Window restored to visible state")
+                }
+            }
+            
+            print("🏴‍☠️ NotchDropCore: Stealth mode \(isEnabled ? "ENABLED" : "DISABLED")")
         }
     }
 }
