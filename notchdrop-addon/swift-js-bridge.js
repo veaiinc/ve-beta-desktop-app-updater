@@ -58,7 +58,6 @@ class SwiftJSBridge {
 		});
 
 		this.swiftActionHandlers.set('sendChatMessageToAskAI', async (data) => {
-			console.log('🎯 Swift sending chat message to AskAI:', data);
 			await this.sendChatMessageToAskAI(data);
 		});
 
@@ -269,7 +268,6 @@ class SwiftJSBridge {
 
 	async triggerOverlayStopRecording(data) {
 		try {
-			console.log('⏹️ Triggering overlay stop recording from Swift');
 			try {
 				const { ipcRenderer } = require('electron');
 				if (ipcRenderer) {
@@ -364,7 +362,6 @@ class SwiftJSBridge {
 
 	async triggerOverlayToggleLiveIntelligence(data) {
 		try {
-			console.log('🧠 Triggering overlay toggle live intelligence from Swift-JS bridge');
 
 			// Check if we're in main process or renderer process
 			try {
@@ -438,7 +435,6 @@ class SwiftJSBridge {
 
 	async handleVoiceConnect(data) {
 		try {
-			console.log('🎤 Swift requested voice connection - triggering existing voice agent');
 
 			// Find the main window to trigger the existing voice agent
 			const { BrowserWindow } = require('electron');
@@ -449,7 +445,6 @@ class SwiftJSBridge {
 					const title = window.getTitle();
 					// Look for main window (not overlay or dynamic island)
 					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
-						console.log('📤 Sending voice agent activation to main window');
 
 						// Trigger direct voice activation via IPC
 						window.webContents.send('notchdrop:showVoiceAgent', {
@@ -467,7 +462,6 @@ class SwiftJSBridge {
 								});
 							}
 						} catch (e) {
-							console.log('📞 Process emit fallback used');
 						}
 
 						// Try to trigger your existing voice agent component
@@ -475,18 +469,15 @@ class SwiftJSBridge {
 							const result = await window.webContents.executeJavaScript(`
 								(async () => {
 									try {
-										console.log('🎤 NotchDrop triggered voice agent activation');
 										
 										// Method 1: Try to find existing voice agent hook/context
 										if (window.voiceAgentContext && window.voiceAgentContext.connectAndStart) {
-											console.log('📞 Found voice agent context, connecting...');
 											await window.voiceAgentContext.connectAndStart();
 											return { success: true, method: 'context' };
 										}
 										
 										// Method 2: Try to trigger via React state/context
 										if (window.React && window.ReactDOM) {
-											console.log('📞 Attempting to trigger voice agent via React...');
 											
 											// Dispatch a custom event that your voice agent can listen for
 											const event = new CustomEvent('notchdrop-voice-activate', {

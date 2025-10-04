@@ -196,7 +196,8 @@ const LandingPage = () => {
 	const tabComponents = {
 		0: (
 			<div className="page-body">
-				<div className="heroContainer">
+				{/* Desktop Layout */}
+				<div className="heroContainer desktop-only">
 					<div className="title-container">
 						<DownloadSection
 							ref={downloadSectionRef}
@@ -231,11 +232,11 @@ const LandingPage = () => {
 					</div> */}
 				</div>
 
-				{/* Fullscreen iMac Component for Scroll Animation */}
+				{/* Fullscreen iMac Component for Scroll Animation - Desktop only */}
 				<FullscreenIMac ref={fullscreenIMacRef} />
-				{/* Additional content to ensure scrollable height for fullscreen animation and pinned text */}
+				{/* Additional content to ensure scrollable height for fullscreen animation and pinned text - Desktop only */}
 				<div
-					className="dummy-div"
+					className="dummy-div desktop-only"
 					style={{
 						height: '93vh',
 						background: 'transparent',
@@ -248,22 +249,22 @@ const LandingPage = () => {
 				<ProductIntro ref={productIntroRef} />
 
 				{/* (Ambient Intelligence + Actions) with Ellipse Transition */}
-				<AmbientIntelligence />
+				{/* <AmbientIntelligence /> */}
 
 				{/* (Super Agent + Actions) */}
 				{/* <SuperAgent /> */}
 
 				{/* (Meeting Intelligence + Actions) */}
-				<MeetingIntelligence />
+				{/* <MeetingIntelligence /> */}
 
 				{/* <Tagline /> */}
 
 				{/* Combined sections with shared animated background */}
-				<AnimatedGlowBackground variant="subtle" intensity="medium" fitContent>
-					<PartnerSection />
-					<FAQ />
-					<NewsletterSection />
-				</AnimatedGlowBackground>
+
+				<PartnerSection />
+				<FAQ />
+				<NewsletterSection />
+				{/* </AnimatedGlowBackground> */}
 
 				{/* <Footer /> */}
 
@@ -298,7 +299,13 @@ const LandingPage = () => {
 	return (
 		<>
 			<Helmet>
+				{/* LFEEDER TRACKER */}
 				<title>Ve - The World's First Ambient AI OS</title>
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `(function(ss,ex){ window.ldfdr=window.ldfdr||function(){(ldfdr._q=ldfdr._q||[]).push([].slice.call(arguments));}; (function(d,s){ fs=d.getElementsByTagName(s)[0]; function ce(src){ var cs=d.createElement(s); cs.src=src; cs.async=1; fs.parentNode.insertBefore(cs,fs); }; ce('https://sc.lfeeder.com/lftracker_v1_'+ss+(ex?'_'+ex:'')+'.js'); })(document,'script'); })('YEgkB8lxY9M8ep3Z');`,
+					}}
+				/>
 			</Helmet>
 			<main
 				className={`landing-page-container${
@@ -321,12 +328,6 @@ const LandingPage = () => {
 							<div className="nav-buttons">
 								<Link className="nav-btn" to="/pricing">
 									Pricing
-								</Link>
-								{/* <Link className="nav-btn" to="/explore">
-									Explore
-								</Link> */}
-								<Link className="nav-btn" to="/verify-user">
-									Sign In
 								</Link>
 								<Link className="nav-btn primary" to="/verify-user">
 									Get Started

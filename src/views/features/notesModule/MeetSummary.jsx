@@ -81,7 +81,7 @@ const MeetSummary = ({ meetingId }) => {
 			? chapters.map((chapter) => ({
 					title: chapter.title || chapter.topic || 'Untitled Chapter',
 					description: chapter.description || chapter.summary || '',
-					points: chapter.points || chapter.keyPoints || [],
+					points: chapter.sub_topics || chapter.points || chapter.keyPoints || [],
 			  }))
 			: [];
 

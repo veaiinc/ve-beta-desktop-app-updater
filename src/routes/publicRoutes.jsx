@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import Public from '../views/layouts/Public';
 
 // pages
-import LandingPage from '../views/features/landingScreen/LandingPage';
+// import LandingPage from '../views/features/landingScreen/LandingPage';
 
 import { lazy, Suspense } from 'react';
 
@@ -16,7 +16,7 @@ const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'))
 const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
 const ChangeLog = lazy(() => import('../views/features/signin/ChangeLog'));
 const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
-const PricingPageWebsite = lazy(() => import('../views/features/pricingPlans/PricingPageWebsite'));
+// const PricingPageWebsite = lazy(() => import('../views/features/pricingPlans/PricingPageWebsite'));
 const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DownloadDesktopApp'));
 
 // components
@@ -33,54 +33,54 @@ const publicRoutes = [
 			<Navigate to="/verify-user" replace />
 		),
 	},
-	{
-		path: '/manifesto',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/contact-us',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/api',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/about-us',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/careers',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/forefront',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
+	// {
+	// 	path: '/manifesto',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/contact-us',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/api',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/about-us',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/careers',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/forefront',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
 	{
 		path: '/onboarding',
 		element: (
@@ -89,14 +89,14 @@ const publicRoutes = [
 			</Public>
 		),
 	},
-	{
-		path: '/live-intelligence',
-		element: (
-			<Public>
-				<LiveIntelligence />
-			</Public>
-		),
-	},
+	// {
+	// 	path: '/live-intelligence',
+	// 	element: (
+	// 		<Public>
+	// 			<LiveIntelligence />
+	// 		</Public>
+	// 	),
+	// },
 	{
 		path: '/verify-user',
 		element: (
@@ -105,16 +105,16 @@ const publicRoutes = [
 			</Public>
 		),
 	},
-	{
-		path: '/pricing',
-		element: (
-			<Public>
-				<Suspense fallback={<SuspenseFallback />}>
-					<LoginPage />
-				</Suspense>
-			</Public>
-		),
-	},
+	// {
+	// 	path: '/pricing',
+	// 	element: (
+	// 		<Public>
+	// 			<Suspense fallback={<SuspenseFallback />}>
+	// 				<LoginPage />
+	// 			</Suspense>
+	// 		</Public>
+	// 	),
+	// },
 	{
 		path: '/download-app',
 		element: (
@@ -125,16 +125,16 @@ const publicRoutes = [
 			</Public>
 		),
 	},
-	{
-		path: '/pricing',
-		element: (
-			<Public>
-				<Suspense fallback={<SuspenseFallback />}>
-					<PricingPageWebsite />
-				</Suspense>
-			</Public>
-		),
-	},
+	// {
+	// 	path: '/pricing',
+	// 	element: (
+	// 		<Public>
+	// 			<Suspense fallback={<SuspenseFallback />}>
+	// 				<PricingPageWebsite />
+	// 			</Suspense>
+	// 		</Public>
+	// 	),
+	// },
 	{
 		path: '/referral/:referralCode',
 		element: (

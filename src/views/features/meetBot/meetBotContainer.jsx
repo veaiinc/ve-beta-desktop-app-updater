@@ -160,6 +160,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			setInfo((prev) => ({ ...prev, summaryInProgress: false }));
 		}
 	}, [JSON.stringify(summaryInProgress)]);
+	console.log('info', info);
 
 	// Check if audio recording exists for this meeting
 	const checkAudioRecording = useCallback(async () => {
@@ -932,6 +933,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 								isRevampedPromptLoading={isRevampedPromptLoading}
 								isRevampedPrompt={history === true}
 								sessionId={sessionId}
+								meetingId={meetingId}
 							/>
 						)}
 					{showTranscriptTabs && type === 'third_party_meeting' && !history && (
