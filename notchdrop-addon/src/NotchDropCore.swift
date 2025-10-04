@@ -672,6 +672,11 @@ class NotchDropPanel: NSPanel {
             swiftActionCallback?("requestCameraPermission", "")
         case .toggleStealthMode:
             swiftActionCallback?("toggleStealthMode", "")
+        // Video State Actions
+        case .saveVideoState:
+            swiftActionCallback?("saveVideoState", "")
+        case .restoreVideoState:
+            swiftActionCallback?("restoreVideoState", "")
         }
     }
     // MARK: - Stealth Mode

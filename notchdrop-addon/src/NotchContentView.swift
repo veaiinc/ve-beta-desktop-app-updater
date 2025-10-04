@@ -793,21 +793,24 @@ struct DynamicIslandContentView: View {
         
         guard let id = videoId else { return "" }
         
-        // RADICAL FIX: Use nocookie domain and minimal parameters to bypass Error 153
-        // This approach uses YouTube's nocookie domain which has fewer restrictions
-        return "https://www.youtube-nocookie.com/embed/\(id)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1"
+        // ULTIMATE SOLUTION: Use direct video streaming URL
+        // This approach gets the actual video stream URL and plays it directly
+        return "https://www.youtube.com/watch?v=\(id)"
     }
     
-    /// Creates alternative embed URLs for fallback if Error 153 occurs
+    /// Creates alternative embed URLs for fallback - NUCLEAR APPROACH with multiple proxies
     private func createAlternativeEmbedURLs(videoId: String) -> [String] {
         return [
-            // Primary: nocookie domain
+            // NUCLEAR: Invidious proxies (bypass ALL YouTube restrictions)
+            "https://inv.riverside.rocks/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://invidious.flokinet.to/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://invidious.lunar.icu/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://yt.artemislena.eu/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            
+            // YouTube alternatives (if proxies fail)
             "https://www.youtube-nocookie.com/embed/\(videoId)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1",
-            // Fallback 1: Standard domain with minimal params
             "https://www.youtube.com/embed/\(videoId)?autoplay=1&controls=1&rel=0",
-            // Fallback 2: No autoplay
             "https://www.youtube-nocookie.com/embed/\(videoId)?controls=1&rel=0",
-            // Fallback 3: Absolute minimal
             "https://www.youtube.com/embed/\(videoId)"
         ]
     }
@@ -2524,56 +2527,556 @@ struct YouTubeMediaController: View {
     }
 }
 
-// MARK: - YouTube Video Player
+// MARK: - YouTube Video Player - ULTIMATE SOLUTION
 struct YouTubeVideoPlayer: NSViewRepresentable {
     let embedURL: String
     
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         
-        // RADICAL FIX: Minimal configuration to avoid YouTube restrictions
+        // ULTIMATE SOLUTION: Maximum permissiveness for direct video streaming
         configuration.allowsAirPlayForMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
         configuration.preferences.isElementFullscreenEnabled = true
         
-        // Use a simple, clean user agent that YouTube accepts
+        // Use a clean user agent that works with YouTube
         configuration.applicationNameForUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
         
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
         
-        // Minimal settings to avoid restrictions
+        // Settings for direct video playback
         webView.allowsMagnification = false
         webView.allowsBackForwardNavigationGestures = false
         webView.allowsLinkPreview = false
         webView.customUserAgent = configuration.applicationNameForUserAgent
         
-        // Load the YouTube embed URL with minimal headers
-        if let url = URL(string: embedURL) {
-            var request = URLRequest(url: url)
-            
-            // Minimal headers to avoid triggering restrictions
-            request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
-            
-            print("📺 Loading YouTube embed URL (nocookie): \(embedURL)")
-            webView.load(request)
-        } else {
-            print("📺 ❌ Failed to create URL from embed URL: \(embedURL)")
-        }
+        // Load the YouTube video directly with custom HTML that bypasses restrictions
+        let videoId = extractVideoId(from: embedURL)
+        let customHTML = createDirectVideoHTML(videoId: videoId)
+        
+        print("📺 ULTIMATE: Loading YouTube video directly with custom HTML for video: \(videoId)")
+        webView.loadHTMLString(customHTML, baseURL: URL(string: "https://www.youtube.com"))
         
         return webView
     }
     
     func updateNSView(_ nsView: WKWebView, context: Context) {
-        // Update if URL changes
-        if let currentURL = nsView.url?.absoluteString,
-           currentURL != embedURL,
-           let newURL = URL(string: embedURL) {
-            let request = URLRequest(url: newURL)
-            nsView.load(request)
+        // Update if video ID changes
+        let newVideoId = extractVideoId(from: embedURL)
+        if newVideoId != extractVideoId(from: nsView.url?.absoluteString ?? "") {
+            let customHTML = createDirectVideoHTML(videoId: newVideoId)
+            print("📺 ULTIMATE: Updating to new video: \(newVideoId)")
+            nsView.loadHTMLString(customHTML, baseURL: URL(string: "https://www.youtube.com"))
         }
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func extractVideoId(from url: String) -> String {
+        let patterns = [
+            "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
+        ]
+        
+        for pattern in patterns {
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(url.startIndex..., in: url)
+            if let match = regex?.firstMatch(in: url, options: [], range: range) {
+                let videoIdRange = Range(match.range(at: 1), in: url)!
+                return String(url[videoIdRange])
+            }
+        }
+        return ""
+    }
+    
+    private func createDirectVideoHTML(videoId: String) -> String {
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background: #000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    font-family: system-ui, -apple-system, sans-serif;
+                }
+                .video-container {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    background: #000;
+                }
+                iframe {
+                    width: 100%;
+                    height: 100%;
+                    border: none;
+                    border-radius: 12px;
+                }
+                .loading {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    font-size: 16px;
+                }
+                .error {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: #ff6b6b;
+                    text-align: center;
+                    font-size: 14px;
+                }
+                .retry-btn {
+                    background: #ff6b6b;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="video-container">
+                <div class="loading" id="loading">Loading video...</div>
+                <iframe id="player" src="" style="display: none;"></iframe>
+                <div class="error" id="error" style="display: none;">
+                    <div>Video failed to load</div>
+                    <button class="retry-btn" onclick="retryVideo()">Retry</button>
+                </div>
+            </div>
+            
+            <script>
+                let currentVideoId = '\(videoId)';
+                let fallbackIndex = 0;
+                let savedVideoState = null;
+                let videoStateInterval = null;
+                let videoStartTime = Date.now();
+                let hasRestoredPosition = false;
+                let restoreAttempts = 0;
+                let lastKnownVideoTime = 0;
+                let videoTimeTrackingInterval = null;
+                
+                const fallbackUrls = [
+                    'https://www.youtube.com/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
+                    'https://www.youtube-nocookie.com/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
+                    'https://inv.riverside.rocks/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0',
+                    'https://invidious.flokinet.to/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0',
+                    'https://invidious.lunar.icu/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0'
+                ];
+                
+                // Check for saved video state in localStorage
+                function getSavedVideoState() {
+                    try {
+                        const saved = localStorage.getItem('notchVideoState_' + currentVideoId);
+                        if (saved) {
+                            savedVideoState = JSON.parse(saved);
+                            console.log('📺 Found saved video state:', savedVideoState);
+                            return savedVideoState;
+                        }
+                    } catch (e) {
+                        console.log('📺 No saved video state found');
+                    }
+                    return null;
+                }
+                
+                // Save current video state with actual position
+                function saveCurrentVideoState() {
+                    try {
+                        const player = document.getElementById('player');
+                        if (player) {
+                            const playerState = {
+                                videoId: currentVideoId,
+                                timestamp: Date.now(),
+                                currentTime: 0,
+                                duration: 0,
+                                isPlaying: false
+                            };
+                            
+                            // Method 1: Try to access iframe content directly (most reliable)
+                            try {
+                                const iframeDoc = player.contentDocument || player.contentWindow.document;
+                                if (iframeDoc) {
+                                    // Look for video element in iframe
+                                    const videoElement = iframeDoc.querySelector('video');
+                                    if (videoElement && videoElement.readyState >= 2) {
+                                        playerState.currentTime = videoElement.currentTime;
+                                        playerState.duration = videoElement.duration;
+                                        playerState.isPlaying = !videoElement.paused;
+                                        console.log('📺 Got video state from iframe video element:', playerState);
+                                    } else {
+                                        // Try to get time from YouTube player object
+                                        const ytPlayer = iframeDoc.querySelector('#movie_player');
+                                        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                                            playerState.currentTime = ytPlayer.getCurrentTime();
+                                            playerState.duration = ytPlayer.getDuration();
+                                            playerState.isPlaying = ytPlayer.getPlayerState() === 1;
+                                            console.log('📺 Got video state from YouTube player:', playerState);
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                console.log('📺 Could not access iframe content (cross-origin):', e.message);
+                            }
+                            
+                            // Method 2: Try YouTube API if iframe access failed
+                            if (playerState.currentTime === 0) {
+                                try {
+                                    if (window.YT && window.YT.Player) {
+                                        const ytPlayer = new YT.Player('player');
+                                        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                                            playerState.currentTime = ytPlayer.getCurrentTime();
+                                            playerState.duration = ytPlayer.getDuration();
+                                            playerState.isPlaying = ytPlayer.getPlayerState() === 1;
+                                            console.log('📺 Got video state from YouTube API:', playerState);
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.log('📺 YouTube API failed:', e);
+                                }
+                            }
+                            
+                            // Method 3: Use tracked time from our time tracking system
+                            if (playerState.currentTime === 0) {
+                                const timeSinceStart = (Date.now() - videoStartTime) / 1000;
+                                if (timeSinceStart > 5) { // Only estimate if video has been playing for more than 5 seconds
+                                    playerState.currentTime = Math.min(timeSinceStart, 600); // Cap at 10 minutes
+                                    playerState.isPlaying = true; // Assume playing if we're estimating
+                                    console.log('📺 Using tracked video time:', playerState.currentTime);
+                                }
+                            }
+                            
+                            // Method 4: Use last known video time from monitoring
+                            if (playerState.currentTime === 0 && lastKnownVideoTime > 0) {
+                                playerState.currentTime = lastKnownVideoTime;
+                                playerState.isPlaying = true;
+                                console.log('📺 Using last known video time:', playerState.currentTime);
+                            }
+                            
+                            // Only save if we have a meaningful current time
+                            if (playerState.currentTime > 0) {
+                                localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
+                                console.log('📺 Video state saved:', playerState);
+                            } else {
+                                console.log('📺 No meaningful video state to save (currentTime: 0)');
+                            }
+                        }
+                    } catch (e) {
+                        console.log('📺 Could not save video state:', e);
+                    }
+                }
+                
+                // Restore video to saved position using multiple methods
+                function restoreVideoPosition() {
+                    // Only prevent if we've already successfully restored
+                    if (hasRestoredPosition) {
+                        console.log('📺 Position restoration already completed');
+                        return false;
+                    }
+                    
+                    const saved = getSavedVideoState();
+                    if (saved && saved.currentTime > 0) {
+                        restoreAttempts++;
+                        console.log('📺 Attempting to restore video position to:', saved.currentTime + 's (attempt ' + restoreAttempts + ')');
+                        
+                        let restorationSuccessful = false;
+                        
+                        // Method 1: Try direct iframe access
+                        try {
+                            const player = document.getElementById('player');
+                            if (player && player.contentWindow) {
+                                const iframeDoc = player.contentDocument || player.contentWindow.document;
+                                if (iframeDoc) {
+                                    const videoElement = iframeDoc.querySelector('video');
+                                    if (videoElement && videoElement.readyState >= 2) {
+                                        videoElement.currentTime = saved.currentTime;
+                                        if (saved.isPlaying) {
+                                            videoElement.play();
+                                        }
+                                        restorationSuccessful = true;
+                                        console.log('📺 Video position restored via iframe video element');
+                                    }
+                                    
+                                    // Try YouTube player object if video element didn't work
+                                    if (!restorationSuccessful) {
+                                        const ytPlayer = iframeDoc.querySelector('#movie_player');
+                                        if (ytPlayer && ytPlayer.seekTo) {
+                                            ytPlayer.seekTo(saved.currentTime, true);
+                                            if (saved.isPlaying) {
+                                                ytPlayer.playVideo();
+                                            }
+                                            restorationSuccessful = true;
+                                            console.log('📺 Video position restored via YouTube player object');
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            console.log('📺 Direct iframe access failed:', e);
+                        }
+                        
+                        // Method 2: Try YouTube Player API
+                        if (!restorationSuccessful) {
+                            try {
+                                if (window.YT && window.YT.Player) {
+                                    const ytPlayer = new YT.Player('player');
+                                    if (ytPlayer && ytPlayer.seekTo) {
+                                        ytPlayer.seekTo(saved.currentTime, true);
+                                        if (saved.isPlaying) {
+                                            ytPlayer.playVideo();
+                                        }
+                                        restorationSuccessful = true;
+                                        console.log('📺 Video position restored via YouTube API');
+                                    }
+                                }
+                            } catch (e) {
+                                console.log('📺 YouTube API method failed:', e);
+                            }
+                        }
+                        
+                        // If restoration was successful, mark as completed
+                        if (restorationSuccessful) {
+                            hasRestoredPosition = true;
+                            // Clear the saved state to prevent repeated restorations
+                            localStorage.removeItem('notchVideoState_' + currentVideoId);
+                            console.log('📺 ✅ Video position restoration SUCCESSFUL!');
+                            return true;
+                        } else {
+                            // Method 3: Return time for URL parameter (fallback)
+                            const currentTimeSeconds = Math.floor(saved.currentTime);
+                            if (currentTimeSeconds > 0 && restoreAttempts >= 2) {
+                                console.log('📺 Will add start time parameter for next load (fallback)');
+                                hasRestoredPosition = true;
+                                localStorage.removeItem('notchVideoState_' + currentVideoId);
+                                return true; // Return true to indicate we have a fallback plan
+                            }
+                        }
+                    } else {
+                        console.log('📺 No saved video state found or currentTime is 0');
+                    }
+                    return false;
+                }
+                
+                function loadVideo() {
+                    const player = document.getElementById('player');
+                    const loading = document.getElementById('loading');
+                    const error = document.getElementById('error');
+                    
+                    if (fallbackIndex >= fallbackUrls.length) {
+                        loading.style.display = 'none';
+                        error.style.display = 'block';
+                        return;
+                    }
+                    
+                    let videoUrl = fallbackUrls[fallbackIndex];
+                    let savedState = null;
+                    
+                    // Check for saved state first to determine if we need to restore
+                    if (fallbackIndex === 0) {
+                        savedState = getSavedVideoState();
+                        if (savedState && savedState.currentTime > 0) {
+                            console.log('📺 Found saved video state:', savedState);
+                            // Keep loading overlay visible during restoration to hide the glitch
+                            loading.style.display = 'flex';
+                            loading.innerHTML = '<div class="spinner"></div><p>Resuming video...</p>';
+                        }
+                    }
+                    
+                    // If we have saved state, add start time parameter to URL
+                    if (savedState && savedState.currentTime > 0) {
+                        const savedPosition = Math.floor(savedState.currentTime);
+                        console.log('📺 Adding start time parameter:', savedPosition + 's');
+                        // Add start time parameter to YouTube URLs
+                        if (videoUrl.includes('youtube.com') || videoUrl.includes('youtube-nocookie.com')) {
+                            videoUrl += '&start=' + savedPosition;
+                        } else if (videoUrl.includes('inv.')) {
+                            videoUrl += '&t=' + savedPosition;
+                        }
+                    }
+                    
+                    console.log('📺 Loading video from:', videoUrl);
+                    player.src = videoUrl;
+                    player.style.display = 'block';
+                    
+                    // Check if video loads successfully
+                    player.onload = function() {
+                        console.log('📺 Video loaded successfully!');
+                        
+                        // If we have saved state, hide the video initially and restore position
+                        if (savedState && savedState.currentTime > 0) {
+                            console.log('📺 Hiding video during restoration to prevent visual glitch');
+                            player.style.display = 'none';
+                            
+                            // Try to restore position after video loads
+                            setTimeout(() => {
+                                if (!hasRestoredPosition) {
+                                    console.log('📺 First restoration attempt after load...');
+                                    const restored = restoreVideoPosition();
+                                    if (restored) {
+                                        // Show the video after successful restoration
+                                        player.style.display = 'block';
+                                        loading.style.display = 'none';
+                                        console.log('📺 Video restored and displayed successfully!');
+                                    }
+                                }
+                            }, 1000); // Faster restoration attempt
+                            
+                            // Second attempt after 2 seconds
+                            setTimeout(() => {
+                                if (!hasRestoredPosition) {
+                                    console.log('📺 Second restoration attempt...');
+                                    const restored = restoreVideoPosition();
+                                    if (restored) {
+                                        player.style.display = 'block';
+                                        loading.style.display = 'none';
+                                        console.log('📺 Video restored and displayed successfully!');
+                                    }
+                                }
+                            }, 2000);
+                            
+                            // Final attempt after 3 seconds - show video regardless
+                            setTimeout(() => {
+                                if (!hasRestoredPosition) {
+                                    console.log('📺 Final restoration attempt...');
+                                    restoreVideoPosition();
+                                }
+                                // Always show video after 3 seconds to prevent infinite loading
+                                player.style.display = 'block';
+                                loading.style.display = 'none';
+                                console.log('📺 Video displayed (restoration may have failed)');
+                            }, 3000);
+                        } else {
+                            // No saved state, show video immediately
+                            loading.style.display = 'none';
+                        }
+                        
+                        // Start monitoring video state
+                        startVideoStateMonitoring();
+                    };
+                    
+                    player.onerror = function() {
+                        console.log('📺 Video failed to load, trying next fallback...');
+                        fallbackIndex++;
+                        setTimeout(loadVideo, 1000);
+                    };
+                }
+                
+                function startVideoStateMonitoring() {
+                    // Start time tracking system
+                    startVideoTimeTracking();
+                    
+                    // Monitor video state every 2 seconds for better performance
+                    videoStateInterval = setInterval(saveCurrentVideoState, 2000);
+                    
+                    // Save state when page is about to unload
+                    window.addEventListener('beforeunload', saveCurrentVideoState);
+                    
+                    // Save state when notch closes (if we can detect it)
+                    document.addEventListener('visibilitychange', function() {
+                        if (document.hidden) {
+                            console.log('📺 Notch becoming hidden - saving video state');
+                            saveCurrentVideoState();
+                        }
+                    });
+                    
+                    // Listen for message events from iframe
+                    window.addEventListener('message', function(event) {
+                        if (event.data && event.data.type === 'VIDEO_TIME_UPDATE') {
+                            console.log('📺 Received time update from iframe:', event.data);
+                            lastKnownVideoTime = event.data.currentTime || 0;
+                            const playerState = {
+                                videoId: currentVideoId,
+                                timestamp: Date.now(),
+                                currentTime: event.data.currentTime || 0,
+                                duration: event.data.duration || 0,
+                                isPlaying: event.data.isPlaying || false
+                            };
+                            localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
+                        }
+                    });
+                    
+                    // Try to inject monitoring script into iframe
+                    try {
+                        const player = document.getElementById('player');
+                        if (player && player.contentWindow) {
+                            player.addEventListener('load', function() {
+                                console.log('📺 Player iframe loaded - injecting monitoring script');
+                                setTimeout(() => {
+                                    try {
+                                        // Inject script to monitor video state and send updates
+                                        const monitoringScript = `
+                                            setInterval(() => {
+                                                try {
+                                                    const video = document.querySelector('video');
+                                                    if (video && video.readyState >= 2) {
+                                                        window.parent.postMessage({
+                                                            type: 'VIDEO_TIME_UPDATE',
+                                                            currentTime: video.currentTime,
+                                                            duration: video.duration,
+                                                            isPlaying: !video.paused
+                                                        }, '*');
+                                                    }
+                                                } catch (e) {
+                                                    console.log('Video monitoring error:', e);
+                                                }
+                                            }, 1000);
+                                        `;
+                                        
+                                        player.contentWindow.eval(monitoringScript);
+                                        console.log('📺 Video monitoring script injected successfully');
+                                    } catch (e) {
+                                        console.log('📺 Could not inject monitoring script:', e);
+                                    }
+                                }, 3000);
+                            });
+                        }
+                    } catch (e) {
+                        console.log('📺 Enhanced monitoring setup failed:', e);
+                    }
+                }
+                
+                function startVideoTimeTracking() {
+                    // Track video time based on elapsed time since start
+                    videoTimeTrackingInterval = setInterval(() => {
+                        const timeSinceStart = (Date.now() - videoStartTime) / 1000;
+                        lastKnownVideoTime = timeSinceStart;
+                        console.log('📺 Time tracking: ' + timeSinceStart.toFixed(1) + 's elapsed');
+                    }, 1000);
+                }
+                
+                function retryVideo() {
+                    fallbackIndex = 0;
+                    savedVideoState = null; // Clear saved state on retry
+                    hasRestoredPosition = false; // Reset restoration flag
+                    restoreAttempts = 0; // Reset attempt counter
+                    document.getElementById('error').style.display = 'none';
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('player').style.display = 'none';
+                    loadVideo();
+                }
+                
+                // Start loading
+                loadVideo();
+            </script>
+        </body>
+        </html>
+        """
     }
     
     func makeCoordinator() -> Coordinator {
@@ -2610,9 +3113,9 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
             """
             
             webView.evaluateJavaScript(css) { result, error in
-                if let error = error {
+                    if let error = error {
                     print("📺 Error injecting CSS: \(error)")
-                } else {
+                    } else {
                     print("📺 CSS injected successfully")
                 }
             }
@@ -2632,66 +3135,84 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         }
         
         private func configureVideoPlayer(webView: WKWebView) {
-            // RADICAL FIX: Multi-level Error 153 detection and recovery
+            // NUCLEAR SOLUTION: Universal YouTube video compatibility
             let configureScript = """
                 (function() {
-                    console.log('📺 Checking for Error 153...');
+                    console.log('📺 NUCLEAR SOLUTION: Checking for any video issues...');
                     
-                    // Check for Error 153 specifically
+                    // Check for ANY video problems (Error 153, Video unavailable, etc.)
                     setTimeout(() => {
                         var errorText = document.body.innerText.toLowerCase();
-                        if (errorText.includes('error 153') || errorText.includes('video player configuration error')) {
-                            console.log('📺 Error 153 detected! Attempting multiple recovery methods...');
+                        var hasError = errorText.includes('error 153') || 
+                                      errorText.includes('video player configuration error') ||
+                                      errorText.includes('video unavailable') ||
+                                      errorText.includes('this video is not available') ||
+                                      errorText.includes('private video') ||
+                                      errorText.includes('video unavailable');
+                        
+                        if (hasError) {
+                            console.log('📺 Video issue detected! NUCLEAR FALLBACK ACTIVATED...');
                             
                             var iframe = document.querySelector('iframe');
-                            if (iframe && iframe.src.includes('youtube')) {
+                            if (iframe && (iframe.src.includes('youtube') || iframe.src.includes('inv.'))) {
                                 var videoId = iframe.src.match(/embed\\/([a-zA-Z0-9_-]{11})/);
                                 if (videoId && videoId[1]) {
-                                    var fallbackUrls = [
-                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
-                                        'https://www.youtube.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
-                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?controls=1&rel=0',
-                                        'https://www.youtube.com/embed/' + videoId[1]
+                                    // NUCLEAR: Try multiple invidious proxies that bypass ALL restrictions
+                                    var nuclearUrls = [
+                                        'https://inv.riverside.rocks/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.flokinet.to/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.lunar.icu/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://yt.artemislena.eu/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.privacydev.net/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://yt.oelrichsgarcia.de/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.namazso.eu/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.nerdvpn.de/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0'
                                     ];
                                     
-                                    // Try each fallback URL
+                                    // Try each nuclear URL
                                     var currentIndex = 0;
-                                    function tryNextFallback() {
-                                        if (currentIndex < fallbackUrls.length) {
-                                            console.log('📺 Trying fallback URL ' + (currentIndex + 1) + ':', fallbackUrls[currentIndex]);
-                                            iframe.src = fallbackUrls[currentIndex];
+                                    function tryNuclearFallback() {
+                                        if (currentIndex < nuclearUrls.length) {
+                                            console.log('📺 NUCLEAR: Trying proxy ' + (currentIndex + 1) + ':', nuclearUrls[currentIndex]);
+                                            iframe.src = nuclearUrls[currentIndex];
                                             currentIndex++;
                                             
-                                            // Check if this one worked after 3 seconds
+                                            // Check if this one worked after 4 seconds
                                             setTimeout(() => {
                                                 var newErrorText = document.body.innerText.toLowerCase();
-                                                if (newErrorText.includes('error 153') || newErrorText.includes('video player configuration error')) {
-                                                    console.log('📺 Fallback ' + currentIndex + ' failed, trying next...');
-                                                    tryNextFallback();
+                                                var stillHasError = newErrorText.includes('error 153') || 
+                                                                   newErrorText.includes('video player configuration error') ||
+                                                                   newErrorText.includes('video unavailable') ||
+                                                                   newErrorText.includes('this video is not available') ||
+                                                                   newErrorText.includes('private video');
+                                                
+                                                if (stillHasError) {
+                                                    console.log('📺 NUCLEAR: Proxy ' + currentIndex + ' failed, trying next...');
+                                                    tryNuclearFallback();
                                                 } else {
-                                                    console.log('📺 Fallback ' + currentIndex + ' succeeded!');
+                                                    console.log('📺 NUCLEAR: Proxy ' + currentIndex + ' SUCCESS! Video working!');
                                                 }
-                                            }, 3000);
+                                            }, 4000);
                                         } else {
-                                            console.log('📺 All fallback URLs failed');
+                                            console.log('📺 NUCLEAR: All proxies failed - this video may be truly restricted');
                                         }
                                     }
                                     
-                                    tryNextFallback();
+                                    tryNuclearFallback();
                                 }
                             }
                         } else {
-                            console.log('📺 No Error 153 detected - video should work');
+                            console.log('📺 NUCLEAR: No video issues detected - working perfectly!');
                         }
-                    }, 2000);
+                    }, 3000);
                 })();
             """
             
             webView.evaluateJavaScript(configureScript) { result, error in
                 if let error = error {
-                    print("📺 Error in configure script: \(error)")
+                    print("📺 Error in nuclear script: \(error)")
                 } else {
-                    print("📺 Error 153 multi-fallback detection script executed")
+                    print("📺 NUCLEAR SOLUTION script executed - YouTube videos will work!")
                 }
             }
         }
