@@ -3279,6 +3279,484 @@ struct SecondaryButtonStyle: ButtonStyle {
     }
 }
 
+// MARK: - TemporaryFolderView Component
+struct TemporaryFolderView: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            // VE Icon (compact)
+            CompactTemporaryFolderIcon()
+            
+            // Listen button (compact)
+            CompactTemporaryFolderListenButton()
+            
+            // Share button (compact)
+            CompactTemporaryFolderShareButton()
+            
+            // Ask anything button (compact)
+            CompactTemporaryFolderAskAnythingButton()
+            
+            // Incognito button (compact)
+            CompactTemporaryFolderIncognitoButton()
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+    }
+}
+
+// MARK: - TemporaryFolder Icon
+struct TemporaryFolderIcon: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // VE Icon
+            VEIcon(color: .white)
+                .frame(width: 22, height: 14)
+        }
+    }
+}
+
+// MARK: - TemporaryFolder Listen Button
+struct TemporaryFolderListenButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            WaveIcon(color: .white)
+                .frame(width: 11, height: 12)
+            
+            Text("Listen")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(
+            RoundedRectangle(cornerRadius: 100)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.06),
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.06)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+        )
+    }
+}
+
+// MARK: - TemporaryFolder Share Button
+struct TemporaryFolderShareButton: View {
+    var body: some View {
+        Text("Share")
+            .font(.system(size: 10, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(
+                RoundedRectangle(cornerRadius: 100)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.06),
+                                Color.white.opacity(0.1),
+                                Color.white.opacity(0.06)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                            .blendMode(.multiply)
+                    )
+            )
+    }
+}
+
+// MARK: - TemporaryFolder Ask Anything Button
+struct TemporaryFolderAskAnythingButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            AskAnythingIcon(color: .white)
+                .frame(width: 15, height: 14)
+            
+            Text("Ask anything")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(width: 105, height: 24)
+    }
+}
+
+// MARK: - TemporaryFolder Incognito Button
+struct TemporaryFolderIncognitoButton: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // Incognito Icon
+            IncognitoIcon(color: .white)
+                .frame(width: 15, height: 14)
+        }
+    }
+}
+
+// MARK: - Ask Anything Icon
+struct AskAnythingIcon: View {
+    var color: Color = .white
+    
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 15.0
+            let offsetX = (geo.size.width - 15.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 14.0 * scale) / 2.0
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+            
+            ZStack {
+                // T shape from TIcon.svg - using the actual SVG path
+                Path { path in
+                    // Main T shape path from SVG
+                    path.move(to: point(5.12817, 1.16797))
+                    path.addLine(to: point(9.87183, 1.16797))
+                    path.addCurve(to: point(10.3887, 1.16797), control1: point(10.8343, 1.16797), control2: point(11.1913, 1.2158))
+                    path.addCurve(to: point(11.5734, 1.26714), control1: point(11.9403, 1.38322), control2: point(12.2372, 1.68072))
+                    path.addCurve(to: point(12.5347, 1.97822), control1: point(12.6508, 2.34455), control2: point(12.7022, 2.72664))
+                    path.addCurve(to: point(12.75, 3.08364), control1: point(12.75, 3.5293), control2: point(12.75, 4.04614))
+                    path.addLine(to: point(12.75, 4.6388))
+                    path.addCurve(to: point(12.6885, 4.94188), control1: point(12.5791, 5.05128), control2: point(12.4697, 5.16068))
+                    path.addCurve(to: point(12.3214, 5.22214), control1: point(12.1667, 5.22214), control2: point(12.012, 5.22214))
+                    path.addCurve(to: point(11.8636, 5.16068), control1: point(11.7542, 5.05128), control2: point(11.6448, 4.94188))
+                    path.addCurve(to: point(11.5833, 4.79351), control1: point(11.5833, 4.6388), control2: point(11.5833, 4.08464))
+                    path.addCurve(to: point(11.5833, 3.51822), control1: point(11.5822, 3.15189), control2: point(11.546, 2.88239))
+                    path.addCurve(to: point(11.5116, 2.62922), control1: point(11.4567, 2.54989), control2: point(11.4124, 2.50555))
+                    path.addCurve(to: point(11.3681, 2.46122), control1: point(11.2887, 2.40639), control2: point(11.0356, 2.37197))
+                    path.addCurve(to: point(10.7667, 2.3358), control1: point(10.3997, 2.33464), control2: point(9.83333, 2.33464))
+                    path.addLine(to: point(8.08333, 2.33464))
+                    path.addLine(to: point(8.08333, 12.2513))
+                    path.addCurve(to: point(8.02187, 12.5544), control1: point(7.91248, 12.6638), control2: point(7.80308, 12.7732))
+                    path.addCurve(to: point(7.65471, 12.8346), control1: point(7.5, 12.8346), control2: point(7.34529, 12.8346))
+                    path.addCurve(to: point(7.19692, 12.7732), control1: point(7.08752, 12.6638), control2: point(6.97812, 12.5544))
+                    path.addCurve(to: point(6.91667, 12.406), control1: point(6.91667, 12.2513), control2: point(6.91667, 2.33464))
+                    path.addLine(to: point(5.16667, 2.33464))
+                    path.addCurve(to: point(4.60025, 2.33464), control1: point(4.23392, 2.3358), control2: point(3.96442, 2.37197))
+                    path.addCurve(to: point(3.71125, 2.40639), control1: point(3.63192, 2.46122), control2: point(3.58758, 2.50555))
+                    path.addCurve(to: point(3.54325, 2.54989), control1: point(3.48842, 2.62922), control2: point(3.454, 2.88239))
+                    path.addCurve(to: point(3.41783, 3.1513), control1: point(3.41667, 3.51822), control2: point(3.41667, 4.08464))
+                    path.addLine(to: point(3.41667, 4.6388))
+                    path.addCurve(to: point(3.35521, 4.94188), control1: point(3.24581, 5.05128), control2: point(3.13642, 5.16068))
+                    path.addCurve(to: point(2.98804, 5.22214), control1: point(2.83333, 5.22214), control2: point(2.67862, 5.22214))
+                    path.addCurve(to: point(2.53025, 5.16068), control1: point(2.42085, 5.05128), control2: point(2.31146, 4.94188))
+                    path.addCurve(to: point(2.25, 4.79351), control1: point(2.25, 4.6388), control2: point(2.25, 4.04614))
+                    path.addCurve(to: point(2.25, 3.5293), control1: point(2.25, 3.08364), control2: point(2.29783, 2.72664))
+                    path.addCurve(to: point(2.34917, 2.34455), control1: point(2.46525, 1.97764), control2: point(2.76275, 1.68072))
+                    path.addCurve(to: point(3.06025, 1.38322), control1: point(3.42658, 1.26714), control2: point(3.80867, 1.2158))
+                    path.addCurve(to: point(4.16567, 1.16797), control1: point(4.61133, 1.16797), control2: point(5.12817, 1.16797))
+                    path.closeSubpath()
+                }
+                .fill(color.opacity(0.7))
+                
+                // Bottom line from TIcon.svg
+                Path { path in
+                    path.move(to: point(4.58594, 12.25))
+                    path.addLine(to: point(10.4193, 12.25))
+                }
+                .stroke(color.opacity(0.7), style: StrokeStyle(lineWidth: 1.0 * scale, lineCap: .round, lineJoin: .round))
+            }
+        }
+        .aspectRatio(15.0/14.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Incognito Icon
+struct IncognitoIcon: View {
+    var color: Color = .white
+    
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 15.0
+            let offsetX = (geo.size.width - 15.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 14.0 * scale) / 2.0
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
+                CGRect(
+                    x: offsetX + (centerX - radius) * scale,
+                    y: offsetY + (centerY - radius) * scale,
+                    width: radius * 2.0 * scale,
+                    height: radius * 2.0 * scale
+                )
+            }
+            
+            ZStack {
+                // Top line
+                Path { path in
+                    path.move(to: point(0.94, 6.56))
+                    path.addLine(to: point(14.06, 6.56))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+                
+                // Left wheel
+                Path { path in
+                    path.addEllipse(in: circleRect(4.66, 9.84, 1.53))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+                
+                // Right wheel
+                Path { path in
+                    path.addEllipse(in: circleRect(10.34, 9.84, 1.53))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+                
+                // Bottom line
+                Path { path in
+                    path.move(to: point(6.17, 10.06))
+                    path.addLine(to: point(8.83, 10.06))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+                
+                // Car body
+                Path { path in
+                    path.move(to: point(2.69, 6.56))
+                    path.addLine(to: point(5.42, 2.80))
+                    path.addLine(to: point(8.18, 3.61))
+                    path.addLine(to: point(12.31, 6.56))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+            }
+        }
+        .aspectRatio(15.0/14.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Compact TemporaryFolder Components for Collapsed State
+struct CompactTemporaryFolderIcon: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow (optimized for 48px height)
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 20, height: 20)
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 4, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // VE Icon (optimized for 48px height)
+            VEIcon(color: .white)
+                .frame(width: 22, height: 14)
+        }
+    }
+}
+
+struct CompactTemporaryFolderListenButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            WaveIcon(color: .white)
+                .frame(width: 10, height: 11)
+            
+            Text("Listen")
+                .font(.system(size: 9, weight: .medium))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 100)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.06),
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.06)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 0)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+        )
+    }
+}
+
+struct CompactTemporaryFolderShareButton: View {
+    var body: some View {
+        Text("Share")
+            .font(.system(size: 9, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 100)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.06),
+                                Color.white.opacity(0.1),
+                                Color.white.opacity(0.06)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 0)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 0)
+                            .blendMode(.multiply)
+                    )
+            )
+    }
+}
+
+struct CompactTemporaryFolderAskAnythingButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            AskAnythingIcon(color: .white)
+                .frame(width: 12, height: 11)
+            
+            Text("Ask anything")
+                .font(.system(size: 9, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(width: 100, height: 20)
+    }
+}
+
+struct CompactTemporaryFolderIncognitoButton: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow (optimized for 48px height)
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 20, height: 20)
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 4, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // Incognito Icon (optimized for 48px height)
+            IncognitoIcon(color: .white)
+                .frame(width: 12, height: 11)
+        }
+    }
+}
+
 #Preview {
     NotchContentView(vm: .init())
         .frame(width: 850, height: 150, alignment: .center)
