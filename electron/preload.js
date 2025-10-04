@@ -140,6 +140,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	// Overlay window APIs
 	overlay: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
+		showOverlayWindow: () => ipcRenderer.invoke('show-overlay-window'),
 		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
 		hideAllWindows: () => ipcRenderer.invoke('hide-all-windows'),
 		sendTabContentToAskAI: (tabContent) =>
