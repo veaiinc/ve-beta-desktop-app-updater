@@ -3188,18 +3188,11 @@ app.whenReady().then(async () => {
 	// Send chat message from Dynamic Island to Ask AI handler
 	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
 		try {
-			log.info('🎯 IPC: send-chat-message-to-askai called');
-
 			// Get the Ask AI window through windowHelper
 			let askAIWindow = windowHelper.getAskAIWindow();
 
 			// If Ask AI window doesn't exist or is destroyed, create it
 			if (!askAIWindow || askAIWindow.isDestroyed()) {
-				log.info('🎯 IPC: Creating Ask AI window...');
-				log.info(`🎯 IPC: Overlay window exists: ${!!windowHelper.overlayWindow}`);
-				log.info(
-					`🎯 IPC: Overlay window visible: ${windowHelper.overlayWindow?.isVisible()}`,
-				);
 				windowHelper.createAskAIWindow();
 				askAIWindow = windowHelper.getAskAIWindow();
 			}
@@ -3207,17 +3200,12 @@ app.whenReady().then(async () => {
 			// Ensure window is visible
 			if (askAIWindow && !askAIWindow.isDestroyed()) {
 				if (!askAIWindow.isVisible()) {
-					log.info('🎯 IPC: Showing Ask AI window...');
 					windowHelper.showAskAIWindow();
-				} else {
-					log.info('🎯 IPC: Ask AI window already visible');
 				}
 
 				// Wait for window to be fully ready before sending message
-				log.info('🎯 IPC: Waiting for Ask AI window to be ready...');
 				await new Promise((resolve, reject) => {
 					const timeout = setTimeout(() => {
-						log.error('🎯 IPC: Window ready timeout after 3 seconds');
 						reject(new Error('Window ready timeout'));
 					}, 3000); // 3 second timeout
 
