@@ -646,16 +646,11 @@ struct DynamicIslandContentView: View {
         // Check YouTube status
         let youtubeActive = detectYouTubeVideo()
         
-        print("🎵 === MEDIA STATUS UPDATE ===")
-        print("🎵 Spotify - Running: \(spotifyRunning), Playing: \(spotifyPlaying)")
-        print("🎵 Apple Music - Running: \(appleMusicRunning), Playing: \(appleMusicPlaying)")
-        print("🎵 System Media - Present: \(hasSystemMedia), Rate: \(systemPlaybackRate), Playing: \(systemPlaying)")
-        print("🎵 YouTube - Active: \(youtubeActive)")
+        // Media status update (debug logs removed)
         
         // Enhanced priority logic: Currently playing app takes precedence
         if youtubeActive && (appleMusicPlaying || spotifyPlaying) {
             // Both YouTube and music active - YouTube wins
-            print("🎵 RESULT: YouTube wins over music")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = false
                 vm.isMusicPlaying = false
@@ -664,7 +659,6 @@ struct DynamicIslandContentView: View {
             }
         } else if youtubeActive {
             // YouTube active, music not playing - show YouTube
-            print("🎵 RESULT: YouTube only")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = false
                 vm.isMusicPlaying = false
@@ -673,102 +667,81 @@ struct DynamicIslandContentView: View {
             }
         } else if appleMusicPlaying && !spotifyPlaying {
             // Only Apple Music playing
-            print("🎵 RESULT: Apple Music playing (Spotify paused)")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = true
                 vm.isMusicPlaying = true
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
-                print("🎵 VM UPDATED: Apple Music active")
             }
         } else if spotifyPlaying && !appleMusicPlaying {
             // Only Spotify playing
-            print("🎵 RESULT: Spotify playing (Apple Music paused)")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = true
                 vm.isMusicPlaying = true
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
-                print("🎵 VM UPDATED: Spotify active")
             }
         } else if appleMusicPlaying && spotifyPlaying {
             // Both music apps claim to be playing - use system media to determine which is actually active
-            print("🎵 RESULT: Both music apps claim to be playing - checking system priority")
-            
             // Get more detailed system media info to determine the actual active app
             if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
                 let systemTitle = nowPlayingInfo[MPMediaItemPropertyTitle] as? String ?? ""
                 let systemArtist = nowPlayingInfo[MPMediaItemPropertyArtist] as? String ?? ""
-                print("🎵 System media: '\(systemTitle)' by '\(systemArtist)', Rate: \(systemPlaybackRate)")
                 
                 // If system media is playing and has content, use it to determine priority
                 if systemPlaying && !systemTitle.isEmpty {
                     // Check which app matches the system media better
                     // This is a more reliable way to determine the actual active app
-                    print("🎵 RESULT: Using system media as source of truth")
                     DispatchQueue.main.async {
                         vm.hasActiveMusic = true
                         vm.isMusicPlaying = true
                         vm.hasActiveVideo = false
                         vm.isVideoPlaying = false
-                        print("🎵 VM UPDATED: Both playing, using system media priority")
                     }
                 } else {
                     // If system media is not reliable, do a more thorough check
                     // Wait a moment and re-check to avoid stale AppleScript data
-                    print("🎵 System media unreliable, doing secondary check...")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         self.resolveConflictingPlayStates()
                     }
                 }
             } else {
                 // No system media info available, do a secondary check
-                print("🎵 No system media info, doing secondary check...")
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     self.resolveConflictingPlayStates()
                 }
             }
         } else if systemPlaying && hasSystemMedia {
             // System media playing but apps report not playing - trust system
-            print("🎵 RESULT: System media playing (apps report paused)")
-            DispatchQueue.main.async {
-                vm.hasActiveMusic = true
-                vm.isMusicPlaying = true
-                vm.hasActiveVideo = false
-                vm.isVideoPlaying = false
-                print("🎵 VM UPDATED: System media active")
-            }
+        DispatchQueue.main.async {
+            vm.hasActiveMusic = true
+            vm.isMusicPlaying = true
+            vm.hasActiveVideo = false
+            vm.isVideoPlaying = false
+        }
         } else if appleMusicRunning || spotifyRunning || hasSystemMedia {
             // Music paused but running - show paused state
-            let pausedApp = appleMusicRunning ? "Apple Music" : spotifyRunning ? "Spotify" : "System Media"
-            print("🎵 RESULT: \(pausedApp) paused")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = true
                 vm.isMusicPlaying = false
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
-                print("🎵 VM UPDATED: \(pausedApp) paused")
             }
         } else {
             // Nothing running
-            print("🎵 RESULT: Nothing active")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = false
                 vm.isMusicPlaying = false
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
-                print("🎵 VM UPDATED: Nothing active")
             }
         }
         
-        print("🎵 === END STATUS UPDATE ===")
-        print("🎵 FINAL VM STATE: hasActiveMusic=\(vm.hasActiveMusic), isMusicPlaying=\(vm.isMusicPlaying), hasActiveVideo=\(vm.hasActiveVideo), isVideoPlaying=\(vm.isVideoPlaying)")
+        // End media status update
     }
     
     // Helper function to resolve conflicting play states between apps
     private func resolveConflictingPlayStates() {
-        print("🎵 === RESOLVING CONFLICTING PLAY STATES ===")
-        
         // Re-check both apps with fresh AppleScript calls
         let spotifyPlaying = isSpotifyPlaying()
         let appleMusicPlaying = isAppleMusicPlaying()
@@ -778,57 +751,55 @@ struct DynamicIslandContentView: View {
         let systemPlaybackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
         let systemPlaying = systemPlaybackRate > 0.0
         
-        print("🎵 Secondary check - Spotify: \(spotifyPlaying), Apple Music: \(appleMusicPlaying), System: \(systemPlaying)")
-        
         if spotifyPlaying && !appleMusicPlaying {
             // Only Spotify is playing
-            print("🎵 RESOLVED: Spotify is the active player")
+            // Debug log removed RESOLVED: Spotify is the active player")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = true
                 vm.isMusicPlaying = true
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
-                print("🎵 VM UPDATED: Resolved to Spotify")
+                // Debug log removed VM UPDATED: Resolved to Spotify")
             }
         } else if appleMusicPlaying && !spotifyPlaying {
             // Only Apple Music is playing
-            print("🎵 RESOLVED: Apple Music is the active player")
+            // Debug log removed RESOLVED: Apple Music is the active player")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = true
                 vm.isMusicPlaying = true
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
-                print("🎵 VM UPDATED: Resolved to Apple Music")
+                // Debug log removed VM UPDATED: Resolved to Apple Music")
             }
         } else if systemPlaying {
             // Trust system media if it's playing
-            print("🎵 RESOLVED: Using system media as fallback")
+            // Debug log removed RESOLVED: Using system media as fallback")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = true
                 vm.isMusicPlaying = true
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
-                print("🎵 VM UPDATED: Resolved to system media")
+                // Debug log removed VM UPDATED: Resolved to system media")
             }
         } else {
             // Nothing is actually playing
-            print("🎵 RESOLVED: Nothing is actually playing")
+            // Debug log removed RESOLVED: Nothing is actually playing")
             DispatchQueue.main.async {
                 vm.hasActiveMusic = false
                 vm.isMusicPlaying = false
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
-                print("🎵 VM UPDATED: Resolved to no active media")
+                // Debug log removed VM UPDATED: Resolved to no active media")
             }
         }
         
-        print("🎵 === CONFLICT RESOLUTION COMPLETE ===")
+        // Debug log removed === CONFLICT RESOLUTION COMPLETE ===")
         
         // Trigger track info update after resolution
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             // This will trigger the onChange listeners in MusicMediaController
             // to update the track info for the resolved app
-            print("🎵 Triggering track info update after conflict resolution")
+            // Debug log removed Triggering track info update after conflict resolution")
         }
     }
     
@@ -842,7 +813,7 @@ struct DynamicIslandContentView: View {
         let appleMusicRunning = isAppleMusicRunning()
         
         let result = hasSystemMedia || spotifyRunning || appleMusicRunning
-        print("🎵 Music app running check - System media: \(hasSystemMedia), Spotify: \(spotifyRunning), Apple Music: \(appleMusicRunning), Result: \(result)")
+        // Debug log removed Music app running check - System media: \(hasSystemMedia), Spotify: \(spotifyRunning), Apple Music: \(appleMusicRunning), Result: \(result)")
         
         return result
     }
@@ -852,7 +823,7 @@ struct DynamicIslandContentView: View {
         if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
             let playbackRate = nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
             let systemPlaying = playbackRate > 0.0
-            print("🎵 System media playback rate: \(playbackRate), playing: \(systemPlaying)")
+            // Debug log removed System media playback rate: \(playbackRate), playing: \(systemPlaying)")
             if systemPlaying {
                 return true
             }
@@ -863,7 +834,7 @@ struct DynamicIslandContentView: View {
         let appleMusicPlaying = isAppleMusicPlaying()
         
         let result = spotifyPlaying || appleMusicPlaying
-        print("🎵 Music app playing check - Spotify: \(spotifyPlaying), Apple Music: \(appleMusicPlaying), Result: \(result)")
+        // Debug log removed Music app playing check - Spotify: \(spotifyPlaying), Apple Music: \(appleMusicPlaying), Result: \(result)")
         
         return result
     }
@@ -879,17 +850,17 @@ struct DynamicIslandContentView: View {
         if let scriptObject = NSAppleScript(source: script) {
             let output = scriptObject.executeAndReturnError(&error)
             let result = output.booleanValue
-            print("🎵 Spotify running check: \(result)")
+            // Debug log removed Spotify running check: \(result)")
             return result
         }
-        print("🎵 Spotify running check failed")
+        // Debug log removed Spotify running check failed")
         return false
     }
     
     private func isSpotifyPlaying() -> Bool {
         // First check if Spotify is even running
         if !isSpotifyRunning() {
-            print("🎵 Spotify not running, returning false for playing")
+            // Debug log removed Spotify not running, returning false for playing")
         return false
     }
     
@@ -911,13 +882,13 @@ struct DynamicIslandContentView: View {
         if let scriptObject = NSAppleScript(source: script) {
             let output = scriptObject.executeAndReturnError(&error)
             let result = output.booleanValue
-            print("🎵 Spotify playing check: \(result)")
+            // Debug log removed Spotify playing check: \(result)")
             if let error = error {
-                print("🎵 Spotify AppleScript error: \(error)")
+                // Debug log removed Spotify AppleScript error: \(error)")
             }
             return result
         }
-        print("🎵 Spotify playing check failed")
+        // Debug log removed Spotify playing check failed")
         return false
     }
     
@@ -932,17 +903,17 @@ struct DynamicIslandContentView: View {
         if let scriptObject = NSAppleScript(source: script) {
             let output = scriptObject.executeAndReturnError(&error)
             let result = output.booleanValue
-            print("🎵 Apple Music running check: \(result)")
+            // Debug log removed Apple Music running check: \(result)")
             return result
         }
-        print("🎵 Apple Music running check failed")
+        // Debug log removed Apple Music running check failed")
         return false
     }
     
     private func isAppleMusicPlaying() -> Bool {
         // First check if Apple Music is even running
         if !isAppleMusicRunning() {
-            print("🎵 Apple Music not running, returning false for playing")
+            // Debug log removed Apple Music not running, returning false for playing")
             return false
         }
         
@@ -964,13 +935,13 @@ struct DynamicIslandContentView: View {
         if let scriptObject = NSAppleScript(source: script) {
             let output = scriptObject.executeAndReturnError(&error)
             let result = output.booleanValue
-            print("🎵 Apple Music playing check: \(result)")
+            // Debug log removed Apple Music playing check: \(result)")
             if let error = error {
-                print("🎵 Apple Music AppleScript error: \(error)")
+                // Debug log removed Apple Music AppleScript error: \(error)")
             }
             return result
         }
-        print("🎵 Apple Music playing check failed")
+        // Debug log removed Apple Music playing check failed")
         return false
     }
     
@@ -2741,7 +2712,7 @@ struct MusicMediaController: View {
                 HStack(spacing: 12) {
                     // Previous button
                     Button(action: {
-                        print("🎵 Previous track")
+                        // Debug log removed Previous track")
                         sendMediaCommand(.previousTrack)
                     }) {
                         Image(systemName: "backward.fill")
@@ -2754,7 +2725,7 @@ struct MusicMediaController: View {
                     
                     // Play/Pause button (larger)
                     Button(action: {
-                        print("🎵 Play/Pause toggle")
+                        // Debug log removed Play/Pause toggle")
                         isPlaying.toggle()
                         sendMediaCommand(isPlaying ? .play : .pause)
                     }) {
@@ -2768,7 +2739,7 @@ struct MusicMediaController: View {
                     
                     // Next button
                     Button(action: {
-                        print("🎵 Next track")
+                        // Debug log removed Next track")
                         sendMediaCommand(.nextTrack)
                     }) {
                         Image(systemName: "forward.fill")
@@ -2800,10 +2771,10 @@ struct MusicMediaController: View {
         }
         .onChange(of: vm.hasActiveMusic) { hasMusic in
             if hasMusic {
-                print("🎵 Music became active - updating track info")
+                // Debug log removed Music became active - updating track info")
                 updateCurrentTrackInfo()
             } else {
-                print("🎵 Music became inactive - clearing track info")
+                // Debug log removed Music became inactive - clearing track info")
                 // Clear track info when no music is active
                 DispatchQueue.main.async {
                     songTitle = "Unknown Track"
@@ -2814,13 +2785,13 @@ struct MusicMediaController: View {
             }
         }
         .onChange(of: vm.isMusicPlaying) { isPlaying in
-            print("🎵 Music playing state changed to: \(isPlaying) - force updating track info")
+            // Debug log removed Music playing state changed to: \(isPlaying) - force updating track info")
             // Always update track info when playing state changes
             updateCurrentTrackInfo()
             
             // Add a small delay and update again to ensure we get the correct app
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                print("🎵 Delayed track info update after playing state change")
+                // Debug log removed Delayed track info update after playing state change")
                 updateCurrentTrackInfo()
             }
         }
@@ -2833,14 +2804,14 @@ struct MusicMediaController: View {
         switch currentMusicApp {
         case .appleMusic:
             NSWorkspace.shared.launchApplication("Music")
-            print("🎵 Opening Apple Music")
+            // Debug log removed Opening Apple Music")
         case .spotify:
             NSWorkspace.shared.launchApplication("Spotify")
-            print("🎵 Opening Spotify")
+            // Debug log removed Opening Spotify")
         case .unknown:
             // Fallback - try to open the default music app
             NSWorkspace.shared.launchApplication("Music")
-            print("🎵 Opening default Music app")
+            // Debug log removed Opening default Music app")
         }
     }
     
@@ -2971,7 +2942,7 @@ struct MusicMediaController: View {
         if albumArtwork == nil, let info = nowPlayingInfo {
             if let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
                 albumArtwork = artwork.image(at: CGSize(width: 300, height: 300))
-                print("🎵 Got artwork from system media info as fallback")
+                // Debug log removed Got artwork from system media info as fallback")
             }
         }
         
@@ -2979,30 +2950,30 @@ struct MusicMediaController: View {
     }
     
     private func getCurrentTrackFromAppleScript() {
-        print("🎵 getCurrentTrackFromAppleScript - Current music playing: \(vm.isMusicPlaying)")
+        // Debug log removed getCurrentTrackFromAppleScript - Current music playing: \(vm.isMusicPlaying)")
         
         // Check which app is actually playing by directly querying both apps
         let spotifyPlaying = checkSpotifyPlayingState()
         let appleMusicPlaying = checkAppleMusicPlayingState()
         
-        print("🎵 Direct app check - Spotify playing: \(spotifyPlaying), Apple Music playing: \(appleMusicPlaying)")
+        // Debug log removed Direct app check - Spotify playing: \(spotifyPlaying), Apple Music playing: \(appleMusicPlaying)")
         
         // Prioritize the app that's actually playing
         if appleMusicPlaying && !spotifyPlaying {
-            print("🎵 Apple Music is playing, Spotify is not - getting Apple Music track")
+            // Debug log removed Apple Music is playing, Spotify is not - getting Apple Music track")
             if !tryGetTrackFromAppleMusic() {
-                print("🎵 Apple Music failed, trying Spotify as fallback")
+                // Debug log removed Apple Music failed, trying Spotify as fallback")
                 tryGetTrackFromSpotify()
             }
         } else if spotifyPlaying && !appleMusicPlaying {
-            print("🎵 Spotify is playing, Apple Music is not - getting Spotify track")
+            // Debug log removed Spotify is playing, Apple Music is not - getting Spotify track")
             tryGetTrackFromSpotify()
         } else if appleMusicPlaying && spotifyPlaying {
-            print("🎵 Both apps claim to be playing - checking system media for priority")
+            // Debug log removed Both apps claim to be playing - checking system media for priority")
             // Both claim to be playing - use system media to determine which is actually active
             let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
             if let systemTitle = nowPlayingInfo?[MPMediaItemPropertyTitle] as? String, !systemTitle.isEmpty {
-                print("🎵 System media title: '\(systemTitle)'")
+                // Debug log removed System media title: '\(systemTitle)'")
                 // Try both apps and compare titles
                 
                 // Get Apple Music track info
@@ -3015,31 +2986,31 @@ struct MusicMediaController: View {
                 
                 // Compare which title matches system media better
                 if !appleMusicTitle.isEmpty && (systemTitle.contains(appleMusicTitle) || appleMusicTitle.contains(systemTitle)) {
-                    print("🎵 System media matches Apple Music better: '\(appleMusicTitle)' vs '\(spotifyTitle)'")
+                    // Debug log removed System media matches Apple Music better: '\(appleMusicTitle)' vs '\(spotifyTitle)'")
                     if !tryGetTrackFromAppleMusic() {
                         tryGetTrackFromSpotify()
                     }
                 } else if !spotifyTitle.isEmpty {
-                    print("🎵 Using Spotify track: '\(spotifyTitle)'")
+                    // Debug log removed Using Spotify track: '\(spotifyTitle)'")
                     // Spotify track is already set
                 } else {
-                    print("🎵 Both apps failed, using fallback")
+                    // Debug log removed Both apps failed, using fallback")
                     if !tryGetTrackFromAppleMusic() {
                         tryGetTrackFromSpotify()
                     }
                 }
             } else {
                 // No system media info, default to Apple Music since it was detected as playing
-                print("🎵 No system media info, defaulting to Apple Music")
+                // Debug log removed No system media info, defaulting to Apple Music")
                 if !tryGetTrackFromAppleMusic() {
                     tryGetTrackFromSpotify()
                 }
             }
         } else {
             // Neither is playing or both are paused - try Apple Music first (better for paused content)
-            print("🎵 Neither app is playing - trying Apple Music first for paused content")
+            // Debug log removed Neither app is playing - trying Apple Music first for paused content")
             if !tryGetTrackFromAppleMusic() {
-                print("🎵 Apple Music failed, trying Spotify for paused content")
+                // Debug log removed Apple Music failed, trying Spotify for paused content")
                 tryGetTrackFromSpotify()
             }
         }
@@ -3097,7 +3068,7 @@ struct MusicMediaController: View {
     }
     
     private func tryGetTrackFromAppleMusic() -> Bool {
-        print("🎵 === TRYING TO GET APPLE MUSIC TRACK INFO ===")
+        // Debug log removed === TRYING TO GET APPLE MUSIC TRACK INFO ===")
         
         let appleMusicScript = """
             tell application "Music"
@@ -3136,7 +3107,7 @@ struct MusicMediaController: View {
             let result = appleScript.executeAndReturnError(&error)
             
             if error == nil, let output = result.stringValue {
-                print("🎵 Apple Music AppleScript result: \(output)")
+                // Debug log removed Apple Music AppleScript result: \(output)")
                 
                 let components = output.components(separatedBy: "|")
                 if components.count >= 5 {
@@ -3147,17 +3118,17 @@ struct MusicMediaController: View {
                     let trackKind = components.count > 5 ? components[5] : "unknown"
                     let location = components.count > 6 ? components[6] : "no-location"
                     
-                    print("🎵 Track details:")
-                    print("🎵   Name: '\(trackName)'")
-                    print("🎵   Artist: '\(artist)'")
-                    print("🎵   Album: '\(album)'")
-                    print("🎵   State: '\(playerState)'")
-                    print("🎵   Kind: '\(trackKind)'")
-                    print("🎵   Location: '\(location)'")
+                    // Debug log removed Track details:")
+                    // Debug log removed   Name: '\(trackName)'")
+                    // Debug log removed   Artist: '\(artist)'")
+                    // Debug log removed   Album: '\(album)'")
+                    // Debug log removed   State: '\(playerState)'")
+                    // Debug log removed   Kind: '\(trackKind)'")
+                    // Debug log removed   Location: '\(location)'")
                     
                     // Handle empty or missing track info (common with iTunes Store previews)
                     if trackName.isEmpty || trackName == "Apple Music" {
-                        print("🎵 ⚠️ Empty track name detected - might be iTunes Store preview")
+                        // Debug log removed ⚠️ Empty track name detected - might be iTunes Store preview")
                         songTitle = "iTunes Store Preview"
                         artistName = "Apple Music"
                     } else {
@@ -3168,47 +3139,47 @@ struct MusicMediaController: View {
                     isPlaying = playerState.contains("playing")
                     currentMusicApp = .appleMusic
                     
-                    print("🎵 ✅ Final track info: '\(songTitle)' by '\(artistName)'")
+                    // Debug log removed ✅ Final track info: '\(songTitle)' by '\(artistName)'")
                     
                     // Get artwork from system media info for Apple Music
                     getAppleMusicArtwork()
                     
                     return true
                 } else {
-                    print("🎵 ❌ Invalid Apple Music response format: \(components.count) components")
+                    // Debug log removed ❌ Invalid Apple Music response format: \(components.count) components")
                 }
             } else {
-                print("🎵 ❌ Apple Music AppleScript error: \(error?.description ?? "Unknown error")")
+                // Debug log removed ❌ Apple Music AppleScript error: \(error?.description ?? "Unknown error")")
             }
         } else {
-            print("🎵 ❌ Failed to create Apple Music AppleScript")
+            // Debug log removed ❌ Failed to create Apple Music AppleScript")
         }
         return false
     }
     
     private func getAppleMusicArtwork() {
-        print("🎵 === GETTING APPLE MUSIC ARTWORK ===")
+        // Debug log removed === GETTING APPLE MUSIC ARTWORK ===")
         
         // Try to get artwork from MPNowPlayingInfoCenter
         if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
-            print("🎵 System media info available")
+            // Debug log removed System media info available")
             
             // Log all available media info for debugging
             for (key, value) in nowPlayingInfo {
-                print("🎵 Media info - \(key): \(value)")
+                // Debug log removed Media info - \(key): \(value)")
             }
             
             // Check if we have track title/artist from system media (might be more accurate for iTunes Store)
             if let systemTitle = nowPlayingInfo[MPMediaItemPropertyTitle] as? String,
                let systemArtist = nowPlayingInfo[MPMediaItemPropertyArtist] as? String,
                !systemTitle.isEmpty, !systemArtist.isEmpty {
-                print("🎵 Found better track info from system media:")
-                print("🎵   System Title: '\(systemTitle)'")
-                print("🎵   System Artist: '\(systemArtist)'")
+                // Debug log removed Found better track info from system media:")
+                // Debug log removed   System Title: '\(systemTitle)'")
+                // Debug log removed   System Artist: '\(systemArtist)'")
                 
                 // Use system media info if it's more complete than AppleScript result
                 if songTitle == "iTunes Store Preview" || songTitle == "Apple Music" || songTitle.isEmpty {
-                    print("🎵 ✅ Using system media info instead of AppleScript")
+                    // Debug log removed ✅ Using system media info instead of AppleScript")
                     DispatchQueue.main.async {
                         self.songTitle = systemTitle
                         self.artistName = systemArtist
@@ -3220,18 +3191,18 @@ struct MusicMediaController: View {
                 let artworkImage = artwork.image(at: CGSize(width: 300, height: 300))
                 DispatchQueue.main.async {
                     self.albumArtwork = artworkImage
-                    print("🎵 ✅ Successfully got Apple Music artwork from system media info")
+                    // Debug log removed ✅ Successfully got Apple Music artwork from system media info")
                 }
                 return
             } else {
-                print("🎵 ❌ No artwork available in system media info")
+                // Debug log removed ❌ No artwork available in system media info")
             }
         } else {
-            print("🎵 ❌ No system media info available")
+            // Debug log removed ❌ No system media info available")
         }
         
         // If no artwork found, use the app-specific fallback (which is now handled in the UI)
-        print("🎵 Using app-specific fallback artwork")
+        // Debug log removed Using app-specific fallback artwork")
         DispatchQueue.main.async {
             self.albumArtwork = nil
         }
@@ -3270,7 +3241,7 @@ struct MusicMediaController: View {
                     currentMusicApp = .spotify
                     
                     // Track info retrieved successfully
-                    print("🎵 Got Spotify track: \(songTitle) by \(artistName)")
+                    // Debug log removed Got Spotify track: \(songTitle) by \(artistName)")
                     
                     // Download album artwork from URL
                     if !artworkURLString.isEmpty && artworkURLString != "missing value" {
@@ -3282,7 +3253,7 @@ struct MusicMediaController: View {
                     artistName = "Unknown Artist"
                 }
             } else {
-                print("🎵 AppleScript error: \(error?.description ?? "Unknown error")")
+                // Debug log removed AppleScript error: \(error?.description ?? "Unknown error")")
                 // Try alternative method using System Events
                 getTrackInfoFromSystemEvents()
             }
@@ -3301,7 +3272,7 @@ struct MusicMediaController: View {
                     }
                 }
             } catch {
-                print("🎵 Failed to download artwork: \(error.localizedDescription)")
+                // Debug log removed Failed to download artwork: \(error.localizedDescription)")
                 // Try to get artwork from macOS Now Playing if download fails
                 DispatchQueue.main.async {
                     self.getArtworkFromNowPlaying()
@@ -3355,7 +3326,7 @@ struct MusicMediaController: View {
             var error: NSDictionary?
             appleScript.executeAndReturnError(&error)
             if let error = error {
-                print("🎵 AppleScript error: \(error)")
+                // Debug log removed AppleScript error: \(error)")
             }
         }
     }
