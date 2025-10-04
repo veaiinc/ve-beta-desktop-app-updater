@@ -640,6 +640,9 @@ const OverlayApp = () => {
 			// Open live intelligence panel and start recording automatically
 			setActivePanel('live-intelligence');
 
+			// Ensure overlay window is visible for proper Ask AI positioning
+			window?.electronApi?.overlay?.showOverlayWindow();
+
 			// Mark current threads as seen when opening live intelligence
 			const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
 			setLastSeenThreadCount(currentThreadCount);
@@ -661,6 +664,9 @@ const OverlayApp = () => {
 
 		// Always open live intelligence panel when triggered from Dynamic Island
 		setActivePanel('live-intelligence');
+
+		// Ensure overlay window is visible for proper Ask AI positioning
+		window?.electronApi?.overlay?.showOverlayWindow();
 
 		// Mark current threads as seen when opening live intelligence via Dynamic Island
 		const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
@@ -795,7 +801,7 @@ const OverlayApp = () => {
 		<div
 			ref={containerRef}
 			className="overlay-app"
-			// style={{ backgroundColor: 'red', width: '400px', height: '500px',display:"block" }}
+		// style={{ backgroundColor: 'red', width: '400px', height: '500px',display:"block" }}
 		>
 			{/* {meetingData && <MeetingBody meetingData={meetingData} />} */}
 
@@ -810,8 +816,8 @@ const OverlayApp = () => {
 						onStopRecording={handleStopTranscription}
 						// onPauseRecording={handlePauseTranscription}
 						// onResumeRecording={handleResumeTranscription}
-						onPauseRecording={() => {}}
-						onResumeRecording={() => {}}
+						onPauseRecording={() => { }}
+						onResumeRecording={() => { }}
 						isPaused={isMuted}
 						isAskAIInputFocused={isAskAIInputFocused}
 					/>

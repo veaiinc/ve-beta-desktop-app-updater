@@ -3188,11 +3188,18 @@ app.whenReady().then(async () => {
 	// Send chat message from Dynamic Island to Ask AI handler
 	ipcMain.handle('send-chat-message-to-askai', async (event, chatMessage) => {
 		try {
+			log.info('🎯 IPC: send-chat-message-to-askai called');
+
 			// Get the Ask AI window through windowHelper
 			let askAIWindow = windowHelper.getAskAIWindow();
 
 			// If Ask AI window doesn't exist or is destroyed, create it
 			if (!askAIWindow || askAIWindow.isDestroyed()) {
+				log.info('🎯 IPC: Creating Ask AI window...');
+				log.info(`🎯 IPC: Overlay window exists: ${!!windowHelper.overlayWindow}`);
+				log.info(
+					`🎯 IPC: Overlay window visible: ${windowHelper.overlayWindow?.isVisible()}`,
+				);
 				windowHelper.createAskAIWindow();
 				askAIWindow = windowHelper.getAskAIWindow();
 			}
@@ -3200,17 +3207,25 @@ app.whenReady().then(async () => {
 			// Ensure window is visible
 			if (askAIWindow && !askAIWindow.isDestroyed()) {
 				if (!askAIWindow.isVisible()) {
+					log.info('🎯 IPC: Showing Ask AI window...');
 					windowHelper.showAskAIWindow();
+				} else {
+					log.info('🎯 IPC: Ask AI window already visible');
 				}
 
 				// Wait for window to be fully ready before sending message
+				log.info('🎯 IPC: Waiting for Ask AI window to be ready...');
 				await new Promise((resolve, reject) => {
 					const timeout = setTimeout(() => {
+						log.error('🎯 IPC: Window ready timeout after 3 seconds');
 						reject(new Error('Window ready timeout'));
 					}, 3000); // 3 second timeout
 
 					const checkWindowReady = () => {
-						if (windowHelper.isAskAIWindowReady()) {
+						const isReady = windowHelper.isAskAIWindowReady();
+						log.info(`🎯 IPC: Window ready check: ${isReady}`);
+						if (isReady) {
+							log.info('🎯 IPC: Window is ready!');
 							clearTimeout(timeout);
 							resolve();
 						} else {
@@ -4217,6 +4232,19 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error toggling overlay window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('show-overlay-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.showOverlayWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing overlay window:', error);
 			return { success: false, error: error.message };
 		}
 	});
