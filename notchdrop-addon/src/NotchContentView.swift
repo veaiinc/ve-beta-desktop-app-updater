@@ -67,6 +67,7 @@ struct MeetingCompactChatBox: View {
 // MARK: - Start Meeting Card
 struct StartMeetingCard: View {
     let vm: NotchViewModel
+    @State private var isHovered: Bool = false
 
     var body: some View {
         GeometryReader { geo in
@@ -78,10 +79,10 @@ struct StartMeetingCard: View {
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: corner, style: .continuous)
-                    .fill(Color.white.opacity(0.04))
+                    .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.15) : Color.white.opacity(0.04))
                     .overlay(
                         RoundedRectangle(cornerRadius: corner, style: .continuous)
-                            .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                            .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.white.opacity(0.12), lineWidth: 0.8)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -100,6 +101,11 @@ struct StartMeetingCard: View {
             }
             .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
             .onTapGesture { vm.startRecording() }
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isHovered = hovering
+                }
+            }
         }
         // Ensure the reader honors parent frame
         .clipped()
@@ -114,6 +120,15 @@ struct DynamicIslandContentView: View {
     @State private var textEditorHeight: CGFloat = 100 // Fixed height for textarea with scroll
     @State private var receivedMessage: String = "" // Track received messages from Electron
     @State private var cancellables = Set<AnyCancellable>()
+    
+    // Hover states for right side icons
+    @State private var isVEIconHovered: Bool = false
+    @State private var isStealthIconHovered: Bool = false
+    @State private var isLockIconHovered: Bool = false
+    
+    // Hover states for left side buttons
+    @State private var isHomeButtonHovered: Bool = false
+    @State private var isMeetingButtonHovered: Bool = false
     
     var body: some View {
         VStack(spacing: 3.0) {
@@ -190,10 +205,24 @@ struct DynamicIslandContentView: View {
                                     .padding(.vertical, 6)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                            .fill(vm.isTeamsView ? 
+                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear) :
+                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                            )
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isHomeButtonHovered = hovering && vm.isTeamsView
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Home button is now active, reset hover state
+                                        isHomeButtonHovered = false
+                                    }
+                                }
 
                                 // Teams pill (sets Teams view)
                                 Button(action: {
@@ -208,10 +237,24 @@ struct DynamicIslandContentView: View {
                                     .padding(.vertical, 8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.clear)
+                                            .fill(vm.isTeamsView ? 
+                                                (isMeetingButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                                (isMeetingButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isMeetingButtonHovered = hovering && !vm.isTeamsView
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if newValue {
+                                        // Meeting AI button is now active, reset hover state
+                                        isMeetingButtonHovered = false
+                                    }
+                                }
                                 // Removed desktop and VE icons per request
                             } else if vm.showVoiceInterface {
                                 // Voice controls (mute/unmute and cancel buttons)
@@ -360,6 +403,10 @@ struct DynamicIslandContentView: View {
                                 VEIcon(color: .white)
                                     .frame(width: 16, height: 16)
                                     .padding(8) // Increased padding for larger clickable area
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
+                                    )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                             .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
@@ -368,6 +415,11 @@ struct DynamicIslandContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help("Open Ve App")
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isVEIconHovered = hovering
+                                }
+                            }
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
@@ -386,6 +438,10 @@ struct DynamicIslandContentView: View {
                                 }
                                 .frame(width: 16, height: 16)
                                 .padding(8) // Increased padding for larger clickable area
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(isStealthIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                         .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
@@ -394,19 +450,34 @@ struct DynamicIslandContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isStealthIconHovered = hovering
+                                }
+                            }
                             
                             // Information icon (third icon) with popup menu
                             // InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
                             
                             // Lock/Unlock button (fourth icon)
                             Button(action: {
+                                print("🔒 Lock button clicked - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
                                 vm.toggleNotchLock()
+                                
+                                // Force state validation after toggle
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    vm.forceLockStateRefresh()
+                                }
                             }) {
                                 Image(systemName: vm.isNotchLocked ? "lock.fill" : "lock.open.fill")
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen : .white)
                                     .frame(width: 16, height: 16)
                                     .padding(8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(isLockIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.1) : Color.clear)
+                                    )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
@@ -415,6 +486,23 @@ struct DynamicIslandContentView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
+                            .onAppear {
+                                print("🔒 Lock button appeared - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
+                                // Validate state on appearance
+                                vm.forceLockStateRefresh()
+                            }
+                            .onChange(of: vm.isNotchLocked) { newValue in
+                                print("🔒 Lock state changed in UI: \(newValue ? "LOCKED" : "UNLOCKED")")
+                                // Force UI refresh when state changes
+                                DispatchQueue.main.async {
+                                    vm.objectWillChange.send()
+                                }
+                            }
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isLockIconHovered = hovering
+                                }
+                            }
                         }
                     }
                     
@@ -687,7 +775,9 @@ struct DynamicIslandContentView: View {
         // Extract video ID from YouTube URL
         let patterns = [
             "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
-            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
         ]
         
         var videoId: String?
@@ -703,8 +793,23 @@ struct DynamicIslandContentView: View {
         
         guard let id = videoId else { return "" }
         
-        // Return YouTube embed URL with autoplay and minimal UI
-        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=0&disablekb=1"
+        // RADICAL FIX: Use nocookie domain and minimal parameters to bypass Error 153
+        // This approach uses YouTube's nocookie domain which has fewer restrictions
+        return "https://www.youtube-nocookie.com/embed/\(id)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1"
+    }
+    
+    /// Creates alternative embed URLs for fallback if Error 153 occurs
+    private func createAlternativeEmbedURLs(videoId: String) -> [String] {
+        return [
+            // Primary: nocookie domain
+            "https://www.youtube-nocookie.com/embed/\(videoId)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1",
+            // Fallback 1: Standard domain with minimal params
+            "https://www.youtube.com/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            // Fallback 2: No autoplay
+            "https://www.youtube-nocookie.com/embed/\(videoId)?controls=1&rel=0",
+            // Fallback 3: Absolute minimal
+            "https://www.youtube.com/embed/\(videoId)"
+        ]
     }
     
     private func extractYouTubeThumbnail(from url: String) {
@@ -1571,9 +1676,11 @@ struct WebcamButton: View {
                 if !vm.showCameraPreview {
                     Circle()
                         .fill(DynamicIslandTheme.cardMaterial)
+                        .background(
+                            Circle()
+                                .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                        )
                         .frame(width: 90, height: 90)
-                        .scaleEffect(isHovered ? 1.05 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                 }
                 
                 // Content based on camera state
@@ -1593,6 +1700,10 @@ struct WebcamButton: View {
                         // Background circle for camera preview
                         Circle()
                             .fill(DynamicIslandTheme.cardMaterial)
+                            .background(
+                                Circle()
+                                    .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                            )
                             .frame(width: 90, height: 90)
                         
                         // Camera preview
@@ -1600,8 +1711,6 @@ struct WebcamButton: View {
                             .frame(width: 90, height: 90)
                             .clipShape(Circle())
                     }
-                    .scaleEffect(isHovered ? 1.05 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                 } else if vm.cameraPermission == "denied" || vm.cameraPermission == "restricted" {
                     // Permission denied state
                     VStack(spacing: 4) {
@@ -1617,19 +1726,24 @@ struct WebcamButton: View {
                     // Default state - frosted circular button with icon and label
                     ZStack {
                         Circle()
-                            .fill(Color.white.opacity(0.05)) // background: rgba(255, 255, 255, 0.05)
+                            .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.white.opacity(0.05)) // background: rgba(255, 255, 255, 0.05)
                             .frame(width: 100, height: 100)
                             .background(.ultraThinMaterial) // backdrop-filter: blur(15px)
                             .overlay(
                                 Circle()
-                                    .stroke(Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
+                                    .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
                             )
                             .overlay(
                                 // Inner shadow effect using gradient
                                 Circle()
                                     .stroke(
                                         LinearGradient(
-                                            colors: [
+                                            colors: isHovered ? [
+                                                DynamicIslandTheme.primaryGreen.opacity(0.30),
+                                                DynamicIslandTheme.primaryGreen.opacity(0.15),
+                                                DynamicIslandTheme.primaryGreen.opacity(0.05),
+                                                Color.clear
+                                            ] : [
                                                 Color.white.opacity(0.30),
                                                 Color.white.opacity(0.15),
                                                 Color.white.opacity(0.05),
@@ -2186,7 +2300,7 @@ struct SpotifyMediaController: View {
        
         .onAppear {
             updateCurrentTrackInfo()
-                }
+        }
             }
         }
     }
@@ -2417,24 +2531,36 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         
-        // Configure for video playback with sound
+        // RADICAL FIX: Minimal configuration to avoid YouTube restrictions
         configuration.allowsAirPlayForMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
+        configuration.preferences.isElementFullscreenEnabled = true
         
-        // Set user agent to avoid mobile YouTube version
-        configuration.applicationNameForUserAgent = "Version/14.1.2 Safari/605.1.15"
+        // Use a simple, clean user agent that YouTube accepts
+        configuration.applicationNameForUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
         
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
+        webView.uiDelegate = context.coordinator
         
-        // Allow sound playback
+        // Minimal settings to avoid restrictions
         webView.allowsMagnification = false
         webView.allowsBackForwardNavigationGestures = false
+        webView.allowsLinkPreview = false
+        webView.customUserAgent = configuration.applicationNameForUserAgent
         
-        // Load the YouTube embed URL
+        // Load the YouTube embed URL with minimal headers
         if let url = URL(string: embedURL) {
-            let request = URLRequest(url: url)
+            var request = URLRequest(url: url)
+            
+            // Minimal headers to avoid triggering restrictions
+            request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
+            
+            print("📺 Loading YouTube embed URL (nocookie): \(embedURL)")
             webView.load(request)
+        } else {
+            print("📺 ❌ Failed to create URL from embed URL: \(embedURL)")
         }
         
         return webView
@@ -2454,47 +2580,13 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         Coordinator()
     }
     
-    class Coordinator: NSObject, WKNavigationDelegate {
+    class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Wait a moment for the video to load, then unmute it
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                // Unmute the video and ensure it's playing with sound
-                let unmuteScript = """
-                    // Find the video element and unmute it
-                    var video = document.querySelector('video');
-                    if (video) {
-                        video.muted = false;
-                        video.volume = 0.7; // Set to 70% volume
-                        
-                        // Try to play with sound
-                        video.play().then(() => {
-                            console.log('Video playing with sound');
-                        }).catch(e => {
-                            console.log('Autoplay failed, user interaction required');
-                        });
-                    }
-                    
-                    // Also try YouTube player API if available
-                    if (typeof YT !== 'undefined' && YT.Player) {
-                        var iframe = document.querySelector('iframe');
-                        if (iframe) {
-                            try {
-                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
-                                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[70]}', '*');
-                            } catch(e) {
-                                console.log('YouTube API not available');
-                            }
-                        }
-                    }
-                """
-                
-                webView.evaluateJavaScript(unmuteScript) { result, error in
-                    if let error = error {
-                        print("📺 Error unmuting video: \(error)")
-                    } else {
-                        print("📺 Video unmuted successfully")
-                    }
-                }
+            print("📺 YouTube video page loaded successfully")
+            
+            // Wait a moment for the video to load, then configure it for production
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.configureVideoPlayer(webView: webView)
             }
             
             // Inject CSS to hide unnecessary YouTube UI elements
@@ -2507,11 +2599,125 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     .ytp-watermark { 
                         display: none !important; 
                     }
+                    .ytp-chrome-top { 
+                        display: none !important; 
+                    }
+                    .ytp-show-cards-title { 
+                        display: none !important; 
+                    }
                 `;
                 document.head.appendChild(style);
             """
             
-            webView.evaluateJavaScript(css, completionHandler: nil)
+            webView.evaluateJavaScript(css) { result, error in
+                if let error = error {
+                    print("📺 Error injecting CSS: \(error)")
+                } else {
+                    print("📺 CSS injected successfully")
+                }
+            }
+        }
+        
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            print("📺 YouTube video failed to load: \(error.localizedDescription)")
+            
+            // Try to load a fallback or show error message
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.handleVideoLoadError(webView: webView, error: error)
+            }
+        }
+        
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            print("📺 YouTube video provisional navigation failed: \(error.localizedDescription)")
+        }
+        
+        private func configureVideoPlayer(webView: WKWebView) {
+            // RADICAL FIX: Multi-level Error 153 detection and recovery
+            let configureScript = """
+                (function() {
+                    console.log('📺 Checking for Error 153...');
+                    
+                    // Check for Error 153 specifically
+                    setTimeout(() => {
+                        var errorText = document.body.innerText.toLowerCase();
+                        if (errorText.includes('error 153') || errorText.includes('video player configuration error')) {
+                            console.log('📺 Error 153 detected! Attempting multiple recovery methods...');
+                            
+                            var iframe = document.querySelector('iframe');
+                            if (iframe && iframe.src.includes('youtube')) {
+                                var videoId = iframe.src.match(/embed\\/([a-zA-Z0-9_-]{11})/);
+                                if (videoId && videoId[1]) {
+                                    var fallbackUrls = [
+                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
+                                        'https://www.youtube.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?controls=1&rel=0',
+                                        'https://www.youtube.com/embed/' + videoId[1]
+                                    ];
+                                    
+                                    // Try each fallback URL
+                                    var currentIndex = 0;
+                                    function tryNextFallback() {
+                                        if (currentIndex < fallbackUrls.length) {
+                                            console.log('📺 Trying fallback URL ' + (currentIndex + 1) + ':', fallbackUrls[currentIndex]);
+                                            iframe.src = fallbackUrls[currentIndex];
+                                            currentIndex++;
+                                            
+                                            // Check if this one worked after 3 seconds
+                                            setTimeout(() => {
+                                                var newErrorText = document.body.innerText.toLowerCase();
+                                                if (newErrorText.includes('error 153') || newErrorText.includes('video player configuration error')) {
+                                                    console.log('📺 Fallback ' + currentIndex + ' failed, trying next...');
+                                                    tryNextFallback();
+                                                } else {
+                                                    console.log('📺 Fallback ' + currentIndex + ' succeeded!');
+                                                }
+                                            }, 3000);
+                                        } else {
+                                            console.log('📺 All fallback URLs failed');
+                                        }
+                                    }
+                                    
+                                    tryNextFallback();
+                                }
+                            }
+                        } else {
+                            console.log('📺 No Error 153 detected - video should work');
+                        }
+                    }, 2000);
+                })();
+            """
+            
+            webView.evaluateJavaScript(configureScript) { result, error in
+                if let error = error {
+                    print("📺 Error in configure script: \(error)")
+                } else {
+                    print("📺 Error 153 multi-fallback detection script executed")
+                }
+            }
+        }
+        
+        private func handleVideoLoadError(webView: WKWebView, error: Error) {
+            let errorScript = """
+                (function() {
+                    console.log('📺 Handling video load error...');
+                    
+                    // Try to show a user-friendly error message
+                    var errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; text-align: center; font-family: system-ui;';
+                    errorDiv.innerHTML = '<h3>Video Error</h3><p>Unable to load YouTube video</p><button onclick="location.reload()" style="background: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Retry</button>';
+                    
+                    document.body.appendChild(errorDiv);
+                    
+                    // Try to reload after 3 seconds
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                })();
+            """
+            
+            webView.evaluateJavaScript(errorScript) { result, error in
+                print("📺 Error handling script executed")
+            }
         }
     }
 }
