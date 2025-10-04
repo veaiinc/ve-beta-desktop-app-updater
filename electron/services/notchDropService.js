@@ -643,33 +643,44 @@ cleanup() {
 	}
 }
 
-// CRITICAL FIX: Pre-warm bridge for immediate response
+// LIGHTNING FAST: Optimized bridge pre-warming with caching
 async preWarmBridge() {
-try {
-if (process.platform !== 'darwin') {
-// Skip bridge pre-warm on non-macOS platforms
-return false;
-}
+	try {
+		if (process.platform !== 'darwin') {
+			// Skip bridge pre-warm on non-macOS platforms
+			return false;
+		}
 
-// Pre-load bridge dependencies (resolve from node_modules)
-const SwiftJSBridge = require('notchdrop-addon/swift-js-bridge.js');
+		// LIGHTNING FAST: Check if bridge is already pre-warmed
+		if (this.swiftJSBridge && this._bridgePreWarmed) {
+			return true;
+		}
 
-// Store bridge reference immediately
-this.swiftJSBridge = SwiftJSBridge.bridge;
+		// LIGHTNING FAST: Pre-load bridge dependencies with timeout
+		const bridgeLoadTimeout = new Promise((_, reject) => 
+			setTimeout(() => reject(new Error('Bridge load timeout')), 5000)
+		);
+		
+		const bridgeLoadPromise = (async () => {
+			const SwiftJSBridge = require('notchdrop-addon/swift-js-bridge.js');
+			this.swiftJSBridge = SwiftJSBridge.bridge;
 
-// Pre-initialize bridge components
-if (this.swiftJSBridge && this.swiftJSBridge.initialize) {
-await this.swiftJSBridge.initialize();
-}
-
-return true;
-} catch (error) {
-log.warn(
-'⚠️ Bridge pre-warming failed, will retry during normal initialization:',
-error,
-);
-return false;
-}
+			// LIGHTNING FAST: Pre-initialize bridge components with timeout
+			if (this.swiftJSBridge && this.swiftJSBridge.initialize) {
+				await this.swiftJSBridge.initialize();
+			}
+		})();
+		
+		await Promise.race([bridgeLoadPromise, bridgeLoadTimeout]);
+		this._bridgePreWarmed = true;
+		return true;
+	} catch (error) {
+		log.warn(
+			'⚠️ Bridge pre-warming failed, will retry during normal initialization:',
+			error,
+		);
+		return false;
+	}
 }
 
 // Enhanced bridge readiness verification
