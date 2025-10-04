@@ -51,4 +51,12 @@ class EventMonitors {
         }
         optionKeyPressEvent.start()
     }
+    
+    deinit {
+        // Proper cleanup to prevent memory leaks
+        mouseMoveEvent?.stop()
+        mouseDownEvent?.stop()
+        mouseDraggingFileEvent?.stop()
+        optionKeyPressEvent?.stop()
+    }
 }

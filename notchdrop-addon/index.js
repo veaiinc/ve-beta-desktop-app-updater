@@ -3,7 +3,6 @@ if (process.platform !== 'darwin') {
 	// Export a mock wrapper for non-macOS platforms
 	class MockNotchDropAddonWrapper {
 		constructor() {
-			console.log('ℹ️ NotchDrop addon skipped - not supported on', process.platform);
 		}
 
 		initialize() {
@@ -540,7 +539,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 				this.emit('voiceConnectionStateChanged', data);
 				break;
 			case 'startVoiceAgent':
-				console.log('🎤 NotchDrop: Received startVoiceAgent action');
 				this.emit('startVoiceAgent', data);
 				break;
 			case 'receiveMessage':
@@ -567,7 +565,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 				break;
 			// Wake Word Detection Actions
 			case 'wakeWordDetected':
-				console.log('🎯 NotchDrop: Wake word detected with score:', data);
 				this.emit('wakeWordDetected', parseFloat(data) || 0.0);
 				break;
 			default:
@@ -591,7 +588,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 	// Handle received messages from Electron
 	handleReceivedMessage(message) {
 		try {
-			console.log('📨 Message received from Electron:', message);
 			// Emit the received message event
 			this.emit('messageReceived', message);
 		} catch (error) {
@@ -605,7 +601,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 		// so it's left as a placeholder.
 		// In a real scenario, you would try to send the message
 		// to the overlay window via ipcRenderer or direct window communication.
-		console.log('Attempting to send log to overlay:', message);
 	}
 
 	// CRITICAL FIX: Enhanced overlay integration methods
@@ -784,9 +779,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 							window.webContents.send('overlay-command', {
 								action: 'toggleLiveIntelligence',
 							});
-							console.log(
-								'✅ Overlay toggle live intelligence command sent directly to window',
-							);
 							return;
 						}
 					}
@@ -829,7 +821,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 			return true;
 		}
 
-		console.log('⏳ Waiting for bridge to be ready...');
 		const startTime = Date.now();
 
 		while (!this.isBridgeReady() && Date.now() - startTime < timeoutMs) {
@@ -1049,7 +1040,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 		try {
 			this.addon.onOverlayStateChange(state);
-			console.log('📊 Overlay state sent to Swift side:', state);
 		} catch (error) {
 			console.error('❌ Error sending overlay state to Swift:', error);
 		}
@@ -1063,7 +1053,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 		try {
 			this.addon.configureVoice(url, token);
-			console.log('🎤 Voice configured with URL:', url);
 		} catch (error) {
 			console.error('❌ Error configuring voice:', error);
 			throw error;
