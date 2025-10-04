@@ -14,6 +14,7 @@ import upgradeCardImage from '../../../../assets/images/image.png';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import AmbientAiModal from '../../modalsV2/homePage/AmbientAiModal';
 
 const priorityClassMap = {
 	High: 'red',
@@ -140,7 +141,12 @@ const sortByInsightsOrder = (data, orderMap) => {
 
 const ProactiveCards = () => {
 	const {
-		templates: { aiSuggestedPendingActions, getAISuggestedPendingActions },
+		templates: {
+			aiSuggestedPendingActions,
+			getAISuggestedPendingActions,
+			pendingActionsUpdate,
+			updateStateValues,
+		},
 		profileInfo: { insightTypes, getAiInsightTypes },
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
@@ -164,6 +170,11 @@ const ProactiveCards = () => {
 		options: [],
 		selectedOption: '',
 		loading: false,
+		openModal: false,
+		activeCardContent: null,
+		currentIndex: 0,
+		selectedCardNumber: null,
+		trainedFeedbackIds: null,
 	});
 
 	const searchContainerRef = useRef(null);
@@ -657,6 +668,66 @@ const ProactiveCards = () => {
 		}));
 	};
 
+	const handleCardClick = useCallback(
+		async (card, index) => {
+			if (card?.id === 'upgradeCard') {
+				navigate('/settings/pricing');
+				return;
+			}
+
+			// Mark as read if it's not an onboarding card and not already read
+			if (!card?.read && info?.selectedOption !== 'onboarding') {
+				await pendingActionsUpdate(card?._id, { read: true });
+				const payload = { read: true };
+				const reset = false;
+				getAISuggestedPendingActions(payload, reset, 'update', card?._id);
+			}
+
+			setInfo((prev) => ({
+				...prev,
+				activeCardContent: card,
+				openModal: true,
+				currentIndex: index,
+				selectedCardNumber: index + 1,
+			}));
+		},
+		[info?.selectedOption, pendingActionsUpdate, getAISuggestedPendingActions, navigate],
+	);
+
+	const handleCloseModal = () => {
+		setInfo((prev) => ({
+			...prev,
+			openModal: false,
+			selectedCardNumber: null,
+		}));
+	};
+
+	const handleNextCard = useCallback(() => {
+		const currentIndex = info.currentIndex;
+		const totalCards = filteredActions.length;
+		const nextIndex = (currentIndex + 1) % totalCards;
+
+		setInfo((prev) => ({
+			...prev,
+			currentIndex: nextIndex,
+			activeCardContent: filteredActions[nextIndex],
+			selectedCardNumber: nextIndex + 1,
+		}));
+	}, [info.currentIndex, filteredActions]);
+
+	const handlePrevCard = useCallback(() => {
+		const currentIndex = info.currentIndex;
+		const totalCards = filteredActions.length;
+		const prevIndex = (currentIndex - 1 + totalCards) % totalCards;
+
+		setInfo((prev) => ({
+			...prev,
+			currentIndex: prevIndex,
+			activeCardContent: filteredActions[prevIndex],
+			selectedCardNumber: prevIndex + 1,
+		}));
+	}, [info.currentIndex, filteredActions]);
+
 	// Handle click outside search
 	useEffect(() => {
 		if (!info?.searchOpen) return;
@@ -672,406 +743,454 @@ const ProactiveCards = () => {
 		};
 	}, [info?.searchOpen]);
 	return (
-		<div style={{ marginTop: '100px', width: '100%', maxWidth: '868px' }}>
-			<div className={styles.proactiveCardTypes}>
-				<div className={styles.proactiveCardsLeft}>
-					{/* Options from ProactiveSuggestions */}
-					{info?.options?.length > 0 && (
-						<div className={styles.optionsWrapper}>
-							<div className={styles.optionsContainer}>
-								{info?.options?.map(({ count, insight_type }, index) => (
-									<div
-										className={`${styles.option} ${
-											info?.selectedOption === insight_type
-												? styles.active
-												: ''
-										}`}
-										onClick={() => handleOptionSelection(insight_type)}
-										key={index}
-									>
-										<div className={styles.optionLabel}>
-											{info?.selectedOption === insight_type && (
-												<span className={styles.activeIndicator}></span>
-											)}
-											<span
-												className={`${styles.optionName} ${
-													info?.selectedOption === insight_type
-														? styles.active
-														: ''
-												}`}
-											>
-												{insight_type}
-											</span>
-											{info?.selectedOption === insight_type && (
-												<span className={styles.optionValue}>{count}</span>
-											)}
-										</div>
-									</div>
-								))}
-							</div>
-						</div>
-					)}
-				</div>
-				<div className={styles.proactiveCardsRight}>
-					{/* Search and Filter Controls */}
-					<div className={styles.searchAndFilterContainer}>
-						{info?.selectedFilters?.length > 0 && (
-							<div className={styles.selectedFilters}>
-								Filters : {`${info?.selectedFilters?.[0]?.title}`}
-								{info?.selectedFilters?.length > 1 && (
-									<span className={styles.filterCount}>
-										+{info?.selectedFilters?.length - 1}
-									</span>
-								)}
-								<button
-									className={styles.removeFilterBtn}
-									onClick={() => removeFilter(0)}
-									aria-label="Remove filter"
-								>
-									<CloseSvg />
-								</button>
-							</div>
-						)}
-						{/* Search Bar */}
-						<div className={styles.searchMainContainer} ref={searchContainerRef}>
-							<button
-								className={`${styles.searchBtn} ${
-									info?.searchOpen ? styles.expanded : ''
-								}`}
-								onClick={handleSearchToggle}
-								aria-label="Toggle search"
-							>
-								<SearchSvg stroke="var(--secondary-font)" />
-							</button>
-							<div
-								className={`${styles.searchWrapper} ${
-									info?.searchOpen ? styles.expanded : ''
-								}`}
-							>
-								<input
-									className={styles.searchInput}
-									placeholder="Search"
-									onChange={handleSearchQueryChange}
-									ref={searchInputRef}
-									value={info.searchQuery}
-								/>
-								{info?.searchLoading && (
-									<Spinner
-										color="var(--primary-button)"
-										borderWidth={2}
-										width="30px"
-										height="30px"
-									/>
-								)}
-								{info?.searchOpen && (
-									<button
-										className={styles.closeBtn}
-										onClick={handleSearchToggle}
-										aria-label="Close search"
-									>
-										<CloseSearchbarIcon />
-									</button>
-								)}
-							</div>
-						</div>
-
-						{/* Filter Button */}
-						<Tooltip
-							open={info?.openFilter}
-							onOpenChange={() =>
-								setInfo((prev) => ({
-									...prev,
-									openFilter: false,
-								}))
-							}
-							placement="top"
-							title={
-								<div className={styles.filterContainer}>
-									<div className={styles.filterItems}>
-										{filterGroups?.map((group, idx) => (
-											<div key={group?.title} style={{ width: '100%' }}>
-												<div className={styles.filterItem}>
-													<div className={styles.filterItemTitle}>
-														{group?.title || ''}
-													</div>
-													<div className={styles.filterItemOptions}>
-														{group?.options?.map((item) => {
-															const itemWithGroup = {
-																...item,
-																group: group?.title,
-															};
-
-															const isSelected =
-																info?.selectedFilters?.some(
-																	(option) =>
-																		option?.title ===
-																			itemWithGroup?.title &&
-																		option?.group ===
-																			itemWithGroup?.group,
-																);
-															return (
-																<div
-																	key={item?.id}
-																	className={styles.eachOption}
-																	onClick={() =>
-																		handleFilterClick(
-																			itemWithGroup,
-																			group?.title,
-																		)
-																	}
-																>
-																	{group?.title ===
-																		'Priority Level' && (
-																		<div
-																			className={
-																				styles.indicator
-																			}
-																			style={{
-																				backgroundColor:
-																					item?.bgColor ||
-																					'',
-																			}}
-																		></div>
-																	)}
-																	<div
-																		className={
-																			styles.optionText
-																		}
-																	>
-																		<span
-																			className={
-																				styles.optionTextContent
-																			}
-																		>
-																			{item?.title || ''}
-																		</span>
-																		{isSelected && (
-																			<TickIcon
-																				style={{
-																					marginLeft:
-																						'8px',
-																				}}
-																			/>
-																		)}
-																	</div>
-																</div>
-															);
-														})}
-													</div>
-												</div>
-												{idx < filterGroups?.length - 1 && (
-													<hr
-														style={{
-															width: '100%',
-															height: '1px',
-															backgroundColor: 'var(--stroke)',
-															border: 'none',
-															marginTop: '10px',
-														}}
-													/>
+		<>
+			<div style={{ marginTop: '100px', width: '100%', maxWidth: '868px' }}>
+				<div className={styles.proactiveCardTypes}>
+					<div className={styles.proactiveCardsLeft}>
+						{/* Options from ProactiveSuggestions */}
+						{info?.options?.length > 0 && (
+							<div className={styles.optionsWrapper}>
+								<div className={styles.optionsContainer}>
+									{info?.options?.map(({ count, insight_type }, index) => (
+										<div
+											className={`${styles.option} ${
+												info?.selectedOption === insight_type
+													? styles.active
+													: ''
+											}`}
+											onClick={() => handleOptionSelection(insight_type)}
+											key={index}
+										>
+											<div className={styles.optionLabel}>
+												{info?.selectedOption === insight_type && (
+													<span className={styles.activeIndicator}></span>
+												)}
+												<span
+													className={`${styles.optionName} ${
+														info?.selectedOption === insight_type
+															? styles.active
+															: ''
+													}`}
+												>
+													{insight_type}
+												</span>
+												{info?.selectedOption === insight_type && (
+													<span className={styles.optionValue}>
+														{count}
+													</span>
 												)}
 											</div>
-										))}
-									</div>
+										</div>
+									))}
 								</div>
-							}
-							color="transparent"
-							trigger="click"
-							style={{
-								cursor: 'pointer',
-								userSelect: 'none',
-							}}
-						>
-							<button
-								className={`${styles.filterBtn} ${
-									info.openFilter ? styles.active : ''
-								}`}
-								onClick={(e) => {
-									e.stopPropagation();
-									e.preventDefault();
-									if (info.openFilter) return;
+							</div>
+						)}
+					</div>
+					<div className={styles.proactiveCardsRight}>
+						{/* Search and Filter Controls */}
+						<div className={styles.searchAndFilterContainer}>
+							{info?.selectedFilters?.length > 0 && (
+								<div className={styles.selectedFilters}>
+									Filters : {`${info?.selectedFilters?.[0]?.title}`}
+									{info?.selectedFilters?.length > 1 && (
+										<span className={styles.filterCount}>
+											+{info?.selectedFilters?.length - 1}
+										</span>
+									)}
+									<button
+										className={styles.removeFilterBtn}
+										onClick={() => removeFilter(0)}
+										aria-label="Remove filter"
+									>
+										<CloseSvg />
+									</button>
+								</div>
+							)}
+							{/* Search Bar */}
+							<div className={styles.searchMainContainer} ref={searchContainerRef}>
+								<button
+									className={`${styles.searchBtn} ${
+										info?.searchOpen ? styles.expanded : ''
+									}`}
+									onClick={handleSearchToggle}
+									aria-label="Toggle search"
+								>
+									<SearchSvg stroke="var(--secondary-font)" />
+								</button>
+								<div
+									className={`${styles.searchWrapper} ${
+										info?.searchOpen ? styles.expanded : ''
+									}`}
+								>
+									<input
+										className={styles.searchInput}
+										placeholder="Search"
+										onChange={handleSearchQueryChange}
+										ref={searchInputRef}
+										value={info.searchQuery}
+									/>
+									{info?.searchLoading && (
+										<Spinner
+											color="var(--primary-button)"
+											borderWidth={2}
+											width="30px"
+											height="30px"
+										/>
+									)}
+									{info?.searchOpen && (
+										<button
+											className={styles.closeBtn}
+											onClick={handleSearchToggle}
+											aria-label="Close search"
+										>
+											<CloseSearchbarIcon />
+										</button>
+									)}
+								</div>
+							</div>
+
+							{/* Filter Button */}
+							<Tooltip
+								open={info?.openFilter}
+								onOpenChange={() =>
 									setInfo((prev) => ({
 										...prev,
-										openFilter: true,
-									}));
-								}}
-								data-tooltip="Filter"
-							>
-								<FilterIcon stroke="var(--secondary-font)" />
-							</button>
-						</Tooltip>
+										openFilter: false,
+									}))
+								}
+								placement="top"
+								title={
+									<div className={styles.filterContainer}>
+										<div className={styles.filterItems}>
+											{filterGroups?.map((group, idx) => (
+												<div key={group?.title} style={{ width: '100%' }}>
+													<div className={styles.filterItem}>
+														<div className={styles.filterItemTitle}>
+															{group?.title || ''}
+														</div>
+														<div className={styles.filterItemOptions}>
+															{group?.options?.map((item) => {
+																const itemWithGroup = {
+																	...item,
+																	group: group?.title,
+																};
 
-						{/* Selected Filters Display */}
+																const isSelected =
+																	info?.selectedFilters?.some(
+																		(option) =>
+																			option?.title ===
+																				itemWithGroup?.title &&
+																			option?.group ===
+																				itemWithGroup?.group,
+																	);
+																return (
+																	<div
+																		key={item?.id}
+																		className={
+																			styles.eachOption
+																		}
+																		onClick={() =>
+																			handleFilterClick(
+																				itemWithGroup,
+																				group?.title,
+																			)
+																		}
+																	>
+																		{group?.title ===
+																			'Priority Level' && (
+																			<div
+																				className={
+																					styles.indicator
+																				}
+																				style={{
+																					backgroundColor:
+																						item?.bgColor ||
+																						'',
+																				}}
+																			></div>
+																		)}
+																		<div
+																			className={
+																				styles.optionText
+																			}
+																		>
+																			<span
+																				className={
+																					styles.optionTextContent
+																				}
+																			>
+																				{item?.title || ''}
+																			</span>
+																			{isSelected && (
+																				<TickIcon
+																					style={{
+																						marginLeft:
+																							'8px',
+																					}}
+																				/>
+																			)}
+																		</div>
+																	</div>
+																);
+															})}
+														</div>
+													</div>
+													{idx < filterGroups?.length - 1 && (
+														<hr
+															style={{
+																width: '100%',
+																height: '1px',
+																backgroundColor: 'var(--stroke)',
+																border: 'none',
+																marginTop: '10px',
+															}}
+														/>
+													)}
+												</div>
+											))}
+										</div>
+									</div>
+								}
+								color="transparent"
+								trigger="click"
+								style={{
+									cursor: 'pointer',
+									userSelect: 'none',
+								}}
+							>
+								<button
+									className={`${styles.filterBtn} ${
+										info.openFilter ? styles.active : ''
+									}`}
+									onClick={(e) => {
+										e.stopPropagation();
+										e.preventDefault();
+										if (info.openFilter) return;
+										setInfo((prev) => ({
+											...prev,
+											openFilter: true,
+										}));
+									}}
+									data-tooltip="Filter"
+								>
+									<FilterIcon stroke="var(--secondary-font)" />
+								</button>
+							</Tooltip>
+
+							{/* Selected Filters Display */}
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div className={styles.proactiveCards} id="proactiveCardsContainer">
-				<InfiniteScroll
-					dataLength={filteredActions?.length || 0}
-					next={fetchMorePendingActions}
-					hasMore={aiSuggestedPendingActions?.metaInfo?.hasNextPage}
-					scrollableTarget="proactiveCardsContainer"
-				>
-					<div className={styles.proactiveCardsContainer}>
-						{info?.loading ? (
-							<div className={styles.loadingContainer}>
-								{skeletonLoaders.map((skeleton) => (
-									<Skeleton
-										height={175}
-										width={170}
-										style={{
-											'--highlight-color': 'gray',
-											'--base-color': 'transparent',
-										}}
-									/>
-								))}
-							</div>
-						) : filteredActions?.length === 0 ? (
-							<div className={styles.noData}>
-								{info?.selectedFilters?.length > 0 || info?.searchQuery
-									? 'No insights found for the selected filters'
-									: 'No insights found'}
-							</div>
-						) : (
-							filteredActions?.map((action, index) => {
-								// Handle onboarding cards differently
-								if (info?.selectedOption === 'onboarding') {
+				<div className={styles.proactiveCards} id="proactiveCardsContainer">
+					<InfiniteScroll
+						dataLength={filteredActions?.length || 0}
+						next={fetchMorePendingActions}
+						hasMore={aiSuggestedPendingActions?.metaInfo?.hasNextPage}
+						scrollableTarget="proactiveCardsContainer"
+					>
+						<div className={styles.proactiveCardsContainer}>
+							{info?.loading ? (
+								<div className={styles.loadingContainer}>
+									{skeletonLoaders.map((skeleton) => (
+										<Skeleton
+											height={175}
+											width={170}
+											style={{
+												'--highlight-color': 'gray',
+												'--base-color': 'transparent',
+											}}
+										/>
+									))}
+								</div>
+							) : filteredActions?.length === 0 ? (
+								<div className={styles.noData}>
+									{info?.selectedFilters?.length > 0 || info?.searchQuery
+										? 'No insights found for the selected filters'
+										: 'No insights found'}
+								</div>
+							) : (
+								filteredActions?.map((action, index) => {
+									// Handle onboarding cards differently
+									if (info?.selectedOption === 'onboarding') {
+										return (
+											<div
+												className={styles.proactiveCard}
+												key={action?.id || index}
+												onClick={() => handleCardClick(action, index)}
+												onMouseEnter={() =>
+													setInfo((prev) => ({
+														...prev,
+														hoverCard: action,
+													}))
+												}
+												onMouseLeave={() =>
+													setInfo((prev) => ({
+														...prev,
+														hoverCard: null,
+													}))
+												}
+												style={{ cursor: 'pointer' }}
+											>
+												{action?.type === 'upgrade' &&
+													action?.background && (
+														<div
+															style={{
+																position: 'absolute',
+																width: '100%',
+																height: '80px',
+																left: 0,
+																display: 'flex',
+																justifyContent: 'center',
+																alignItems: 'center',
+																color: 'var(--primary-font)',
+																fontSize: '14px',
+																fontWeight: '600',
+																lineHeight: 'normal',
+																fontFamily:
+																	'var(--primary-font-family)',
+															}}
+														>
+															<p
+																style={{
+																	color: 'rgba(242, 242, 243, 0.90)',
+																	fontFamily:
+																		'var(--primary-font-family)',
+																	fontSize: '19px',
+																	fontStyle: 'normal',
+																	fontWeight: '500',
+																	lineHeight: '22px',
+																	letterSpacing: '-0.76px',
+																	textAlign: 'center',
+																}}
+															>
+																Upgrade to{' '}
+																<span
+																	style={{
+																		color: 'var(--primary-button)',
+																	}}
+																>
+																	Pro Plan
+																</span>{' '}
+																to see Proactive Insights
+															</p>
+														</div>
+													)}
+												<div className={styles.proactiveCardTitle}>
+													{action?.title}
+												</div>
+												{action?.subTitle && (
+													<div className={styles.proactiveCardSubTitle}>
+														{action?.subTitle}
+													</div>
+												)}
+												<div className={styles.proactiveCardDescription}>
+													{action?.description}
+												</div>
+											</div>
+										);
+									}
+
+									// Handle regular action cards
 									return (
 										<div
 											className={styles.proactiveCard}
-											key={action?.id || index}
+											key={action?._id}
+											onClick={() => handleCardClick(action, index)}
 											onMouseEnter={() =>
 												setInfo((prev) => ({ ...prev, hoverCard: action }))
 											}
 											onMouseLeave={() =>
 												setInfo((prev) => ({ ...prev, hoverCard: null }))
 											}
+											style={{ cursor: 'pointer' }}
 										>
-											{action?.type === 'upgrade' && action?.background && (
-												<div
-													style={{
-														position: 'absolute',
-														width: '100%',
-														height: '80px',
-														left: 0,
-														display: 'flex',
-														justifyContent: 'center',
-														alignItems: 'center',
-														color: 'var(--primary-font)',
-														fontSize: '14px',
-														fontWeight: '600',
-														lineHeight: 'normal',
-														fontFamily: 'var(--primary-font-family)',
-													}}
-												>
-													<p
-														style={{
-															color: 'rgba(242, 242, 243, 0.90)',
-															fontFamily:
-																'var(--primary-font-family)',
-															fontSize: '19px',
-															fontStyle: 'normal',
-															fontWeight: '500',
-															lineHeight: '22px',
-															letterSpacing: '-0.76px',
-															textAlign: 'center',
-														}}
-													>
-														Upgrade to{' '}
-														<span
-															style={{
-																color: 'var(--primary-button)',
-															}}
-														>
-															Pro Plan
-														</span>{' '}
-														to see Proactive Insights
-													</p>
-												</div>
-											)}
 											<div className={styles.proactiveCardTitle}>
 												{action?.title}
 											</div>
-											{action?.subTitle && (
-												<div className={styles.proactiveCardSubTitle}>
-													{action?.subTitle}
-												</div>
-											)}
 											<div className={styles.proactiveCardDescription}>
 												{action?.description}
 											</div>
+											{info?.hoverCard?._id === action?._id && (
+												<div className={styles.proactiveCardHover}>
+													<div
+														className={
+															styles.proactiveCardHoverModuleType
+														}
+													>
+														{action?.moduleType === 'form_response'
+															? 'Form'
+															: action?.moduleType}
+													</div>
+													<div
+														className={
+															styles.proactiveCardHoverPriority
+														}
+													>
+														<span
+															className={
+																styles.proactiveCardHoverPriorityIndicator
+															}
+															style={{
+																backgroundColor:
+																	priorityClassMap[
+																		action?.priority
+																	],
+															}}
+														></span>
+														<span
+															className={
+																styles.proactiveCardHoverPriorityText
+															}
+														>
+															{action?.priority}
+														</span>
+														<span
+															className={
+																styles.proactiveCardHoverPrioritySeparator
+															}
+														></span>
+														<span
+															className={
+																styles.proactiveCardHoverPriorityUpdatedAt
+															}
+														>
+															{dayjs(
+																action?.updatedAt * 1000,
+															)?.fromNow()}
+														</span>
+													</div>
+												</div>
+											)}
 										</div>
 									);
-								}
-
-								// Handle regular action cards
-								return (
-									<div
-										className={styles.proactiveCard}
-										key={action?._id}
-										onMouseEnter={() =>
-											setInfo((prev) => ({ ...prev, hoverCard: action }))
-										}
-										onMouseLeave={() =>
-											setInfo((prev) => ({ ...prev, hoverCard: null }))
-										}
-									>
-										<div className={styles.proactiveCardTitle}>
-											{action?.title}
-										</div>
-										<div className={styles.proactiveCardDescription}>
-											{action?.description}
-										</div>
-										{info?.hoverCard?._id === action?._id && (
-											<div className={styles.proactiveCardHover}>
-												<div
-													className={styles.proactiveCardHoverModuleType}
-												>
-													{action?.moduleType === 'form_response'
-														? 'Form'
-														: action?.moduleType}
-												</div>
-												<div className={styles.proactiveCardHoverPriority}>
-													<span
-														className={
-															styles.proactiveCardHoverPriorityIndicator
-														}
-														style={{
-															backgroundColor:
-																priorityClassMap[action?.priority],
-														}}
-													></span>
-													<span
-														className={
-															styles.proactiveCardHoverPriorityText
-														}
-													>
-														{action?.priority}
-													</span>
-													<span
-														className={
-															styles.proactiveCardHoverPrioritySeparator
-														}
-													></span>
-													<span
-														className={
-															styles.proactiveCardHoverPriorityUpdatedAt
-														}
-													>
-														{dayjs(action?.updatedAt * 1000)?.fromNow()}
-													</span>
-												</div>
-											</div>
-										)}
-									</div>
-								);
-							})
-						)}
-					</div>
-				</InfiniteScroll>
+								})
+							)}
+						</div>
+					</InfiniteScroll>
+				</div>
 			</div>
-		</div>
+			<AmbientAiModal
+				open={info?.openModal}
+				onClose={handleCloseModal}
+				data={info?.activeCardContent}
+				onNextCardClick={handleNextCard}
+				onPrevCardClick={handlePrevCard}
+				totalDocs={aiSuggestedPendingActions?.metaInfo?.totalDocs}
+				selectedCardNumber={info?.selectedCardNumber}
+				selectedOption={info?.selectedOption}
+				trainedFeedbackIds={info?.trainedFeedbackIds}
+				setTrainedFeedbackIds={(submittedFeedbackId) =>
+					setInfo((prev) => ({
+						...prev,
+						trainedFeedbackIds: [
+							...(prev.trainedFeedbackIds || []),
+							submittedFeedbackId,
+						],
+					}))
+				}
+			/>
+		</>
 	);
 };
 
