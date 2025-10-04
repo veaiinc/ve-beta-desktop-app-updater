@@ -2307,7 +2307,7 @@ async function checkAllPermissions() {
 	}
 }
 
-// LIGHTNING FAST: Performance flags for maximum speed (with stability fixes)
+// LIGHTNING FAST: Performance flags for maximum speed
 app.commandLine.appendSwitch('--enable-gpu-rasterization');
 app.commandLine.appendSwitch('--enable-zero-copy');
 app.commandLine.appendSwitch('--disable-background-timer-throttling');
@@ -2319,10 +2319,6 @@ app.commandLine.appendSwitch('--max-active-webgl-contexts', '16');
 app.commandLine.appendSwitch('--enable-accelerated-2d-canvas');
 app.commandLine.appendSwitch('--enable-accelerated-mjpeg-decode');
 app.commandLine.appendSwitch('--enable-accelerated-video-decode');
-// Stability fixes for development
-app.commandLine.appendSwitch('--disable-gpu-sandbox');
-app.commandLine.appendSwitch('--disable-software-rasterizer');
-app.commandLine.appendSwitch('--disable-gpu-process-crash-limit');
 
 // App lifecycle
 app.whenReady().then(async () => {
@@ -2608,11 +2604,10 @@ app.whenReady().then(async () => {
 		return; // Exit early if window creation fails
 	}
 
-	// Remove duplicate handlers - they're registered later in the file
-	// ipcMain.handle('process-image-with-sharp', processImageWithSharp);
-	// ipcMain.handle('extract-image-metadata', extractImageMetadata);
-	// ipcMain.handle('download-album-zip', downloadAlbumZip);
-	// ipcMain.handle('create-zip-from-urls', createZipFromUrls);
+	ipcMain.handle('process-image-with-sharp', processImageWithSharp);
+	ipcMain.handle('extract-image-metadata', extractImageMetadata);
+	ipcMain.handle('download-album-zip', downloadAlbumZip);
+	ipcMain.handle('create-zip-from-urls', createZipFromUrls);
 
 	// Diagnostic IPC handler
 	ipcMain.handle('get-diagnostic-info', () => {
