@@ -173,6 +173,16 @@ class NotchViewModel: NSObject, ObservableObject {
     @PublishedPersist(key: "isNotchLocked", defaultValue: true)
     var isNotchLocked: Bool
     
+    // Video state persistence
+    @PublishedPersist(key: "savedVideoCurrentTime", defaultValue: 0.0)
+    var savedVideoCurrentTime: Double
+    
+    @PublishedPersist(key: "savedVideoDuration", defaultValue: 0.0)
+    var savedVideoDuration: Double
+    
+    @PublishedPersist(key: "savedVideoIsPlaying", defaultValue: false)
+    var savedVideoIsPlaying: Bool
+    
     // Browser permission state for YouTube detection
     @PublishedPersist(key: "hasBrowserPermission", defaultValue: false)
     var hasBrowserPermission: Bool
@@ -282,6 +292,9 @@ class NotchViewModel: NSObject, ObservableObject {
         case showNotification(String, String, String)
         // Webcam Actions
         case toggleWebcam
+        // Video State Actions
+        case saveVideoState
+        case restoreVideoState
         case startWebcam
         case stopWebcam
         case checkCameraPermission
@@ -334,6 +347,16 @@ class NotchViewModel: NSObject, ObservableObject {
         }
         
         print("🔒 ✅ Closing notch - unlocked state confirmed (isNotchLocked: \(isNotchLocked))")
+        
+        // Save video state before closing if video is playing
+        if hasActiveVideo && showVideoPlayer {
+            print("📺 Saving video state before notch closes")
+            // Send save video state action to trigger JavaScript saving
+            swiftActionSender.send(.saveVideoState)
+            
+            // Also save to persistent storage immediately
+            saveVideoState(currentTime: 0.0, duration: 0.0, isPlaying: false)
+        }
         
         openReason = .unknown
         status = .closed
@@ -394,6 +417,30 @@ class NotchViewModel: NSObject, ObservableObject {
     func forceLockStateRefresh() {
         print("🔒 Force refreshing lock state...")
         validateLockState()
+    }
+    
+    // MARK: - Video State Management
+    
+    /// Saves the current video state when notch closes
+    func saveVideoState(currentTime: Double, duration: Double, isPlaying: Bool) {
+        print("📺 Saving video state: time=\(currentTime), duration=\(duration), playing=\(isPlaying)")
+        savedVideoCurrentTime = currentTime
+        savedVideoDuration = duration
+        savedVideoIsPlaying = isPlaying
+    }
+    
+    /// Restores the saved video state when notch reopens
+    func restoreVideoState() -> (currentTime: Double, duration: Double, isPlaying: Bool) {
+        print("📺 Restoring video state: time=\(savedVideoCurrentTime), duration=\(savedVideoDuration), playing=\(savedVideoIsPlaying)")
+        return (savedVideoCurrentTime, savedVideoDuration, savedVideoIsPlaying)
+    }
+    
+    /// Clears saved video state (when video changes)
+    func clearVideoState() {
+        print("📺 Clearing video state")
+        savedVideoCurrentTime = 0.0
+        savedVideoDuration = 0.0
+        savedVideoIsPlaying = false
     }
 
     func showSettings() {
