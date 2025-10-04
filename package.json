@@ -62,7 +62,10 @@
     "rebuild:native:mac": "electron-builder install-app-deps && npx electron-rebuild -f -w notchdrop-addon",
     "validate:notchdrop": "node scripts/validate-notchdrop.js",
     "release:dmg": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && electron-builder --mac --publish always",
-    "release:auto": "bash scripts/release-dmg.sh"
+    "release:auto": "bash scripts/release-dmg.sh",
+    "dev:fast": "NODE_ENV=development ELECTRON_DISABLE_SECURITY_WARNINGS=true npm run dev",
+    "build:fast": "NODE_ENV=production npm run build",
+    "start:fast": "NODE_ENV=production npm start"
   },
   "dependencies": {
     "@apollo/client": "^3.13.5",

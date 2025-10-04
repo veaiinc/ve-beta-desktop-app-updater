@@ -120,6 +120,12 @@ export default defineConfig({
 		react({
 			// 🚀 LIGHTNING FAST: Optimize React plugin
 			fastRefresh: true,
+			babel: {
+				plugins: [
+					// Remove console logs in production
+					...(process.env.NODE_ENV === 'production' ? [['transform-remove-console']] : []),
+				],
+			},
 		}),
 		svgr(),
 		
