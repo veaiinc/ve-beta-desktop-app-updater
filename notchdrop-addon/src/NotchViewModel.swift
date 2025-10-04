@@ -14,7 +14,6 @@ class NotchViewModel: NSObject, ObservableObject {
         setupCancellables()
         
         // CRITICAL: Validate lock state on initialization
-        print("🔒 Initializing NotchViewModel - validating lock state...")
         DispatchQueue.main.async { [weak self] in
             self?.validateLockState()
         }
@@ -180,6 +179,16 @@ class NotchViewModel: NSObject, ObservableObject {
     @PublishedPersist(key: "isNotchLocked", defaultValue: true)
     var isNotchLocked: Bool
     
+    // Video state persistence
+    @PublishedPersist(key: "savedVideoCurrentTime", defaultValue: 0.0)
+    var savedVideoCurrentTime: Double
+    
+    @PublishedPersist(key: "savedVideoDuration", defaultValue: 0.0)
+    var savedVideoDuration: Double
+    
+    @PublishedPersist(key: "savedVideoIsPlaying", defaultValue: false)
+    var savedVideoIsPlaying: Bool
+    
     // Browser permission state for YouTube detection
     @PublishedPersist(key: "hasBrowserPermission", defaultValue: false)
     var hasBrowserPermission: Bool
@@ -292,6 +301,9 @@ class NotchViewModel: NSObject, ObservableObject {
         case showNotification(String, String, String)
         // Webcam Actions
         case toggleWebcam
+        // Video State Actions
+        case saveVideoState
+        case restoreVideoState
         case startWebcam
         case stopWebcam
         case checkCameraPermission
@@ -321,6 +333,9 @@ class NotchViewModel: NSObject, ObservableObject {
     private var lastNavigationPath: String? = nil
 
     func notchOpen(_ reason: OpenReason) {
+        // Prevent rapid opening/closing that can cause performance issues
+        guard status != .opened else { return }
+        
         openReason = reason
         status = .opened
         contentType = .normal
@@ -334,16 +349,23 @@ class NotchViewModel: NSObject, ObservableObject {
 
     func notchClose() {
         // CRITICAL: Always validate lock state before attempting to close
-        print("🔒 Attempting to close notch - current lock state: \(isNotchLocked ? "LOCKED" : "UNLOCKED")")
         
         // Don't close if notch is locked
         guard !isNotchLocked else { 
-            print("🔒 ❌ Notch close BLOCKED - notch is locked (isNotchLocked: \(isNotchLocked))")
-            print("🔒 💡 User must unlock the notch first by clicking the lock button")
             return 
         }
         
-        print("🔒 ✅ Closing notch - unlocked state confirmed (isNotchLocked: \(isNotchLocked))")
+        // Prevent rapid opening/closing that can cause performance issues
+        guard status != .closed else { return }
+        
+        // Save video state before closing if video is playing
+        if hasActiveVideo && showVideoPlayer {
+            // Send save video state action to trigger JavaScript saving
+            swiftActionSender.send(.saveVideoState)
+            
+            // Also save to persistent storage immediately
+            saveVideoState(currentTime: 0.0, duration: 0.0, isPlaying: false)
+        }
         
         openReason = .unknown
         status = .closed
@@ -352,20 +374,17 @@ class NotchViewModel: NSObject, ObservableObject {
         // Emit collapse action for JavaScript
         swiftActionSender.send(.collapse)
         
-        print("🔒 ✅ Notch closed successfully")
     }
     
     func toggleNotchLock() {
         let currentState = isNotchLocked
         let newValue = !currentState
         
-        print("🔒 Toggling notch lock: \(currentState ? "LOCKED" : "UNLOCKED") -> \(newValue ? "LOCKED" : "UNLOCKED")")
         
         // IMMEDIATE synchronous state update to prevent race conditions
         isNotchLocked = newValue
         
         // Verify state was actually updated
-        print("🔒 Lock state immediately after update: \(isNotchLocked ? "LOCKED" : "UNLOCKED")")
         
         // Force UI refresh immediately
         objectWillChange.send()
@@ -388,22 +407,35 @@ class NotchViewModel: NSObject, ObservableObject {
     
     /// Validates and ensures lock state consistency
     private func validateLockState() {
-        print("🔒 Validating lock state: \(isNotchLocked ? "LOCKED" : "UNLOCKED")")
-        
+        // Lightweight validation without expensive operations
         // Force UI update to ensure consistency
         objectWillChange.send()
-        
-        // Log current state for debugging
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            print("🔒 Lock state validation complete: \(self.isNotchLocked ? "LOCKED" : "UNLOCKED")")
-        }
     }
     
     /// Forces a complete state refresh
     func forceLockStateRefresh() {
-        print("🔒 Force refreshing lock state...")
         validateLockState()
+    }
+    
+    // MARK: - Video State Management
+    
+    /// Saves the current video state when notch closes
+    func saveVideoState(currentTime: Double, duration: Double, isPlaying: Bool) {
+        savedVideoCurrentTime = currentTime
+        savedVideoDuration = duration
+        savedVideoIsPlaying = isPlaying
+    }
+    
+    /// Restores the saved video state when notch reopens
+    func restoreVideoState() -> (currentTime: Double, duration: Double, isPlaying: Bool) {
+        return (savedVideoCurrentTime, savedVideoDuration, savedVideoIsPlaying)
+    }
+    
+    /// Clears saved video state (when video changes)
+    func clearVideoState() {
+        savedVideoCurrentTime = 0.0
+        savedVideoDuration = 0.0
+        savedVideoIsPlaying = false
     }
 
     func showSettings() {
@@ -876,12 +908,10 @@ class NotchViewModel: NSObject, ObservableObject {
         let now = Date()
         let since = now.timeIntervalSince(lastNavigationTimestamp)
         if since < 0.5 && (path == nil || path == lastNavigationPath) {
-            print("⏱️ Throttled navigateToMainScreen to prevent rapid duplicate calls: \(path ?? "<default>")")
             return
         }
         lastNavigationTimestamp = now
         lastNavigationPath = path
-        print("🏠 Navigating to main screen - resetting UI state")
         
         // Reset to default home mode (exit Teams view)
         isTeamsView = false
@@ -910,11 +940,9 @@ class NotchViewModel: NSObject, ObservableObject {
         // Emit action for JavaScript integration
         swiftActionSender.send(.navigateToMainScreen(path))
         
-        print("✅ Main screen navigation completed - all states reset")
     }
     
     func resetToNotchHome() {
-        print("🏠 Resetting to NotchDrop Swift home - staying within NotchDrop interface")
         
         // Reset to default home mode (exit Teams view)
         isTeamsView = false
@@ -946,7 +974,6 @@ class NotchViewModel: NSObject, ObservableObject {
         }
         
         // Do NOT send JavaScript action - stay within NotchDrop Swift interface
-        print("✅ NotchDrop Swift home reset completed - staying within NotchDrop")
     }
     
     // MARK: - Webcam Functionality
