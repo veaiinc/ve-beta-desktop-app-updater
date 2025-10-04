@@ -8,7 +8,7 @@ import { ReactComponent as PlanBillingSvg } from '../../../../assets/svg/sidebar
 import { ReactComponent as AISetupSvg } from '../../../../assets/svg/sidebar/ai-setup.svg';
 import { ReactComponent as HelpSvg } from '../../../../assets/svg/sidebar/help.svg';
 import { ReactComponent as TemplatesSvg } from '../../../../assets/svg/sidebar/templates.svg';
-import { ReactComponent as CreateWorkspaceSvg } from '../../../../assets/svg/sidebar/createworkspace.svg';
+import { ReactComponent as CreateWorkspaceSvg } from '../../../../assets/svg/sidebar/createWorkspace.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../../assets/svg/sidebar/switchworkspace.svg';
 import { ReactComponent as NotificationsSvg } from '../../../../assets/svg/sidebar/notifications.svg';
 import { ReactComponent as GiftSvg } from '../../../../assets/svg/sidebar/gift.svg';
