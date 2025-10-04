@@ -1,0 +1,5 @@
+#!/bin/bash
+# 🚀 ULTIMATE SPEED Electron launcher
+export ELECTRON_DISABLE_SECURITY_WARNINGS=true
+export NODE_ENV=development
+exec electron --enable-gpu-rasterization --enable-zero-copy --disable-background-timer-throttling --disable-renderer-backgrounding --disable-backgrounding-occluded-windows --enable-features=VaapiVideoDecoder --disable-features=VizDisplayCompositor --max-active-webgl-contexts=16 --enable-accelerated-2d-canvas --enable-accelerated-mjpeg-decode --enable-accelerated-video-decode --enable-gpu-memory-buffer-video-frames --enable-native-gpu-memory-buffers --enable-checker-imaging --disable-ipc-flooding-protection --disable-hang-monitor --disable-prompt-on-repost --disable-domain-reliability --disable-component-extensions-with-background-pages --disable-background-networking --disable-sync --disable-translate --disable-ipc-flooding-protection --aggressive-cache-discard --enable-aggressive-domstorage-flushing "$@"

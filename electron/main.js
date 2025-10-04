@@ -67,17 +67,37 @@ const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
 
-// CRITICAL: IPC handler timeout wrapper to prevent hanging
-const withTimeout = (handler, timeoutMs = 30000) => {
+// LIGHTNING FAST: Optimized IPC handler with caching and batching
+const ipcCache = new Map();
+const ipcBatchQueue = new Map();
+
+const withTimeout = (handler, timeoutMs = 30000, cacheKey = null) => {
 	return async (...args) => {
 		try {
+			// LIGHTNING FAST: Check cache first for repeated calls
+			if (cacheKey) {
+				const cacheEntry = ipcCache.get(cacheKey);
+				if (cacheEntry && Date.now() - cacheEntry.timestamp < 5000) { // 5 second cache
+					return cacheEntry.result;
+				}
+			}
+
 			const timeoutPromise = new Promise((_, reject) => 
 				setTimeout(() => reject(new Error(`IPC handler timeout after ${timeoutMs}ms`)), timeoutMs)
 			);
 			
 			const handlerPromise = handler(...args);
+			const result = await Promise.race([handlerPromise, timeoutPromise]);
 			
-			return await Promise.race([handlerPromise, timeoutPromise]);
+			// LIGHTNING FAST: Cache successful results
+			if (cacheKey && result.success !== false) {
+				ipcCache.set(cacheKey, {
+					result,
+					timestamp: Date.now()
+				});
+			}
+			
+			return result;
 		} catch (error) {
 			log.error('❌ IPC handler failed:', error);
 			return { success: false, error: error.message };
@@ -85,13 +105,30 @@ const withTimeout = (handler, timeoutMs = 30000) => {
 	};
 };
 
-// Startup diagnostic function
-const runStartupDiagnostics = () => {
+// LIGHTNING FAST: Batch IPC calls for better performance
+const batchIPC = (channel, delay = 16) => {
+	if (!ipcBatchQueue.has(channel)) {
+		ipcBatchQueue.set(channel, []);
+	}
+	
+	return new Promise((resolve) => {
+		ipcBatchQueue.get(channel).push(resolve);
+		
+		if (ipcBatchQueue.get(channel).length === 1) {
+			setTimeout(() => {
+				const batch = ipcBatchQueue.get(channel);
+				ipcBatchQueue.set(channel, []);
+				batch.forEach(resolve => resolve());
+			}, delay);
+		}
+	});
+};
+
+// LIGHTNING FAST: Optimized startup diagnostics with async operations
+const runStartupDiagnostics = async () => {
 	log.info('🔍 Running startup diagnostics...');
 
-	// TODO: PERFORMANCE - Multiple synchronous fs.existsSync() calls block main thread
-	// TODO: PERFORMANCE - Move to async fs.promises.access() or batch operations
-	// Check critical paths
+	// LIGHTNING FAST: Use async fs operations to prevent blocking
 	const criticalPaths = [
 		{ name: 'App path', path: app.getAppPath() },
 		{ name: 'User data path', path: app.getPath('userData') },
@@ -99,17 +136,20 @@ const runStartupDiagnostics = () => {
 		{ name: 'Main script directory', path: __dirname },
 	];
 
-	criticalPaths.forEach(({ name, path }) => {
+	// LIGHTNING FAST: Batch all async operations
+	const pathChecks = criticalPaths.map(async ({ name, path }) => {
 		try {
-			if (fs.existsSync(path)) {
-				log.info(`✅ ${name}: ${path} (exists)`);
-			} else {
-				log.warn(`⚠️ ${name}: ${path} (does not exist)`);
-			}
+			await fs.promises.access(path, fs.constants.F_OK);
+			log.info(`✅ ${name}: ${path} (exists)`);
+			return { name, path, exists: true };
 		} catch (error) {
-			log.error(`❌ ${name}: ${path} (error checking: ${error.message})`);
+			log.warn(`⚠️ ${name}: ${path} (does not exist)`);
+			return { name, path, exists: false };
 		}
 	});
+
+	// LIGHTNING FAST: Wait for all checks in parallel
+	await Promise.allSettled(pathChecks);
 
 	// Check build files in production
 	if (!process.env.VITE_DEV_SERVER_URL) {
@@ -2267,6 +2307,19 @@ async function checkAllPermissions() {
 	}
 }
 
+// LIGHTNING FAST: Performance flags for maximum speed
+app.commandLine.appendSwitch('--enable-gpu-rasterization');
+app.commandLine.appendSwitch('--enable-zero-copy');
+app.commandLine.appendSwitch('--disable-background-timer-throttling');
+app.commandLine.appendSwitch('--disable-renderer-backgrounding');
+app.commandLine.appendSwitch('--disable-backgrounding-occluded-windows');
+app.commandLine.appendSwitch('--enable-features', 'VaapiVideoDecoder');
+app.commandLine.appendSwitch('--disable-features', 'VizDisplayCompositor');
+app.commandLine.appendSwitch('--max-active-webgl-contexts', '16');
+app.commandLine.appendSwitch('--enable-accelerated-2d-canvas');
+app.commandLine.appendSwitch('--enable-accelerated-mjpeg-decode');
+app.commandLine.appendSwitch('--enable-accelerated-video-decode');
+
 // App lifecycle
 app.whenReady().then(async () => {
 	log.info('🚀 App is ready - starting initialization...');
@@ -2302,13 +2355,13 @@ app.whenReady().then(async () => {
 		log.error('❌ Unhandled rejection:', reason);
 	});
 	
-	// CRITICAL: Add process monitoring to detect hanging
+	// LIGHTNING FAST: Optimized process monitoring with smart GC
 	const processMonitor = setInterval(() => {
 		const memUsage = process.memoryUsage();
 		const cpuUsage = process.cpuUsage();
 		
-		// Log memory usage every 30 seconds
-		if (Date.now() % 30000 < 5000) {
+		// LIGHTNING FAST: Only log memory usage every 60 seconds to reduce overhead
+		if (Date.now() % 60000 < 5000) {
 			log.info('📊 Process stats:', {
 				memory: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
 				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
@@ -2316,17 +2369,34 @@ app.whenReady().then(async () => {
 			});
 		}
 		
-		// Force garbage collection if memory usage is too high
-		if (memUsage.heapUsed > 500 * 1024 * 1024) { // 500MB
+		// LIGHTNING FAST: Smart garbage collection with progressive thresholds
+		const heapUsedMB = memUsage.heapUsed / 1024 / 1024;
+		if (heapUsedMB > 300 && global.gc) { // Lower threshold for faster response
 			log.warn('⚠️ High memory usage detected, forcing garbage collection...');
-			if (global.gc) {
-				global.gc();
+			global.gc();
+			
+			// LIGHTNING FAST: Clear IPC cache if memory is still high after GC
+			if (memUsage.heapUsed > 400 * 1024 * 1024) {
+				ipcCache.clear();
+				log.info('🧹 Cleared IPC cache due to high memory usage');
 			}
 		}
-	}, 5000);
+		
+		// LIGHTNING FAST: Clear old cache entries periodically
+		if (Date.now() % 300000 < 5000) { // Every 5 minutes
+			const now = Date.now();
+			for (const [key, entry] of ipcCache.entries()) {
+				if (now - entry.timestamp > 30000) { // 30 second TTL
+					ipcCache.delete(key);
+				}
+			}
+		}
+	}, 10000); // Reduced frequency to 10 seconds for better performance
 
-	// Run startup diagnostics
-	runStartupDiagnostics();
+	// LIGHTNING FAST: Run startup diagnostics asynchronously to not block app startup
+	runStartupDiagnostics().catch(error => {
+		log.error('❌ Startup diagnostics failed:', error);
+	});
 
 	// Set application branding for Windows
 	if (process.platform === 'win32') {
