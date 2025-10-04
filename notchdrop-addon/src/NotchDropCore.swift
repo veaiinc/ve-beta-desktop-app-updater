@@ -49,8 +49,9 @@ class NotchDropPanel: NSPanel {
     private var hapticFeedback: Bool = true
     private var notchViewModel: NotchViewModel?
     private let notchWindowLevel: NSWindow.Level = {
-        // Use a high level to ensure it stays above all other windows
-        return NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
+        let assistive = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
+        let statusBar = NSWindow.Level.statusBar
+        return assistive.rawValue > statusBar.rawValue ? assistive : statusBar
     }()
 
     // MARK: - Callbacks
@@ -119,8 +120,10 @@ class NotchDropPanel: NSPanel {
         window.isMovable = false
         window.hasShadow = false
         window.collectionBehavior = [
+            .fullScreenAuxiliary,
             .canJoinAllSpaces,
             .stationary,
+            .transient,
             .ignoresCycle,
         ]
         window.isExcludedFromWindowsMenu = true
