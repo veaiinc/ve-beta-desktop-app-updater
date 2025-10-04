@@ -270,7 +270,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		closeWebSocketConnection: closeRecallConnection,
 	} = useRecallStream();
 
-	const handleActionClick = useCallback(
+	const handleSendChatMessage = useCallback(
 		(data) => {
 			const newParams = new URLSearchParams(searchParams);
 			newParams.set('chat', 'true');
@@ -278,6 +278,26 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			updateStateValues({
 				activePayloadForChat: data,
 			});
+		},
+		[sessionId],
+	);
+
+	const handleActionClick = useCallback(
+		(prompt, isAskAi = false) => {
+			if (prompt && sessionId) {
+				const newParams = new URLSearchParams(searchParams);
+				newParams.set('chat', 'true');
+				setSearchParams(newParams);
+				updateStateValues({
+					activePromptForChat: {
+						prompt,
+						sessionId,
+					},
+					...(isAskAi && {
+						isDirectSearchAgent: true,
+					}),
+				});
+			}
 		},
 		[sessionId],
 	);
@@ -906,7 +926,11 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 							</div>
 						)}
 					{showTranscriptTabs && activeTab === 'summary' && (
-						<MeetSummary activeTab={activeTab} meetingId={meetingId} />
+						<MeetSummary
+							activeTab={activeTab}
+							meetingId={meetingId}
+							handleActionClick={handleActionClick}
+						/>
 					)}
 					{showTranscriptTabs && activeTab === 'analytics' && (
 						<MeetingAnalytics meetingId={meetingId} />
@@ -981,7 +1005,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 							{!chat && (
 								<div className="chatbox-container">
 									<ChatBox
-										onSend={handleActionClick}
+										onSend={handleSendChatMessage}
 										customChatActions={true}
 										showUpgradeSubscriptionBtn={false}
 										sessionId={sessionId}
