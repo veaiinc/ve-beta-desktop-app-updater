@@ -133,6 +133,12 @@ class NotchDropPanel: NSPanel {
         // CRITICAL: Enable keyboard input and first responder capabilities
         window.acceptsMouseMovedEvents = true
         window.setFrame(topRect, display: false)
+        
+        // Make window completely fixed like Boring Notch
+        window.isMovableByWindowBackground = false
+        window.isMovable = false
+        // window.ignoresMouseEvents = false
+        window.hidesOnDeactivate = false
 
         // Don't set initial first responder - let SwiftUI manage TextField focus
 
