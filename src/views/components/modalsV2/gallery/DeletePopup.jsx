@@ -44,18 +44,23 @@ const DeletePopup = ({
 				<div style={{ alignSelf: 'center' }}>
 					<WarningSvg />
 				</div>
-				{currentTitle && (
-					<div className="deletePopupParagraph">
-						Copy and paste "{currentTitle}" to Permanently Delete {title}.
-					</div>
+				{!isTagDelete && (
+					<>
+						{currentTitle && (
+							<div className="deletePopupParagraph">
+								Copy and paste "{currentTitle}" to Permanently Delete {title}.
+							</div>
+						)}
+						<input
+							className="deletePopupInput"
+							type="text"
+							value={inputValue}
+							onChange={(e) => setInputValue(e.target.value)}
+							placeholder={`Paste here`}
+						/>
+					</>
 				)}
-				<input
-					className="deletePopupInput"
-					type="text"
-					value={inputValue}
-					onChange={(e) => setInputValue(e.target.value)}
-					placeholder={`Paste here`}
-				/>
+
 				<div className="deletePopupContent">
 					{/* <div className="deletePopupHeading">Delete {title}</div> */}
 					<div className="deletePopupParagraph">
