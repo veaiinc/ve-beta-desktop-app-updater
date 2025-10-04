@@ -3,7 +3,6 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
 import useRecallStream from '../../../hooks/useRecallStream';
-import useMeetingAudioRecorder from '../../../hooks/useMeetingAudioRecorder';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from '../notesModule/MeetSummary';
 import NoteTakerTranscript from '../notesModule/NoteTakerTranscript';
@@ -45,8 +44,6 @@ const initialState = {
 	botJoined: false,
 	botJoinedTime: 0,
 	meetingPlatform: '',
-	hasAudioRecording: false,
-	audioRecordingStarted: false,
 	isDeleteModalOpen: false,
 	isDeleteModalLoading: false,
 	meetingTitle: '',
@@ -106,18 +103,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const navigate = useNavigate();
 
 	// Audio recording hook
-	const {
-		isRecording,
-		startRecording,
-		stopRecording,
-		pauseRecording,
-		resumeRecording,
-		audioBlob,
-		recordingDuration,
-		error: audioError,
-		getAudioInfo,
-		formatDuration,
-	} = useMeetingAudioRecorder(meetingId);
 
 	const {
 		notes: {
@@ -162,70 +147,20 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [JSON.stringify(summaryInProgress)]);
 	console.log('info', info);
 
-	// Check if audio recording exists for this meeting
-	const checkAudioRecording = useCallback(async () => {
+	// Generate meeting analytics (without audio recording)
+	const generateMeetingAnalytics = useCallback(async () => {
 		try {
-			console.log('Checking audio recording for meeting:', meetingId);
-			const hasAudio = await audioStorageService.hasAudio(meetingId);
-			console.log('Audio recording exists:', hasAudio);
-			setInfo((prev) => ({ ...prev, hasAudioRecording: hasAudio }));
+			console.log('Generating meeting analytics for meeting:', meetingId);
+			const result = await audioStorageService.generateMeetingAnalytics(meetingId);
+			if (result.success) {
+				console.log('Successfully generated meeting analytics');
+			} else {
+				console.error('Failed to generate meeting analytics:', result.error);
+			}
 		} catch (error) {
-			console.error('Error checking audio recording:', error);
+			console.error('Error generating meeting analytics:', error);
 		}
 	}, [meetingId]);
-
-	// Save audio when recording stops
-	const saveAudioRecording = useCallback(async () => {
-		if (!audioBlob) {
-			console.log('No audio blob to save');
-			return;
-		}
-
-		try {
-			console.log('Saving audio for meeting:', meetingId, 'Blob size:', audioBlob.size);
-			const result = await audioStorageService.saveAudio(meetingId, audioBlob);
-			if (result.success) {
-				setInfo((prev) => ({ ...prev, hasAudioRecording: true }));
-				console.log('Audio saved successfully:', result.filePath);
-			} else {
-				console.error('Failed to save audio:', result.error);
-			}
-		} catch (error) {
-			console.error('Error saving audio:', error);
-		}
-	}, [audioBlob, meetingId]);
-
-	// Start audio recording when meeting starts (for live meetings)
-	const initializeAudioRecording = useCallback(async () => {
-		console.log(
-			'initializeAudioRecording called - history:',
-			history,
-			'audioRecordingStarted:',
-			info.audioRecordingStarted,
-		);
-		if (!history && !info.audioRecordingStarted) {
-			try {
-				console.log('Starting audio recording for meeting:', meetingId);
-				await startRecording();
-				setInfo((prev) => ({ ...prev, audioRecordingStarted: true }));
-				console.log('Audio recording started successfully');
-			} catch (error) {
-				console.error('Error starting audio recording:', error);
-			}
-		}
-	}, [history, info.audioRecordingStarted, startRecording, meetingId]);
-
-	// Stop audio recording when meeting ends
-	const stopAudioRecording = useCallback(async () => {
-		if (isRecording) {
-			try {
-				await stopRecording();
-				// Audio will be saved automatically when recording stops
-			} catch (error) {
-				console.error('Error stopping audio recording:', error);
-			}
-		}
-	}, [isRecording, stopRecording]);
 	const [isLoadingMeetingDetails, setIsLoadingMeetingDetails] = useState(false);
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
 	const location = useLocation();
@@ -620,39 +555,14 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [activeTab]);
 
-	// Check for existing audio recording when component mounts
+	// Generate meeting analytics when meeting ends (when history becomes true)
 	useEffect(() => {
-		if (meetingId) {
-			checkAudioRecording();
+		// When history becomes true, it means the meeting has ended and we're viewing history
+		if (history === true && meetingId) {
+			console.log('Meeting ended, generating analytics for meeting:', meetingId);
+			generateMeetingAnalytics();
 		}
-	}, [meetingId, checkAudioRecording]);
-
-	// Save audio when recording stops
-	useEffect(() => {
-		if (audioBlob && !isRecording) {
-			saveAudioRecording();
-		}
-	}, [audioBlob, isRecording, saveAudioRecording]);
-
-	// Start audio recording for live meetings
-	useEffect(() => {
-		if (!history && meetingId && !info.audioRecordingStarted) {
-			// Small delay to ensure meeting is properly initialized
-			const timer = setTimeout(() => {
-				initializeAudioRecording();
-			}, 2000);
-			return () => clearTimeout(timer);
-		}
-	}, [history, meetingId, info.audioRecordingStarted, initializeAudioRecording]);
-
-	// Cleanup audio recording on unmount
-	useEffect(() => {
-		return () => {
-			if (isRecording) {
-				stopAudioRecording();
-			}
-		};
-	}, [isRecording, stopAudioRecording]);
+	}, [history, meetingId, generateMeetingAnalytics]);
 
 	useEffect(() => {
 		if (
