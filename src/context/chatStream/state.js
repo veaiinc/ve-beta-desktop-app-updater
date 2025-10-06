@@ -159,7 +159,13 @@ export const ChatStreamState = () => {
 
 			socketRefs.current[sessionId].onerror = (e) => {
 				console.log('Error from socket', e);
-				socketRefs.current[sessionId].close();
+				try {
+					if (socketRefs.current[sessionId].readyState !== WebSocket.CLOSED) {
+						socketRefs.current[sessionId].close();
+					}
+				} catch (_) {
+					console.log('Failed to close server on socket error');
+				}
 			};
 
 			socketRefs.current[sessionId].onmessage = (event) => {
