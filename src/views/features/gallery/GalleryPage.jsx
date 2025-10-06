@@ -1380,13 +1380,11 @@ const GalleryPage = () => {
 				isEnabled: newGuestAccessState,
 			};
 
-			// Wait for the edit operation to complete
 			const response = await editLockAlbum(payload, galleryId, info.activeAlbumId);
 
 			if (response?.[0] === true) {
 				showMessage('success', 'Album access updated successfully');
 			} else {
-				// If the update failed, revert the optimistic update
 				setInfo((prev) => ({
 					...prev,
 					activeAlbum: {
@@ -1396,7 +1394,6 @@ const GalleryPage = () => {
 							isEnabled: !newGuestAccessState,
 						},
 					},
-					// ... similar reversions for tenantAlbums and albumImagesCount
 				}));
 				showMessage('error', 'Failed to update album access', handleLockAlbum);
 			}
