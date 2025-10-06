@@ -100,7 +100,10 @@ struct StartMeetingCard: View {
                 .padding(padding)
             }
             .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
-            .onTapGesture { vm.startRecording() }
+            .onTapGesture {
+                // Delegate to Electron: redirect to pricing if suspended, else start meeting
+                vm.navigateToMainScreen(path: "MEETING_AI_CLICK")
+            }
             .onHover { hovering in
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isHovered = hovering
@@ -226,8 +229,7 @@ struct DynamicIslandContentView: View {
 
                                 // Teams pill (sets Teams view)
                                 Button(action: {
-                                    // Delegate decision to Electron based on workspace suspension
-                                    vm.navigateToMainScreen(path: "MEETING_AI_CLICK")
+                                    vm.isTeamsView = true
                                 }) {
                                     HStack(spacing: 6) {
                                         Text("Meeting AI")
