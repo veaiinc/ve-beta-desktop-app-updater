@@ -88,10 +88,11 @@ struct NotchView: View {
                         // Video only - show video indicator
                         MediaCollapsedIndicator(vm: vm, showMusic: false, showVideo: vm.hasActiveVideo)
                     }
-                } else {
-                    // Show TemporaryFolder component in empty state
+                } else if vm.isAuthenticated {
+                    // Show TemporaryFolder component in empty state only when authenticated
                     TemporaryFolderView()
                 }
+                // When not authenticated, show nothing in collapsed state
             }
             .frame(maxWidth: notchSize.width - 16, maxHeight: notchSize.height - 4)
             .clipped()
