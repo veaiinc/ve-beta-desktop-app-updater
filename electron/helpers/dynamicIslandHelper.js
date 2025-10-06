@@ -92,6 +92,8 @@ module.exports = class DynamicIslandHelper {
 				contextIsolation: true,
 				preload: path.join(__dirname, '..', 'preload.js'),
 				devTools: true, // Enable dev tools in production too
+				// Prevent Chromium from throttling timers/RAF when window is backgrounded
+				backgroundThrottling: false,
 			},
 			show: true, // Show immediately when created
 			alwaysOnTop: true,

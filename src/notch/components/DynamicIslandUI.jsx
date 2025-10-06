@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useContext, useCallback, useMemo, memo } from 'react';
 import {
 	HomeIcon,
 	LockIcon,
@@ -34,7 +34,7 @@ const stopCamera = (stream) => {
 	}
 };
 
-const DynamicIslandUI = () => {
+const DynamicIslandUI = memo(() => {
 	console.log('🏝️ DynamicIslandUI component rendering...');
 	const dynamicIslandRef = useRef(null);
 	const videoRef = useRef(null);
@@ -97,7 +97,8 @@ const DynamicIslandUI = () => {
 		aiSetup: { voiceIntegrationData, updateAiSetupState },
 	} = useContext(Context);
 
-	const handleVoiceModeClick = async () => {
+	// PERFORMANCE: Memoized callbacks to prevent unnecessary re-renders
+	const handleVoiceModeClick = useCallback(async () => {
 		console.log('🎤 Clicked for voice mode');
 
 		try {
@@ -152,7 +153,7 @@ const DynamicIslandUI = () => {
 			setVoiceError(error.message || 'Failed to connect to voice assistant');
 			setShowVoiceInterface(false);
 		}
-	};
+	}, [isVoiceModeActive, voiceConnectionStatus, handleConnect, handleDisconnect, updateAiSetupState, shouldConnect, voiceIntegrationData, resetState]);
 
 	useEffect(() => {
 		// Check authentication status
@@ -506,7 +507,7 @@ const DynamicIslandUI = () => {
 	}, [cameraStream]);
 
 	// Handle Swift control actions
-	const handleSwiftControl = (action, data) => {
+	const handleSwiftControl = useCallback((action, data) => {
 		console.log('🎯 Handling Swift control:', action, data);
 
 		switch (action) {
@@ -553,7 +554,7 @@ const DynamicIslandUI = () => {
 			default:
 				console.warn('⚠️ Unknown Swift action:', action);
 		}
-	};
+	}, [isChatMode, isExpanded, isConnected]);
 
 	// Send current state to Swift
 	const sendStateToSwift = () => {
@@ -574,20 +575,20 @@ const DynamicIslandUI = () => {
 
 	// Timer is now managed by overlay system, no local timer effect needed
 
-	// Hover events
-	const handleMouseEnter = () => {
+	// Hover events - PERFORMANCE: Memoized to prevent unnecessary re-renders
+	const handleMouseEnter = useCallback(() => {
 		console.log('🎯 MOUSE ENTER - Expanding to show rich UI!');
 		if (!isExpanded && isConnected) {
 			expand();
 		}
-	};
+	}, [isExpanded, isConnected]);
 
-	const handleMouseLeave = () => {
+	const handleMouseLeave = useCallback(() => {
 		console.log('🚪 MOUSE LEAVE - Collapsing to pill!');
 		if ((isExpanded || isNotificationExpanded) && isConnected) {
 			collapse();
 		}
-	};
+	}, [isExpanded, isNotificationExpanded, isConnected]);
 
 	const expand = async () => {
 		if (isExpanded || !isConnected) return;
@@ -1945,6 +1946,6 @@ const DynamicIslandUI = () => {
 			/>
 		</div>
 	);
-};
+});
 
 export default DynamicIslandUI;

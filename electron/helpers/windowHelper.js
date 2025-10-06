@@ -178,6 +178,8 @@ class WindowHelper {
 				contextIsolation: true,
 				preload: path.join(__dirname, '..', 'preload.js'),
 				devTools: true, // Enable developer tools
+				// Prevent Chromium from throttling timers/RAF when window is backgrounded
+				backgroundThrottling: false,
 				sandbox: false,
 			},
 			show: false,

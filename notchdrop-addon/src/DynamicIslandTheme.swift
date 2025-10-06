@@ -18,9 +18,51 @@ enum DynamicIslandTheme {
     static let recordingExpandedHeight: CGFloat = 160
     static let recordingBottomRadius: CGFloat = 8
     
-    // Animation timings - smooth and synchronized
-    static let expansionDuration: Double = 0.3    // Smooth expansion timing
-    static let expansionAnimation: Animation = .easeInOut(duration: expansionDuration)
+    // Animation timings - ultra-smooth and professional
+    static let expansionDuration: Double = 0.25    // Faster, more responsive
+    static let hoverDuration: Double = 0.12        // Snappier hover response
+    static let springDuration: Double = 0.36       // Open/close spring duration
+    
+    // Professional animation curves
+    static let expansionAnimation: Animation = .spring(
+        response: springDuration,
+        dampingFraction: 0.76,  // slightly more bounce
+        blendDuration: 0.08
+    )
+    
+    static let hoverAnimation: Animation = .spring(
+        response: hoverDuration,
+        dampingFraction: 0.9,
+        blendDuration: 0.05
+    )
+    
+    static let bounceAnimation: Animation = .spring(
+        response: 0.26,       // quick engage
+        dampingFraction: 0.62, // NotchNook-like overshoot
+        blendDuration: 0.06
+    )
+    
+    static let smoothEaseInOut: Animation = .easeInOut(duration: 0.2)
+    static let instantAnimation: Animation = .easeInOut(duration: 0.1)
+    
+    // NotchNook-style slow, bubbly hover-open
+    static let hoverOpenBubbly: Animation = .spring(
+        response: 0.5,        // slower approach
+        dampingFraction: 0.72, // gentle overshoot
+        blendDuration: 0.08
+    )
+
+    // Side bounce sequence (width wobble)
+    static let sideBounceKick: Animation = .spring(
+        response: 0.18,
+        dampingFraction: 0.55,
+        blendDuration: 0.04
+    )
+    static let sideBounceReturn: Animation = .spring(
+        response: 0.22,
+        dampingFraction: 0.75,
+        blendDuration: 0.05
+    )
 
     // Colors
     static let black = Color.black
