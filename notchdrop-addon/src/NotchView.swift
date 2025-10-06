@@ -10,9 +10,10 @@ struct NotchView: View {
     @StateObject var vm: NotchViewModel
 
     @State var dropTargeting: Bool = false
-    @State private var isHoveringNotch: Bool = false
+	@State private var isHoveringNotch: Bool = false
     @State private var hoverScale: CGFloat = 1.0
     @State private var hoverGlow: CGFloat = 0.0
+	@State private var isQuitting: Bool = false
 
     var notchSize: CGSize {
         switch vm.status {
@@ -138,7 +139,22 @@ struct NotchView: View {
                 )
             )
         }
-        .background(dragDetector)
+		.background(dragDetector)
+		.opacity(isQuitting ? 0 : 1)
+		.animation(.easeInOut(duration: 0.2), value: isQuitting)
+        .contextMenu {
+			Button(action: {
+				withAnimation(.easeInOut(duration: 0.2)) {
+					isQuitting = true
+				}
+				vm.notchClose()
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+					NSApp.terminate(nil)
+				}
+			}) {
+                Label("Quit Notch", systemImage: "xmark.circle.fill")
+            }
+        }
         .animation(DynamicIslandTheme.expansionAnimation, value: vm.status)
         .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isChatExpanded)
         .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isRecording) // Smooth recording state transition
