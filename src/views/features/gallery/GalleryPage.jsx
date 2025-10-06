@@ -6088,7 +6088,10 @@ const GalleryPage = () => {
 																		setInfo((prev) => ({
 																			...prev,
 																			selectedAlbumToMove:
-																				album?._id,
+																				prev.selectedAlbumToMove ===
+																				album?._id
+																					? null
+																					: album?._id,
 																		}))
 																	}
 																	checked={
