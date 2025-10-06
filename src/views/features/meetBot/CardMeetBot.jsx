@@ -162,13 +162,12 @@ const CardMeetBot = () => {
 	const handleGetUpcomingMeetings = useCallback(
 		async (params) => {
 			setInfo((prevInfo) => ({ ...prevInfo, apiFetching: true }));
-
+			const now = moment();
 			try {
-				const result = await getAllCalendarEventsForMeetings(
-					params.page,
-					params.limit,
-					params.payload,
-				);
+				const result = await getAllCalendarEventsForMeetings(params.page, params.limit, {
+					startDate: now.toISOString(), // current time
+					endDate: now.clone().add(12, 'hours').toISOString(),
+				});
 
 				let payload = {};
 
@@ -402,6 +401,20 @@ const CardMeetBot = () => {
 		}));
 	};
 
+	function getMeetingStatus(meeting) {
+		const now = moment();
+		const start = moment(meeting.startDateTime);
+		const end = moment(meeting.endDateTime);
+
+		if (now.isBefore(start) && start.diff(now, 'minutes') <= 5) {
+			return 'Starting soon';
+		} else if (now.isBetween(start, end)) {
+			return 'Now';
+		} else {
+			return '';
+		}
+	}
+
 	return (
 		<div className="meetbot">
 			<div className="leftContainer">
@@ -518,6 +531,18 @@ const CardMeetBot = () => {
 																Live
 															</span>
 														)}
+
+													{position === 0 &&
+														info.activeTab === 'upcoming' && (
+															<span
+																className={
+																	styles.cardMeetBot_liveBadge
+																}
+															>
+																{getMeetingStatus(meeting)}
+															</span>
+														)}
+
 													<div className={styles.cardMeetBot_cardTitle}>
 														{meeting.title}
 													</div>
@@ -550,19 +575,17 @@ const CardMeetBot = () => {
 																	styles.cardMeetBot_modulePriorityText
 																}
 															>
-																<div>
-																	{meeting.createdBy?.name ||
-																		'Unknown'}
-																</div>
-																{meeting.createdAt && (
-																	<div
-																		style={{
-																			color: 'var(--secondary-font)',
-																		}}
-																	>
-																		|
-																	</div>
-																)}
+																<div>{meeting.createdBy?.name}</div>
+																{meeting.createdAt &&
+																	meeting.createdBy?.name && (
+																		<div
+																			style={{
+																				color: 'var(--secondary-font)',
+																			}}
+																		>
+																			|
+																		</div>
+																	)}
 																<div
 																	style={{
 																		textOverflow: 'ellipsis',
@@ -572,7 +595,12 @@ const CardMeetBot = () => {
 																	}}
 																>
 																	{moment
-																		.unix(meeting.createdAt)
+																		.unix(
+																			info?.activeTab ===
+																				'upcoming'
+																				? meeting.updatedAt
+																				: meeting.createdAt,
+																		)
 																		.format('DD MMM YYYY')}
 																</div>
 															</div>
