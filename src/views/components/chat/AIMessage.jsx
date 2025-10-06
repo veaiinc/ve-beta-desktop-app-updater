@@ -18,6 +18,7 @@ import IntermediateSteps from './chatComponents/IntermediateSteps';
 import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
 import ClarifyWidget from './chatWidgets/ClarifyWidget';
 import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
+import ChatError from './chatErrors/ChatError';
 
 const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
@@ -316,6 +317,8 @@ const AIMessage = ({
 					)}
 				</div>
 			)}
+
+			{messageData?.status === 'error' && <ChatError error={messageData?.error} />}
 
 			{messageData?.unintegrated_apps?.length > 0 ? (
 				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
