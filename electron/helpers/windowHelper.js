@@ -178,6 +178,8 @@ class WindowHelper {
 				contextIsolation: true,
 				preload: path.join(__dirname, '..', 'preload.js'),
 				devTools: true, // Enable developer tools
+				// Prevent Chromium from throttling timers/RAF when window is backgrounded
+				backgroundThrottling: false,
 				sandbox: false,
 			},
 			show: false,
@@ -269,7 +271,12 @@ class WindowHelper {
 	}
 
 	createAskAIWindow() {
-		if (this.askAIWindow !== null) return;
+		if (this.askAIWindow !== null) {
+			log.info('🎯 Ask AI window already exists, skipping creation');
+			return;
+		}
+
+		log.info('🎯 Creating Ask AI window...');
 
 		// Initialize window ready state
 		this.askAIWindowReady = false;
@@ -279,14 +286,51 @@ class WindowHelper {
 		this.screenWidth = workArea.width;
 		this.screenHeight = workArea.height;
 
-		// Center Ask AI window on screen, below Dynamic Island with proper spacing
-		const askAIX =
-			Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
+		// Determine initial position based on whether overlay is visible
+		let askAIX, askAIY;
 
-		// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
-		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		const askAIY = -8 + dynamicIslandHeight + gapFromDynamicIsland;
+		const overlayVisible = this.isVisible();
+		const overlayExists = this.overlayWindow && !this.overlayWindow.isDestroyed();
+
+		log.info(
+			`🎯 Ask AI creation: Overlay visible: ${overlayVisible}, Overlay exists: ${overlayExists}`,
+		);
+
+		if (overlayVisible && overlayExists) {
+			// Position relative to overlay if it's visible
+			const overlayBounds = this.overlayWindow.getBounds();
+			const overlayX = overlayBounds.x;
+			const overlayY = overlayBounds.y;
+
+			// Update tracking variables
+			this.currentX = overlayX;
+			this.currentY = overlayY;
+
+			// Position ask AI to the right of overlay with proper gap
+			const gap = 20;
+			askAIX = overlayX + this.windowSize.width + gap;
+			askAIY = overlayY; // Same Y level as overlay
+
+			// Ensure Ask AI doesn't go off-screen
+			if (askAIX + this.askAIWindowSize.width > workArea.width) {
+				// If Ask AI would go off-screen, position it to the left of overlay instead
+				askAIX = overlayX - this.askAIWindowSize.width - gap;
+			}
+
+			log.info(
+				`🎯 Ask AI creation: Overlay at (${overlayX}, ${overlayY}), Ask AI at (${askAIX}, ${askAIY})`,
+			);
+		} else {
+			// Center Ask AI window on screen, below Dynamic Island with proper spacing
+			askAIX = Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
+
+			// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			askAIY = -8 + dynamicIslandHeight + gapFromDynamicIsland;
+
+			log.info(`🎯 Ask AI creation: Centered at (${askAIX}, ${askAIY})`);
+		}
 
 		const windowSettings = {
 			width: this.askAIWindowSize.width,
@@ -1129,7 +1173,11 @@ class WindowHelper {
 	}
 
 	isVisible() {
-		return this.isOverlayVisible && this.overlayWindow && !this.overlayWindow.isDestroyed();
+		return (
+			this.overlayWindow &&
+			!this.overlayWindow.isDestroyed() &&
+			this.overlayWindow.isVisible()
+		);
 	}
 
 	isAskAIWindowVisible() {
@@ -1287,7 +1335,10 @@ class WindowHelper {
 
 	showAskAIWindow() {
 		if (!this.askAIWindow || this.askAIWindow.isDestroyed()) {
+			log.info('🎯 Ask AI window not found, creating...');
 			this.createAskAIWindow();
+		} else {
+			log.info('🎯 Ask AI window exists, showing...');
 		}
 
 		// Don't hide overlay window - allow both to be visible
@@ -1298,17 +1349,20 @@ class WindowHelper {
 		let askAIX, askAIY;
 
 		// Check if we have a saved position from previous hide/show cycle
+		// BUT only use it if overlay is not visible (to avoid positioning conflicts)
 		const hasValidSavedPosition =
 			this.askAIWindowPosition &&
 			typeof this.askAIWindowPosition.x === 'number' &&
 			typeof this.askAIWindowPosition.y === 'number' &&
 			this.askAIWindowPosition.x !== 0 &&
-			this.askAIWindowPosition.y !== 0;
+			this.askAIWindowPosition.y !== 0 &&
+			!(this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed());
 
 		if (hasValidSavedPosition) {
-			// Use the saved position (user's last position)
+			// Use the saved position (user's last position) only when overlay is not visible
 			askAIX = this.askAIWindowPosition.x;
 			askAIY = this.askAIWindowPosition.y;
+			log.info(`🎯 Ask AI show: Using saved position (${askAIX}, ${askAIY})`);
 		} else {
 			// Calculate default position for first-time show or when no saved position
 			const primaryDisplay = screen.getPrimaryDisplay();
@@ -1316,9 +1370,28 @@ class WindowHelper {
 			const gap = 20; // Gap between windows
 
 			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-				// Position ask AI to the right of overlay
-				askAIX = this.currentX + this.windowSize.width + gap;
-				askAIY = 80; // Same Y level as overlay
+				// Always get the actual overlay position from the window bounds
+				const overlayBounds = this.overlayWindow.getBounds();
+				const overlayX = overlayBounds.x;
+				const overlayY = overlayBounds.y;
+
+				// Update tracking variables for future use
+				this.currentX = overlayX;
+				this.currentY = overlayY;
+
+				// Position ask AI to the right of overlay with proper gap
+				askAIX = overlayX + this.windowSize.width + gap;
+				askAIY = overlayY; // Same Y level as overlay
+
+				// Ensure Ask AI doesn't go off-screen
+				if (askAIX + this.askAIWindowSize.width > workArea.width) {
+					// If Ask AI would go off-screen, position it to the left of overlay instead
+					askAIX = overlayX - this.askAIWindowSize.width - gap;
+				}
+
+				log.info(
+					`🎯 Ask AI positioning: Overlay at (${overlayX}, ${overlayY}), Ask AI at (${askAIX}, ${askAIY})`,
+				);
 			} else {
 				// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
 				askAIX =
@@ -1570,18 +1643,31 @@ class WindowHelper {
 
 		// Update ask AI window position only if it's visible and we need to maintain side-by-side layout
 		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+			// Always get the actual overlay position from the window bounds
+			const overlayBounds = this.overlayWindow.getBounds();
+			const overlayX = overlayBounds.x;
+			const overlayY = overlayBounds.y;
+
 			// Position ask AI to the right of overlay with gap
 			const gap = 20;
-			const askAIX = currentX + newWidth + gap;
-			const askAIY = currentY; // Same Y level as overlay
+			let askAIX = overlayX + newWidth + gap;
+			const askAIY = overlayY; // Same Y level as overlay
+
+			// Ensure Ask AI doesn't go off-screen
+			if (askAIX + this.askAIWindowSize.width > workArea.width) {
+				// If Ask AI would go off-screen, position it to the left of overlay instead
+				askAIX = overlayX - this.askAIWindowSize.width - gap;
+			}
 
 			this.askAIWindow.setBounds({
+				x: askAIX,
+				y: askAIY,
 				width: this.askAIWindowSize.width,
 				height: this.askAIWindowSize.height,
 			});
 
 			// Update ask AI position tracking
-			// this.askAIWindowPosition = { x: askAIX, y: askAIY };
+			this.askAIWindowPosition = { x: askAIX, y: askAIY };
 
 			// Make sure ask AI stays on top
 			setTimeout(() => {

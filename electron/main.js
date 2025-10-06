@@ -17,6 +17,7 @@ const {
 	clipboard,
 	dialog,
 	shell,
+    powerSaveBlocker,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -58,6 +59,17 @@ const {
 
 const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
+// Chromium switches to reduce/disable background throttling and occlusion issues
+try {
+    app.commandLine.appendSwitch('disable-renderer-backgrounding');
+    app.commandLine.appendSwitch('disable-background-timer-throttling');
+    app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+    // Disable native occlusion calculation which can pause hidden windows on macOS
+    app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+} catch (e) {
+    // Non-fatal; continue without switches
+}
+
 // Import NotchDrop service
 const NotchDropService = require('./services/notchDropService');
 const { handleError } = require('@apollo/client/link/http/parseAndCheckHttpResponse');
@@ -67,13 +79,29 @@ const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
 // Gallery processing functions will be loaded lazily when needed
 let galleryHelper = null;
 
-// Startup diagnostic function
-const runStartupDiagnostics = () => {
+// CRITICAL: IPC handler timeout wrapper to prevent hanging
+const withTimeout = (handler, timeoutMs = 30000) => {
+	return async (...args) => {
+		try {
+			const timeoutPromise = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error(`IPC handler timeout after ${timeoutMs}ms`)), timeoutMs)
+			);
+			
+			const handlerPromise = handler(...args);
+			
+			return await Promise.race([handlerPromise, timeoutPromise]);
+		} catch (error) {
+			log.error('❌ IPC handler failed:', error);
+			return { success: false, error: error.message };
+		}
+	};
+};
+
+// Startup diagnostic function - OPTIMIZED for performance
+const runStartupDiagnostics = async () => {
 	log.info('🔍 Running startup diagnostics...');
 
-	// TODO: PERFORMANCE - Multiple synchronous fs.existsSync() calls block main thread
-	// TODO: PERFORMANCE - Move to async fs.promises.access() or batch operations
-	// Check critical paths
+	// PERFORMANCE FIX: Use async file operations to prevent main thread blocking
 	const criticalPaths = [
 		{ name: 'App path', path: app.getAppPath() },
 		{ name: 'User data path', path: app.getPath('userData') },
@@ -81,17 +109,24 @@ const runStartupDiagnostics = () => {
 		{ name: 'Main script directory', path: __dirname },
 	];
 
-	criticalPaths.forEach(({ name, path }) => {
+	// PERFORMANCE FIX: Use Promise.all for parallel async operations
+	const pathChecks = criticalPaths.map(async ({ name, path }) => {
 		try {
-			if (fs.existsSync(path)) {
-				log.info(`✅ ${name}: ${path} (exists)`);
-			} else {
-				log.warn(`⚠️ ${name}: ${path} (does not exist)`);
-			}
+			await fs.promises.access(path);
+			log.info(`✅ ${name}: ${path} (exists)`);
+			return { name, path, exists: true };
 		} catch (error) {
-			log.error(`❌ ${name}: ${path} (error checking: ${error.message})`);
+			if (error.code === 'ENOENT') {
+				log.warn(`⚠️ ${name}: ${path} (does not exist)`);
+				return { name, path, exists: false };
+			} else {
+				log.error(`❌ ${name}: ${path} (error checking: ${error.message})`);
+				return { name, path, exists: false, error: error.message };
+			}
 		}
 	});
+
+	await Promise.all(pathChecks);
 
 	// Check build files in production
 	if (!process.env.VITE_DEV_SERVER_URL) {
@@ -102,27 +137,27 @@ const runStartupDiagnostics = () => {
 		log.info(`📁 Build directory: ${buildPath}`);
 		log.info(`📄 Index file: ${indexPath}`);
 
-		// TODO: PERFORMANCE - Multiple synchronous fs operations block startup
-		// TODO: PERFORMANCE - Use fs.promises.readdir() and fs.promises.stat() for async operations
-		if (fs.existsSync(buildPath)) {
-			try {
-				const buildFiles = fs.readdirSync(buildPath);
-				log.info(
-					`📋 Build directory contains ${buildFiles.length} files:`,
-					buildFiles.slice(0, 10),
-				);
+		// PERFORMANCE FIX: Use async operations to prevent blocking
+		try {
+			await fs.promises.access(buildPath);
+			const buildFiles = await fs.promises.readdir(buildPath);
+			log.info(
+				`📋 Build directory contains ${buildFiles.length} files:`,
+				buildFiles.slice(0, 10),
+			);
 
-				if (fs.existsSync(indexPath)) {
-					const stats = fs.statSync(indexPath);
-					log.info(`📄 index.html size: ${stats.size} bytes, modified: ${stats.mtime}`);
-				} else {
-					log.error('❌ index.html not found in build directory');
-				}
+			try {
+				const stats = await fs.promises.stat(indexPath);
+				log.info(`📄 index.html size: ${stats.size} bytes, modified: ${stats.mtime}`);
 			} catch (error) {
+				log.error('❌ index.html not found in build directory');
+			}
+		} catch (error) {
+			if (error.code === 'ENOENT') {
+				log.error('❌ Build directory does not exist');
+			} else {
 				log.error('❌ Error reading build directory:', error.message);
 			}
-		} else {
-			log.error('❌ Build directory does not exist');
 		}
 	}
 
@@ -483,20 +518,46 @@ function handleOverlayWindowReady(overlayWindow) {
 // IPC Handlers for updates
 ipcMain.handle(
 	'check-for-updates',
-	async () =>
-		await ipcMainHandleCheckForUpdates({
-			getIsUpdateInProgress,
-			setIsUpdateInProgress,
-		}),
+	async () => {
+		try {
+			// Add timeout to prevent hanging
+			const timeoutPromise = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error('Update check timeout')), 30000)
+			);
+			
+			const updatePromise = ipcMainHandleCheckForUpdates({
+				getIsUpdateInProgress,
+				setIsUpdateInProgress,
+			});
+			
+			return await Promise.race([updatePromise, timeoutPromise]);
+		} catch (error) {
+			log.error('❌ Update check failed:', error);
+			return { success: false, error: error.message };
+		}
+	}
 );
 
 ipcMain.handle(
 	'download-update',
-	async () =>
-		await ipcMainHandleDownloadUpdates({
-			getIsUpdateInProgress,
-			setIsUpdateInProgress,
-		}),
+	async () => {
+		try {
+			// Add timeout to prevent hanging
+			const timeoutPromise = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error('Download update timeout')), 60000)
+			);
+			
+			const downloadPromise = ipcMainHandleDownloadUpdates({
+				getIsUpdateInProgress,
+				setIsUpdateInProgress,
+			});
+			
+			return await Promise.race([downloadPromise, timeoutPromise]);
+		} catch (error) {
+			log.error('❌ Download update failed:', error);
+			return { success: false, error: error.message };
+		}
+	}
 );
 
 ipcMain.handle('restart-app', () =>
@@ -1402,6 +1463,8 @@ function createWindow(restoreState = false) {
 			webSecurity: true,
 			allowRunningInsecureContent: false,
 			sandbox: false,
+			// Keep timers/raf unthrottled to improve responsiveness after idle
+			backgroundThrottling: false,
 		},
 	});
 
@@ -1953,7 +2016,24 @@ function createWindow(restoreState = false) {
 	// Add error handling for unresponsive renderer
 	mainWindow.webContents.on('unresponsive', () => {
 		log.warn('⚠️ Renderer process became unresponsive');
-		// Don't show error page immediately, just log it
+		// Force reload after 5 seconds if still unresponsive
+		setTimeout(() => {
+			if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents.isLoading() === false) {
+				log.warn('🔄 Force reloading unresponsive renderer...');
+				mainWindow.webContents.reload();
+			}
+		}, 5000);
+	});
+	
+	// CRITICAL: Add recovery mechanism for completely frozen windows
+	mainWindow.webContents.on('crashed', () => {
+		log.error('❌ Renderer process crashed - attempting recovery...');
+		setTimeout(() => {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				log.warn('🔄 Attempting to recover crashed renderer...');
+				mainWindow.webContents.reload();
+			}
+		}, 2000);
 	});
 
 	mainWindow.webContents.on('responsive', () => {
@@ -2218,6 +2298,52 @@ app.whenReady().then(async () => {
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
 
+	// CRITICAL: Add watchdog timer to prevent main process hanging
+	let lastHeartbeat = Date.now();
+	const watchdogInterval = setInterval(() => {
+		const now = Date.now();
+		if (now - lastHeartbeat > 30000) { // 30 seconds without heartbeat
+			log.error('❌ Main process appears to be hanging - forcing restart...');
+			app.relaunch();
+			app.exit(1);
+		}
+		lastHeartbeat = now;
+	}, 5000); // Check every 5 seconds
+
+	// Update heartbeat on any activity
+	process.on('message', () => { lastHeartbeat = Date.now(); });
+	process.on('uncaughtException', (error) => { 
+		lastHeartbeat = Date.now();
+		log.error('❌ Uncaught exception:', error);
+	});
+	process.on('unhandledRejection', (reason) => { 
+		lastHeartbeat = Date.now();
+		log.error('❌ Unhandled rejection:', reason);
+	});
+	
+	// CRITICAL: Add process monitoring to detect hanging
+	const processMonitor = setInterval(() => {
+		const memUsage = process.memoryUsage();
+		const cpuUsage = process.cpuUsage();
+		
+		// Log memory usage every 30 seconds
+		if (Date.now() % 30000 < 5000) {
+			log.info('📊 Process stats:', {
+				memory: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
+				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB'
+			});
+		}
+		
+		// Force garbage collection if memory usage is too high
+		if (memUsage.heapUsed > 500 * 1024 * 1024) { // 500MB
+			log.warn('⚠️ High memory usage detected, forcing garbage collection...');
+			if (global.gc) {
+				global.gc();
+			}
+		}
+	}, 5000);
+
 	// Run startup diagnostics
 	runStartupDiagnostics();
 
@@ -2389,6 +2515,22 @@ app.whenReady().then(async () => {
 	try {
 		createWindow();
 		log.info('✅ Main window created successfully');
+
+		// Keep system from aggressively throttling while UI is active
+		let psbId = -1;
+		try {
+			psbId = powerSaveBlocker.start('prevent-app-suspension');
+			log.info('🛡️ powerSaveBlocker active:', powerSaveBlocker.isStarted(psbId));
+		} catch (e) {
+			log.warn('powerSaveBlocker not started:', e?.message);
+		}
+
+		// Stop blocker when app hides/quits
+		app.on('before-quit', () => {
+			if (psbId !== -1 && powerSaveBlocker.isStarted(psbId)) {
+				powerSaveBlocker.stop(psbId);
+			}
+		});
 	} catch (error) {
 		log.error('❌ Failed to create main window:', error);
 		log.error('❌ Error stack:', error.stack);
@@ -2911,10 +3053,24 @@ app.whenReady().then(async () => {
 
 			// Initialize NotchDrop in background without blocking main window
 			try {
-				await notchDropService.initialize();
+				// Add timeout to prevent hanging during NotchDrop initialization
+				const notchDropInitTimeout = new Promise((_, reject) => 
+					setTimeout(() => reject(new Error('NotchDrop initialization timeout')), 20000)
+				);
+				
+				await Promise.race([notchDropService.initialize(), notchDropInitTimeout]);
 				// log.info('✅ NotchDrop service initialized successfully');
 			} catch (error) {
 				log.error('❌ NotchDrop service initialization failed:', error);
+				// Clean up any partial initialization
+				if (notchDropService) {
+					try {
+						notchDropService.cleanup();
+					} catch (cleanupError) {
+						log.error('❌ Error cleaning up NotchDrop service:', cleanupError);
+					}
+					notchDropService = null;
+				}
 				// Continue without NotchDrop - app should still work
 			}
 		} else if (isIntelMac) {
@@ -3210,7 +3366,10 @@ app.whenReady().then(async () => {
 					}, 3000); // 3 second timeout
 
 					const checkWindowReady = () => {
-						if (windowHelper.isAskAIWindowReady()) {
+						const isReady = windowHelper.isAskAIWindowReady();
+						log.info(`🎯 IPC: Window ready check: ${isReady}`);
+						if (isReady) {
+							log.info('🎯 IPC: Window is ready!');
 							clearTimeout(timeout);
 							resolve();
 						} else {
@@ -4217,6 +4376,19 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error toggling overlay window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('show-overlay-window', async () => {
+		try {
+			if (!windowHelper) {
+				return { success: false, error: 'Window helper not initialized' };
+			}
+			windowHelper.showOverlayWindow();
+			return { success: true };
+		} catch (error) {
+			log.error('Error showing overlay window:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -5551,6 +5723,30 @@ app.on('before-quit', (event) => {
 	} else {
 		// Allow quit for updates
 		log.info('🔄 Allowing quit for update installation...');
+	}
+});
+
+// CRITICAL: Add cleanup for watchdog and process monitor
+app.on('will-quit', (event) => {
+	try {
+		// Clear watchdog interval
+		if (typeof watchdogInterval !== 'undefined') {
+			clearInterval(watchdogInterval);
+		}
+		
+		// Clear process monitor
+		if (typeof processMonitor !== 'undefined') {
+			clearInterval(processMonitor);
+		}
+		
+		// Clean up NotchDrop service
+		if (notchDropService) {
+			notchDropService.cleanup();
+		}
+		
+		log.info('🧹 App cleanup completed');
+	} catch (error) {
+		log.error('❌ Error during app cleanup:', error);
 	}
 });
 
