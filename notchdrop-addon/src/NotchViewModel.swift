@@ -242,6 +242,53 @@ class NotchViewModel: NSObject, ObservableObject {
 
     let hapticSender = PassthroughSubject<Void, Never>()
     
+    // Lightweight hover edge-detection flags (not published)
+    var wasInClosedHoverZone: Bool = false
+    var wasInOpenedHoverZone: Bool = false
+
+    // Keep the app in a high-responsiveness mode during interaction
+    private var performanceActivity: NSObjectProtocol?
+    private var performanceStopWorkItem: DispatchWorkItem?
+    private let performanceIdleTimeout: TimeInterval = 90 // seconds
+
+    func ensureInteractivePerformance() {
+        // Begin activity if not already begun
+        if performanceActivity == nil {
+            performanceActivity = ProcessInfo.processInfo.beginActivity(options: [
+                .userInitiatedAllowingIdleSystemSleep,
+                .latencyCritical,
+            ], reason: "Keep NotchDrop responsive during hover/expand") as NSObjectProtocol
+        }
+
+        // Reset the idle timer to end activity later
+        performanceStopWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.endInteractivePerformance()
+        }
+        performanceStopWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + performanceIdleTimeout, execute: workItem)
+    }
+
+    private func endInteractivePerformance() {
+        if let token = performanceActivity {
+            ProcessInfo.processInfo.endActivity(token)
+            performanceActivity = nil
+        }
+        performanceStopWorkItem?.cancel()
+        performanceStopWorkItem = nil
+    }
+
+    // Debounce hover haptics to avoid repeated feedback on micro-movements
+    private var lastHoverHapticTime: Date = .distantPast
+    private let hoverHapticMinInterval: TimeInterval = 0.3
+    func performHoverHapticIfNeeded() {
+        let now = Date()
+        if now.timeIntervalSince(lastHoverHapticTime) >= hoverHapticMinInterval {
+            NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .default)
+            lastHoverHapticTime = now
+        }
+    }
+    
     // MARK: - Dynamic Island UI State (Grouped for performance)
     @Published var isRecording: Bool = false
     @Published var isPaused: Bool = false

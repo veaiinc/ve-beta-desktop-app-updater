@@ -1,6 +1,7 @@
 const path = require('path');
 const log = require('electron-log');
 const { BrowserWindow } = require('electron');
+const { default: ObjectID } = require('bson-objectid');
 // const { WakeWordIntegration } = import('../../notchdrop-addon/wake-word-integration');
 
 let NotchDropAddonWrapper;
@@ -223,10 +224,17 @@ class NotchDropService {
 			try {
 				const text = typeof message === 'string' ? message : String(message || '');
 				const chatMessage = {
-					type: 'notchdrop-chat',
+					type: 'chat',
 					message: text,
 					timestamp: new Date().toISOString(),
 					source: 'notchdrop-swift-ui',
+                    path : `/chat/${ObjectID().toString()}`,
+					updateObject : {
+						type : 'chat',
+						payload : {
+							query : text,
+						}
+					}
 				};
 
 				// Emit to main via process event to reuse main.js flow

@@ -10,8 +10,7 @@ struct NotchView: View {
     @StateObject var vm: NotchViewModel
 
     @State var dropTargeting: Bool = false
-	@State private var isHoveringNotch: Bool = false
-    @State private var hoverScale: CGFloat = 1.0
+    @State private var isHoveringNotch: Bool = false
     @State private var hoverGlow: CGFloat = 0.0
 	@State private var isQuitting: Bool = false
 
@@ -40,6 +39,22 @@ struct NotchView: View {
                 height: vm.deviceNotchRect.height + 4
             )
         }
+    }
+
+    // Freeze collapsed size to avoid content stretching during open animation
+    var collapsedNotchSize: CGSize {
+        // Same computation as the .closed branch of notchSize
+        let isMacBookPro = vm.deviceNotchRect.width > 180
+        let baseWidth: CGFloat = 343
+        let baseHeight: CGFloat = 48
+        let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0
+        var ans = CGSize(
+            width: baseWidth * widthMultiplier,
+            height: baseHeight * widthMultiplier
+        )
+        if ans.width < 0 { ans.width = 0 }
+        if ans.height < 0 { ans.height = 0 }
+        return ans
     }
 
     var notchCornerRadius: CGFloat {
@@ -103,11 +118,11 @@ struct NotchView: View {
                 }
                 // When not authenticated, show nothing in collapsed state
             }
-            .frame(maxWidth: notchSize.width - 16, maxHeight: notchSize.height - 4)
+            .frame(maxWidth: collapsedNotchSize.width - 16, maxHeight: collapsedNotchSize.height - 4)
             .clipped()
             .opacity(vm.status == .closed ? 1 : 0) // Fade out when opening
-            .scaleEffect(vm.status == .closed ? 1 : 0.9) // Subtle scale down when opening
-            .animation(DynamicIslandTheme.hoverAnimation, value: vm.status) // Ultra-smooth transition
+            // Remove scale/animation to prevent closed-state icon growth on hover
+            .scaleEffect(1)
             .zIndex(1)
             
             Group {
@@ -169,12 +184,12 @@ struct NotchView: View {
             .foregroundStyle(.regularMaterial)
             .mask(notchBackgroundMaskGroup)
             .frame(
-                width: notchSize.width + notchCornerRadius * 2 + sidePulseOffset,
+                width: notchSize.width + notchCornerRadius * 2,
                 height: notchSize.height
             )
-            .scaleEffect(vm.status == .closed ? hoverScale : 1.02) // Dynamic hover scale
+            .scaleEffect(1.0) // Remove hover/open scaling to keep icons fixed
             .animation(DynamicIslandTheme.hoverAnimation, value: vm.status)
-            .animation(DynamicIslandTheme.hoverAnimation, value: hoverScale)
+            // Removed hover-driven scale animation
             .shadow(
                 color: .black.opacity(([.opened, .popping].contains(vm.status) && !vm.showNotificationOverlay) ? 1 : 0),
                 radius: 16
@@ -195,7 +210,7 @@ struct NotchView: View {
             )
             .onHover { hovering in
                 withAnimation(hovering ? DynamicIslandTheme.sideBounceKick : DynamicIslandTheme.sideBounceReturn) {
-                    hoverScale = hovering ? 1.05 : 1.0
+                    // Keep glow feedback, but do not change scale
                     hoverGlow = hovering ? 1.0 : 0.0
                     isHoveringNotch = hovering
                 }
@@ -203,11 +218,7 @@ struct NotchView: View {
     }
 
     // Side bounce pulse during hover-open
-    private var sidePulseOffset: CGFloat {
-        guard vm.status == .opened else { return 0 }
-        // small width wobble to sell the bubbly feel
-        return isHoveringNotch ? 6 : 0
-    }
+    // Removed sidePulseOffset to prevent width wobble on hover
 
     // Mini collapsed audio visualizer (5 bars) - matches CSS animation
     struct CollapsedAudioViz: View {

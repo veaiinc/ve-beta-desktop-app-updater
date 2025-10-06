@@ -191,6 +191,35 @@ contextBridge.exposeInMainWorld('electronApi', {
 			});
 		},
 
+		// Show chatbox mode
+		showChatbox: () => ipcRenderer.invoke('show-askAI-chatbox'),
+
+		// Show response window mode
+		showResponse: () => ipcRenderer.invoke('show-askAI-response'),
+
+		// Listen for show chatbox command
+		onShowChatbox: (callback) => {
+			ipcRenderer.on('askAI-show-chatbox', (event, data) => {
+				callback(data);
+			});
+		},
+
+		// Listen for show response command
+		onShowResponse: (callback) => {
+			ipcRenderer.on('askAI-show-response', (event, data) => {
+				callback(data);
+			});
+		},
+
+		// Remove listeners
+		removeShowChatboxListener: () => {
+			ipcRenderer.removeAllListeners('askAI-show-chatbox');
+		},
+
+		removeShowResponseListener: () => {
+			ipcRenderer.removeAllListeners('askAI-show-response');
+		},
+
 		// Camera permission API
 		camera: {
 			checkPermission: () => ipcRenderer.invoke('check-camera-permission'),
@@ -461,7 +490,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	},
 
 	navigateMainWindow: (data) => ipcRenderer.invoke('navigate-main-window', data),
-	onNavigate: (callback) => ipcRenderer.on('navigate-to', (_, path) => callback(path)),
+	onNavigate: (callback) => ipcRenderer.on('navigate-to', (_, data) => callback(data)),
 
 	// Simple Content Protection APIs
 	toggleContentProtection: () => ipcRenderer.invoke('toggle-content-protection'),
