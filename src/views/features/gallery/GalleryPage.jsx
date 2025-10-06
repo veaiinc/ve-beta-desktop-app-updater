@@ -461,7 +461,7 @@ const GalleryPage = () => {
 		},
 		{
 			icon: <TrashIcon />,
-			label: 'Move to Trash',
+			label: 'Delete Gallery',
 			onClick: () =>
 				setInfo((prev) => ({
 					...prev,
@@ -4043,7 +4043,16 @@ const GalleryPage = () => {
 															className="file-filter-option-items"
 														>
 															{option.icon}
-															<span>{option.label}</span>
+															<span
+																style={
+																	option.label ===
+																	'Delete Gallery'
+																		? { color: 'var(--error)' }
+																		: {}
+																}
+															>
+																{option.label}
+															</span>
 														</li>
 													),
 												)}
@@ -5158,7 +5167,7 @@ const GalleryPage = () => {
 																<DeleteIcon />
 																<span
 																	style={{
-																		color: '#A74A49',
+																		color: 'var(--error)',
 																		cursor: 'pointer',
 																	}}
 																>
@@ -6468,28 +6477,37 @@ const GalleryPage = () => {
 				galleryId={galleryId}
 				setCollaborator={(data) => handleManageCollaborator(data)}
 			/>
-			<DeletePopup
-				open={info?.showDeleteAlbum}
-				closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
-				galleryId={galleryId}
-				isTagDelete={false}
-				title={'Album'}
-				paragraph={'Images'}
-				handleDelete={handleDeleteAlbum}
-			/>
-			<DeletePopup
-				open={info.deleteTagPopup}
-				closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
-				galleryId={galleryId}
-				title={'Delete Tag'}
-				isTagDelete={true}
-				paragraph={'Are you sure you want to delete this tag?'}
-				selectedDropDownValue={info.selectedDropDownValue}
-				handleDeleteTypeChange={handleDeleteTypeChange}
-				handleDelete={() =>
-					handleDeleteTag(info.activeTag._id, info?.activeAlbum?.slug, 'remove_images')
-				}
-			/>
+			{info?.showDeleteAlbum && (
+				<DeletePopup
+					open={info?.showDeleteAlbum}
+					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
+					galleryId={galleryId}
+					isTagDelete={false}
+					title={'Album'}
+					paragraph={'Images'}
+					handleDelete={handleDeleteAlbum}
+					currentTitle={info?.activeAlbum?.title}
+				/>
+			)}
+			{info?.deleteTagPopup && (
+				<DeletePopup
+					open={info.deleteTagPopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
+					galleryId={galleryId}
+					title={'Delete Tag'}
+					isTagDelete={true}
+					paragraph={'Are you sure you want to delete this tag?'}
+					selectedDropDownValue={info.selectedDropDownValue}
+					handleDeleteTypeChange={handleDeleteTypeChange}
+					handleDelete={() =>
+						handleDeleteTag(
+							info.activeTag._id,
+							info?.activeAlbum?.slug,
+							'remove_images',
+						)
+					}
+				/>
+			)}
 			<MainPopup
 				open={info.showMainPopup}
 				heading={
@@ -6594,13 +6612,16 @@ const GalleryPage = () => {
 				gridSpacing={info?.gridSpacing}
 			/>
 
-			<DeletePopup
-				open={info.showDeletePopup}
-				closeModal={() => setInfo((prev) => ({ ...prev, showDeletePopup: false }))}
-				title={'Gallery'}
-				paragraph={'Albums'}
-				handleDelete={handleDeleteGallery}
-			/>
+			{info?.showDeletePopup && (
+				<DeletePopup
+					open={info.showDeletePopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, showDeletePopup: false }))}
+					title={'Gallery'}
+					paragraph={'Albums'}
+					handleDelete={handleDeleteGallery}
+					currentTitle={info?.activeGallery?.title}
+				/>
+			)}
 
 			<ShareAlbum
 				open={info.showShareAlbum}
