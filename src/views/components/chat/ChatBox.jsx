@@ -2009,7 +2009,7 @@ const ChatBox = ({
 			{showBottomTools && (
 				<div className="chat-payload-info">
 					<div className="left-container">
-						{isBuildEnbled &&
+						{/* {isBuildEnbled &&
 							!isPublicChat &&
 							showBottomTools &&
 							workspaceMode !== 'stable' && (
@@ -2019,7 +2019,7 @@ const ChatBox = ({
 										<div className="btn-text">Create</div>
 									</button>
 								</BuildTooltip>
-							)}
+							)} */}
 
 						{!isPublicChat && showBottomTools && (
 							<button

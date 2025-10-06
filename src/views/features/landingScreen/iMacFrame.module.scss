@@ -1,0 +1,216 @@
+.imacFrame {
+	position: relative;
+	width: 943.28px;
+	height: 800px; // Increased height for better text visibility and pinned content
+	margin: 0 auto;
+	display: none; // Hidden by default, show only on desktop
+	transform-origin: center center; // Ensure scaling happens from center
+	will-change: transform; // Optimize for animations
+	z-index: 10; // Above download section
+
+	// Responsive scaling for small screens
+	@media (max-width: 1400px) {
+		width: 80vw;
+		height: calc(80vw * 0.85); // Maintain aspect ratio
+		max-width: 943.28px;
+		max-height: 730px;
+	}
+
+	@media (max-width: 1200px) {
+		width: 75vw;
+		height: calc(75vw * 0.85);
+		max-width: 800px;
+		max-height: 680px;
+	}
+
+	@media (max-width: 1024px) {
+		width: 70vw;
+		height: calc(70vw * 0.85);
+		max-width: 700px;
+		max-height: 595px;
+	}
+
+	@media (min-width: 1025px) {
+		display: block;
+	}
+}
+
+.screen {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(270deg, #010841 0%, #151a49 100%);
+	border-radius: 21.64px;
+	overflow: hidden;
+	border: 0.8px solid white;
+}
+
+.screenContent {
+	width: 100%;
+	height: 100%;
+	border-radius: 21.64px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-family: var(--primary-font-family);
+	font-size: 24px;
+	font-weight: 600;
+	text-align: center;
+	border: 20px solid #eaeaea;
+	overflow: hidden;
+}
+
+.screenImage {
+	width: calc(100% - 40px); // Account for 20px border on each side
+	height: calc(100% - 40px); // Account for 20px border on top and bottom
+	object-fit: contain;
+	position: absolute;
+	top: -106px; // Offset by border width
+	left: 20px; // Offset by border width
+	transition: opacity 0.8s ease-in-out;
+	will-change: opacity;
+	border-radius: 1.64px; // Slightly smaller radius to fit inside frame
+
+	// Responsive adjustments for different screen sizes
+	@media (max-width: 1400px) {
+		width: calc(100% - 32px);
+		height: calc(100% - 32px);
+		top: -75px;
+		left: 16px;
+	}
+
+	@media (max-width: 1200px) {
+		width: calc(100% - 28px);
+		height: calc(100% - 28px);
+		top: -91px;
+		left: 14px;
+	}
+
+	@media (max-width: 1024px) {
+		width: calc(100% - 24px);
+		height: calc(100% - 24px);
+		top: -97px;
+		left: 12px;
+	}
+
+	// Video - shows by default, hidden when zoomed (glow shows instead)
+	&[data-image='varya'] {
+		opacity: 1;
+		z-index: 3;
+	}
+
+	// BgLayer image - fallback static background
+	&[data-image='bg-layer'] {
+		opacity: 0;
+		z-index: 2;
+	}
+
+	// Fade transition states
+	&.fade-out {
+		opacity: 0;
+	}
+
+	&.fade-in {
+		opacity: 1;
+	}
+
+	// Video active state (when zoomed)
+	&.video-active {
+		opacity: 1;
+		z-index: 3;
+	}
+
+	// Hidden state
+	&.hidden {
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+.lens {
+	position: absolute;
+	top: 7.03px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 7.03px;
+	height: 7.03px;
+}
+
+.lensOuter {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #55575e;
+	border: 0.9px solid #3b3b3b;
+	border-radius: 50%;
+}
+
+.lensInner {
+	position: absolute;
+	top: 2.34px;
+	left: 2.34px;
+	width: 2.34px;
+	height: 2.34px;
+	background: #494c51;
+	border-radius: 50%;
+}
+
+.lensReflection1,
+.lensReflection2 {
+	position: absolute;
+	top: 0;
+	width: 0.47px;
+	height: 2.34px;
+	background: #617189;
+}
+
+.lensReflection1 {
+	left: 0;
+}
+
+.lensReflection2 {
+	left: 1.88px;
+}
+
+.lensReflection3 {
+	position: absolute;
+	top: 0.47px;
+	left: 0.47px;
+	width: 1.41px;
+	height: 1.41px;
+	background: #7b6a77;
+	border-radius: 50%;
+}
+
+.lensReflection4 {
+	position: absolute;
+	top: 0.47px;
+	left: 0.94px;
+	width: 0.94px;
+	height: 0.94px;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 50%;
+}
+
+.lensReflection5 {
+	position: absolute;
+	top: 0.47px;
+	left: 0.47px;
+	width: 1.41px;
+	height: 1.41px;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 50%;
+}
+
+.border {
+	position: absolute;
+	top: 22.5px;
+	left: 21.57px;
+	width: 900.15px;
+	height: 506.22px;
+	background: #121212;
+	border-radius: 21.64px;
+	z-index: -1;
+}

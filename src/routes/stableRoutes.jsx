@@ -8,17 +8,18 @@ const Public = lazy(() => import('../views/layouts/Public'));
 // lazy loaded pages
 // const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
-const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
+// const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
-const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
+// const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 // const Agents = lazy(() => import('../views/features/agents/Agents'));
 // const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
 // const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
-const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
-const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
+// const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+// const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
 // const ProactiveSuggestions = lazy(() =>
 // 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 // );
+const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DownloadDesktopApp'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
@@ -37,10 +38,17 @@ const stableRoutes = [
 		// 		</AuthWrapper>
 		// 	</Suspense>
 		// ),
+		// element: (
+		// 	<Suspense fallback={<SuspenseFallback />}>
+		// 		<AuthWrapper title={'Meet'}>
+		// 			<CardMeetBot />
+		// 		</AuthWrapper>
+		// 	</Suspense>
+		// ),
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Meet'}>
-					<CardMeetBot />
+				<AuthWrapper title={'Download Desktop App'}>
+					<DownloadDesktopApp />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -73,62 +81,62 @@ const stableRoutes = [
 	// ========================================
 	// CHAT & COMMUNICATION
 	// ========================================
-	{
-		path: '/chats',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Chats'}>
-					<ChatPage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/chat/:sessionId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper
-					title={'Chat'}
-					showBottomToolbar={false}
-					outerContainerStyle={{
-						paddingRight: '0px',
-						backgroundColor: 'var(--background-color)',
-					}}
-					authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
-					maxWidth="100%"
-				>
-					<RecentChat
-						showChatHistory={true}
-						showDeleteChat={true}
-						showRightBar={true}
-						showChats={true}
-						showChatsButton={true}
-						showBrowser={true}
-					/>
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/meet',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Meet'}>
-					<CardMeetBot />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/meet/:meetingId',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Meet'}>
-					<MeetBotWrapper />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/chats',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Chats'}>
+	// 				<ChatPage />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/chat/:sessionId',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper
+	// 				title={'Chat'}
+	// 				showBottomToolbar={false}
+	// 				outerContainerStyle={{
+	// 					paddingRight: '0px',
+	// 					backgroundColor: 'var(--background-color)',
+	// 				}}
+	// 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
+	// 				maxWidth="100%"
+	// 			>
+	// 				<RecentChat
+	// 					showChatHistory={true}
+	// 					showDeleteChat={true}
+	// 					showRightBar={true}
+	// 					showChats={true}
+	// 					showChatsButton={true}
+	// 					showBrowser={true}
+	// 				/>
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/meet',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Meet'}>
+	// 				<CardMeetBot />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
+	// {
+	// 	path: '/meet/:meetingId',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Meet'}>
+	// 				<MeetBotWrapper />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 
 	// ========================================
 	// Playbook
@@ -154,6 +162,14 @@ const stableRoutes = [
 				<AuthWrapper title={'Workspace Settings'}>
 					<SettingsWrapper />
 				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/download-app',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<DownloadDesktopApp />
 			</Suspense>
 		),
 	},

@@ -16,12 +16,14 @@ export const publicRoutesList = [
 	'/forefront',
 	'/onboarding',
 	'/verify-user',
+	'/pricing',
 	'/referral/:referralCode',
 	'/privacy-policy',
 	'/terms-of-service',
 	'/cookie-policy',
 	'/changelog',
 	'/user/verify-oauth-user',
+	'/download-app',
 ];
 
 const routeImports = {

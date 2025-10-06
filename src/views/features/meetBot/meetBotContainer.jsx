@@ -554,7 +554,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						time: item.createdAt
 							? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
 							: '', // Convert timestamp to readable time
-						speakerName: item.speakerName || 'Note Taker', // Default speaker name
+						speakerName: item.speakerName || 'VE Note Taker', // Default speaker name
 					}));
 
 					setInfo((prev) => ({
@@ -713,7 +713,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 													)}
 
 													<span className="meet-transcript-participant">
-														{item.speakerName || 'Note Taker'}
+														{item.speakerName || 'VE Note Taker'}
 													</span>
 													<DotIcon />
 													<span className="meet-transcript-time">

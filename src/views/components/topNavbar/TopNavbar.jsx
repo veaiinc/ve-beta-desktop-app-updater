@@ -52,6 +52,7 @@ const baseLeftContainerItems = [
 			</>
 		),
 		route: '/chats',
+		type: 'chat',
 		showBetaBadge: false,
 	},
 	// {
@@ -142,7 +143,9 @@ const TopNavbar = () => {
 					item.label !== 'Vault' &&
 					item.label !== 'Tools' &&
 					item.label !== 'Proactive AI' &&
-					item.label !== 'Agents',
+					item.label !== 'Agents' &&
+					item.label !== 'Meetings' &&
+					item.type !== 'chat',
 			);
 		}
 

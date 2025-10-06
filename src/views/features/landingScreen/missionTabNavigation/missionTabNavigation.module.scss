@@ -34,7 +34,8 @@
 
 			&:hover,
 			&.active {
-				background: var(--card, #18191b);
+				background: var(--stroke);
+				color: #fff;
 			}
 		}
 
