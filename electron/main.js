@@ -17,6 +17,7 @@ const {
 	clipboard,
 	dialog,
 	shell,
+    powerSaveBlocker,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -57,6 +58,17 @@ const {
 } = require('./galleryHelper');
 
 const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
+
+// Chromium switches to reduce/disable background throttling and occlusion issues
+try {
+    app.commandLine.appendSwitch('disable-renderer-backgrounding');
+    app.commandLine.appendSwitch('disable-background-timer-throttling');
+    app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+    // Disable native occlusion calculation which can pause hidden windows on macOS
+    app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+} catch (e) {
+    // Non-fatal; continue without switches
+}
 
 // Import NotchDrop service
 const NotchDropService = require('./services/notchDropService');
@@ -1451,6 +1463,8 @@ function createWindow(restoreState = false) {
 			webSecurity: true,
 			allowRunningInsecureContent: false,
 			sandbox: false,
+			// Keep timers/raf unthrottled to improve responsiveness after idle
+			backgroundThrottling: false,
 		},
 	});
 
@@ -2501,6 +2515,22 @@ app.whenReady().then(async () => {
 	try {
 		createWindow();
 		log.info('✅ Main window created successfully');
+
+		// Keep system from aggressively throttling while UI is active
+		let psbId = -1;
+		try {
+			psbId = powerSaveBlocker.start('prevent-app-suspension');
+			log.info('🛡️ powerSaveBlocker active:', powerSaveBlocker.isStarted(psbId));
+		} catch (e) {
+			log.warn('powerSaveBlocker not started:', e?.message);
+		}
+
+		// Stop blocker when app hides/quits
+		app.on('before-quit', () => {
+			if (psbId !== -1 && powerSaveBlocker.isStarted(psbId)) {
+				powerSaveBlocker.stop(psbId);
+			}
+		});
 	} catch (error) {
 		log.error('❌ Failed to create main window:', error);
 		log.error('❌ Error stack:', error.stack);
