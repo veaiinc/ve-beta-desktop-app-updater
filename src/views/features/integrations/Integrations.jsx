@@ -197,6 +197,13 @@ const processLegacyData = (data) => {
 			connectType: 'outlook-mail',
 			access: 'private',
 		},
+		{
+			key: 'notion',
+			icon: notion,
+			title: 'Notion',
+			connectType: 'notion',
+			access: 'private',
+		},
 	];
 
 	legacyMappings.forEach(({ key, icon, title, connectType, access }) => {

@@ -1,29 +1,24 @@
-import { memo, useContext, useEffect, useState, useCallback, lazy } from 'react';
+import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 // import Sidebar from '../components/sidebar/Sidebar';
 import TopNavbar from '../components/topNavbar/TopNavbar';
 import '../../assets/scss/authWrapper.scss';
-const ExpiredSubscriptionModal = lazy(() =>
-	import('../components/modalsV2/subscription/ExpiredSubscriptionModal'),
-);
-const ExpiredTokenModal = lazy(() =>
-	import('../components/modalsV2/subscription/ExpiredTokenModal'),
-);
-const AccessDeniedPopup = lazy(() => import('../components/accessPopups/accessDeniedPopup'));
-const CustomToast = lazy(() => import('../components/globalComponents/CustomToast'));
-const { message } = lazy(() => import('../components/globalComponents/CustomToast'));
-const PageLoader = lazy(() => import('../features/app/PageLoader'));
+import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
+import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
+import AccessDeniedPopup from '../components/accessPopups/accessDeniedPopup';
+import CustomToast, { message } from '../components/globalComponents/CustomToast';
+import PageLoader from '../features/app/PageLoader';
 import useAuthInitializer from '../../hooks/useAuthInitializer';
 import usePushNotifications from '../../hooks/usePushNotifications';
 // const useMigrationGate = lazy(() => import('../../hooks/useMigrationGate'));
-const VoiceWrapper = lazy(() => import('./VoiceWrapper'));
+import VoiceWrapper from './VoiceWrapper';
 import Context from '../../context/context';
 import useNetworkStatus from '../../hooks/useNetworkStatus';
 import useIntercom from '../../hooks/useIntercom';
-const Offline = lazy(() => import('../features/offline/Offline'));
+import Offline from '../features/offline/Offline';
 // const UnderMaintainence = lazy(() => import('../features/underMaintainence/underMaintainence'));
 import { internalServerEmitter } from '../../services';
-const InternalServer = lazy(() => import('../components/globalComponents/InternalServer'));
+import InternalServer from '../components/globalComponents/InternalServer';
 import { useNavigate } from 'react-router-dom';
 
 const AuthWrapper = ({
@@ -75,15 +70,20 @@ const AuthWrapper = ({
 
 	useEffect(() => {
 		window.electronApi.onNavigate((data) => {
-			const { path, updateObject=null } = data;
+			const { path, updateObject = null } = data;
 
-			if(updateObject) {
-				if(updateObject.type ==='chat') {
+			if (updateObject) {
+				if (updateObject.type === 'chat') {
 					const sessionId = path.split('/')[2];
-					updateStateValues({activePromptForChat:{sessionId:sessionId,prompt:updateObject.payload?.query}});
+					updateStateValues({
+						activePromptForChat: {
+							sessionId: sessionId,
+							prompt: updateObject.payload?.query,
+						},
+					});
 				}
 			}
-			console.log('navigate',updateObject, path);
+			console.log('navigate', updateObject, path);
 			navigate(path); // client-side navigation
 		});
 	}, [navigate]);

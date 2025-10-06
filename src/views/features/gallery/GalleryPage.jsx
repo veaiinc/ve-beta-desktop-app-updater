@@ -31,7 +31,7 @@ import { ReactComponent as ToastError } from '../../../assets/svg/gallery/toastE
 import { ReactComponent as SettingsIcon } from '../../../assets/svg/gallery/settingIcon.svg';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { ReactComponent as UpArrow } from '../../../assets/svg/workflow/downArrow.svg';
-import { Checkbox, Result, theme, Tooltip } from 'antd';
+import { Checkbox, Result, theme, Tooltip, Switch, message } from 'antd';
 import ShareModal from '../../../views/components/modalsV2/gallery/ShareModal';
 import CreateAlbum from '../../components/modalsV2/gallery/CreateAlbum';
 import CollaboratorPopup from '../../components/modalsV2/gallery/CollaboratorPopup';
@@ -60,7 +60,6 @@ import DownloadAlbum from '../../components/modalsV2/gallery/DownloadAlbum';
 import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbumImagesPopup';
 import VideoUploadPopup from '../../components/modalsV2/gallery/UploadVideo';
 // import ToggleSlider from '../../components/input/slider';
-import { Switch, message } from 'antd';
 import ShowLightRoomCopy from '../../components/modalsV2/gallery/ShowLightRoomCopy';
 import { getCurrentWorkspaceId } from '../../../helpers';
 import GridImage from '../../../assets/images/workflow_builder/dotgrid.png';
@@ -476,7 +475,7 @@ const GalleryPage = () => {
 		},
 		{
 			icon: <TrashIcon />,
-			label: 'Move to Trash',
+			label: 'Delete Gallery',
 			onClick: () =>
 				setInfo((prev) => ({
 					...prev,
@@ -1303,7 +1302,6 @@ const GalleryPage = () => {
 
 	const handleHideAlbum = async () => {
 		try {
-			// Store current active album details before making any changes
 			const currentAlbumId = info?.activeAlbumId;
 			const currentAlbum = info?.activeAlbum;
 
@@ -1314,7 +1312,6 @@ const GalleryPage = () => {
 			const response = await editAlbumName(payload, galleryId, currentAlbumId);
 
 			if (response?.[0] === true) {
-				// Update state while preserving the active album
 				setInfo((prev) => ({
 					...prev,
 					activeAlbum: {
@@ -1333,7 +1330,6 @@ const GalleryPage = () => {
 					showOptionsContainer: true,
 				}));
 
-				// Refresh data without changing the active album
 				Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
 
 				showMessage('success', 'Album visibility updated successfully');
@@ -1355,7 +1351,6 @@ const GalleryPage = () => {
 	const handleLockAlbum = useCallback(async () => {
 		const newGuestAccessState = !info?.activeAlbum?.guestAccess?.isEnabled;
 
-		// First update state optimistically
 		setInfo((prev) => ({
 			...prev,
 			activeAlbum: {
@@ -1397,13 +1392,11 @@ const GalleryPage = () => {
 				isEnabled: newGuestAccessState,
 			};
 
-			// Wait for the edit operation to complete
 			const response = await editLockAlbum(payload, galleryId, info.activeAlbumId);
 
 			if (response?.[0] === true) {
 				showMessage('success', 'Album access updated successfully');
 			} else {
-				// If the update failed, revert the optimistic update
 				setInfo((prev) => ({
 					...prev,
 					activeAlbum: {
@@ -1413,7 +1406,6 @@ const GalleryPage = () => {
 							isEnabled: !newGuestAccessState,
 						},
 					},
-					// ... similar reversions for tenantAlbums and albumImagesCount
 				}));
 				showMessage('error', 'Failed to update album access', handleLockAlbum);
 			}
@@ -3505,7 +3497,7 @@ const GalleryPage = () => {
 	// };
 
 	// ... existing code ...
-	const handleDownload = async () => {
+	const handleDownload = async (type = null) => {
 		if (
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
@@ -3586,7 +3578,7 @@ const GalleryPage = () => {
 				// Handle bulk download (more than 10 images)
 				const payload = {
 					image_ids: info?.selectedImages,
-					imageType: 'optimized',
+					imageType: type,
 				};
 				const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
 
@@ -4271,7 +4263,16 @@ const GalleryPage = () => {
 															className="file-filter-option-items"
 														>
 															{option.icon}
-															<span>{option.label}</span>
+															<span
+																style={
+																	option.label ===
+																	'Delete Gallery'
+																		? { color: 'var(--error)' }
+																		: {}
+																}
+															>
+																{option.label}
+															</span>
 														</li>
 													),
 												)}
@@ -5386,7 +5387,7 @@ const GalleryPage = () => {
 																<DeleteIcon />
 																<span
 																	style={{
-																		color: '#A74A49',
+																		color: 'var(--error)',
 																		cursor: 'pointer',
 																	}}
 																>
@@ -6307,7 +6308,10 @@ const GalleryPage = () => {
 																		setInfo((prev) => ({
 																			...prev,
 																			selectedAlbumToMove:
-																				album?._id,
+																				prev.selectedAlbumToMove ===
+																				album?._id
+																					? null
+																					: album?._id,
 																		}))
 																	}
 																	checked={
@@ -6411,9 +6415,26 @@ const GalleryPage = () => {
 										<ExpandIcon />
 									</div>
 								)}
-								<div onClick={handleDownload}>
-									<DownloadIcon />
-								</div>
+								<Tooltip
+									title={
+										<div className="galleryEditOptions">
+											<li onClick={() => handleDownload('original')}>
+												Originals
+											</li>
+											<li onClick={() => handleDownload('optimized')}>
+												Optimized
+											</li>
+										</div>
+									}
+									placement="top"
+									arrow={false}
+									trigger={'click'}
+									color="transparent"
+								>
+									<div>
+										<DownloadIcon />
+									</div>
+								</Tooltip>
 								{info?.activeTab !== 'Collections' && (
 									<div
 										onClick={() =>
@@ -6679,28 +6700,37 @@ const GalleryPage = () => {
 				galleryId={galleryId}
 				setCollaborator={(data) => handleManageCollaborator(data)}
 			/>
-			<DeletePopup
-				open={info?.showDeleteAlbum}
-				closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
-				galleryId={galleryId}
-				isTagDelete={false}
-				title={'Album'}
-				paragraph={'Images'}
-				handleDelete={handleDeleteAlbum}
-			/>
-			<DeletePopup
-				open={info.deleteTagPopup}
-				closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
-				galleryId={galleryId}
-				title={'Delete Tag'}
-				isTagDelete={true}
-				paragraph={'Are you sure you want to delete this tag?'}
-				selectedDropDownValue={info.selectedDropDownValue}
-				handleDeleteTypeChange={handleDeleteTypeChange}
-				handleDelete={() =>
-					handleDeleteTag(info.activeTag._id, info?.activeAlbum?.slug, 'remove_images')
-				}
-			/>
+			{info?.showDeleteAlbum && (
+				<DeletePopup
+					open={info?.showDeleteAlbum}
+					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
+					galleryId={galleryId}
+					isTagDelete={false}
+					title={'Album'}
+					paragraph={'Images'}
+					handleDelete={handleDeleteAlbum}
+					currentTitle={info?.activeAlbum?.title}
+				/>
+			)}
+			{info?.deleteTagPopup && (
+				<DeletePopup
+					open={info.deleteTagPopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
+					galleryId={galleryId}
+					title={'Delete Tag'}
+					isTagDelete={true}
+					paragraph={'Are you sure you want to delete this tag?'}
+					selectedDropDownValue={info.selectedDropDownValue}
+					handleDeleteTypeChange={handleDeleteTypeChange}
+					handleDelete={() =>
+						handleDeleteTag(
+							info.activeTag._id,
+							info?.activeAlbum?.slug,
+							'remove_images',
+						)
+					}
+				/>
+			)}
 			<MainPopup
 				open={info.showMainPopup}
 				heading={
@@ -6805,13 +6835,16 @@ const GalleryPage = () => {
 				gridSpacing={info?.gridSpacing}
 			/>
 
-			<DeletePopup
-				open={info.showDeletePopup}
-				closeModal={() => setInfo((prev) => ({ ...prev, showDeletePopup: false }))}
-				title={'Gallery'}
-				paragraph={'Albums'}
-				handleDelete={handleDeleteGallery}
-			/>
+			{info?.showDeletePopup && (
+				<DeletePopup
+					open={info.showDeletePopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, showDeletePopup: false }))}
+					title={'Gallery'}
+					paragraph={'Albums'}
+					handleDelete={handleDeleteGallery}
+					currentTitle={info?.activeGallery?.title}
+				/>
+			)}
 
 			<ShareAlbum
 				open={info.showShareAlbum}

@@ -431,7 +431,7 @@ const GalleryViewer = ({
 		message.success('Tag update Successfull');
 	};
 
-	const handleDownloadSingleImage = async () => {
+	const handleDownloadSingleImage = async (type) => {
 		message.success('Downloading Started...');
 		setInfo((prev) => ({
 			...prev,
@@ -443,7 +443,7 @@ const GalleryViewer = ({
 		if (response?.[0]) {
 			const response = await getDownloadLinkForImage(
 				info?.activeImage,
-				isLightGallery,
+				type === 'optimized' ? true : false,
 				totalBytes,
 			);
 			setInfo((prev) => ({
@@ -658,12 +658,27 @@ const GalleryViewer = ({
 								<Pin /> Tags
 							</div>
 						</Tooltip>
-						<div
-							className="eachImageOptions"
-							onClick={() => handleDownloadSingleImage()}
+						<Tooltip
+							title={
+								<div className="downloadOptions">
+									<div onClick={() => handleDownloadSingleImage('original')}>
+										Original
+									</div>
+									<div onClick={() => handleDownloadSingleImage('optimized')}>
+										Optimized
+									</div>
+								</div>
+							}
+							arrow={false}
+							trigger={'click'}
+							color="transparent"
+							placement="bottom"
+							zIndex={10000}
 						>
-							{info?.downloadLoading ? <Loader /> : <Download />} Download
-						</div>
+							<div className="eachImageOptions">
+								{info?.downloadLoading ? <Loader /> : <Download />} Download
+							</div>
+						</Tooltip>
 						<div
 							className="eachImageOptions deleteImage"
 							onClick={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: true }))}

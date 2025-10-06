@@ -68,4 +68,3 @@ export const getCurrentWorkspaceId = () => {
 export const getCurrentUserToken = () => {
 	return localStorage.getItem('usertoken');
 };
-
