@@ -226,7 +226,8 @@ struct DynamicIslandContentView: View {
 
                                 // Teams pill (sets Teams view)
                                 Button(action: {
-                                    vm.isTeamsView = true
+                                    // Delegate decision to Electron based on workspace suspension
+                                    vm.navigateToMainScreen(path: "MEETING_AI_CLICK")
                                 }) {
                                     HStack(spacing: 6) {
                                         Text("Meeting AI")
