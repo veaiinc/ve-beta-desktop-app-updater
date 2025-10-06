@@ -12,11 +12,9 @@ const suspendedRoute = [
 	{
 		path: '/settings/pricing',
 		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Pricing'}>
-					<PricingPage />
-				</AuthWrapper>
-			</Suspense>
+			<AuthWrapper title={'Pricing'}>
+				<PricingPage />
+			</AuthWrapper>
 		),
 	},
 	// Block all other routes for suspended users
