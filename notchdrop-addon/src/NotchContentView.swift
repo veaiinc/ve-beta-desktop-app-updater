@@ -122,6 +122,10 @@ struct SmartMeetingCard: View {
                     vm.startRecording()
                 }
             }
+            // .onTapGesture {
+            //     // Delegate to Electron: redirect to pricing if suspended, else start meeting
+            //     vm.navigateToMainScreen(path: "MEETING_AI_CLICK")
+            // }
             .onHover { hovering in
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isHovered = hovering
@@ -557,8 +561,9 @@ struct DynamicIslandContentView: View {
                                 .padding(.vertical, 8)
                                 .padding(.horizontal, 12)
                             }
-                            .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 120)
-                            .background(Color.black.opacity(0.4))
+                            .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 100)
+                            // .background(Color.black.opacity(0.4))
+                            
                             .cornerRadius(10)
                         } else if vm.isRecording && !vm.showTranscriptionDuringRecording {
                             // Show live intelligence data in chat-like format
@@ -578,10 +583,11 @@ struct DynamicIslandContentView: View {
                                     }
                                 }
                                 .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
+                                // .padding(.horizontal, 12)
                             }
-                            .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 120)
-                            .background(Color.black.opacity(0.4))
+                            .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 100)
+                            // .background(Color.black.opacity(0.4))
+                            
                             .cornerRadius(10)
                             // .onAppear {
                             //     // Console log live intelligence data display in SwiftUI
@@ -1083,28 +1089,24 @@ struct TranscriptionMessageView: View {
     let message: NotchViewModel.VoiceMessage
     
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            // Sender label
-            Text(message.sender)
-                .font(.system(size: 12, weight: .medium))
+        VStack(alignment: .leading, spacing: 4) {
+            // Sender on first line
+            Text(message.sender )
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(.white.opacity(0.8))
-                .frame(width: 40, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
-            // Message content
+            // Content on second line, full width
             Text(message.content)
-                .font(.system(size: 13))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.white)
                 .multilineTextAlignment(.leading)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(message.isFromAgent ? Color.blue.opacity(0.2) : Color.gray.opacity(0.2))
-                )
         }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
@@ -3448,7 +3450,7 @@ struct TemporaryFolderView: View {
             CompactTemporaryFolderAskAnythingButton()
             
             // Incognito button (compact)
-            CompactTemporaryFolderIncognitoButton()
+            IncognitoIcon()
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
@@ -3692,60 +3694,16 @@ struct IncognitoIcon: View {
     var color: Color = .white
     
     var body: some View {
-        GeometryReader { geo in
-            let scale = min(geo.size.width, geo.size.height) / 15.0
-            let offsetX = (geo.size.width - 15.0 * scale) / 2.0
-            let offsetY = (geo.size.height - 14.0 * scale) / 2.0
-            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
-                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
-            }
-            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
-                CGRect(
-                    x: offsetX + (centerX - radius) * scale,
-                    y: offsetY + (centerY - radius) * scale,
-                    width: radius * 2.0 * scale,
-                    height: radius * 2.0 * scale
-                )
-            }
-            
-            ZStack {
-                // Top line
-                Path { path in
-                    path.move(to: point(0.94, 6.56))
-                    path.addLine(to: point(14.06, 6.56))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-                
-                // Left wheel
-                Path { path in
-                    path.addEllipse(in: circleRect(4.66, 9.84, 1.53))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-                
-                // Right wheel
-                Path { path in
-                    path.addEllipse(in: circleRect(10.34, 9.84, 1.53))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-                
-                // Bottom line
-                Path { path in
-                    path.move(to: point(6.17, 10.06))
-                    path.addLine(to: point(8.83, 10.06))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-                
-                // Car body
-                Path { path in
-                    path.move(to: point(2.69, 6.56))
-                    path.addLine(to: point(5.42, 2.80))
-                    path.addLine(to: point(8.18, 3.61))
-                    path.addLine(to: point(12.31, 6.56))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-            }
+        // Use the same Stealth (Pirate/Eye) visual language as the opened notch.
+        // For closed state, render the Pirate icon within a circular stroked border.
+        ZStack {
+            Circle()
+                .stroke(color.opacity(0.7), lineWidth: 1)
+            PirateIcon(color: color)
+                .padding(8) // Reduce visual size by ~30% inside the circle
         }
-        .aspectRatio(15.0/14.0, contentMode: .fit)
+        .scaleEffect(0.7)
+        .aspectRatio(1.0, contentMode: .fit)
     }
 }
 
@@ -3879,35 +3837,6 @@ struct CompactTemporaryFolderAskAnythingButton: View {
     }
 }
 
-struct CompactTemporaryFolderIncognitoButton: View {
-    var body: some View {
-        ZStack {
-            // Background circle with border and shadow (optimized for 48px height)
-            Circle()
-                .fill(Color.clear)
-                .frame(width: 20, height: 20)
-                .overlay(
-                    Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
-                )
-                .background(
-                    Circle()
-                        .fill(Color.black.opacity(0.25))
-                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 0)
-                )
-                .overlay(
-                    Circle()
-                        .fill(Color.black.opacity(0.25))
-                        .shadow(color: Color.black.opacity(0.25), radius: 4, x: 0, y: 0)
-                        .blendMode(.multiply)
-                )
-            
-            // Incognito Icon (optimized for 48px height)
-            IncognitoIcon(color: .white)
-                .frame(width: 12, height: 11)
-        }
-    }
-}
 
 #Preview {
     NotchContentView(vm: .init())

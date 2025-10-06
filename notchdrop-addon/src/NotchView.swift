@@ -10,15 +10,24 @@ struct NotchView: View {
     @StateObject var vm: NotchViewModel
 
     @State var dropTargeting: Bool = false
-    @State private var isHoveringNotch: Bool = false
+	@State private var isHoveringNotch: Bool = false
+    @State private var hoverScale: CGFloat = 1.0
+    @State private var hoverGlow: CGFloat = 0.0
+	@State private var isQuitting: Bool = false
 
     var notchSize: CGSize {
         switch vm.status {
         case .closed:
-            // Fixed width of 343px for TemporaryFolder components
+            // Fixed base dimensions with MacBook Pro scaling
+            let isMacBookPro = vm.deviceNotchRect.width > 180
+            let baseWidth: CGFloat = 343  // Fixed base width for better TemporaryFolder display
+            let baseHeight: CGFloat = 48  // Fixed base height for better TemporaryFolder display
+            
+            // Make it bigger for MacBook Pro
+            let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0  // 20% larger for MacBook Pro
             var ans = CGSize(
-                width: 343, // Fixed width of 343px for better TemporaryFolder display
-                height: 48 // Fixed height of 48px for better TemporaryFolder display
+                width: baseWidth * widthMultiplier,
+                height: baseHeight * widthMultiplier
             )
             if ans.width < 0 { ans.width = 0 }
             if ans.height < 0 { ans.height = 0 }
@@ -88,16 +97,17 @@ struct NotchView: View {
                         // Video only - show video indicator
                         MediaCollapsedIndicator(vm: vm, showMusic: false, showVideo: vm.hasActiveVideo)
                     }
-                } else {
-                    // Show TemporaryFolder component in empty state
+                } else if vm.isAuthenticated {
+                    // Show TemporaryFolder component in empty state only when authenticated
                     TemporaryFolderView()
                 }
+                // When not authenticated, show nothing in collapsed state
             }
             .frame(maxWidth: notchSize.width - 16, maxHeight: notchSize.height - 4)
             .clipped()
             .opacity(vm.status == .closed ? 1 : 0) // Fade out when opening
-            .scaleEffect(vm.status == .closed ? 1 : 0.8) // Scale down when opening
-            .animation(.easeInOut(duration: 0.25), value: vm.status) // Smooth transition
+            .scaleEffect(vm.status == .closed ? 1 : 0.9) // Subtle scale down when opening
+            .animation(DynamicIslandTheme.hoverAnimation, value: vm.status) // Ultra-smooth transition
             .zIndex(1)
             
             Group {
@@ -116,18 +126,40 @@ struct NotchView: View {
                 }
             }
             .transition(
-                .scale.combined(
-                    with: .opacity
-                ).combined(
-                    with: .offset(y: -vm.notchOpenedSize.height / 2)
-                ).animation(vm.animation)
+                .asymmetric(
+                    // NotchNook-style open: quick scale up then settle
+                    insertion: .scale(scale: 0.88, anchor: .center)
+                        .combined(with: .opacity)
+                        .combined(with: .offset(y: -12))
+                        .animation(DynamicIslandTheme.bounceAnimation),
+                    // Smooth close: slight down and fade
+                    removal: .scale(scale: 0.92, anchor: .center)
+                        .combined(with: .opacity)
+                        .combined(with: .offset(y: 8))
+                        .animation(DynamicIslandTheme.expansionAnimation)
+                )
             )
         }
-        .background(dragDetector)
-        .animation(vm.animation, value: vm.status)
-        .animation(vm.animation, value: vm.isChatExpanded)
-        .animation(.easeInOut(duration: 0.3), value: vm.isRecording) // Smooth recording state transition
-        .animation(.easeInOut(duration: 0.3), value: vm.isPaused) // Smooth pause state transition
+		.background(dragDetector)
+		.opacity(isQuitting ? 0 : 1)
+		.animation(.easeInOut(duration: 0.2), value: isQuitting)
+        .contextMenu {
+			Button(action: {
+				withAnimation(.easeInOut(duration: 0.2)) {
+					isQuitting = true
+				}
+				vm.notchClose()
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+					NSApp.terminate(nil)
+				}
+			}) {
+                Label("Quit Notch", systemImage: "xmark.circle.fill")
+            }
+        }
+        .animation(DynamicIslandTheme.expansionAnimation, value: vm.status)
+        .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isChatExpanded)
+        .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isRecording) // Smooth recording state transition
+        .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isPaused) // Smooth pause state transition
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -137,22 +169,44 @@ struct NotchView: View {
             .foregroundStyle(.regularMaterial)
             .mask(notchBackgroundMaskGroup)
             .frame(
-                width: notchSize.width + notchCornerRadius * 2,
+                width: notchSize.width + notchCornerRadius * 2 + sidePulseOffset,
                 height: notchSize.height
             )
+            .scaleEffect(vm.status == .closed ? hoverScale : 1.02) // Dynamic hover scale
+            .animation(DynamicIslandTheme.hoverAnimation, value: vm.status)
+            .animation(DynamicIslandTheme.hoverAnimation, value: hoverScale)
             .shadow(
                 color: .black.opacity(([.opened, .popping].contains(vm.status) && !vm.showNotificationOverlay) ? 1 : 0),
                 radius: 16
             )
-            // Soft glows for states (approximate box-shadow) - disabled during notifications
+            // Enhanced professional glows
             .shadow(
-                color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.2) : .clear,
-                radius: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? 8 : 0
+                color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
+                radius: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? 12 : 0
             )
             .shadow(
-                color: (vm.isChatMode && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
-                radius: (vm.isChatMode && !vm.showNotificationOverlay) ? 12 : 0
+                color: (vm.isChatMode && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.4) : .clear,
+                radius: (vm.isChatMode && !vm.showNotificationOverlay) ? 16 : 0
             )
+            // Professional hover glow effect
+            .shadow(
+                color: (vm.status == .opened && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1) : .clear,
+                radius: (vm.status == .opened && !vm.showNotificationOverlay) ? 20 + hoverGlow * 10 : 0
+            )
+            .onHover { hovering in
+                withAnimation(hovering ? DynamicIslandTheme.sideBounceKick : DynamicIslandTheme.sideBounceReturn) {
+                    hoverScale = hovering ? 1.05 : 1.0
+                    hoverGlow = hovering ? 1.0 : 0.0
+                    isHoveringNotch = hovering
+                }
+            }
+    }
+
+    // Side bounce pulse during hover-open
+    private var sidePulseOffset: CGFloat {
+        guard vm.status == .opened else { return 0 }
+        // small width wobble to sell the bubbly feel
+        return isHoveringNotch ? 6 : 0
     }
 
     // Mini collapsed audio visualizer (5 bars) - matches CSS animation
@@ -444,3 +498,4 @@ struct NotchView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }
+

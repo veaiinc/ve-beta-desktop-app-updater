@@ -288,7 +288,14 @@ class NotchDropService {
 		this.notchDropAddon.on('navigateToMainScreen', (targetPath) => {
 			try {
 				log.info('🏠 Swift UI requested main window navigation:', targetPath);
-				this.navigateMainWindow(targetPath);
+				// Special handling for Meeting AI click: decide based on workspace suspension
+				if (typeof targetPath === 'string' && targetPath === 'MEETING_AI_CLICK') {
+					this.handleMeetingAIClick().catch((error) => {
+						log.error('❌ Error handling Meeting AI click:', error);
+					});
+				} else {
+					this.navigateMainWindow(targetPath);
+				}
 			} catch (error) {
 				log.error('❌ Error handling Swift UI main window navigation request:', error);
 			}
@@ -605,6 +612,53 @@ class NotchDropService {
 		return true;
 	}
 
+	// Decide Meeting AI behavior based on renderer workspaceMode in localStorage
+	async handleMeetingAIClick() {
+		try {
+			const windowInstance = this.mainWindow;
+			if (!windowInstance || windowInstance.isDestroyed()) {
+				log.warn('⚠️ No main window available for Meeting AI handling');
+				// Fallback: just try to start meeting overlay
+				this.notchDropAddon &&
+					this.notchDropAddon.triggerOverlayRecording &&
+					this.notchDropAddon.triggerOverlayRecording();
+				return { success: false, reason: 'no-window' };
+			}
+
+			const wc = windowInstance.webContents;
+			// Ask renderer for workspaceMode from localStorage; returns null if unavailable
+			const result = await wc.executeJavaScript(
+				`(function(){ try { return localStorage.getItem('workspaceMode') || null; } catch(e) { return null; } })();`,
+				true,
+			);
+
+			const mode = typeof result === 'string' ? result : null;
+			log.info('🧭 Renderer workspaceMode from localStorage:', mode);
+
+			if (mode === 'suspended') {
+				// Navigate to pricing page
+				this.navigateMainWindow('/settings/pricing');
+				return { success: true, action: 'navigate-pricing' };
+			}
+
+			// Otherwise, start the meeting via overlay integration
+			if (
+				this.notchDropAddon &&
+				typeof this.notchDropAddon.triggerOverlayRecording === 'function'
+			) {
+				this.notchDropAddon.triggerOverlayRecording();
+				return { success: true, action: 'start-meeting' };
+			}
+
+			// As a secondary path, emit the same event used elsewhere
+			process.emit && process.emit('swift-ui-trigger-overlay-recording');
+			return { success: true, action: 'start-meeting-fallback' };
+		} catch (error) {
+			log.error('❌ Failed to handle Meeting AI click:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
 	cleanup() {
 		if (this.isInitialized) {
 			try {
@@ -869,9 +923,14 @@ action: 'toggle_microphone_mute'
 		}
 	}
 
-	// LEGACY: Preserved for existing audio functionality
 	async addVoiceMessage(messageData) {
 		try {
+			// console.log(
+			// `💬 Adding voice message to NotchDrop: ${
+			// messageData.sender
+			// }: ${messageData.content?.substring(0, 50)}...`,
+			// );
+
 			if (!this.isInitialized) {
 				log.warn('NotchDrop not initialized, cannot add voice message');
 				return false;

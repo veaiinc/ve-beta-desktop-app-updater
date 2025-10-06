@@ -48,6 +48,8 @@ class NotchDropPanel: NSPanel {
     private var contentType: String = "normal"
     private var hapticFeedback: Bool = true
     private var notchViewModel: NotchViewModel?
+    // Prevent App Nap / idle sleep to keep hover responsiveness after inactivity
+    private var appNapActivity: NSObjectProtocol?
     private let notchWindowLevel: NSWindow.Level = {
         let assistive = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
         let statusBar = NSWindow.Level.statusBar
@@ -72,9 +74,13 @@ class NotchDropPanel: NSPanel {
 
     // MARK: - Setup
     private func setupNotchDrop() {
-        DispatchQueue.main.async { [weak self] in
+        // Use high priority queue for faster initialization
+        DispatchQueue.main.async(qos: .userInitiated) { [weak self] in
             self?.createNotchWindow()
         }
+
+        // Start App Nap prevention early to keep process responsive
+        startAppNapPrevention()
     }
 
     private func createNotchWindow() {
@@ -129,6 +135,7 @@ class NotchDropPanel: NSPanel {
         window.isExcludedFromWindowsMenu = true
         window.isReleasedWhenClosed = false
         window.animationBehavior = .none
+        window.isRestorable = false
         
         // CRITICAL: Enable keyboard input and first responder capabilities
         window.acceptsMouseMovedEvents = true
@@ -162,8 +169,9 @@ class NotchDropPanel: NSPanel {
         // Create the proper NotchView
         let notchView = NotchView(vm: vm)
 
-        // Set up status monitoring
+        // Set up status monitoring with throttling to prevent excessive updates
         vm.$status
+            .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true)
             .sink { [weak self] newStatus in
                 let statusString = String(describing: newStatus)
                 self?.status = statusString
@@ -171,6 +179,11 @@ class NotchDropPanel: NSPanel {
                 // Ensure the notch window stays visible/above when opening (especially in fullscreen spaces)
                 if statusString == "opened" {
                     self?.enforceWindowPresentation()
+                    // Keep CPU timers unthrottled while opened
+                    self?.startAppNapPrevention()
+                } else if statusString == "closed" {
+                    // Allow system to resume normal energy policy when fully closed
+                    self?.stopAppNapPrevention()
                 }
             }
             .store(in: &vm.cancellables)
@@ -250,6 +263,24 @@ class NotchDropPanel: NSPanel {
             window.makeKeyAndOrderFront(nil)
         }
         window.orderFrontRegardless()
+    }
+
+    // MARK: - App Nap / Idle Throttling Prevention
+    private func startAppNapPrevention() {
+        // Use NSProcessInfo activity to prevent App Nap when idle for a long time
+        if appNapActivity == nil {
+            appNapActivity = ProcessInfo.processInfo.beginActivity(options: [
+                .userInitiatedAllowingIdleSystemSleep,
+                .latencyCritical
+            ], reason: "Keep NotchDrop responsive for hover after inactivity") as NSObjectProtocol
+        }
+    }
+    
+    private func stopAppNapPrevention() {
+        if let activity = appNapActivity {
+            ProcessInfo.processInfo.endActivity(activity as! NSObjectProtocol)
+            appNapActivity = nil
+        }
     }
     
     // Add the same screen selection logic as NotchDropLatest
