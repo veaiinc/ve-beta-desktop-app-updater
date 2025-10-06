@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "0.4.49",
+	"version": "0.4.52",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",

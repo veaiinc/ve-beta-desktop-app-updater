@@ -34,26 +34,46 @@ this.isStealthModeEnabled = false;
 }
 
 async initialize() {
-try {
-// Phase 1: Pre-warm bridge BEFORE addon initialization
-await this.preWarmBridge();
+	try {
+		// Add timeout to prevent hanging during initialization
+		const initTimeout = new Promise((_, reject) => 
+			setTimeout(() => reject(new Error('NotchDrop initialization timeout')), 15000)
+		);
 
-// Phase 2: Load and initialize addon with bridge ready (Apple Silicon Mac only)
-if (!this.platformSupported) {
-const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
-const RUNTIME_ARCH = process.env.VE_FORCE_ARCH || process.arch;
-if (RUNTIME_PLATFORM !== 'darwin') {
-log.info('ℹ️ NotchDrop not supported on this platform:', RUNTIME_PLATFORM);
-} else {
-log.info(
-'ℹ️ NotchDrop not supported on Intel Mac (arch:',
-RUNTIME_ARCH,
-') - using Dynamic Island instead',
-);
+		const initPromise = this.performInitialization();
+		
+		// Race between initialization and timeout
+		await Promise.race([initPromise, initTimeout]);
+		
+		return true;
+	} catch (error) {
+		log.error('❌ Failed to initialize NotchDrop service:', error);
+		this.isInitialized = false;
+		return false;
+	}
 }
-this.isInitialized = false;
-return false;
-}
+
+async performInitialization() {
+	try {
+		// Phase 1: Pre-warm bridge BEFORE addon initialization
+		await this.preWarmBridge();
+
+		// Phase 2: Load and initialize addon with bridge ready (Apple Silicon Mac only)
+		if (!this.platformSupported) {
+			const RUNTIME_PLATFORM = process.env.VE_FORCE_PLATFORM || process.platform;
+			const RUNTIME_ARCH = process.env.VE_FORCE_ARCH || process.arch;
+			if (RUNTIME_PLATFORM !== 'darwin') {
+				log.info('ℹ️ NotchDrop not supported on this platform:', RUNTIME_PLATFORM);
+			} else {
+				log.info(
+					'ℹ️ NotchDrop not supported on Intel Mac (arch:',
+					RUNTIME_ARCH,
+					') - using Dynamic Island instead',
+				);
+			}
+			this.isInitialized = false;
+			return false;
+		}
 
 // TODO: PERFORMANCE - Multiple require() attempts with fallback paths could be optimized
 // Enhanced module resolution for both dev and packaged environments
@@ -97,14 +117,33 @@ throw new Error('Failed to load NotchDrop addon via any resolution path');
 }
 }
 
-this.notchDropAddon = new NotchDropAddonWrapper();
+		this.notchDropAddon = new NotchDropAddonWrapper();
 
-// Phase 3: Set up event listeners
-this.setupEventListeners();
+		// Phase 3: Set up event listeners
+		this.setupEventListeners();
 
-// Phase 4: Initialize the addon with bridge ready
-this.notchDropAddon.initialize();
-this.isInitialized = true;
+		// Phase 4: Initialize the addon with bridge ready (with timeout)
+		try {
+			const addonInitTimeout = new Promise((_, reject) => 
+				setTimeout(() => reject(new Error('Addon initialization timeout')), 10000)
+			);
+			
+			const addonInitPromise = new Promise((resolve, reject) => {
+				try {
+					this.notchDropAddon.initialize();
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			});
+			
+			await Promise.race([addonInitPromise, addonInitTimeout]);
+			this.isInitialized = true;
+		} catch (error) {
+			log.error('❌ Addon initialization failed:', error);
+			this.isInitialized = false;
+			throw error;
+		}
 
 // Phase 5: Ensure Swift-JS Bridge is ready for immediate actions
 await this.ensureSwiftJSBridgeReady();
@@ -614,13 +653,38 @@ return true;
 }
 
 cleanup() {
-if (this.isInitialized) {
-try {
-this.disable();
-} catch (error) {
-log.error('❌ Error during NotchDrop cleanup:', error);
-}
-}
+	if (this.isInitialized) {
+		try {
+			this.disable();
+		} catch (error) {
+			log.error('❌ Error during NotchDrop cleanup:', error);
+		}
+	}
+	
+	// CRITICAL: Remove all event listeners to prevent memory leaks
+	try {
+		if (this.notchDropAddon) {
+			this.notchDropAddon.removeAllListeners();
+		}
+		
+		// Clear any pending timeouts
+		if (this._initTimeout) {
+			clearTimeout(this._initTimeout);
+		}
+		if (this._addonInitTimeout) {
+			clearTimeout(this._addonInitTimeout);
+		}
+		
+		// Reset state
+		this.isInitialized = false;
+		this.isEnabled = false;
+		this.notchDropAddon = null;
+		this.swiftJSBridge = null;
+		
+		log.info('🧹 NotchDrop service cleaned up successfully');
+	} catch (error) {
+		log.error('❌ Error during NotchDrop cleanup:', error);
+	}
 }
 
 // CRITICAL FIX: Pre-warm bridge for immediate response

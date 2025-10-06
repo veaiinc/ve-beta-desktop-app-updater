@@ -133,6 +133,12 @@ class NotchDropPanel: NSPanel {
         // CRITICAL: Enable keyboard input and first responder capabilities
         window.acceptsMouseMovedEvents = true
         window.setFrame(topRect, display: false)
+        
+        // Make window completely fixed like Boring Notch
+        window.isMovableByWindowBackground = false
+        window.isMovable = false
+        // window.ignoresMouseEvents = false
+        window.hidesOnDeactivate = false
 
         // Don't set initial first responder - let SwiftUI manage TextField focus
 
@@ -463,7 +469,7 @@ class NotchDropPanel: NSPanel {
             case "receiveMessage":
                 viewModel.receiveMessage(data)
             default:
-                print("⚠️ Unknown incoming action: \(action)")
+                break
             }
         }
     }
@@ -472,33 +478,27 @@ class NotchDropPanel: NSPanel {
     @objc public func onOverlayStateChange(_ state: [String: Any]) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { 
-                print("❌ NotchDropCore: No viewModel available for state update")
                 return 
             }
             
-            print("📊 NotchDropCore: Received overlay state:", state)
             
             // Update recording state
             if let isRecording = state["isRecording"] as? Bool {
-                print("📊 Updating recording state: \(isRecording)")
                 viewModel.isRecording = isRecording
                 
                 // Stop the timer if recording stopped
                 if !isRecording {
-                    print("📊 Recording stopped - calling stopRecording to stop timer")
                     viewModel.stopRecording()
                 }
             }
             
             // Update pause state
             if let isPaused = state["isPaused"] as? Bool {
-                print("📊 Updating pause state: \(isPaused)")
                 viewModel.isPaused = isPaused
             }
             
             // Update timer
             if let timer = state["timer"] as? Int {
-                print("📊 Updating timer: \(timer)")
                 viewModel.timer = timer
             }
             
@@ -506,17 +506,14 @@ class NotchDropPanel: NSPanel {
             
             // Update authentication state
             if let isAuthenticated = state["isAuthenticated"] as? Bool {
-                print("📊 Updating authentication: \(isAuthenticated)")
                 viewModel.isAuthenticated = isAuthenticated
             }
             
             // Update controlled by dynamic island state
             if let controlledByDynamicIsland = state["controlledByDynamicIsland"] as? Bool {
-                print("📊 Updating controlled by dynamic island: \(controlledByDynamicIsland)")
                 viewModel.controlledByDynamicIsland = controlledByDynamicIsland
             }
             
-            print("📊 NotchDropCore: Final state - Recording: \(viewModel.isRecording), Paused: \(viewModel.isPaused), Timer: \(viewModel.timer)")
         }
     }
     
@@ -524,11 +521,9 @@ class NotchDropPanel: NSPanel {
     @objc public func configureVoice(_ url: String, token: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { 
-                print("❌ NotchDropCore: No viewModel available for voice configuration")
                 return 
             }
             
-            print("🎤 NotchDropCore: Configuring voice with URL: \(url)")
             viewModel.configureVoice(url: url, token: token)
         }
     }
@@ -555,7 +550,6 @@ class NotchDropPanel: NSPanel {
     @objc public func updateVoiceConnectionState(_ status: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
-            print("🔄 NotchDropCore: Updating voice connection state to: \(status)")
             viewModel.updateVoiceConnectionState(status)
         }
     }
@@ -563,29 +557,26 @@ class NotchDropPanel: NSPanel {
     @objc public func updateVoiceMuteState(_ isMuted: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
-            print("🔇 NotchDropCore: Updating voice mute state: \(isMuted)")
             viewModel.isMicrophoneMuted = isMuted
         }
     }
 
-    @objc public func updateStealthModeState(_ isEnabled: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, let viewModel = self.notchViewModel else { return }
-            viewModel.updateStealthModeState(isEnabled)
-        }
-    }
+    // @objc public func updateStealthModeState(_ isEnabled: Bool) {
+    //     DispatchQueue.main.async { [weak self] in
+    //         guard let self = self, let viewModel = self.notchViewModel else { return }
+    //         viewModel.updateStealthModeState(isEnabled)
+    //     }
+    // }
     
     @objc public func addVoiceMessage(_ messageJson: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
-            print("💬 NotchDropCore: Adding voice message: \(messageJson)")
             
             // Parse JSON message
             guard let messageData = messageJson.data(using: .utf8),
                   let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
                   let sender = json["sender"] as? String,
                   let content = json["content"] as? String else {
-                print("❌ Failed to parse voice message JSON")
                 return
             }
             
@@ -605,7 +596,6 @@ class NotchDropPanel: NSPanel {
     
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
-        // print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")
         switch action {
         case .startRecording:
             swiftActionCallback?("startRecording", "")
@@ -672,6 +662,59 @@ class NotchDropPanel: NSPanel {
             swiftActionCallback?("requestCameraPermission", "")
         case .toggleStealthMode:
             swiftActionCallback?("toggleStealthMode", "")
+        // Video State Actions
+        case .saveVideoState:
+            swiftActionCallback?("saveVideoState", "")
+        case .restoreVideoState:
+            swiftActionCallback?("restoreVideoState", "")
         }
     }
+    // MARK: - Stealth Mode
+    @objc public func updateStealthModeState(_ isEnabled: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let window = self.notchWindow else {
+                print(":pirate_flag: NotchDropCore: No window available for stealth mode")
+                return
+            }
+            print(":pirate_flag: NotchDropCore: Applying stealth mode: \(isEnabled)")
+            print(":pirate_flag: NotchDropCore: Window type: \(type(of: window))")
+            print(":pirate_flag: NotchDropCore: Window title: \(window.title)")
+            print(":pirate_flag: NotchDropCore: Window isVisible: \(window.isVisible)")
+            if isEnabled {
+                // STEALTH MODE ON: Hide from screen recordings but keep visible to user
+                print(":pirate_flag: NotchDropCore: ENABLING stealth mode - hiding from recordings only")
+                // Method 1: Set sharing type to exclude from screen recording
+                if #available(macOS 10.13, *) {
+                    window.sharingType = .none
+                    print(":pirate_flag: NotchDropCore: Window sharingType set to .none (hidden from recordings)")
+                }
+                // Method 2: Set window level to be above screen recording level
+                window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.maximumWindow)))
+                print(":pirate_flag: NotchDropCore: Window level set to maximum (above recording)")
+                // Keep window visible to user - DO NOT hide or make transparent
+                print(":pirate_flag: NotchDropCore: Window remains visible to user")
+            } else {
+                // STEALTH MODE OFF: Restore normal behavior
+                print(":pirate_flag: NotchDropCore: DISABLING stealth mode - restoring normal recording")
+                // Restore normal sharing type
+                if #available(macOS 10.13, *) {
+                    window.sharingType = .readOnly
+                    print(":pirate_flag: NotchDropCore: Window sharingType restored to .readOnly")
+                }
+                // Restore ORIGINAL window level (not normal, but the custom notch level)
+                window.level = self.notchWindowLevel
+                print(":pirate_flag: NotchDropCore: Window level restored to normal")
+                // Ensure window is visible
+                if !window.isVisible {
+                    window.orderFront(nil)
+                    window.makeKeyAndOrderFront(nil)
+                    self.enforceWindowPresentation()
+                    print(":pirate_flag: NotchDropCore: Window restored to visible state")
+                }
+            }
+            print(":pirate_flag: NotchDropCore: Stealth mode \(isEnabled ? "ENABLED" : "DISABLED")")
+        }
+    }
+
+
 }

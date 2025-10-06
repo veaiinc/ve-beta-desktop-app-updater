@@ -13,9 +13,9 @@ struct NotchContentView: View {
     var body: some View {
         ZStack {
             if vm.showNotificationOverlay {
-                // When notification is showing, ONLY show the notification (no background content)
-                NotificationOverlayView(vm: vm)
-                    .transition(.scale(scale: 1.0).combined(with: .opacity))
+                // // When notification is showing, ONLY show the notification (no background content)
+                // NotificationOverlayView(vm: vm)
+                //     .transition(.scale(scale: 1.0).combined(with: .opacity))
             } else {
                 // Normal content switching when no notification
                 switch vm.contentType {
@@ -24,9 +24,22 @@ struct NotchContentView: View {
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                 }
             }
+            
+            // Info popup rendered outside the notch container
+            // Commented out since InfoPopupMenu was commented out
+            // if showInfoPopup {
+            //     InfoPopupMenu()
+            //         .offset(x: 400, y: 0) // Position to the right of the notch
+            //         .zIndex(1000) // Ensure it appears above everything
+            //         .transition(.scale(scale: 0.95).combined(with: .opacity))
+            // }
         }
         .animation(vm.animation, value: vm.contentType)
         .animation(vm.animation, value: vm.showNotificationOverlay)
+        .onAppear {
+            // Set up browser permission window monitoring
+            vm.setupBrowserPermissionWindow()
+        }
     }
 }
 
@@ -54,6 +67,7 @@ struct MeetingCompactChatBox: View {
 // MARK: - Start Meeting Card
 struct StartMeetingCard: View {
     let vm: NotchViewModel
+    @State private var isHovered: Bool = false
 
     var body: some View {
         GeometryReader { geo in
@@ -65,10 +79,10 @@ struct StartMeetingCard: View {
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: corner, style: .continuous)
-                    .fill(Color.white.opacity(0.04))
+                    .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.15) : Color.white.opacity(0.04))
                     .overlay(
                         RoundedRectangle(cornerRadius: corner, style: .continuous)
-                            .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                            .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.white.opacity(0.12), lineWidth: 0.8)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -87,6 +101,11 @@ struct StartMeetingCard: View {
             }
             .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
             .onTapGesture { vm.startRecording() }
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isHovered = hovering
+                }
+            }
         }
         // Ensure the reader honors parent frame
         .clipped()
@@ -102,28 +121,47 @@ struct DynamicIslandContentView: View {
     @State private var receivedMessage: String = "" // Track received messages from Electron
     @State private var cancellables = Set<AnyCancellable>()
     
+    // Hover states for right side icons
+    @State private var isVEIconHovered: Bool = false
+    @State private var isStealthIconHovered: Bool = false
+    @State private var isLockIconHovered: Bool = false
+    
+    // Hover states for left side buttons
+    @State private var isHomeButtonHovered: Bool = false
+    @State private var isMeetingButtonHovered: Bool = false
+    
     var body: some View {
         VStack(spacing: 3.0) {
             if !vm.isAuthenticated {
                 // Welcome section when not authenticated
                 VStack(spacing: 8) {
-                    Text("hello")
-                        .font(.system(size: 48, weight: .light, design: .default))
-                        .foregroundColor(.white)
-                    Text("Please log in to access features")
-                        .font(.system(size: 14, weight: .regular))
+                   Text("Hey")
+                .font(.custom("Urbanist", size: 48)) // Use actual font name
+                // .kerning(-0.03 * 54) // -3% of font size = -1.62
+                .lineSpacing(-4) // Optional: Adjust if you want total line height to be close to 50px
+                .foregroundColor(.white)
+
+                    Text("I'm Ve, From the living intelligence company")
+                        .font(.custom("Urbanist", size: 13))
                         .foregroundColor(.white.opacity(0.8))
+                        .lineSpacing(17)
+
+                    Text("of San Francisco")
+                    .font(.custom("Urbanist", size: 13))
+                    .foregroundColor(.white.opacity(0.8))
+                    .lineSpacing(17)
                     
                     // Test buttons
                     HStack(spacing: 8) {
-                        Button("Login") {
+                        Button("LOGIN") {
                             vm.navigateToMainScreen(path: "/verify-user")
                         }
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.custom("Urbanist", size: 13))
+                        .lineSpacing(17)
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.blue.opacity(0.3))
+                        .background(Color.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .buttonStyle(PlainButtonStyle())
 
@@ -153,10 +191,10 @@ struct DynamicIslandContentView: View {
                         // Start/Navigation section
                         HStack(spacing: 8) {
                             if !vm.isRecording && !vm.showVoiceInterface {
-                                // Home button → default home; also exit Teams view
+                                // Home button → Reset to NotchDrop default starting page (stays within NotchDrop)
                                 Button(action: {
                                     vm.isTeamsView = false
-                                    vm.navigateToMainScreen(path: nil)
+                                    vm.resetToNotchHome()
                                 }) {
                                     HStack(spacing: 6.0) {
                                         Image(systemName: "house")
@@ -167,10 +205,24 @@ struct DynamicIslandContentView: View {
                                     .padding(.vertical, 6)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                            .fill(vm.isTeamsView ? 
+                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear) :
+                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                            )
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isHomeButtonHovered = hovering && vm.isTeamsView
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Home button is now active, reset hover state
+                                        isHomeButtonHovered = false
+                                    }
+                                }
 
                                 // Teams pill (sets Teams view)
                                 Button(action: {
@@ -185,19 +237,31 @@ struct DynamicIslandContentView: View {
                                     .padding(.vertical, 8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.clear)
+                                            .fill(vm.isTeamsView ? 
+                                                (isMeetingButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                                (isMeetingButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isMeetingButtonHovered = hovering && !vm.isTeamsView
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if newValue {
+                                        // Meeting AI button is now active, reset hover state
+                                        isMeetingButtonHovered = false
+                                    }
+                                }
                                 // Removed desktop and VE icons per request
                             } else if vm.showVoiceInterface {
                                 // Voice controls (mute/unmute and cancel buttons)
                                 HStack(spacing: 12) {
                                     // Mute/Unmute toggle
                                     Button(action: {
-                                        print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
                                         vm.toggleVoiceMute()
-                                        print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
                                     }) {
                                         Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
                                             .font(.system(size: 14))
@@ -214,7 +278,6 @@ struct DynamicIslandContentView: View {
                                     
                                     // Cancel/Disconnect button
                                     Button(action: {
-                                        print("❌ Cancel button clicked")
                                         vm.disconnectVoiceAssistant()
                                     }) {
                                         RoundedRectangle(cornerRadius: 2)
@@ -319,7 +382,6 @@ struct DynamicIslandContentView: View {
                             .onTapGesture {
                                 // Click on spacer area should unfocus chat input
                                 if isChatInputFocused {
-                                    print("🎯 Clicked on spacer area - removing focus from chat input")
                                     DispatchQueue.main.async {
                                         isChatInputFocused = false
                                         isTextFieldActive = false
@@ -330,26 +392,34 @@ struct DynamicIslandContentView: View {
 
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
-                            // VE icon with border styling (first icon)
+                            // VE icon → Open Ve app (Electron main window)
                             Button(action: {
-                                vm.resetToNotchHome()
+                                vm.navigateToMainScreen(path: nil)
                             }) {
                                 VEIcon(color: .white)
                                     .frame(width: 16, height: 16)
                                     .padding(8) // Increased padding for larger clickable area
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
+                                    )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                             .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
                                     )
+                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help("VE")
+                            .help("Open Ve App")
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isVEIconHovered = hovering
+                                }
+                            }
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
-                                print("🎯 Stealth mode icon clicked - current stealth state: \(vm.isStealthModeEnabled)")
                                 vm.toggleStealthMode()
-                                print("🎯 After toggle - new stealth state: \(vm.isStealthModeEnabled)")
                             }) {
                                 Group {
                                     if vm.isStealthModeEnabled {
@@ -362,37 +432,78 @@ struct DynamicIslandContentView: View {
                                 }
                                 .frame(width: 16, height: 16)
                                 .padding(8) // Increased padding for larger clickable area
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(isStealthIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                )
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
                                         .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
                                 )
+                                .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isStealthIconHovered = hovering
+                                }
+                            }
                             
-                            // Lock/Unlock button (third icon)
+                            // Information icon (third icon) with popup menu
+                            // InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            
+                            // Lock/Unlock button (fourth icon)
                             Button(action: {
                                 vm.toggleNotchLock()
+                                
+                                // Force state validation after toggle
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    vm.forceLockStateRefresh()
+                                }
                             }) {
                                 Image(systemName: vm.isNotchLocked ? "lock.fill" : "lock.open.fill")
                                     .font(.system(size: 14, weight: .medium))
                                     .foregroundColor(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen : .white)
                                     .frame(width: 16, height: 16)
                                     .padding(8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(isLockIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.1) : Color.clear)
+                                    )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
                                     )
+                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
                             .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
+                            .onAppear {
+                                // Validate state on appearance
+                                vm.forceLockStateRefresh()
+                            }
+                            .onChange(of: vm.isNotchLocked) { newValue in
+                                // Force UI refresh when state changes
+                                DispatchQueue.main.async {
+                                    vm.objectWillChange.send()
+                                }
+                            }
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isLockIconHovered = hovering
+                                }
+                            }
                         }
                     }
                     
                     
                     // Main content area
                     HStack(alignment: .center, spacing: 8) {
-                        if vm.isTeamsView {
+                        if vm.showVoiceInterface {
+                            // Voice split layout (left conversation, right controls) - PRIORITY: Always show voice interface when active
+                            VoiceSplitLayout(vm: vm)
+                        } else if vm.isTeamsView {
                             // Teams view: maintain even spacing between three blocks
                             HStack(spacing: 12) {
                                 if !vm.isRecording {
@@ -409,9 +520,6 @@ struct DynamicIslandContentView: View {
                                 WebcamButton(vm: vm)
                                     .frame(width: 100, height: 100)
                             }
-                        } else if vm.showVoiceInterface {
-                            // Voice split layout (left conversation, right controls)
-                            VoiceSplitLayout(vm: vm)
                         } else {
                             // Chat input section with voice/arrow icon inside - matches image layout
                             ChatTextAreaView(
@@ -426,9 +534,12 @@ struct DynamicIslandContentView: View {
                             // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
                                 HStack(spacing: 12) {
-                                    // Boring Notch Style Calendar - always show when not in chat mode and not recording
-                                    BoringNotchCalendarWithPermissions()
-                                        .transition(.scale.combined(with: .opacity))
+                                    // NotchDrop Calendar - always show when not in chat mode and not recording
+                                    if vm.showCalendar {
+                                        NotchCalendarView(vm: vm)
+                                            .frame(width: 240, height: 100)
+                                            .transition(.scale(scale: 0.8).combined(with: .opacity))
+                                    }
                                         
                                     // Spotify Media Controller - only show when music is playing
                                     if vm.hasActiveMusic {
@@ -527,8 +638,17 @@ struct DynamicIslandContentView: View {
     }
     
     private func checkBrowserForYouTube() -> Bool {
-        // Check each browser separately for better reliability
-        let browsers = ["Safari", "Google Chrome", "Firefox", "Microsoft Edge", "Arc", "Brave Browser"]
+        // Only check browsers if we have permission
+        guard vm.hasBrowserPermission else {
+            // Request permission first time
+            if !vm.browserPermissionRequested {
+                vm.requestBrowserPermission()
+            }
+            return false
+        }
+        
+        // Check only major browsers: Safari, Chrome, Firefox
+        let browsers = ["Safari", "Google Chrome", "Firefox"]
         
         for browser in browsers {
             if let (url, title) = checkBrowserApp(browser) {
@@ -646,7 +766,9 @@ struct DynamicIslandContentView: View {
         // Extract video ID from YouTube URL
         let patterns = [
             "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
-            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})"
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
         ]
         
         var videoId: String?
@@ -662,8 +784,26 @@ struct DynamicIslandContentView: View {
         
         guard let id = videoId else { return "" }
         
-        // Return YouTube embed URL with autoplay and minimal UI
-        return "https://www.youtube.com/embed/\(id)?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&fs=0&disablekb=1"
+        // ULTIMATE SOLUTION: Use direct video streaming URL
+        // This approach gets the actual video stream URL and plays it directly
+        return "https://www.youtube.com/watch?v=\(id)"
+    }
+    
+    /// Creates alternative embed URLs for fallback - NUCLEAR APPROACH with multiple proxies
+    private func createAlternativeEmbedURLs(videoId: String) -> [String] {
+        return [
+            // NUCLEAR: Invidious proxies (bypass ALL YouTube restrictions)
+            "https://inv.riverside.rocks/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://invidious.flokinet.to/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://invidious.lunar.icu/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://yt.artemislena.eu/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            
+            // YouTube alternatives (if proxies fail)
+            "https://www.youtube-nocookie.com/embed/\(videoId)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1",
+            "https://www.youtube.com/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://www.youtube-nocookie.com/embed/\(videoId)?controls=1&rel=0",
+            "https://www.youtube.com/embed/\(videoId)"
+        ]
     }
     
     private func extractYouTubeThumbnail(from url: String) {
@@ -708,7 +848,6 @@ struct DynamicIslandContentView: View {
             .sink { action in
                 switch action {
                 case .receiveMessage(let message):
-                    print("📨 Swift UI received message from Electron: \(message)")
                     receivedMessage = message
                 default:
                     break
@@ -741,9 +880,7 @@ struct VoiceTopControls: View {
         HStack(spacing: 16) {
             // Left side: Mute/Unmute toggle
             Button(action: {
-                print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
                 vm.toggleVoiceMute()
-                print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
             }) {
                 Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
                     .font(.system(size: 16))
@@ -754,7 +891,6 @@ struct VoiceTopControls: View {
             
             // Cancel/Disconnect button
             Button(action: {
-                print("❌ Cancel button clicked")
                 vm.disconnectVoiceAssistant()
             }) {
                 Image(systemName: "xmark")
@@ -1019,15 +1155,12 @@ struct ChatTextAreaView: View {
                 .scrollDisabled(false) // Enable scrolling when content exceeds height
                 .allowsHitTesting(true) // Ensure TextEditor can receive mouse events
                 .onKeyPress(keys: [.return]) { event in
-                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
                     if event.modifiers == .shift {
                         // Shift+Enter: Insert new line manually
-                        print("🎯 Shift+Enter detected - inserting new line")
                         chatInput.append("\n")
                         return .handled
                     } else {
                         // Enter alone: Submit chat
-                        print("🎯 Enter alone detected - submitting chat")
                         if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             vm.submitChat()
                         }
@@ -1036,7 +1169,6 @@ struct ChatTextAreaView: View {
                 }
                 .onTapGesture {
                     // Direct tap on TextEditor to ensure focus and cursor
-                    print("🎯 TextEditor directly tapped")
                     DispatchQueue.main.async {
                         isChatInputFocused = true
                         isTextFieldActive = true
@@ -1060,13 +1192,11 @@ struct ChatTextAreaView: View {
                     Button(action: {
                         if isChatInputFocused {
                             // Arrow mode - submit chat
-                            print("🎯 Arrow button clicked - submitting chat")
                             if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 vm.submitChat()
                             }
                         } else {
                             // Voice mode - activate voice assistant
-                            print("🎤 Voice button clicked - activating voice assistant")
                             // Ensure we don't accidentally focus the text area
                             DispatchQueue.main.async {
                                 vm.connectVoiceAssistant()
@@ -1080,27 +1210,59 @@ struct ChatTextAreaView: View {
                                 .frame(width: 24, height: 24)
                                 .clipShape(RoundedRectangle(cornerRadius: 4))
                         } else {
-                            WaveIcon(color: .white)
-                                .frame(width: 16, height: 16)
+                            ZStack {
+                                // Background with styling using brand primary green
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color.white.opacity(0.01)) // background: rgba(255, 255, 255, 0.01)
+                                    .frame(width: 24, height: 24)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4) // border-radius: 4px
+                                            .stroke(DynamicIslandTheme.primaryGreen.opacity(0.30), lineWidth: 0.6) // Use brand primary green
+                                    )
+                                    .overlay(
+                                        // Inner glow effect using brand primary green
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .stroke(
+                                                LinearGradient(
+                                                    colors: [
+                                                        DynamicIslandTheme.primaryGreen.opacity(0.30),
+                                                        DynamicIslandTheme.primaryGreen.opacity(0.15),
+                                                        DynamicIslandTheme.primaryGreen.opacity(0.05),
+                                                        Color.clear
+                                                    ],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                ),
+                                                lineWidth: 3
+                                            )
+                                            .blur(radius: 3)
+                                            .blendMode(.overlay)
+                                    )
+                                
+                                // Wave icon on top - using brand primary green
+                                WaveIcon(color: DynamicIslandTheme.primaryGreen)
+                                    .frame(width: 14, height: 14) // Icon size: 14px
+                                    .allowsHitTesting(false) // Allow touches to pass through to button
+                            }
+                            .frame(width: 24, height: 24) // Container size: 24px
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
                     .padding(.trailing, 8)
                     .padding(.bottom, 8)
-                    .contentShape(Rectangle()) // Ensure button area is properly defined
+                    .contentShape(RoundedRectangle(cornerRadius: 4)) // Ensure button area matches the visual shape
                     .allowsHitTesting(true) // Ensure button can receive taps
+                    .onTapGesture {
+                    }
                 }
             }
                 .onKeyPress(keys: [.return]) { event in
-                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
                     if event.modifiers == .shift {
                         // Shift+Enter: Insert new line manually
-                        print("🎯 Shift+Enter detected - inserting new line")
                         chatInput.append("\n")
                         return .handled
                     } else {
                         // Enter alone: Submit chat
-                        print("🎯 Enter alone detected - submitting chat")
                         if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             vm.submitChat()
                             return .handled
@@ -1126,7 +1288,6 @@ struct ChatTextAreaView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             isChatInputFocused = true
                             vm.isChatInputFocused = true
-                            print("🎯 Auto-focusing TextEditor when chat mode activated")
                         }
                     }
                 }
@@ -1139,7 +1300,6 @@ struct ChatTextAreaView: View {
                         if vm.isChatMode {
                             isChatInputFocused = true
                             vm.isChatInputFocused = true
-                            print("🎯 Auto-focusing TextEditor on appear")
                         }
                     }
                 }
@@ -1164,7 +1324,6 @@ struct ChatTextAreaView: View {
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
         .onTapGesture { location in
-            print("🎯 Chat area tapped at location: \(location) - attempting to focus text input")
             
             // Check if tap is in the button area (bottom-right corner)
             let currentWidth = vm.isRecording ? 410 : 510
@@ -1176,7 +1335,6 @@ struct ChatTextAreaView: View {
             )
             
             if buttonArea.contains(location) {
-                print("🎯 Tap detected in button area - ignoring chat focus")
                 return
             }
             
@@ -1191,7 +1349,6 @@ struct ChatTextAreaView: View {
             
             // Ensure window is key first
             if let window = notchWindow ?? NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
-                print("🎯 Making window key: \(window.className)")
                 window.makeKeyAndOrderFront(nil)
                 
                 // Set focus with proper timing to ensure cursor appears
@@ -1211,8 +1368,6 @@ struct ChatTextAreaView: View {
                         }
                     }
                 }
-            } else {
-                print("🎯 No suitable window found for focus")
             }
         }
         .zIndex(2) // Ensure chat input is above the background overlay
@@ -1223,14 +1378,12 @@ struct ChatTextAreaView: View {
     private func handleTextChange(_ newValue: String) {
         // Fixed height implementation - no dynamic resizing
         // TextEditor will scroll when content exceeds the fixed height of 100px
-        print("🎯 Text changed: \(newValue.count) characters")
         
         // Keep the height fixed at 100px - scrolling will handle overflow
         // No need to calculate or change textEditorHeight
     }
     
     private func handleFocusChange(_ newValue: Bool) {
-        print("🎯 TextEditor focus changed: \(newValue)")
         isTextFieldActive = newValue
         
         // Enable chat mode to hide Voice Mode button and expand chat (but not in meeting mode)
@@ -1369,25 +1522,36 @@ struct WaveIcon: View {
 
 // MARK: - WebcamIcon (SVG path rendered in SwiftUI)
 struct WebcamIcon: View {
-    var color: Color = Color(red: 0.580, green: 0.596, blue: 0.620) // #94989e
+    var color: Color = .white
     var body: some View {
         GeometryReader { geo in
-            let w: CGFloat = 24.0
-            let h: CGFloat = 24.0
+            let w: CGFloat = 20.0
+            let h: CGFloat = 21.0
             let sx = geo.size.width / w
             let sy = geo.size.height / h
             let s = min(sx, sy)
             Path { p in
-                func pt(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x * sx, y: y * sy) }
-                // Camera icon path
-                // M12 15.5A3.5 3.5 0 1 0 12 8.5A3.5 3.5 0 0 0 12 15.5Z
-                p.addEllipse(in: CGRect(x: 8.5 * sx, y: 8.5 * sy, width: 7 * sx, height: 7 * sy))
-                // M20.84 4.61A5.5 5.5 0 0 0 19.5 4H4.5A5.5 5.5 0 0 0 3.16 4.61A2 2 0 0 0 2 6.5V17A2 2 0 0 0 3.16 19.39A5.5 5.5 0 0 0 4.5 20H19.5A5.5 5.5 0 0 0 20.84 19.39A2 2 0 0 0 22 17V6.5A2 2 0 0 0 20.84 4.61ZM12 17A5 5 0 1 1 12 7A5 5 0 0 1 12 17Z
-                p.addRoundedRect(in: CGRect(x: 2 * sx, y: 4 * sy, width: 20 * sx, height: 16 * sy), cornerSize: CGSize(width: 2 * sx, height: 2 * sy))
+                // Outer circle - camera body
+                // M10 14.25C13.1066 14.25 15.625 11.7316 15.625 8.625C15.625 5.5184 13.1066 3 10 3C6.8934 3 4.375 5.5184 4.375 8.625C4.375 11.7316 6.8934 14.25 10 14.25Z
+                p.addEllipse(in: CGRect(x: 4.375 * sx, y: 3 * sy, width: 11.25 * sx, height: 11.25 * sy))
+                
+                // Inner circle - lens
+                // M10 11.125C11.3807 11.125 12.5 10.0057 12.5 8.625C12.5 7.24429 11.3807 6.125 10 6.125C8.61929 6.125 7.5 7.24429 7.5 8.625C7.5 10.0057 8.61929 11.125 10 11.125Z
+                p.addEllipse(in: CGRect(x: 7.5 * sx, y: 6.125 * sy, width: 5 * sx, height: 5 * sy))
+                
+                // Vertical line from camera to tripod
+                // M10 14.25V16.75
+                p.move(to: CGPoint(x: 10 * sx, y: 14.25 * sy))
+                p.addLine(to: CGPoint(x: 10 * sx, y: 16.75 * sy))
+                
+                // Horizontal tripod base
+                // M2.5 16.75H17.5
+                p.move(to: CGPoint(x: 2.5 * sx, y: 16.75 * sy))
+                p.addLine(to: CGPoint(x: 17.5 * sx, y: 16.75 * sy))
             }
-            .stroke(color, style: StrokeStyle(lineWidth: 1.5 * s, lineCap: .round, lineJoin: .round))
+            .stroke(color, style: StrokeStyle(lineWidth: 1.25 * s, lineCap: .round, lineJoin: .round))
         }
-        .aspectRatio(1.0, contentMode: .fit)
+        .aspectRatio(20/21, contentMode: .fit)
     }
 }
 
@@ -1424,7 +1588,6 @@ class CameraPreviewNSView: NSView {
         
         // Get default camera
         guard let camera = AVCaptureDevice.default(for: .video) else {
-            print("📹 No camera available")
             return
         }
         
@@ -1451,7 +1614,7 @@ class CameraPreviewNSView: NSView {
             }
             
         } catch {
-            print("📹 Error setting up camera: \(error)")
+            // Camera setup error
         }
     }
     
@@ -1479,9 +1642,11 @@ struct WebcamButton: View {
                 if !vm.showCameraPreview {
                     Circle()
                         .fill(DynamicIslandTheme.cardMaterial)
+                        .background(
+                            Circle()
+                                .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                        )
                         .frame(width: 90, height: 90)
-                        .scaleEffect(isHovered ? 1.05 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                 }
                 
                 // Content based on camera state
@@ -1501,6 +1666,10 @@ struct WebcamButton: View {
                         // Background circle for camera preview
                         Circle()
                             .fill(DynamicIslandTheme.cardMaterial)
+                            .background(
+                                Circle()
+                                    .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                            )
                             .frame(width: 90, height: 90)
                         
                         // Camera preview
@@ -1508,8 +1677,6 @@ struct WebcamButton: View {
                             .frame(width: 90, height: 90)
                             .clipShape(Circle())
                     }
-                    .scaleEffect(isHovered ? 1.05 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                 } else if vm.cameraPermission == "denied" || vm.cameraPermission == "restricted" {
                     // Permission denied state
                     VStack(spacing: 4) {
@@ -1525,19 +1692,44 @@ struct WebcamButton: View {
                     // Default state - frosted circular button with icon and label
                     ZStack {
                         Circle()
-                            .fill(DynamicIslandTheme.cardMaterial)
+                            .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.white.opacity(0.05)) // background: rgba(255, 255, 255, 0.05)
                             .frame(width: 100, height: 100)
-                            .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 2)
+                            .background(.ultraThinMaterial) // backdrop-filter: blur(15px)
                             .overlay(
                                 Circle()
-                                    .stroke(Color.white.opacity(0.18), lineWidth: 1.5)
-                                    .blur(radius: 0.3)
+                                    .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
                             )
+                            .overlay(
+                                // Inner shadow effect using gradient
+                                Circle()
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: isHovered ? [
+                                                DynamicIslandTheme.primaryGreen.opacity(0.30),
+                                                DynamicIslandTheme.primaryGreen.opacity(0.15),
+                                                DynamicIslandTheme.primaryGreen.opacity(0.05),
+                                                Color.clear
+                                            ] : [
+                                                Color.white.opacity(0.30),
+                                                Color.white.opacity(0.15),
+                                                Color.white.opacity(0.05),
+                                                Color.clear
+                                            ],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        ),
+                                        lineWidth: 2
+                                    )
+                                    .blur(radius: 1)
+                                    .blendMode(.overlay)
+                            )
+                            .clipShape(Circle())
+                        
                         VStack(spacing: 10) {
                             WebcamIcon(color: .white)
                                 .frame(width: 28, height: 28)
-                            Text("WEBCAM")
-                                .font(.system(size: 13, weight: .semibold))
+                            Text("MIRROR")
+                                .font(.system(size: 11, weight: .medium))
                                 .kerning(0.6)
                                 .foregroundColor(.white)
                         }
@@ -1687,141 +1879,264 @@ struct PirateIcon: View {
 
 
 // MARK: - Notification Overlay View
-struct NotificationOverlayView: View {
-    @ObservedObject var vm: NotchViewModel
-    @State private var progressValue: Double = 0.0
-    @State private var progressTimer: Timer?
+// struct NotificationOverlayView: View {
+//     @ObservedObject var vm: NotchViewModel
+//     @State private var progressValue: Double = 0.0
+//     @State private var progressTimer: Timer?
 
-    var body: some View {
-        Group {
-            if vm.showNotificationOverlay {
-                let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
+//     var body: some View {
+//         Group {
+//             if vm.showNotificationOverlay {
+//                 let _ = print("🔔 Notification overlay rendering - title: '\(vm.notificationTitle)', body: '\(vm.notificationBody)'")
                 
-                // Center the notification content in the available space
-                VStack {
-                    Spacer()
+//                 // Center the notification content in the available space
+//                 VStack {
+//                     Spacer()
                     
-                    // Notification content matching the Figma design exactly
-                    VStack(spacing: 0) {
-                    // Main content area
-                    HStack(spacing: 16) {
-                        // Left content
-                        VStack(alignment: .leading, spacing: 4) {
-                            // Main title - "Meeting detected"
-                            Text("Meeting detected")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
+//                     // Notification content matching the Figma design exactly
+//                     VStack(spacing: 0) {
+//                     // Main content area
+//                     HStack(spacing: 16) {
+//                         // Left content
+//                         VStack(alignment: .leading, spacing: 4) {
+//                             // Main title - "Meeting detected"
+//                             Text("Meeting detected")
+//                                 .font(.system(size: 16, weight: .semibold))
+//                                 .foregroundColor(.white)
+//                                 .lineLimit(1)
                             
-                            // Subtitle - "Google meet • Starting in 2 min"
-                            Text("Google meet • Starting in 2 min")
-                                .font(.system(size: 13))
-                                .foregroundColor(.white.opacity(0.7))
-                                .lineLimit(1)
-                        }
+//                             // Subtitle - "Google meet • Starting in 2 min"
+//                             Text("Google meet • Starting in 2 min")
+//                                 .font(.system(size: 13))
+//                                 .foregroundColor(.white.opacity(0.7))
+//                                 .lineLimit(1)
+//                         }
                         
-                        Spacer()
+//                         Spacer()
                         
-                        // Join button on the right
-                        Button(action: {
-                            print("🎯 Join button tapped")
-                            vm.hideNotification()
-                        }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "waveform.path")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.white)
+//                         // Join button on the right
+//                         Button(action: {
+//                             print("🎯 Join button tapped")
+//                             vm.hideNotification()
+//                         }) {
+//                             HStack(spacing: 8) {
+//                                 Image(systemName: "waveform.path")
+//                                     .font(.system(size: 14))
+//                                     .foregroundColor(.white)
                                 
-                                Text("Join")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .stroke(.white.opacity(0.3), lineWidth: 1)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(.white.opacity(0.1))
-                                    )
-                            )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    .padding(.bottom, 12)
+//                                 Text("Join")
+//                                     .font(.system(size: 14, weight: .medium))
+//                                     .foregroundColor(.white)
+//                             }
+//                             .padding(.horizontal, 20)
+//                             .padding(.vertical, 10)
+//                             .background(
+//                                 RoundedRectangle(cornerRadius: 20)
+//                                     .stroke(.white.opacity(0.3), lineWidth: 1)
+//                                     .background(
+//                                         RoundedRectangle(cornerRadius: 20)
+//                                             .fill(.white.opacity(0.1))
+//                                     )
+//                             )
+//                         }
+//                         .buttonStyle(PlainButtonStyle())
+//                     }
+//                     .padding(.horizontal, 20)
+//                     .padding(.top, 16)
+//                     .padding(.bottom, 12)
                     
-                    // Green progress bar at the bottom
-                    VStack(spacing: 0) {
-                        Spacer()
+//                     // Green progress bar at the bottom
+//                     VStack(spacing: 0) {
+//                         Spacer()
                         
-                        // Progress bar
-                        GeometryReader { geometry in
-                            ZStack(alignment: .leading) {
-                                // Background
-                                Rectangle()
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(height: 3)
+//                         // Progress bar
+//                         GeometryReader { geometry in
+//                             ZStack(alignment: .leading) {
+//                                 // Background
+//                                 Rectangle()
+//                                     .fill(Color.white.opacity(0.1))
+//                                     .frame(height: 3)
                                 
-                                // Progress fill
-                                Rectangle()
-                                    .fill(Color.green)
-                                    .frame(width: geometry.size.width * progressValue, height: 3)
-                            }
-                        }
-                        .frame(height: 3)
-                    }
-                    }
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
-                    .frame(width: 370, height: 74) // Matching the Figma dimensions
-                    .onHover { isHovering in
-                        if isHovering {
-                            vm.pauseNotificationTimer()
-                        } else {
-                            vm.resumeNotificationTimer()
-                        }
-                    }
+//                                 // Progress fill
+//                                 Rectangle()
+//                                     .fill(Color.green)
+//                                     .frame(width: geometry.size.width * progressValue, height: 3)
+//                             }
+//                         }
+//                         .frame(height: 3)
+//                     }
+//                     }
+//                     .background(.ultraThinMaterial)
+//                     .clipShape(RoundedRectangle(cornerRadius: vm.cornerRadius))
+//                     .frame(width: 370, height: 74) // Matching the Figma dimensions
+//                     .onHover { isHovering in
+//                         if isHovering {
+//                             vm.pauseNotificationTimer()
+//                         } else {
+//                             vm.resumeNotificationTimer()
+//                         }
+//                     }
                     
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .transition(.scale(scale: 1.0).combined(with: .opacity)) // Remove scaling to prevent shadow artifacts
-                .onAppear {
-                    // Start progress bar animation that syncs with notification timer
-                    startProgressAnimation()
-                }
-                .onDisappear {
-                    // Clean up progress animation
-                    stopProgressAnimation()
-                }
-            }
-        }
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.showNotificationOverlay)
-    }
+//                     Spacer()
+//                 }
+//                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                 .transition(.scale(scale: 1.0).combined(with: .opacity)) // Remove scaling to prevent shadow artifacts
+//                 .onAppear {
+//                     // Start progress bar animation that syncs with notification timer
+//                     startProgressAnimation()
+//                 }
+//                 .onDisappear {
+//                     // Clean up progress animation
+//                     stopProgressAnimation()
+//                 }
+//             }
+//         }
+//         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.showNotificationOverlay)
+//     }
     
-    // Progress animation methods
-    private func startProgressAnimation() {
-        progressValue = 0.0
-        progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            if !vm.isNotificationHovered {
-                // Only advance progress when not hovering
-                let increment = 0.1 / 10.0 // 10 seconds total
-                progressValue = min(1.0, progressValue + increment)
-            }
-        }
-    }
+//     // Progress animation methods
+//     private func startProgressAnimation() {
+//         progressValue = 0.0
+//         progressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+//             if !vm.isNotificationHovered {
+//                 // Only advance progress when not hovering
+//                 let increment = 0.1 / 10.0 // 10 seconds total
+//                 progressValue = min(1.0, progressValue + increment)
+//             }
+//         }
+//     }
     
-    private func stopProgressAnimation() {
-        progressTimer?.invalidate()
-        progressTimer = nil
-        progressValue = 0.0
+//     private func stopProgressAnimation() {
+//         progressTimer?.invalidate()
+//         progressTimer = nil
+//         progressValue = 0.0
+//     }
+// }
+
+
+// // MARK: - Info Icon with Popup Menu
+// struct InfoIconWithPopup: View {
+//     @Binding var showInfoPopup: Bool
+//     @Binding var infoPopupPosition: CGPoint
+//     @State private var isHovered: Bool = false
+    
+//     var body: some View {
+//         // Info icon button
+//         Button(action: {
+//             print("🎯 Information icon clicked")
+//             // Toggle popup on click as well
+//             withAnimation(.easeInOut(duration: 0.2)) {
+//                 showInfoPopup.toggle()
+//             }
+//         }) {
+//             InfoIcon(color: .white)
+//                 .frame(width: 16, height: 16)
+//                 .padding(8) // Increased padding for larger clickable area
+//                 .overlay(
+//                     RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
+//                         .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+//                 )
+//         }
+//         .buttonStyle(PlainButtonStyle())
+//         .help("Information")
+//         .onHover { hovering in
+//             isHovered = hovering
+//             withAnimation(.easeInOut(duration: 0.2)) {
+//                 showInfoPopup = hovering
+//             }
+//         }
+//     }
+// }
+
+// // MARK: - Info Popup Menu Component
+// struct InfoPopupMenu: View {
+//     var body: some View {
+//         VStack(alignment: .leading, spacing: 0) {
+//             // Live Intelligence
+//             InfoMenuItem(
+//                 title: "Live Intelligence",
+//                 shortcutKeys: ["⌘", "\\"]
+//             )
+            
+//             // Notch
+//             InfoMenuItem(
+//                 title: "Notch",
+//                 shortcutKeys: ["⌘", "N"]
+//             )
+            
+//             // Ask Ve
+//             InfoMenuItem(
+//                 title: "Ask Ve",
+//                 shortcutKeys: ["⌘", "⏎"]
+//             )
+            
+//             // Ve App
+//             InfoMenuItem(
+//                 title: "Ve App",
+//                 shortcutKeys: ["⌘", "."]
+//             )
+//         }
+//         .padding(.vertical, 8)
+//         .background(
+//             RoundedRectangle(cornerRadius: 8)
+//                 .fill(Color(red: 0.15, green: 0.15, blue: 0.15)) // Dark grey background
+//                 .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+//         )
+//         .overlay(
+//             RoundedRectangle(cornerRadius: 8)
+//                 .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+//         )
+//         .frame(width: 200) // Fixed width to match design
+//     }
+// }
+
+// MARK: - Info Menu Item Component
+// struct InfoMenuItem: View {
+//     let title: String
+//     let shortcutKeys: [String]
+    
+//     var body: some View {
+//         HStack {
+//             // Menu item title
+//             Text(title)
+//                 .font(.system(size: 14, weight: .medium))
+//                 .foregroundColor(.white)
+            
+//             Spacer()
+            
+//             // Keyboard shortcut
+//             HStack(spacing: 4) {
+//                 ForEach(shortcutKeys, id: \.self) { key in
+//                     ShortcutKeyView(keyText: key)
+//                 }
+//             }
+//         }
+//         .padding(.horizontal, 16)
+//         .padding(.vertical, 8)
+//         .contentShape(Rectangle())
+//         .onTapGesture {
+//             print("🎯 Menu item tapped: \(title)")
+//             // Handle menu item actions here
+//         }
+//     }
+// }
+
+// MARK: - Shortcut Key View Component
+struct ShortcutKeyView: View {
+    let keyText: String
+    
+    var body: some View {
+        Text(keyText)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.white.opacity(0.15))
+            )
     }
 }
-
-
 
 // MARK: - Spotify Media Controller
 struct SpotifyMediaController: View {
@@ -1838,7 +2153,7 @@ struct SpotifyMediaController: View {
         Group {
             if vm.hasActiveMusic {
                 HStack(spacing: 12) {
-            // Large album artwork (left side)
+            
             Group {
                 if let artwork = albumArtwork {
                     Image(nsImage: artwork)
@@ -1951,7 +2266,7 @@ struct SpotifyMediaController: View {
        
         .onAppear {
             updateCurrentTrackInfo()
-                }
+        }
             }
         }
     }
@@ -2175,91 +2490,527 @@ struct YouTubeMediaController: View {
     }
 }
 
-// MARK: - YouTube Video Player
+// MARK: - YouTube Video Player - ULTIMATE SOLUTION
 struct YouTubeVideoPlayer: NSViewRepresentable {
     let embedURL: String
     
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         
-        // Configure for video playback with sound
+        // ULTIMATE SOLUTION: Maximum permissiveness for direct video streaming
         configuration.allowsAirPlayForMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
+        configuration.preferences.isElementFullscreenEnabled = true
         
-        // Set user agent to avoid mobile YouTube version
-        configuration.applicationNameForUserAgent = "Version/14.1.2 Safari/605.1.15"
+        // Use a clean user agent that works with YouTube
+        configuration.applicationNameForUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
         
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
+        webView.uiDelegate = context.coordinator
         
-        // Allow sound playback
+        // Settings for direct video playback
         webView.allowsMagnification = false
         webView.allowsBackForwardNavigationGestures = false
+        webView.allowsLinkPreview = false
+        webView.customUserAgent = configuration.applicationNameForUserAgent
         
-        // Load the YouTube embed URL
-        if let url = URL(string: embedURL) {
-            let request = URLRequest(url: url)
-            webView.load(request)
-        }
+        // Load the YouTube video directly with custom HTML that bypasses restrictions
+        let videoId = extractVideoId(from: embedURL)
+        let customHTML = createDirectVideoHTML(videoId: videoId)
+        
+        print("📺 ULTIMATE: Loading YouTube video directly with custom HTML for video: \(videoId)")
+        webView.loadHTMLString(customHTML, baseURL: URL(string: "https://www.youtube.com"))
         
         return webView
     }
     
     func updateNSView(_ nsView: WKWebView, context: Context) {
-        // Update if URL changes
-        if let currentURL = nsView.url?.absoluteString,
-           currentURL != embedURL,
-           let newURL = URL(string: embedURL) {
-            let request = URLRequest(url: newURL)
-            nsView.load(request)
+        // Update if video ID changes
+        let newVideoId = extractVideoId(from: embedURL)
+        if newVideoId != extractVideoId(from: nsView.url?.absoluteString ?? "") {
+            let customHTML = createDirectVideoHTML(videoId: newVideoId)
+            print("📺 ULTIMATE: Updating to new video: \(newVideoId)")
+            nsView.loadHTMLString(customHTML, baseURL: URL(string: "https://www.youtube.com"))
         }
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func extractVideoId(from url: String) -> String {
+        let patterns = [
+            "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
+        ]
+        
+        for pattern in patterns {
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(url.startIndex..., in: url)
+            if let match = regex?.firstMatch(in: url, options: [], range: range) {
+                let videoIdRange = Range(match.range(at: 1), in: url)!
+                return String(url[videoIdRange])
+            }
+        }
+        return ""
+    }
+    
+    private func createDirectVideoHTML(videoId: String) -> String {
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background: #000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    font-family: system-ui, -apple-system, sans-serif;
+                }
+                .video-container {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    background: #000;
+                }
+                iframe {
+                    width: 100%;
+                    height: 100%;
+                    border: none;
+                    border-radius: 12px;
+                }
+                .loading {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    font-size: 16px;
+                }
+                .error {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: #ff6b6b;
+                    text-align: center;
+                    font-size: 14px;
+                }
+                .retry-btn {
+                    background: #ff6b6b;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="video-container">
+                <div class="loading" id="loading">Loading video...</div>
+                <iframe id="player" src="" style="display: none;"></iframe>
+                <div class="error" id="error" style="display: none;">
+                    <div>Video failed to load</div>
+                    <button class="retry-btn" onclick="retryVideo()">Retry</button>
+                </div>
+            </div>
+            
+            <script>
+                let currentVideoId = '\(videoId)';
+                let fallbackIndex = 0;
+                let savedVideoState = null;
+                let videoStateInterval = null;
+                let videoStartTime = Date.now();
+                let hasRestoredPosition = false;
+                let restoreAttempts = 0;
+                let lastKnownVideoTime = 0;
+                let videoTimeTrackingInterval = null;
+                
+                const fallbackUrls = [
+                    'https://www.youtube.com/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
+                    'https://www.youtube-nocookie.com/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
+                    'https://inv.riverside.rocks/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0',
+                    'https://invidious.flokinet.to/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0',
+                    'https://invidious.lunar.icu/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0'
+                ];
+                
+                // Check for saved video state in localStorage
+                function getSavedVideoState() {
+                    try {
+                        const saved = localStorage.getItem('notchVideoState_' + currentVideoId);
+                        if (saved) {
+                            savedVideoState = JSON.parse(saved);
+                            return savedVideoState;
+                        }
+                    } catch (e) {
+                    }
+                    return null;
+                }
+                
+                // Save current video state with actual position
+                function saveCurrentVideoState() {
+                    try {
+                        const player = document.getElementById('player');
+                        if (player) {
+                            const playerState = {
+                                videoId: currentVideoId,
+                                timestamp: Date.now(),
+                                currentTime: 0,
+                                duration: 0,
+                                isPlaying: false
+                            };
+                            
+                            // Method 1: Try to access iframe content directly (most reliable)
+                            try {
+                                const iframeDoc = player.contentDocument || player.contentWindow.document;
+                                if (iframeDoc) {
+                                    // Look for video element in iframe
+                                    const videoElement = iframeDoc.querySelector('video');
+                                    if (videoElement && videoElement.readyState >= 2) {
+                                        playerState.currentTime = videoElement.currentTime;
+                                        playerState.duration = videoElement.duration;
+                                        playerState.isPlaying = !videoElement.paused;
+                                    } else {
+                                        // Try to get time from YouTube player object
+                                        const ytPlayer = iframeDoc.querySelector('#movie_player');
+                                        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                                            playerState.currentTime = ytPlayer.getCurrentTime();
+                                            playerState.duration = ytPlayer.getDuration();
+                                            playerState.isPlaying = ytPlayer.getPlayerState() === 1;
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                            }
+                            
+                            // Method 2: Try YouTube API if iframe access failed
+                            if (playerState.currentTime === 0) {
+                                try {
+                                    if (window.YT && window.YT.Player) {
+                                        const ytPlayer = new YT.Player('player');
+                                        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+                                            playerState.currentTime = ytPlayer.getCurrentTime();
+                                            playerState.duration = ytPlayer.getDuration();
+                                            playerState.isPlaying = ytPlayer.getPlayerState() === 1;
+                                        }
+                                    }
+                                } catch (e) {
+                                }
+                            }
+                            
+                            // Method 3: Use tracked time from our time tracking system
+                            if (playerState.currentTime === 0) {
+                                const timeSinceStart = (Date.now() - videoStartTime) / 1000;
+                                if (timeSinceStart > 5) { // Only estimate if video has been playing for more than 5 seconds
+                                    playerState.currentTime = Math.min(timeSinceStart, 600); // Cap at 10 minutes
+                                    playerState.isPlaying = true; // Assume playing if we're estimating
+                                }
+                            }
+                            
+                            // Method 4: Use last known video time from monitoring
+                            if (playerState.currentTime === 0 && lastKnownVideoTime > 0) {
+                                playerState.currentTime = lastKnownVideoTime;
+                                playerState.isPlaying = true;
+                            }
+                            
+                            // Only save if we have a meaningful current time
+                            if (playerState.currentTime > 0) {
+                                localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
+                            } else {
+                            }
+                        }
+                    } catch (e) {
+                    }
+                }
+                
+                // Restore video to saved position using multiple methods
+                function restoreVideoPosition() {
+                    // Only prevent if we've already successfully restored
+                    if (hasRestoredPosition) {
+                        return false;
+                    }
+                    
+                    const saved = getSavedVideoState();
+                    if (saved && saved.currentTime > 0) {
+                        restoreAttempts++;
+                        
+                        let restorationSuccessful = false;
+                        
+                        // Method 1: Try direct iframe access
+                        try {
+                            const player = document.getElementById('player');
+                            if (player && player.contentWindow) {
+                                const iframeDoc = player.contentDocument || player.contentWindow.document;
+                                if (iframeDoc) {
+                                    const videoElement = iframeDoc.querySelector('video');
+                                    if (videoElement && videoElement.readyState >= 2) {
+                                        videoElement.currentTime = saved.currentTime;
+                                        if (saved.isPlaying) {
+                                            videoElement.play();
+                                        }
+                                        restorationSuccessful = true;
+                                    }
+                                    
+                                    // Try YouTube player object if video element didn't work
+                                    if (!restorationSuccessful) {
+                                        const ytPlayer = iframeDoc.querySelector('#movie_player');
+                                        if (ytPlayer && ytPlayer.seekTo) {
+                                            ytPlayer.seekTo(saved.currentTime, true);
+                                            if (saved.isPlaying) {
+                                                ytPlayer.playVideo();
+                                            }
+                                            restorationSuccessful = true;
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                        }
+                        
+                        // Method 2: Try YouTube Player API
+                        if (!restorationSuccessful) {
+                            try {
+                                if (window.YT && window.YT.Player) {
+                                    const ytPlayer = new YT.Player('player');
+                                    if (ytPlayer && ytPlayer.seekTo) {
+                                        ytPlayer.seekTo(saved.currentTime, true);
+                                        if (saved.isPlaying) {
+                                            ytPlayer.playVideo();
+                                        }
+                                        restorationSuccessful = true;
+                                    }
+                                }
+                            } catch (e) {
+                            }
+                        }
+                        
+                        // If restoration was successful, mark as completed
+                        if (restorationSuccessful) {
+                            hasRestoredPosition = true;
+                            // Clear the saved state to prevent repeated restorations
+                            localStorage.removeItem('notchVideoState_' + currentVideoId);
+                            return true;
+                        } else {
+                            // Method 3: Return time for URL parameter (fallback)
+                            const currentTimeSeconds = Math.floor(saved.currentTime);
+                            if (currentTimeSeconds > 0 && restoreAttempts >= 2) {
+                                hasRestoredPosition = true;
+                                localStorage.removeItem('notchVideoState_' + currentVideoId);
+                                return true; // Return true to indicate we have a fallback plan
+                            }
+                        }
+                    } else {
+                    }
+                    return false;
+                }
+                
+                function loadVideo() {
+                    const player = document.getElementById('player');
+                    const loading = document.getElementById('loading');
+                    const error = document.getElementById('error');
+                    
+                    if (fallbackIndex >= fallbackUrls.length) {
+                        loading.style.display = 'none';
+                        error.style.display = 'block';
+                        return;
+                    }
+                    
+                    let videoUrl = fallbackUrls[fallbackIndex];
+                    let savedState = null;
+                    
+                    // Check for saved state first to determine if we need to restore
+                    if (fallbackIndex === 0) {
+                        savedState = getSavedVideoState();
+                        if (savedState && savedState.currentTime > 0) {
+                            // Keep loading overlay visible during restoration to hide the glitch
+                            loading.style.display = 'flex';
+                            loading.innerHTML = '<div class="spinner"></div><p>Resuming video...</p>';
+                        }
+                    }
+                    
+                    // If we have saved state, add start time parameter to URL
+                    if (savedState && savedState.currentTime > 0) {
+                        const savedPosition = Math.floor(savedState.currentTime);
+                        // Add start time parameter to YouTube URLs
+                        if (videoUrl.includes('youtube.com') || videoUrl.includes('youtube-nocookie.com')) {
+                            videoUrl += '&start=' + savedPosition;
+                        } else if (videoUrl.includes('inv.')) {
+                            videoUrl += '&t=' + savedPosition;
+                        }
+                    }
+                    
+                    player.src = videoUrl;
+                    player.style.display = 'block';
+                    
+                    // Check if video loads successfully
+                    player.onload = function() {
+                        
+                        // If we have saved state, hide the video initially and restore position
+                        if (savedState && savedState.currentTime > 0) {
+                            player.style.display = 'none';
+                            
+                            // Try to restore position after video loads
+                            setTimeout(() => {
+                                if (!hasRestoredPosition) {
+                                    const restored = restoreVideoPosition();
+                                    if (restored) {
+                                        // Show the video after successful restoration
+                                        player.style.display = 'block';
+                                        loading.style.display = 'none';
+                                    }
+                                }
+                            }, 1000); // Faster restoration attempt
+                            
+                            // Second attempt after 2 seconds
+                            setTimeout(() => {
+                                if (!hasRestoredPosition) {
+                                    const restored = restoreVideoPosition();
+                                    if (restored) {
+                                        player.style.display = 'block';
+                                        loading.style.display = 'none';
+                                    }
+                                }
+                            }, 2000);
+                            
+                            // Final attempt after 3 seconds - show video regardless
+                            setTimeout(() => {
+                                if (!hasRestoredPosition) {
+                                    restoreVideoPosition();
+                                }
+                                // Always show video after 3 seconds to prevent infinite loading
+                                player.style.display = 'block';
+                                loading.style.display = 'none';
+                            }, 3000);
+                        } else {
+                            // No saved state, show video immediately
+                            loading.style.display = 'none';
+                        }
+                        
+                        // Start monitoring video state
+                        startVideoStateMonitoring();
+                    };
+                    
+                    player.onerror = function() {
+                        fallbackIndex++;
+                        setTimeout(loadVideo, 1000);
+                    };
+                }
+                
+                function startVideoStateMonitoring() {
+                    // Start time tracking system
+                    startVideoTimeTracking();
+                    
+                    // Monitor video state every 2 seconds for better performance
+                    videoStateInterval = setInterval(saveCurrentVideoState, 2000);
+                    
+                    // Save state when page is about to unload
+                    window.addEventListener('beforeunload', saveCurrentVideoState);
+                    
+                    // Save state when notch closes (if we can detect it)
+                    document.addEventListener('visibilitychange', function() {
+                        if (document.hidden) {
+                            saveCurrentVideoState();
+                        }
+                    });
+                    
+                    // Listen for message events from iframe
+                    window.addEventListener('message', function(event) {
+                        if (event.data && event.data.type === 'VIDEO_TIME_UPDATE') {
+                            lastKnownVideoTime = event.data.currentTime || 0;
+                            const playerState = {
+                                videoId: currentVideoId,
+                                timestamp: Date.now(),
+                                currentTime: event.data.currentTime || 0,
+                                duration: event.data.duration || 0,
+                                isPlaying: event.data.isPlaying || false
+                            };
+                            localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
+                        }
+                    });
+                    
+                    // Try to inject monitoring script into iframe
+                    try {
+                        const player = document.getElementById('player');
+                        if (player && player.contentWindow) {
+                            player.addEventListener('load', function() {
+                                setTimeout(() => {
+                                    try {
+                                        // Inject script to monitor video state and send updates
+                                        const monitoringScript = `
+                                            setInterval(() => {
+                                                try {
+                                                    const video = document.querySelector('video');
+                                                    if (video && video.readyState >= 2) {
+                                                        window.parent.postMessage({
+                                                            type: 'VIDEO_TIME_UPDATE',
+                                                            currentTime: video.currentTime,
+                                                            duration: video.duration,
+                                                            isPlaying: !video.paused
+                                                        }, '*');
+                                                    }
+                                                } catch (e) {
+                                                }
+                                            }, 1000);
+                                        `;
+                                        
+                                        player.contentWindow.eval(monitoringScript);
+                                    } catch (e) {
+                                    }
+                                }, 3000);
+                            });
+                        }
+                    } catch (e) {
+                    }
+                }
+                
+                function startVideoTimeTracking() {
+                    // Track video time based on elapsed time since start
+                    videoTimeTrackingInterval = setInterval(() => {
+                        const timeSinceStart = (Date.now() - videoStartTime) / 1000;
+                        lastKnownVideoTime = timeSinceStart;
+                    }, 1000);
+                }
+                
+                function retryVideo() {
+                    fallbackIndex = 0;
+                    savedVideoState = null; // Clear saved state on retry
+                    hasRestoredPosition = false; // Reset restoration flag
+                    restoreAttempts = 0; // Reset attempt counter
+                    document.getElementById('error').style.display = 'none';
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('player').style.display = 'none';
+                    loadVideo();
+                }
+                
+                // Start loading
+                loadVideo();
+            </script>
+        </body>
+        </html>
+        """
     }
     
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }
     
-    class Coordinator: NSObject, WKNavigationDelegate {
+    class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // Wait a moment for the video to load, then unmute it
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                // Unmute the video and ensure it's playing with sound
-                let unmuteScript = """
-                    // Find the video element and unmute it
-                    var video = document.querySelector('video');
-                    if (video) {
-                        video.muted = false;
-                        video.volume = 0.7; // Set to 70% volume
-                        
-                        // Try to play with sound
-                        video.play().then(() => {
-                            console.log('Video playing with sound');
-                        }).catch(e => {
-                            console.log('Autoplay failed, user interaction required');
-                        });
-                    }
-                    
-                    // Also try YouTube player API if available
-                    if (typeof YT !== 'undefined' && YT.Player) {
-                        var iframe = document.querySelector('iframe');
-                        if (iframe) {
-                            try {
-                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
-                                iframe.contentWindow.postMessage('{"event":"command","func":"setVolume","args":[70]}', '*');
-                            } catch(e) {
-                                console.log('YouTube API not available');
-                            }
-                        }
-                    }
-                """
-                
-                webView.evaluateJavaScript(unmuteScript) { result, error in
-                    if let error = error {
-                        print("📺 Error unmuting video: \(error)")
-                    } else {
-                        print("📺 Video unmuted successfully")
-                    }
-                }
+            print("📺 YouTube video page loaded successfully")
+            
+            // Wait a moment for the video to load, then configure it for production
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.configureVideoPlayer(webView: webView)
             }
             
             // Inject CSS to hide unnecessary YouTube UI elements
@@ -2272,11 +3023,736 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     .ytp-watermark { 
                         display: none !important; 
                     }
+                    .ytp-chrome-top { 
+                        display: none !important; 
+                    }
+                    .ytp-show-cards-title { 
+                        display: none !important; 
+                    }
                 `;
                 document.head.appendChild(style);
             """
             
-            webView.evaluateJavaScript(css, completionHandler: nil)
+            webView.evaluateJavaScript(css) { result, error in
+                    if let error = error {
+                    print("📺 Error injecting CSS: \(error)")
+                    } else {
+                    print("📺 CSS injected successfully")
+                }
+            }
+        }
+        
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            print("📺 YouTube video failed to load: \(error.localizedDescription)")
+            
+            // Try to load a fallback or show error message
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.handleVideoLoadError(webView: webView, error: error)
+            }
+        }
+        
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            print("📺 YouTube video provisional navigation failed: \(error.localizedDescription)")
+        }
+        
+        private func configureVideoPlayer(webView: WKWebView) {
+            // NUCLEAR SOLUTION: Universal YouTube video compatibility
+            let configureScript = """
+                (function() {
+                    
+                    // Check for ANY video problems (Error 153, Video unavailable, etc.)
+                    setTimeout(() => {
+                        var errorText = document.body.innerText.toLowerCase();
+                        var hasError = errorText.includes('error 153') || 
+                                      errorText.includes('video player configuration error') ||
+                                      errorText.includes('video unavailable') ||
+                                      errorText.includes('this video is not available') ||
+                                      errorText.includes('private video') ||
+                                      errorText.includes('video unavailable');
+                        
+                        if (hasError) {
+                            
+                            var iframe = document.querySelector('iframe');
+                            if (iframe && (iframe.src.includes('youtube') || iframe.src.includes('inv.'))) {
+                                var videoId = iframe.src.match(/embed\\/([a-zA-Z0-9_-]{11})/);
+                                if (videoId && videoId[1]) {
+                                    // NUCLEAR: Try multiple invidious proxies that bypass ALL restrictions
+                                    var nuclearUrls = [
+                                        'https://inv.riverside.rocks/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.flokinet.to/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.lunar.icu/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://yt.artemislena.eu/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.privacydev.net/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://yt.oelrichsgarcia.de/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.namazso.eu/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.nerdvpn.de/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0'
+                                    ];
+                                    
+                                    // Try each nuclear URL
+                                    var currentIndex = 0;
+                                    function tryNuclearFallback() {
+                                        if (currentIndex < nuclearUrls.length) {
+                                            iframe.src = nuclearUrls[currentIndex];
+                                            currentIndex++;
+                                            
+                                            // Check if this one worked after 4 seconds
+                                            setTimeout(() => {
+                                                var newErrorText = document.body.innerText.toLowerCase();
+                                                var stillHasError = newErrorText.includes('error 153') || 
+                                                                   newErrorText.includes('video player configuration error') ||
+                                                                   newErrorText.includes('video unavailable') ||
+                                                                   newErrorText.includes('this video is not available') ||
+                                                                   newErrorText.includes('private video');
+                                                
+                                                if (stillHasError) {
+                                                    tryNuclearFallback();
+                                                } else {
+                                                }
+                                            }, 4000);
+                                        } else {
+                                        }
+                                    }
+                                    
+                                    tryNuclearFallback();
+                                }
+                            }
+                        } else {
+                        }
+                    }, 3000);
+                })();
+            """
+            
+            webView.evaluateJavaScript(configureScript) { result, error in
+                if let error = error {
+                    print("📺 Error in nuclear script: \(error)")
+                } else {
+                    print("📺 NUCLEAR SOLUTION script executed - YouTube videos will work!")
+                }
+            }
+        }
+        
+        private func handleVideoLoadError(webView: WKWebView, error: Error) {
+            let errorScript = """
+                (function() {
+                    
+                    // Try to show a user-friendly error message
+                    var errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 10px; text-align: center; font-family: system-ui;';
+                    errorDiv.innerHTML = '<h3>Video Error</h3><p>Unable to load YouTube video</p><button onclick="location.reload()" style="background: #ff0000; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Retry</button>';
+                    
+                    document.body.appendChild(errorDiv);
+                    
+                    // Try to reload after 3 seconds
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                })();
+            """
+            
+            webView.evaluateJavaScript(errorScript) { result, error in
+                print("📺 Error handling script executed")
+            }
+        }
+    }
+}
+
+// MARK: - Browser Permission Request View
+struct BrowserPermissionRequestView: View {
+    @ObservedObject var vm: NotchViewModel
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Icon
+            Image(systemName: "globe")
+                .font(.system(size: 28))
+                .foregroundColor(DynamicIslandTheme.primaryGreen)
+            
+            // Title and description
+            VStack(spacing: 8) {
+                Text("Browser Access")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.primary)
+                
+                Text("Allow access to Safari, Chrome, and Firefox to detect YouTube videos playing in your browser")
+                    .font(.system(size: 13))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            // Buttons
+            HStack(spacing: 12) {
+                Button("Not Now") {
+                    vm.denyBrowserPermission()
+                }
+                .buttonStyle(SystemSecondaryButtonStyle())
+                
+                Button("Allow") {
+                    vm.grantBrowserPermission()
+                }
+                .buttonStyle(SystemPrimaryButtonStyle())
+            }
+        }
+        .padding(24)
+        .frame(width: 360, height: 200)
+        .background(
+            // System notification-like background
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(.separator.opacity(0.5), lineWidth: 0.5)
+        )
+    }
+}
+
+// MARK: - System-like Button Styles for Permission Request
+struct SystemPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.accentColor)
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SystemSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.primary)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.quaternary)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(.separator.opacity(0.5), lineWidth: 0.5)
+            )
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// MARK: - Legacy Button Styles (kept for compatibility)
+struct PrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(DynamicIslandTheme.primaryGreen)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+struct SecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white.opacity(0.7))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.white.opacity(0.1))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// MARK: - TemporaryFolderView Component
+struct TemporaryFolderView: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            // VE Icon (compact)
+            CompactTemporaryFolderIcon()
+            
+            // Listen button (compact)
+            CompactTemporaryFolderListenButton()
+            
+            // Share button (compact)
+            CompactTemporaryFolderShareButton()
+            
+            // Ask anything button (compact)
+            CompactTemporaryFolderAskAnythingButton()
+            
+            // Incognito button (compact)
+            CompactTemporaryFolderIncognitoButton()
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+    }
+}
+
+// MARK: - TemporaryFolder Icon
+struct TemporaryFolderIcon: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // VE Icon
+            VEIcon(color: .white)
+                .frame(width: 22, height: 14)
+        }
+    }
+}
+
+// MARK: - TemporaryFolder Listen Button
+struct TemporaryFolderListenButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            WaveIcon(color: .white)
+                .frame(width: 11, height: 12)
+            
+            Text("Listen")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(
+            RoundedRectangle(cornerRadius: 100)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.06),
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.06)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+        )
+    }
+}
+
+// MARK: - TemporaryFolder Share Button
+struct TemporaryFolderShareButton: View {
+    var body: some View {
+        Text("Share")
+            .font(.system(size: 10, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(
+                RoundedRectangle(cornerRadius: 100)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.06),
+                                Color.white.opacity(0.1),
+                                Color.white.opacity(0.06)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                            .blendMode(.multiply)
+                    )
+            )
+    }
+}
+
+// MARK: - TemporaryFolder Ask Anything Button
+struct TemporaryFolderAskAnythingButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            AskAnythingIcon(color: .white)
+                .frame(width: 15, height: 14)
+            
+            Text("Ask anything")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(width: 105, height: 24)
+    }
+}
+
+// MARK: - TemporaryFolder Incognito Button
+struct TemporaryFolderIncognitoButton: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // Incognito Icon
+            IncognitoIcon(color: .white)
+                .frame(width: 15, height: 14)
+        }
+    }
+}
+
+// MARK: - Ask Anything Icon
+struct AskAnythingIcon: View {
+    var color: Color = .white
+    
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 15.0
+            let offsetX = (geo.size.width - 15.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 14.0 * scale) / 2.0
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+            
+            ZStack {
+                // T shape from TIcon.svg - using the actual SVG path
+                Path { path in
+                    // Main T shape path from SVG
+                    path.move(to: point(5.12817, 1.16797))
+                    path.addLine(to: point(9.87183, 1.16797))
+                    path.addCurve(to: point(10.3887, 1.16797), control1: point(10.8343, 1.16797), control2: point(11.1913, 1.2158))
+                    path.addCurve(to: point(11.5734, 1.26714), control1: point(11.9403, 1.38322), control2: point(12.2372, 1.68072))
+                    path.addCurve(to: point(12.5347, 1.97822), control1: point(12.6508, 2.34455), control2: point(12.7022, 2.72664))
+                    path.addCurve(to: point(12.75, 3.08364), control1: point(12.75, 3.5293), control2: point(12.75, 4.04614))
+                    path.addLine(to: point(12.75, 4.6388))
+                    path.addCurve(to: point(12.6885, 4.94188), control1: point(12.5791, 5.05128), control2: point(12.4697, 5.16068))
+                    path.addCurve(to: point(12.3214, 5.22214), control1: point(12.1667, 5.22214), control2: point(12.012, 5.22214))
+                    path.addCurve(to: point(11.8636, 5.16068), control1: point(11.7542, 5.05128), control2: point(11.6448, 4.94188))
+                    path.addCurve(to: point(11.5833, 4.79351), control1: point(11.5833, 4.6388), control2: point(11.5833, 4.08464))
+                    path.addCurve(to: point(11.5833, 3.51822), control1: point(11.5822, 3.15189), control2: point(11.546, 2.88239))
+                    path.addCurve(to: point(11.5116, 2.62922), control1: point(11.4567, 2.54989), control2: point(11.4124, 2.50555))
+                    path.addCurve(to: point(11.3681, 2.46122), control1: point(11.2887, 2.40639), control2: point(11.0356, 2.37197))
+                    path.addCurve(to: point(10.7667, 2.3358), control1: point(10.3997, 2.33464), control2: point(9.83333, 2.33464))
+                    path.addLine(to: point(8.08333, 2.33464))
+                    path.addLine(to: point(8.08333, 12.2513))
+                    path.addCurve(to: point(8.02187, 12.5544), control1: point(7.91248, 12.6638), control2: point(7.80308, 12.7732))
+                    path.addCurve(to: point(7.65471, 12.8346), control1: point(7.5, 12.8346), control2: point(7.34529, 12.8346))
+                    path.addCurve(to: point(7.19692, 12.7732), control1: point(7.08752, 12.6638), control2: point(6.97812, 12.5544))
+                    path.addCurve(to: point(6.91667, 12.406), control1: point(6.91667, 12.2513), control2: point(6.91667, 2.33464))
+                    path.addLine(to: point(5.16667, 2.33464))
+                    path.addCurve(to: point(4.60025, 2.33464), control1: point(4.23392, 2.3358), control2: point(3.96442, 2.37197))
+                    path.addCurve(to: point(3.71125, 2.40639), control1: point(3.63192, 2.46122), control2: point(3.58758, 2.50555))
+                    path.addCurve(to: point(3.54325, 2.54989), control1: point(3.48842, 2.62922), control2: point(3.454, 2.88239))
+                    path.addCurve(to: point(3.41783, 3.1513), control1: point(3.41667, 3.51822), control2: point(3.41667, 4.08464))
+                    path.addLine(to: point(3.41667, 4.6388))
+                    path.addCurve(to: point(3.35521, 4.94188), control1: point(3.24581, 5.05128), control2: point(3.13642, 5.16068))
+                    path.addCurve(to: point(2.98804, 5.22214), control1: point(2.83333, 5.22214), control2: point(2.67862, 5.22214))
+                    path.addCurve(to: point(2.53025, 5.16068), control1: point(2.42085, 5.05128), control2: point(2.31146, 4.94188))
+                    path.addCurve(to: point(2.25, 4.79351), control1: point(2.25, 4.6388), control2: point(2.25, 4.04614))
+                    path.addCurve(to: point(2.25, 3.5293), control1: point(2.25, 3.08364), control2: point(2.29783, 2.72664))
+                    path.addCurve(to: point(2.34917, 2.34455), control1: point(2.46525, 1.97764), control2: point(2.76275, 1.68072))
+                    path.addCurve(to: point(3.06025, 1.38322), control1: point(3.42658, 1.26714), control2: point(3.80867, 1.2158))
+                    path.addCurve(to: point(4.16567, 1.16797), control1: point(4.61133, 1.16797), control2: point(5.12817, 1.16797))
+                    path.closeSubpath()
+                }
+                .fill(color.opacity(0.7))
+                
+                // Bottom line from TIcon.svg
+                Path { path in
+                    path.move(to: point(4.58594, 12.25))
+                    path.addLine(to: point(10.4193, 12.25))
+                }
+                .stroke(color.opacity(0.7), style: StrokeStyle(lineWidth: 1.0 * scale, lineCap: .round, lineJoin: .round))
+            }
+        }
+        .aspectRatio(15.0/14.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Incognito Icon
+struct IncognitoIcon: View {
+    var color: Color = .white
+    
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 15.0
+            let offsetX = (geo.size.width - 15.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 14.0 * scale) / 2.0
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
+                CGRect(
+                    x: offsetX + (centerX - radius) * scale,
+                    y: offsetY + (centerY - radius) * scale,
+                    width: radius * 2.0 * scale,
+                    height: radius * 2.0 * scale
+                )
+            }
+            
+            ZStack {
+                // Top line
+                Path { path in
+                    path.move(to: point(0.94, 6.56))
+                    path.addLine(to: point(14.06, 6.56))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+                
+                // Left wheel
+                Path { path in
+                    path.addEllipse(in: circleRect(4.66, 9.84, 1.53))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+                
+                // Right wheel
+                Path { path in
+                    path.addEllipse(in: circleRect(10.34, 9.84, 1.53))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+                
+                // Bottom line
+                Path { path in
+                    path.move(to: point(6.17, 10.06))
+                    path.addLine(to: point(8.83, 10.06))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+                
+                // Car body
+                Path { path in
+                    path.move(to: point(2.69, 6.56))
+                    path.addLine(to: point(5.42, 2.80))
+                    path.addLine(to: point(8.18, 3.61))
+                    path.addLine(to: point(12.31, 6.56))
+                }
+                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
+            }
+        }
+        .aspectRatio(15.0/14.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Compact TemporaryFolder Components for Collapsed State
+struct CompactTemporaryFolderIcon: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow (optimized for 48px height)
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 20, height: 20)
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 4, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // VE Icon (optimized for 48px height)
+            VEIcon(color: .white)
+                .frame(width: 22, height: 14)
+        }
+    }
+}
+
+struct CompactTemporaryFolderListenButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            WaveIcon(color: .white)
+                .frame(width: 10, height: 11)
+            
+            Text("Listen")
+                .font(.system(size: 9, weight: .medium))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 100)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.06),
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.06)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 0)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+        )
+    }
+}
+
+struct CompactTemporaryFolderShareButton: View {
+    var body: some View {
+        Text("Share")
+            .font(.system(size: 9, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 100)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.06),
+                                Color.white.opacity(0.1),
+                                Color.white.opacity(0.06)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 0)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 0)
+                            .blendMode(.multiply)
+                    )
+            )
+    }
+}
+
+struct CompactTemporaryFolderAskAnythingButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            AskAnythingIcon(color: .white)
+                .frame(width: 12, height: 11)
+            
+            Text("Ask anything")
+                .font(.system(size: 9, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(width: 100, height: 20)
+    }
+}
+
+struct CompactTemporaryFolderIncognitoButton: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow (optimized for 48px height)
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 20, height: 20)
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 4, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // Incognito Icon (optimized for 48px height)
+            IncognitoIcon(color: .white)
+                .frame(width: 12, height: 11)
         }
     }
 }

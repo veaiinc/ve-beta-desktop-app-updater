@@ -52,6 +52,7 @@ const baseLeftContainerItems = [
 			</>
 		),
 		route: '/chats',
+		type: 'chat',
 		showBetaBadge: false,
 	},
 	// {
