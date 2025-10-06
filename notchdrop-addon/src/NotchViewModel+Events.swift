@@ -20,6 +20,13 @@ extension NotchViewModel {
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
                 switch status {
                 case .opened:
+                    // Fast-path: if we opened by hover and user clicks anywhere outside → close immediately
+                    if openReason == .hover, !notchOpenedRect.contains(mouseLocation) {
+                        withAnimation(DynamicIslandTheme.instantAnimation) {
+                            self.notchClose()
+                        }
+                        return
+                    }
                     // If chat input is focused or we're in chat mode, don't interfere with clicks in the notch area
                     if isChatInputFocused || (isChatMode && notchOpenedRect.contains(mouseLocation)) {
                         // Let SwiftUI handle the click for text input
@@ -43,8 +50,8 @@ extension NotchViewModel {
                         return
                     }
                     
-                    // touch outside, close (but not if locked)
-                    if !notchOpenedRect.contains(mouseLocation), !isNotchLocked {
+                    // touch outside, close (unless explicitly locked and not hover-open)
+                    if !notchOpenedRect.contains(mouseLocation), (!isNotchLocked || openReason == .hover) {
                         notchClose()
                         // click where user open the panel - but don't auto-close if video is playing or locked
                     } else if notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation), !hasActiveVideo, !isNotchLocked {
@@ -81,10 +88,11 @@ extension NotchViewModel {
             .store(in: &cancellables)
 
         events.mouseLocation
-            .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true) // ~60fps throttling
-            .debounce(for: .milliseconds(50), scheduler: DispatchQueue.main) // Additional debounce for stability
+            .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true) // 60fps stable
             .sink { [weak self] _ in
                 guard let self else { return }
+                // Skip hover processing while opened by click to reduce churn
+                if status == .opened, openReason == .click { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
                 
                 // Cache hover zone calculations to avoid repeated expensive operations
@@ -93,15 +101,29 @@ extension NotchViewModel {
 
                 switch status {
                 case .closed:
-                    // Fully expand on hover entry
-                    if inClosedHoverZone { notchOpen(.hover) }
+                    // Slow, bubbly hover expansion (NotchNook-style)
+                    if inClosedHoverZone { 
+                        // Subtle haptic feedback for hover
+                        NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .default)
+                        
+                        withAnimation(DynamicIslandTheme.hoverOpenBubbly) {
+                            self.notchOpen(.hover) 
+                        }
+                    }
                 case .opened:
-                    // Auto-close only if we opened due to hover and the pointer leaves the opened islandisland
-                    // BUT don't close if video is playing or notch is locked
-                    if openReason == .hover, !inOpenedHoverZone, !hasActiveVideo, !isNotchLocked { notchClose() }
+                    // Smooth auto-close with spring physics
+                    if openReason == .hover, !inOpenedHoverZone, !hasActiveVideo, !isNotchLocked { 
+                        withAnimation(DynamicIslandTheme.hoverAnimation) {
+                            self.notchClose() 
+                        }
+                    }
                 case .popping:
                     // Legacy pop behavior: close pop if pointer leaves the closed hover zone
-                    if !inClosedHoverZone { notchClose() }
+                    if !inClosedHoverZone { 
+                        withAnimation(DynamicIslandTheme.instantAnimation) {
+                            self.notchClose() 
+                        }
+                    }
                 }
             }
             .store(in: &cancellables)

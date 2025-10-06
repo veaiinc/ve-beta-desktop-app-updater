@@ -22,7 +22,7 @@ class EventMonitors {
     let optionKeyPress: CurrentValueSubject<Bool, Never> = .init(false)
 
     private init() {
-        mouseMoveEvent = EventMonitor(mask: .mouseMoved) { [weak self] _ in
+        mouseMoveEvent = EventMonitor(mask: [.mouseMoved, .leftMouseDragged]) { [weak self] _ in
             guard let self else { return }
             let mouseLocation = NSEvent.mouseLocation
             self.mouseLocation.send(mouseLocation)
@@ -35,11 +35,11 @@ class EventMonitors {
         }
         mouseDownEvent.start()
 
-        mouseDraggingFileEvent = EventMonitor(mask: .leftMouseDragged) { [weak self] _ in
+        // leftMouseDragged already captured above; keep subject for compatibility but avoid double-work
+        mouseDraggingFileEvent = EventMonitor(mask: []) { [weak self] _ in
             guard let self else { return }
-            mouseDraggingFile.send()
+            // no-op
         }
-        mouseDraggingFileEvent.start()
 
         optionKeyPressEvent = EventMonitor(mask: .flagsChanged) { [weak self] event in
             guard let self else { return }
