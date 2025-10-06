@@ -50,8 +50,8 @@ extension NotchViewModel {
                         return
                     }
                     
-                    // touch outside, close (unless explicitly locked and not hover-open)
-                    if !notchOpenedRect.contains(mouseLocation), (!isNotchLocked || openReason == .hover) {
+                    // touch outside, close (unless explicitly locked)
+                    if !notchOpenedRect.contains(mouseLocation), !isNotchLocked {
                         notchClose()
                         // click where user open the panel - but don't auto-close if video is playing or locked
                     } else if notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation), !hasActiveVideo, !isNotchLocked {
@@ -73,6 +73,8 @@ extension NotchViewModel {
                         if !isAuthenticated && isNotchLocked {
                             isNotchLocked = false
                         }
+                        // Lock the notch when opened by click to prevent auto-close
+                        isNotchLocked = true
                         notchOpen(.click)
                     }
                 }
