@@ -3299,7 +3299,7 @@ struct TemporaryFolderView: View {
             CompactTemporaryFolderAskAnythingButton()
             
             // Incognito button (compact)
-            CompactTemporaryFolderIncognitoButton()
+            IncognitoIcon()
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
@@ -3730,35 +3730,6 @@ struct CompactTemporaryFolderAskAnythingButton: View {
     }
 }
 
-struct CompactTemporaryFolderIncognitoButton: View {
-    var body: some View {
-        ZStack {
-            // Background circle with border and shadow (optimized for 48px height)
-            Circle()
-                .fill(Color.clear)
-                .frame(width: 20, height: 20)
-                .overlay(
-                    Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
-                )
-                .background(
-                    Circle()
-                        .fill(Color.black.opacity(0.25))
-                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 0)
-                )
-                .overlay(
-                    Circle()
-                        .fill(Color.black.opacity(0.25))
-                        .shadow(color: Color.black.opacity(0.25), radius: 4, x: 0, y: 0)
-                        .blendMode(.multiply)
-                )
-            
-            // Incognito Icon (optimized for 48px height)
-            IncognitoIcon(color: .white)
-                .frame(width: 12, height: 11)
-        }
-    }
-}
 
 #Preview {
     NotchContentView(vm: .init())
