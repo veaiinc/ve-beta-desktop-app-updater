@@ -372,59 +372,33 @@ const AskAIApp = () => {
 	}, []);
 
 	const handleSendWebsocketMessage = useCallback(
-		async (data, lastQuery) => {
+		async (_data, lastQuery) => {
 			try {
-				await sendMessage({
-					data,
-					sessionId: info?.sessionId,
-					onMessageFunc: (event, currentSessionId) => {
-						// Handle incoming messages
-						let { data: messageData = '' } = event || {};
-						messageData = JSON?.parse(messageData);
-
-						if (messageData?.stream_end) {
-							handleGlobalChatMessages({
-								sessionId: info?.sessionId,
-								removeLoadingMessage: true,
-								updateExtraInfo: true,
-								removeStreaming: true,
-								latestStreamMessage: messageData,
-							});
-						}
-
-						if (messageData?.message_chunk_id) {
-							handleGlobalChatMessages({
-								payload: messageData,
-								chunkId: messageData.message_chunk_id,
-								sessionId: info?.sessionId,
-								updateExtraInfo: false,
-							});
-						}
+				// Build navigation payload similar to NotchDrop Swift submitChat
+				const navData = {
+					type: 'chat',
+					message: lastQuery,
+					timestamp: new Date().toISOString(),
+					source: 'askai-overlay',
+					path: `/chat/${ObjectID().toString()}`,
+					updateObject: {
+						type: 'chat',
+						payload: {
+							query: lastQuery,
+						},
 					},
-					isPublicChat: false,
-					agentType: 'multi_agent',
-				});
+				};
 
-				handleGlobalChatMessages({
-					sessionId: info?.sessionId,
-					lastQuery,
-					updateExtraInfo: true,
-				});
+				// Ask main process to open/focus main window and navigate
+				await window?.electronApi?.navigateMainWindow(navData);
 
-				// Auto-scroll after sending message
-				setTimeout(() => {
-					scrollToBottom();
-				}, 100);
+				// Optionally hide AskAI window after navigation
+				try { window?.electronApi?.askAI?.toggleWindow(); } catch (e) {}
 			} catch (error) {
-				console.error('Failed to send message:', error);
-				handleGlobalChatMessages({
-					sessionId: info?.sessionId,
-					updateExtraInfo: true,
-					removeStreaming: true,
-				});
+				console.error('Failed to navigate main window for chat:', error);
 			}
 		},
-		[sendMessage, info?.sessionId, handleGlobalChatMessages],
+		[info?.sessionId],
 	);
 
 	// Auto-scroll functionality for Ask AI overlay
