@@ -137,7 +137,6 @@ const AskAIApp = () => {
 			}
 
 			if ((isDynamicIsland || isNotchDrop || isOverlayThread) && chatMessage.message) {
-				// Process the message directly without showing it in input
 				// Skip screenshot for ALL meeting intelligence insights (overlay thread questions)
 				const shouldSkipScreenshot = isOverlayThread;
 				handleSubmit(chatMessage.message, isNeedHelp, shouldSkipScreenshot);
