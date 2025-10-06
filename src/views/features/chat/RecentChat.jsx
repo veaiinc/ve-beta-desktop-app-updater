@@ -7,8 +7,6 @@ import React, {
 	useContext,
 	Fragment,
 	useLayoutEffect,
-	Suspense,
-	lazy,
 } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import {
@@ -28,8 +26,8 @@ import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import ChatRightBar from '../../components/chat/chatComponents/ChatRightBar';
-const NoteComponentModal = lazy(() => import('../../components/notes/NoteComponentModal'));
-const Browser = lazy(() => import('../../components/chat/chatComponents/Browser'));
+import NoteComponentModal from '../../components/notes/NoteComponentModal';
+import Browser from '../../components/chat/chatComponents/Browser';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -1182,14 +1180,12 @@ const RecentChat = ({
 						}}
 					>
 						{info?.openBrowser && (
-							<Suspense fallback={'Loading...'}>
-								<Browser
-									sessionId={sessionId}
-									isOpen={info?.openBrowser}
-									browserData={browserData}
-									handleBrowserButtonClick={handleBrowserButtonClick}
-								/>
-							</Suspense>
+							<Browser
+								sessionId={sessionId}
+								isOpen={info?.openBrowser}
+								browserData={browserData}
+								handleBrowserButtonClick={handleBrowserButtonClick}
+							/>
 						)}
 					</div>
 				)}
@@ -1206,13 +1202,11 @@ const RecentChat = ({
 			</div>
 
 			{info?.noteModalIsOpen && (
-				<Suspense fallback={''}>
-					<NoteComponentModal
-						modalIsOpen={info?.noteModalIsOpen}
-						closeModal={handleNoteComponentModalClose}
-						sessionId={sessionId}
-					/>
-				</Suspense>
+				<NoteComponentModal
+					modalIsOpen={info?.noteModalIsOpen}
+					closeModal={handleNoteComponentModalClose}
+					sessionId={sessionId}
+				/>
 			)}
 		</>
 	);
