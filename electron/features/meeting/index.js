@@ -3,12 +3,14 @@ const meetingActions = {
 	SET_ACTIVE_MEETING_ID: 'SET_ACTIVE_MEETING_ID',
 	ADD_SUMMARY_IN_PROGRESS: 'ADD_SUMMARY_IN_PROGRESS',
 	REMOVE_SUMMARY_IN_PROGRESS: 'REMOVE_SUMMARY_IN_PROGRESS',
+	SET_UPCOMING_MEETINGS: 'SET_UPCOMING_MEETINGS',
 };
 
 const meetingInitialState = {
 	pastMeetings: null,
+	upcomingMeetings: null,
 	activeMeetingId: null,
-	summaryInProgress:[]
+	summaryInProgress: [],
 };
 
 const createMeetingHandlers = (store) => {
@@ -46,7 +48,18 @@ const createMeetingHandlers = (store) => {
 				...state,
 				meeting: {
 					...state.meeting,
-					summaryInProgress: state.meeting.summaryInProgress.filter((s) => s !== meetingId),
+					summaryInProgress: state.meeting.summaryInProgress.filter(
+						(s) => s !== meetingId,
+					),
+				},
+			}));
+		},
+		[meetingActions.SET_UPCOMING_MEETINGS]: (meetings) => {
+			store.setState((state) => ({
+				...state,
+				meeting: {
+					...state.meeting,
+					upcomingMeetings: meetings,
 				},
 			}));
 		},

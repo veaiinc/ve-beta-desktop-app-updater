@@ -2220,6 +2220,18 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getAllCalendarEventsForMeetings = async (page, limit, payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/calendar/combined-events?page=${page}&limit=${limit}`;
+			const response = await Service.fetchPost(url, payload, usertoken, 'calendar_api');
+			return response;
+		} catch (error) {
+			console.log('error ==> fetchingCalendarEvents', error);
+		}
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -2289,5 +2301,6 @@ export const NotesState = (props) => {
 		deleteMeeting,
 		updateMeeting,
 		getRevampedPrompt,
+		getAllCalendarEventsForMeetings,
 	};
 };
