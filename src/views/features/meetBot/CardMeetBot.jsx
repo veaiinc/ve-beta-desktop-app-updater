@@ -12,6 +12,8 @@ import CreateMeetingModal from './CreateMeetingModal';
 import moment from 'moment';
 import { useStore, storeActions } from '../../../store/store';
 import { useDispatch } from '@zubridge/electron';
+import { message } from '../../components/globalComponents/CustomToast';
+import Spinner from '../../components/loaders/Spinner';
 
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -51,7 +53,9 @@ const CardMeetBot = () => {
 		guideMePopupOpen: false,
 		apiFetching: false,
 		activeTab: 'upcoming',
+		creatingMeetingId: null,
 	});
+	const [currentTime, setCurrentTime] = useState(moment.utc());
 	const searchInputRef = useRef(null);
 
 	const dispatch = useDispatch();
@@ -61,10 +65,49 @@ const CardMeetBot = () => {
 	// Get meetings based on active tab
 	const meetings = useMemo(() => {
 		if (info.activeTab === 'upcoming') {
-			return upcomingMeetings?.data || [];
+			const upcomingData = upcomingMeetings?.data || [];
+			const pastData = pastMeetings?.data || [];
+
+			// Filter out past meetings (endDateTime <= now) and meetings that have already been created
+			const now = moment.utc();
+			return upcomingData.filter((meeting) => {
+				// Filter out meetings that have already ended
+				if (meeting.endDateTime) {
+					const endTime = moment.utc(meeting.endDateTime);
+					if (endTime.isSameOrBefore(now)) {
+						return false;
+					}
+				}
+
+				// Filter out meetings that have already been converted to actual meetings
+				// Check if there's a past meeting with similar title and time
+				const hasBeenCreated = pastData.some((pastMeeting) => {
+					// Compare titles (case insensitive)
+					const titleMatch =
+						pastMeeting.title &&
+						meeting.title &&
+						pastMeeting.title.toLowerCase().trim() ===
+							meeting.title.toLowerCase().trim();
+
+					// Compare start times (within 30 minutes window)
+					let timeMatch = false;
+					if (pastMeeting.createdAt && meeting.startDateTime) {
+						const pastMeetingTime = moment.unix(pastMeeting.createdAt);
+						const upcomingMeetingTime = moment.utc(meeting.startDateTime);
+						timeMatch = pastMeetingTime.isBetween(
+							upcomingMeetingTime.clone().subtract(30, 'minutes'),
+							upcomingMeetingTime.clone().add(30, 'minutes'),
+						);
+					}
+
+					return titleMatch && timeMatch;
+				});
+
+				return !hasBeenCreated;
+			});
 		}
 		return pastMeetings?.data || [];
-	}, [info.activeTab, pastMeetings?.data, upcomingMeetings?.data]);
+	}, [info.activeTab, pastMeetings?.data, upcomingMeetings?.data, currentTime]);
 
 	const loadingMeetings = useMemo(() => {
 		if (info.activeTab === 'upcoming') {
@@ -230,6 +273,15 @@ const CardMeetBot = () => {
 		handleGetUpcomingMeetings({ page: 1, limit: 10, append: false });
 		// }
 	}, []); // Only run on mount
+
+	// Update current time every minute to refresh meeting status
+	useEffect(() => {
+		const timer = setInterval(() => {
+			setCurrentTime(moment.utc());
+		}, 60000); // Update every minute
+
+		return () => clearInterval(timer);
+	}, []);
 
 	// Auto-switch to past tab if upcoming meetings are empty
 	useEffect(() => {
@@ -401,18 +453,165 @@ const CardMeetBot = () => {
 		}));
 	};
 
-	function getMeetingStatus(meeting) {
-		const now = moment();
-		const start = moment(meeting.startDateTime);
-		const end = moment(meeting.endDateTime);
+	// Transform attendees array to participants format for meeting creation
+	const transformAttendeesToParticipants = (attendees, organizer) => {
+		const list = Array.isArray(attendees) ? attendees : [];
+		const organizerEmail = typeof organizer === 'string' ? organizer : organizer?.email;
 
-		if (now.isBefore(start) && start.diff(now, 'minutes') <= 5) {
-			return 'Starting soon';
-		} else if (now.isBetween(start, end)) {
-			return 'Now';
-		} else {
+		// Collect all unique emails
+		const emailSet = new Set();
+
+		// Add attendee emails
+		list.forEach((attendee) => {
+			if (attendee?.email) {
+				emailSet.add(attendee.email.toLowerCase());
+			}
+		});
+
+		// Add organizer email if it exists
+		if (organizerEmail) {
+			emailSet.add(organizerEmail.toLowerCase());
+		}
+
+		// Convert set back to array of email strings
+		return Array.from(emailSet);
+	};
+
+	// Handle creating meeting from upcoming meeting
+	const handleCreateMeetingFromUpcoming = async (meeting) => {
+		setInfo((prev) => ({ ...prev, creatingMeetingId: meeting._id }));
+
+		try {
+			// Transform attendees to participants format
+			const participants = transformAttendeesToParticipants(
+				meeting.attendees,
+				meeting.organizer,
+			);
+
+			// Generate default title with current date and time
+			const now = new Date();
+			const day = now.getDate().toString().padStart(2, '0');
+			const month = now.toLocaleString('en-US', { month: 'short' });
+			const year = now.getFullYear();
+			const hours = now.getHours().toString().padStart(2, '0');
+			const minutes = now.getMinutes().toString().padStart(2, '0');
+			const defaultTitle = `${day} ${month} ${year} ${hours}:${minutes}`;
+
+			const input = {
+				title: meeting.title || defaultTitle,
+				transcriptionSource: 'desktop', // Default to desktop mode
+				isAiIntelligenceEnabled: true,
+				meetingMode: 'meeting',
+				agenda: meeting.description || '',
+				participants: participants,
+			};
+
+			const response = await createMeetBot({ input });
+			const isSuccess = response?.[0];
+
+			if (!isSuccess) {
+				message.error('Error creating meeting');
+				return;
+			}
+
+			const meetingId = response?.[1]?.data?.startMeeting?._id;
+			const type = response?.[1]?.data?.startMeeting?.transcriptionSource;
+			const meetingData = response[1]?.data?.startMeeting;
+
+			// Update store with new meeting
+			const payload = {
+				...(pastMeetings || {}),
+				data: [meetingData, ...(pastMeetings?.data || [])],
+				totalDocs: (pastMeetings?.totalDocs ?? 0) + 1,
+			};
+
+			dispatch({
+				type: storeActions.meeting.SET_PAST_MEETINGS,
+				payload,
+			});
+
+			// Remove the upcoming meeting from the upcoming meetings list since it's now created
+			if (upcomingMeetings?.data) {
+				const updatedUpcomingData = upcomingMeetings.data.filter(
+					(upcomingMeeting) => upcomingMeeting._id !== meeting._id,
+				);
+
+				dispatch({
+					type: storeActions.meeting.SET_UPCOMING_MEETINGS,
+					payload: {
+						...upcomingMeetings,
+						data: updatedUpcomingData,
+						totalDocs: Math.max(0, (upcomingMeetings.totalDocs || 0) - 1),
+					},
+				});
+			}
+
+			if (meetingId && window.electronApi) {
+				window.electronApi.overlay.startRecording({
+					...(response?.[1]?.data?.startMeeting || {}),
+				});
+
+				window.electronApi.minimizeMainWindow();
+
+				// Trigger Dynamic Island recording
+				try {
+					console.log('🏝️ Triggering Dynamic Island recording from upcoming meeting');
+					const result = await window.electronApi.dynamicIsland.startRecordingFromModal();
+					if (result.success) {
+						console.log('✅ Successfully started Dynamic Island recording');
+					} else {
+						console.warn('⚠️ Dynamic Island recording failed:', result.error);
+					}
+				} catch (error) {
+					console.error('❌ Error triggering Dynamic Island recording:', error);
+				}
+			}
+		} catch (error) {
+			console.error('Error creating meeting from upcoming:', error);
+			message.error('Error creating meeting');
+		} finally {
+			setInfo((prev) => ({ ...prev, creatingMeetingId: null }));
+		}
+	};
+
+	function getMeetingStatus(meeting) {
+		const now = currentTime; // Use the state time that updates every minute
+
+		const toMoment = (value) => {
+			if (value == null) return null;
+			// Handle numeric epoch values (seconds vs milliseconds)
+			if (typeof value === 'number') {
+				return value < 1e12 ? moment.unix(value) : moment(value);
+			}
+			// Handle numeric strings
+			if (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value))) {
+				const num = Number(value);
+				return num < 1e12 ? moment.unix(num) : moment(num);
+			}
+			// Handle ISO strings - keep as UTC for consistent comparison
+			return moment.utc(value);
+		};
+
+		// Convert current local time to UTC for comparison with meeting times
+		const nowUTC = moment.utc();
+		const start = toMoment(meeting.startDateTime);
+		const end = toMoment(meeting.endDateTime);
+
+		if (!start || !start.isValid() || !end || !end.isValid()) {
 			return '';
 		}
+
+		// Check if meeting is currently happening (using UTC times)
+		if (nowUTC.isBetween(start, end, null, '[]')) {
+			return 'Now';
+		}
+
+		// Check if meeting is starting within 5 minutes
+		if (nowUTC.isBefore(start) && start.diff(nowUTC, 'minutes') <= 5) {
+			return 'Starting soon';
+		}
+
+		return '';
 	}
 
 	return (
@@ -494,6 +693,7 @@ const CardMeetBot = () => {
 											styles.cardMeetBot_card,
 											positionClassMap[position] || '',
 										];
+
 										if (position === null) return null;
 										return (
 											<div
@@ -507,41 +707,91 @@ const CardMeetBot = () => {
 														: 'var(--background-color)',
 												}}
 												onClick={() => {
-													if (
-														activeMeetingId &&
-														activeMeetingId === meeting?._id &&
-														window.electronApi
-													) {
-														window.electronApi.minimizeMainWindow();
+													// Don't allow interaction while creating meeting
+													if (info.creatingMeetingId) return;
+
+													// Handle upcoming meetings differently
+													if (info.activeTab === 'upcoming') {
+														// Check if meeting is starting soon (within 5 minutes) or happening now
+														const status = getMeetingStatus(meeting);
+														if (
+															status === 'Now' ||
+															status === 'Starting soon'
+														) {
+															handleCreateMeetingFromUpcoming(
+																meeting,
+															);
+														} else {
+															// For other upcoming meetings, show a message or navigate
+															message.info(
+																"Meeting is not starting yet. You can create a meeting when it's starting soon.",
+															);
+														}
 													} else {
-														navigate(
-															`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
-														);
+														// Handle past meetings as before
+														if (
+															activeMeetingId &&
+															activeMeetingId === meeting?._id &&
+															window.electronApi
+														) {
+															window.electronApi.minimizeMainWindow();
+														} else {
+															navigate(
+																`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
+															);
+														}
 													}
 												}}
 											>
 												<div className={styles.cardMeetBot_header}>
 													{position === 0 &&
-														activeMeetingId === meeting?._id && (
-															<span
-																className={
-																	styles.cardMeetBot_liveBadge
-																}
-															>
-																Live
-															</span>
-														)}
+														(() => {
+															const status =
+																activeMeetingId === meeting?._id
+																	? 'Live'
+																	: info.activeTab === 'upcoming'
+																	? getMeetingStatus(meeting)
+																	: '';
 
-													{position === 0 &&
-														info.activeTab === 'upcoming' && (
-															<span
-																className={
-																	styles.cardMeetBot_liveBadge
-																}
-															>
-																{getMeetingStatus(meeting)}
-															</span>
-														)}
+															// Show "Creating" badge only for the currently creating meeting
+															if (
+																info.creatingMeetingId ===
+																	meeting._id &&
+																info.activeTab === 'upcoming'
+															) {
+																return (
+																	<span
+																		className={
+																			styles.cardMeetBot_liveBadge
+																		}
+																		style={{
+																			display: 'flex',
+																			alignItems: 'center',
+																			gap: '6px',
+																		}}
+																	>
+																		<Spinner
+																			width="12px"
+																			height="12px"
+																			color="white"
+																			borderTopColor="transparent"
+																			borderWidth={2}
+																		/>
+																		Creating...
+																	</span>
+																);
+															}
+
+															return status ? (
+																<span
+																	className={
+																		styles.cardMeetBot_liveBadge
+																	}
+																>
+																	{status}
+																</span>
+															) : null;
+														})()}
 
 													<div className={styles.cardMeetBot_cardTitle}>
 														{meeting.title}
