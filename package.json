@@ -52,6 +52,7 @@
 		"clean:build:cross": "rimraf dist-electron build dist",
 		"rebuild:native:mac": "electron-builder install-app-deps && npx electron-rebuild -f -w notchdrop-addon",
 		"validate:notchdrop": "node scripts/validate-notchdrop.js",
+		"test:performance": "node scripts/performance-test.js",
 		"release:dmg": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && electron-builder --mac --publish always",
 		"release:auto": "bash scripts/release-dmg.sh"
 	},

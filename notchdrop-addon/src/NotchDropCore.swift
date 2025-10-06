@@ -72,7 +72,8 @@ class NotchDropPanel: NSPanel {
 
     // MARK: - Setup
     private func setupNotchDrop() {
-        DispatchQueue.main.async { [weak self] in
+        // Use high priority queue for faster initialization
+        DispatchQueue.main.async(qos: .userInitiated) { [weak self] in
             self?.createNotchWindow()
         }
     }
@@ -162,8 +163,9 @@ class NotchDropPanel: NSPanel {
         // Create the proper NotchView
         let notchView = NotchView(vm: vm)
 
-        // Set up status monitoring
+        // Set up status monitoring with throttling to prevent excessive updates
         vm.$status
+            .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true)
             .sink { [weak self] newStatus in
                 let statusString = String(describing: newStatus)
                 self?.status = statusString

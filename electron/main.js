@@ -85,13 +85,11 @@ const withTimeout = (handler, timeoutMs = 30000) => {
 	};
 };
 
-// Startup diagnostic function
-const runStartupDiagnostics = () => {
+// Startup diagnostic function - OPTIMIZED for performance
+const runStartupDiagnostics = async () => {
 	log.info('🔍 Running startup diagnostics...');
 
-	// TODO: PERFORMANCE - Multiple synchronous fs.existsSync() calls block main thread
-	// TODO: PERFORMANCE - Move to async fs.promises.access() or batch operations
-	// Check critical paths
+	// PERFORMANCE FIX: Use async file operations to prevent main thread blocking
 	const criticalPaths = [
 		{ name: 'App path', path: app.getAppPath() },
 		{ name: 'User data path', path: app.getPath('userData') },
@@ -99,17 +97,24 @@ const runStartupDiagnostics = () => {
 		{ name: 'Main script directory', path: __dirname },
 	];
 
-	criticalPaths.forEach(({ name, path }) => {
+	// PERFORMANCE FIX: Use Promise.all for parallel async operations
+	const pathChecks = criticalPaths.map(async ({ name, path }) => {
 		try {
-			if (fs.existsSync(path)) {
-				log.info(`✅ ${name}: ${path} (exists)`);
-			} else {
-				log.warn(`⚠️ ${name}: ${path} (does not exist)`);
-			}
+			await fs.promises.access(path);
+			log.info(`✅ ${name}: ${path} (exists)`);
+			return { name, path, exists: true };
 		} catch (error) {
-			log.error(`❌ ${name}: ${path} (error checking: ${error.message})`);
+			if (error.code === 'ENOENT') {
+				log.warn(`⚠️ ${name}: ${path} (does not exist)`);
+				return { name, path, exists: false };
+			} else {
+				log.error(`❌ ${name}: ${path} (error checking: ${error.message})`);
+				return { name, path, exists: false, error: error.message };
+			}
 		}
 	});
+
+	await Promise.all(pathChecks);
 
 	// Check build files in production
 	if (!process.env.VITE_DEV_SERVER_URL) {
@@ -120,27 +125,27 @@ const runStartupDiagnostics = () => {
 		log.info(`📁 Build directory: ${buildPath}`);
 		log.info(`📄 Index file: ${indexPath}`);
 
-		// TODO: PERFORMANCE - Multiple synchronous fs operations block startup
-		// TODO: PERFORMANCE - Use fs.promises.readdir() and fs.promises.stat() for async operations
-		if (fs.existsSync(buildPath)) {
-			try {
-				const buildFiles = fs.readdirSync(buildPath);
-				log.info(
-					`📋 Build directory contains ${buildFiles.length} files:`,
-					buildFiles.slice(0, 10),
-				);
+		// PERFORMANCE FIX: Use async operations to prevent blocking
+		try {
+			await fs.promises.access(buildPath);
+			const buildFiles = await fs.promises.readdir(buildPath);
+			log.info(
+				`📋 Build directory contains ${buildFiles.length} files:`,
+				buildFiles.slice(0, 10),
+			);
 
-				if (fs.existsSync(indexPath)) {
-					const stats = fs.statSync(indexPath);
-					log.info(`📄 index.html size: ${stats.size} bytes, modified: ${stats.mtime}`);
-				} else {
-					log.error('❌ index.html not found in build directory');
-				}
+			try {
+				const stats = await fs.promises.stat(indexPath);
+				log.info(`📄 index.html size: ${stats.size} bytes, modified: ${stats.mtime}`);
 			} catch (error) {
+				log.error('❌ index.html not found in build directory');
+			}
+		} catch (error) {
+			if (error.code === 'ENOENT') {
+				log.error('❌ Build directory does not exist');
+			} else {
 				log.error('❌ Error reading build directory:', error.message);
 			}
-		} else {
-			log.error('❌ Build directory does not exist');
 		}
 	}
 
