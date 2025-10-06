@@ -124,11 +124,15 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     var notchClosedRect: CGRect {
-        // Calculate the actual visual size of the closed notch (including our width increase)
+        // Use fixed dimensions with MacBook Pro scaling
         let isMacBookPro = deviceNotchRect.width > 180
-        let widthIncrease: CGFloat = isMacBookPro ? 200 : 160
-        let visualWidth = deviceNotchRect.width + widthIncrease
-        let visualHeight = max(0, deviceNotchRect.height - 8)
+        let baseWidth: CGFloat = 343  // Fixed base width for better TemporaryFolder display
+        let baseHeight: CGFloat = 48  // Fixed base height for better TemporaryFolder display
+        
+        // Make it bigger for MacBook Pro
+        let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0  // 20% larger for MacBook Pro
+        let visualWidth = baseWidth * widthMultiplier
+        let visualHeight = baseHeight * widthMultiplier
         
         return .init(
             x: screenRect.origin.x + (screenRect.width - visualWidth) / 2,
