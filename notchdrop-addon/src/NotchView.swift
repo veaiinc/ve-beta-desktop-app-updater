@@ -15,10 +15,16 @@ struct NotchView: View {
     var notchSize: CGSize {
         switch vm.status {
         case .closed:
-            // Fixed width of 343px for TemporaryFolder components
+            // Fixed base dimensions with MacBook Pro scaling
+            let isMacBookPro = vm.deviceNotchRect.width > 180
+            let baseWidth: CGFloat = 343  // Fixed base width for better TemporaryFolder display
+            let baseHeight: CGFloat = 48  // Fixed base height for better TemporaryFolder display
+            
+            // Make it bigger for MacBook Pro
+            let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0  // 20% larger for MacBook Pro
             var ans = CGSize(
-                width: 343, // Fixed width of 343px for better TemporaryFolder display
-                height: 48 // Fixed height of 48px for better TemporaryFolder display
+                width: baseWidth * widthMultiplier,
+                height: baseHeight * widthMultiplier
             )
             if ans.width < 0 { ans.width = 0 }
             if ans.height < 0 { ans.height = 0 }
