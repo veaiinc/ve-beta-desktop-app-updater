@@ -15,13 +15,10 @@ struct NotchView: View {
     var notchSize: CGSize {
         switch vm.status {
         case .closed:
-            // Detect MacBook Pro by notch width (MacBook Pro has wider notches ~200px+)
-            let isMacBookPro = vm.deviceNotchRect.width > 180
-            let widthIncrease: CGFloat = isMacBookPro ? 200 : 160 // More width for MacBook Pro
-            
+            // Fixed width of 343px for TemporaryFolder components
             var ans = CGSize(
-                width: vm.deviceNotchRect.width + widthIncrease, // Dynamic width based on device
-                height: vm.deviceNotchRect.height - 8 // changed height by -8 from -4  for relaxed state
+                width: 343, // Fixed width of 343px for better TemporaryFolder display
+                height: 48 // Fixed height of 48px for better TemporaryFolder display
             )
             if ans.width < 0 { ans.width = 0 }
             if ans.height < 0 { ans.height = 0 }
@@ -92,14 +89,11 @@ struct NotchView: View {
                         MediaCollapsedIndicator(vm: vm, showMusic: false, showVideo: vm.hasActiveVideo)
                     }
                 } else {
-                    Text("")//empty state
-                        .font(.system(size: 9, weight: .regular))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                    // Show TemporaryFolder component in empty state
+                    TemporaryFolderView()
                 }
             }
-            .frame(maxWidth: notchSize.width - 16, maxHeight: notchSize.height - 8)
+            .frame(maxWidth: notchSize.width - 16, maxHeight: notchSize.height - 4)
             .clipped()
             .opacity(vm.status == .closed ? 1 : 0) // Fade out when opening
             .scaleEffect(vm.status == .closed ? 1 : 0.8) // Scale down when opening

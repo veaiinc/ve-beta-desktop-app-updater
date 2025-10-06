@@ -123,13 +123,16 @@ $primary-font-family: 'GeneralSans';
 
 		.chatWrapper {
 			width: 100%;
-			overflow: hidden; /* Prevent double scrollbars */
+			max-width: 100%;
+			overflow-x: hidden; /* Prevent horizontal scrolling */
+			overflow-y: hidden; /* Prevent double scrollbars */
 			flex-grow: 1;
 			display: flex;
 			flex-direction: column;
 			min-height: 0; /* Allow flexbox to shrink */
 			-webkit-app-region: no-drag; /* Ensure chat content is not draggable */
 			app-region: no-drag;
+			box-sizing: border-box;
 
 			.markdown-custom-content {
 				--font-size: 13px;
@@ -149,7 +152,11 @@ $primary-font-family: 'GeneralSans';
 				flex-direction: column;
 				min-height: 0; /* Allow flexbox to shrink */
 				height: 100%;
-				overflow: hidden; /* Prevent outer scrolling */
+				width: 100%;
+				max-width: 100%;
+				overflow-x: hidden; /* Prevent horizontal scrolling */
+				overflow-y: hidden; /* Prevent outer scrolling */
+				box-sizing: border-box;
 
 				.textArea {
 					min-height: 16px !important; /* Much more aggressive reduction */
@@ -166,7 +173,11 @@ $primary-font-family: 'GeneralSans';
 					flex-direction: column;
 					padding: 0 20px 0 20px;
 					min-height: 0; /* Allow flexbox to shrink */
-					overflow: hidden;
+					width: 100%;
+					max-width: 100%;
+					overflow-x: hidden;
+					overflow-y: hidden;
+					box-sizing: border-box;
 
 					.chatBodyParentContainer {
 						flex-grow: 1;
@@ -216,6 +227,10 @@ $primary-font-family: 'GeneralSans';
 
 			.chatContent {
 				padding: 0 5px 10px 5px; /* Reduced bottom padding */
+				width: 100%;
+				max-width: 100%;
+				overflow-x: hidden;
+				box-sizing: border-box;
 			}
 
 			.ve-mistake-text {
