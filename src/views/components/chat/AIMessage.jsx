@@ -1,4 +1,4 @@
-import { memo, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { memo, useContext, useState, useCallback, useEffect, useRef, lazy } from 'react';
 import Context from '../../../context/context';
 import { Markdown } from '../../../helpers/markdownHelper';
 import { Tooltip } from 'antd';
@@ -22,12 +22,7 @@ const AISuggestionsReportAiComponent = lazy(() =>
 );
 const ClarifyWidget = lazy(() => import('./chatWidgets/ClarifyWidget'));
 const UnintegratedAgentApps = lazy(() => import('./chatComponents/UnintegratedAgentApps'));
-import FormWidget from './FormWidget';
-import BrowserChainOfThought from './chatComponents/BrowserChainOfThought';
-import IntermediateSteps from './chatComponents/IntermediateSteps';
-import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
-import ClarifyWidget from './chatWidgets/ClarifyWidget';
-import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
+
 import ChatError from './chatErrors/ChatError';
 
 const tooltipStyles = {
