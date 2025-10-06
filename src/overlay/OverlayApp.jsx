@@ -106,7 +106,31 @@ const OverlayApp = () => {
 			...prev,
 			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
 		}));
+
+		// Send transcription data to main process
+		if (window.electronApi?.overlay?.sendTranscriptionData) {
+			window.electronApi.overlay.sendTranscriptionData(newTranscript);
+		}
 	};
+
+	// Send full transcription array to NotchDrop on every change
+	useEffect(() => {
+		try {
+			if (!window.electronApi?.notchdrop?.replaceTranscriptions) return;
+			const messages = (info?.transcriptions || []).map((t) => ({
+				sender: t.source || 'overlay',
+				content: t.text || '',
+				isFromAgent: false,
+				timestamp: t.timestamp || new Date().toISOString(),
+				confidence: t.confidence,
+				words: t.words,
+				type: 'transcription',
+			}));
+			window.electronApi.notchdrop.replaceTranscriptions(messages);
+		} catch (e) {
+			console.error('Failed to send full transcriptions to NotchDrop:', e);
+		}
+	}, [info?.transcriptions]);
 
 	const {
 		isConnected,
@@ -451,7 +475,7 @@ const OverlayApp = () => {
 		sessionIdRef.current = null;
 
 		stopRecording({ meetingId: info?.meetingData?._id });
-		
+
 		// Generate meeting analytics when meeting ends
 		if (currentMeetingId) {
 			try {
@@ -688,6 +712,13 @@ const OverlayApp = () => {
 
 	const handleShowTranscript = () => {
 		setActivePanel('transcript');
+
+		// Notify Notch of current overlay mode so it can show the opposite
+		try {
+			window?.electronApi?.overlay?.setPanelMode?.('transcription');
+		} catch (e) {
+			console.error('Failed to send panel mode (transcription) to Notch:', e);
+		}
 	};
 
 	const handleShowLiveIntelligence = () => {
@@ -697,6 +728,13 @@ const OverlayApp = () => {
 		// console.log('👁️ Switching to live intelligence - marking threads as seen:', currentThreadCount);
 
 		setActivePanel('live-intelligence');
+
+		// Notify Notch of current overlay mode so it can show the opposite
+		try {
+			window?.electronApi?.overlay?.setPanelMode?.('live-intel');
+		} catch (e) {
+			console.error('Failed to send panel mode (live-intel) to Notch:', e);
+		}
 	};
 
 	// Function to send recording state updates to Dynamic Island
