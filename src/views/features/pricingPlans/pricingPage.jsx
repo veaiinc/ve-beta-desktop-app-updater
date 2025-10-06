@@ -38,7 +38,6 @@ const PricingPage = () => {
 	const paidPlanExpiredAt = new Date(currentPlan?.expiresAt * 1000).toLocaleDateString('en-GB'); // indicates the user's last paid plan's expiry date
 
 	// console.log(currentPlan);
-	console.log(subscriptionPlans);
 	useEffect(() => {
 		if (subscriptionPlans === null) {
 			setInfo((prev) => ({ ...prev, isLoading: true }));
