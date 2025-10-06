@@ -1286,7 +1286,6 @@ const GalleryPage = () => {
 
 	const handleHideAlbum = async () => {
 		try {
-			// Store current active album details before making any changes
 			const currentAlbumId = info?.activeAlbumId;
 			const currentAlbum = info?.activeAlbum;
 
@@ -1297,7 +1296,6 @@ const GalleryPage = () => {
 			const response = await editAlbumName(payload, galleryId, currentAlbumId);
 
 			if (response?.[0] === true) {
-				// Update state while preserving the active album
 				setInfo((prev) => ({
 					...prev,
 					activeAlbum: {
@@ -1316,7 +1314,6 @@ const GalleryPage = () => {
 					showOptionsContainer: true,
 				}));
 
-				// Refresh data without changing the active album
 				Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
 
 				showMessage('success', 'Album visibility updated successfully');
@@ -1338,7 +1335,6 @@ const GalleryPage = () => {
 	const handleLockAlbum = useCallback(async () => {
 		const newGuestAccessState = !info?.activeAlbum?.guestAccess?.isEnabled;
 
-		// First update state optimistically
 		setInfo((prev) => ({
 			...prev,
 			activeAlbum: {
@@ -1380,13 +1376,11 @@ const GalleryPage = () => {
 				isEnabled: newGuestAccessState,
 			};
 
-			// Wait for the edit operation to complete
 			const response = await editLockAlbum(payload, galleryId, info.activeAlbumId);
 
 			if (response?.[0] === true) {
 				showMessage('success', 'Album access updated successfully');
 			} else {
-				// If the update failed, revert the optimistic update
 				setInfo((prev) => ({
 					...prev,
 					activeAlbum: {
@@ -1396,7 +1390,6 @@ const GalleryPage = () => {
 							isEnabled: !newGuestAccessState,
 						},
 					},
-					// ... similar reversions for tenantAlbums and albumImagesCount
 				}));
 				showMessage('error', 'Failed to update album access', handleLockAlbum);
 			}
@@ -6088,7 +6081,10 @@ const GalleryPage = () => {
 																		setInfo((prev) => ({
 																			...prev,
 																			selectedAlbumToMove:
-																				album?._id,
+																				prev.selectedAlbumToMove ===
+																				album?._id
+																					? null
+																					: album?._id,
 																		}))
 																	}
 																	checked={
