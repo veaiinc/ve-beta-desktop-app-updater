@@ -89,8 +89,9 @@ extension NotchViewModel {
             }
             .store(in: &cancellables)
 
+        // Process hover at ~60fps and edge-detect entry/exit to avoid repeated triggers
         events.mouseLocation
-            .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true) // 60fps stable
+            .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true)
             .sink { [weak self] _ in
                 guard let self else { return }
                 // Skip hover processing while opened by click to reduce churn
@@ -101,24 +102,33 @@ extension NotchViewModel {
                 let inClosedHoverZone = notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
                 let inOpenedHoverZone = notchOpenedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
 
+                // Keep performance mode active during hover sampling
+                ensureInteractivePerformance()
+
                 switch status {
                 case .closed:
-                    // Slow, bubbly hover expansion (NotchNook-style)
-                    if inClosedHoverZone { 
-                        // Subtle haptic feedback for hover
-                        NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .default)
+                    // Edge-detect hover ENTER into closed zone
+                    if inClosedHoverZone && !wasInClosedHoverZone {
+                        // Subtle haptic feedback for hover (debounced)
+                        performHoverHapticIfNeeded()
                         
                         withAnimation(DynamicIslandTheme.hoverOpenBubbly) {
                             self.notchOpen(.hover) 
                         }
                     }
+                    // Update edge state
+                    wasInClosedHoverZone = inClosedHoverZone
+                    wasInOpenedHoverZone = false
                 case .opened:
-                    // Smooth auto-close with spring physics
-                    if openReason == .hover, !inOpenedHoverZone, !hasActiveVideo, !isNotchLocked { 
+                    // Edge-detect hover EXIT from opened zone for auto-close
+                    if openReason == .hover, !inOpenedHoverZone, wasInOpenedHoverZone, !hasActiveVideo, !isNotchLocked {
                         withAnimation(DynamicIslandTheme.hoverAnimation) {
                             self.notchClose() 
                         }
                     }
+                    // Update edge state
+                    wasInOpenedHoverZone = inOpenedHoverZone
+                    wasInClosedHoverZone = false
                 case .popping:
                     // Legacy pop behavior: close pop if pointer leaves the closed hover zone
                     if !inClosedHoverZone { 
@@ -126,6 +136,9 @@ extension NotchViewModel {
                             self.notchClose() 
                         }
                     }
+                    // Update edge state
+                    wasInClosedHoverZone = inClosedHoverZone
+                    wasInOpenedHoverZone = false
                 }
             }
             .store(in: &cancellables)
