@@ -59,6 +59,7 @@ const AuthWrapper = ({
 
 	const {
 		aiSetup: { showVoiceWidget },
+		templates: { updateStateValues },
 	} = useContext(Context);
 	const [showServerError, setShowServerError] = useState(false);
 
@@ -73,8 +74,16 @@ const AuthWrapper = ({
 	});
 
 	useEffect(() => {
-		window.electronApi.onNavigate((path) => {
-			console.log('navigate', path);
+		window.electronApi.onNavigate((data) => {
+			const { path, updateObject=null } = data;
+
+			if(updateObject) {
+				if(updateObject.type ==='chat') {
+					const sessionId = path.split('/')[2];
+					updateStateValues({activePromptForChat:{sessionId:sessionId,prompt:updateObject.payload?.query}});
+				}
+			}
+			console.log('navigate',updateObject, path);
 			navigate(path); // client-side navigation
 		});
 	}, [navigate]);

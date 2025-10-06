@@ -21,56 +21,36 @@ const AskAIApp = () => {
 		sessionId: ObjectID()?.toString(),
 		expandChat: false,
 		workarea: null,
+		mode: 'chatbox', // 'chatbox' or 'response' - determines which component to show
+		hasMessages: false, // Track if there are any messages to determine initial state
 	});
 	const containerRef = useRef(null);
 	const expandChatRef = useRef(false);
+	// Fixed-size overlay (match NewUi chatbox sizing)
+	const FIXED_WIDTH = 450;
+	const FIXED_HEIGHT = 280;
+
+	const setFixedDimensions = useCallback(() => {
+		try {
+			window?.electronApi?.askAI?.updateDimensions({
+				width: FIXED_WIDTH,
+				height: FIXED_HEIGHT,
+				position: { isExpanding: false },
+			});
+		} catch (err) {
+			// noop
+		}
+	}, []);
+
 	const lastWindowHeightRef = useRef(null);
 	const userResizingRef = useRef(false);
 	const chatContainerRef = useRef(null); // Ref for auto-scrolling
 
+	// Disable auto-resize; enforce fixed dimensions on mount
 	useEffect(() => {
-		if (!containerRef.current) return;
-
-		const observer = new ResizeObserver((entries) => {
-			for (let entry of entries) {
-				// Skip auto-resize if chat is expanded
-				if (expandChatRef.current) return;
-
-				// Skip if user is manually resizing the window
-				if (userResizingRef.current) return;
-
-				const { height } = entry.contentRect;
-
-				// Only auto-resize if the content height is significantly different
-				// and smaller than current window height (content shrinking)
-				if (lastWindowHeightRef.current !== null) {
-					const heightDifference = Math.abs(height - lastWindowHeightRef.current);
-					// Only auto-resize if content is shrinking or if it's a significant change
-					if (height >= lastWindowHeightRef.current && heightDifference < 50) {
-						return; // Don't interfere with manual resizing
-					}
-				}
-
-				const updatedHeight = Math.min(height, 600);
-
-				// Only auto-adjust height for content changes, not user resize
-				// This prevents interference with manual window resizing
-				window?.electronApi?.askAI?.updateDimensions({
-					width: null, // Don't override width - let user control it
-					height: updatedHeight,
-					position: { isExpanding: false }, // Not an expand operation
-				});
-
-				lastWindowHeightRef.current = updatedHeight;
-			}
-		});
-
-		observer.observe(containerRef.current);
-
-		return () => {
-			observer.disconnect();
-		};
-	}, []);
+		setFixedDimensions();
+		lastWindowHeightRef.current = FIXED_HEIGHT;
+	}, [setFixedDimensions]);
 
 	useEffect(() => {
 		if (info?.expandChat) {
@@ -78,34 +58,7 @@ const AskAIApp = () => {
 		}
 	}, [info?.expandChat]);
 
-	// Track window resize events to prevent ResizeObserver interference
-	useEffect(() => {
-		let resizeTimeout;
 
-		const handleWindowResize = () => {
-			userResizingRef.current = true;
-
-			// Clear any existing timeout
-			if (resizeTimeout) {
-				clearTimeout(resizeTimeout);
-			}
-
-			// Reset the flag after a delay to allow content-based resizing again
-			resizeTimeout = setTimeout(() => {
-				userResizingRef.current = false;
-			}, 1000); // 1 second delay
-		};
-
-		// Listen for window resize events
-		window.addEventListener('resize', handleWindowResize);
-
-		return () => {
-			window.removeEventListener('resize', handleWindowResize);
-			if (resizeTimeout) {
-				clearTimeout(resizeTimeout);
-			}
-		};
-	}, []);
 
 	// Listen for tab content from overlay
 	useEffect(() => {
@@ -148,12 +101,42 @@ const AskAIApp = () => {
 
 		window?.electronApi.askAI.onReceiveChatMessage(handleChatMessage);
 
+		// Listen for show chatbox command
+		const handleShowChatbox = () => {
+			setInfo((prev) => ({ ...prev, mode: 'chatbox' }));
+			setFixedDimensions();
+		};
+
+		// Listen for show response command
+		const handleShowResponse = () => {
+			setInfo((prev) => ({ ...prev, mode: 'response' }));
+			setFixedDimensions();
+		};
+
+		window?.electronApi.askAI.onShowChatbox(handleShowChatbox);
+		window?.electronApi.askAI.onShowResponse(handleShowResponse);
+
 		// Cleanup
 		return () => {
 			window?.electronApi.askAI.removeTabContentListener();
 			window?.electronApi.askAI.removeChatMessageListener();
+		window?.electronApi.askAI.removeShowChatboxListener();
+		window?.electronApi.askAI.removeShowResponseListener();
 		};
 	}, []);
+
+	// Determine initial mode based on existing messages
+	useEffect(() => {
+		const messages = globalChatMessages?.[info?.sessionId]?.messages;
+		const hasExistingMessages = messages && messages.length > 0;
+
+		if (hasExistingMessages && info?.mode === 'chatbox') {
+			setInfo((prev) => ({ ...prev, mode: 'response', hasMessages: true }));
+			setFixedDimensions();
+		} else if (!hasExistingMessages && info?.mode === 'chatbox') {
+			setFixedDimensions();
+		}
+	}, [globalChatMessages?.[info?.sessionId]?.messages?.length, info?.sessionId, info?.mode, setFixedDimensions]);
 
 	// Generate prompt based on tab content
 	const generatePromptFromTabContent = (tabContent) => {
@@ -222,12 +205,9 @@ const AskAIApp = () => {
 			} catch (err) {
 				console.warn('Failed to capture screenshot:', err);
 				// Optionally continue without image
-			} finally {
-				return base64Image;
 			}
-		} else {
-			return base64Image;
 		}
+		return base64Image;
 	};
 
 	const handleSubmit = async (customInput = null, isNeedHelp = null, skipScreenshot = false) => {
@@ -279,6 +259,15 @@ const AskAIApp = () => {
 			};
 
 			updateStateValues({ activePayloadForChat });
+
+			// Switch to response mode when a message is sent
+			setInfo((prev) => ({ 
+				...prev, 
+				mode: 'response',
+				hasMessages: true 
+			}));
+
+			setFixedDimensions();
 		} catch (error) {
 			console.error('Failed to send message:', error);
 			// Reset the need help flag on error as well
@@ -294,14 +283,40 @@ const AskAIApp = () => {
 			}
 		} catch (err) {
 			console.log('error while getting desktop payload', err);
-		} finally {
-			return payload;
 		}
+		return payload;
 	};
 
 	const handleClose = async () => {
-		// Close the window immediately - no delay needed
-		window?.electronApi.askAI.toggleWindow();
+		// If in response mode, stop streaming and reset to clean chatbox state
+		if (info?.mode === 'response') {
+			// Stop any ongoing message streaming
+			try {
+				// Clear any loading messages and stop streaming
+				handleGlobalChatMessages({
+					sessionId: info?.sessionId,
+					removeLoadingMessage: true,
+					removeStreaming: true,
+					updateExtraInfo: true,
+				});
+			} catch (error) {
+				console.warn('Error stopping message streaming:', error);
+			}
+
+			// Reset to clean chatbox state with new session
+			const newSessionId = ObjectID()?.toString();
+			setInfo((prev) => ({ 
+				...prev, 
+				mode: 'chatbox',
+				sessionId: newSessionId,
+				hasMessages: false
+			}));
+
+			setFixedDimensions();
+		} else {
+			// If in chatbox mode, close the window completely
+			window?.electronApi.askAI.toggleWindow();
+		}
 	};
 
 	const handleChatToggle = useCallback(() => {
@@ -309,41 +324,46 @@ const AskAIApp = () => {
 			const newExpandState = !prev?.expandChat;
 			expandChatRef.current = newExpandState;
 
-			// If collapsing from expanded state, reset to normal size
+			// If collapsing from expanded state, stop streaming and reset to clean chatbox state
 			if (!newExpandState && prev?.expandChat) {
-				window?.electronApi?.askAI?.updateDimensions({
-					width: 600,
-					height: 600, // Reset to default height
-					position: { isExpanding: false }, // Keep current position but set expanding flag
-				});
+				// Stop any ongoing message streaming
+				try {
+					// Clear any loading messages and stop streaming
+					handleGlobalChatMessages({
+						sessionId: info?.sessionId,
+						removeLoadingMessage: true,
+						removeStreaming: true,
+						updateExtraInfo: true,
+					});
+				} catch (error) {
+					console.warn('Error stopping message streaming:', error);
+				}
 
-				// Update height reference to prevent ResizeObserver conflicts
-				lastWindowHeightRef.current = 600;
+				// Reset to clean chatbox state with new session
+				const newSessionId = ObjectID()?.toString();
+				setInfo((current) => ({ 
+					...current, 
+					mode: 'chatbox', 
+					expandChat: false,
+					sessionId: newSessionId,
+					hasMessages: false
+				}));
+
+				setFixedDimensions();
+
+				// Update height reference
+				lastWindowHeightRef.current = FIXED_HEIGHT;
+				return prev; // Don't update state here since we're setting it above
 			}
 
 			return { ...prev, expandChat: newExpandState };
 		});
-	}, []);
+	}, [info?.sessionId, handleGlobalChatMessages, setFixedDimensions]);
 
 	const handleExpandChat = useCallback(async () => {
-		let workarea = info?.workarea;
-		if (!workarea) {
-			workarea = await window?.electronApi?.askAI?.getWorkArea();
-		}
-
-		window?.electronApi?.askAI?.updateDimensions({
-			width: 600,
-			height: workarea.height,
-			position: { x: (workarea.width || 0) - 600, y: 0, isExpanding: true },
-		});
-
-		// Update height reference to match the expanded height
-		lastWindowHeightRef.current = workarea.height;
-
-		if (!info?.workarea) {
-			setInfo((prev) => ({ ...prev, workarea }));
-		}
-	}, [info?.workarea]);
+		// Expansion disabled – keep fixed size
+		setFixedDimensions();
+	}, [setFixedDimensions]);
 
 	// Handler functions for ChatBox
 	const handleChatQueryChange = useCallback((query) => {
@@ -514,69 +534,7 @@ const AskAIApp = () => {
 		}
 	}, [globalChatMessages?.[info?.sessionId]?.messages?.length, info?.sessionId, scrollToBottom]);
 
-	// Handle window resize to fix scrolling issues
-	useEffect(() => {
-		const handleResize = () => {
-			console.log('🔄 Ask AI window resized, recalculating layout...');
-
-			// Force layout recalculation by temporarily changing and restoring a style
-			const chatBodyContainer = document.querySelector(
-				'.ask-ai-app .chatBodyParentContainer',
-			);
-			if (chatBodyContainer) {
-				// Force a reflow to recalculate dimensions
-				const originalHeight = chatBodyContainer.style.height;
-				chatBodyContainer.style.height = 'auto';
-
-				// Use requestAnimationFrame to ensure the change is applied
-				requestAnimationFrame(() => {
-					chatBodyContainer.style.height = originalHeight;
-
-					// Trigger a scroll to bottom to ensure everything is working
-					setTimeout(() => {
-						scrollToBottom();
-					}, 100);
-				});
-			}
-		};
-
-		// Listen for window resize events
-		window.addEventListener('resize', handleResize);
-
-		// Also listen for Electron window resize events
-		if (window.electronApi?.askAI?.onWindowResize) {
-			window.electronApi.askAI.onWindowResize(handleResize);
-		}
-
-		// Use ResizeObserver to watch for container size changes
-		let resizeObserver;
-		const chatBodyContainer = document.querySelector('.ask-ai-app .chatBodyParentContainer');
-		if (chatBodyContainer && window.ResizeObserver) {
-			resizeObserver = new ResizeObserver((entries) => {
-				for (let entry of entries) {
-					console.log('📏 Chat container resized:', {
-						width: entry.contentRect.width,
-						height: entry.contentRect.height,
-					});
-
-					// Force scroll recalculation when container size changes
-					setTimeout(() => {
-						scrollToBottom();
-					}, 50);
-				}
-			});
-
-			resizeObserver.observe(chatBodyContainer);
-		}
-
-		// Cleanup
-		return () => {
-			window.removeEventListener('resize', handleResize);
-			if (resizeObserver) {
-				resizeObserver.disconnect();
-			}
-		};
-	}, [scrollToBottom]);
+	// Disable reacting to window/container resizes; maintain fixed overlay size
 
 	// Initialize scroll container when component mounts
 	useEffect(() => {
@@ -594,6 +552,7 @@ const AskAIApp = () => {
 				chatBodyContainer.style.position = 'relative';
 
 				// Force a layout recalculation
+				// eslint-disable-next-line no-unused-expressions
 				chatBodyContainer.offsetHeight;
 
 				console.log('✅ Scroll container initialized:', {
@@ -671,68 +630,103 @@ const AskAIApp = () => {
 				height: info?.expandChat ? '100%' : 'unset',
 			}}
 		>
-			{/* Response Window - Top */}
-			<div className={`ai-response-window`}>
-				<div className={`ai-response-header ${info?.expandChat ? 'chat-expanded' : ''}`}>
-					<div className="ai-response-title">
-						<span>Chat</span>
+			{info?.mode === 'chatbox' ? (
+				/* Chatbox Mode - Show only input */
+				<div className="ask-ai-chatbox-mode">
+			
+					<div className="chatbox-input-wrapper">
+						<ChatBox
+							isPublicChat={false}
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							hideDeepResearch={false}
+							autoFocus={true}
+							customChatBoxClick={null}
+							showScrollButton={false}
+							smoothScrollToBottom={scrollToBottom}
+							onChatQueryChange={handleChatQueryChange}
+							animateChatBox={true}
+							sessionId={info?.sessionId}
+							handleBrowserButtonClick={null}
+							showBrowserButton={false}
+							browserImage={null}
+							showBottomTools={false}
+							showMicBtn={true}
+							showRecentFiles={false}
+							isDesktopApp={true}
+							handleDesktopAppPayload={handleDesktopAppPayload}
+							showMoveHandle={true}
+							handleChatBoxHeight={null}
+							getChatBoxHeight={false}
+						/>
 					</div>
-					<div className="ai-response-controls">
-						<button className="chat-btn" onClick={handleChatToggle} title="Close">
-							{!info?.expandChat ? <ExpandSvg /> : <MinimizeSvg />}
-						</button>
+				</div>
+			) : (
+				/* Response Mode - Show chat history and input */
+				<div className="ask-ai-response-mode">
+					{/* Response Window - Top */}
+					<div className={`ai-response-window`}>
+						<div className={`ai-response-header ${info?.expandChat ? 'chat-expanded' : ''}`}>
+							<div className="ai-response-title">
+								<span>Chat</span>
+							</div>
+							<div className="ai-response-controls">
+								<button className="chat-btn" onClick={handleChatToggle} title="Close">
+									{!info?.expandChat ? <ExpandSvg /> : <MinimizeSvg />}
+								</button>
 
-						<button className="close-button" onClick={handleClose} title="Close">
-							<X size={16} />
-						</button>
+								<button className="close-button" onClick={handleClose} title="Close">
+									<X size={16} />
+								</button>
+							</div>
+						</div>
+
+						<div className="divider"></div>
+
+						<div className="chatWrapper">
+							<RecentChat
+								sId={info?.sessionId}
+								showChatHistory={false}
+								isPreview={true}
+								showHeader={false}
+								showBottomTools={false}
+								showRecentFiles={false}
+								isDesktopApp={true}
+								showResponseEditBtn={false}
+								fetchRecentChatMessages={false}
+								handleDesktopAppPayload={handleDesktopAppPayload}
+								showUpgradeSubscriptionBtn={false}
+								showChatBox={false} // Disable ChatBox in RecentChat to prevent duplicate messages
+							/>
+						</div>
+					</div>
+					{/* Separate chat input outside the scrollable area */}
+					<div className="ask-ai-chat-input-wrapper">
+						<ChatBox
+							isPublicChat={false}
+							handleSendWebsocketMessage={handleSendWebsocketMessage}
+							hideDeepResearch={false}
+							autoFocus={true}
+							customChatBoxClick={null}
+							showScrollButton={false}
+							smoothScrollToBottom={scrollToBottom}
+							onChatQueryChange={handleChatQueryChange}
+							animateChatBox={true}
+							sessionId={info?.sessionId}
+							handleBrowserButtonClick={null}
+							showBrowserButton={false}
+							browserImage={null}
+							showBottomTools={false}
+							showMicBtn={true}
+							showRecentFiles={false}
+							isDesktopApp={true}
+							handleDesktopAppPayload={handleDesktopAppPayload}
+							showMoveHandle={true}
+							handleChatBoxHeight={null}
+							getChatBoxHeight={false}
+						/>
 					</div>
 				</div>
-
-				<div className="divider"></div>
-
-				<div className="chatWrapper">
-					<RecentChat
-						sId={info?.sessionId}
-						showChatHistory={false}
-						isPreview={true}
-						showHeader={false}
-						showBottomTools={false}
-						showRecentFiles={false}
-						isDesktopApp={true}
-						showResponseEditBtn={false}
-						fetchRecentChatMessages={false}
-						handleDesktopAppPayload={handleDesktopAppPayload}
-						showUpgradeSubscriptionBtn={false}
-						showChatBox={false} // Disable ChatBox in RecentChat to prevent duplicate messages
-					/>
-				</div>
-
-				{/* Separate chat input outside the scrollable area */}
-				<div className="ask-ai-chat-input-wrapper">
-					<ChatBox
-						isPublicChat={false}
-						handleSendWebsocketMessage={handleSendWebsocketMessage}
-						hideDeepResearch={false}
-						autoFocus={true}
-						customChatBoxClick={null}
-						showScrollButton={false}
-						smoothScrollToBottom={scrollToBottom}
-						onChatQueryChange={handleChatQueryChange}
-						animateChatBox={true}
-						sessionId={info?.sessionId}
-						handleBrowserButtonClick={null}
-						showBrowserButton={false}
-						browserImage={null}
-						showBottomTools={false}
-						showMicBtn={true}
-						showRecentFiles={false}
-						isDesktopApp={true}
-						handleDesktopAppPayload={handleDesktopAppPayload}
-						handleChatBoxHeight={null}
-						getChatBoxHeight={false}
-					/>
-				</div>
-			</div>
+			)}
 
 			{/* Note: Window resizing is handled natively by Electron since resizable: true is set */}
 

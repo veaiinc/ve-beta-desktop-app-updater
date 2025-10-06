@@ -282,6 +282,29 @@ $primary-font-family: 'GeneralSans';
 			overflow: hidden;
 			position: relative;
 
+			/* Draggable handle inside chatbox */
+			.drag-handle {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 32px;
+				height: 32px;
+				border-radius: 999px;
+				background: transparent;
+				cursor: move;
+				-webkit-app-region: drag;
+				app-region: drag;
+				flex-shrink: 0;
+				transition: background 0.2s ease-in-out;
+				svg {
+					width: 18px;
+					height: 18px;
+				}
+				&:hover {
+					background: var(--stroke);
+				}
+			}
+
 			.recent-file-wrapper {
 				position: absolute;
 				width: 1px;
@@ -296,6 +319,8 @@ $primary-font-family: 'GeneralSans';
 				gap: 14px;
 				flex-grow: 1;
 				align-self: center;
+				-webkit-app-region: no-drag; /* ensure typing area is not draggable */
+				app-region: no-drag;
 
 				.suggestion-container {
 					position: absolute;
