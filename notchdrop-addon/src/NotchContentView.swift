@@ -3543,60 +3543,16 @@ struct IncognitoIcon: View {
     var color: Color = .white
     
     var body: some View {
-        GeometryReader { geo in
-            let scale = min(geo.size.width, geo.size.height) / 15.0
-            let offsetX = (geo.size.width - 15.0 * scale) / 2.0
-            let offsetY = (geo.size.height - 14.0 * scale) / 2.0
-            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
-                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
-            }
-            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
-                CGRect(
-                    x: offsetX + (centerX - radius) * scale,
-                    y: offsetY + (centerY - radius) * scale,
-                    width: radius * 2.0 * scale,
-                    height: radius * 2.0 * scale
-                )
-            }
-            
-            ZStack {
-                // Top line
-                Path { path in
-                    path.move(to: point(0.94, 6.56))
-                    path.addLine(to: point(14.06, 6.56))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-                
-                // Left wheel
-                Path { path in
-                    path.addEllipse(in: circleRect(4.66, 9.84, 1.53))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-                
-                // Right wheel
-                Path { path in
-                    path.addEllipse(in: circleRect(10.34, 9.84, 1.53))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-                
-                // Bottom line
-                Path { path in
-                    path.move(to: point(6.17, 10.06))
-                    path.addLine(to: point(8.83, 10.06))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-                
-                // Car body
-                Path { path in
-                    path.move(to: point(2.69, 6.56))
-                    path.addLine(to: point(5.42, 2.80))
-                    path.addLine(to: point(8.18, 3.61))
-                    path.addLine(to: point(12.31, 6.56))
-                }
-                .stroke(color, style: StrokeStyle(lineWidth: 0.875 * scale, lineCap: .round, lineJoin: .round))
-            }
+        // Use the same Stealth (Pirate/Eye) visual language as the opened notch.
+        // For closed state, render the Pirate icon within a circular stroked border.
+        ZStack {
+            Circle()
+                .stroke(color.opacity(0.7), lineWidth: 1)
+            PirateIcon(color: color)
+                .padding(8) // Reduce visual size by ~30% inside the circle
         }
-        .aspectRatio(15.0/14.0, contentMode: .fit)
+        .scaleEffect(0.7)
+        .aspectRatio(1.0, contentMode: .fit)
     }
 }
 
