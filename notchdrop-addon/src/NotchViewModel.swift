@@ -389,8 +389,8 @@ class NotchViewModel: NSObject, ObservableObject {
     func notchClose() {
         // CRITICAL: Always validate lock state before attempting to close
         
-        // Don't close if notch is locked
-        guard !isNotchLocked || openReason == .hover else { 
+        // Don't close if notch is locked - simple rule
+        guard !isNotchLocked else { 
             return 
         }
         
@@ -411,7 +411,7 @@ class NotchViewModel: NSObject, ObservableObject {
         status = .closed
         contentType = .normal
         
-        // Emit collapse action for JavaScript (non-blocking)
+        // Emit collapse action for JavaScript ONLY after we've actually closed (non-blocking)
         DispatchQueue.global().async { [weak self] in
             self?.swiftActionSender.send(.collapse)
         }
