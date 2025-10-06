@@ -29,8 +29,43 @@ class NotchViewModel: NSObject, ObservableObject {
         }
         destroy()
     }
+    
+    // MARK: - Performance Optimization Methods
+    
+    /// Throttles UI updates to prevent excessive re-renders
+    private var lastUpdateTime: Date = Date()
+    private let updateThrottleInterval: TimeInterval = 0.016 // ~60fps
+    
+    /// Batch updates to reduce re-render frequency
+    private func performBatchedUpdate(_ update: @escaping () -> Void) {
+        let now = Date()
+        guard now.timeIntervalSince(lastUpdateTime) >= updateThrottleInterval else {
+            // Queue the update for later
+            DispatchQueue.main.asyncAfter(deadline: .now() + updateThrottleInterval) { [weak self] in
+                self?.performBatchedUpdate(update)
+            }
+            return
+        }
+        
+        lastUpdateTime = now
+        update()
+    }
+    
+    /// Optimized property update with change detection
+    private func updateProperty<T: Equatable>(_ keyPath: WritableKeyPath<NotchViewModel, T>, to newValue: T) {
+        guard self[keyPath: keyPath] != newValue else { return }
+        performBatchedUpdate { [weak self] in
+            self?[keyPath: keyPath] = newValue
+        }
+    }
+    
+    /// Optimized multiple property updates
+    private func updateProperties(_ updates: @escaping () -> Void) {
+        performBatchedUpdate(updates)
+    }
 
     let animation: Animation = DynamicIslandTheme.expansionAnimation
+    let hoverAnimation: Animation = DynamicIslandTheme.hoverAnimation
     // Fixed size - no width expansion functionality
     var notchOpenedSize: CGSize {
         // Teams view: fixed compact width
@@ -151,15 +186,20 @@ class NotchViewModel: NSObject, ObservableObject {
         )
     }
 
+    // MARK: - Core UI State (Grouped for performance)
     @Published private(set) var status: Status = .closed
     @Published var openReason: OpenReason = .unknown
     @Published var contentType: ContentType = .normal
 
+    // MARK: - Layout Properties (Grouped)
     @Published var spacing: CGFloat = 16
     @Published var cornerRadius: CGFloat = 16
     @Published var deviceNotchRect: CGRect = .zero
     @Published var screenRect: CGRect = .zero
     @Published var optionKeyPressed: Bool = false
+    @Published var notchVisible: Bool = true
+
+    // MARK: - Media State (Grouped for performance)
     @Published var hasActiveMusic: Bool = false
     @Published var isMusicPlaying: Bool = false
     @Published var hasActiveVideo: Bool = false
@@ -172,7 +212,6 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var videoURL: String = ""
     @Published var videoEmbedURL: String = ""
     @Published var showVideoPlayer: Bool = false
-    @Published var notchVisible: Bool = true
     @PublishedPersist(key: "isNotchLocked", defaultValue: true)
     var isNotchLocked: Bool
     
@@ -203,7 +242,7 @@ class NotchViewModel: NSObject, ObservableObject {
 
     let hapticSender = PassthroughSubject<Void, Never>()
     
-    // Dynamic Island UI state
+    // MARK: - Dynamic Island UI State (Grouped for performance)
     @Published var isRecording: Bool = false
     @Published var isPaused: Bool = false
     @Published var timer: Int = 0
@@ -217,11 +256,14 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var isStealthModeEnabled: Bool = false
     @Published var isTeamsView: Bool = false
     
+    // Transition state to defer heavy UI work during animations
+    @Published var isTransitioning: Bool = false
+
     // Chat expansion state
     @Published var isChatExpanded: Bool = false // Deprecated - no longer used for width expansion
     @Published var chatTextHeight: CGFloat = 100
 
-    // Voice UI state (UI parity with React)
+    // MARK: - Voice UI State (Grouped for performance)
     enum VoiceConnectionStatus: String { case disconnected, connecting, connected, error }
     @Published var showVoiceInterface: Bool = false
     @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
@@ -235,11 +277,11 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var isVoiceActive: Bool = false
     @Published var audioLevel: Float = 0.0
     
-    // MARK: - Wake Word Detection Properties
+    // MARK: - Wake Word Detection Properties (Grouped)
     @Published var isWakeWordEnabled: Bool = false
     @Published var wakeWordScore: Float = 0.0
 
-    // Notification Overlay State
+    // MARK: - Notification Overlay State (Grouped for performance)
     @Published var showNotificationOverlay: Bool = false
     @Published var notificationTitle: String = ""
     @Published var notificationBody: String = ""
@@ -256,7 +298,7 @@ class NotchViewModel: NSObject, ObservableObject {
     private var voiceURL: String = "wss://ve-ai-voice-agent-ginreaey.livekit.cloud"
     private var voiceToken: String = ""
     
-    // Camera/Webcam state
+    // MARK: - Camera/Webcam State (Grouped for performance)
     @Published var isCameraActive: Bool = false
     @Published var showCameraPreview: Bool = false  // Controls whether to show camera preview or icon
     @Published var cameraPermission: String = "not-determined" // 'not-determined', 'granted', 'denied', 'restricted'
@@ -330,9 +372,12 @@ class NotchViewModel: NSObject, ObservableObject {
         // Prevent rapid opening/closing that can cause performance issues
         guard status != .opened else { return }
         
-        openReason = reason
-        status = .opened
-        contentType = .normal
+        updateProperties {
+            self.openReason = reason
+            self.status = .opened
+            self.contentType = .normal
+        }
+        
         // Avoid stealing focus when opening due to hover
         if reason != .hover {
             NSApp.activate(ignoringOtherApps: true)
@@ -344,7 +389,7 @@ class NotchViewModel: NSObject, ObservableObject {
     func notchClose() {
         // CRITICAL: Always validate lock state before attempting to close
         
-        // Don't close if notch is locked
+        // Don't close if notch is locked - simple rule
         guard !isNotchLocked else { 
             return 
         }
@@ -361,13 +406,20 @@ class NotchViewModel: NSObject, ObservableObject {
             saveVideoState(currentTime: 0.0, duration: 0.0, isPlaying: false)
         }
         
+        isTransitioning = true
         openReason = .unknown
         status = .closed
         contentType = .normal
         
-        // Emit collapse action for JavaScript
-        swiftActionSender.send(.collapse)
+        // Emit collapse action for JavaScript ONLY after we've actually closed (non-blocking)
+        DispatchQueue.global().async { [weak self] in
+            self?.swiftActionSender.send(.collapse)
+        }
         
+        // End transition after animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + DynamicIslandTheme.expansionDuration) { [weak self] in
+            self?.isTransitioning = false
+        }
     }
     
     func toggleNotchLock() {
@@ -443,14 +495,16 @@ class NotchViewModel: NSObject, ObservableObject {
     
     // Dynamic Island UI functions
     func startRecording() {
-        isConnecting = false // Set to false immediately to show recording state
-        isRecording = true
-        isPaused = false
-        timer = 0
-        startTimer()
+        updateProperties {
+            self.isConnecting = false // Set to false immediately to show recording state
+            self.isRecording = true
+            self.isPaused = false
+            self.timer = 0
+            // Ensure voice interface is not shown when recording
+            self.showVoiceInterface = false
+        }
         
-        // Ensure voice interface is not shown when recording
-        showVoiceInterface = false
+        startTimer()
         
         // Emit action for JavaScript
         swiftActionSender.send(.startRecording)
@@ -462,10 +516,13 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func stopRecording() {
-        isRecording = false
-        isPaused = false
-        isConnecting = false
-        timer = 0
+        updateProperties {
+            self.isRecording = false
+            self.isPaused = false
+            self.isConnecting = false
+            self.timer = 0
+        }
+        
         stopTimer()
         
         // Emit action for JavaScript

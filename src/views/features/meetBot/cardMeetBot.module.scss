@@ -433,6 +433,96 @@
 			cursor: not-allowed;
 		}
 	}
+
+	.cardMeetBot_actionButtonsContainer {
+		display: flex;
+		width: 100%;
+		justify-content: center;
+		align-items: center;
+		gap: 24px;
+
+		.createNewBtn {
+			display: flex;
+			padding: 8px 12px 8px 8px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			border-radius: 100px;
+			background: var(--card-hover, #202122);
+			cursor: pointer;
+
+			.iconContainer {
+				width: 16px;
+				height: 16px;
+				svg {
+					width: 16px;
+					height: 16px;
+					path {
+						fill: var(--primary-font, #f2f2f3);
+					}
+				}
+			}
+
+			.text {
+				color: var(--primary-font, #f2f2f3);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+		}
+		.actionItem {
+			display: flex;
+			padding: 8px;
+			justify-content: center;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+
+			.indicatorDot {
+				width: 5px;
+				height: 5px;
+				background-color: var(--primary-button);
+				border-radius: 5px;
+				opacity: 0;
+				display: inline-block;
+			}
+			.text {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+			.count {
+				color: var(--secondary-font, #94989e);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+			}
+
+			&.active {
+				.indicatorDot {
+					opacity: 1;
+				}
+
+				.text {
+					color: var(--primary-font, #f2f2f3);
+				}
+			}
+
+			&:hover {
+				.text {
+					color: var(--primary-font, #f2f2f3);
+					opacity: 0.8;
+				}
+			}
+		}
+	}
 }
 
 .cardMeetBot_listContainer {
