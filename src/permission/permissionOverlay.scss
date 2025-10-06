@@ -13,6 +13,8 @@
 	border: 1px solid #b1b1b1;
 	/* Ensure overlay receives mouse events */
 	pointer-events: auto;
+	/* Set very low z-index to allow system dialogs to appear above */
+	z-index: 50;
 
 	.permission-container {
 		width: 100%;
@@ -625,7 +627,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 10000;
+	z-index: 75; /* Very low to ensure system dialogs appear above */
 }
 
 .onboarding-container {
