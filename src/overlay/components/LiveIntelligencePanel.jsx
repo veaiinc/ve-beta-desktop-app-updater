@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './live-intelligence-panel.scss';
 import { AudioLines, CircleX } from 'lucide-react';
+import ObjectID from 'bson-objectid';
 import userIcon from '../../assets/svg/transcription/user.svg';
 import needHelpIcon from '../../assets/svg/transcription/question.svg';
 import actionsIcon from '../../assets/svg/transcription/thunder.svg';
@@ -96,33 +97,38 @@ const LiveIntelligencePanel = ({
 		// Individual thread items will handle sending content to Ask AI
 	};
 
-	// Handle individual thread item click and send specific content to Ask AI
+	// Handle individual thread item click and navigate to main window chat
 	const handleThreadItemClick = async (item, tabKey, isNeedHelp = false) => {
 		// Extract the main content text (the thread question)
 		const questionText = item.prompt || item.name || item.description || 'No content available';
 
-		// Prepare chat message to send to Ask AI
-		const chatMessage = {
-			type: 'overlay-thread-question',
+		// Build navigation payload to open main window chat
+		const navData = {
+			type: 'chat',
 			message: questionText,
-			tabKey,
-			tabLabel: tabs.find((tab) => tab.key === tabKey)?.label || tabKey,
-			itemData: item,
 			timestamp: new Date().toISOString(),
-			isNeedHelp,
-			sessionId: sessionId,
+			source: 'overlay-live-intelligence',
+			path: `/chat/${ObjectID().toString()}`,
+			updateObject: {
+				type: 'chat',
+				payload: {
+					query: questionText,
+				},
+			},
+			metadata: {
+				tabKey,
+				tabLabel: tabs.find((tab) => tab.key === tabKey)?.label || tabKey,
+				itemData: item,
+				isNeedHelp,
+				sessionId: sessionId,
+			},
 		};
 
-		// Send message to Ask AI - the main process will handle window creation and visibility
+		// Navigate to main window chat
 		try {
-			const result = await window?.electronApi.overlay.sendChatMessageToAskAI(chatMessage);
-			if (!result.success) {
-				console.error('Failed to send message to Ask AI:', result.error);
-				// Show user feedback if needed
-			}
+			await window?.electronApi?.navigateMainWindow(navData);
 		} catch (error) {
-			console.error('Error sending message to Ask AI:', error);
-			// Show user feedback if needed
+			console.error('Failed to navigate main window for chat:', error);
 		}
 	};
 
@@ -232,7 +238,7 @@ const LiveIntelligencePanel = ({
 												thread?.type === 'search',
 											)
 										}
-										title="Click to ask AI about this thread"
+										title="Click to chat about this thread in main window"
 									>
 										{/* <div className="thread-category">
 										{getCategoryLabel(thread.type,thread.entity)}
@@ -276,7 +282,7 @@ const LiveIntelligencePanel = ({
 									key={item.reference_id || item.id || index}
 									className="thread-item ask-user-item"
 									onClick={() => handleThreadItemClick(item, 'ask-user')}
-									title="Click to ask AI about this question"
+									title="Click to chat about this question in main window"
 								>
 									{/* <div className="thread-category">Ask user</div> */}
 									<div className="thread-question">
@@ -306,7 +312,7 @@ const LiveIntelligencePanel = ({
 									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
 									onClick={() => handleThreadItemClick(item, 'need-help', true)}
-									title="Click to ask AI about this help suggestion"
+									title="Click to chat about this help suggestion in main window"
 								>
 									{/* <div className="thread-category">Need help?</div> */}
 									<div className="thread-question">
@@ -336,7 +342,7 @@ const LiveIntelligencePanel = ({
 									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
 									onClick={() => handleThreadItemClick(item, 'actions')}
-									title="Click to ask AI about this action item"
+									title="Click to chat about this action item in main window"
 								>
 									{/* <div className="thread-category">Actions</div> */}
 									<div className="thread-question">
@@ -366,7 +372,7 @@ const LiveIntelligencePanel = ({
 									key={item.reference_id || item.id || index}
 									className="thread-item clickable"
 									onClick={() => handleThreadItemClick(item, 'files')}
-									title="Click to ask AI about this file"
+									title="Click to chat about this file in main window"
 								>
 									<div className="thread-category">Files</div>
 									<div className="thread-question">

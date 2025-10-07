@@ -9,7 +9,7 @@ class WindowHelper {
 		this.overlayWindow = null;
 		this.isOverlayVisible = false;
 		this.windowPosition = { x: 0, y: 0 };
-		this.windowSize = { width: 500, height: 60 };
+		this.windowSize = { width: 500, height: 0 };
 
 		// Store callback to apply content protection to new windows
 		this.applyContentProtection = applyContentProtectionCallback || (() => {});
@@ -357,11 +357,12 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: true, // Enable resizing for user customization
-			movable: true, // Explicitly enable window movement
-			minWidth: 400, // Minimum width for usability
-			minHeight: 10, // Minimum height for chatbox mode
-			// maxWidth and maxHeight removed to allow full screen expansion
+			resizable: false,
+
+			movable: true,
+			minWidth: 460,
+			minHeight: 40,
+
 			devTools: true,
 		};
 
@@ -1243,7 +1244,7 @@ class WindowHelper {
 
 		// Don't hide ask AI window - allow both to be visible
 		// if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-		// 	this.hideAskAIWindow();
+		//  this.hideAskAIWindow();
 		// }
 
 		const primaryDisplay = screen.getPrimaryDisplay();
@@ -1327,7 +1328,7 @@ class WindowHelper {
 
 		// Don't hide main window - keep it independent
 		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-		// 	this.mainWindow.hide();
+		//  this.mainWindow.hide();
 		// }
 
 		this.isOverlayVisible = true;
@@ -1343,7 +1344,7 @@ class WindowHelper {
 
 		// Don't hide overlay window - allow both to be visible
 		// if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-		// 	this.hideOverlayWindow();
+		//  this.hideOverlayWindow();
 		// }
 
 		let askAIX, askAIY;
@@ -1449,7 +1450,7 @@ class WindowHelper {
 
 		// Don't hide main window - keep it independent
 		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-		// 	this.mainWindow.hide();
+		//  this.mainWindow.hide();
 		// }
 
 		this.isAskAIVisible = true;
@@ -1686,8 +1687,8 @@ class WindowHelper {
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
 		// Apply min constraints that match the window creation settings
-		const minWidth = 400;
-		const minHeight = 150; // Allow much smaller height for chatbox mode
+		const minWidth = 420;
+		const minHeight = 60; // small height ask ai
 
 		// Get current bounds to preserve dimensions when not specified
 		const currentBounds = this.askAIWindow.getBounds();
@@ -1812,13 +1813,13 @@ class WindowHelper {
 			// Call the toggle function directly through IPC invoke
 			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 				this.mainWindow.webContents.executeJavaScript(`
-					if (window.electronApi && window.electronApi.toggleContentProtection) {
-						window.electronApi.toggleContentProtection().then(status => {
-						}).catch(err => {
-							console.error('Error toggling content protection:', err);
-						});
-					}
-				`);
+                    if (window.electronApi && window.electronApi.toggleContentProtection) {
+                        window.electronApi.toggleContentProtection().then(status => {
+                        }).catch(err => {
+                            console.error('Error toggling content protection:', err);
+                        });
+                    }
+                `);
 			}
 		});
 
@@ -1829,13 +1830,13 @@ class WindowHelper {
 				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
 					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 						this.mainWindow.webContents.executeJavaScript(`
-							if (window.electronApi && window.electronApi.toggleContentProtection) {
-								window.electronApi.toggleContentProtection().then(status => {
-								}).catch(err => {
-									console.error('Error toggling content protection:', err);
-								});
-							}
-						`);
+                            if (window.electronApi && window.electronApi.toggleContentProtection) {
+                                window.electronApi.toggleContentProtection().then(status => {
+                                }).catch(err => {
+                                    console.error('Error toggling content protection:', err);
+                                });
+                            }
+                        `);
 					}
 				});
 			}
