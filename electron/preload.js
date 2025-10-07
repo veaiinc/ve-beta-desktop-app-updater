@@ -536,4 +536,17 @@ contextBridge.exposeInMainWorld('electronApi', {
 		remove: (filePath) => ipcRenderer.invoke('fs-remove', filePath),
 		readdir: (dirPath) => ipcRenderer.invoke('fs-readdir', dirPath),
 	},
+
+	// Translucency toggle APIs
+	onTranslucencyChanged: (callback) => {
+		ipcRenderer.on('translucency-changed', (_e, data) => callback(data));
+	},
+	removeTranslucencyChangedListener: () => {
+		ipcRenderer.removeAllListeners('translucency-changed');
+	},
+
+	// Glass mode sync API
+	syncGlassModeState: (isEnabled) => {
+		ipcRenderer.invoke('sync-glass-mode-state', { enabled: isEnabled });
+	},
 });

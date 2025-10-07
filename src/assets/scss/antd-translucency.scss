@@ -1,0 +1,76 @@
+/**
+ * Ant Design Translucency Styles
+ * 
+ * CSS classes for applying translucency effects to Ant Design components
+ * while preserving their original styling and functionality.
+ */
+
+/* Base translucency classes for Ant Design components */
+.antd-translucent-light {
+	backdrop-filter: blur(8px) saturate(120%) !important;
+	-webkit-backdrop-filter: blur(8px) saturate(120%) !important;
+}
+
+// .antd-translucent-medium {
+// 	backdrop-filter: blur(12px) saturate(150%) !important;
+// 	-webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+// 	border: 1px solid rgba(255, 255, 255, 0.15) !important;
+// }
+
+.antd-translucent-strong {
+	backdrop-filter: blur(16px) saturate(180%) !important;
+	-webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+}
+/* Specific Ant Design component overrides */
+
+/* Buttons - preserve hover and active states */
+.ant-btn.antd-translucent-light:hover,
+.ant-btn.antd-translucent-medium:hover,
+.ant-btn.antd-translucent-strong:hover {
+	backdrop-filter: blur(12px) saturate(150%) !important;
+	-webkit-backdrop-filter: blur(12px) saturate(150%) !important;
+}
+
+.ant-btn.antd-translucent-light:active,
+.ant-btn.antd-translucent-medium:active,
+.ant-btn.antd-translucent-strong:active {
+	backdrop-filter: blur(8px) saturate(120%) !important;
+	-webkit-backdrop-filter: blur(8px) saturate(120%) !important;
+}
+
+/* Inputs - preserve focus states */
+.ant-input.antd-translucent-light:focus,
+.ant-input.antd-translucent-medium:focus,
+.ant-input.antd-translucent-strong:focus,
+.ant-input-affix-wrapper.antd-translucent-light:focus,
+.ant-input-affix-wrapper.antd-translucent-medium:focus,
+.ant-input-affix-wrapper.antd-translucent-strong:focus {
+	backdrop-filter: blur(16px) saturate(180%) !important;
+	-webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+	border-color: var(--accent-color, #1890ff) !important;
+	box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+}
+
+.ant-select-focused .ant-select-selector.antd-translucent-light,
+.ant-select-focused .ant-select-selector.antd-translucent-medium,
+.ant-select-focused .ant-select-selector.antd-translucent-strong {
+	backdrop-filter: blur(16px) saturate(180%) !important;
+	-webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+}
+
+/* Performance optimizations */
+.antd-translucent-light,
+.antd-translucent-medium,
+.antd-translucent-strong {
+	will-change: backdrop-filter, transform;
+	transform: translateZ(0);
+	isolation: isolate;
+}
+
+/* Glass mode integration */
+.glass-mode-enabled .antd-translucent-light,
+.glass-mode-enabled .antd-translucent-medium,
+.glass-mode-enabled .antd-translucent-strong {
+	backdrop-filter: var(--translucency-blur, blur(20px) saturate(180%)) !important;
+	-webkit-backdrop-filter: var(--translucency-blur, blur(20px) saturate(180%)) !important;
+}

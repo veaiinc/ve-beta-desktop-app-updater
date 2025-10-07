@@ -614,6 +614,32 @@ ipcMain.handle('reposition-dynamic-island', () => {
 	return { success: false, error: 'Dynamic Island helper not available' };
 });
 
+// Glass mode sync handler
+ipcMain.handle('sync-glass-mode-state', async (event, data) => {
+	try {
+		const { enabled } = data;
+		if (typeof enabled === 'boolean' && windowHelper) {
+			// Update the window helper's translucency state
+			windowHelper.isTranslucencyEnabled = enabled;
+
+			// Apply vibrancy to main window if on macOS
+			if (process.platform === 'darwin' && windowHelper.mainWindow) {
+				const mainWindow = windowHelper.mainWindow;
+				if (!mainWindow.isDestroyed() && mainWindow.setVibrancy) {
+					mainWindow.setVibrancy(enabled ? 'fullscreen-ui' : '');
+				}
+			}
+
+			log.info(`🪟 Glass mode ${enabled ? 'enabled' : 'disabled'} via sync`);
+			return { success: true, enabled };
+		}
+		return { success: false, error: 'Invalid glass mode state' };
+	} catch (error) {
+		log.error('❌ Glass mode sync failed:', error);
+		return { success: false, error: error.message };
+	}
+});
+
 // System Settings handler
 // ipcMain.handle('open-system-settings', async () => {
 // 	const platform = os.platform();
@@ -1483,7 +1509,7 @@ function createWindow(restoreState = false) {
 			? { ...defaultBounds, ...lastWindowState.windowBounds }
 			: defaultBounds;
 
-	mainWindow = new BrowserWindow({
+	const mainWindowSettings = {
 		title: 'Ve AI - Priority',
 		width: windowBounds.width,
 		height: windowBounds.height,
@@ -1491,19 +1517,45 @@ function createWindow(restoreState = false) {
 		y: windowBounds.y,
 		show: false,
 		icon: iconPath,
-		backgroundColor: '#1a1a1a', // Set dark background to prevent white flash
+		backgroundColor: '#00000000', // Fully transparent background
+		resizable: true, // Allow resizing for better UX
+		movable: true,
+		transparent: true,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
 			contextIsolation: true,
-			devTools: true, // Enable developer tools in production
+			devTools: true, // Enable dev tools
 			webSecurity: true,
 			allowRunningInsecureContent: false,
 			sandbox: false,
 			// Keep timers/raf unthrottled to improve responsiveness after idle
 			backgroundThrottling: false,
 		},
-	});
+		type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+		thickFrame: false,
+		hasShadow: true, // Enable shadow for depth
+		skipTaskbar: false,
+		alwaysOnTop: false,
+		opacity: 1.0,
+		visualEffectState: 'active',
+	};
+
+	const isWindows = process.platform === 'win32';
+	const isMacOS = process.platform === 'darwin';
+
+	// Platform-specific vibrancy/acrylic for beautiful translucent blur
+	if (isMacOS) {
+		mainWindowSettings.vibrancy = 'fullscreen-ui'; // Beautiful blur effect
+		mainWindowSettings.titleBarStyle = 'hiddenInset'; // Keep window controls
+	} else if (isWindows) {
+		mainWindowSettings.backgroundMaterial = 'acrylic'; // Windows 11 acrylic
+		mainWindowSettings.vibrancy = 'acrylic'; // Additional vibrancy
+	}
+
+	mainWindow = new BrowserWindow(mainWindowSettings);
+
+	mainWindow.setWindowButtonVisibility(false);
 
 	if (notchDropService) {
 		notchDropService.setMainWindow(mainWindow);

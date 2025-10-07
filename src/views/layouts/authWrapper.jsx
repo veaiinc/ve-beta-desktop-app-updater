@@ -124,7 +124,7 @@ const AuthWrapper = ({
 	return authInitialized ? (
 		<PageLoader />
 	) : (
-		<main className="main-container">
+		<main className="main-container translucent">
 			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 				<Helmet>
 					<meta charSet="utf-8" />

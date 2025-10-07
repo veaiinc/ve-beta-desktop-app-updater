@@ -11,6 +11,7 @@ import AiSetup from '../aiSetup/AiSetup';
 import PricingPage from '../pricingPlans/pricingPage';
 import SettingsPageSideBar from '../../components/settings/SettingsPageSidebar';
 import Integrations from '../integrations/Integrations';
+import KeyboardShortcuts from '../../components/topNavbar/components/settings/KeyboardShortcuts';
 import useWindowSize from '../../../hooks/useWindowSize.js';
 
 const mapper = {
@@ -23,6 +24,7 @@ const mapper = {
 	'plan-billing': <PlanBilling />,
 	pricing: <PricingPage />,
 	'ai-memory': <AiSetup />,
+	'keyboard-shortcuts': <KeyboardShortcuts />,
 };
 
 const SettingsWrapper = (props) => {
