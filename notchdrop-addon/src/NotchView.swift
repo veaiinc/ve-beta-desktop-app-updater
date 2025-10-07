@@ -191,22 +191,29 @@ struct NotchView: View {
             .animation(DynamicIslandTheme.hoverAnimation, value: vm.status)
             // Removed hover-driven scale animation
             .shadow(
-                color: .black.opacity(([.opened, .popping].contains(vm.status) && !vm.showNotificationOverlay) ? 1 : 0),
+                // color: .black.opacity(([.opened, .popping].contains(vm.status) && !vm.showNotificationOverlay) ? 1 : 0),
+                color: .black.opacity(([.opened, .popping].contains(vm.status)) ? 1 : 0),
                 radius: 16
             )
             // Enhanced professional glows
             .shadow(
-                color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
-                radius: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? 12 : 0
+                // color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
+                // radius: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? 12 : 0
+                color : (vm.controlledByDynamicIsland) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
+                radius: (vm.controlledByDynamicIsland) ? 12 : 0
             )
             .shadow(
-                color: (vm.isChatMode && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.4) : .clear,
-                radius: (vm.isChatMode && !vm.showNotificationOverlay) ? 16 : 0
+                // color: (vm.isChatMode && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.4) : .clear,
+                // radius: (vm.isChatMode && !vm.showNotificationOverlay) ? 16 : 0
+                color : (vm.isChatMode) ? DynamicIslandTheme.primaryGreen.opacity(0.4) : .clear,
+                radius: (vm.isChatMode) ? 16 : 0
             )
             // Professional hover glow effect
             .shadow(
-                color: (vm.status == .opened && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1) : .clear,
-                radius: (vm.status == .opened && !vm.showNotificationOverlay) ? 20 + hoverGlow * 10 : 0
+                // color: (vm.status == .opened && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1) : .clear,
+                // radius: (vm.status == .opened && !vm.showNotificationOverlay) ? 20 + hoverGlow * 10 : 0
+                color : (vm.status == .opened) ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1) : .clear,
+                radius: (vm.status == .opened) ? 20 + hoverGlow * 10 : 0
             )
             .onHover { hovering in
                 withAnimation(hovering ? DynamicIslandTheme.sideBounceKick : DynamicIslandTheme.sideBounceReturn) {
