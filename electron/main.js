@@ -739,10 +739,26 @@ ipcMain.handle('open-media-settings', async () => {
 
 	try {
 		if (platform === 'darwin') {
-			log.info('🎵 Opening Photos privacy settings...');
-			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Photos');
-			log.info('✅ Successfully opened Photos privacy settings');
-			return { success: true, platform: 'macOS' };
+			log.info('🎵 Opening Media Library privacy settings...');
+			
+			try {
+				// First try Privacy_Media URL scheme
+				await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Media');
+				log.info('✅ Successfully opened Media Library privacy settings');
+				return { success: true, platform: 'macOS', method: 'Privacy_Media' };
+			} catch (mediaError) {
+				log.warn('⚠️ Privacy_Media failed, trying Photos as fallback:', mediaError.message);
+				
+				try {
+					// Fallback to Privacy_Photos
+					await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Photos');
+					log.info('✅ Successfully opened Photos privacy settings as fallback');
+					return { success: true, platform: 'macOS', method: 'Privacy_Photos' };
+				} catch (photosError) {
+					log.error('❌ Both Media and Photos settings failed:', photosError.message);
+					return { success: false, error: 'Failed to open Media/Photos settings' };
+				}
+			}
 		} else if (platform === 'win32') {
 			exec('start ms-settings:privacy-photos', (error) => {
 				if (error) {

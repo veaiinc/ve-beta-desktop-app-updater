@@ -130,13 +130,13 @@ const PermissionOverlay = () => {
 		}
 
 		intervalRef.current = setInterval(() => {
-			// Only check if we're not already checking and it's been at least 1 second
+			// Only check if we're not already checking and it's been at least 500ms
 			const now = Date.now();
-			if (!isCheckingPermissions && now - lastPermissionCheck >= 1000) {
+			if (!isCheckingPermissions && now - lastPermissionCheck >= 500) {
 				console.log('🔄 Auto-checking permissions...');
 				checkPermissions();
 			}
-		}, 2000); // Check every 2 seconds for more responsive updates
+		}, 1000); // Check every 1 second for more responsive updates
 	}, [isCheckingPermissions, lastPermissionCheck]);
 
 	const stopPermissionMonitoring = useCallback(() => {
@@ -284,11 +284,20 @@ const PermissionOverlay = () => {
 			);
 			setTimeout(() => setPermissionRequestMessage(''), 8000);
 
-			// Start checking for permission updates after opening settings
+			// Start aggressive permission monitoring after opening settings
+			console.log('🔄 Starting aggressive permission monitoring for microphone...');
+			stopPermissionMonitoring(); // Stop existing monitoring
+			startPermissionMonitoring(); // Restart with fresh interval
+			
+			// Also do immediate re-checks
 			setTimeout(() => {
-				console.log('🔄 Re-checking permissions after opening microphone settings...');
+				console.log('🔄 Re-checking permissions after opening microphone settings (1s)...');
 				checkPermissions();
-			}, 2000);
+			}, 1000);
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening microphone settings (3s)...');
+				checkPermissions();
+			}, 3000);
 		} else {
 			console.error('❌ Failed to open microphone settings:', result?.error);
 			setPermissionRequestMessage(
@@ -318,11 +327,20 @@ const PermissionOverlay = () => {
 				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
 
-				// Start checking for permission updates after opening settings
+				// Start aggressive permission monitoring after opening settings
+				console.log('🔄 Starting aggressive permission monitoring for screen recording...');
+				stopPermissionMonitoring(); // Stop existing monitoring
+				startPermissionMonitoring(); // Restart with fresh interval
+				
+				// Also do immediate re-checks
 				setTimeout(() => {
-					console.log('🔄 Re-checking permissions after opening screen settings...');
+					console.log('🔄 Re-checking permissions after opening screen settings (1s)...');
 					checkPermissions();
-				}, 2000);
+				}, 1000);
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening screen settings (3s)...');
+					checkPermissions();
+				}, 3000);
 			} else {
 				console.error('❌ Failed to open screen recording settings:', result.error);
 				setPermissionRequestMessage(
@@ -352,11 +370,20 @@ const PermissionOverlay = () => {
 				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
 
-				// Start checking for permission updates after opening settings
-				setTimeout(() => {
-					console.log('🔄 Re-checking permissions after opening camera settings...');
-					checkPermissions();
-				}, 2000);
+			// Start aggressive permission monitoring after opening settings
+			console.log('🔄 Starting aggressive permission monitoring for camera...');
+			stopPermissionMonitoring(); // Stop existing monitoring
+			startPermissionMonitoring(); // Restart with fresh interval
+			
+			// Also do immediate re-checks
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening camera settings (1s)...');
+				checkPermissions();
+			}, 1000);
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening camera settings (3s)...');
+				checkPermissions();
+			}, 3000);
 			} else {
 				console.error('❌ Failed to open camera settings:', result?.error);
 				setPermissionRequestMessage(
@@ -381,16 +408,26 @@ const PermissionOverlay = () => {
 			const result = await window.electronApi.openMediaSettings();
 			if (result && result.success) {
 				console.log('✅ Media library settings opened successfully');
+				const settingsName = result.method === 'Privacy_Media' ? 'Media Library' : 'Photos';
 				setPermissionRequestMessage(
-					'📋 Photos settings opened. Please enable "Ve.AI" in Privacy & Security > Photos, then return here.',
+					`📋 ${settingsName} settings opened. Please enable "Ve.AI" in Privacy & Security > ${settingsName}, then return here.`,
 				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
 
-				// Start checking for permission updates after opening settings
-				setTimeout(() => {
-					console.log('🔄 Re-checking permissions after opening media settings...');
-					checkPermissions();
-				}, 2000);
+			// Start aggressive permission monitoring after opening settings
+			console.log('🔄 Starting aggressive permission monitoring for media...');
+			stopPermissionMonitoring(); // Stop existing monitoring
+			startPermissionMonitoring(); // Restart with fresh interval
+			
+			// Also do immediate re-checks
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening media settings (1s)...');
+				checkPermissions();
+			}, 1000);
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening media settings (3s)...');
+				checkPermissions();
+			}, 3000);
 			} else {
 				console.error('❌ Failed to open media library settings:', result?.error);
 				setPermissionRequestMessage(
@@ -420,11 +457,20 @@ const PermissionOverlay = () => {
 				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
 
-				// Start checking for permission updates after opening settings
-				setTimeout(() => {
-					console.log('🔄 Re-checking permissions after opening calendar settings...');
-					checkPermissions();
-				}, 2000);
+			// Start aggressive permission monitoring after opening settings
+			console.log('🔄 Starting aggressive permission monitoring for calendar...');
+			stopPermissionMonitoring(); // Stop existing monitoring
+			startPermissionMonitoring(); // Restart with fresh interval
+			
+			// Also do immediate re-checks
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening calendar settings (1s)...');
+				checkPermissions();
+			}, 1000);
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening calendar settings (3s)...');
+				checkPermissions();
+			}, 3000);
 			} else {
 				console.error('❌ Failed to open calendar settings:', result?.error);
 				setPermissionRequestMessage(
@@ -876,6 +922,112 @@ const PermissionOverlay = () => {
 							</div>
 						</div>
 
+							{/* Camera Permission */}
+							<div className="permission-item">
+							<div className="permission-info">
+								<div className="permission-icon">
+									<Camera size={20} />
+								</div>
+								<div className="permission-details">
+									<h3 className="permission-title">Camera</h3>
+									<p className="permission-description">
+										Allow Ve to access your camera
+									</p>
+									<div className="permission-status">
+										{/* <span
+											className={`status-badge ${getPermissionStatusClass(
+												permissionDetails.camera.status,
+											)}`}
+										>
+											{getPermissionStatusText(
+												permissionDetails.camera.status,
+											)}
+										</span> */}
+										{permissionDetails.camera.message && (
+											<span className="status-message">
+												{permissionDetails.camera.message}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+							<div className="permission-action">
+								<button
+									className={getActionButtonClass(
+										cameraPermission,
+										permissionDetails.camera.status,
+									)}
+									onClick={handleCameraAction}
+									disabled={cameraPermission || isCheckingPermissions}
+								>
+									{cameraPermission ? (
+										<>
+											<CheckCircle stroke="#79ECC9" size={16} />
+											{/* <span>Granted</span> */}
+										</>
+									) : (
+										<>
+											<Settings size={16} />
+											<span>
+												{getActionButtonText(
+													cameraPermission,
+													permissionDetails.camera.status,
+												)}
+											</span>
+										</>
+									)}
+								</button>
+							</div>
+						</div>
+							{/* Calendar Permission */}
+							<div className="permission-item">
+							<div className="permission-info">
+								<div className="permission-icon">
+									<Calendar size={20} />
+								</div>
+								<div className="permission-details">
+									<h3 className="permission-title">Calendar</h3>
+									<p className="permission-description">
+										Allow Ve to access your calendar events
+									</p>
+									<div className="permission-status">
+										{permissionDetails.calendar.message && (
+											<span className="status-message">
+												{permissionDetails.calendar.message}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+							<div className="permission-action">
+								<button
+									className={getActionButtonClass(
+										calendarPermission,
+										permissionDetails.calendar.status,
+									)}
+									onClick={handleCalendarAction}
+									disabled={calendarPermission || isCheckingPermissions}
+								>
+									{calendarPermission ? (
+										<>
+											<CheckCircle stroke="#79ECC9" size={16} />
+										</>
+									) : (
+										<>
+											<Settings size={16} />
+											<span>
+												{getActionButtonText(
+													calendarPermission,
+													permissionDetails.calendar.status,
+												)}
+											</span>
+										</>
+									)}
+								</button>
+							</div>
+						</div>
+
+
 						{/* Screen Sharing Permission */}
 						{finalIsMac && (
 							<div className="permission-item">
@@ -936,64 +1088,7 @@ const PermissionOverlay = () => {
 							</div>
 						)}
 
-						{/* Camera Permission */}
-						<div className="permission-item">
-							<div className="permission-info">
-								<div className="permission-icon">
-									<Camera size={20} />
-								</div>
-								<div className="permission-details">
-									<h3 className="permission-title">Camera</h3>
-									<p className="permission-description">
-										Allow Ve to access your camera
-									</p>
-									<div className="permission-status">
-										{/* <span
-											className={`status-badge ${getPermissionStatusClass(
-												permissionDetails.camera.status,
-											)}`}
-										>
-											{getPermissionStatusText(
-												permissionDetails.camera.status,
-											)}
-										</span> */}
-										{permissionDetails.camera.message && (
-											<span className="status-message">
-												{permissionDetails.camera.message}
-											</span>
-										)}
-									</div>
-								</div>
-							</div>
-							<div className="permission-action">
-								<button
-									className={getActionButtonClass(
-										cameraPermission,
-										permissionDetails.camera.status,
-									)}
-									onClick={handleCameraAction}
-									disabled={cameraPermission || isCheckingPermissions}
-								>
-									{cameraPermission ? (
-										<>
-											<CheckCircle stroke="#79ECC9" size={16} />
-											{/* <span>Granted</span> */}
-										</>
-									) : (
-										<>
-											<Settings size={16} />
-											<span>
-												{getActionButtonText(
-													cameraPermission,
-													permissionDetails.camera.status,
-												)}
-											</span>
-										</>
-									)}
-								</button>
-							</div>
-						</div>
-
+					
 						{/* Media Permission */}
 						<div className="permission-item">
 							<div className="permission-info">
@@ -1042,53 +1137,7 @@ const PermissionOverlay = () => {
 							</div>
 						</div>
 
-						{/* Calendar Permission */}
-						<div className="permission-item">
-							<div className="permission-info">
-								<div className="permission-icon">
-									<Calendar size={20} />
-								</div>
-								<div className="permission-details">
-									<h3 className="permission-title">Calendar</h3>
-									<p className="permission-description">
-										Allow Ve to access your calendar events
-									</p>
-									<div className="permission-status">
-										{permissionDetails.calendar.message && (
-											<span className="status-message">
-												{permissionDetails.calendar.message}
-											</span>
-										)}
-									</div>
-								</div>
-							</div>
-							<div className="permission-action">
-								<button
-									className={getActionButtonClass(
-										calendarPermission,
-										permissionDetails.calendar.status,
-									)}
-									onClick={handleCalendarAction}
-									disabled={calendarPermission || isCheckingPermissions}
-								>
-									{calendarPermission ? (
-										<>
-											<CheckCircle stroke="#79ECC9" size={16} />
-										</>
-									) : (
-										<>
-											<Settings size={16} />
-											<span>
-												{getActionButtonText(
-													calendarPermission,
-													permissionDetails.calendar.status,
-												)}
-											</span>
-										</>
-									)}
-								</button>
-							</div>
-						</div>
+					
 					</div>
 					{/* Navigation */}
 					<div className="navigation-buttons">
