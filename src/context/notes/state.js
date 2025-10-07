@@ -97,6 +97,17 @@ export const intialState = {
 	aiLiveIntelligenceHistory: null,
 	createBotInfo: null,
 	activeMeetingRevampedPrompt: null,
+	activeMeetingDetails: {
+		meetingId: null,
+		transcriptions: null,
+		liveIntelligenceData: {
+			askUser: [],
+			needHelp: [],
+			actions: [],
+			files: [],
+			allThreads: [],
+		},
+	},
 };
 
 export const NotesState = (props) => {
@@ -2232,6 +2243,16 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const updateActiveMeetingDetails = async (payload) => {
+		dispatch({
+			type: Actions.UPDATE_ACTIVE_MEETING_DETAILS,
+			payload: {
+				...state?.activeMeetingDetails,
+				...payload,
+			},
+		});
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -2302,5 +2323,6 @@ export const NotesState = (props) => {
 		updateMeeting,
 		getRevampedPrompt,
 		getAllCalendarEventsForMeetings,
+		updateActiveMeetingDetails,
 	};
 };

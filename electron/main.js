@@ -3124,7 +3124,8 @@ app.whenReady().then(async () => {
 	// CRITICAL FIX: Enhanced Swift UI overlay recording requests with immediate response
 	process.on('swift-ui-trigger-overlay-recording', async () => {
 		try {
-			await handleSwiftOverlayRequest('startRecording');
+			// await handleSwiftOverlayRequest('startRecording');
+			await handleNotchToMainWindowEvents({ action: 'startRecording' });
 		} catch (error) {
 			log.error('❌ Error handling Swift UI overlay recording request:', error);
 		}
@@ -3133,7 +3134,8 @@ app.whenReady().then(async () => {
 	// CRITICAL FIX: Immediate overlay recording request handler
 	process.on('swift-ui-trigger-overlay-recording-immediate', async () => {
 		try {
-			await handleSwiftOverlayRequestImmediate('startRecording');
+			// await handleSwiftOverlayRequestImmediate('startRecording');
+			await handleNotchToMainWindowEvents({ action: 'startRecording' });
 		} catch (error) {
 			log.error('❌ Error handling immediate Swift UI overlay recording request:', error);
 		}
@@ -3282,6 +3284,73 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
+
+	async function handleNotchToMainWindowEvents(data) {
+		try {
+			// Check if main window exists and is not destroyed
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				// Check if dock is hidden (background mode)
+				// const dockHidden = process.platform === 'darwin' && !app.dock.isVisible();
+
+				// if (dockHidden) {
+				// 	// In background mode, just navigate without showing/focusing the window
+				// 	mainWindow.webContents.send('navigate-to', data?.path);
+				// 	log.info('Main window navigated in background mode to:', data?.path);
+				// } else {
+				// Normal mode - show and focus the window
+				mainWindow.show();
+				mainWindow.focus();
+				mainWindow.webContents.send('notchdrop-to-main-window-event', data);
+				log.info('Main window navigated to:', data?.path);
+				// }
+				return { success: true };
+			} else {
+				// Main window doesn't exist or is destroyed, recreate it
+				log.info('Main window not available, recreating it...');
+
+				// Recreate the main window with state restoration
+				createWindow(true);
+
+				// Wait for the window to be ready
+				await new Promise((resolve) => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.once('ready-to-show', () => {
+							// Check if dock is hidden (background mode)
+							const dockHidden =
+								process.platform === 'darwin' && !app.dock.isVisible();
+
+							if (dockHidden) {
+								// In background mode, just navigate without showing/focusing the window
+								mainWindow.webContents.send('notchdrop-to-main-window-event', {path:data?.path});
+								log.info(
+									'Main window recreated in background mode and navigated to:',
+									data?.path,
+								);
+							} else {
+								// Normal mode - show and focus the window
+								mainWindow.show();
+								mainWindow.focus();
+								mainWindow.webContents.send('notchdrop-to-main-window-event', {path:data?.path});
+								log.info(
+									'Main window recreated and shown successfully with state restoration and navigated to:',
+									data?.path,
+								);
+							}
+							resolve();
+						});
+					} else {
+						log.error('Failed to recreate main window and navigated to:', data?.path);
+						resolve();
+					}
+				});
+
+				return { success: true, message: 'Main window recreated with state restoration' };
+			}
+		} catch (error) {
+			log.error('Error navigating main window to:', data?.path, error);
+			return { success: false, error: error.message };
+		}
+	}
 
 	// CRITICAL FIX: Common handler for Swift overlay requests
 	async function handleSwiftOverlayRequest(action) {

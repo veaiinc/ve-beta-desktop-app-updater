@@ -518,6 +518,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 	onNotchdropToMainWindowEvent: (callback) =>
 		ipcRenderer.on('notchdrop-to-main-window-event', (_, data) => callback(data)),
 
+	removeNotchdropToMainWindowEventListener: () => {
+		ipcRenderer.removeAllListeners('notchdrop-to-main-window-event');
+	},
+
 	// File system APIs for audio storage
 	fs: {
 		ensureDir: (dirPath) => ipcRenderer.invoke('fs-ensure-dir', dirPath),

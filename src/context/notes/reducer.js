@@ -532,6 +532,10 @@ const actionHandlers = {
 		...state,
 		activeMeetingRevampedPrompt: action?.payload,
 	}),
+	UPDATE_ACTIVE_MEETING_DETAILS: (state, action) => ({
+		...state,
+		activeMeetingDetails: action?.payload,
+	}),
 	RESET_STATE: () => intialState,
 };
 

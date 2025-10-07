@@ -599,7 +599,7 @@ const OverlayApp = () => {
 
 		if (window.electronApi?.overlay?.onCommand) {
 			// console.log('✅ Setting up overlay command listener');
-			window.electronApi.overlay.onCommand(handleOverlayCommand);
+			// window.electronApi.overlay.onCommand(handleOverlayCommand);
 		} else {
 			console.error('❌ Overlay command listener not available');
 			// console.log(
@@ -612,7 +612,7 @@ const OverlayApp = () => {
 			isMountedRef.current = false;
 			// Clean up overlay command listener
 			if (window.electronApi?.overlay?.removeCommandListener) {
-				window.electronApi.overlay.removeCommandListener();
+				// window.electronApi.overlay.removeCommandListener();
 			}
 		};
 	}, [toggleMute, startRecording, stopRecording]);

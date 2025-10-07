@@ -39,9 +39,6 @@ const GlobalMeetingHelper = () => {
 
 	// Ask AI input state
 	const [isAskAIInputFocused, setIsAskAIInputFocused] = useState(false);
-	useEffect(() => {
-		console.log('info?.transcriptions', info?.transcriptions);
-	}, [info?.transcriptions]);
 
 	// Refs for data management
 	const isMountedRef = useRef(false);
@@ -51,7 +48,13 @@ const GlobalMeetingHelper = () => {
 
 	// Context
 	const {
-		notes: { getLiveKitToken, deleteLiveKitRoom, createMeetBot },
+		notes: {
+			getLiveKitToken,
+			deleteLiveKitRoom,
+			createMeetBot,
+			activeMeetingDetails,
+			updateActiveMeetingDetails,
+		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 		templates: {
 			handleTranscriptionSuggestions,
@@ -59,6 +62,10 @@ const GlobalMeetingHelper = () => {
 			updateStateValues,
 		},
 	} = useContext(Context);
+
+	useEffect(() => {
+		console.log('activeMeetingDetails', activeMeetingDetails);
+	}, [activeMeetingDetails]);
 
 	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
 		const { source } = newTranscript;
@@ -74,11 +81,17 @@ const GlobalMeetingHelper = () => {
 					// - Final but NOT formatted → Replace with new transcript
 					// - Not final → Replace with new transcript
 					if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
+						updateActiveMeetingDetails({
+							transcriptions: [...transcriptionArray, newTranscript],
+						});
 						return [...transcriptionArray, newTranscript];
 					} else {
 						// Replace existing transcript (whether final-unformatted or not-final)
 						const updatedArray = [...transcriptionArray];
 						updatedArray[i] = newTranscript;
+						updateActiveMeetingDetails({
+							transcriptions: updatedArray,
+						});
 						return updatedArray;
 					}
 				}
@@ -86,6 +99,9 @@ const GlobalMeetingHelper = () => {
 		}
 
 		// If no match found or array is empty, append the new transcript
+		updateActiveMeetingDetails({
+			transcriptions: [...transcriptionArray, newTranscript],
+		});
 		return [...transcriptionArray, newTranscript];
 	};
 
@@ -470,8 +486,8 @@ const GlobalMeetingHelper = () => {
 		return () => {
 			isMountedRef.current = false;
 			// Clean up overlay command listener
-			if (window.electronApi?.overlay?.removeCommandListener) {
-				window.electronApi.overlay.removeCommandListener();
+			if (window.electronApi?.removeNotchdropToMainWindowEventListener) {
+				window.electronApi.removeNotchdropToMainWindowEventListener();
 			}
 		};
 	}, [toggleMute, startRecording, stopRecording]);
