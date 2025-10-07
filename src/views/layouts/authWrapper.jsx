@@ -25,6 +25,7 @@ const Offline = lazy(() => import('../features/offline/Offline'));
 import { internalServerEmitter } from '../../services';
 const InternalServer = lazy(() => import('../components/globalComponents/InternalServer'));
 import { useNavigate } from 'react-router-dom';
+import GlobalMeetingHelper from '../features/meetBot/GlobalMeetingHelper';
 
 const AuthWrapper = ({
 	title,
@@ -157,6 +158,8 @@ const AuthWrapper = ({
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
 			<CustomToast />
+			<GlobalMeetingHelper />
+
 			{showVoiceWidget && <VoiceWrapper />}
 		</main>
 	);

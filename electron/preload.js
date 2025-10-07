@@ -473,6 +473,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	getStoreActions: () => ipcRenderer.sendSync('get-store-actions-sync'),
 
+	onNotchdropToMainWindowEvent: (callback) =>
+		ipcRenderer.on('notchdrop-to-main-window-event', (_, data) => callback(data)),
+
 	// File system APIs for audio storage
 	fs: {
 		ensureDir: (dirPath) => ipcRenderer.invoke('fs-ensure-dir', dirPath),
