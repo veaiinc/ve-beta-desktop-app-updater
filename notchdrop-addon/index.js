@@ -1367,36 +1367,37 @@ class NotchDropAddonWrapper extends EventEmitter {
 	async triggerOverlayRecordingImmediate() {
 		try {
 			// Method 1: Direct IPC call to main process
-			if (typeof require !== 'undefined') {
-				try {
-					if (ipcRenderer) {
-						const result = await ipcRenderer.invoke(
-							'notchdrop:triggerOverlayRecording',
-						);
-						return result;
-					}
-				} catch (e) {
-					// Not in renderer process, try main process method
-				}
+			process.emit('swift-ui-trigger-overlay-recording-immediate');
+			// if (typeof require !== 'undefined') {
+			// 	try {
+			// 		if (ipcRenderer) {
+			// 			const result = await ipcRenderer.invoke(
+			// 				'notchdrop:triggerOverlayRecording',
+			// 			);
+			// 			return result;
+			// 		}
+			// 	} catch (e) {
+			// 		// Not in renderer process, try main process method
+			// 	}
 
-				try {
-					if (ipcMain) {
-						process.emit('swift-ui-trigger-overlay-recording-immediate');
-						return { success: true, method: 'process-emit' };
-					}
-				} catch (e) {
-					// Neither renderer nor main process IPC available
-				}
-			}
+			// 	try {
+			// 		if (ipcMain) {
+			// 			process.emit('swift-ui-trigger-overlay-recording-immediate');
+			// 			return { success: true, method: 'process-emit' };
+			// 		}
+			// 	} catch (e) {
+			// 		// Neither renderer nor main process IPC available
+			// 	}
+			// }
 
-			// Method 2: Global callback fallback
-			if (typeof global !== 'undefined' && global.notchDropOverlayCallback) {
-				global.notchDropOverlayCallback('startRecording', { immediate: true });
-				return { success: true, method: 'global-callback' };
-			}
+			// // Method 2: Global callback fallback
+			// if (typeof global !== 'undefined' && global.notchDropOverlayCallback) {
+			// 	global.notchDropOverlayCallback('startRecording', { immediate: true });
+			// 	return { success: true, method: 'global-callback' };
+			// }
 
-			// Method 3: Event emission fallback
-			this.emit('triggerOverlayRecording', { immediate: true });
+			// // Method 3: Event emission fallback
+			// this.emit('triggerOverlayRecording', { immediate: true });
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to trigger immediate overlay recording:', error);

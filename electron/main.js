@@ -3125,7 +3125,7 @@ app.whenReady().then(async () => {
 	process.on('swift-ui-trigger-overlay-recording', async () => {
 		try {
 			// await handleSwiftOverlayRequest('startRecording');
-			await handleNotchToMainWindowEvents({ action: 'startRecording' });
+			// await handleNotchToMainWindowEvents({ action: 'startRecording' });
 		} catch (error) {
 			log.error('❌ Error handling Swift UI overlay recording request:', error);
 		}
