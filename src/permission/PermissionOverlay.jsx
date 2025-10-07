@@ -1035,7 +1035,7 @@ const PermissionOverlay = () => {
 						</div>
 
 						{/* Media Permission */}
-						<div className="permission-item">
+						{/* <div className="permission-item">
 							<div className="permission-info">
 								<div className="permission-icon">
 									<Music size={20} />
@@ -1080,10 +1080,10 @@ const PermissionOverlay = () => {
 									)}
 								</button>
 							</div>
-						</div>
+						</div> */}
 
 						{/* Calendar Permission */}
-						<div className="permission-item">
+						{/* <div className="permission-item">
 							<div className="permission-info">
 								<div className="permission-icon">
 									<Calendar size={20} />
@@ -1128,7 +1128,7 @@ const PermissionOverlay = () => {
 									)}
 								</button>
 							</div>
-						</div>
+						</div> */}
 					</div>
 					{/* Navigation */}
 					<div className="navigation-buttons">
