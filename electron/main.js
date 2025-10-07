@@ -2996,6 +2996,35 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
+
+	// AskAI move/drag IPC
+	ipcMain.handle('askAI-get-position', async () => {
+		try {
+			const askAIWindow = windowHelper?.getAskAIWindow()
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				return askAIWindow.getBounds()
+			}
+			return { x: 0, y: 0, width: 0, height: 0 }
+		} catch (error) {
+			log.error('Error getting AskAI position:', error)
+			return { x: 0, y: 0, width: 0, height: 0 }
+		}
+	})
+
+	ipcMain.handle('askAI-move-to', async (event, { x, y }) => {
+		try {
+			const askAIWindow = windowHelper?.getAskAIWindow()
+			if (askAIWindow && !askAIWindow.isDestroyed()) {
+				const clamped = windowHelper?.constrainAskAIWindowPosition({ x, y, ...askAIWindow.getBounds() }) || { x, y }
+				askAIWindow.setPosition(Math.round(clamped.x), Math.round(clamped.y))
+				return { success: true }
+			}
+			return { success: false, error: 'AskAI window not available' }
+		} catch (error) {
+			log.error('Error moving AskAI window:', error)
+			return { success: false, error: error.message }
+		}
+	})
 	ipcMain.handle('get-workarea', async () => {
 		try {
 			const workArea = screen.getPrimaryDisplay().workAreaSize;
