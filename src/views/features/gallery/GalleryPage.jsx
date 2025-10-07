@@ -213,7 +213,6 @@ const GalleryPage = () => {
 		},
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		profileInfo: { userWorkSpaceList, getTenantSettings, tennantSettingsData },
-		templates: { leftSidebarState, updateStateValues },
 	} = useContext(Context);
 	const [info, setInfo] = useState({
 		albumContains: '',
@@ -533,12 +532,6 @@ const GalleryPage = () => {
 			scrolledTillEnd: isEndOfPage ? true : isStartOfPage ? false : prev.scrolledTillEnd,
 		}));
 	};
-	useEffect(() => {
-		updateStateValues({ leftSidebarState: 'open' });
-		return () => {
-			updateStateValues({ leftSidebarState: null });
-		};
-	}, []);
 
 	useEffect(() => {
 		if (userWorkSpaceList) {

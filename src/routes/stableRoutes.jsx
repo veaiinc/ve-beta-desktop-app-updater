@@ -19,6 +19,7 @@ const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'))
 // const ProactiveSuggestions = lazy(() =>
 // 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 // );
+const NewChat = lazy(() => import('../views/components/chat/chatComponents/NewChat'));
 const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DownloadDesktopApp'));
 
 // components
@@ -91,6 +92,16 @@ const stableRoutes = [
 	// 		</Suspense>
 	// 	),
 	// },
+	{
+		path: '/new-chat',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'New Chat'}>
+					<NewChat />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 	// {
 	// 	path: '/chat/:sessionId',
 	// 	element: (
@@ -106,7 +117,6 @@ const stableRoutes = [
 	// 				maxWidth="100%"
 	// 			>
 	// 				<RecentChat
-	// 					showChatHistory={true}
 	// 					showDeleteChat={true}
 	// 					showRightBar={true}
 	// 					showChats={true}

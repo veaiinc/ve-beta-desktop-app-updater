@@ -1,5 +1,4 @@
-import Context from '../../../context/context';
-import { useContext, useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../chat/RecentChat';
@@ -11,9 +10,6 @@ import MeetBotContainer from './meetBotContainer';
 import s from './meetBotWrapper.module.scss';
 
 const MeetBotWrapper = () => {
-	const {
-		templates: { updateStateValues },
-	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
@@ -25,12 +21,6 @@ const MeetBotWrapper = () => {
 		transcriptionActive: false,
 	});
 	const sessionId = searchParams.get('sId') || ObjectID()?.toString();
-
-	useEffect(() => {
-		updateStateValues({
-			leftSidebarState: 'close',
-		});
-	}, []);
 
 	useEffect(() => {
 		if (sessionId && sessionId !== searchParams.get('sId')) {
