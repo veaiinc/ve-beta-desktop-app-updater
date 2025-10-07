@@ -98,12 +98,12 @@ class NotchViewModel: NSObject, ObservableObject {
             )
         }
         // When showing notification, use notification-specific dimensions matching Figma
-        if showNotificationOverlay {
-            return .init(
-                width: 370,  // Figma design width
-                height: 100   // Figma design height
-            )
-        }
+        // if showNotificationOverlay {
+        //     return .init(
+        //         width: 370,  // Figma design width
+        //         height: 100   // Figma design height
+        //     )
+        // }
         // Dynamic width based on chat mode, voice agent mode, and media controllers
         if isChatMode || showVoiceInterface {
             // Chat mode or Voice Agent mode - use compact width
@@ -332,17 +332,17 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var wakeWordScore: Float = 0.0
 
     // MARK: - Notification Overlay State (Grouped for performance)
-    @Published var showNotificationOverlay: Bool = false
-    @Published var notificationTitle: String = ""
-    @Published var notificationBody: String = ""
-    @Published var notificationType: String = ""
-    @Published var isNotificationHovered: Bool = false
+    // @Published var showNotificationOverlay: Bool = false
+    // @Published var notificationTitle: String = ""
+    // @Published var notificationBody: String = ""
+    // @Published var notificationType: String = ""
+    // @Published var isNotificationHovered: Bool = false
     
     // Notification Timer State
-    private var notificationTimer: Timer?
-    private var notificationStartTime: Date?
-    private var notificationPausedTime: TimeInterval = 0
-    private let notificationDuration: TimeInterval = 10.0
+    // private var notificationTimer: Timer?
+    // private var notificationStartTime: Date?
+    // private var notificationPausedTime: TimeInterval = 0
+    // private let notificationDuration: TimeInterval = 10.0
     
     // Voice configuration (VE.AI settings)
     private var voiceURL: String = "wss://ve-ai-voice-agent-ginreaey.livekit.cloud"
@@ -552,6 +552,13 @@ class NotchViewModel: NSObject, ObservableObject {
             self.timer = 0
             // Ensure voice interface is not shown when recording
             self.showVoiceInterface = false
+        }
+        
+        // Clear previous meeting's live intelligence data to start fresh for new meeting
+        DispatchQueue.main.async {
+            // print("🧠 Starting new meeting - clearing previous live intelligence data")
+            self.liveIntelligenceMessages.removeAll()
+            // print("🧠 Live intelligence data cleared for new meeting")
         }
         
         startTimer()
@@ -779,9 +786,16 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
     
-    /// Add transcription data from overlay
+    /// Add transcription data from overlay (microphone data only)
     func addTranscriptionData(sender: String, content: String, isFromAgent: Bool, timestamp: String?, confidence: Double?, words: [Any]?) {
         DispatchQueue.main.async {
+            // Only accept microphone/transcription data for transcription section
+            // Filter out AI agent data - it should go to live intelligence section only
+            guard !isFromAgent && sender != "ai-agent" else {
+                print("📝 Skipping AI agent data for transcription: \(sender)")
+                return
+            }
+            
             // Check for duplicate messages (same sender and content)
             let isDuplicate = self.voiceMessages.contains { existingMessage in
                 existingMessage.sender == sender && 
@@ -793,7 +807,7 @@ class NotchViewModel: NSObject, ObservableObject {
                 let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
                 self.voiceMessages.append(message)
                 
-                print("📝 Added transcription data: \(sender): \(content.prefix(50))...")
+                // print("📝 Added microphone transcription data: \(sender): \(content.prefix(50))...")
                 if let confidence = confidence {
                     print("📝 Confidence: \(confidence)")
                 }
@@ -809,9 +823,16 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
 
-    /// Add live intelligence data from overlay
+    /// Add live intelligence data from overlay (AI agent only)
     func addLiveIntelligenceData(sender: String, content: String, isFromAgent: Bool, timestamp: String?, confidence: Double?, metadata: [String: Any]?) {
         DispatchQueue.main.async {
+            // Only accept AI agent data for live intelligence section
+            // Filter out transcription data - it should go to transcription section only
+            guard isFromAgent || sender == "ai-agent" else {
+                print("🧠 Skipping non-AI data for live intelligence: \(sender)")
+                return
+            }
+            
             // Check for duplicate messages (same sender and content)
             let isDuplicate = self.liveIntelligenceMessages.contains { existingMessage in
                 existingMessage.sender == sender && 
@@ -823,7 +844,17 @@ class NotchViewModel: NSObject, ObservableObject {
                 let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
                 self.liveIntelligenceMessages.append(message)
                 
-                print("🧠 Added live intelligence data: \(sender): \(content.prefix(50))...")
+                // If we're currently recording and showing transcription panel,
+                // immediately switch to live intelligence view in the notch
+                if self.isRecording && self.showTranscriptionDuringRecording {
+                    self.showTranscriptionDuringRecording = false
+                    // Ensure notch is open/expanded so the user sees the new insight
+                    self.notchOpen(.click)
+                    // Inform Electron/bridge so renderer stays in sync
+                    self.swiftActionSender.send(.triggerOverlayToggleLiveIntelligence)
+                }
+                
+                // print("🧠 Added AI agent live intelligence data: \(sender): \(content.prefix(50))...")
                 if let confidence = confidence {
                     print("🧠 Confidence: \(confidence)")
                 }
@@ -845,6 +876,24 @@ class NotchViewModel: NSObject, ObservableObject {
             print("📝 Replacing transcription array with \(messages.count) messages")
             self.voiceMessages = messages
             print("📝 Transcription array replaced successfully")
+        }
+    }
+    
+    /// Clear all live intelligence data to start fresh for new meeting
+    func clearLiveIntelligenceData() {
+        DispatchQueue.main.async {
+            // print("🧠 Clearing all live intelligence data for new meeting")
+            self.liveIntelligenceMessages.removeAll()
+            // print("🧠 Live intelligence data cleared successfully")
+        }
+    }
+    
+    /// Replace entire live intelligence array with new data from overlay
+    func replaceLiveIntelligenceData(messages: [NotchViewModel.VoiceMessage]) {
+        DispatchQueue.main.async {
+            // print("🧠 Replacing live intelligence array with \(messages.count) messages")
+            self.liveIntelligenceMessages = messages
+            // print("🧠 Live intelligence array replaced successfully")
         }
     }
     
@@ -879,91 +928,91 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
 
-    /// Show notification overlay in the notch
-    func showNotification(title: String, body: String, type: String = "meeting") {
-        print("🔔 Showing notification overlay: \(title) - \(body)")
+    // /// Show notification overlay in the notch
+    // func showNotification(title: String, body: String, type: String = "meeting") {
+    //     print("🔔 Showing notification overlay: \(title) - \(body)")
 
-        DispatchQueue.main.async {
-            // Force open the notch to show the notification
-            print("🔔 Opening notch to show notification")
-            self.notchOpen(.click)
+    //     DispatchQueue.main.async {
+    //         // Force open the notch to show the notification
+    //         print("🔔 Opening notch to show notification")
+    //         self.notchOpen(.click)
             
-            // Set notification content
-            self.notificationTitle = title
-            self.notificationBody = body
-            self.notificationType = type
-            self.showNotificationOverlay = true
+    //         // Set notification content
+    //         self.notificationTitle = title
+    //         self.notificationBody = body
+    //         self.notificationType = type
+    //         // self.showNotificationOverlay = true
 
-            print("🔔 Notification state set - showOverlay: \(self.showNotificationOverlay), title: '\(self.notificationTitle)'")
+    //         print("🔔 Notification state set - showOverlay: \(self.showNotificationOverlay), title: '\(self.notificationTitle)'")
 
-            // Emit action for JavaScript integration
-            self.swiftActionSender.send(.showNotification(title, body, type))
+    //         // Emit action for JavaScript integration
+    //         self.swiftActionSender.send(.showNotification(title, body, type))
 
-            // Start the notification timer
-            self.startNotificationTimer()
-        }
-    }
+    //         // Start the notification timer
+    //         self.startNotificationTimer()
+    //     }
+    // }
 
-    /// Hide notification overlay
-    func hideNotification() {
-        DispatchQueue.main.async {
-            self.showNotificationOverlay = false
-            self.notificationTitle = ""
-            self.notificationBody = ""
-            self.notificationType = ""
-            self.isNotificationHovered = false
+    // /// Hide notification overlay
+    // func hideNotification() {
+    //     DispatchQueue.main.async {
+    //         self.showNotificationOverlay = false
+    //         self.notificationTitle = ""
+    //         self.notificationBody = ""
+    //         self.notificationType = ""
+    //         self.isNotificationHovered = false
             
-            // Clean up timer
-            self.stopNotificationTimer()
-        }
-    }
+    //         // Clean up timer
+    //         self.stopNotificationTimer()
+    //     }
+    // }
     
-    /// Start the notification auto-dismiss timer
-    private func startNotificationTimer() {
-        stopNotificationTimer() // Clean up any existing timer
+    // /// Start the notification auto-dismiss timer
+    // private func startNotificationTimer() {
+    //     stopNotificationTimer() // Clean up any existing timer
         
-        notificationStartTime = Date()
-        notificationPausedTime = 0
+    //     notificationStartTime = Date()
+    //     notificationPausedTime = 0
         
-        notificationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
+    //     notificationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+    //         guard let self = self else { return }
             
-            if !self.isNotificationHovered {
-                let elapsed = Date().timeIntervalSince(self.notificationStartTime ?? Date()) - self.notificationPausedTime
+    //         if !self.isNotificationHovered {
+    //             let elapsed = Date().timeIntervalSince(self.notificationStartTime ?? Date()) - self.notificationPausedTime
                 
-                if elapsed >= self.notificationDuration {
-                    self.hideNotification()
-                }
-            }
-        }
-    }
+    //             if elapsed >= self.notificationDuration {
+    //                 self.hideNotification()
+    //             }
+    //         }
+    //     }
+    // }
     
-    /// Stop the notification timer
-    private func stopNotificationTimer() {
-        notificationTimer?.invalidate()
-        notificationTimer = nil
-        notificationStartTime = nil
-        notificationPausedTime = 0
-    }
+    // /// Stop the notification timer
+    // private func stopNotificationTimer() {
+    //     notificationTimer?.invalidate()
+    //     notificationTimer = nil
+    //     notificationStartTime = nil
+    //     notificationPausedTime = 0
+    // }
     
     /// Pause the notification timer when hovering
-    func pauseNotificationTimer() {
-        if let startTime = notificationStartTime, !isNotificationHovered {
-            notificationPausedTime += Date().timeIntervalSince(startTime)
-            notificationStartTime = Date()
-            isNotificationHovered = true
-            print("⏸️ Notification timer paused")
-        }
-    }
+    // func pauseNotificationTimer() {
+    //     if let startTime = notificationStartTime, !isNotificationHovered {
+    //         notificationPausedTime += Date().timeIntervalSince(startTime)
+    //         notificationStartTime = Date()
+    //         isNotificationHovered = true
+    //         print("⏸️ Notification timer paused")
+    //     }
+    // }
     
     /// Resume the notification timer when not hovering
-    func resumeNotificationTimer() {
-        if isNotificationHovered {
-            notificationStartTime = Date()
-            isNotificationHovered = false
-            print("▶️ Notification timer resumed")
-        }
-    }
+    // func resumeNotificationTimer() {
+    //     if isNotificationHovered {
+    //         notificationStartTime = Date()
+    //         isNotificationHovered = false
+    //         print("▶️ Notification timer resumed")
+    //     }
+    // }
 
     // Voice UI helpers (UI-only; wiring can follow once UI is approved)
     func connectVoiceUI() {
@@ -1017,7 +1066,7 @@ class NotchViewModel: NSObject, ObservableObject {
                let body = data["body"] as? String,
                let type = data["type"] as? String {
                 print("🔔 Processing notification: \(title) - \(body)")
-                showNotification(title: title, body: body, type: type)
+                // showNotification(title: title, body: body, type: type)
             } else {
                 print("⚠️ Invalid notification data format")
             }
@@ -1047,6 +1096,9 @@ class NotchViewModel: NSObject, ObservableObject {
             isPaused = false
             timer = 0
             startTimer()
+
+            // Clear previous meeting's live intelligence data for fresh start
+            clearLiveIntelligenceData()
 
             // Show webcam when meeting starts
             startWebcam()
@@ -1130,9 +1182,9 @@ class NotchViewModel: NSObject, ObservableObject {
         }
         
         // Reset notification overlay
-        if showNotificationOverlay {
-            hideNotification()
-        }
+        // if showNotificationOverlay {
+        //     hideNotification()
+        // }
         
         // Do NOT send JavaScript action - stay within NotchDrop Swift interface
     }

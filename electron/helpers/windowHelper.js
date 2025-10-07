@@ -9,7 +9,7 @@ class WindowHelper {
 		this.overlayWindow = null;
 		this.isOverlayVisible = false;
 		this.windowPosition = { x: 0, y: 0 };
-		this.windowSize = { width: 500, height: 60 };
+		this.windowSize = { width: 500, height: 0 };
 
 		// Store callback to apply content protection to new windows
 		this.applyContentProtection = applyContentProtectionCallback || (() => {});
@@ -357,11 +357,12 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: true, // Enable resizing for user customization
-			movable: true, // Explicitly enable window movement
-			minWidth: 400, // Minimum width for usability
-			minHeight: 10, // Minimum height for chatbox mode
-			// maxWidth and maxHeight removed to allow full screen expansion
+			resizable: false, 
+
+			movable: true, 
+            minWidth: 460,
+            minHeight: 40, 
+		
 			devTools: true,
 		};
 
@@ -585,16 +586,16 @@ class WindowHelper {
 				sandbox: false,
 			},
 			show: false,
-			alwaysOnTop: true,
-			frame: false,
-			transparent: true,
+			alwaysOnTop: false, // Don't force always on top
+			frame: false, // Frameless (no close/minimize buttons)
+			transparent: true, // Keep transparency for overlay look
 			fullscreenable: false,
-			hasShadow: false,
-			backgroundColor: '#00000000',
+			hasShadow: false, // No shadow for clean overlay look
+			backgroundColor: '#00000000', // Transparent background
 			focusable: true,
-			skipTaskbar: true,
-			visibleOnAllWorkspaces: true,
-			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+			skipTaskbar: false, // Show in taskbar like normal window
+			visibleOnAllWorkspaces: false, // Don't force visibility on all workspaces
+			type: 'normal', // Always normal type
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
 			resizable: false,
@@ -602,19 +603,8 @@ class WindowHelper {
 			devTools: true,
 		};
 
-		// Platform-specific window settings
-		if (process.platform === 'win32') {
-			// Windows-specific settings
-			windowSettings.type = 'toolbar';
-			windowSettings.alwaysOnTop = true;
-			windowSettings.skipTaskbar = true;
-			windowSettings.focusable = true;
-			windowSettings.transparent = true;
-			windowSettings.hasShadow = false;
-		} else if (process.platform === 'darwin') {
-			// macOS-specific settings
-			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
-		}
+		// Remove all platform-specific overrides - keep it as a normal window
+		// No platform-specific settings needed
 
 		this.permissionWindow = new BrowserWindow(windowSettings);
 
@@ -639,27 +629,9 @@ class WindowHelper {
 			log.error('Failed to load Permission URL:', err);
 		});
 
-		if (process.platform === 'darwin') {
-			this.permissionWindow.setAlwaysOnTop(true, 'floating');
-			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
-				visibleOnFullScreen: true,
-				skipTransformProcessType: true,
-			});
-			this.permissionWindow.setHiddenInMissionControl(true);
-			// Permission window should always be interactive
-			this.permissionWindow.setIgnoreMouseEvents(false);
-			this.permissionWindow.setMovable(true);
-		} else if (process.platform === 'win32') {
-			// Windows-specific window behavior
-			this.permissionWindow.setAlwaysOnTop(true, 'floating');
-			this.permissionWindow.setIgnoreMouseEvents(false);
-			this.permissionWindow.setMovable(true);
-			this.permissionWindow.setVisibleOnAllWorkspaces(true);
-		} else {
-			// For Linux and other platforms
-			this.permissionWindow.setAlwaysOnTop(true, 'floating');
-			this.permissionWindow.setIgnoreMouseEvents(false);
-		}
+		// Make it behave like a completely normal window - no special settings
+		this.permissionWindow.setIgnoreMouseEvents(false);
+		this.permissionWindow.setMovable(true);
 
 		this.setupPermissionWindowListeners();
 
@@ -1532,23 +1504,8 @@ class WindowHelper {
 			height: this.permissionWindowSize.height,
 		});
 
-		// Ensure window properties for all desktops/spaces on macOS
-		if (process.platform === 'darwin') {
-			this.permissionWindow.setAlwaysOnTop(true, 'floating');
-			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
-				visibleOnFullScreen: true,
-				skipTransformProcessType: true,
-			});
-			// Ensure permission window is above all other windows
-			this.permissionWindow.moveTop();
-		} else if (process.platform === 'win32') {
-			// Windows-specific window behavior
-			this.permissionWindow.setAlwaysOnTop(true, 'floating');
-			this.permissionWindow.setVisibleOnAllWorkspaces(true);
-			this.permissionWindow.moveTop();
-		} else {
-			this.permissionWindow.setAlwaysOnTop(true, 'floating');
-		}
+		// Just bring to front like a normal window - no special behavior
+		this.permissionWindow.moveTop();
 
 		// Update position tracking
 		this.permissionWindowPosition = { x: permissionX, y: permissionY };
@@ -1686,8 +1643,8 @@ class WindowHelper {
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
 		// Apply min constraints that match the window creation settings
-		const minWidth = 400;
-		const minHeight = 150; // Allow much smaller height for chatbox mode
+        const minWidth = 420;
+        const minHeight = 60; // small height ask ai
 
 		// Get current bounds to preserve dimensions when not specified
 		const currentBounds = this.askAIWindow.getBounds();

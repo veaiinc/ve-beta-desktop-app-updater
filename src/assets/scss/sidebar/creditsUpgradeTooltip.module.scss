@@ -1,0 +1,83 @@
+.settingsPlans {
+	display: flex;
+	width: 211px;
+	padding: 12px;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	border-radius: 16px;
+	background: var(--card, #1b1c1d);
+	.settingCurrentPlan {
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+		align-items: center;
+		.settingPlanName {
+			color: var(--primary-font);
+			font-family: Recoleta;
+			font-size: 20px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+		}
+		.settingsUpgrade {
+			display: flex;
+			height: 32px;
+			padding: 6px 16px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 100px;
+			background: var(--primary-opacity, rgba(121, 236, 201, 0.1));
+			color: var(--primary-button, #79ecc9);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			cursor: pointer;
+		}
+	}
+
+	.settingsCredits {
+		display: flex;
+		width: 100%;
+		align-items: center;
+		justify-content: space-between;
+		.settingsCreditsLeft {
+			display: flex;
+			height: 32px;
+			padding: 6px 0;
+			align-items: center;
+			gap: 10px;
+			.settingsCreditsTitle {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				width: 49px;
+				height: 20px;
+			}
+		}
+		.settingsCreditsCount {
+			display: flex;
+			height: 32px;
+			padding: 6px 0;
+			justify-content: center;
+			align-items: center;
+			gap: 16px;
+			flex-shrink: 0;
+			cursor: pointer;
+			.settingsCreditsLeftCount {
+				color: var(--primary-font);
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-style: normal;
+				font-weight: 600;
+				line-height: normal;
+			}
+		}
+	}
+}

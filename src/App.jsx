@@ -16,6 +16,7 @@ const AppContent = () => {
 	const { routes } = useWorkspaceMode();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
+	const [updateProgress, setUpdateProgress] = useState(null);
 	// const [showUpdateNotification, setShowUpdateNotification] = useState(false); // Commented out for auto restart
 
 	// NotchDrop Voice Integration - DIRECT APPROACH
@@ -192,8 +193,14 @@ const AppContent = () => {
 
 	const handleCheckForUpdates = async () => {
 		try {
-			const result = await window?.electronApi?.checkForUpdates();
-			// console.log('✅ Update check initiated:', result);
+			console.log('🔍 Manual update check initiated...');
+			const result = await window?.electronApi?.checkForUpdatesManual();
+
+			if (result.success) {
+				console.log('✅ Update check initiated successfully');
+			} else {
+				console.warn('⚠️ Update check failed:', result.error);
+			}
 		} catch (error) {
 			console.error('❌ Error checking for updates:', error);
 		}
@@ -227,28 +234,42 @@ const AppContent = () => {
 		// Set up update status listener
 		if (window?.electronApi?.onUpdateStatus) {
 			const handleUpdateStatus = (data) => {
-				// console.log('📱 Update status received:', data);
+				console.log('📱 Update status received:', data);
 				setUpdateStatus(data);
+
+				// Track download progress
+				if (data.status === 'downloading' && data.progress !== undefined) {
+					setUpdateProgress({
+						percent: Math.round(data.progress),
+						bytesPerSecond: data.bytesPerSecond,
+						total: data.total,
+						transferred: data.transferred,
+					});
+				} else if (data.status !== 'downloading') {
+					setUpdateProgress(null);
+				}
 
 				switch (data.status) {
 					case 'checking':
-						// console.log('🔍 Checking for updates...');
+						console.log('🔍 Checking for updates...');
 						break;
 
 					case 'available':
-						// console.log(`🆕 Update available: ${data.version}`);
+						console.log(`🆕 Update available: ${data.version}`);
 						console.log('⬇️ Download starting automatically...');
 						break;
 
 					case 'not-available':
-						// console.log('✅ No updates available');
+						console.log('✅ No updates available');
+						break;
+
+					case 'downloading':
+						console.log(`📥 Downloading update: ${Math.round(data.progress || 0)}%`);
 						break;
 
 					case 'downloaded':
-						// 	console.log(`✅ Update downloaded: ${data.version}`);
-						// console.log(
-						// 	'📣 Update prompt will appear so the user can restart manually.',
-						// );
+						console.log(`✅ Update downloaded: ${data.version}`);
+						console.log('📣 Update ready for installation');
 						break;
 
 					case 'download-failed':
@@ -262,6 +283,12 @@ const AppContent = () => {
 
 					case 'network-error':
 						console.error('🌐 Network error:', data.error);
+						console.log('💡 Suggestion:', data.details?.suggestion);
+						break;
+
+					case 'permission-error':
+						console.error('🔐 Permission error:', data.error);
+						console.log('💡 Suggestion:', data.details?.suggestion);
 						break;
 
 					case 'not-found':
@@ -328,26 +355,7 @@ const AppContent = () => {
 					Test Permission Overlay
 				</button>
 			)} */}
-			{/* <button
-					onClick={() => window.electronApi?.permission?.showWindow()}
-					style={{
-						position: 'fixed',
-						top: '20px',
-						left: '20px',
-						background: '#42e09b',
-						color: '#121212',
-						border: 'none',
-						padding: '12px 24px',
-						borderRadius: '8px',
-						cursor: 'pointer',
-						fontSize: '14px',
-						fontWeight: '600',
-						zIndex: 9999,
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-					}}
-				>
-					Test Permission Overlay
-				</button> */}
+		
 
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
@@ -417,6 +425,53 @@ const AppContent = () => {
 
 			{/* Global Download Progress Popup - persists across all routes */}
 			<DownloadProgressPopup />
+
+			{/* Update Progress Indicator */}
+			{updateProgress && (
+				<div
+					style={{
+						position: 'fixed',
+						top: '20px',
+						right: '20px',
+						background: '#2196F3',
+						color: 'white',
+						padding: '16px',
+						borderRadius: '8px',
+						boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+						zIndex: 9999,
+						maxWidth: '300px',
+						fontSize: '14px',
+					}}
+				>
+					<div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+						📥 Downloading Update...
+					</div>
+					<div style={{ marginBottom: '8px' }}>{updateProgress.percent}% complete</div>
+					<div
+						style={{
+							width: '100%',
+							height: '4px',
+							background: 'rgba(255,255,255,0.3)',
+							borderRadius: '2px',
+							overflow: 'hidden',
+						}}
+					>
+						<div
+							style={{
+								width: `${updateProgress.percent}%`,
+								height: '100%',
+								background: 'white',
+								transition: 'width 0.3s ease',
+							}}
+						/>
+					</div>
+					{updateProgress.bytesPerSecond && (
+						<div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.8 }}>
+							{Math.round(updateProgress.bytesPerSecond / 1024)} KB/s
+						</div>
+					)}
+				</div>
+			)}
 
 			{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
 				<UpdateReadyPopup
