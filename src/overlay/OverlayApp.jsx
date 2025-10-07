@@ -111,6 +111,9 @@ const OverlayApp = () => {
 		if (window.electronApi?.overlay?.sendTranscriptionData) {
 			window.electronApi.overlay.sendTranscriptionData(newTranscript);
 		}
+
+		// Don't send transcription data as live intelligence - keep them separate
+		// Transcription data should only appear in transcription section
 	};
 
 	// Send full transcription array to NotchDrop on every change
@@ -664,6 +667,13 @@ const OverlayApp = () => {
 			// Ensure overlay window is visible for proper Ask AI positioning
 			window?.electronApi?.overlay?.showOverlayWindow();
 
+			// Notify Notch: overlay is showing live intelligence → Notch should show transcription
+			try {
+				window?.electronApi?.overlay?.setPanelMode?.('live-intel');
+			} catch (e) {
+				console.error('Failed to send panel mode (live-intel) to Notch:', e);
+			}
+
 			// Mark current threads as seen when opening live intelligence
 			const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
 			setLastSeenThreadCount(currentThreadCount);
@@ -688,6 +698,13 @@ const OverlayApp = () => {
 
 		// Ensure overlay window is visible for proper Ask AI positioning
 		window?.electronApi?.overlay?.showOverlayWindow();
+
+		// Notify Notch: overlay is showing live intelligence → Notch should show transcription
+		try {
+			window?.electronApi?.overlay?.setPanelMode?.('live-intel');
+		} catch (e) {
+			console.error('Failed to send panel mode (live-intel) to Notch:', e);
+		}
 
 		// Mark current threads as seen when opening live intelligence via Dynamic Island
 		const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
@@ -803,6 +820,25 @@ const OverlayApp = () => {
 					allThreads,
 				},
 			}));
+
+			// Send live intelligence data to notch immediately when it arrives
+			try {
+				if (window?.electronApi?.overlay?.sendLiveIntelligenceData) {
+					allThreads.forEach((thread) => {
+						const message = {
+							source: 'ai-agent',
+							text: thread.prompt || thread.name || thread.description || '',
+							timestamp: thread.timestamp || thread.created_at || new Date().toISOString(),
+							type: 'live-intelligence',
+							confidence: thread.confidence,
+							metadata: thread,
+						};
+						window.electronApi.overlay.sendLiveIntelligenceData(message);
+					});
+				}
+			} catch (e) {
+				console.error('Failed to send live intelligence data to Notch:', e);
+			}
 		}
 	}, [aiTranscriptionSuggestions]);
 

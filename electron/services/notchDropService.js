@@ -526,57 +526,104 @@ class NotchDropService {
 		}
 	}
 
+	// navigateMainWindow(path) {
+	// 	const defaultPath = '/verify-user';
+	// 	const resolvedPath =
+	// 		typeof path === 'string' && path.trim().length > 0 ? path.trim() : defaultPath;
+	// 	const normalizedPath = resolvedPath.startsWith('/') ? resolvedPath : `/${resolvedPath}`;
+
+	// 	// Debounce duplicate navigation requests to avoid loops/stack overflow
+	// 	if (!this._lastNavigation) {
+	// 		this._lastNavigation = { path: null, ts: 0 };
+	// 	}
+	// 	const now = Date.now();
+	// 	if (
+	// 		this._lastNavigation.path === normalizedPath &&
+	// 		now - this._lastNavigation.ts < 400
+	// 	) {
+	// 		log.warn('⏱️ Skipping duplicate navigation (debounced):', normalizedPath);
+	// 		return true;
+	// 	}
+	// 	this._lastNavigation = { path: normalizedPath, ts: now };
+
+	// 	try {
+	// 		if (this.focusAndNavigateWindow(this.mainWindow, normalizedPath)) {
+	// 			return true;
+	// 		}
+
+	// 		const allWindows = BrowserWindow.getAllWindows();
+	// 		const fallbackWindow = allWindows.find((win) => {
+	// 			if (!win || win.isDestroyed()) {
+	// 				return false;
+	// 			}
+	// 			const title = typeof win.getTitle === 'function' ? win.getTitle() : '';
+	// 			return title.toLowerCase().includes('ve ai');
+	// 		});
+
+	// 		if (this.focusAndNavigateWindow(fallbackWindow, normalizedPath)) {
+	// 			return true;
+	// 		}
+
+	// 		if (typeof this.createMainWindowFn === 'function') {
+	// 			const createdWindow = this.createMainWindowFn(true);
+	// 			if (this.focusAndNavigateWindow(createdWindow, normalizedPath)) {
+	// 				return true;
+	// 			}
+	// 		}
+
+	// 		log.warn('⚠️ Unable to navigate main window - no window available', {
+	// 			path: normalizedPath,
+	// 		});
+	// 		return false;
+	// 	} catch (error) {
+	// 		log.error('❌ Failed to navigate main window from NotchDrop request:', error);
+	// 		return false;
+	// 	}
+	// }
 	navigateMainWindow(path) {
 		const defaultPath = '/verify-user';
 		const resolvedPath =
 			typeof path === 'string' && path.trim().length > 0 ? path.trim() : defaultPath;
 		const normalizedPath = resolvedPath.startsWith('/') ? resolvedPath : `/${resolvedPath}`;
-
-		// Debounce duplicate navigation requests to avoid loops/stack overflow
+	
+		// Debounce duplicate navigation
 		if (!this._lastNavigation) {
 			this._lastNavigation = { path: null, ts: 0 };
 		}
 		const now = Date.now();
-		if (this._lastNavigation.path === normalizedPath && now - this._lastNavigation.ts < 400) {
+		if (
+			this._lastNavigation.path === normalizedPath &&
+			now - this._lastNavigation.ts < 400
+		) {
 			log.warn('⏱️ Skipping duplicate navigation (debounced):', normalizedPath);
 			return true;
 		}
 		this._lastNavigation = { path: normalizedPath, ts: now };
-
+	
 		try {
+			// ✅ Try existing main window first
 			if (this.focusAndNavigateWindow(this.mainWindow, normalizedPath)) {
 				return true;
 			}
-
-			const allWindows = BrowserWindow.getAllWindows();
-			const fallbackWindow = allWindows.find((win) => {
-				if (!win || win.isDestroyed()) {
-					return false;
-				}
-				const title = typeof win.getTitle === 'function' ? win.getTitle() : '';
-				return title.toLowerCase().includes('ve ai');
-			});
-
-			if (this.focusAndNavigateWindow(fallbackWindow, normalizedPath)) {
-				return true;
-			}
-
+	
+			// ✅ If main window doesn't exist, try to create it
 			if (typeof this.createMainWindowFn === 'function') {
 				const createdWindow = this.createMainWindowFn(true);
 				if (this.focusAndNavigateWindow(createdWindow, normalizedPath)) {
 					return true;
 				}
 			}
-
-			log.warn('⚠️ Unable to navigate main window - no window available', {
+	
+			log.warn('⚠️ Main window not available and could not be created.', {
 				path: normalizedPath,
 			});
 			return false;
 		} catch (error) {
-			log.error('❌ Failed to navigate main window from NotchDrop request:', error);
+			log.error('❌ Error navigating main window:', error);
 			return false;
 		}
 	}
+	
 
 	focusAndNavigateWindow(windowInstance, path) {
 		if (!windowInstance || windowInstance.isDestroyed()) {

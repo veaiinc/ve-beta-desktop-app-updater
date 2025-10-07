@@ -51,8 +51,8 @@ const handleError = ({ err, setIsUpdateInProgress, mainWindow }) => {
 		details: { code: err.code, errno: err.errno },
 	};
 
-	log.error('Update error:', err);
-	log.error('Update error details:', {
+	log.error('❌ Update error:', err);
+	log.error('❌ Update error details:', {
 		message: err.message,
 		code: err.code,
 		errno: err.errno,
@@ -62,17 +62,45 @@ const handleError = ({ err, setIsUpdateInProgress, mainWindow }) => {
 	// Send detailed error information to frontend
 	mainWindow?.webContents.send('update-status', errorStatus);
 
-	// Handle specific error types
+	// Handle specific error types with more detailed messages
 	if (err.code === 1) {
-		log.error(
-			'Ditto error detected - this usually indicates file path issues in the update package',
-		);
+		log.error('🔒 Ditto error detected - file path issues in update package');
 		mainWindow?.webContents.send('update-status', {
 			status: 'installation-error',
 			error: 'Update package file path error',
 			details: {
 				suggestion:
 					'The update package may be corrupted or incomplete. Please try downloading again.',
+				code: err.code,
+			},
+		});
+	} else if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+		log.error('🌐 Network error - cannot reach update server');
+		mainWindow?.webContents.send('update-status', {
+			status: 'network-error',
+			error: 'Cannot reach update server',
+			details: {
+				suggestion: 'Please check your internet connection and try again.',
+				code: err.code,
+			},
+		});
+	} else if (err.code === 'EACCES' || err.code === 'EPERM') {
+		log.error('🔐 Permission error during update');
+		mainWindow?.webContents.send('update-status', {
+			status: 'permission-error',
+			error: 'Permission denied during update',
+			details: {
+				suggestion: 'Please run the application with appropriate permissions.',
+				code: err.code,
+			},
+		});
+	} else if (err.message && err.message.includes('checksum')) {
+		log.error('🔒 Checksum verification failed');
+		mainWindow?.webContents.send('update-status', {
+			status: 'checksum-error',
+			error: 'Update file verification failed',
+			details: {
+				suggestion: 'The downloaded update file may be corrupted. Please try again.',
 				code: err.code,
 			},
 		});
@@ -95,10 +123,7 @@ const handleUpdateDownloaded = ({ info, mainWindow, setIsUpdateInProgress }) => 
 	});
 };
 
-const ipcMainHandleCheckForUpdates = async ({
-	getIsUpdateInProgress,
-	setIsUpdateInProgress,
-}) => {
+const ipcMainHandleCheckForUpdates = async ({ getIsUpdateInProgress, setIsUpdateInProgress }) => {
 	log.info('Manual update check triggered');
 	if (process.env.NODE_ENV === 'development') {
 		return { success: true, message: 'Skipped in dev mode' };
@@ -119,10 +144,7 @@ const ipcMainHandleCheckForUpdates = async ({
 	}
 };
 
-const ipcMainHandleDownloadUpdates = async ({
-	getIsUpdateInProgress,
-	setIsUpdateInProgress,
-}) => {
+const ipcMainHandleDownloadUpdates = async ({ getIsUpdateInProgress, setIsUpdateInProgress }) => {
 	if (process.env.NODE_ENV === 'development') {
 		return { success: false, error: 'Not available in dev' };
 	}
@@ -142,57 +164,68 @@ const ipcMainHandleDownloadUpdates = async ({
 	}
 };
 
-const ipcMainHandleRestartApp = ({
-	setIsUpdateInProgress,
-	dynamicIslandHelper,
-	windowHelper,
-}) => {
+const ipcMainHandleRestartApp = ({ setIsUpdateInProgress, dynamicIslandHelper, windowHelper }) => {
 	if (process.env.NODE_ENV === 'development') {
 		return { success: false, error: 'Not available in development' };
 	}
 
 	try {
+		log.info('🔄 Starting app restart for update installation...');
+
 		// Set update flag to allow proper quit
 		setIsUpdateInProgress(true);
 
-		// Clean up services
+		// Validate that an update is actually downloaded
+		if (!autoUpdater.isUpdaterActive()) {
+			log.warn('⚠️ No update available for installation');
+			setIsUpdateInProgress(false);
+			return { success: false, error: 'No update available for installation' };
+		}
+
+		// Clean up services gracefully
 		if (dynamicIslandHelper) {
 			try {
+				log.info('🧹 Cleaning up Dynamic Island helper...');
 				dynamicIslandHelper.close();
 			} catch (error) {
-				log.error('Error closing dynamicIslandHelper during restart:', error);
+				log.error('❌ Error closing dynamicIslandHelper during restart:', error);
 			}
 			dynamicIslandHelper = null;
 		}
 
 		if (windowHelper) {
 			try {
+				log.info('🧹 Cleaning up window helper...');
 				windowHelper.cleanup();
 			} catch (error) {
-				log.error('Error cleaning up windowHelper during restart:', error);
+				log.error('❌ Error cleaning up windowHelper during restart:', error);
 			}
 			windowHelper = null;
 		}
 
-		// Close all windows
+		// Close all windows gracefully
+		log.info('🪟 Closing all windows...');
 		BrowserWindow.getAllWindows().forEach((window) => {
 			if (window && !window.isDestroyed()) {
 				try {
 					window.destroy();
 				} catch (error) {
-					log.error('Error destroying window during restart:', error);
+					log.error('❌ Error destroying window during restart:', error);
 				}
 			}
 		});
 
-		log.info('Restarting app to install update...');
+		// Wait a moment for cleanup to complete
+		setTimeout(() => {
+			log.info('🚀 Restarting app to install update...');
 
-		// Use force quit for better reliability
-		autoUpdater.quitAndInstall(true, true);
+			// Use force quit for better reliability
+			autoUpdater.quitAndInstall(true, true);
+		}, 1000);
 
 		return { success: true };
 	} catch (error) {
-		log.error('Error restarting app:', error);
+		log.error('❌ Error restarting app:', error);
 		setIsUpdateInProgress(false); // Reset flag on error
 		return { success: false, error: error.message };
 	}
