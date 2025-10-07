@@ -19,7 +19,6 @@ const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapp
 // const ProactiveSuggestions = lazy(() =>
 // 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 // );
-const NewChat = lazy(() => import('../views/components/chat/chatComponents/NewChat'));
 const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DownloadDesktopApp'));
 
 // components
@@ -75,71 +74,62 @@ const stableRoutes = [
 	// ========================================
 	// CHAT & COMMUNICATION
 	// ========================================
-	// {
-	// 	path: '/chats',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Chats'}>
-	// 				<ChatPage />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
 	{
-		path: '/new-chat',
+		path: '/chats',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'New Chat'}>
-					<NewChat />
+				<AuthWrapper title={'Chats'}>
+					<ChatPage />
 				</AuthWrapper>
 			</Suspense>
 		),
 	},
-	// {
-	// 	path: '/chat/:sessionId',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper
-	// 				title={'Chat'}
-	// 				showBottomToolbar={false}
-	// 				outerContainerStyle={{
-	// 					paddingRight: '0px',
-	// 					backgroundColor: 'var(--background-color)',
-	// 				}}
-	// 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
-	// 				maxWidth="100%"
-	// 			>
-	// 				<RecentChat
-	// 					showDeleteChat={true}
-	// 					showRightBar={true}
-	// 					showChats={true}
-	// 					showChatsButton={true}
-	// 					showBrowser={true}
-	// 				/>
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
-	// {
-	// 	path: '/meet',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Meet'}>
-	// 				<CardMeetBot />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
-	// {
-	// 	path: '/meet/:meetingId',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Meet'}>
-	// 				<MeetBotWrapper />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
+	{
+		path: '/chat/:sessionId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Chat'}
+					showBottomToolbar={false}
+					outerContainerStyle={{
+						paddingRight: '0px',
+						backgroundColor: 'var(--background-color)',
+					}}
+					authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
+					maxWidth="100%"
+				>
+					<RecentChat
+						showChatHistory={true}
+						showDeleteChat={true}
+						showRightBar={true}
+						showChats={true}
+						showChatsButton={true}
+						showBrowser={true}
+					/>
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/meet',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<CardMeetBot />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/meet/:meetingId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<MeetBotWrapper />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 
 	// ========================================
 	// Playbook

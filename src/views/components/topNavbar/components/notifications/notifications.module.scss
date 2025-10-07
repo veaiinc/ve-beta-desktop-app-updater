@@ -7,8 +7,9 @@
 	border-radius: 16px;
 	border: 1px solid var(--dividers, #1e1f20);
 	background: var(--popup, #202123);
-	position: relative;
-	top: 16px;
+	top: 22px;
+	right: -130px;
+	position: absolute;
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
 

@@ -314,7 +314,7 @@
 			justify-content: space-between;
 			align-items: center;
 			position: relative;
-			z-index: 800;
+			z-index: 1000;
 
 			.right-container {
 				.options-container {
@@ -1418,7 +1418,7 @@
 
 .options-wrapper {
 	position: relative;
-	z-index: 800;
+	z-index: 1000;
 	display: flex;
 	align-items: center;
 	max-width: 800px; /* Total width including arrows */

@@ -22,7 +22,7 @@ const page = 1;
 const limit = 6;
 const reset = true;
 
-const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) => {
+const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const {
@@ -212,15 +212,12 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 						// scrollableTarget="chatsScroll"
 						height={'100%'}
 					>
-						{showNewChatBtn && (
-							<button
-								className="new-chat-btn"
-								onClick={() => navigate(`/chat/${ObjectID()?.toString()}`)}
-							>
-								New Chat
-							</button>
-						)}
-
+						<button
+							className="new-chat-btn"
+							onClick={() => navigate(`/chat/${ObjectID()?.toString()}`)}
+						>
+							New Chat
+						</button>
 						{chats?.map((chat, index) => {
 							const dateGroup = getChatDateGroup(chat.createdAt);
 							const showGroupHeader =
