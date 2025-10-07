@@ -2015,7 +2015,7 @@ function LogicalForm(props) {
 		props.saveSections(updateSections);
 	};
 
-	// Handle duplicate 
+	// Handle duplicate field
 	const handleDuplicateField = (field, _id) => {
 		const newField = {
 			...createNewField(field.type, props.blocks.length + 1),

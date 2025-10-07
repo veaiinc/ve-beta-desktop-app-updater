@@ -69,7 +69,6 @@ const ProactiveAi = lazy(() => import('../views/features/proactiveAi/ProactiveAi
 // ========================================
 const GalleryPage = lazy(() => import('../views/features/gallery/GalleryPage'));
 const GalleryViewer = lazy(() => import('../views/features/gallery/GalleryViewer'));
-const NewChat = lazy(() => import('../views/components/chat/chatComponents/NewChat'));
 import AddGallery from '../views/features/gallery/AddGallery';
 // const AlbumSettings = lazy(() => import('../views/features/gallery/AlbumSettings'));
 const UploadPhotos = lazy(() => import('../views/features/gallery/UploadPhotos'));
@@ -293,16 +292,6 @@ const betaRoutes = [
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Chats'}>
 					<ChatPage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
-	{
-		path: '/new-chat',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'New Chat'}>
-					<NewChat />
 				</AuthWrapper>
 			</Suspense>
 		),

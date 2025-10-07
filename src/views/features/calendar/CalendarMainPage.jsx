@@ -72,6 +72,9 @@ const Calendar = () => {
 		...initialState,
 	});
 
+	// Close left sidebar when component unmounts
+	// updateStateValues({ leftSidebarState: 'open' });
+
 	useEffect(() => {
 		const sessionId = ObjectId().toString();
 		setInfo((prevInfo) => ({ ...prevInfo, chatSessionId: sessionId }));
