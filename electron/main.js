@@ -3772,6 +3772,30 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	ipcMain.handle('resize-main-window', async (event, data) => {
+		try {
+			const {dimensions,exitFullScreen} = data;
+			if (mainWindow) {
+				if(exitFullScreen) {
+					if(mainWindow.isFullScreen()) {
+						mainWindow.setFullScreen(false);
+						mainWindow.once('leave-full-screen', () => {
+							mainWindow.setBounds(dimensions);
+						});
+					}else{
+						mainWindow.setBounds(dimensions);
+					}
+					
+				}else{
+					mainWindow.setBounds(dimensions);
+				}
+			}
+		} catch (error) {
+			log.error('❌ Error resizing main window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// This will handle main window navigation
 	ipcMain.handle('navigate-main-window', async (event, data) => {
 		try {

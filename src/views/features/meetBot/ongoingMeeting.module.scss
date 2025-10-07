@@ -1,0 +1,135 @@
+.ongoingMeetingContainer {
+	width: 100%;
+	height: 100%;
+	padding-left: 58px;
+	padding-bottom: 15px;
+	display: flex;
+	flex-direction: column;
+	background-color: rgba(204, 212, 206, 0.243);
+
+	.ongoingMeetingHeader {
+		display: flex;
+		height: 60px;
+		padding: 8px 16px 8px 8px;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 10px;
+		align-self: stretch;
+		flex-shrink: 0;
+
+		.ongoingMeetingHeaderButton {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 20px;
+			height: 20px;
+			background-color: transparent;
+			border: none;
+			cursor: pointer;
+			padding: 0;
+			color: var(--primary-font);
+		}
+
+		.ongoingMeetingHeaderButtonClose {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			display: flex;
+			width: 22px;
+			height: 22px;
+			justify-content: center;
+			align-items: center;
+			gap: 10px;
+			border-radius: 100px;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			background: rgba(255, 255, 255, 0.1);
+			padding: 0;
+			color: var(--primary-font);
+		}
+	}
+
+	.ongoingMeetingNav {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-right: 30px;
+		height: 30px;
+		flex-shrink: 0;
+		.ongoingMeetingNavTitle {
+			color: #40c9ff;
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			text-transform: uppercase;
+		}
+
+		.ongoingMeetingNavButton {
+			display: flex;
+			height: 28.93px;
+			padding: 8px;
+			justify-content: center;
+			align-items: center;
+			gap: 7.233px;
+			border-radius: 8px;
+			border: 0.603px solid rgba(255, 255, 255, 0.2);
+			color: #fff;
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			background-color: transparent;
+			cursor: pointer;
+		}
+	}
+
+	.ongoingMeetingContent {
+		width: 100%;
+		flex-grow: 1;
+		overflow: auto;
+		margin-bottom: 12px;
+		margin-top: 12px;
+		padding-right: 30px;
+		// background-color: yellow;
+	}
+
+	.ongoingMeetingFooter {
+		width: 100%;
+		height: 24px;
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
+		gap: 10px;
+		padding-right: 16px;
+		flex-shrink: 0;
+
+		.newChatButton {
+			display: flex;
+			width: 105px;
+			height: 24px;
+			padding: 4px 8px;
+			align-items: center;
+			gap: 4px;
+			flex-shrink: 0;
+			border-radius: 24px;
+			border: 0.5px solid rgba(255, 255, 255, 0.5);
+			color: rgba(255, 255, 255, 0.7);
+			font-family: var(--primary-font-family);
+			font-size: 12px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+			letter-spacing: -0.24px;
+			background-color: transparent;
+			cursor: pointer;
+		}
+	}
+}
+
+.transcriptItem {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}

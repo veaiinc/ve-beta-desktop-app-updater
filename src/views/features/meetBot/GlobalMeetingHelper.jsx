@@ -6,9 +6,11 @@ import { useOverlayNotification } from '../../../overlay/components/OverlayNotif
 import useAssemblyTranscription from '../../../overlay/hooks/useAssemblyTranscription';
 import { useDispatch } from '@zubridge/electron';
 import { useStore, storeActions } from '../../../store/store';
+import { useNavigate } from 'react-router-dom';
 
 const GlobalMeetingHelper = () => {
 	// State to control which panel is shown: 'live-intelligence', 'transcript', or null
+	const navigate = useNavigate();
 	const [activePanel, setActivePanel] = useState(null);
 
 	// State to control whether to show ShortcutBar (false when controlled by Dynamic Island)
@@ -269,6 +271,8 @@ const GlobalMeetingHelper = () => {
 					allThreads: [],
 				},
 			}));
+
+			navigate(`/ongoing-meeting`, { replace: true });
 		} else {
 			console.error('Failed to create meeting');
 			notification.error(

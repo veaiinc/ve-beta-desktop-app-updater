@@ -15,6 +15,7 @@ const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 // const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
 // const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+const OngoingMeeting = lazy(() => import('../views/features/meetBot/OngoingMeeting'));
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
 // const ProactiveSuggestions = lazy(() =>
 // 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
@@ -43,6 +44,16 @@ const stableRoutes = [
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Meet'}>
 					<CardMeetBot />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/ongoing-meeting',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Ongoing Meeting'}>
+					<OngoingMeeting />
 				</AuthWrapper>
 			</Suspense>
 		),
