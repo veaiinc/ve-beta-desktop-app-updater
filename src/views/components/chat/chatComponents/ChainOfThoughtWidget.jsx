@@ -1,9 +1,9 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState, Suspense, lazy } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import '../../../../assets/scss/chat/chatComponents/chainOfThoughtWidget.scss';
 import { ReactComponent as TickSvg } from '../../../../assets/svg/ai_agents/tick.svg';
 import DeepSearchChainOfThought from './DeepSearchChainOfThought';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../assets/svg/tasks/chevronRightThin.svg';
-const DeepResearchChainOfThought = lazy(() => import('./DeepResearchChainOfThought'));
+import DeepResearchChainOfThought from './DeepResearchChainOfThought';
 
 const ChainOfThoughtWidget = ({ messageData }) => {
 	const [info, setInfo] = useState({
@@ -94,12 +94,10 @@ const ChainOfThoughtWidget = ({ messageData }) => {
 				{(deepResearch || chainOfThought?.length > 0) && (
 					<div className="content-container">
 						{deepResearch && (
-							<Suspense fallback={''}>
-								<DeepResearchChainOfThought
-									data={deepResearch}
-									streamEnd={chainOfThoughtCompleted || false}
-								/>
-							</Suspense>
+							<DeepResearchChainOfThought
+								data={deepResearch}
+								streamEnd={chainOfThoughtCompleted || false}
+							/>
 						)}
 
 						{chainOfThought?.length > 0 && (

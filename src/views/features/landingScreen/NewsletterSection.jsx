@@ -5,12 +5,12 @@ import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
 import { ReactComponent as LinkedinLogo } from '../../../assets/svg/landingScreen/linkedinLogo.svg';
 import { ReactComponent as InstagramLogo } from '../../../assets/svg/landingScreen/instagramLogo.svg';
-import { ReactComponent as SansLogo } from '../../../assets/svg/landingScreen/logo.svg';
-import { ReactComponent as FacebookLogo } from '../../../assets/svg/landingScreen/facebookLogo.svg';
-import { ReactComponent as YoutubeLogo } from '../../../assets/svg/landingScreen/youtubeLogo.svg';
+// import { ReactComponent as SansLogo } from '../../../assets/svg/landingScreen/logo.svg';
+// import { ReactComponent as FacebookLogo } from '../../../assets/svg/landingScreen/facebookLogo.svg';
+// import { ReactComponent as YoutubeLogo } from '../../../assets/svg/landingScreen/youtubeLogo.svg';
 import { ReactComponent as ArrowUp } from '../../../assets/svg/ai_agents/arrow-up-dark.svg';
-import GoldenGateImage from '../../../assets/images/goldenGate.png';
-import { LINKEDIN_URL, INSTAGRAM_URL } from '../../../helpers/ConstantUrls';
+// import GoldenGateImage from '../../../assets/images/goldenGate.png';
+import { LINKEDIN_URL, INSTAGRAM_URL, HELP_CENTER_URL } from '../../../helpers/ConstantUrls';
 import { isValidEmail } from '../../../helpers/index.jsx';
 import { Link } from 'react-router-dom';
 
@@ -154,11 +154,7 @@ const NewsletterSection = () => {
 								<span className={s.columnTitle}>Support</span>
 							</div>
 							<div className={s.linkItem}>
-								<Link
-									to="https://intercom.help/Ve_ai/en"
-									target="_blank"
-									className={s.linkText}
-								>
+								<Link to={HELP_CENTER_URL} target="_blank" className={s.linkText}>
 									Help Center
 								</Link>
 							</div>

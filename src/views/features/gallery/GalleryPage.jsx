@@ -74,7 +74,8 @@ import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevron
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
 import DesktopAppIntimation from '../../components/gallery/galleryPage/DesktopAppIntimation';
-import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 // const workspaceId = localStorage.getItem('workspaceId');
 
 const dummyImagesArray = Array.from({ length: 10 }, () => ({ isPlaceholderImg: true }));
@@ -460,7 +461,7 @@ const GalleryPage = () => {
 		},
 		{
 			icon: <TrashIcon />,
-			label: 'Move to Trash',
+			label: 'Delete Gallery',
 			onClick: () =>
 				setInfo((prev) => ({
 					...prev,
@@ -731,20 +732,49 @@ const GalleryPage = () => {
 
 		// Only set the active album if it's not already set
 		if (tenantAlbums && galleryId) {
-			setInfo((prev) => ({
-				...prev,
-				albumName: tenantAlbums?.albums?.[0]?.title,
-				activeAlbumId: tenantAlbums?.albums?.[0]?._id,
-				activeAlbum: tenantAlbums?.albums?.[0],
-				tenantAlbums: tenantAlbums?.albums,
-				albumSlug: tenantAlbums?.albums?.[0]?.slug,
-				isPublished: tenantAlbums?.isPublished,
-				isOnline: tenantAlbums?.isPublished,
-				videosList: tenantAlbums?.embeddedVideos,
-				selectVideo: info?.videoUploaded
-					? tenantAlbums?.embeddedVideos?.[tenantAlbums?.embeddedVideos?.length - 1]
-					: tenantAlbums?.embeddedVideos?.[0],
-			}));
+			setInfo((prev) => {
+				// Check if we have a current active album to preserve it
+				const currentActiveAlbumId = prev?.activeAlbumId;
+				const currentActiveAlbum = prev?.activeAlbum;
+
+				// Find the updated version of the current active album in the new data
+				const updatedActiveAlbum = currentActiveAlbumId
+					? tenantAlbums?.albums?.find((album) => album._id === currentActiveAlbumId)
+					: null;
+
+				// Only set to first album if no active album is currently set
+				const newAlbumName =
+					currentActiveAlbumId && updatedActiveAlbum
+						? updatedActiveAlbum.title
+						: tenantAlbums?.albums?.[0]?.title;
+				const newActiveAlbumId =
+					currentActiveAlbumId && updatedActiveAlbum
+						? updatedActiveAlbum._id
+						: tenantAlbums?.albums?.[0]?._id;
+				const newActiveAlbum =
+					currentActiveAlbumId && updatedActiveAlbum
+						? updatedActiveAlbum
+						: tenantAlbums?.albums?.[0];
+				const newAlbumSlug =
+					currentActiveAlbumId && updatedActiveAlbum
+						? updatedActiveAlbum.slug
+						: tenantAlbums?.albums?.[0]?.slug;
+
+				return {
+					...prev,
+					albumName: newAlbumName,
+					activeAlbumId: newActiveAlbumId,
+					activeAlbum: newActiveAlbum,
+					tenantAlbums: tenantAlbums?.albums,
+					albumSlug: newAlbumSlug,
+					isPublished: tenantAlbums?.isPublished,
+					isOnline: tenantAlbums?.isPublished,
+					videosList: tenantAlbums?.embeddedVideos,
+					selectVideo: prev?.videoUploaded
+						? tenantAlbums?.embeddedVideos?.[tenantAlbums?.embeddedVideos?.length - 1]
+						: tenantAlbums?.embeddedVideos?.[0],
+				};
+			});
 		}
 		if (tenantAlbums && galleryId && !info?.selectVideo) {
 			setInfo((prev) => ({
@@ -1256,7 +1286,6 @@ const GalleryPage = () => {
 
 	const handleHideAlbum = async () => {
 		try {
-			// Store current active album details before making any changes
 			const currentAlbumId = info?.activeAlbumId;
 			const currentAlbum = info?.activeAlbum;
 
@@ -1267,7 +1296,6 @@ const GalleryPage = () => {
 			const response = await editAlbumName(payload, galleryId, currentAlbumId);
 
 			if (response?.[0] === true) {
-				// Update state while preserving the active album
 				setInfo((prev) => ({
 					...prev,
 					activeAlbum: {
@@ -1286,7 +1314,6 @@ const GalleryPage = () => {
 					showOptionsContainer: true,
 				}));
 
-				// Refresh data without changing the active album
 				Promise.all([getAlbumImagesCount(galleryId), getAlbums(galleryId)]);
 
 				showMessage('success', 'Album visibility updated successfully');
@@ -1308,7 +1335,6 @@ const GalleryPage = () => {
 	const handleLockAlbum = useCallback(async () => {
 		const newGuestAccessState = !info?.activeAlbum?.guestAccess?.isEnabled;
 
-		// First update state optimistically
 		setInfo((prev) => ({
 			...prev,
 			activeAlbum: {
@@ -1350,13 +1376,11 @@ const GalleryPage = () => {
 				isEnabled: newGuestAccessState,
 			};
 
-			// Wait for the edit operation to complete
 			const response = await editLockAlbum(payload, galleryId, info.activeAlbumId);
 
 			if (response?.[0] === true) {
 				showMessage('success', 'Album access updated successfully');
 			} else {
-				// If the update failed, revert the optimistic update
 				setInfo((prev) => ({
 					...prev,
 					activeAlbum: {
@@ -1366,7 +1390,6 @@ const GalleryPage = () => {
 							isEnabled: !newGuestAccessState,
 						},
 					},
-					// ... similar reversions for tenantAlbums and albumImagesCount
 				}));
 				showMessage('error', 'Failed to update album access', handleLockAlbum);
 			}
@@ -3515,7 +3538,7 @@ const GalleryPage = () => {
 	// };
 
 	// ... existing code ...
-	const handleDownload = async () => {
+	const handleDownload = async (type = null) => {
 		if (
 			validateExpiryData &&
 			validateExpiryData?.restrictGalleries &&
@@ -3596,7 +3619,7 @@ const GalleryPage = () => {
 				// Handle bulk download (more than 10 images)
 				const payload = {
 					image_ids: info?.selectedImages,
-					imageType: 'optimized',
+					imageType: type,
 				};
 				const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
 
@@ -4013,7 +4036,16 @@ const GalleryPage = () => {
 															className="file-filter-option-items"
 														>
 															{option.icon}
-															<span>{option.label}</span>
+															<span
+																style={
+																	option.label ===
+																	'Delete Gallery'
+																		? { color: 'var(--error)' }
+																		: {}
+																}
+															>
+																{option.label}
+															</span>
 														</li>
 													),
 												)}
@@ -5128,7 +5160,7 @@ const GalleryPage = () => {
 																<DeleteIcon />
 																<span
 																	style={{
-																		color: '#A74A49',
+																		color: 'var(--error)',
 																		cursor: 'pointer',
 																	}}
 																>
@@ -6049,7 +6081,10 @@ const GalleryPage = () => {
 																		setInfo((prev) => ({
 																			...prev,
 																			selectedAlbumToMove:
-																				album?._id,
+																				prev.selectedAlbumToMove ===
+																				album?._id
+																					? null
+																					: album?._id,
 																		}))
 																	}
 																	checked={
@@ -6153,9 +6188,26 @@ const GalleryPage = () => {
 										<ExpandIcon />
 									</div>
 								)}
-								<div onClick={handleDownload}>
-									<DownloadIcon />
-								</div>
+								<Tooltip
+									title={
+										<div className="galleryEditOptions">
+											<li onClick={() => handleDownload('original')}>
+												Originals
+											</li>
+											<li onClick={() => handleDownload('optimized')}>
+												Optimized
+											</li>
+										</div>
+									}
+									placement="top"
+									arrow={false}
+									trigger={'click'}
+									color="transparent"
+								>
+									<div>
+										<DownloadIcon />
+									</div>
+								</Tooltip>
 								{info?.activeTab !== 'Collections' && (
 									<div
 										onClick={() =>
@@ -6421,28 +6473,37 @@ const GalleryPage = () => {
 				galleryId={galleryId}
 				setCollaborator={(data) => handleManageCollaborator(data)}
 			/>
-			<DeletePopup
-				open={info?.showDeleteAlbum}
-				closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
-				galleryId={galleryId}
-				isTagDelete={false}
-				title={'Album'}
-				paragraph={'Images'}
-				handleDelete={handleDeleteAlbum}
-			/>
-			<DeletePopup
-				open={info.deleteTagPopup}
-				closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
-				galleryId={galleryId}
-				title={'Delete Tag'}
-				isTagDelete={true}
-				paragraph={'Are you sure you want to delete this tag?'}
-				selectedDropDownValue={info.selectedDropDownValue}
-				handleDeleteTypeChange={handleDeleteTypeChange}
-				handleDelete={() =>
-					handleDeleteTag(info.activeTag._id, info?.activeAlbum?.slug, 'remove_images')
-				}
-			/>
+			{info?.showDeleteAlbum && (
+				<DeletePopup
+					open={info?.showDeleteAlbum}
+					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
+					galleryId={galleryId}
+					isTagDelete={false}
+					title={'Album'}
+					paragraph={'Images'}
+					handleDelete={handleDeleteAlbum}
+					currentTitle={info?.activeAlbum?.title}
+				/>
+			)}
+			{info?.deleteTagPopup && (
+				<DeletePopup
+					open={info.deleteTagPopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
+					galleryId={galleryId}
+					title={'Delete Tag'}
+					isTagDelete={true}
+					paragraph={'Are you sure you want to delete this tag?'}
+					selectedDropDownValue={info.selectedDropDownValue}
+					handleDeleteTypeChange={handleDeleteTypeChange}
+					handleDelete={() =>
+						handleDeleteTag(
+							info.activeTag._id,
+							info?.activeAlbum?.slug,
+							'remove_images',
+						)
+					}
+				/>
+			)}
 			<MainPopup
 				open={info.showMainPopup}
 				heading={
@@ -6547,13 +6608,16 @@ const GalleryPage = () => {
 				gridSpacing={info?.gridSpacing}
 			/>
 
-			<DeletePopup
-				open={info.showDeletePopup}
-				closeModal={() => setInfo((prev) => ({ ...prev, showDeletePopup: false }))}
-				title={'Gallery'}
-				paragraph={'Albums'}
-				handleDelete={handleDeleteGallery}
-			/>
+			{info?.showDeletePopup && (
+				<DeletePopup
+					open={info.showDeletePopup}
+					closeModal={() => setInfo((prev) => ({ ...prev, showDeletePopup: false }))}
+					title={'Gallery'}
+					paragraph={'Albums'}
+					handleDelete={handleDeleteGallery}
+					currentTitle={info?.activeGallery?.title}
+				/>
+			)}
 
 			<ShareAlbum
 				open={info.showShareAlbum}

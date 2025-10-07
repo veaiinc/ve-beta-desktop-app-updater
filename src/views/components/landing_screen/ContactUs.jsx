@@ -134,7 +134,8 @@ const ContactUs = ({ type }) => {
 	return (
 		<div className="contact-form-wrapper">
 			<div className="title-section">
-				<h1>Contact us for {type?.toLowerCase() || ''}</h1>
+				{/* <h1>Contact us for {type?.toLowerCase() || ''}</h1> */}
+				<h1>Contact us for Support</h1>
 				<p>
 					We'd love to hear from you! Need a consultation or just want to say hello? We're
 					here to help. Reach out to us via call, email, or social media, and our team
