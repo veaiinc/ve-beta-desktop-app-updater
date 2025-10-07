@@ -2253,6 +2253,13 @@ export const NotesState = (props) => {
 		});
 	};
 
+	const handleLiveIntelligenceData = async (payload) => {
+		dispatch({
+			type: Actions.HANDLE_LIVE_INTELLIGENCE_DATA,
+			payload: payload,
+		});
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -2324,5 +2331,6 @@ export const NotesState = (props) => {
 		getRevampedPrompt,
 		getAllCalendarEventsForMeetings,
 		updateActiveMeetingDetails,
+		handleLiveIntelligenceData,
 	};
 };

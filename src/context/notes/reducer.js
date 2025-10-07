@@ -536,6 +536,62 @@ const actionHandlers = {
 		...state,
 		activeMeetingDetails: action?.payload,
 	}),
+
+	HANDLE_LIVE_INTELLIGENCE_DATA: (state, action) => {
+		let suggestions = state?.activeMeetingDetails?.liveIntelligenceData?.allThreads;
+		const { suggested_prompt } = action.payload;
+
+		if (suggested_prompt) {
+			if ('reference_id' in suggested_prompt) {
+				const index = suggestions?.findIndex(
+					(s) =>
+						s.prompt_id === suggested_prompt.reference_id ||
+						s.previous_prompt_ids?.includes(suggested_prompt.reference_id),
+				);
+
+				if (index !== -1) {
+					const oldPrompt = suggestions[index];
+
+					// Remove old one
+					suggestions.splice(index, 1);
+
+					// Merge history: carry over previous IDs and add the old prompt_id
+					suggested_prompt.previous_prompt_ids = [
+						...(oldPrompt.previous_prompt_ids || []),
+						oldPrompt.prompt_id,
+					];
+				} else {
+					// If no match found, still initialize previous_prompt_ids
+					suggested_prompt.previous_prompt_ids =
+						suggested_prompt.previous_prompt_ids || [];
+				}
+
+				// Append new one to the bottom
+				suggestions?.push(suggested_prompt);
+			} else {
+				// Old version → always push, ensure previous_prompt_ids exists
+				suggested_prompt.previous_prompt_ids = suggested_prompt.previous_prompt_ids || [];
+				suggestions?.push(suggested_prompt);
+			}
+		}
+
+		return {
+			...state,
+			activeMeetingDetails: {
+				...state?.activeMeetingDetails,
+				liveIntelligenceData: {
+					allThreads: suggestions,
+					askUser: suggestions.filter((s) => s.entity === 'user'),
+					needHelp: suggestions.filter(
+						(s) => s.entity === 'agent' && s.type === 'search',
+					),
+					actions: suggestions.filter((s) => s.entity === 'agent' && s.type === 'action'),
+					files: suggestions.filter((s) => s.entity === 'file'),
+				},
+			},
+		};
+	},
+
 	RESET_STATE: () => intialState,
 };
 

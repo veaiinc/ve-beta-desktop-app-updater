@@ -17,7 +17,7 @@ const {
 	clipboard,
 	dialog,
 	shell,
-    powerSaveBlocker,
+	powerSaveBlocker,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -61,13 +61,13 @@ const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
 // Chromium switches to reduce/disable background throttling and occlusion issues
 try {
-    app.commandLine.appendSwitch('disable-renderer-backgrounding');
-    app.commandLine.appendSwitch('disable-background-timer-throttling');
-    app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
-    // Disable native occlusion calculation which can pause hidden windows on macOS
-    app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+	app.commandLine.appendSwitch('disable-renderer-backgrounding');
+	app.commandLine.appendSwitch('disable-background-timer-throttling');
+	app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+	// Disable native occlusion calculation which can pause hidden windows on macOS
+	app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 } catch (e) {
-    // Non-fatal; continue without switches
+	// Non-fatal; continue without switches
 }
 
 // Import NotchDrop service
@@ -3131,6 +3131,30 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	process.on('swift-ui-trigger-overlay-stop-recording', async () => {
+		try {
+			await handleNotchToMainWindowEvents({ action: 'stopRecording' });
+		} catch (error) {
+			log.error('❌ Error handling Swift UI overlay stop recording request:', error);
+		}
+	});
+
+	process.on('swift-ui-trigger-overlay-pause-recording', async () => {
+		try {
+			await handleNotchToMainWindowEvents({ action: 'pauseRecording' });
+		} catch (error) {
+			log.error('❌ Error handling Swift UI overlay pause recording request:', error);
+		}
+	});
+
+	process.on('swift-ui-trigger-overlay-resume-recording', async () => {
+		try {
+			await handleNotchToMainWindowEvents({ action: 'resumeRecording' });
+		} catch (error) {
+			log.error('❌ Error handling Swift UI overlay resume recording request:', error);
+		}
+	});
+
 	// CRITICAL FIX: Immediate overlay recording request handler
 	process.on('swift-ui-trigger-overlay-recording-immediate', async () => {
 		try {
@@ -3181,7 +3205,7 @@ app.whenReady().then(async () => {
 		}
 	}
 
-	process.on('swift-ui-submit-chat', async (data ={}) => {
+	process.on('swift-ui-submit-chat', async (data = {}) => {
 		// try {
 		// 	// if (!windowHelper) {
 		// 	// 	log.error('windowHelper not available for AskAI forwarding');
@@ -3224,7 +3248,7 @@ app.whenReady().then(async () => {
 		// 		// Normal mode - show and focus the window
 		// 		mainWindow.show();
 		// 		mainWindow.focus();
-			
+
 		// 	mainWindow.webContents.send('navigate-to', {path:"/chats"});
 		// } catch (error) {
 		// 	log.error('❌ Error forwarding Swift UI chat to AskAI:', error);
@@ -3259,15 +3283,14 @@ app.whenReady().then(async () => {
 				await new Promise((resolve) => {
 					if (mainWindow && !mainWindow.isDestroyed()) {
 						mainWindow.once('ready-to-show', () => {
-
-								// Normal mode - show and focus the window
-								mainWindow.show();
-								mainWindow.focus();
-								mainWindow.webContents.send('navigate-to', data);
-								log.info(
-									'Main window recreated and shown successfully with state restoration and navigated to:',
-									data?.path,
-								);
+							// Normal mode - show and focus the window
+							mainWindow.show();
+							mainWindow.focus();
+							mainWindow.webContents.send('navigate-to', data);
+							log.info(
+								'Main window recreated and shown successfully with state restoration and navigated to:',
+								data?.path,
+							);
 
 							resolve();
 						});
@@ -3321,7 +3344,9 @@ app.whenReady().then(async () => {
 
 							if (dockHidden) {
 								// In background mode, just navigate without showing/focusing the window
-								mainWindow.webContents.send('notchdrop-to-main-window-event', {path:data?.path});
+								mainWindow.webContents.send('notchdrop-to-main-window-event', {
+									path: data?.path,
+								});
 								log.info(
 									'Main window recreated in background mode and navigated to:',
 									data?.path,
@@ -3330,7 +3355,9 @@ app.whenReady().then(async () => {
 								// Normal mode - show and focus the window
 								mainWindow.show();
 								mainWindow.focus();
-								mainWindow.webContents.send('notchdrop-to-main-window-event', {path:data?.path});
+								mainWindow.webContents.send('notchdrop-to-main-window-event', {
+									path: data?.path,
+								});
 								log.info(
 									'Main window recreated and shown successfully with state restoration and navigated to:',
 									data?.path,
@@ -3614,7 +3641,7 @@ app.whenReady().then(async () => {
 
 							if (dockHidden) {
 								// In background mode, just navigate without showing/focusing the window
-								mainWindow.webContents.send('navigate-to', {path:data?.path});
+								mainWindow.webContents.send('navigate-to', { path: data?.path });
 								log.info(
 									'Main window recreated in background mode and navigated to:',
 									data?.path,
@@ -3623,7 +3650,7 @@ app.whenReady().then(async () => {
 								// Normal mode - show and focus the window
 								mainWindow.show();
 								mainWindow.focus();
-								mainWindow.webContents.send('navigate-to', {path:data?.path});
+								mainWindow.webContents.send('navigate-to', { path: data?.path });
 								log.info(
 									'Main window recreated and shown successfully with state restoration and navigated to:',
 									data?.path,
@@ -4683,14 +4710,17 @@ app.whenReady().then(async () => {
 		// this one is being used for stop recording
 		try {
 			const overlayWindow = windowHelper?.getOverlayWindow();
-			if (overlayWindow) {
-				overlayWindow.webContents.send('overlay-command', {
-					action: 'stopRecording',
-				});
-				// log.info('Sent stopRecording command to overlay window from NotchDrop');
-			} else {
-				log.warn('Overlay window not available for stopRecording');
-			}
+			console.log('notchdrop:triggerOverlayStopRecording');
+
+			handleNotchToMainWindowEvents({ action: 'stopRecording' });
+			// if (overlayWindow) {
+			// 	overlayWindow.webContents.send('overlay-command', {
+			// 		action: 'stopRecording',
+			// 	});
+			// 	// log.info('Sent stopRecording command to overlay window from NotchDrop');
+			// } else {
+			// 	log.warn('Overlay window not available for stopRecording');
+			// }
 			return { success: true };
 		} catch (error) {
 			log.error('Error handling NotchDrop overlay stop recording:', error);
@@ -4815,6 +4845,7 @@ app.whenReady().then(async () => {
 	ipcMain.handle('overlay-stop-recording', async () => {
 		try {
 			const overlayWindow = windowHelper?.getOverlayWindow();
+			console.log('overlay-stop-recording');
 			if (overlayWindow) {
 				if (overlayWindow.isVisible()) {
 					overlayWindow.hide();

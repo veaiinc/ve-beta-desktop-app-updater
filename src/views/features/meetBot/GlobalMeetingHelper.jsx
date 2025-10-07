@@ -25,7 +25,6 @@ const GlobalMeetingHelper = () => {
 
 	const [info, setInfo] = useState({
 		isMeetIsOngoing: false,
-		transcriptions: [],
 		isPaused: false,
 		meetingData: null,
 		liveIntelligenceData: {
@@ -46,6 +45,9 @@ const GlobalMeetingHelper = () => {
 	const isStoppingRef = useRef(false);
 	const meetingIdRef = useRef(null);
 
+	// Local transcription ref for accessing latest values in event listeners
+	const localTranscriptionsRef = useRef([]);
+
 	// Context
 	const {
 		notes: {
@@ -54,6 +56,7 @@ const GlobalMeetingHelper = () => {
 			createMeetBot,
 			activeMeetingDetails,
 			updateActiveMeetingDetails,
+			handleLiveIntelligenceData,
 		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 		templates: {
@@ -67,49 +70,63 @@ const GlobalMeetingHelper = () => {
 		console.log('activeMeetingDetails', activeMeetingDetails);
 	}, [activeMeetingDetails]);
 
-	const updateTranscriptionHelper = (transcriptionArray, newTranscript) => {
-		const { source } = newTranscript;
+	// Keep local transcription ref in sync with context state
+	useEffect(() => {
+		if (activeMeetingDetails?.transcriptions) {
+			localTranscriptionsRef.current = activeMeetingDetails.transcriptions;
+		}
+	}, [activeMeetingDetails?.transcriptions]);
 
-		if (transcriptionArray.length > 0) {
+	const updateTranscriptionHelper = (newTranscript) => {
+		const { source } = newTranscript;
+		const currentTranscriptions = localTranscriptionsRef.current;
+
+		if (currentTranscriptions.length > 0) {
 			// Find the most recent transcript from the same source
-			for (let i = transcriptionArray.length - 1; i >= 0; i--) {
-				if (transcriptionArray[i].source === source) {
-					const oldTranscript = transcriptionArray[i];
+			for (let i = currentTranscriptions.length - 1; i >= 0; i--) {
+				if (currentTranscriptions[i].source === source) {
+					const oldTranscript = currentTranscriptions[i];
 
 					// Logic based on the state of the previous transcript:
 					// - Final AND formatted → Append new transcript (start new entry)
 					// - Final but NOT formatted → Replace with new transcript
 					// - Not final → Replace with new transcript
 					if (oldTranscript.isFinal && oldTranscript.isTurnFormatted) {
+						const updatedTranscriptions = [...currentTranscriptions, newTranscript];
+						localTranscriptionsRef.current = updatedTranscriptions;
 						updateActiveMeetingDetails({
-							transcriptions: [...transcriptionArray, newTranscript],
+							transcriptions: updatedTranscriptions,
 						});
-						return [...transcriptionArray, newTranscript];
+						return updatedTranscriptions;
 					} else {
 						// Replace existing transcript (whether final-unformatted or not-final)
-						const updatedArray = [...transcriptionArray];
-						updatedArray[i] = newTranscript;
+						const updatedTranscriptions = [...currentTranscriptions];
+						updatedTranscriptions[i] = newTranscript;
+						localTranscriptionsRef.current = updatedTranscriptions;
 						updateActiveMeetingDetails({
-							transcriptions: updatedArray,
+							transcriptions: updatedTranscriptions,
 						});
-						return updatedArray;
+						return updatedTranscriptions;
 					}
 				}
 			}
 		}
 
 		// If no match found or array is empty, append the new transcript
+		const updatedTranscriptions = [...currentTranscriptions, newTranscript];
+		localTranscriptionsRef.current = updatedTranscriptions;
 		updateActiveMeetingDetails({
-			transcriptions: [...transcriptionArray, newTranscript],
+			transcriptions: updatedTranscriptions,
 		});
-		return [...transcriptionArray, newTranscript];
+		return updatedTranscriptions;
 	};
 
-	const handleUpdateTranscription = (newTranscript) => {
-		setInfo((prev) => ({
-			...prev,
-			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
-		}));
+	const updateLiveIntelligenceDataHelper = (liveIntelligenceData) => {
+		const { suggested_prompt } = liveIntelligenceData;
+		if (!suggested_prompt) {
+			return;
+		}
+		handleLiveIntelligenceData({ suggested_prompt });
 	};
 
 	// Utility Functions
@@ -141,8 +158,8 @@ const GlobalMeetingHelper = () => {
 		// formatTime,
 		startRecording,
 	} = useAssemblyTranscription({
-		onTranscriptionUpdate: handleUpdateTranscription,
-		onLiveIntelligenceResponse: handleTranscriptionSuggestions,
+		onTranscriptionUpdate: updateTranscriptionHelper,
+		onLiveIntelligenceResponse: updateLiveIntelligenceDataHelper,
 		notification,
 	});
 
@@ -206,6 +223,18 @@ const GlobalMeetingHelper = () => {
 				payload: meetingData._id,
 			});
 
+			updateActiveMeetingDetails({
+				meetingId: meetingData._id,
+				transcriptions: [],
+				liveIntelligenceData: {
+					askUser: [],
+					needHelp: [],
+					actions: [],
+					files: [],
+					allThreads: [],
+				},
+			});
+
 			meetingIdRef.current = meetingData._id;
 
 			setInfo((prev) => ({
@@ -224,11 +253,14 @@ const GlobalMeetingHelper = () => {
 
 			updateStateValues({ aiTranscriptionSuggestions: null });
 
+			// Reset local transcription ref and context
+			localTranscriptionsRef.current = [];
+			updateActiveMeetingDetails({ transcriptions: [] });
+
 			setInfo((prev) => ({
 				...prev,
 				isMeetIsOngoing: true,
 				meetingData: meetingData,
-				transcriptions: [],
 				liveIntelligenceData: {
 					askUser: [],
 					needHelp: [],
@@ -298,11 +330,14 @@ const GlobalMeetingHelper = () => {
 			console.error('GlobalMeetingHelper: Error stopping audio recording:', error);
 		}
 
+		// Reset local transcription ref and context
+		localTranscriptionsRef.current = [];
+		updateActiveMeetingDetails({ transcriptions: [] });
+
 		setInfo((prev) => ({
 			...prev,
 			isMeetIsOngoing: false,
 			meetingData: null,
-			transcriptions: [],
 			liveIntelligenceData: {
 				askUser: [],
 				needHelp: [],
@@ -407,7 +442,7 @@ const GlobalMeetingHelper = () => {
 			isPaused: isMuted,
 			timer,
 			isLiveIntelligenceOpen: activePanel === 'live-intelligence',
-			transcriptionsCount: info?.transcriptions?.length,
+			transcriptionsCount: localTranscriptionsRef.current?.length || 0,
 			showShortcutBar,
 			controlledByDynamicIsland: isDynamicIslandControlled,
 			isDynamicIslandControlled,
@@ -436,6 +471,7 @@ const GlobalMeetingHelper = () => {
 		const handleOverlayCommand = (event) => {
 			console.log('🏝️ Dynamic Island Command Received:', event);
 			const { action, data } = event;
+			console.log('action', action);
 
 			// Mark as Dynamic Island controlled and hide ShortcutBar permanently
 			setIsDynamicIslandControlled(true);
@@ -530,7 +566,7 @@ const GlobalMeetingHelper = () => {
 		isMuted,
 		timer,
 		activePanel,
-		info?.transcriptions?.length,
+		localTranscriptionsRef.current?.length || 0,
 		showShortcutBar,
 		isDynamicIslandControlled,
 		isConnected,
