@@ -96,7 +96,7 @@ private struct ColorButton: View {
     let image: Image
     let title: LocalizedStringKey
 
-    @State var hover: Bool = false
+    // Hover scaling removed to keep icon size fixed
 
     var body: some View {
         Color.white
@@ -124,9 +124,6 @@ private struct ColorButton: View {
                         .font(.system(.headline, design: .rounded))
                     }
                     .contentShape(Rectangle())
-                    .scaleEffect(hover ? 1.05 : 1)
-                    .animation(.spring, value: hover)
-                    .onHover { hover = $0 }
             )
             .aspectRatio(1, contentMode: .fit)
             .contentShape(Rectangle())

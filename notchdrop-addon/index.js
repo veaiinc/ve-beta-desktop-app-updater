@@ -2,8 +2,7 @@
 if (process.platform !== 'darwin') {
 	// Export a mock wrapper for non-macOS platforms
 	class MockNotchDropAddonWrapper {
-		constructor() {
-		}
+		constructor() {}
 
 		initialize() {
 			return false;
@@ -104,6 +103,17 @@ if (process.platform !== 'darwin') {
 			return { x: 0, y: 0, width: 0, height: 0 };
 		}
 		onOverlayStateChange() {
+			return false;
+		}
+
+		// Mock voice and transcription methods
+		addVoiceMessage() {
+			return false;
+		}
+		addTranscriptionData() {
+			return false;
+		}
+		sendLiveIntelligenceData() {
 			return false;
 		}
 
@@ -1138,7 +1148,7 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 	}
 
-	// Add voice message from JavaScript
+	// LEGACY: Add voice message from JavaScript (preserved for audio functionality)
 	addVoiceMessage(messageData) {
 		if (!this.isInitialized) {
 			throw new Error('NotchDrop not initialized');
@@ -1155,6 +1165,137 @@ class NotchDropAddonWrapper extends EventEmitter {
 			);
 		} catch (error) {
 			console.error('❌ Error adding voice message:', error);
+			throw error;
+		}
+	}
+
+	// Add transcription data to NotchDrop (following voice message pattern)
+	addTranscriptionData(messageData) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// // console.log('📝 JavaScript Wrapper: Received transcription data:', {
+			// 	sender: messageData.sender,
+			// 	content: messageData.content?.substring(0, 50),
+			// 	isFromAgent: messageData.isFromAgent,
+			// 	type: messageData.type,
+			// 	hasConfidence: !!messageData.confidence,
+			// 	hasWords: !!messageData.words,
+			// });
+
+			// Convert messageData to JSON string for native layer
+			const messageJson = JSON.stringify(messageData);
+			// console.log('📝 JavaScript Wrapper: Sending JSON to native layer:', messageJson);
+
+			this.addon.addTranscriptionData(messageJson);
+			// console.log(
+			// 	`📝 Transcription data added: ${
+			// 		messageData.sender
+			// 	}: ${messageData.content?.substring(0, 30)}...`,
+			// );
+		} catch (error) {
+			console.error('❌ Error adding transcription data:', error);
+			throw error;
+		}
+	}
+
+	// Send live intelligence data to NotchDrop
+	sendLiveIntelligenceData(messageData) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// console.log('🧠 JavaScript Wrapper: Received live intelligence data:', {
+			// 	sender: messageData.sender,
+			// 	content: messageData.content?.substring(0, 50),
+			// 	isFromAgent: messageData.isFromAgent,
+			// 	type: messageData.type,
+			// 	hasConfidence: !!messageData.confidence,
+			// 	hasMetadata: !!messageData.metadata,
+			// });
+
+			// Convert messageData to JSON string for native layer
+			const messageJson = JSON.stringify(messageData);
+			// console.log('🧠 JavaScript Wrapper: Sending JSON to native layer:', messageJson);
+
+			this.addon.sendLiveIntelligenceData(messageJson);
+			// console.log(
+			// 	`🧠 Live intelligence data added: ${
+			// 		messageData.sender
+			// 	}: ${messageData.content?.substring(0, 30)}...`,
+			// );
+		} catch (error) {
+			console.error('❌ Error sending live intelligence data:', error);
+			throw error;
+		}
+	}
+
+	// Replace entire transcription list in Swift UI
+	replaceTranscriptions(messages) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			const messageArray = Array.isArray(messages) ? messages : [];
+			const json = JSON.stringify(messageArray);
+			if (this.addon.replaceTranscriptions) {
+				this.addon.replaceTranscriptions(json);
+				// console.log(
+				// 	`📝 Replaced transcriptions array in Swift UI (count=${messageArray.length})`,
+				// );
+			} else {
+				console.warn('⚠️ replaceTranscriptions not available on native addon');
+			}
+		} catch (error) {
+			console.error('❌ Error replacing transcriptions:', error);
+			throw error;
+		}
+	}
+
+	// Set which panel to show during recording: 'transcription' or 'live-intel'
+	setRecordingPanelMode(mode) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			const normalized = typeof mode === 'string' ? mode : 'transcription';
+			if (this.addon.setRecordingPanelMode) {
+				this.addon.setRecordingPanelMode(normalized);
+				// console.log(`🧭 Set recording panel mode to ${normalized}`);
+			} else {
+				console.warn('⚠️ setRecordingPanelMode not available on native addon');
+			}
+		} catch (error) {
+			console.error('❌ Error setting panel mode:', error);
+			throw error;
+		}
+	}
+
+	// GENERAL PURPOSE MESSAGE SYSTEM
+	sendGeneralMessage(messageJson) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// Try to use dedicated general message method if available
+			if (this.addon.sendGeneralMessage) {
+				this.addon.sendGeneralMessage(messageJson);
+				console.log('📤 General message sent to NotchDrop');
+			} else {
+				// Fallback to voice message system for backward compatibility
+				console.log('📝 Fallback: Using voice message system for general data');
+				const messageData = JSON.parse(messageJson);
+				this.addon.addVoiceMessage(
+					JSON.stringify({
+						sender: messageData.sender || 'System',
+						content: messageData.content || JSON.stringify(messageData),
+						isFromAgent: messageData.isFromAgent || false,
+					}),
+				);
+			}
+		} catch (error) {
+			console.error('❌ Error sending general message:', error);
 			throw error;
 		}
 	}

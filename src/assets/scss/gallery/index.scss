@@ -2650,16 +2650,16 @@
 		.custom-checkbox-style {
 			.ant-checkbox-inner {
 				background-color: transparent;
-				border: 1px solid var(--stroke);
+				border: 1px solid var(--primary-font);
 
 				&:hover {
-					border-color: var(--stroke);
+					border-color: var(--primary-font);
 				}
 			}
 
 			// Remove blue outline or border on focus
 			.ant-checkbox-input:focus + .ant-checkbox-inner {
-				border-color: var(--stroke);
+				border-color: var(--primary-font);
 				box-shadow: none;
 				outline: none;
 			}
