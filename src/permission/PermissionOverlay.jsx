@@ -857,7 +857,7 @@ const PermissionOverlay = () => {
 						<div className="success-message">
 							<CheckCircle stroke="#79ECC9" size={20} />
 							<p className="success-text">
-								Essential permissions granted! Ready to proceed.
+							Essential  permissions granted (Mic, Cam, Calendar)! Ready to proceed.
 							</p>
 						</div>
 					)}
@@ -980,7 +980,7 @@ const PermissionOverlay = () => {
 							</div>
 						</div>
 							{/* Calendar Permission */}
-							<div className="permission-item">
+						<div className="permission-item">
 							<div className="permission-info">
 								<div className="permission-icon">
 									<Calendar size={20} />
