@@ -2407,35 +2407,65 @@ async function checkAllPermissions() {
 			microphone: false,
 			screen: false,
 			camera: false,
+			calendar: false,
+			media: false,
 			allGranted: false,
 		};
 
-		// Check microphone permission
-		if (isMacRuntime) {
+		// Check all permissions using electron-mac-permissions
+		if (isMacRuntime && permissions) {
+			// Use electron-mac-permissions for accurate permission status
+			const micStatus = permissions.getAuthStatus('microphone');
+			results.microphone = micStatus === 'authorized';
+
+			const screenStatus = permissions.getAuthStatus('screen');
+			results.screen = screenStatus === 'authorized';
+
+			const cameraStatus = permissions.getAuthStatus('camera');
+			results.camera = cameraStatus === 'authorized';
+
+			const calendarStatus = permissions.getAuthStatus('calendar');
+			results.calendar = calendarStatus === 'authorized';
+
+			const mediaStatus = permissions.getAuthStatus('media');
+			results.media = mediaStatus === 'authorized';
+		} else if (isMacRuntime) {
+			// Fallback to systemPreferences if electron-mac-permissions not available
 			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
 			results.microphone = micStatus === 'granted';
 
-			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
-			results.screen = screenStatus === 'granted';
-
 			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 			results.camera = cameraStatus === 'granted';
+
+			// Note: screen, calendar, and media not available via systemPreferences
+			results.screen = false;
+			results.calendar = false;
+			results.media = false;
 		} else {
 			// On non-macOS platforms, assume permissions are handled by system
 			results.microphone = true;
 			results.screen = true;
 			results.camera = true;
+			results.calendar = true;
+			results.media = true;
 		}
 
-		// All permissions must be granted (for macOS) or we're on non-macOS
-		results.allGranted = results.microphone && results.camera;
-		// Note: screen is optional for now, only require mic and screen
+		// All core permissions must be granted (for macOS) or we're on non-macOS
+		// Core permissions: microphone, camera, calendar (screen, media are optional)
+		results.allGranted = results.microphone && results.camera && results.calendar;
 
 		log.info('🔍 Permission check results:', results);
 		return results;
 	} catch (error) {
 		log.error('❌ Error checking all permissions:', error);
-		return { allGranted: false, microphone: false, screen: false, camera: false };
+		return { 
+			allGranted: false, 
+			microphone: false, 
+			screen: false, 
+			camera: false,
+			calendar: false,
+			media: false
+		};
 	}
 }
 
