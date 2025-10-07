@@ -61,7 +61,7 @@
 	bottom: 70px;
 	left: 0;
 	right: 0;
-	padding: 0 20px;
+	padding: 50px;
 	z-index: 3;
 }
 
@@ -83,12 +83,13 @@
 	font-style: normal;
 	font-weight: 400;
 	line-height: 24px; /* 120% */
+	padding-top: 18px;
 }
 
 .carousel-controls {
 	position: absolute;
-	bottom: 20px;
-	left: 20px;
+	bottom: 50px;
+	left: 50px;
 	z-index: 3;
 }
 

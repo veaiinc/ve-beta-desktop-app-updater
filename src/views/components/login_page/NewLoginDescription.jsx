@@ -53,7 +53,17 @@ const NewLoginDescription = () => {
 							{newLoginDescription[activeIndex].subTitle}
 						</h2>
 						<p className="carousel-description">
-							{newLoginDescription[activeIndex].description}
+							{newLoginDescription[activeIndex].description
+								.split('\n')
+								.map((line, index) => (
+									<React.Fragment key={index}>
+										{line}
+										{index <
+											newLoginDescription[activeIndex].description.split('\n')
+												.length -
+												1 && <br />}
+									</React.Fragment>
+								))}
 						</p>
 					</div>
 				</div>
