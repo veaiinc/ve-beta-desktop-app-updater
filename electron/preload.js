@@ -182,6 +182,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		showWindow: () => ipcRenderer.invoke('show-askAI-window'),
 		isWindowVisible: () => ipcRenderer.invoke('is-askAI-window-visible'),
 		updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
+		// Drag/move helpers
+		getPosition: () => ipcRenderer.invoke('askAI-get-position'),
+		moveTo: (x, y) => ipcRenderer.invoke('askAI-move-to', { x, y }),
 		setIgnoreMouseEvents: (ignore) =>
 			ipcRenderer.invoke('set-askAI-ignore-mouse-events', ignore),
 		setInputFocus: (isFocused) => ipcRenderer.invoke('set-askAI-input-focus', isFocused),
@@ -334,9 +337,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// Wake word APIs
 	// wakeWord: {
-	// 	start: () => ipcRenderer.invoke('wake-word-start'),
-	// 	stop: () => ipcRenderer.invoke('wake-word-stop'),
-	// 	getStatus: () => ipcRenderer.invoke('wake-word-status'),
+	//  start: () => ipcRenderer.invoke('wake-word-start'),
+	//  stop: () => ipcRenderer.invoke('wake-word-stop'),
+	//  getStatus: () => ipcRenderer.invoke('wake-word-status'),
 	// },
 
 	// Clipboard APIs
