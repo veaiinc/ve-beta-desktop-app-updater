@@ -52,7 +52,7 @@ const Notifications = ({ onClose }) => {
 	};
 
 	return (
-		<div className={s.notificationsContainer}>
+		<div className={`${s.notificationsContainer} notificationsContainer`}>
 			<header className={s.notificationsHeader}>
 				{/* Mobile-only back button */}
 				<button className={s.mobileIconButton} aria-label="Back" onClick={handleClose}>
