@@ -201,329 +201,45 @@
 
 		<div id="root"></div>
 
-		<!-- Enhanced Translucency System -->
+		<!-- Simplified Glass Mode System -->
 		<script>
-			// Enhanced translucency configurations
-			const TRANSLUCENCY_CONFIGS = {
-				light: {
-					// background: 'rgba(255, 255, 255, 0.08)',
-					blur: 'blur(15px) saturate(120%)',
-					// border: '1px solid rgba(255, 255, 255, 0.1)',
-					// shadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
-					// radius: '12px',
-				},
-				medium: {
-					// background: 'rgba(255, 255, 255, 0.12)',
-					blur: 'blur(20px) saturate(180%)',
-					// border: '1px solid rgba(255, 255, 255, 0.15)',
-					// shadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-					// radius: '16px',
-				},
-				strong: {
-					// background: 'rgba(255, 255, 255, 0.18)',
-					blur: 'blur(25px) saturate(200%)',
-					// border: '1px solid rgba(255, 255, 255, 0.2)',
-					// shadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
-					// radius: '20px',
-				},
-				dark: {
-					// background: 'rgba(0, 0, 0, 0.3)',
-					blur: 'blur(20px) saturate(180%)',
-					// border: '1px solid rgba(255, 255, 255, 0.1)',
-					// shadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-					// radius: '16px',
-				},
-			};
+			// Simple glass mode initialization - CSS handles the rest
+			function initializeGlassMode() {
+				// Ensure main elements are transparent when glass mode is enabled
+				const ensureTransparency = () => {
+					const isGlassModeEnabled =
+						localStorage.getItem('glassModeEnabled') === 'true' ||
+						document.documentElement.classList.contains('glass-mode-enabled');
 
-			// Enhanced div targeting selectors
-			const TARGET_SELECTORS = [
-				'.glass-effect',
-				'.translucent',
-				'.app-content',
-				'.glass-effect-main',
-				'.glass-container',
-				'.glass-panel',
-				'.glass-card',
-				'.content-panel',
-				'.sidebar',
-				'.card',
-				'.panel',
-				'.translucency-helper',
-			];
-
-			// Exclusion selectors (elements to skip)
-			const EXCLUDE_SELECTORS = [
-				'.no-translucency',
-				'.text-content',
-				'.transparent',
-				'.ReactModalPortal', // Exclude React Modal Portal elements
-				'p',
-				'h1',
-				'h2',
-				'h3',
-				'h4',
-				'h5',
-				'h6',
-				'span',
-				'a',
-				'button',
-				'input',
-				'textarea',
-				'select',
-			];
-
-			// Check if translucency is supported
-			function isTranslucencySupported() {
-				return (
-					CSS.supports('backdrop-filter', 'blur(10px)') ||
-					CSS.supports('-webkit-backdrop-filter', 'blur(10px)')
-				);
-			}
-
-			// Apply translucency to an element
-			function applyTranslucencyToElement(element, level = 'medium', options = {}) {
-				if (!element || !isTranslucencySupported()) return;
-
-				const config = TRANSLUCENCY_CONFIGS[level] || TRANSLUCENCY_CONFIGS.medium;
-				const { includeBorder = true, includeShadow = true } = options;
-
-				// Check if element should be excluded
-				const shouldExclude = EXCLUDE_SELECTORS.some((selector) => {
-					if (element.matches) {
-						return element.matches(selector);
+					if (isGlassModeEnabled) {
+						const mainElements = ['html', 'body', '#root'];
+						mainElements.forEach((selector) => {
+							const element = document.querySelector(selector);
+							if (element) {
+								element.style.background = 'transparent';
+								element.style.backgroundColor = 'transparent';
+							}
+						});
 					}
-					return (
-						element.classList && element.classList.contains(selector.replace('.', ''))
-					);
-				});
-
-				if (shouldExclude) return;
-
-				// Apply translucency styles
-				// element.style.background = config.background;
-				element.style.backdropFilter = config.blur;
-				element.style.webkitBackdropFilter = config.blur;
-				element.style.borderRadius = config.radius;
-
-				// if (includeBorder) {
-				// 	element.style.border = config.border;
-				// }
-
-				if (includeShadow) {
-					element.style.boxShadow = config.shadow;
-				}
-
-				// Performance optimizations
-				element.style.willChange = 'backdrop-filter, transform';
-				element.style.transform = 'translateZ(0)';
-				element.style.isolation = 'isolate';
-
-				// Add tracking attributes
-				element.setAttribute('data-translucency-level', level);
-				element.setAttribute('data-translucency-applied', 'true');
-			}
-
-			// Enhanced transparency setup
-			function ensureTransparency() {
-				const mainElements = ['html', 'body', '#root', '.App'];
-				mainElements.forEach((selector) => {
-					const element = document.querySelector(selector);
-					if (element) {
-						element.style.background = 'transparent';
-						element.style.backgroundColor = 'transparent';
-					}
-				});
-			}
-
-			// Apply translucency to all target elements
-			function applyTranslucencyToDivs(level = 'medium') {
-				if (!isTranslucencySupported()) {
-					console.warn('Translucency not supported in this browser');
-					return;
-				}
-
-				TARGET_SELECTORS.forEach((selector) => {
-					const elements = document.querySelectorAll(selector);
-					elements.forEach((element) => {
-						if (!element.getAttribute('data-translucency-applied')) {
-							applyTranslucencyToElement(element, level);
-						}
-					});
-				});
-			}
-
-			// Enhanced mutation observer for dynamic content
-			function setupDynamicTranslucency() {
-				const observer = new MutationObserver((mutations) => {
-					mutations.forEach((mutation) => {
-						if (mutation.type === 'childList') {
-							mutation.addedNodes.forEach((node) => {
-								if (node.nodeType === Node.ELEMENT_NODE) {
-									// Check if node matches any target selector
-									TARGET_SELECTORS.forEach((selector) => {
-										if (node.matches && node.matches(selector)) {
-											if (!node.getAttribute('data-translucency-applied')) {
-												applyTranslucencyToElement(node, 'medium');
-											}
-										}
-									});
-
-									// Check children of the node
-									TARGET_SELECTORS.forEach((selector) => {
-										const children = node.querySelectorAll
-											? node.querySelectorAll(selector)
-											: [];
-										children.forEach((child) => {
-											if (!child.getAttribute('data-translucency-applied')) {
-												applyTranslucencyToElement(child, 'medium');
-											}
-										});
-									});
-								}
-							});
-						}
-					});
-				});
-
-				observer.observe(document.body, {
-					childList: true,
-					subtree: true,
-				});
-
-				return observer;
-			}
-
-			// Performance monitoring
-			function getTranslucencyPerformance() {
-				const translucentElements = document.querySelectorAll(
-					'[data-translucency-applied="true"]',
-				);
-				return {
-					totalElements: translucentElements.length,
-					supported: isTranslucencySupported(),
-					levels: Array.from(translucentElements).reduce((acc, el) => {
-						const level = el.getAttribute('data-translucency-level');
-						acc[level] = (acc[level] || 0) + 1;
-						return acc;
-					}, {}),
 				};
-			}
 
-			// Universal div blur system
-			function applyUniversalDivBlur(enabled) {
-				const allDivs = document.querySelectorAll('div');
-				const excludeSelectors = [
-					'.no-blur',
-					'.text-content',
-					'.transparent',
-					'.ReactModalPortal', // Exclude React Modal Portal elements
-					'p',
-					'h1',
-					'h2',
-					'h3',
-					'h4',
-					'h5',
-					'h6',
-					'span',
-					'a',
-					'button',
-					'input',
-					'textarea',
-					'select',
-				];
-
-				allDivs.forEach((div) => {
-					// Check if div should be excluded
-					const shouldExclude = excludeSelectors.some((selector) => {
-						if (div.matches && div.matches(selector)) {
-							return true;
-						}
-						if (div.classList && div.classList.contains(selector.replace('.', ''))) {
-							return true;
-						}
-						return false;
-					});
-
-					if (shouldExclude) return;
-
-					// Apply or remove blur
-					if (enabled) {
-						div.style.backdropFilter = 'blur(20px)';
-						div.style.webkitBackdropFilter = 'blur(20px)';
-						div.setAttribute('data-universal-blur', 'true');
-					} else {
-						div.style.backdropFilter = '';
-						div.style.webkitBackdropFilter = '';
-						div.removeAttribute('data-universal-blur');
-					}
-				});
-			}
-
-			// Check glass mode state and apply universal blur
-			function checkGlassModeAndApplyBlur() {
-				// Check if glass mode is enabled (from localStorage or class)
-				const isGlassModeEnabled =
-					localStorage.getItem('glassModeEnabled') === 'true' ||
-					document.documentElement.classList.contains('glass-mode-enabled') ||
-					document.body.classList.contains('glass-mode-enabled');
-
-				applyUniversalDivBlur(isGlassModeEnabled);
-			}
-
-			// Initialize translucency system
-			function initializeTranslucencySystem() {
-				// Ensure main elements are transparent
+				// Apply transparency on load
 				ensureTransparency();
 
-				// Apply translucency to existing elements
-				applyTranslucencyToDivs('medium');
-
-				// Set up dynamic translucency for new elements
-				const observer = setupDynamicTranslucency();
-
-				// Apply universal blur based on glass mode state
-				checkGlassModeAndApplyBlur();
-
-				// Monitor for glass mode changes
-				const glassModeObserver = new MutationObserver(() => {
-					checkGlassModeAndApplyBlur();
+				// Monitor for glass mode class changes
+				const observer = new MutationObserver(() => {
+					ensureTransparency();
 				});
 
-				glassModeObserver.observe(document.documentElement, {
+				observer.observe(document.documentElement, {
 					attributes: true,
 					attributeFilter: ['class'],
 				});
-
-				glassModeObserver.observe(document.body, {
-					attributes: true,
-					attributeFilter: ['class'],
-				});
-
-				// Expose functions globally for debugging
-				window.translucencySystem = {
-					applyToDivs: applyTranslucencyToDivs,
-					performance: getTranslucencyPerformance,
-					observer: observer,
-					applyUniversalBlur: applyUniversalDivBlur,
-					checkGlassMode: checkGlassModeAndApplyBlur,
-				};
-
-				console.log('Enhanced translucency system with universal blur initialized');
+				console.log('Simplified glass mode system initialized');
 			}
 
 			// Initialize when DOM is ready
-			document.addEventListener('DOMContentLoaded', initializeTranslucencySystem);
-
-			// Re-apply on window resize for performance
-			let resizeTimeout;
-			window.addEventListener('resize', () => {
-				clearTimeout(resizeTimeout);
-				resizeTimeout = setTimeout(() => {
-					if (window.translucencySystem) {
-						window.translucencySystem.applyToDivs('medium');
-					}
-				}, 100);
-			});
+			document.addEventListener('DOMContentLoaded', initializeGlassMode);
 		</script>
 
 		<!-- Main bundle -->

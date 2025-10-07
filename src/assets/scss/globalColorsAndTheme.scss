@@ -15,11 +15,9 @@
 	--pending: rgb(255, 163, 47); /* #ffa32f */
 	--info: rgb(80, 137, 249); /* #5089f9 */
 
-	/* main colors - Enhanced for translucency */
+	/* main colors - Simplified for glass mode */
 	--background-color: #121212;
 	--chat-background-color: #19191a;
-	--translucency-bg: rgba(18, 18, 18, 0.2);
-	--translucency-blur: blur(20px) saturate(180%);
 
 	/* Beautiful glass morphism for components */
 	--card: rgba(18, 18, 18, 0.12);
@@ -108,11 +106,9 @@
 
 /* light theme global css variables */
 [theme='light'] {
-	/* main colors - Enhanced for translucency */
+	/* main colors - Simplified for glass mode */
 	--background-color: #ffffff; /* #fafafa */
 	--chat-background-color: #f4f5f5;
-	--translucency-bg: rgba(255, 255, 255, 0.8);
-	--translucency-blur: blur(20px) saturate(180%);
 
 	/* common colors */
 	--info: #5089f9; /* #5089f9 */
@@ -180,4 +176,123 @@
 	--primary-dark: #79ecc9;
 	--primary-dark-text: #123b35;
 	--primary-opacity: rgba(52, 160, 144, 0.1);
+}
+
+/* Glass Mode Styles - Advanced Data-Driven Approach */
+.glass-mode-enabled {
+	/* SCSS Data Structures for Glass Mode */
+	$glass-variables: (
+		'--background-color': transparent,
+		'--popup': rgba(255, 255, 255, 0.1),
+		'--card': rgba(255, 255, 255, 0.1),
+		'--card-over-card': rgba(255, 255, 255, 0.2),
+		'--card-over-card-hover': rgba(255, 255, 255, 0.2),
+		'--card-hover': rgba(255, 255, 255, 0.2),
+		'--navbar': rgba(255, 255, 255, 0.2),
+		'--right-bar': rgba(255, 255, 255, 0.2),
+		'--new-card': rgba(255, 255, 255, 0.2),
+		'--stroke': rgba(255, 255, 255, 0.2),
+		'--stroke-hover': rgba(255, 255, 255, 0.2),
+		'--stroke-active': rgba(255, 255, 255, 0.2),
+		'--dividers': rgba(255, 255, 255, 0.2),
+	);
+
+	$backdrop-filter-variables: ('--background-color', '--popup');
+
+	$common-elements: (
+		'.app-content',
+		'.glass-app',
+		'.card',
+		'.panel',
+		'.sidebar',
+		'.content-panel',
+		'.navbar',
+		'.header',
+		'.modal',
+		'.overlay',
+		'.popup',
+		'.dialog'
+	);
+
+	$text-elements: (
+		'p',
+		'h1',
+		'h2',
+		'h3',
+		'h4',
+		'h5',
+		'h6',
+		'span',
+		'a',
+		'button',
+		'input',
+		'textarea',
+		'select'
+	);
+
+	$main-containers: ('html', 'body', '#root');
+
+	/* Glass mode blur properties */
+	$blur-properties: (
+		'backdrop-filter': blur(20px),
+		'-webkit-backdrop-filter': blur(20px),
+	);
+
+	$transparent-properties: (
+		'background': transparent,
+	);
+
+	/* Apply glass mode variable overrides using @each loop */
+	@each $variable, $value in $glass-variables {
+		#{$variable}: #{$value};
+	}
+
+	/* Apply backdrop-filter to elements using CSS variables with @each loop */
+	@each $variable in $backdrop-filter-variables {
+		*[style*='background-color: var(#{$variable})'],
+		*[style*='background: var(#{$variable})'],
+		*[style*="backgroundColor: 'var(#{$variable})'"],
+		*[style*='backgroundColor: "var(#{$variable})"'] {
+			@each $property, $value in $blur-properties {
+				#{$property}: #{$value} !important;
+			}
+		}
+
+		/* Target elements that use the variable in CSS */
+		* {
+			&[style*='background-color: var(#{$variable})'],
+			&[style*='background: var(#{$variable})'] {
+				@each $property, $value in $blur-properties {
+					#{$property}: #{$value} !important;
+				}
+			}
+		}
+	}
+
+	/* Apply backdrop-filter to common elements using @each loop */
+	@each $element in $common-elements {
+		#{$element} {
+			@each $property, $value in $blur-properties {
+				#{$property}: #{$value} !important;
+			}
+		}
+	}
+
+	/* Ensure main containers are transparent using @each loop */
+	@each $container in $main-containers {
+		#{$container} {
+			@each $property, $value in $transparent-properties {
+				#{$property}: #{$value} !important;
+			}
+		}
+	}
+
+	/* Exclude text elements from blur using @each loop */
+	@each $text-element in $text-elements {
+		#{$text-element} {
+			backdrop-filter: none !important;
+			-webkit-backdrop-filter: none !important;
+			background: transparent !important;
+		}
+	}
 }

@@ -1,13 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { syncGlassModeWithElectron } from '../helpers/glassModeSync';
-import { setupUniversalBlurWithGlassMode } from '../helpers/translucencyUtils';
-import { setupAntdTranslucencyObserver } from '../helpers/antdTranslucencyUtils';
 
 /**
- * Glass Mode Context
+ * Glass Mode Context - Simplified Approach
  *
  * Provides global state management for glass mode with localStorage persistence.
- * Handles the toggle state and applies transparency effects to all DOM elements.
+ * Uses CSS custom properties and classes for simple, performant glass effects.
  */
 const GlassModeContext = createContext();
 
@@ -40,287 +38,14 @@ export const GlassModeProvider = ({ children }) => {
 		}
 	}, [isGlassModeEnabled]);
 
-	// Universal blur system for all divs
+	// Apply glass mode effects using CSS classes
 	useEffect(() => {
-		let universalBlurCleanup = null;
-		let antdObserver = null;
+		// Simply toggle the glass-mode-enabled class on document root and body
+		document.documentElement.classList.toggle('glass-mode-enabled', isGlassModeEnabled);
+		document.body.classList.toggle('glass-mode-enabled', isGlassModeEnabled);
 
-		// Setup universal blur system
-		const universalBlurSystem = setupUniversalBlurWithGlassMode(() => isGlassModeEnabled, {
-			blurIntensity: '20px',
-			performanceOptimized: true,
-			checkInterval: 500, // Check every 500ms for responsiveness
-		});
-
-		// Setup Ant Design translucency observer
-		antdObserver = setupAntdTranslucencyObserver({
-			level: 'medium',
-			autoApply: isGlassModeEnabled,
-		});
-
-		// Start universal blur monitoring
-		universalBlurCleanup = universalBlurSystem.start();
-
-		// Cleanup on unmount or glass mode change
+		// Cleanup function
 		return () => {
-			if (universalBlurCleanup) {
-				universalBlurCleanup();
-			}
-			if (antdObserver) {
-				antdObserver.disconnect();
-			}
-		};
-	}, [isGlassModeEnabled]);
-
-	// Apply glass mode effects to DOM
-	useEffect(() => {
-		const applyGlassModeEffects = () => {
-			// Add/remove glass mode class to document root and body
-			document.documentElement.classList.toggle('glass-mode-enabled', isGlassModeEnabled);
-			document.body.classList.toggle('glass-mode-enabled', isGlassModeEnabled);
-
-			// Apply transparency to main containers
-			const mainContainers = [
-				document.documentElement,
-				document.body,
-				document.getElementById('root'),
-			].filter(Boolean);
-
-			mainContainers.forEach((element) => {
-				if (isGlassModeEnabled) {
-					// Make backgrounds transparent
-					element.style.background = 'transparent';
-					// element.style.backdropFilter = 'none';
-					// element.style.webkitBackdropFilter = 'none';
-				} else {
-					// Restore original backgrounds
-					element.style.background = '';
-					// element.style.backdropFilter = '';
-					// element.style.webkitBackdropFilter = '';
-				}
-			});
-
-			// Override CSS custom properties for glass mode
-			if (isGlassModeEnabled) {
-				// Check if light theme is active
-				const isLightTheme = document.documentElement.getAttribute('theme') === 'light';
-
-				if (isLightTheme) {
-					// Light theme glass mode values
-					document.documentElement.style.setProperty(
-						'--background-color',
-						'transparent',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--chat-background-color',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--card',
-						'rgba(255, 255, 255, 0.12)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--new-card',
-						'rgba(255, 255, 255, 0.12)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--card-hover',
-						'rgba(255, 255, 255, 0.18)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--card-over-card',
-						'rgba(255, 255, 255, 0.12)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--card-over-card-hover',
-						'rgba(255, 255, 255, 0.18)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--popup',
-						'rgba(255, 255, 255, 0.15)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--navbar',
-						'rgba(255, 255, 255, 0.05)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--right-bar',
-						'rgba(255, 255, 255, 0.12)',
-						'important',
-					);
-				} else {
-					// Dark theme glass mode values
-
-					document.documentElement.style.setProperty(
-						'backdrop-filter',
-						'blur(15px)',
-						'important',
-					);
-
-					document.documentElement.style.setProperty(
-						'--background-color',
-						'transparent',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--chat-background-color',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--card',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--new-card',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--card-hover',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--card-over-card',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--card-over-card-hover',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--popup',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--navbar',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-					document.documentElement.style.setProperty(
-						'--right-bar',
-						'rgba(255, 255, 255, 0.1)',
-						'important',
-					);
-				}
-			} else {
-				// Remove the overrides to restore original values
-				document.documentElement.style.removeProperty('--background-color');
-				document.documentElement.style.removeProperty('--chat-background-color');
-				document.documentElement.style.removeProperty('--card');
-				document.documentElement.style.removeProperty('--new-card');
-				document.documentElement.style.removeProperty('--card-hover');
-				document.documentElement.style.removeProperty('--card-over-card');
-				document.documentElement.style.removeProperty('--card-over-card-hover');
-				document.documentElement.style.removeProperty('--popup');
-				document.documentElement.style.removeProperty('--navbar');
-				document.documentElement.style.removeProperty('--right-bar');
-			}
-
-			// Apply glass effects to content containers
-			const contentSelectors = [
-				'.app-content',
-				'.glass-app',
-				'.card',
-				'.panel',
-				'.sidebar',
-				'.content-panel',
-				'.navbar',
-				'.header',
-				'.modal',
-				'.overlay',
-				'.popup',
-				'.dialog',
-			];
-
-			contentSelectors.forEach((selector) => {
-				const elements = document.querySelectorAll(selector);
-				elements.forEach((element) => {
-					if (isGlassModeEnabled) {
-						// Apply glass morphism effects
-						element.style.background = 'transparent';
-						element.style.backdropFilter = 'blur(20px) saturate(180%)';
-						element.style.webkitBackdropFilter = 'blur(20px) saturate(180%)';
-						// element.style.borderRadius = '16px';
-						// element.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
-					} else {
-						// Remove glass effects
-						element.style.background = '';
-						element.style.backdropFilter = '';
-						element.style.webkitBackdropFilter = '';
-						// element.style.borderRadius = '';
-						// element.style.boxShadow = '';
-					}
-				});
-			});
-		};
-
-		// Apply effects immediately
-		applyGlassModeEffects();
-
-		// Set up mutation observer for dynamic content
-		const observer = new MutationObserver((mutations) => {
-			mutations.forEach((mutation) => {
-				if (mutation.type === 'childList') {
-					mutation.addedNodes.forEach((node) => {
-						if (node.nodeType === Node.ELEMENT_NODE && node.classList) {
-							// Apply glass effects to new elements
-							const contentSelectors = [
-								'.app-content',
-								'.glass-app',
-								'.card',
-								'.panel',
-								'.sidebar',
-								'.content-panel',
-								'.navbar',
-								'.header',
-								'.modal',
-								'.overlay',
-								'.popup',
-								'.dialog',
-							];
-
-							contentSelectors.forEach((selector) => {
-								if (node.matches && node.matches(selector)) {
-									if (isGlassModeEnabled) {
-										node.style.background = 'transparent';
-										node.style.backdropFilter = 'blur(20px) saturate(180%)';
-										node.style.webkitBackdropFilter =
-											'blur(20px) saturate(180%)';
-										// node.style.borderRadius = '16px';
-										// node.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
-									}
-								}
-							});
-						}
-					});
-				}
-			});
-		});
-
-		// Start observing
-		observer.observe(document.body, {
-			childList: true,
-			subtree: true,
-		});
-
-		return () => {
-			observer.disconnect();
-			// Clean up classes when component unmounts
 			document.documentElement.classList.remove('glass-mode-enabled');
 			document.body.classList.remove('glass-mode-enabled');
 		};
@@ -331,6 +56,11 @@ export const GlassModeProvider = ({ children }) => {
 		const handleTranslucencyChanged = (data) => {
 			if (data && typeof data.enabled === 'boolean') {
 				setIsGlassModeEnabled(data.enabled);
+
+				// Show visual feedback for glass mode toggle
+				if (data.source === 'keyboard-shortcut') {
+					showGlassModeFeedback(data.enabled);
+				}
 			}
 		};
 
@@ -345,6 +75,49 @@ export const GlassModeProvider = ({ children }) => {
 			}
 		};
 	}, []);
+
+	// Visual feedback for glass mode toggle
+	const showGlassModeFeedback = (enabled) => {
+		// Create a temporary visual indicator
+		const feedback = document.createElement('div');
+		feedback.style.cssText = `
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			background: ${enabled ? 'rgba(0, 255, 0, 0.9)' : 'rgba(255, 0, 0, 0.9)'};
+			color: white;
+			padding: 12px 20px;
+			border-radius: 8px;
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			font-size: 14px;
+			font-weight: 600;
+			z-index: 10000;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+			backdrop-filter: blur(10px);
+			-webkit-backdrop-filter: blur(10px);
+			transition: all 0.3s ease;
+			transform: translateX(100%);
+		`;
+
+		feedback.textContent = enabled ? '🎨 Glass Mode ON' : '🎨 Glass Mode OFF';
+
+		document.body.appendChild(feedback);
+
+		// Animate in
+		requestAnimationFrame(() => {
+			feedback.style.transform = 'translateX(0)';
+		});
+
+		// Remove after 2 seconds
+		setTimeout(() => {
+			feedback.style.transform = 'translateX(100%)';
+			setTimeout(() => {
+				if (feedback.parentNode) {
+					feedback.parentNode.removeChild(feedback);
+				}
+			}, 300);
+		}, 2000);
+	};
 
 	// Sync state changes with Electron
 	useEffect(() => {

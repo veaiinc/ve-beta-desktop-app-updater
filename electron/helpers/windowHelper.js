@@ -1847,22 +1847,22 @@ class WindowHelper {
 			this.createAskAIWindow?.();
 
 			// Always show chatbox mode when Command+Enter is pressed
-			
+
 			const isAskAIVisible = this.isAskAIWindowVisible();
 
-            if (isAskAIVisible) {
-                // Hide ask AI window only
-                this.hideAskAIWindow?.();
-            } else {
-                // Show ask AI window only
-                this.showAskAIWindow?.();
-			
-			// Send message to show chatbox mode
-			const askAIWindow = this.getAskAIWindow();
-			if (askAIWindow && !askAIWindow.isDestroyed()) {
-				askAIWindow.webContents.send('askAI-show-chatbox');
+			if (isAskAIVisible) {
+				// Hide ask AI window only
+				this.hideAskAIWindow?.();
+			} else {
+				// Show ask AI window only
+				this.showAskAIWindow?.();
+
+				// Send message to show chatbox mode
+				const askAIWindow = this.getAskAIWindow();
+				if (askAIWindow && !askAIWindow.isDestroyed()) {
+					askAIWindow.webContents.send('askAI-show-chatbox');
+				}
 			}
-		}
 		});
 
 		if (cmdEnterRegistered) {
@@ -1922,32 +1922,69 @@ class WindowHelper {
 			}
 		}
 
-		// Register Cmd+G to toggle translucency (macOS only)
-		if (process.platform === 'darwin') {
-			const cmdGRegistered = globalShortcut.register('Command+G', () => {
+		// Register Cmd+G to toggle glass mode (Cross-platform)
+		const cmdGRegistered = globalShortcut.register('CommandOrControl+G', () => {
+			try {
+				log.info('🎨 Command+G pressed: Toggling glass mode');
+
+				// Toggle glass mode state
 				this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
-				try {
-					if (
-						this.mainWindow &&
-						!this.mainWindow.isDestroyed() &&
-						this.mainWindow.setVibrancy
-					) {
-						this.mainWindow.setVibrancy(
-							this.isTranslucencyEnabled ? 'fullscreen-ui' : null,
-						);
-						this.mainWindow.setBackgroundMaterial('acrylic');
-					}
-					// Notify renderer to toggle CSS/UI glass state
-					this.mainWindow?.webContents?.send('translucency-changed', {
+
+				// Notify renderer to toggle glass mode using the new CSS-based approach
+				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+					this.mainWindow.webContents.send('translucency-changed', {
 						enabled: this.isTranslucencyEnabled,
-						platform: 'darwin',
+						platform: process.platform,
+						source: 'keyboard-shortcut',
 					});
-				} catch (e) {
-					log.error('Translucency toggle failed:', e);
+
+					log.info(
+						`🎨 Glass mode ${
+							this.isTranslucencyEnabled ? 'enabled' : 'disabled'
+						} via Command+G`,
+					);
+				} else {
+					log.warn('⚠️ Main window not available for glass mode toggle');
 				}
-			});
-			if (!cmdGRegistered) {
-				log.error('❌ Failed to register Cmd+G translucency toggle');
+			} catch (error) {
+				log.error('❌ Glass mode toggle failed:', error);
+			}
+		});
+
+		if (cmdGRegistered) {
+			log.info('✅ Command+G glass mode shortcut registered successfully');
+		} else {
+			log.error('❌ Failed to register Command+G glass mode shortcut');
+
+			// Try alternative shortcuts on Windows if the main one fails
+			if (process.platform === 'win32') {
+				const altGlassRegistered = globalShortcut.register('Ctrl+Alt+G', () => {
+					try {
+						log.info('🎨 Ctrl+Alt+G pressed: Toggling glass mode');
+						this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+
+						if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+							this.mainWindow.webContents.send('translucency-changed', {
+								enabled: this.isTranslucencyEnabled,
+								platform: process.platform,
+								source: 'keyboard-shortcut',
+							});
+							log.info(
+								`🎨 Glass mode ${
+									this.isTranslucencyEnabled ? 'enabled' : 'disabled'
+								} via Ctrl+Alt+G`,
+							);
+						}
+					} catch (error) {
+						log.error('❌ Alternative glass mode toggle failed:', error);
+					}
+				});
+
+				if (altGlassRegistered) {
+					log.info('✅ Ctrl+Alt+G glass mode shortcut registered as fallback');
+				} else {
+					log.error('❌ Failed to register alternative glass mode shortcut');
+				}
 			}
 		}
 	}
