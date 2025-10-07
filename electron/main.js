@@ -83,12 +83,15 @@ let galleryHelper = null;
 const withTimeout = (handler, timeoutMs = 30000) => {
 	return async (...args) => {
 		try {
-			const timeoutPromise = new Promise((_, reject) => 
-				setTimeout(() => reject(new Error(`IPC handler timeout after ${timeoutMs}ms`)), timeoutMs)
+			const timeoutPromise = new Promise((_, reject) =>
+				setTimeout(
+					() => reject(new Error(`IPC handler timeout after ${timeoutMs}ms`)),
+					timeoutMs,
+				),
 			);
-			
+
 			const handlerPromise = handler(...args);
-			
+
 			return await Promise.race([handlerPromise, timeoutPromise]);
 		} catch (error) {
 			log.error('❌ IPC handler failed:', error);
@@ -516,49 +519,43 @@ function handleOverlayWindowReady(overlayWindow) {
 	}, 3000);
 }
 // IPC Handlers for updates
-ipcMain.handle(
-	'check-for-updates',
-	async () => {
-		try {
-			// Add timeout to prevent hanging
-			const timeoutPromise = new Promise((_, reject) => 
-				setTimeout(() => reject(new Error('Update check timeout')), 30000)
-			);
-			
-			const updatePromise = ipcMainHandleCheckForUpdates({
-				getIsUpdateInProgress,
-				setIsUpdateInProgress,
-			});
-			
-			return await Promise.race([updatePromise, timeoutPromise]);
-		} catch (error) {
-			log.error('❌ Update check failed:', error);
-			return { success: false, error: error.message };
-		}
-	}
-);
+ipcMain.handle('check-for-updates', async () => {
+	try {
+		// Add timeout to prevent hanging
+		const timeoutPromise = new Promise((_, reject) =>
+			setTimeout(() => reject(new Error('Update check timeout')), 30000),
+		);
 
-ipcMain.handle(
-	'download-update',
-	async () => {
-		try {
-			// Add timeout to prevent hanging
-			const timeoutPromise = new Promise((_, reject) => 
-				setTimeout(() => reject(new Error('Download update timeout')), 60000)
-			);
-			
-			const downloadPromise = ipcMainHandleDownloadUpdates({
-				getIsUpdateInProgress,
-				setIsUpdateInProgress,
-			});
-			
-			return await Promise.race([downloadPromise, timeoutPromise]);
-		} catch (error) {
-			log.error('❌ Download update failed:', error);
-			return { success: false, error: error.message };
-		}
+		const updatePromise = ipcMainHandleCheckForUpdates({
+			getIsUpdateInProgress,
+			setIsUpdateInProgress,
+		});
+
+		return await Promise.race([updatePromise, timeoutPromise]);
+	} catch (error) {
+		log.error('❌ Update check failed:', error);
+		return { success: false, error: error.message };
 	}
-);
+});
+
+ipcMain.handle('download-update', async () => {
+	try {
+		// Add timeout to prevent hanging
+		const timeoutPromise = new Promise((_, reject) =>
+			setTimeout(() => reject(new Error('Download update timeout')), 60000),
+		);
+
+		const downloadPromise = ipcMainHandleDownloadUpdates({
+			getIsUpdateInProgress,
+			setIsUpdateInProgress,
+		});
+
+		return await Promise.race([downloadPromise, timeoutPromise]);
+	} catch (error) {
+		log.error('❌ Download update failed:', error);
+		return { success: false, error: error.message };
+	}
+});
 
 ipcMain.handle('restart-app', () =>
 	ipcMainHandleRestartApp({
@@ -2034,13 +2031,17 @@ function createWindow(restoreState = false) {
 		log.warn('⚠️ Renderer process became unresponsive');
 		// Force reload after 5 seconds if still unresponsive
 		setTimeout(() => {
-			if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents.isLoading() === false) {
+			if (
+				mainWindow &&
+				!mainWindow.isDestroyed() &&
+				mainWindow.webContents.isLoading() === false
+			) {
 				log.warn('🔄 Force reloading unresponsive renderer...');
 				mainWindow.webContents.reload();
 			}
 		}, 5000);
 	});
-	
+
 	// CRITICAL: Add recovery mechanism for completely frozen windows
 	mainWindow.webContents.on('crashed', () => {
 		log.error('❌ Renderer process crashed - attempting recovery...');
@@ -2318,7 +2319,8 @@ app.whenReady().then(async () => {
 	let lastHeartbeat = Date.now();
 	const watchdogInterval = setInterval(() => {
 		const now = Date.now();
-		if (now - lastHeartbeat > 30000) { // 30 seconds without heartbeat
+		if (now - lastHeartbeat > 30000) {
+			// 30 seconds without heartbeat
 			log.error('❌ Main process appears to be hanging - forcing restart...');
 			app.relaunch();
 			app.exit(1);
@@ -2327,32 +2329,35 @@ app.whenReady().then(async () => {
 	}, 5000); // Check every 5 seconds
 
 	// Update heartbeat on any activity
-	process.on('message', () => { lastHeartbeat = Date.now(); });
-	process.on('uncaughtException', (error) => { 
+	process.on('message', () => {
+		lastHeartbeat = Date.now();
+	});
+	process.on('uncaughtException', (error) => {
 		lastHeartbeat = Date.now();
 		log.error('❌ Uncaught exception:', error);
 	});
-	process.on('unhandledRejection', (reason) => { 
+	process.on('unhandledRejection', (reason) => {
 		lastHeartbeat = Date.now();
 		log.error('❌ Unhandled rejection:', reason);
 	});
-	
+
 	// CRITICAL: Add process monitoring to detect hanging
 	const processMonitor = setInterval(() => {
 		const memUsage = process.memoryUsage();
 		const cpuUsage = process.cpuUsage();
-		
+
 		// Log memory usage every 30 seconds
 		if (Date.now() % 30000 < 5000) {
 			log.info('📊 Process stats:', {
 				memory: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
 				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
-				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB'
+				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB',
 			});
 		}
-		
+
 		// Force garbage collection if memory usage is too high
-		if (memUsage.heapUsed > 500 * 1024 * 1024) { // 500MB
+		if (memUsage.heapUsed > 500 * 1024 * 1024) {
+			// 500MB
 			log.warn('⚠️ High memory usage detected, forcing garbage collection...');
 			if (global.gc) {
 				global.gc();
@@ -3070,10 +3075,10 @@ app.whenReady().then(async () => {
 			// Initialize NotchDrop in background without blocking main window
 			try {
 				// Add timeout to prevent hanging during NotchDrop initialization
-				const notchDropInitTimeout = new Promise((_, reject) => 
-					setTimeout(() => reject(new Error('NotchDrop initialization timeout')), 20000)
+				const notchDropInitTimeout = new Promise((_, reject) =>
+					setTimeout(() => reject(new Error('NotchDrop initialization timeout')), 20000),
 				);
-				
+
 				await Promise.race([notchDropService.initialize(), notchDropInitTimeout]);
 				// log.info('✅ NotchDrop service initialized successfully');
 			} catch (error) {
@@ -3190,38 +3195,107 @@ app.whenReady().then(async () => {
 		}
 	}
 
-	process.on('swift-ui-submit-chat', async (chatMessage) => {
+	process.on('swift-ui-submit-chat', async (data ={}) => {
+		// try {
+		// 	// if (!windowHelper) {
+		// 	// 	log.error('windowHelper not available for AskAI forwarding');
+		// 	// 	return;
+		// 	// }
+
+		// 	// let askAIWindow = windowHelper?.getAskAIWindow();
+		// 	// if (!askAIWindow || askAIWindow.isDestroyed()) {
+		// 	// 	windowHelper.createAskAIWindow();
+		// 	// 	// Wait for the window to load fully
+		// 	// 	await new Promise((r) => setTimeout(r, 100));
+		// 	// 	askAIWindow = windowHelper.getAskAIWindow();
+		// 	// 	if (askAIWindow) {
+		// 	// 		await waitForAskAIReady(askAIWindow);
+		// 	// 	}
+		// 	// }
+
+		// 	// if (askAIWindow && !askAIWindow.isDestroyed()) {
+		// 	// 	// Ensure visible and focused
+		// 	// 	if (!askAIWindow.isVisible()) {
+		// 	// 		windowHelper.showAskAIWindow();
+		// 	// 		await new Promise((r) => setTimeout(r, 200));
+		// 	// 	}
+		// 	// 	// Ensure listeners are mounted
+		// 	// 	await waitForAskAIReady(askAIWindow);
+		// 	// 	askAIWindow.webContents.send('receive-chat-message', chatMessage);
+		// 	// } else {
+		// 	// 	log.error('❌ AskAI window unavailable after creation');
+		// 	// }
+		// 	console.log("chat message", chatMessage);
+		// 	// if (mainWindow && !mainWindow.isDestroyed()) {
+		// 		// Check if dock is hidden (background mode)
+		// 		// const dockHidden = process.platform === 'darwin' && !app.dock.isVisible();
+
+		// 		// if (dockHidden) {
+		// 		// 	// In background mode, just navigate without showing/focusing the window
+		// 		// 	mainWindow.webContents.send('navigate-to', data?.path);
+		// 		// 	log.info('Main window navigated in background mode to:', data?.path);
+		// 		// } else {
+		// 		// Normal mode - show and focus the window
+		// 		mainWindow.show();
+		// 		mainWindow.focus();
+			
+		// 	mainWindow.webContents.send('navigate-to', {path:"/chats"});
+		// } catch (error) {
+		// 	log.error('❌ Error forwarding Swift UI chat to AskAI:', error);
+		// }
+
 		try {
-			if (!windowHelper) {
-				log.error('windowHelper not available for AskAI forwarding');
-				return;
-			}
+			// Check if main window exists and is not destroyed
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				// Check if dock is hidden (background mode)
+				// const dockHidden = process.platform === 'darwin' && !app.dock.isVisible();
 
-			let askAIWindow = windowHelper?.getAskAIWindow();
-			if (!askAIWindow || askAIWindow.isDestroyed()) {
-				windowHelper.createAskAIWindow();
-				// Wait for the window to load fully
-				await new Promise((r) => setTimeout(r, 100));
-				askAIWindow = windowHelper.getAskAIWindow();
-				if (askAIWindow) {
-					await waitForAskAIReady(askAIWindow);
-				}
-			}
-
-			if (askAIWindow && !askAIWindow.isDestroyed()) {
-				// Ensure visible and focused
-				if (!askAIWindow.isVisible()) {
-					windowHelper.showAskAIWindow();
-					await new Promise((r) => setTimeout(r, 200));
-				}
-				// Ensure listeners are mounted
-				await waitForAskAIReady(askAIWindow);
-				askAIWindow.webContents.send('receive-chat-message', chatMessage);
+				// if (dockHidden) {
+				// 	// In background mode, just navigate without showing/focusing the window
+				// 	mainWindow.webContents.send('navigate-to', data?.path);
+				// 	log.info('Main window navigated in background mode to:', data?.path);
+				// } else {
+				// Normal mode - show and focus the window
+				mainWindow.show();
+				mainWindow.focus();
+				mainWindow.webContents.send('navigate-to', data);
+				log.info('Main window navigated to:', data?.path);
+				// }
+				return { success: true };
 			} else {
-				log.error('❌ AskAI window unavailable after creation');
+				// Main window doesn't exist or is destroyed, recreate it
+				log.info('Main window not available, recreating it...');
+
+				// Recreate the main window with state restoration
+				createWindow(true);
+
+				// Wait for the window to be ready
+				await new Promise((resolve) => {
+					if (mainWindow && !mainWindow.isDestroyed()) {
+						mainWindow.once('ready-to-show', () => {
+
+								// Normal mode - show and focus the window
+								mainWindow.show();
+								mainWindow.focus();
+								mainWindow.webContents.send('navigate-to', data);
+								log.info(
+									'Main window recreated and shown successfully with state restoration and navigated to:',
+									data?.path,
+								);
+
+							resolve();
+						});
+					} else {
+						log.error('Failed to recreate main window and navigated to:', data?.path);
+						resolve();
+					}
+				});
+
+				return { success: true, message: 'Main window recreated with state restoration' };
 			}
 		} catch (error) {
-			log.error('❌ Error forwarding Swift UI chat to AskAI:', error);
+			log.error('Error navigating main window to:', data?.path, error);
+			return { success: false, error: error.message };
 		}
 	});
 
@@ -3466,7 +3540,7 @@ app.whenReady().then(async () => {
 				// Normal mode - show and focus the window
 				mainWindow.show();
 				mainWindow.focus();
-				mainWindow.webContents.send('navigate-to', data?.path);
+				mainWindow.webContents.send('navigate-to', data);
 				log.info('Main window navigated to:', data?.path);
 				// }
 				return { success: true };
@@ -3487,7 +3561,7 @@ app.whenReady().then(async () => {
 
 							if (dockHidden) {
 								// In background mode, just navigate without showing/focusing the window
-								mainWindow.webContents.send('navigate-to', data?.path);
+								mainWindow.webContents.send('navigate-to', {path:data?.path});
 								log.info(
 									'Main window recreated in background mode and navigated to:',
 									data?.path,
@@ -3496,7 +3570,7 @@ app.whenReady().then(async () => {
 								// Normal mode - show and focus the window
 								mainWindow.show();
 								mainWindow.focus();
-								mainWindow.webContents.send('navigate-to', data?.path);
+								mainWindow.webContents.send('navigate-to', {path:data?.path});
 								log.info(
 									'Main window recreated and shown successfully with state restoration and navigated to:',
 									data?.path,
@@ -4163,15 +4237,9 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Add voice message to NotchDrop
+	// Add voice message to NotchDrop (legacy - preserved for audio functionality)
 	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
 		try {
-			// log.info(
-			// 	'Adding voice message to NotchDrop:',
-			// 	messageData.sender,
-			// 	':',
-			// 	messageData.content?.substring(0, 50),
-			// );
 			if (notchDropService) {
 				await notchDropService.addVoiceMessage(messageData);
 				return { success: true };
@@ -4179,6 +4247,28 @@ app.whenReady().then(async () => {
 			return { success: false, error: 'NotchDrop service not available' };
 		} catch (error) {
 			log.error('Error adding voice message:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// GENERAL PURPOSE MESSAGE SYSTEM - Send any data to NotchDrop
+	ipcMain.handle('notchdrop-send-message', async (event, messageData) => {
+		try {
+			log.info('📤 Sending general message to NotchDrop:', messageData.type || 'unknown');
+
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not available' };
+			}
+
+			if (!notchDropService.isInitialized) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+
+			// Use the general message method
+			const result = await notchDropService.sendMessage(messageData);
+			return result;
+		} catch (error) {
+			log.error('❌ Error sending general message to NotchDrop:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -4832,6 +4922,51 @@ app.whenReady().then(async () => {
 			return { success: true };
 		} catch (error) {
 			log.error('Error forwarding state to dynamic island:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handle transcription data from overlay
+	ipcMain.handle('overlay-send-transcription-data', async (event, transcriptionData) => {
+		try {
+			// Forward transcription data to NotchDrop service if available
+			if (notchDropService && notchDropService.isInitialized) {
+				try {
+					const result = await notchDropService.addTranscriptionData(transcriptionData);
+					if (result) {
+						console.log('✅ Transcription data sent to NotchDrop service successfully');
+					} else {
+						console.warn('⚠️ Failed to send transcription data to NotchDrop service');
+					}
+				} catch (notchDropError) {
+					console.error(
+						'❌ Error sending transcription data to NotchDrop service:',
+						notchDropError,
+					);
+				}
+			} else {
+				// console.log(
+				// 	'ℹ️ NotchDrop service not available, skipping transcription data forwarding',
+				// );
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('Error handling transcription data from overlay:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handle transcription data for NotchDrop (following voice message pattern)
+	ipcMain.handle('notchdrop-add-transcription-data', async (event, transcriptionData) => {
+		try {
+			if (notchDropService && notchDropService.isInitialized) {
+				await notchDropService.addTranscriptionData(transcriptionData);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error adding transcription data to NotchDrop:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -5726,6 +5861,68 @@ app.whenReady().then(async () => {
 	});
 });
 
+// Replace entire transcription list in NotchDrop
+ipcMain.handle('notchdrop-replace-transcriptions', async (event, messages) => {
+	try {
+		if (notchDropService && notchDropService.isInitialized) {
+			const ok = await notchDropService.replaceTranscriptions(messages || []);
+			return { success: ok };
+		}
+		return { success: false, error: 'NotchDrop service not available' };
+	} catch (error) {
+		log.error('Error replacing transcriptions in NotchDrop:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// Overlay requests a specific panel mode during recording
+// mode: 'transcription' | 'live-intel'
+ipcMain.handle('overlay-set-panel-mode', async (event, mode) => {
+	try {
+		if (notchDropService && notchDropService.isInitialized) {
+			const ok = await notchDropService.setRecordingPanelMode(mode);
+			return { success: ok };
+		}
+		return { success: false, error: 'NotchDrop service not available' };
+	} catch (error) {
+		log.error('Error setting NotchDrop panel mode:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// Handle live intelligence data from overlay
+ipcMain.handle('overlay-send-live-intelligence-data', async (event, liveIntelligenceData) => {
+	try {
+		// Forward live intelligence data to NotchDrop service if available
+		if (notchDropService && notchDropService.isInitialized) {
+			try {
+				const result = await notchDropService.sendLiveIntelligenceData(
+					liveIntelligenceData,
+				);
+				if (result) {
+					console.log('✅ Live intelligence data sent to NotchDrop service successfully');
+				} else {
+					console.warn('⚠️ Failed to send live intelligence data to NotchDrop service');
+				}
+			} catch (notchDropError) {
+				console.error(
+					'❌ Error sending live intelligence data to NotchDrop service:',
+					notchDropError,
+				);
+			}
+		} else {
+			console.log(
+				'ℹ️ NotchDrop service not available, skipping live intelligence data forwarding',
+			);
+		}
+
+		return { success: true };
+	} catch (error) {
+		log.error('Error handling live intelligence data from overlay:', error);
+		return { success: false, error: error.message };
+	}
+});
+
 // Handle app quit properly - but allow updates to proceed
 
 app.on('before-quit', (event) => {
@@ -5749,17 +5946,17 @@ app.on('will-quit', (event) => {
 		if (typeof watchdogInterval !== 'undefined') {
 			clearInterval(watchdogInterval);
 		}
-		
+
 		// Clear process monitor
 		if (typeof processMonitor !== 'undefined') {
 			clearInterval(processMonitor);
 		}
-		
+
 		// Clean up NotchDrop service
 		if (notchDropService) {
 			notchDropService.cleanup();
 		}
-		
+
 		log.info('🧹 App cleanup completed');
 	} catch (error) {
 		log.error('❌ Error during app cleanup:', error);
