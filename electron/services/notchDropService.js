@@ -1,6 +1,7 @@
 const path = require('path');
 const log = require('electron-log');
 const { BrowserWindow } = require('electron');
+const { default: ObjectID } = require('bson-objectid');
 // const { WakeWordIntegration } = import('../../notchdrop-addon/wake-word-integration');
 
 let NotchDropAddonWrapper;
@@ -223,10 +224,17 @@ class NotchDropService {
 			try {
 				const text = typeof message === 'string' ? message : String(message || '');
 				const chatMessage = {
-					type: 'notchdrop-chat',
+					type: 'chat',
 					message: text,
 					timestamp: new Date().toISOString(),
 					source: 'notchdrop-swift-ui',
+                    path : `/chat/${ObjectID().toString()}`,
+					updateObject : {
+						type : 'chat',
+						payload : {
+							query : text,
+						}
+					}
 				};
 
 				// Emit to main via process event to reuse main.js flow
@@ -986,7 +994,6 @@ action: 'toggle_microphone_mute'
 			// Call the native addon to add the voice message to Swift UI
 			if (this.notchDropAddon && this.notchDropAddon.addVoiceMessage) {
 				this.notchDropAddon.addVoiceMessage(messageData);
-				// console.log(`✅ Voice message added to NotchDrop`);
 				return true;
 			} else {
 				console.warn('⚠️ addVoiceMessage method not available on addon');
@@ -995,6 +1002,232 @@ action: 'toggle_microphone_mute'
 		} catch (error) {
 			console.error('❌ Error adding voice message to NotchDrop:', error);
 			return false;
+		}
+	}
+
+	// Add transcription data to NotchDrop (following voice message pattern)
+	async addTranscriptionData(transcriptionData) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot add transcription data');
+				return false;
+			}
+
+			// Console log the transcription data in NotchDrop service
+			console.log('📝 NotchDrop Service: Adding transcription data:', transcriptionData);
+
+			// Send to Swift via native addon
+			if (this.notchDropAddon && this.notchDropAddon.addTranscriptionData) {
+				// Pass the messageData object directly, not the JSON string
+				this.notchDropAddon.addTranscriptionData({
+					sender: transcriptionData.source || 'overlay',
+					content: transcriptionData.text || '',
+					isFromAgent: false, // Transcription is from user, not agent
+					timestamp: transcriptionData.timestamp || new Date().toISOString(),
+					confidence: transcriptionData.confidence,
+					words: transcriptionData.words,
+					type: 'transcription',
+				});
+				console.log('✅ Transcription data sent to NotchDrop native addon');
+				return true;
+			} else {
+				console.warn('⚠️ addTranscriptionData method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error adding transcription data to NotchDrop:', error);
+			return false;
+		}
+	}
+
+	// Send live intelligence data to NotchDrop
+	async sendLiveIntelligenceData(liveIntelligenceData) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot send live intelligence data');
+				return false;
+			}
+
+			// Console log the live intelligence data in NotchDrop service
+			console.log(
+				'🧠 NotchDrop Service: Adding live intelligence data:',
+				liveIntelligenceData,
+			);
+
+			// Send to Swift via native addon
+			if (this.notchDropAddon && this.notchDropAddon.sendLiveIntelligenceData) {
+				// Pass the messageData object directly, not the JSON string
+				this.notchDropAddon.sendLiveIntelligenceData({
+					sender: liveIntelligenceData.source || 'ai-agent',
+					content: liveIntelligenceData.text || '',
+					isFromAgent: true, // Live intelligence is from AI agent
+					timestamp: liveIntelligenceData.timestamp || new Date().toISOString(),
+					confidence: liveIntelligenceData.confidence,
+					type: 'live-intelligence',
+					metadata: liveIntelligenceData.metadata,
+				});
+				console.log('✅ Live intelligence data sent to NotchDrop native addon');
+				return true;
+			} else {
+				console.warn('⚠️ sendLiveIntelligenceData method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error sending live intelligence data to NotchDrop:', error);
+			return false;
+		}
+	}
+
+	// Send transcription data to NotchDrop
+	async sendTranscriptionData(transcriptionData) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot send transcription data');
+				return { success: false, error: 'NotchDrop not initialized' };
+			}
+
+			// Console log the transcription data in NotchDrop service
+			console.log('📝 NotchDrop Service: Received transcription data:', transcriptionData);
+
+			// Log additional details for debugging
+			if (transcriptionData) {
+				console.log('📝 NotchDrop Service: Transcription details:', {
+					text: transcriptionData.text,
+					source: transcriptionData.source,
+					timestamp: transcriptionData.timestamp,
+					confidence: transcriptionData.confidence,
+					words: transcriptionData.words?.length || 0,
+				});
+			}
+
+			// Use the existing sendMessage method with transcription type
+			const messageData = {
+				type: 'transcription',
+				content: transcriptionData.text || '',
+				text: transcriptionData.text || '',
+				sender: transcriptionData.source || 'overlay',
+				timestamp: transcriptionData.timestamp || new Date().toISOString(),
+				confidence: transcriptionData.confidence,
+				words: transcriptionData.words,
+				originalData: transcriptionData,
+			};
+
+			return await this.sendMessage(messageData);
+		} catch (error) {
+			console.error('❌ Error sending transcription data to NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Replace entire transcription list in Swift UI
+	async replaceTranscriptions(messages) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot replace transcriptions');
+				return false;
+			}
+
+			if (this.notchDropAddon && this.notchDropAddon.replaceTranscriptions) {
+				// Ensure messages are well-formed
+				const normalized = (messages || []).map((m) => ({
+					sender: m.sender || 'overlay',
+					content: m.content || m.text || '',
+					isFromAgent: Boolean(m.isFromAgent) || false,
+					timestamp: m.timestamp || new Date().toISOString(),
+					confidence: m.confidence,
+					words: m.words,
+					type: 'transcription',
+				}));
+				this.notchDropAddon.replaceTranscriptions(normalized);
+				return true;
+			}
+			console.warn('⚠️ replaceTranscriptions method not available on addon');
+			return false;
+		} catch (error) {
+			console.error('❌ Error replacing transcriptions in NotchDrop:', error);
+			return false;
+		}
+	}
+
+	// Opposite panel sync: transcription vs live intelligence
+	async setRecordingPanelMode(mode) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot set panel mode');
+				return false;
+			}
+
+			if (this.notchDropAddon && this.notchDropAddon.setRecordingPanelMode) {
+				this.notchDropAddon.setRecordingPanelMode(mode);
+				log.info(`🧭 NotchDrop: setRecordingPanelMode(${mode})`);
+				return true;
+			} else {
+				log.warn('⚠️ setRecordingPanelMode method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			log.error('❌ Error setting recording panel mode:', error);
+			return false;
+		}
+	}
+
+	// GENERAL PURPOSE MESSAGE SYSTEM
+	async sendMessage(messageData) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot send message');
+				return { success: false, error: 'NotchDrop not initialized' };
+			}
+
+			if (!this.notchDropAddon) {
+				log.warn('NotchDrop addon not available');
+				return { success: false, error: 'NotchDrop addon not available' };
+			}
+
+			// Handle different message types
+			switch (messageData.type) {
+				case 'voice':
+				case 'audio':
+				case 'transcription':
+					// Use existing voice message system for audio-related data
+					if (this.notchDropAddon.addVoiceMessage) {
+						this.notchDropAddon.addVoiceMessage({
+							sender: messageData.sender || 'System',
+							content: messageData.content || messageData.text || '',
+							isFromAgent: messageData.isFromAgent || false,
+						});
+						return { success: true, type: 'voice' };
+					} else {
+						return { success: false, error: 'Voice message method not available' };
+					}
+
+				case 'data':
+				case 'command':
+				case 'notification':
+				case 'status':
+				default:
+					// Use general message system for other data types
+					if (this.notchDropAddon.sendGeneralMessage) {
+						this.notchDropAddon.sendGeneralMessage(JSON.stringify(messageData));
+						return { success: true, type: 'general' };
+					} else {
+						// Fallback to voice message system if general method not available
+						log.info('📝 Fallback: Using voice message system for general data');
+						if (this.notchDropAddon.addVoiceMessage) {
+							this.notchDropAddon.addVoiceMessage({
+								sender: messageData.sender || 'System',
+								content: JSON.stringify(messageData),
+								isFromAgent: messageData.isFromAgent || false,
+							});
+							return { success: true, type: 'fallback' };
+						} else {
+							return { success: false, error: 'No message methods available' };
+						}
+					}
+			}
+		} catch (error) {
+			console.error('❌ Error sending message to NotchDrop:', error);
+			return { success: false, error: error.message };
 		}
 	}
 

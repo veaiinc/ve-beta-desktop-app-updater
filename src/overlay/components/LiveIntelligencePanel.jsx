@@ -36,6 +36,29 @@ const LiveIntelligencePanel = ({
 		}
 	}, [socketData]);
 
+	// Send live intelligence items to Notch whenever they change
+	useEffect(() => {
+		try {
+			if (!window?.electronApi?.overlay?.sendLiveIntelligenceData) return;
+
+			// Flatten the "threads" style data into individual messages
+			const threads = socketData?.allThreads || [];
+			threads.forEach((thread) => {
+				const message = {
+					source: 'ai-agent',
+					text: thread.prompt || thread.name || thread.description || '',
+					timestamp: thread.timestamp || thread.created_at || new Date().toISOString(),
+					type: 'live-intelligence',
+					confidence: thread.confidence,
+					metadata: thread,
+				};
+				window.electronApi.overlay.sendLiveIntelligenceData(message);
+			});
+		} catch (e) {
+			console.error('Failed to send live intelligence data to Notch:', e);
+		}
+	}, [socketData?.allThreads]);
+
 	// Auto-scroll to latest item when new content is added
 	useEffect(() => {
 		// Use setTimeout to ensure DOM has updated after tab switch
@@ -125,33 +148,33 @@ const LiveIntelligencePanel = ({
 		{ key: 'all-threads', label: 'All threads', count: getBadgeCount('all-threads') },
 		...(getBadgeCount('ask-user') > 0
 			? [
-					{
-						key: 'ask-user',
-						label: 'Ask Speaker',
-						icon: userIcon,
-						count: getBadgeCount('ask-user'),
-					},
-			  ]
+				{
+					key: 'ask-user',
+					label: 'Ask Speaker',
+					icon: userIcon,
+					count: getBadgeCount('ask-user'),
+				},
+			]
 			: []),
 		...(getBadgeCount('need-help') > 0
 			? [
-					{
-						key: 'need-help',
-						label: 'Ask AI',
-						icon: needHelpIcon,
-						count: getBadgeCount('need-help'),
-					},
-			  ]
+				{
+					key: 'need-help',
+					label: 'Ask AI',
+					icon: needHelpIcon,
+					count: getBadgeCount('need-help'),
+				},
+			]
 			: []),
 		...(getBadgeCount('actions') > 0
 			? [
-					{
-						key: 'actions',
-						label: 'Actions',
-						icon: actionsIcon,
-						count: getBadgeCount('actions'),
-					},
-			  ]
+				{
+					key: 'actions',
+					label: 'Actions',
+					icon: actionsIcon,
+					count: getBadgeCount('actions'),
+				},
+			]
 			: []),
 		...(getBadgeCount('files') > 0
 			? [{ key: 'files', label: 'Files', count: getBadgeCount('files') }]
@@ -199,10 +222,9 @@ const LiveIntelligencePanel = ({
 								return (
 									<div
 										key={thread.reference_id || thread.id || index}
-										className={`thread-item clickable ${
-											''
+										className={`thread-item clickable ${''
 											// thread.entity === 'user' ? 'ask-user-item' : 'clickable'
-										}`}
+											}`}
 										onClick={() =>
 											handleThreadItemClick(
 												thread,

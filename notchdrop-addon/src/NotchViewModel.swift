@@ -72,8 +72,8 @@ class NotchViewModel: NSObject, ObservableObject {
         if isTeamsView {
             // When meeting is active (start card hidden), fix width to 580 so chat + webcam fit
             if isRecording {
-                let fixedWidth: CGFloat = 580
-                let maxAllowed = max(500, screenRect.width - 40)
+                let fixedWidth: CGFloat = 792
+                let maxAllowed = max(792, screenRect.width - 40)
                 return .init(
                     width: min(fixedWidth, maxAllowed),
                     height: DynamicIslandTheme.expandedHeight
@@ -242,6 +242,53 @@ class NotchViewModel: NSObject, ObservableObject {
 
     let hapticSender = PassthroughSubject<Void, Never>()
     
+    // Lightweight hover edge-detection flags (not published)
+    var wasInClosedHoverZone: Bool = false
+    var wasInOpenedHoverZone: Bool = false
+
+    // Keep the app in a high-responsiveness mode during interaction
+    private var performanceActivity: NSObjectProtocol?
+    private var performanceStopWorkItem: DispatchWorkItem?
+    private let performanceIdleTimeout: TimeInterval = 90 // seconds
+
+    func ensureInteractivePerformance() {
+        // Begin activity if not already begun
+        if performanceActivity == nil {
+            performanceActivity = ProcessInfo.processInfo.beginActivity(options: [
+                .userInitiatedAllowingIdleSystemSleep,
+                .latencyCritical,
+            ], reason: "Keep NotchDrop responsive during hover/expand") as NSObjectProtocol
+        }
+
+        // Reset the idle timer to end activity later
+        performanceStopWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.endInteractivePerformance()
+        }
+        performanceStopWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + performanceIdleTimeout, execute: workItem)
+    }
+
+    private func endInteractivePerformance() {
+        if let token = performanceActivity {
+            ProcessInfo.processInfo.endActivity(token)
+            performanceActivity = nil
+        }
+        performanceStopWorkItem?.cancel()
+        performanceStopWorkItem = nil
+    }
+
+    // Debounce hover haptics to avoid repeated feedback on micro-movements
+    private var lastHoverHapticTime: Date = .distantPast
+    private let hoverHapticMinInterval: TimeInterval = 0.3
+    func performHoverHapticIfNeeded() {
+        let now = Date()
+        if now.timeIntervalSince(lastHoverHapticTime) >= hoverHapticMinInterval {
+            NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .default)
+            lastHoverHapticTime = now
+        }
+    }
+    
     // MARK: - Dynamic Island UI State (Grouped for performance)
     @Published var isRecording: Bool = false
     @Published var isPaused: Bool = false
@@ -274,8 +321,11 @@ class NotchViewModel: NSObject, ObservableObject {
     
     // Voice Assistant Integration (Web-based approach)
     @Published var voiceMessages: [VoiceMessage] = []
+    @Published var liveIntelligenceMessages: [VoiceMessage] = []
     @Published var isVoiceActive: Bool = false
     @Published var audioLevel: Float = 0.0
+    // When recording: true -> show transcription panel; false -> show live intelligence (voice UI)
+    @Published var showTranscriptionDuringRecording: Bool = true
     
     // MARK: - Wake Word Detection Properties (Grouped)
     @Published var isWakeWordEnabled: Bool = false
@@ -726,6 +776,75 @@ class NotchViewModel: NSObject, ObservableObject {
             } else {
                 print("⚠️ Skipped duplicate voice message: \(sender): \(content.prefix(50))...")
             }
+        }
+    }
+    
+    /// Add transcription data from overlay
+    func addTranscriptionData(sender: String, content: String, isFromAgent: Bool, timestamp: String?, confidence: Double?, words: [Any]?) {
+        DispatchQueue.main.async {
+            // Check for duplicate messages (same sender and content)
+            let isDuplicate = self.voiceMessages.contains { existingMessage in
+                existingMessage.sender == sender && 
+                existingMessage.content == content &&
+                existingMessage.isFromAgent == isFromAgent
+            }
+            
+            if !isDuplicate {
+                let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+                self.voiceMessages.append(message)
+                
+                print("📝 Added transcription data: \(sender): \(content.prefix(50))...")
+                if let confidence = confidence {
+                    print("📝 Confidence: \(confidence)")
+                }
+                if let wordCount = words?.count {
+                    print("📝 Word count: \(wordCount)")
+                }
+                if let timestamp = timestamp {
+                    print("📝 Timestamp: \(timestamp)")
+                }
+            } else {
+                print("⚠️ Skipped duplicate transcription data: \(sender): \(content.prefix(50))...")
+            }
+        }
+    }
+
+    /// Add live intelligence data from overlay
+    func addLiveIntelligenceData(sender: String, content: String, isFromAgent: Bool, timestamp: String?, confidence: Double?, metadata: [String: Any]?) {
+        DispatchQueue.main.async {
+            // Check for duplicate messages (same sender and content)
+            let isDuplicate = self.liveIntelligenceMessages.contains { existingMessage in
+                existingMessage.sender == sender && 
+                existingMessage.content == content &&
+                existingMessage.isFromAgent == isFromAgent
+            }
+            
+            if !isDuplicate {
+                let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+                self.liveIntelligenceMessages.append(message)
+                
+                print("🧠 Added live intelligence data: \(sender): \(content.prefix(50))...")
+                if let confidence = confidence {
+                    print("🧠 Confidence: \(confidence)")
+                }
+                if let metadata = metadata {
+                    print("🧠 Metadata: \(metadata)")
+                }
+                if let timestamp = timestamp {
+                    print("🧠 Timestamp: \(timestamp)")
+                }
+            } else {
+                print("⚠️ Skipped duplicate live intelligence data: \(sender): \(content.prefix(50))...")
+            }
+        }
+    }
+    
+    /// Replace entire transcription array with new data from overlay
+    func replaceTranscriptions(messages: [NotchViewModel.VoiceMessage]) {
+        DispatchQueue.main.async {
+            print("📝 Replacing transcription array with \(messages.count) messages")
+            self.voiceMessages = messages
+            print("📝 Transcription array replaced successfully")
         }
     }
     

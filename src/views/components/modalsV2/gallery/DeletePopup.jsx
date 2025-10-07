@@ -1,8 +1,10 @@
 // import React from 'react';
+import { useState } from 'react';
 import ReactModal from '../index';
 import '../../../../assets/scss/gallery/modals/deletePopup.scss';
 import { ReactComponent as CrossSvg } from '../../../../assets/svg/gallery/cross.svg';
 import { ReactComponent as WarningSvg } from '../../../../assets/svg/gallery/warning.svg';
+import { message } from '../../globalComponents/CustomToast';
 const DeletePopup = ({
 	open,
 	closeModal,
@@ -12,11 +14,22 @@ const DeletePopup = ({
 	isTagDelete,
 	deleteType,
 	handleDeleteTypeChange,
+	currentTitle = null,
 }) => {
+	const [inputValue, setInputValue] = useState('');
 	const customStyles = {
 		content: { zIndex: 99999 },
 		overlay: { zIndex: 99998 },
 	};
+
+	const handleDeleteConfirm = () => {
+		if (inputValue === currentTitle) {
+			handleDelete();
+		} else {
+			message.error('Invalid input');
+		}
+	};
+
 	return (
 		<ReactModal
 			isOpen={open}
@@ -31,8 +44,25 @@ const DeletePopup = ({
 				<div style={{ alignSelf: 'center' }}>
 					<WarningSvg />
 				</div>
+				{!isTagDelete && (
+					<>
+						{currentTitle && (
+							<div className="deletePopupParagraph">
+								Copy and paste "{currentTitle}" to Permanently Delete {title}.
+							</div>
+						)}
+						<input
+							className="deletePopupInput"
+							type="text"
+							value={inputValue}
+							onChange={(e) => setInputValue(e.target.value)}
+							placeholder={`Paste here`}
+						/>
+					</>
+				)}
+
 				<div className="deletePopupContent">
-					<div className="deletePopupHeading">Delete {title}</div>
+					{/* <div className="deletePopupHeading">Delete {title}</div> */}
 					<div className="deletePopupParagraph">
 						You cannot undo this. All your {paragraph} and information will be lost .
 					</div>
@@ -61,7 +91,7 @@ const DeletePopup = ({
 					<div style={{ alignSelf: 'flex-end' }}>
 						<button
 							className="deletePopupDeleteButton"
-							onClick={handleDelete}
+							onClick={handleDeleteConfirm}
 							style={{ cursor: 'pointer' }}
 						>
 							Delete

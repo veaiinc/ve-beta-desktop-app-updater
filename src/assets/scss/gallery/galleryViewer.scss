@@ -513,3 +513,26 @@
 		}
 	}
 }
+.downloadOptions {
+	align-items: flex-start;
+	background: var(--popup, #202123);
+	border: 1px solid var(--stroke, #2c2d2e);
+	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 6px 0;
+	div {
+		padding: 10px 16px;
+		border-radius: 8px;
+		// background-color: var(--card);
+		cursor: pointer;
+		width: 100%;
+	}
+	div:hover {
+		background-color: var(--card);
+	}
+}
+.ant-tooltip-inner {
+	padding: 0 !important;
+}
