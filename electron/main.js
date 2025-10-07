@@ -17,7 +17,7 @@ const {
 	clipboard,
 	dialog,
 	shell,
-    powerSaveBlocker,
+	powerSaveBlocker,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -61,13 +61,13 @@ const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
 // Chromium switches to reduce/disable background throttling and occlusion issues
 try {
-    app.commandLine.appendSwitch('disable-renderer-backgrounding');
-    app.commandLine.appendSwitch('disable-background-timer-throttling');
-    app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
-    // Disable native occlusion calculation which can pause hidden windows on macOS
-    app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+	app.commandLine.appendSwitch('disable-renderer-backgrounding');
+	app.commandLine.appendSwitch('disable-background-timer-throttling');
+	app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+	// Disable native occlusion calculation which can pause hidden windows on macOS
+	app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 } catch (e) {
-    // Non-fatal; continue without switches
+	// Non-fatal; continue without switches
 }
 
 // Import NotchDrop service
@@ -345,28 +345,40 @@ process.on('unhandledRejection', (reason, promise) => {
 	// Don't exit the process, just log the error
 });
 
-autoUpdater.on('checking-for-update', () => checkForUpdates(mainWindow));
+autoUpdater.on('checking-for-update', () => {
+	log.info('🔍 Checking for updates...');
+	checkForUpdates(mainWindow);
+});
 
-autoUpdater.on('update-available', (info) =>
-	updateAvailable({ info, mainWindow, setIsUpdateInProgress }),
-);
+autoUpdater.on('update-available', (info) => {
+	log.info('🆕 Update available:', info);
+	updateAvailable({ info, mainWindow, setIsUpdateInProgress });
+});
 
-autoUpdater.on('update-not-available', (info) =>
-	updateNotAvailable({ mainWindow, info, setIsUpdateInProgress }),
-);
+autoUpdater.on('update-not-available', (info) => {
+	log.info('✅ No updates available');
+	updateNotAvailable({ mainWindow, info, setIsUpdateInProgress });
+});
 
 // Add download progress tracking
-autoUpdater.on('download-progress', (progressObj) => downloadProgress({ progressObj, mainWindow }));
+autoUpdater.on('download-progress', (progressObj) => {
+	log.info('📥 Download progress:', Math.round(progressObj.percent), '%');
+	downloadProgress({ progressObj, mainWindow });
+});
 
-autoUpdater.on('error', (err) => handleError({ err, setIsUpdateInProgress, mainWindow }));
+autoUpdater.on('error', (err) => {
+	log.error('❌ Auto-updater error:', err);
+	handleError({ err, setIsUpdateInProgress, mainWindow });
+});
 
-autoUpdater.on('update-downloaded', (info) =>
+autoUpdater.on('update-downloaded', (info) => {
+	log.info('✅ Update downloaded successfully:', info);
 	handleUpdateDownloaded({
 		info,
 		mainWindow,
 		setIsUpdateInProgress,
-	}),
-);
+	});
+});
 
 async function showNotification(title, body) {
 	const notification = new Notification({
@@ -521,6 +533,12 @@ function handleOverlayWindowReady(overlayWindow) {
 // IPC Handlers for updates
 ipcMain.handle('check-for-updates', async () => {
 	try {
+		// Prevent concurrent update checks
+		if (getIsUpdateInProgress()) {
+			log.warn('⚠️ Update check already in progress, skipping...');
+			return { success: false, error: 'Update check already in progress' };
+		}
+
 		// Add timeout to prevent hanging
 		const timeoutPromise = new Promise((_, reject) =>
 			setTimeout(() => reject(new Error('Update check timeout')), 30000),
@@ -534,12 +552,19 @@ ipcMain.handle('check-for-updates', async () => {
 		return await Promise.race([updatePromise, timeoutPromise]);
 	} catch (error) {
 		log.error('❌ Update check failed:', error);
+		setIsUpdateInProgress(false); // Reset flag on error
 		return { success: false, error: error.message };
 	}
 });
 
 ipcMain.handle('download-update', async () => {
 	try {
+		// Prevent concurrent downloads
+		if (getIsUpdateInProgress()) {
+			log.warn('⚠️ Update download already in progress, skipping...');
+			return { success: false, error: 'Update download already in progress' };
+		}
+
 		// Add timeout to prevent hanging
 		const timeoutPromise = new Promise((_, reject) =>
 			setTimeout(() => reject(new Error('Download update timeout')), 60000),
@@ -553,17 +578,32 @@ ipcMain.handle('download-update', async () => {
 		return await Promise.race([downloadPromise, timeoutPromise]);
 	} catch (error) {
 		log.error('❌ Download update failed:', error);
+		setIsUpdateInProgress(false); // Reset flag on error
 		return { success: false, error: error.message };
 	}
 });
 
-ipcMain.handle('restart-app', () =>
-	ipcMainHandleRestartApp({
-		setIsUpdateInProgress,
-		dynamicIslandHelper,
-		windowHelper,
-	}),
-);
+ipcMain.handle('restart-app', async () => {
+	try {
+		log.info('🔄 Restart app requested...');
+
+		// Add timeout to prevent hanging
+		const timeoutPromise = new Promise((_, reject) =>
+			setTimeout(() => reject(new Error('Restart app timeout')), 30000),
+		);
+
+		const restartPromise = ipcMainHandleRestartApp({
+			setIsUpdateInProgress,
+			dynamicIslandHelper,
+			windowHelper,
+		});
+
+		return await Promise.race([restartPromise, timeoutPromise]);
+	} catch (error) {
+		log.error('❌ Restart app failed:', error);
+		return { success: false, error: error.message };
+	}
+});
 
 // Dynamic Island repositioning handler
 ipcMain.handle('reposition-dynamic-island', () => {
@@ -2054,12 +2094,27 @@ function createWindow(restoreState = false) {
 		}
 	});
 
-	// Check for updates in both dev and production
-	log.info('Starting automatic update check...');
-	// Delay update check to ensure app is fully loaded
-	setTimeout(() => {
-		autoUpdater.checkForUpdatesAndNotify();
-	}, 5000); // Wait 5 seconds after app loads
+	// Check for updates only in production
+	if (process.env.NODE_ENV === 'production') {
+		log.info('🔍 Starting automatic update check...');
+		// Delay update check to ensure app is fully loaded
+		setTimeout(() => {
+			log.info('🔍 Checking for updates...');
+			autoUpdater.checkForUpdatesAndNotify();
+		}, 5000); // Wait 5 seconds after app loads
+
+		// Set up periodic update checks (every 4 hours)
+		setInterval(() => {
+			if (!getIsUpdateInProgress()) {
+				log.info('🔍 Periodic update check...');
+				autoUpdater.checkForUpdatesAndNotify();
+			} else {
+				log.info('⏳ Skipping periodic update check - update in progress');
+			}
+		}, 4 * 60 * 60 * 1000); // 4 hours in milliseconds
+	} else {
+		log.info('🔧 Skipping update check in development mode');
+	}
 
 	return mainWindow;
 }
@@ -3179,7 +3234,7 @@ app.whenReady().then(async () => {
 		}
 	}
 
-	process.on('swift-ui-submit-chat', async (data ={}) => {
+	process.on('swift-ui-submit-chat', async (data = {}) => {
 		// try {
 		// 	// if (!windowHelper) {
 		// 	// 	log.error('windowHelper not available for AskAI forwarding');
@@ -3222,7 +3277,7 @@ app.whenReady().then(async () => {
 		// 		// Normal mode - show and focus the window
 		// 		mainWindow.show();
 		// 		mainWindow.focus();
-			
+
 		// 	mainWindow.webContents.send('navigate-to', {path:"/chats"});
 		// } catch (error) {
 		// 	log.error('❌ Error forwarding Swift UI chat to AskAI:', error);
@@ -3257,15 +3312,14 @@ app.whenReady().then(async () => {
 				await new Promise((resolve) => {
 					if (mainWindow && !mainWindow.isDestroyed()) {
 						mainWindow.once('ready-to-show', () => {
-
-								// Normal mode - show and focus the window
-								mainWindow.show();
-								mainWindow.focus();
-								mainWindow.webContents.send('navigate-to', data);
-								log.info(
-									'Main window recreated and shown successfully with state restoration and navigated to:',
-									data?.path,
-								);
+							// Normal mode - show and focus the window
+							mainWindow.show();
+							mainWindow.focus();
+							mainWindow.webContents.send('navigate-to', data);
+							log.info(
+								'Main window recreated and shown successfully with state restoration and navigated to:',
+								data?.path,
+							);
 
 							resolve();
 						});
@@ -3545,7 +3599,7 @@ app.whenReady().then(async () => {
 
 							if (dockHidden) {
 								// In background mode, just navigate without showing/focusing the window
-								mainWindow.webContents.send('navigate-to', {path:data?.path});
+								mainWindow.webContents.send('navigate-to', { path: data?.path });
 								log.info(
 									'Main window recreated in background mode and navigated to:',
 									data?.path,
@@ -3554,7 +3608,7 @@ app.whenReady().then(async () => {
 								// Normal mode - show and focus the window
 								mainWindow.show();
 								mainWindow.focus();
-								mainWindow.webContents.send('navigate-to', {path:data?.path});
+								mainWindow.webContents.send('navigate-to', { path: data?.path });
 								log.info(
 									'Main window recreated and shown successfully with state restoration and navigated to:',
 									data?.path,
