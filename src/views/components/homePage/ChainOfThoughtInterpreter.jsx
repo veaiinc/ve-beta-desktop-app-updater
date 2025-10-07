@@ -7,13 +7,13 @@ const ChainOfThoughtInterpreter = ({ data, citations = null, confidenceScore }) 
 	const containerRef = useRef(null);
 	const [info, setInfo] = useState({
 		isExpanded: false,
-		height: 64,
+		height: 53,
 	});
 
 	useEffect(() => {
 		if (!containerRef.current) return;
 
-		let height = 64;
+		let height = 53;
 		if (info?.isExpanded) {
 			height = containerRef.current?.scrollHeight;
 		}

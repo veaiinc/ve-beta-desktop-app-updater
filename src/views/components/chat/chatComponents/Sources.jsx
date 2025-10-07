@@ -7,6 +7,7 @@ import {
 	getWebsiteName,
 } from '../../../../helpers';
 import '../../../../assets/scss/chat/chatComponents/sources.scss';
+import { ReactComponent as VeLogoSvg } from '../../../../assets/svg/veLogo.svg';
 
 const Sources = ({ sources = [] }) => {
 	const [info, setInfo] = useState({
@@ -64,7 +65,7 @@ const Sources = ({ sources = [] }) => {
 									<div className="company-icon">
 										{type === 's3_key'
 											? fileTypeIcons[name?.match(/\.(\w+)$/)?.[1]]
-											: fileTypeIcons[type]}
+											: fileTypeIcons[type] ?? <VeLogoSvg />}
 									</div>
 								)}
 							</div>
