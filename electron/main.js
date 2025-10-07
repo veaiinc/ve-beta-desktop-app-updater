@@ -17,7 +17,7 @@ const {
 	clipboard,
 	dialog,
 	shell,
-    powerSaveBlocker,
+	powerSaveBlocker,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -61,13 +61,13 @@ const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
 // Chromium switches to reduce/disable background throttling and occlusion issues
 try {
-    app.commandLine.appendSwitch('disable-renderer-backgrounding');
-    app.commandLine.appendSwitch('disable-background-timer-throttling');
-    app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
-    // Disable native occlusion calculation which can pause hidden windows on macOS
-    app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+	app.commandLine.appendSwitch('disable-renderer-backgrounding');
+	app.commandLine.appendSwitch('disable-background-timer-throttling');
+	app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+	// Disable native occlusion calculation which can pause hidden windows on macOS
+	app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 } catch (e) {
-    // Non-fatal; continue without switches
+	// Non-fatal; continue without switches
 }
 
 // Import NotchDrop service
@@ -572,6 +572,32 @@ ipcMain.handle('reposition-dynamic-island', () => {
 		return { success: true, platform: process.platform };
 	}
 	return { success: false, error: 'Dynamic Island helper not available' };
+});
+
+// Glass mode sync handler
+ipcMain.handle('sync-glass-mode-state', async (event, data) => {
+	try {
+		const { enabled } = data;
+		if (typeof enabled === 'boolean' && windowHelper) {
+			// Update the window helper's translucency state
+			windowHelper.isTranslucencyEnabled = enabled;
+
+			// Apply vibrancy to main window if on macOS
+			if (process.platform === 'darwin' && windowHelper.mainWindow) {
+				const mainWindow = windowHelper.mainWindow;
+				if (!mainWindow.isDestroyed() && mainWindow.setVibrancy) {
+					mainWindow.setVibrancy(enabled ? 'fullscreen-ui' : '');
+				}
+			}
+
+			log.info(`🪟 Glass mode ${enabled ? 'enabled' : 'disabled'} via sync`);
+			return { success: true, enabled };
+		}
+		return { success: false, error: 'Invalid glass mode state' };
+	} catch (error) {
+		log.error('❌ Glass mode sync failed:', error);
+		return { success: false, error: error.message };
+	}
 });
 
 // System Settings handler
@@ -1472,6 +1498,7 @@ function createWindow(restoreState = false) {
 		skipTaskbar: false,
 		alwaysOnTop: false,
 		opacity: 1.0,
+		visualEffectState: 'active',
 	};
 
 	const isWindows = process.platform === 'win32';
@@ -1487,6 +1514,8 @@ function createWindow(restoreState = false) {
 	}
 
 	mainWindow = new BrowserWindow(mainWindowSettings);
+
+	mainWindow.setWindowButtonVisibility(false);
 
 	if (notchDropService) {
 		notchDropService.setMainWindow(mainWindow);
@@ -3195,7 +3224,7 @@ app.whenReady().then(async () => {
 		}
 	}
 
-	process.on('swift-ui-submit-chat', async (data ={}) => {
+	process.on('swift-ui-submit-chat', async (data = {}) => {
 		// try {
 		// 	// if (!windowHelper) {
 		// 	// 	log.error('windowHelper not available for AskAI forwarding');
@@ -3238,7 +3267,7 @@ app.whenReady().then(async () => {
 		// 		// Normal mode - show and focus the window
 		// 		mainWindow.show();
 		// 		mainWindow.focus();
-			
+
 		// 	mainWindow.webContents.send('navigate-to', {path:"/chats"});
 		// } catch (error) {
 		// 	log.error('❌ Error forwarding Swift UI chat to AskAI:', error);
@@ -3273,15 +3302,14 @@ app.whenReady().then(async () => {
 				await new Promise((resolve) => {
 					if (mainWindow && !mainWindow.isDestroyed()) {
 						mainWindow.once('ready-to-show', () => {
-
-								// Normal mode - show and focus the window
-								mainWindow.show();
-								mainWindow.focus();
-								mainWindow.webContents.send('navigate-to', data);
-								log.info(
-									'Main window recreated and shown successfully with state restoration and navigated to:',
-									data?.path,
-								);
+							// Normal mode - show and focus the window
+							mainWindow.show();
+							mainWindow.focus();
+							mainWindow.webContents.send('navigate-to', data);
+							log.info(
+								'Main window recreated and shown successfully with state restoration and navigated to:',
+								data?.path,
+							);
 
 							resolve();
 						});
@@ -3561,7 +3589,7 @@ app.whenReady().then(async () => {
 
 							if (dockHidden) {
 								// In background mode, just navigate without showing/focusing the window
-								mainWindow.webContents.send('navigate-to', {path:data?.path});
+								mainWindow.webContents.send('navigate-to', { path: data?.path });
 								log.info(
 									'Main window recreated in background mode and navigated to:',
 									data?.path,
@@ -3570,7 +3598,7 @@ app.whenReady().then(async () => {
 								// Normal mode - show and focus the window
 								mainWindow.show();
 								mainWindow.focus();
-								mainWindow.webContents.send('navigate-to', {path:data?.path});
+								mainWindow.webContents.send('navigate-to', { path: data?.path });
 								log.info(
 									'Main window recreated and shown successfully with state restoration and navigated to:',
 									data?.path,

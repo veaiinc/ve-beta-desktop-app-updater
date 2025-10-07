@@ -1,3 +1,6 @@
+/* Import glass mode styles - must be at the top */
+@import './assets/scss/glass-mode.scss';
+
 html,
 body {
 	margin: 0;
@@ -6,8 +9,8 @@ body {
 	height: 100%;
 	background: #121212; /* default opaque background */
 	/* Native vibrancy handles the blur - no CSS backdrop-filter needed */
-	backdrop-filter: none !important;
-	-webkit-backdrop-filter: none !important;
+	/* backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important; */
 }
 
 /* Only enable full transparency when glass is enabled */
@@ -43,7 +46,7 @@ html.glass-enabled {
 }
 
 /* Ensure text elements are never blurred */
-p,
+/* p,
 h1,
 h2,
 h3,
@@ -59,7 +62,7 @@ textarea,
 select {
 	backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important;
-}
+} */
 
 body {
 	font-family: 'var(--primary-font-family)', sans-serif;

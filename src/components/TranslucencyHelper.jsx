@@ -1,77 +1,155 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import {
+	applyTranslucency,
+	removeTranslucency,
+	isTranslucencySupported,
+} from '../helpers/translucencyUtils';
+import { isAntdComponent } from '../helpers/antdTranslucencyUtils';
 
 /**
- * TranslucencyHelper Component
+ * Enhanced TranslucencyHelper Component
  *
- * This component provides enhanced translucency support for Electron applications.
- * It automatically applies translucency effects to elements and provides utilities
- * for managing translucency states.
+ * This component provides advanced translucency support for Electron applications.
+ * It automatically applies translucency effects to elements with better performance
+ * and error handling.
  */
 const TranslucencyHelper = ({
 	children,
 	className = '',
 	translucencyLevel = 'medium',
 	enablePerformanceOptimization = true,
+	includeBorder = true,
+	includeShadow = true,
+	customBackground = null,
+	onTranslucencyChange = null,
+	disabled = false,
+	style = {},
+	...props
 }) => {
 	const containerRef = useRef(null);
+	const [isTranslucent, setIsTranslucent] = useState(false);
+	const [isSupported, setIsSupported] = useState(true);
 
+	// Check if translucency is supported
 	useEffect(() => {
+		const supported = isTranslucencySupported();
+		setIsSupported(supported);
+
+		if (!supported) {
+			console.warn('TranslucencyHelper: Backdrop-filter not supported in this browser');
+		}
+	}, []);
+
+	// Apply translucency effect
+	const applyEffect = useCallback(() => {
+		const container = containerRef.current;
+		if (!container || !isSupported || disabled) return;
+
+		try {
+			// Check if container is an Ant Design component
+			const isAntd = isAntdComponent(container);
+
+			applyTranslucency(container, {
+				level: translucencyLevel,
+				performanceOptimized: enablePerformanceOptimization,
+				includeBorder,
+				includeShadow,
+				customBackground,
+				preserveAntdStyles: true, // Always preserve Ant Design styles
+			});
+
+			setIsTranslucent(true);
+			onTranslucencyChange?.(true, translucencyLevel);
+
+			// Log component type for debugging
+			if (isAntd) {
+				console.log('TranslucencyHelper: Applied Ant Design translucency to', container);
+			}
+		} catch (error) {
+			console.error('TranslucencyHelper: Error applying translucency:', error);
+		}
+	}, [
+		translucencyLevel,
+		enablePerformanceOptimization,
+		includeBorder,
+		includeShadow,
+		customBackground,
+		isSupported,
+		disabled,
+		onTranslucencyChange,
+	]);
+
+	// Remove translucency effect
+	const removeEffect = useCallback(() => {
 		const container = containerRef.current;
 		if (!container) return;
 
-		// Apply translucency based on level
-		const translucencyConfigs = {
-			light: {
-				background: 'rgba(255, 255, 255, 0.05)',
-				blur: 'blur(15px) saturate(120%)',
-			},
-			medium: {
-				background: 'rgba(18, 18, 18, 0.2)',
-				blur: 'blur(20px) saturate(180%)',
-			},
-			strong: {
-				background: 'rgba(18, 18, 18, 0.3)',
-				blur: 'blur(25px) saturate(200%)',
-			},
-		};
+		try {
+			removeTranslucency(container);
+			setIsTranslucent(false);
+			onTranslucencyChange?.(false, null);
+		} catch (error) {
+			console.error('TranslucencyHelper: Error removing translucency:', error);
+		}
+	}, [onTranslucencyChange]);
 
-		const config = translucencyConfigs[translucencyLevel] || translucencyConfigs.medium;
-
-		// Apply glass morphism styles to content containers
-		container.style.background = config.background;
-		container.style.backdropFilter = config.blur;
-		container.style.webkitBackdropFilter = config.blur;
-		container.style.borderRadius = '16px';
-		container.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
-
-		// Performance optimizations
-		if (enablePerformanceOptimization) {
-			container.style.willChange = 'backdrop-filter';
-			container.style.transform = 'translateZ(0)';
+	// Apply translucency on mount and when dependencies change
+	useEffect(() => {
+		if (disabled) {
+			removeEffect();
+		} else {
+			applyEffect();
 		}
 
 		// Cleanup function
 		return () => {
-			if (container) {
-				container.style.background = '';
-				container.style.backdropFilter = '';
-				container.style.webkitBackdropFilter = '';
-				container.style.border = '';
-				container.style.willChange = '';
-				container.style.transform = '';
+			removeEffect();
+		};
+	}, [applyEffect, removeEffect, disabled]);
+
+	// Handle resize events for performance optimization
+	useEffect(() => {
+		if (!enablePerformanceOptimization) return;
+
+		const handleResize = () => {
+			// Reapply translucency after resize for better performance
+			if (isTranslucent && !disabled) {
+				requestAnimationFrame(() => {
+					applyEffect();
+				});
 			}
 		};
-	}, [translucencyLevel, enablePerformanceOptimization]);
+
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, [applyEffect, isTranslucent, disabled, enablePerformanceOptimization]);
+
+	// Enhanced container styles
+	const containerStyle = {
+		position: 'relative',
+		zIndex: 1,
+		height: '100%',
+		background: 'transparent',
+		...style,
+	};
+
+	// Add data attributes for debugging and tracking
+	const dataAttributes = {
+		'data-translucency-helper': 'true',
+		'data-translucency-level': translucencyLevel,
+		'data-translucency-enabled': !disabled,
+		'data-translucency-supported': isSupported,
+	};
 
 	return (
 		<div
 			ref={containerRef}
-			className={`translucency-helper ${className}`}
-			style={{
-				position: 'relative',
-				zIndex: 1,
-				height: '100%',
-			}}
+			className={`translucency-helper ${className} ${
+				disabled ? 'translucency-disabled' : ''
+			}`}
+			style={containerStyle}
+			{...dataAttributes}
+			{...props}
 		>
 			{children}
 		</div>

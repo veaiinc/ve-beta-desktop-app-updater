@@ -1935,6 +1935,7 @@ class WindowHelper {
 						this.mainWindow.setVibrancy(
 							this.isTranslucencyEnabled ? 'fullscreen-ui' : null,
 						);
+						this.mainWindow.setBackgroundMaterial('acrylic');
 					}
 					// Notify renderer to toggle CSS/UI glass state
 					this.mainWindow?.webContents?.send('translucency-changed', {

@@ -18,16 +18,16 @@
 }
 
 /* Cards and panels - more pronounced glass effect */
-.card,
-.panel,
-.sidebar,
-.content-panel {
-	background: rgba(18, 18, 18, 0.12) !important;
-	backdrop-filter: blur(20px) saturate(150%) !important;
-	-webkit-backdrop-filter: blur(20px) saturate(150%) !important;
-	border-radius: 16px !important;
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
-}
+// .card,
+// .panel,
+// .sidebar,
+// .content-panel {
+// 	background: rgba(18, 18, 18, 0.12) !important;
+// 	backdrop-filter: blur(20px) saturate(150%) !important;
+// 	-webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+// 	border-radius: 16px !important;
+// 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+// }
 
 /* Text content - NO blur, ensure readability */
 p,
@@ -44,43 +44,30 @@ div[class*='text'],
 .subtitle,
 .label,
 .description {
-	backdrop-filter: none !important;
-	-webkit-backdrop-filter: none !important;
+	// backdrop-filter: none !important;
+	// -webkit-backdrop-filter: none !important;
 	background: transparent !important;
 }
-
-/* Interactive elements - subtle glass effect */
-button,
-.button,
-.btn {
-	background: rgba(255, 255, 255, 0.1) !important;
-	backdrop-filter: blur(10px) saturate(120%) !important;
-	-webkit-backdrop-filter: blur(10px) saturate(120%) !important;
-	border: 1px solid rgba(255, 255, 255, 0.2) !important;
-	border-radius: 8px !important;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-}
-
 /* Navigation and header - minimal glass effect */
-.navbar,
-.header,
-.nav {
-	background: rgba(18, 18, 18, 0.05) !important;
-	backdrop-filter: blur(8px) saturate(110%) !important;
-	-webkit-backdrop-filter: blur(8px) saturate(110%) !important;
-	border: 1px solid rgba(255, 255, 255, 0.03) !important;
-	border-radius: 12px !important;
-}
+// .navbar,
+// .header,
+// .nav {
+// 	background: rgba(18, 18, 18, 0.05) !important;
+// 	backdrop-filter: blur(8px) saturate(110%) !important;
+// 	-webkit-backdrop-filter: blur(8px) saturate(110%) !important;
+// 	border: 1px solid rgba(255, 255, 255, 0.03) !important;
+// 	border-radius: 12px !important;
+// }
 
 /* Overlay and modal - stronger glass effect */
-.modal,
-.overlay,
-.popup,
-.dialog {
-	background: rgba(18, 18, 18, 0.15) !important;
-	backdrop-filter: blur(25px) saturate(180%) !important;
-	-webkit-backdrop-filter: blur(25px) saturate(180%) !important;
-	border: 1px solid rgba(255, 255, 255, 0.1) !important;
-	border-radius: 20px !important;
-	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2) !important;
-}
+// .modal,
+// .overlay,
+// .popup,
+// .dialog {
+// 	background: rgba(18, 18, 18, 0.15) !important;
+// 	backdrop-filter: blur(25px) saturate(180%) !important;
+// 	-webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+// 	border: 1px solid rgba(255, 255, 255, 0.1) !important;
+// 	border-radius: 20px !important;
+// 	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2) !important;
+// }

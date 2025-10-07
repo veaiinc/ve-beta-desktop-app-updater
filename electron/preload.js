@@ -533,4 +533,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 	removeTranslucencyChangedListener: () => {
 		ipcRenderer.removeAllListeners('translucency-changed');
 	},
+
+	// Glass mode sync API
+	syncGlassModeState: (isEnabled) => {
+		ipcRenderer.invoke('sync-glass-mode-state', { enabled: isEnabled });
+	},
 });

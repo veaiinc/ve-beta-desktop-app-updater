@@ -495,7 +495,7 @@ const TopNavbar = () => {
 					))}
 
 					<Tooltip
-						open={info.settingsTooltipOpen}
+						open={true}
 						onOpenChange={() =>
 							setInfo((prev) => ({
 								...prev,

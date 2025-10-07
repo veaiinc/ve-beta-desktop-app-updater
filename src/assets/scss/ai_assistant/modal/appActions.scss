@@ -140,10 +140,10 @@
 				&.selected {
 					background: var(--primary-button);
 					border-color: var(--primary-button);
-					color: var(--background-color);
+					color: var(--font-primary-color);
 					.action-info h3,
 					.action-info p {
-						color: var(--background-color);
+						color: var(--font-primary-color);
 					}
 				}
 

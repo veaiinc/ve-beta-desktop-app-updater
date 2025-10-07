@@ -9,8 +9,11 @@ import DownloadProgressPopup from './views/components/globalComponents/DownloadP
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
 import TranslucencyHelper from './components/TranslucencyHelper';
 import { initializeTranslucency } from './helpers/translucencyUtils';
+import { GlassModeProvider, useGlassMode } from './context/GlassModeContext.jsx';
+import { initializeGlassModeSync } from './helpers/glassModeSync';
 
-const App = () => {
+// AppContent component that uses glass mode context
+const AppContent = () => {
 	const { routes } = useWorkspaceMode();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
@@ -19,8 +22,13 @@ const App = () => {
 	// NotchDrop Voice Integration - DIRECT APPROACH
 	const [showVoiceFromNotch, setShowVoiceFromNotch] = useState(false);
 
-	// Translucency toggle state
-	const [isGlassEnabled, setIsGlassEnabled] = useState(false);
+	// Use glass mode context instead of local state
+	const { isGlassModeEnabled } = useGlassMode();
+
+	// Initialize glass mode sync on app start
+	useEffect(() => {
+		initializeGlassModeSync();
+	}, []);
 
 	// Voice integration for NotchDrop (disabled when LiveKit is active)
 	const [disableOldVoiceIntegration, setDisableOldVoiceIntegration] = useState(false);
@@ -291,30 +299,20 @@ const App = () => {
 		};
 	}, []);
 
-	// Listen for translucency toggle events
-	useEffect(() => {
-		const handler = (data) => {
-			setIsGlassEnabled(!!data?.enabled);
-			document.body.classList.toggle('glass-enabled', !!data?.enabled);
-		};
-		window?.electronApi?.onTranslucencyChanged?.(handler);
-		return () => window?.electronApi?.removeTranslucencyChangedListener?.();
-	}, []);
-
 	// Initialize translucency only when enabled
 	useEffect(() => {
-		if (!isGlassEnabled) return;
+		if (!isGlassModeEnabled) return;
 		const observer = initializeTranslucency({
 			level: 'medium',
 			performanceOptimized: true,
 			applyToMainElements: true,
 		});
 		return () => observer?.disconnect?.();
-	}, [isGlassEnabled]);
+	}, [isGlassModeEnabled]);
 
 	return (
 		<div className="app-content glass-app">
-			{isGlassEnabled ? (
+			{isGlassModeEnabled ? (
 				<TranslucencyHelper
 					className="app-translucency-wrapper"
 					translucencyLevel="medium"
@@ -572,6 +570,15 @@ const App = () => {
 				</>
 			)}
 		</div>
+	);
+};
+
+// Main App component with GlassModeProvider
+const App = () => {
+	return (
+		<GlassModeProvider>
+			<AppContent />
+		</GlassModeProvider>
 	);
 };
 

@@ -361,7 +361,7 @@ const Email = ({
 									width="20px"
 									height="20px"
 									borderTopColor="transparent"
-									color="var(--background-color)"
+									color="var(--font-primary-color)"
 								/>
 							) : info?.isEmailValid ? (
 								<span ref={arrowRef}>

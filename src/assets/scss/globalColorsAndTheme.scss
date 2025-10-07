@@ -16,8 +16,8 @@
 	--info: rgb(80, 137, 249); /* #5089f9 */
 
 	/* main colors - Enhanced for translucency */
-	--background-color: transparent;
-	--chat-background-color: transparent;
+	--background-color: #121212;
+	--chat-background-color: #19191a;
 	--translucency-bg: rgba(18, 18, 18, 0.2);
 	--translucency-blur: blur(20px) saturate(180%);
 
@@ -33,6 +33,7 @@
 
 	/* font colors */
 	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
+	--font-primary-color: #18181b; /* #0c0c0d */
 	--secondary-font: #94989e; /* #7a7e85 */
 	--chat-secondary-font: #e1e1e5; /* rgb(193, 193, 201) */
 
@@ -69,7 +70,7 @@
 	--primary-opacity: rgba(121, 236, 201, 0.3);
 	--primary-button-hover: rgb(38, 40, 41); /* #262829 */
 	--primary-button-active: rgb(38, 40, 41); /* #262829 */
-	--primary-button-font: var(--background-color); /* #0c0c0d */
+	--primary-button-font: #0c0c0d; /* #0c0c0d */
 
 	--secondary-button: rgb(122, 126, 133); /* #7a7e85 */
 	--secondary-button-hover: rgb(255, 255, 231); /* #ffffe7 */
@@ -121,6 +122,7 @@
 
 	/* font colors */
 	--primary-font: #18181b; /* #0c0c0d */
+	--font-primary-color: #18181b; /* #0c0c0d */
 	--secondary-font: #7f858f; /* #7b7e84 */
 	--chat-secondary-font: rgb(12, 12, 13); /* rgb(79, 96, 100) */
 
@@ -150,7 +152,7 @@
 	--primary-opacity: rgba(121, 236, 201, 0.3);
 	--primary-button-hover: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-active: rgb(242, 242, 243); /* #f2f2f3 */
-	--primary-button-font: var(--background-color); /* #0c0c0d */
+	--primary-button-font: #fff; /* #0c0c0d */
 
 	--secondary-button: rgb(242, 242, 243); /* #f2f2f3 */
 	--secondary-button-hover: rgb(228, 228, 231); /* #e4e4e7 */
