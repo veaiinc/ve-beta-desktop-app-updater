@@ -28,6 +28,17 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
 const os = require('os');
+
+// Import electron-mac-permissions for proper Calendar and Media Library access
+let permissions;
+try {
+	permissions = require('electron-mac-permissions');
+	log.info('✅ electron-mac-permissions loaded successfully');
+} catch (error) {
+	log.warn('⚠️ electron-mac-permissions not available:', error.message);
+	permissions = null;
+}
+
 const cpuCores = os.cpus().length;
 const safeLimit = Math.max(4, Math.min(cpuCores - 1, 8));
 const pLimit = require('p-limit'); // ← THIS IS THE FIX
@@ -604,68 +615,81 @@ ipcMain.handle('reposition-dynamic-island', () => {
 // 	}
 // });
 
-// Generic system settings
-
+// 📸 Camera privacy settings
 ipcMain.handle('open-camera-settings', async () => {
 	const platform = os.platform();
 
 	try {
 		if (platform === 'darwin') {
-			// macOS: Opens Privacy > Camera
-			exec(
-				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"',
-				(error) => {
-					if (error) {
-						console.error('Failed to open macOS Camera Settings:', error);
-					}
-				},
-			);
+			log.info('📸 Opening Camera privacy settings...');
+			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Camera');
+			log.info('✅ Successfully opened Camera privacy settings');
+			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
-			// Windows: Opens Camera privacy settings
 			exec('start ms-settings:privacy-webcam', (error) => {
 				if (error) {
-					console.error('Failed to open Windows Camera Settings:', error);
+					console.error('❌ Failed to open Camera Settings on Windows:', error);
 				}
 			});
+			return { success: true, platform: 'Windows' };
 		} else {
-			console.warn('Unsupported platform for camera settings:', platform);
 			return { success: false, error: 'Unsupported platform' };
 		}
-		return { success: true, platform };
-	} catch (error) {
-		console.error('Error opening camera settings:', error);
-		return { success: false, error: error.message };
+	} catch (err) {
+		log.error('❌ Error opening camera settings:', err);
+		return { success: false, error: err.message };
 	}
 });
-ipcMain.handle('open-screen-settings', async () => {
+
+// 🎤 Microphone privacy settings
+ipcMain.handle('open-microphone-settings', async () => {
 	const platform = os.platform();
 
 	try {
 		if (platform === 'darwin') {
-			// macOS: Opens Privacy > Screen Recording
-			exec(
-				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"',
-				(error) => {
-					if (error) {
-						console.error('Failed to open Screen Recording Settings (macOS):', error);
-					}
-				},
-			);
+			log.info('🎤 Opening Microphone privacy settings...');
+			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone');
+			log.info('✅ Successfully opened Microphone privacy settings');
+			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
-			// Windows: No direct screen recording permission
-			console.warn('Screen recording permission not required or configurable on Windows.');
-			return {
-				success: true,
-				message: 'Screen recording permissions are not required on Windows.',
-				platform,
-			};
+			exec('start ms-settings:privacy-microphone', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Microphone Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
 		} else {
 			return { success: false, error: 'Unsupported platform' };
 		}
-		return { success: true, platform };
-	} catch (error) {
-		console.error('Error opening screen recording settings:', error);
-		return { success: false, error: error.message };
+	} catch (err) {
+		log.error('❌ Error opening microphone settings:', err);
+		return { success: false, error: err.message };
+	}
+});
+
+// 🖥️ Screen Recording privacy settings
+ipcMain.handle('open-screen-recording-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			log.info('🖥️ Opening Screen Recording privacy settings...');
+			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture');
+			log.info('✅ Successfully opened Screen Recording privacy settings');
+			return { success: true, platform: 'macOS' };
+		} else if (platform === 'win32') {
+			exec('start ms-settings:privacy', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Privacy Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
+		} else {
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (err) {
+		log.error('❌ Error opening screen recording settings:', err);
+		return { success: false, error: err.message };
 	}
 });
 
@@ -675,40 +699,22 @@ ipcMain.handle('open-media-settings', async () => {
 
 	try {
 		if (platform === 'darwin') {
-			// macOS: Opens Privacy & Security settings (Photos section)
-			exec(
-				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Media"',
-				(error) => {
-					if (error) {
-						console.error('❌ Failed to open Photos Settings on macOS:', error);
-						// Fallback: Open general System Settings
-						exec('open "x-apple.systempreferences:com.apple.preference.security"', (fallbackError) => {
-							if (fallbackError) {
-								console.error('❌ Failed to open System Settings:', fallbackError);
-							} else {
-								console.log('✅ Opened general Privacy & Security settings as fallback');
-							}
-						});
-					} else {
-						console.log('✅ Successfully opened Photos settings');
-					}
-				},
-			);
+			log.info('🎵 Opening Photos privacy settings...');
+			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Photos');
+			log.info('✅ Successfully opened Photos privacy settings');
 			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
-			// Windows: Open Photos privacy settings
 			exec('start ms-settings:privacy-photos', (error) => {
 				if (error) {
-					console.error('❌ Failed to open Photos Settings on Windows:', error);
+					console.error('❌ Failed to open Media Settings on Windows:', error);
 				}
 			});
 			return { success: true, platform: 'Windows' };
 		} else {
-			console.warn('⚠️ Unsupported platform for media library settings:', platform);
 			return { success: false, error: 'Unsupported platform' };
 		}
 	} catch (err) {
-		console.error('❌ Error opening media library settings:', err);
+		log.error('❌ Error opening media library settings:', err);
 		return { success: false, error: err.message };
 	}
 });
@@ -719,16 +725,18 @@ ipcMain.handle('open-calendar-settings', async () => {
 
 	try {
 		if (platform === 'darwin') {
-			// macOS: Opens Privacy > Calendars
-			exec(
-				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars"',
-				(error) => {
-					if (error) {
-						console.error('❌ Failed to open Calendar Settings on macOS:', error);
-					}
-				},
-			);
-			return { success: true, platform: 'macOS' };
+			// macOS: Use shell.openExternal with URL schemes to open specific privacy settings
+			log.info('📅 Opening Calendar privacy settings...');
+			
+			try {
+				// Open Calendar privacy settings
+				await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars');
+				log.info('✅ Successfully opened Calendar privacy settings');
+				return { success: true, platform: 'macOS', method: 'shell.openExternal' };
+			} catch (calendarError) {
+				log.error('❌ Calendar settings failed:', calendarError.message);
+				return { success: false, error: 'Failed to open Calendar settings', details: calendarError.message };
+			}
 		} else if (platform === 'win32') {
 			// Windows: Open Calendar privacy settings
 			exec('start ms-settings:privacy-calendar', (error) => {
@@ -769,39 +777,6 @@ ipcMain.handle('open-system-settings', async () => {
 	}
 });
 
-// 🎤 Microphone privacy settings
-ipcMain.handle('open-microphone-settings', async () => {
-	const platform = os.platform();
-
-	try {
-		if (platform === 'darwin') {
-			// macOS: Open Microphone privacy settings
-			exec(
-				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"',
-				(error) => {
-					if (error) {
-						console.error('❌ Failed to open Microphone Settings on macOS:', error);
-					}
-				},
-			);
-			return { success: true, platform: 'macOS' };
-		} else if (platform === 'win32') {
-			// Windows: Open Microphone privacy settings
-			exec('start ms-settings:privacy-microphone', (error) => {
-				if (error) {
-					console.error('❌ Failed to open Microphone Settings on Windows:', error);
-				}
-			});
-			return { success: true, platform: 'Windows' };
-		} else {
-			console.warn('⚠️ Unsupported platform for microphone settings:', platform);
-			return { success: false, error: 'Unsupported platform' };
-		}
-	} catch (err) {
-		console.error('❌ Error opening microphone settings:', err);
-		return { success: false, error: err.message };
-	}
-});
 
 // 🖥️ Screen Recording privacy settings
 // ipcMain.handle('open-screen-recording-settings', async () => {
@@ -854,31 +829,48 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 	}
 
 	try {
-		// Instead of checking screen recording permission (which requires admin auth),
-		// we'll test if we can actually capture screen sources
-		log.info('🖥️ Testing screen capture capability...');
+		if (permissions) {
+			// Use electron-mac-permissions for proper screen capture permission check
+			const screenStatus = permissions.getAuthStatus('screen');
+			log.info('🖥️ Screen recording permission check:', screenStatus);
 
-		const sources = await desktopCapturer.getSources({
-			types: ['screen'],
-			thumbnailSize: { width: 1, height: 1 },
-		});
+			return {
+				success: true,
+				permission: screenStatus === 'authorized' ? 'granted' : screenStatus === 'denied' ? 'denied' : 'not-determined',
+				hasPermission: screenStatus === 'authorized',
+				message:
+					screenStatus === 'authorized'
+						? 'Screen recording access granted'
+						: screenStatus === 'denied'
+						? 'Screen recording access denied'
+						: 'Screen recording permission not yet determined',
+			};
+		} else {
+			// Fallback: test if we can actually capture screen sources
+			log.info('🖥️ Testing screen capture capability (fallback)...');
 
-		const hasPermission = sources && sources.length > 0;
-		log.info(
-			'🖥️ Screen capture test result:',
-			hasPermission ? 'success' : 'failed',
-			'sources found:',
-			sources?.length || 0,
-		);
+			const sources = await desktopCapturer.getSources({
+				types: ['screen'],
+				thumbnailSize: { width: 1, height: 1 },
+			});
 
-		return {
-			success: true,
-			permission: hasPermission ? 'granted' : 'denied',
-			hasPermission: hasPermission,
-			message: hasPermission
-				? 'Screen sharing access granted'
-				: 'Screen sharing access denied - please grant permission in System Settings',
-		};
+			const hasPermission = sources && sources.length > 0;
+			log.info(
+				'🖥️ Screen capture test result:',
+				hasPermission ? 'success' : 'failed',
+				'sources found:',
+				sources?.length || 0,
+			);
+
+			return {
+				success: true,
+				permission: hasPermission ? 'granted' : 'denied',
+				hasPermission: hasPermission,
+				message: hasPermission
+					? 'Screen sharing access granted'
+					: 'Screen sharing access denied - please grant permission in System Settings',
+			};
+		}
 	} catch (error) {
 		log.info('🖥️ Screen capture test failed (permission likely denied):', error.message);
 		return {
@@ -2733,21 +2725,6 @@ app.whenReady().then(async () => {
 	});
 
 	// DevTools IPC handler
-	ipcMain.handle('open-dev-tools', () => {
-		try {
-			if (mainWindow && !mainWindow.isDestroyed()) {
-				mainWindow.webContents.openDevTools();
-				log.info('🔧 DevTools opened');
-				return { success: true };
-			} else {
-				log.warn('⚠️ Cannot open DevTools - main window not available');
-				return { success: false, error: 'Main window not available' };
-			}
-		} catch (error) {
-			log.error('❌ Failed to open DevTools:', error);
-			return { success: false, error: error.message };
-		}
-	});
 
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {
@@ -2788,29 +2765,23 @@ app.whenReady().then(async () => {
 	ipcMain.handle('check-microphone-permission', async () => {
 		log.info('🎤 Microphone permission check handler called');
 		try {
-			if (isMacRuntime) {
-				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
-				log.info(
-					'🎤 Microphone permission check:',
-					microphoneStatus,
-					'granted:',
-					microphoneStatus === 'granted',
-				);
+		if (isMacRuntime && permissions) {
+			// Use electron-mac-permissions for proper microphone permission check
+			const microphoneStatus = permissions.getAuthStatus('microphone');
+			log.info('🎤 Microphone permission check:', microphoneStatus);
 
-				return {
-					success: true,
-					permission: microphoneStatus,
-					hasPermission: microphoneStatus === 'granted',
-					message:
-						microphoneStatus === 'granted'
-							? 'Microphone access granted'
-							: microphoneStatus === 'denied'
-							? 'Microphone access denied'
-							: microphoneStatus === 'not-determined'
-							? 'Microphone permission not yet determined'
-							: 'Microphone access restricted',
-				};
-			} else {
+			return {
+				success: true,
+				permission: microphoneStatus === 'authorized' ? 'granted' : microphoneStatus === 'denied' ? 'denied' : 'not-determined',
+				hasPermission: microphoneStatus === 'authorized',
+				message:
+					microphoneStatus === 'authorized'
+						? 'Microphone access granted'
+						: microphoneStatus === 'denied'
+						? 'Microphone access denied'
+						: 'Microphone permission not yet determined',
+			};
+		} else {
 				// For non-macOS platforms, assume permission is available
 				return {
 					success: true,
@@ -3676,39 +3647,189 @@ app.whenReady().then(async () => {
 	// Check camera permission status handler
 	ipcMain.handle('check-camera-permission', async () => {
 		try {
-			if (isMacRuntime) {
-				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+		if (isMacRuntime && permissions) {
+			// Use electron-mac-permissions for proper camera permission check
+			const cameraStatus = permissions.getAuthStatus('camera');
+			log.info('📷 Camera permission check:', cameraStatus);
+
+			return {
+				success: true,
+				permission: cameraStatus === 'authorized' ? 'granted' : cameraStatus === 'denied' ? 'denied' : 'not-determined',
+				hasPermission: cameraStatus === 'authorized',
+				message:
+					cameraStatus === 'authorized'
+						? 'Camera access granted'
+						: cameraStatus === 'denied'
+						? 'Camera access denied'
+						: 'Camera permission not yet determined',
+			};
+		} else {
+			// For non-macOS platforms, assume permission is available
+			return {
+				success: true,
+				permission: 'granted',
+				hasPermission: true,
+				message: 'Camera access available',
+			};
+		}
+		} catch (error) {
+			log.error('Error checking camera permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
+	// Check media permission status handler (Media Library)
+	ipcMain.handle('check-media-permission', async () => {
+		try {
+			if (isMacRuntime && permissions) {
+				// Use electron-mac-permissions for proper Media Library access
+				const mediaStatus = permissions.getAuthStatus('media');
 				log.info(
-					'📷 Camera permission check:',
-					cameraStatus,
+					'🎵 Media Library permission check:',
+					mediaStatus,
 					'granted:',
-					cameraStatus === 'granted',
+					mediaStatus === 'authorized',
 				);
 
 				return {
 					success: true,
-					permission: cameraStatus,
-					hasPermission: cameraStatus === 'granted',
+					permission: mediaStatus === 'authorized' ? 'granted' : mediaStatus === 'denied' ? 'denied' : 'not-determined',
+					hasPermission: mediaStatus === 'authorized',
 					message:
-						cameraStatus === 'granted'
-							? 'Camera access granted'
-							: cameraStatus === 'denied'
-							? 'Camera access denied'
-							: cameraStatus === 'not-determined'
-							? 'Camera permission not yet determined'
-							: 'Camera access restricted',
+						mediaStatus === 'authorized'
+							? 'Media Library access granted'
+							: mediaStatus === 'denied'
+							? 'Media Library access denied'
+							: 'Media Library permission not yet determined',
 				};
 			} else {
-				// For non-macOS platforms, assume permission is available
+				// For non-macOS platforms or when electron-mac-permissions not available
 				return {
-					success: true,
-					permission: 'granted',
-					hasPermission: true,
-					message: 'Camera access available',
+					success: false,
+					error: 'Media permission check requires electron-mac-permissions on macOS',
+					hasPermission: false,
+					permission: 'not-determined',
 				};
 			}
 		} catch (error) {
-			log.error('Error checking camera permission:', error);
+			log.error('Error checking media permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
+	// Check calendar permission status handler
+	ipcMain.handle('check-calendar-permission', async () => {
+		try {
+			if (isMacRuntime && permissions) {
+				// Use electron-mac-permissions for proper Calendar access (EventKit)
+				const calendarStatus = permissions.getAuthStatus('calendar');
+				log.info(
+					'📅 Calendar permission check:',
+					calendarStatus,
+					'granted:',
+					calendarStatus === 'authorized',
+				);
+
+				return {
+					success: true,
+					permission: calendarStatus === 'authorized' ? 'granted' : calendarStatus === 'denied' ? 'denied' : 'not-determined',
+					hasPermission: calendarStatus === 'authorized',
+					message:
+						calendarStatus === 'authorized'
+							? 'Calendar access granted'
+							: calendarStatus === 'denied'
+							? 'Calendar access denied'
+							: 'Calendar permission not yet determined',
+				};
+			} else {
+				// For non-macOS platforms or when electron-mac-permissions not available
+				return {
+					success: false,
+					error: 'Calendar permission check requires electron-mac-permissions on macOS',
+					hasPermission: false,
+					permission: 'not-determined',
+				};
+			}
+		} catch (error) {
+			log.error('Error checking calendar permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
+	// Request media permission handler (Media Library)
+	ipcMain.handle('request-media-permission', async () => {
+		try {
+			if (isMacRuntime && permissions) {
+				log.info('🎵 Requesting Media Library permission...');
+				const granted = await permissions.askForMediaAccess();
+				log.info('🎵 Media Library permission request result:', granted);
+				
+				return {
+					success: true,
+					permission: granted ? 'granted' : 'denied',
+					hasPermission: granted,
+					message: granted ? 'Media Library access granted' : 'Media Library access denied',
+				};
+			} else {
+				log.warn('🎵 Media Library permission request not available - electron-mac-permissions required');
+				return {
+					success: false,
+					error: 'Media Library permission request requires electron-mac-permissions package',
+					hasPermission: false,
+					permission: 'not-determined',
+				};
+			}
+		} catch (error) {
+			log.error('Error requesting media permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
+	// Request calendar permission handler
+	ipcMain.handle('request-calendar-permission', async () => {
+		try {
+			if (isMacRuntime && permissions) {
+				log.info('📅 Requesting Calendar permission...');
+				const granted = await permissions.askForCalendarAccess();
+				log.info('📅 Calendar permission request result:', granted);
+				
+				return {
+					success: true,
+					permission: granted ? 'granted' : 'denied',
+					hasPermission: granted,
+					message: granted ? 'Calendar access granted' : 'Calendar access denied',
+				};
+			} else {
+				log.warn('📅 Calendar permission request not available - electron-mac-permissions required');
+				return {
+					success: false,
+					error: 'Calendar permission request requires electron-mac-permissions package',
+					hasPermission: false,
+					permission: 'not-determined',
+				};
+			}
+		} catch (error) {
+			log.error('Error requesting calendar permission:', error);
 			return {
 				success: false,
 				error: error.message,

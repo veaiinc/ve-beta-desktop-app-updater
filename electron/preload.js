@@ -33,15 +33,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 	restartApp: () => ipcRenderer.invoke('restart-app'),
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 	openSystemSettings: () => ipcRenderer.invoke('open-system-settings'),
-	openMicrophoneSettings: () => ipcRenderer.invoke('open-microphone-settings'),
-	// openScreenRecordingSettings: () => ipcRenderer.invoke('open-screen-recording-settings'),
-	// openScreenSharingSettings: () => ipcRenderer.invoke('open-screen-sharing-settings'),
-	openScreenSettings: () => ipcRenderer.invoke('open-screen-settings'),
-
 	openCameraSettings: () => ipcRenderer.invoke('open-camera-settings'),
-	
+	openMicrophoneSettings: () => ipcRenderer.invoke('open-microphone-settings'),
+	openScreenRecordingSettings: () => ipcRenderer.invoke('open-screen-recording-settings'),
 	openMediaSettings: () => ipcRenderer.invoke('open-media-settings'),
-	
 	openCalendarSettings: () => ipcRenderer.invoke('open-calendar-settings'),
 
 	onUpdateStatus: (callback) => {
@@ -296,6 +291,12 @@ contextBridge.exposeInMainWorld('electronApi', {
 		checkCameraPermission: () => ipcRenderer.invoke('check-camera-permission'),
 		requestCameraPermission: () => ipcRenderer.invoke('request-camera-permission'),
 		showCameraPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
+		// Media permission APIs
+		checkMediaPermission: () => ipcRenderer.invoke('check-media-permission'),
+		requestMediaPermission: () => ipcRenderer.invoke('request-media-permission'),
+		// Calendar permission APIs
+		checkCalendarPermission: () => ipcRenderer.invoke('check-calendar-permission'),
+		requestCalendarPermission: () => ipcRenderer.invoke('request-calendar-permission'),
 		// System settings opener
 		openSystemSettings: (section) => ipcRenderer.invoke('open-system-settings', section),
 		// Debug permissions

@@ -4,14 +4,16 @@
 	height: 640px; /* Fixed height to prevent overflow */
 	max-height: 90vh; /* Don't exceed viewport height */
 	flex-shrink: 0;
-	background: #132634CC;
-	backdrop-filter: blur(150px);
+	background: #132634CC; /* Custom dark blue background color */
+	backdrop-filter: blur(20px); /* Exact NotchDrop blur - moderate 20px blur */
+	-webkit-backdrop-filter: blur(20px); /* WebKit support */
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	overflow: hidden; /* Hide overflow to keep content contained */
-	border-radius: 24px;
-	border: 1px solid #b1b1b1;
+	border-radius: 24px; /* Match NotchDrop border radius */
+	border: 1px solid #b1b1b1; /* More visible white border like onboarding overlay */
+	box-shadow: none; /* Remove shadows to match NotchDrop exactly */
 	/* Ensure overlay receives mouse events */
 	pointer-events: auto;
 	/* Set very low z-index to allow system dialogs to appear above */
@@ -688,8 +690,9 @@
 }
 
 .onboarding-card {
-	background: #132634CC;
-	backdrop-filter: blur(150px);
+	background: #132634CC; /* Custom dark blue background color */
+	backdrop-filter: blur(20px); /* Exact NotchDrop blur - moderate 20px blur */
+	-webkit-backdrop-filter: blur(20px); /* WebKit support */
 	border-radius: 24px;
 	padding: 30px 22px;
 	width: 100%;
@@ -699,7 +702,8 @@
 	flex-direction: column;
 	align-items: center;
 	text-align: center;
-	border: 1px solid rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.3); /* More visible white border like onboarding overlay */
+	box-shadow: none; /* Remove shadows to match NotchDrop exactly */
 	overflow: hidden;
 	position: relative;
 	display: flex;

@@ -272,67 +272,45 @@ const PermissionOverlay = () => {
 
 	// Improved permission action handlers
 	const handleMicrophoneAction = async () => {
-		try {
-			console.log('🎤 Requesting microphone permission...');
+	try {
+		console.log('🎤 Opening microphone settings...');
 
-			// First, try to request the permission from macOS
-			const requestResult = await window.electronApi.permission.requestMicrophonePermission();
-			console.log('🎤 Microphone permission request result:', requestResult);
+		// Open microphone settings directly
+		const result = await window.electronApi.openMicrophoneSettings();
+		if (result && result.success) {
+			console.log('✅ Microphone settings opened successfully');
+			setPermissionRequestMessage(
+				'📋 Microphone settings opened. Please enable "Ve.AI" in Privacy & Security > Microphone, then return here.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
 
-			if (requestResult.success && requestResult.granted) {
-				console.log('✅ Microphone permission granted!');
-				setPermissionRequestMessage('🎉 Microphone permission granted!');
-				setTimeout(() => setPermissionRequestMessage(''), 3000);
-				// Re-check permissions immediately
+			// Start checking for permission updates after opening settings
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening microphone settings...');
 				checkPermissions();
-			} else if (requestResult.success && !requestResult.granted) {
-				console.log('❌ Microphone permission denied by user');
-				setPermissionRequestMessage(
-					'❌ Microphone permission denied. Please enable it manually in System Settings.',
-				);
-				setTimeout(() => setPermissionRequestMessage(''), 5000);
-				// Still re-check to update the UI
-				checkPermissions();
-			} else {
-				console.log('⚠️ Permission request failed, opening system settings...');
-				// Fallback: open system settings
-				const result = await window.electronApi.openMicrophoneSettings();
-				if (result.success) {
-					console.log('✅ Microphone settings opened successfully');
-					// Start more frequent checking after opening settings
-					setTimeout(() => {
-						console.log(
-							'🔄 Re-checking permissions after opening microphone settings...',
-						);
-						checkPermissions();
-					}, 1000);
-				} else {
-					console.error('❌ Failed to open microphone settings:', result.error);
-				}
-			}
-		} catch (error) {
-			console.error('❌ Error requesting microphone permission:', error);
-			// Fallback: try to open system settings
-			try {
-				const result = await window.electronApi.openMicrophoneSettings();
-				if (result.success) {
-					console.log('✅ Microphone settings opened as fallback');
-					setTimeout(() => {
-						checkPermissions();
-					}, 1000);
-				}
-			} catch (fallbackError) {
-				console.error('❌ Fallback also failed:', fallbackError);
-			}
+			}, 2000);
+		} else {
+			console.error('❌ Failed to open microphone settings:', result?.error);
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Microphone.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
 		}
+	} catch (error) {
+		console.error('❌ Error opening microphone settings:', error);
+		setPermissionRequestMessage(
+			'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Microphone.',
+		);
+		setTimeout(() => setPermissionRequestMessage(''), 8000);
+	}
 	};
 
 	const handleScreenAction = async () => {
 		try {
 			console.log('🖥️ Opening screen recording settings...');
 
-			// Directly open system settings for screen recording
-			const result = await window.electronApi.openScreenSettings();
+		// Directly open system settings for screen recording
+		const result = await window.electronApi.openScreenRecordingSettings();
 			if (result.success) {
 				console.log('✅ Screen recording settings opened successfully');
 				setPermissionRequestMessage(
@@ -363,53 +341,35 @@ const PermissionOverlay = () => {
 
 	const handleCameraAction = async () => {
 		try {
-			console.log('📷 Requesting camera permission...');
+			console.log('📷 Opening camera settings...');
 
-			// First, try to request the permission from macOS
-			const requestResult = await window.electronApi.permission.requestCameraPermission();
-			console.log('📷 Camera permission request result:', requestResult);
-
-			if (requestResult.success && requestResult.granted) {
-				console.log('✅ Camera permission granted!');
-				// Re-check permissions immediately
-				checkPermissions();
-			} else if (requestResult.success && !requestResult.granted) {
-				console.log('❌ Camera permission denied by user');
+			// Open camera settings directly
+			const result = await window.electronApi.openCameraSettings();
+			if (result && result.success) {
+				console.log('✅ Camera settings opened successfully');
 				setPermissionRequestMessage(
-					'❌ Camera permission denied. Please enable it manually in System Settings.',
+					'📋 Camera settings opened. Please enable "Ve.AI" in Privacy & Security > Camera, then return here.',
 				);
-				setTimeout(() => setPermissionRequestMessage(''), 5000);
-				// Still re-check to update the UI
-				checkPermissions();
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+
+				// Start checking for permission updates after opening settings
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening camera settings...');
+					checkPermissions();
+				}, 2000);
 			} else {
-				console.log('⚠️ Permission request failed, opening system settings...');
-				// Fallback: open system settings
-				const result = await window.electronApi.openCameraSettings();
-				if (result.success) {
-					console.log('✅ Camera settings opened successfully');
-					// Start more frequent checking after opening settings
-					setTimeout(() => {
-						console.log('🔄 Re-checking permissions after opening camera settings...');
-						checkPermissions();
-					}, 1000);
-				} else {
-					console.error('❌ Failed to open camera settings:', result.error);
-				}
+				console.error('❌ Failed to open camera settings:', result?.error);
+				setPermissionRequestMessage(
+					'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Camera.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
 			}
 		} catch (error) {
-			console.error('❌ Error requesting camera permission:', error);
-			// Fallback: try to open system settings
-			try {
-				const result = await window.electronApi.openCameraSettings();
-				if (result.success) {
-					console.log('✅ Camera settings opened as fallback');
-					setTimeout(() => {
-						checkPermissions();
-					}, 1000);
-				}
-			} catch (fallbackError) {
-				console.error('❌ Fallback also failed:', fallbackError);
-			}
+			console.error('❌ Error opening camera settings:', error);
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Camera.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
 		}
 	};
 
@@ -1035,7 +995,7 @@ const PermissionOverlay = () => {
 						</div>
 
 						{/* Media Permission */}
-						{/* <div className="permission-item">
+						<div className="permission-item">
 							<div className="permission-info">
 								<div className="permission-icon">
 									<Music size={20} />
@@ -1080,10 +1040,10 @@ const PermissionOverlay = () => {
 									)}
 								</button>
 							</div>
-						</div> */}
+						</div>
 
 						{/* Calendar Permission */}
-						{/* <div className="permission-item">
+						<div className="permission-item">
 							<div className="permission-info">
 								<div className="permission-icon">
 									<Calendar size={20} />
@@ -1128,7 +1088,7 @@ const PermissionOverlay = () => {
 									)}
 								</button>
 							</div>
-						</div> */}
+						</div>
 					</div>
 					{/* Navigation */}
 					<div className="navigation-buttons">
