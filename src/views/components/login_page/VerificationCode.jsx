@@ -6,6 +6,7 @@ import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
 import CustomOtp from '../globalComponents/CustomOtp';
 import '../../../assets/scss/otp_input/otp_input.scss';
+import { getLocationsDetails } from '../../../helpers';
 
 const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveStage }) => {
 	const navigate = useNavigate();
@@ -238,7 +239,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	const handleLocationDetailsData = useCallback(async () => {
 		let locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
 		if (!locationDetails) {
-			const response = await getLocationDetails();
+			const response = await getLocationsDetails();
 			if (response?.[0] === true) {
 				locationDetails = response?.[1];
 			} else {
