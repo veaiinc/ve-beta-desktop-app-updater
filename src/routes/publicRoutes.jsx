@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
+import { PRIVACY_POLICY_URL_PREVIEW } from '../helpers/ConstantUrls';
 
 // layouts
 import Public from '../views/layouts/Public';
