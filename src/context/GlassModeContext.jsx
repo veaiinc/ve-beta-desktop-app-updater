@@ -56,11 +56,6 @@ export const GlassModeProvider = ({ children }) => {
 		const handleTranslucencyChanged = (data) => {
 			if (data && typeof data.enabled === 'boolean') {
 				setIsGlassModeEnabled(data.enabled);
-
-				// Show visual feedback for glass mode toggle
-				if (data.source === 'keyboard-shortcut') {
-					showGlassModeFeedback(data.enabled);
-				}
 			}
 		};
 
@@ -75,49 +70,6 @@ export const GlassModeProvider = ({ children }) => {
 			}
 		};
 	}, []);
-
-	// Visual feedback for glass mode toggle
-	const showGlassModeFeedback = (enabled) => {
-		// Create a temporary visual indicator
-		const feedback = document.createElement('div');
-		feedback.style.cssText = `
-			position: fixed;
-			top: 20px;
-			right: 20px;
-			background: ${enabled ? 'rgba(0, 255, 0, 0.9)' : 'rgba(255, 0, 0, 0.9)'};
-			color: white;
-			padding: 12px 20px;
-			border-radius: 8px;
-			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-			font-size: 14px;
-			font-weight: 600;
-			z-index: 10000;
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-			backdrop-filter: blur(10px);
-			-webkit-backdrop-filter: blur(10px);
-			transition: all 0.3s ease;
-			transform: translateX(100%);
-		`;
-
-		feedback.textContent = enabled ? '🎨 Glass Mode ON' : '🎨 Glass Mode OFF';
-
-		document.body.appendChild(feedback);
-
-		// Animate in
-		requestAnimationFrame(() => {
-			feedback.style.transform = 'translateX(0)';
-		});
-
-		// Remove after 2 seconds
-		setTimeout(() => {
-			feedback.style.transform = 'translateX(100%)';
-			setTimeout(() => {
-				if (feedback.parentNode) {
-					feedback.parentNode.removeChild(feedback);
-				}
-			}, 300);
-		}, 2000);
-	};
 
 	// Sync state changes with Electron
 	useEffect(() => {

@@ -3,6 +3,8 @@
 	position: relative;
 	max-width: unset;
 	height: 0;
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
 }
 
 .shareAndEarnTooltip,

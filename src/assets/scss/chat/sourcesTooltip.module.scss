@@ -9,6 +9,8 @@
 	border: 1px solid var(--stroke, #2c2d2e);
 	background: var(--card-over-card, #1f2123);
 	width: 320px;
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
 
 	.uploadFileWrapper {
 		width: 100%;

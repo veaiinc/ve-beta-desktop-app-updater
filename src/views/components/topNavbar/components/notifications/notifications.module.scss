@@ -9,6 +9,8 @@
 	background: var(--popup, #202123);
 	position: relative;
 	top: 16px;
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
 
 	.loadingText {
 		color: var(--primary-font, #f2f2f3);

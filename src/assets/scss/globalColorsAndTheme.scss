@@ -269,6 +269,22 @@
 		}
 	}
 
+	/* Specific targeting for --popup variable usage */
+	*[style*='background-color: var(--popup)'],
+	*[style*='background: var(--popup)'],
+	*[style*="backgroundColor: 'var(--popup)'"],
+	*[style*='backgroundColor: "var(--popup)"'],
+	*[style*='background-color: var(--popup)'],
+	*[style*='background: var(--popup)'],
+	.create-meeting-modal,
+	.modal,
+	.popup,
+	.dialog {
+		backdrop-filter: blur(20px) !important;
+		-webkit-backdrop-filter: blur(20px) !important;
+		will-change: backdrop-filter !important;
+	}
+
 	/* Apply backdrop-filter to common elements using @each loop */
 	@each $element in $common-elements {
 		#{$element} {
@@ -284,15 +300,6 @@
 			@each $property, $value in $transparent-properties {
 				#{$property}: #{$value} !important;
 			}
-		}
-	}
-
-	/* Exclude text elements from blur using @each loop */
-	@each $text-element in $text-elements {
-		#{$text-element} {
-			backdrop-filter: none !important;
-			-webkit-backdrop-filter: none !important;
-			// background: transparent !important;
 		}
 	}
 }
