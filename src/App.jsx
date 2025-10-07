@@ -319,7 +319,7 @@ const App = () => {
 			<NotchDropVoiceActivator />
 
 			{/* Test Permission Overlay Button - Remove in production */}
-			{/* {process.env.NODE_ENV === 'development' && (
+			{process.env.NODE_ENV === 'development' && (
 				<button
 					onClick={() => window.electronApi?.permission?.showWindow()}
 					style={{
@@ -340,27 +340,8 @@ const App = () => {
 				>
 					Test Permission Overlay
 				</button>
-			)} */}
-			{/* <button
-					onClick={() => window.electronApi?.permission?.showWindow()}
-					style={{
-						position: 'fixed',
-						top: '20px',
-						left: '20px',
-						background: '#42e09b',
-						color: '#121212',
-						border: 'none',
-						padding: '12px 24px',
-						borderRadius: '8px',
-						cursor: 'pointer',
-						fontSize: '14px',
-						fontWeight: '600',
-						zIndex: 9999,
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-					}}
-				>
-					Test Permission Overlay
-				</button> */}
+			)}
+		
 
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
