@@ -31,6 +31,17 @@ contextBridge.exposeInMainWorld('electronApi', {
 	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
 	restartApp: () => ipcRenderer.invoke('restart-app'),
+
+	// Manual update check with better error handling
+	checkForUpdatesManual: async () => {
+		try {
+			const result = await ipcRenderer.invoke('check-for-updates');
+			return result;
+		} catch (error) {
+			console.error('❌ Manual update check failed:', error);
+			return { success: false, error: error.message };
+		}
+	},
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 	openSystemSettings: () => ipcRenderer.invoke('open-system-settings'),
 	openCameraSettings: () => ipcRenderer.invoke('open-camera-settings'),
