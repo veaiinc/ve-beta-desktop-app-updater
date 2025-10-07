@@ -586,16 +586,16 @@ class WindowHelper {
 				sandbox: false,
 			},
 			show: false,
-			alwaysOnTop: false, // Don't force always on top
-			frame: false, // Frameless (no close/minimize buttons)
-			transparent: true, // Keep transparency for overlay look
+			alwaysOnTop: true,
+			frame: false,
+			transparent: true,
 			fullscreenable: false,
-			hasShadow: false, // No shadow for clean overlay look
-			backgroundColor: '#00000000', // Transparent background
+			hasShadow: false,
+			backgroundColor: '#00000000',
 			focusable: true,
-			skipTaskbar: false, // Show in taskbar like normal window
-			visibleOnAllWorkspaces: false, // Don't force visibility on all workspaces
-			type: 'normal', // Always normal type
+			skipTaskbar: true,
+			visibleOnAllWorkspaces: true,
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
 			resizable: false,
@@ -603,8 +603,19 @@ class WindowHelper {
 			devTools: true,
 		};
 
-		// Remove all platform-specific overrides - keep it as a normal window
-		// No platform-specific settings needed
+		// Platform-specific window settings
+		if (process.platform === 'win32') {
+			// Windows-specific settings
+			windowSettings.type = 'toolbar';
+			windowSettings.alwaysOnTop = true;
+			windowSettings.skipTaskbar = true;
+			windowSettings.focusable = true;
+			windowSettings.transparent = true;
+			windowSettings.hasShadow = false;
+		} else if (process.platform === 'darwin') {
+			// macOS-specific settings
+			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
+		}
 
 		this.permissionWindow = new BrowserWindow(windowSettings);
 
@@ -629,9 +640,27 @@ class WindowHelper {
 			log.error('Failed to load Permission URL:', err);
 		});
 
-		// Make it behave like a completely normal window - no special settings
-		this.permissionWindow.setIgnoreMouseEvents(false);
-		this.permissionWindow.setMovable(true);
+		if (process.platform === 'darwin') {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			this.permissionWindow.setHiddenInMissionControl(true);
+			// Permission window should always be interactive
+			this.permissionWindow.setIgnoreMouseEvents(false);
+			this.permissionWindow.setMovable(true);
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setIgnoreMouseEvents(false);
+			this.permissionWindow.setMovable(true);
+			this.permissionWindow.setVisibleOnAllWorkspaces(true);
+		} else {
+			// For Linux and other platforms
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setIgnoreMouseEvents(false);
+		}
 
 		this.setupPermissionWindowListeners();
 
@@ -1504,8 +1533,23 @@ class WindowHelper {
 			height: this.permissionWindowSize.height,
 		});
 
-		// Just bring to front like a normal window - no special behavior
-		this.permissionWindow.moveTop();
+		// Ensure window properties for all desktops/spaces on macOS
+		if (process.platform === 'darwin') {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			// Ensure permission window is above all other windows
+			this.permissionWindow.moveTop();
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true);
+			this.permissionWindow.moveTop();
+		} else {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+		}
 
 		// Update position tracking
 		this.permissionWindowPosition = { x: permissionX, y: permissionY };
