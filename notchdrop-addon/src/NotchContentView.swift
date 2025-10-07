@@ -12,18 +12,18 @@ struct NotchContentView: View {
     
     var body: some View {
         ZStack {
-            if vm.showNotificationOverlay {
-                // // When notification is showing, ONLY show the notification (no background content)
-                // NotificationOverlayView(vm: vm)
-                //     .transition(.scale(scale: 1.0).combined(with: .opacity))
-            } else {
+            // if vm.showNotificationOverlay {
+            //     // // When notification is showing, ONLY show the notification (no background content)
+            //     // NotificationOverlayView(vm: vm)
+            //     //     .transition(.scale(scale: 1.0).combined(with: .opacity))
+            // } else {
                 // Normal content switching when no notification
                 switch vm.contentType {
                 case .normal:
                     DynamicIslandContentView(vm: vm)
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                 }
-            }
+            // }
             
             // Info popup rendered outside the notch container
             // Commented out since InfoPopupMenu was commented out
@@ -35,7 +35,7 @@ struct NotchContentView: View {
             // }
         }
         .animation(vm.animation, value: vm.contentType)
-        .animation(vm.animation, value: vm.showNotificationOverlay)
+        // .animation(vm.animation, value: vm.showNotificationOverlay)
         .onAppear {
             // Set up browser permission window monitoring
             vm.setupBrowserPermissionWindow()
