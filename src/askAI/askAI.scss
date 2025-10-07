@@ -16,6 +16,20 @@
 	font-size: 10px;
 	position: relative;
 
+	// Glass-style draggable top handle (no content, just drag zone)
+	.ask-ai-drag-handle {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 10px;
+		-webkit-app-region: drag;
+		app-region: drag;
+		cursor: move;
+		pointer-events: auto;
+		background: transparent;
+	}
+
 	// Chat input wrapper
 	.ask-ai-chat-input-wrapper {
 		flex: 1;

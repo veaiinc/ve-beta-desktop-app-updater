@@ -73,6 +73,43 @@ const AskAIApp = () => {
 		window?.electronApi.askAI.toggleWindow();
 	};
 
+	// Drag state and handlers (Glass-style live drag)
+	const [dragState, setDragState] = useState(null);
+
+	const handleDragMouseDown = useCallback(async (e) => {
+		try {
+			e.preventDefault();
+			const initial = await window?.electronApi?.askAI?.getPosition?.();
+			if (!initial) return;
+			const state = {
+				initialMouseX: e.screenX,
+				initialMouseY: e.screenY,
+				initialWindowX: initial.x,
+				initialWindowY: initial.y,
+				moved: false,
+			};
+			setDragState(state);
+			window.addEventListener('mousemove', handleDragMouseMove, { capture: true });
+			window.addEventListener('mouseup', handleDragMouseUp, { once: true, capture: true });
+		} catch (_) {}
+	}, []);
+
+	const handleDragMouseMove = useCallback((e) => {
+		if (!dragState) return;
+		const dx = Math.abs(e.screenX - dragState.initialMouseX);
+		const dy = Math.abs(e.screenY - dragState.initialMouseY);
+		if (dx > 3 || dy > 3) dragState.moved = true;
+		const newX = dragState.initialWindowX + (e.screenX - dragState.initialMouseX);
+		const newY = dragState.initialWindowY + (e.screenY - dragState.initialMouseY);
+		window?.electronApi?.askAI?.moveTo?.(newX, newY);
+	}, [dragState]);
+
+	const handleDragMouseUp = useCallback(() => {
+		if (!dragState) return;
+		window.removeEventListener('mousemove', handleDragMouseMove, { capture: true });
+		setDragState(null);
+	}, [dragState, handleDragMouseMove]);
+
 	const handleSendWebsocketMessage = useCallback(
 		async (_data, lastQuery) => {
 			try {
@@ -106,6 +143,7 @@ const AskAIApp = () => {
 
 	return (
 		<div className="ask-ai-app">
+			<div className="ask-ai-drag-handle" onMouseDown={handleDragMouseDown} />
 			<div className="ask-ai-chat-input-wrapper">
 				<ChatBox
 					key={info?.sessionId}
