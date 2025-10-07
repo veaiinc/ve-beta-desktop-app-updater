@@ -22,11 +22,15 @@ export const PRIVACY_POLICY_URL_DIRECT_DOWNLOAD =
 
 export const COOKIE_POLICY_URL = 'https://veai.ve.ai/page/cookie-policy';
 
-export const TERMS_OF_SERVICE_URL = 'https://veai.ve.ai/page/terms-of-use';
+export const TERMS_OF_SERVICE_URL =
+	'https://deeply-ease-e1d.notion.site/ebd/284d691c150880139b1cc9189cedff6f';
 
-export const PRIVACY_POLICY_URL_PREVIEW = 'https://veai.ve.ai/page/privacy-policy';
+export const PRIVACY_POLICY_URL_PREVIEW =
+	'https://deeply-ease-e1d.notion.site/ebd/284d691c150880e092d9c55f3a1cd005';
 
-export const CONTACT_US_URL = 'https://veaihq.ve.ai/contact-us';
+export const CONTACT_US_URL = 'https://ve.ai/contact-us';
+
+export const HELP_CENTER_URL = 'https://help.ve.ai';
 
 export const createEmailBody = (referrerDiscount, referralLink) => `
 <html>
