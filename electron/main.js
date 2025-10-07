@@ -669,6 +669,84 @@ ipcMain.handle('open-screen-settings', async () => {
 	}
 });
 
+// 🎵 Media Library privacy settings
+ipcMain.handle('open-media-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			// macOS: Opens Privacy & Security settings (Photos section)
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Media"',
+				(error) => {
+					if (error) {
+						console.error('❌ Failed to open Photos Settings on macOS:', error);
+						// Fallback: Open general System Settings
+						exec('open "x-apple.systempreferences:com.apple.preference.security"', (fallbackError) => {
+							if (fallbackError) {
+								console.error('❌ Failed to open System Settings:', fallbackError);
+							} else {
+								console.log('✅ Opened general Privacy & Security settings as fallback');
+							}
+						});
+					} else {
+						console.log('✅ Successfully opened Photos settings');
+					}
+				},
+			);
+			return { success: true, platform: 'macOS' };
+		} else if (platform === 'win32') {
+			// Windows: Open Photos privacy settings
+			exec('start ms-settings:privacy-photos', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Photos Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
+		} else {
+			console.warn('⚠️ Unsupported platform for media library settings:', platform);
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (err) {
+		console.error('❌ Error opening media library settings:', err);
+		return { success: false, error: err.message };
+	}
+});
+
+// 📅 Calendar privacy settings
+ipcMain.handle('open-calendar-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			// macOS: Opens Privacy > Calendars
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars"',
+				(error) => {
+					if (error) {
+						console.error('❌ Failed to open Calendar Settings on macOS:', error);
+					}
+				},
+			);
+			return { success: true, platform: 'macOS' };
+		} else if (platform === 'win32') {
+			// Windows: Open Calendar privacy settings
+			exec('start ms-settings:privacy-calendar', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Calendar Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
+		} else {
+			console.warn('⚠️ Unsupported platform for calendar settings:', platform);
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (err) {
+		console.error('❌ Error opening calendar settings:', err);
+		return { success: false, error: err.message };
+	}
+});
+
 ipcMain.handle('open-system-settings', async () => {
 	const platform = os.platform();
 	try {

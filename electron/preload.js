@@ -39,6 +39,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 	openScreenSettings: () => ipcRenderer.invoke('open-screen-settings'),
 
 	openCameraSettings: () => ipcRenderer.invoke('open-camera-settings'),
+	
+	openMediaSettings: () => ipcRenderer.invoke('open-media-settings'),
+	
+	openCalendarSettings: () => ipcRenderer.invoke('open-calendar-settings'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {

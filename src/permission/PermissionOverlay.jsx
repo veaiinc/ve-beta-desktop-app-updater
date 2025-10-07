@@ -1,17 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Mic, Monitor, Camera, Settings, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mic, Monitor, Camera, Settings, CheckCircle, AlertCircle, Music, Calendar } from 'lucide-react';
 import './permissionOverlay.scss';
 
 const PermissionOverlay = () => {
 	const [microphonePermission, setMicrophonePermission] = useState(false);
 	const [screenPermission, setScreenPermission] = useState(false);
 	const [cameraPermission, setCameraPermission] = useState(false);
+	const [mediaPermission, setMediaPermission] = useState(false);
+	const [calendarPermission, setCalendarPermission] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentStep, setCurrentStep] = useState(1); // 1: Permissions, 2: Shortcuts, 3: AI Intelligence, 4: Super Agents, 5: Proactive AI
 	const [permissionDetails, setPermissionDetails] = useState({
 		microphone: { status: 'unknown', message: '' },
 		screen: { status: 'unknown', message: '' },
 		camera: { status: 'unknown', message: '' },
+		media: { status: 'unknown', message: '' },
+		calendar: { status: 'unknown', message: '' },
 	});
 	const [isCheckingPermissions, setIsCheckingPermissions] = useState(false);
 	const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -187,15 +191,43 @@ const PermissionOverlay = () => {
 				},
 			}));
 
+			// Check media permission (Photos/Media Library)
+			const mediaResult = await window.electronApi.permission.checkMediaPermission?.() || { hasPermission: false, permission: 'not-determined', message: 'Media permission check not available' };
+			console.log('🎵 Media result:', mediaResult);
+			setMediaPermission(mediaResult.hasPermission);
+			setPermissionDetails((prev) => ({
+				...prev,
+				media: {
+					status: mediaResult.permission || 'unknown',
+					message: mediaResult.message || '',
+				},
+			}));
+
+			// Check calendar permission
+			const calendarResult = await window.electronApi.permission.checkCalendarPermission?.() || { hasPermission: false, permission: 'not-determined', message: 'Calendar permission check not available' };
+			console.log('📅 Calendar result:', calendarResult);
+			setCalendarPermission(calendarResult.hasPermission);
+			setPermissionDetails((prev) => ({
+				...prev,
+				calendar: {
+					status: calendarResult.permission || 'unknown',
+					message: calendarResult.message || '',
+				},
+			}));
+
 			console.log('✅ Permission check completed:', {
 				microphone: micResult.hasPermission,
 				screen: screenResult.hasPermission,
 				camera: cameraResult.hasPermission,
+				media: mediaResult.hasPermission,
+				calendar: calendarResult.hasPermission,
 				platform: finalIsMac ? 'macOS' : 'Windows/Linux',
 				details: {
 					microphone: micResult,
 					screen: screenResult,
 					camera: cameraResult,
+					media: mediaResult,
+					calendar: calendarResult,
 				},
 			});
 
@@ -378,6 +410,74 @@ const PermissionOverlay = () => {
 			} catch (fallbackError) {
 				console.error('❌ Fallback also failed:', fallbackError);
 			}
+		}
+	};
+
+	const handleMediaAction = async () => {
+		try {
+			console.log('🎵 Opening media library settings...');
+
+			// Open specific media library settings using the new API
+			const result = await window.electronApi.openMediaSettings();
+			if (result && result.success) {
+				console.log('✅ Media library settings opened successfully');
+				setPermissionRequestMessage(
+					'📋 Photos settings opened. Please enable "Ve.AI" in Privacy & Security > Photos, then return here.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+
+				// Start checking for permission updates after opening settings
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening media settings...');
+					checkPermissions();
+				}, 2000);
+			} else {
+				console.error('❌ Failed to open media library settings:', result?.error);
+				setPermissionRequestMessage(
+					'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Photos.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+			}
+		} catch (error) {
+			console.error('❌ Error opening media library settings:', error);
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Photos.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
+		}
+	};
+
+	const handleCalendarAction = async () => {
+		try {
+			console.log('📅 Opening calendar settings...');
+
+			// Open specific calendar settings using the new API
+			const result = await window.electronApi.openCalendarSettings();
+			if (result && result.success) {
+				console.log('✅ Calendar settings opened successfully');
+				setPermissionRequestMessage(
+					'📋 Calendar settings opened. Please enable "Ve.AI" in Privacy & Security > Calendars, then return here.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+
+				// Start checking for permission updates after opening settings
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening calendar settings...');
+					checkPermissions();
+				}, 2000);
+			} else {
+				console.error('❌ Failed to open calendar settings:', result?.error);
+				setPermissionRequestMessage(
+					'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Calendars.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+			}
+		} catch (error) {
+			console.error('❌ Error opening calendar settings:', error);
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Calendars.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
 		}
 	};
 
@@ -926,6 +1026,102 @@ const PermissionOverlay = () => {
 												{getActionButtonText(
 													cameraPermission,
 													permissionDetails.camera.status,
+												)}
+											</span>
+										</>
+									)}
+								</button>
+							</div>
+						</div>
+
+						{/* Media Permission */}
+						<div className="permission-item">
+							<div className="permission-info">
+								<div className="permission-icon">
+									<Music size={20} />
+								</div>
+								<div className="permission-details">
+									<h3 className="permission-title">Media Library</h3>
+									<p className="permission-description">
+										Allow Ve to access your  media
+									</p>
+									<div className="permission-status">
+										{permissionDetails.media.message && (
+											<span className="status-message">
+												{permissionDetails.media.message}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+							<div className="permission-action">
+								<button
+									className={getActionButtonClass(
+										mediaPermission,
+										permissionDetails.media.status,
+									)}
+									onClick={handleMediaAction}
+									disabled={mediaPermission || isCheckingPermissions}
+								>
+									{mediaPermission ? (
+										<>
+											<CheckCircle stroke="#79ECC9" size={16} />
+										</>
+									) : (
+										<>
+											<Settings size={16} />
+											<span>
+												{getActionButtonText(
+													mediaPermission,
+													permissionDetails.media.status,
+												)}
+											</span>
+										</>
+									)}
+								</button>
+							</div>
+						</div>
+
+						{/* Calendar Permission */}
+						<div className="permission-item">
+							<div className="permission-info">
+								<div className="permission-icon">
+									<Calendar size={20} />
+								</div>
+								<div className="permission-details">
+									<h3 className="permission-title">Calendar</h3>
+									<p className="permission-description">
+										Allow Ve to access your calendar events
+									</p>
+									<div className="permission-status">
+										{permissionDetails.calendar.message && (
+											<span className="status-message">
+												{permissionDetails.calendar.message}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+							<div className="permission-action">
+								<button
+									className={getActionButtonClass(
+										calendarPermission,
+										permissionDetails.calendar.status,
+									)}
+									onClick={handleCalendarAction}
+									disabled={calendarPermission || isCheckingPermissions}
+								>
+									{calendarPermission ? (
+										<>
+											<CheckCircle stroke="#79ECC9" size={16} />
+										</>
+									) : (
+										<>
+											<Settings size={16} />
+											<span>
+												{getActionButtonText(
+													calendarPermission,
+													permissionDetails.calendar.status,
 												)}
 											</span>
 										</>

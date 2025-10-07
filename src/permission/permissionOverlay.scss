@@ -1,14 +1,15 @@
 .permission-overlay {
 	width: 99%;
 	max-width: 520px;
-	min-height: 400px;
-	height: 90vh;
+	height: 640px; /* Fixed height to prevent overflow */
+	max-height: 90vh; /* Don't exceed viewport height */
 	flex-shrink: 0;
-	background: #1b1c1d;
+	background: #132634CC;
+	backdrop-filter: blur(150px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	overflow: visible;
+	overflow: hidden; /* Hide overflow to keep content contained */
 	border-radius: 24px;
 	border: 1px solid #b1b1b1;
 	/* Ensure overlay receives mouse events */
@@ -211,6 +212,28 @@
 				display: flex;
 				flex-direction: column;
 				padding: 20px;
+				max-height: 200px; // Reduced height to fit better in container
+				overflow-y: auto; // Enable vertical scrolling
+				overflow-x: hidden; // Hide horizontal scroll
+
+				// Custom scrollbar styling
+				&::-webkit-scrollbar {
+					width: 6px;
+				}
+
+				&::-webkit-scrollbar-track {
+					background: rgba(255, 255, 255, 0.1);
+					border-radius: 3px;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					background: rgba(255, 255, 255, 0.3);
+					border-radius: 3px;
+
+					&:hover {
+						background: rgba(255, 255, 255, 0.5);
+					}
+				}
 
 				.permission-item {
 					display: flex;
@@ -394,11 +417,32 @@
 			.shortcuts-list {
 				display: flex;
 				flex-direction: column;
-				gap: 16px;
-				padding: 0;
+				gap: 12px; // Reduced gap between items
+				padding: 10px 20px; // Added padding around the list
 				width: 90%;
+				max-height: 280px; // Limit height to make it more compact
+				overflow-y: auto; // Enable scrolling if needed
 				align-items: start;
 				justify-content: start;
+
+				// Custom scrollbar styling for shortcuts list
+				&::-webkit-scrollbar {
+					width: 6px;
+				}
+
+				&::-webkit-scrollbar-track {
+					background: rgba(255, 255, 255, 0.1);
+					border-radius: 3px;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					background: rgba(255, 255, 255, 0.3);
+					border-radius: 3px;
+
+					&:hover {
+						background: rgba(255, 255, 255, 0.5);
+					}
+				}
 
 				.shortcut-item {
 					align-items: center;
@@ -406,13 +450,13 @@
 					display: flex;
 					justify-content: space-between;
 					/* margin: 0 auto; */
-					padding: 8px 0;
+					padding: 6px 0; // Reduced padding for each item
 					width: 95%;
 
 					.shortcut-info {
 						display: flex;
 						flex-direction: column;
-						gap: 4px;
+						gap: 2px; // Reduced gap between title and description
 						flex: 1;
 
 						.shortcut-title {
@@ -518,6 +562,7 @@
 				.finish-button {
 					background: transparent;
 					color: #fff;
+					cursor: pointer;
 
 					&:hover {
 						background: var(--primary-button, #79ecc9);
@@ -550,6 +595,7 @@
 					background: var(--primary-button, #79ecc9);
 					color: #3a3a3a;
 					border: none;
+					cursor: pointer;
 
 					&:hover {
 						background: var(--primary-button, #79ecc9);
@@ -642,7 +688,8 @@
 }
 
 .onboarding-card {
-	background: #1b1c1d;
+	background: #132634CC;
+	backdrop-filter: blur(150px);
 	border-radius: 24px;
 	padding: 30px 22px;
 	width: 100%;
