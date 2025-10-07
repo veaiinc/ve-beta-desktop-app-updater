@@ -45,6 +45,14 @@ export const availableIntegrations = [
 			'Easily connect with Google Calendar to sync your schedule and manage appointments.',
 		showIn: ['private', 'shared'],
 	},
+	{
+		id: 5,
+		icon: notion,
+		title: 'Notion',
+		connectType: 'notion',
+		description: 'Easily connect with Notion to sync your tasks and manage projects.',
+		showIn: ['private', 'shared'],
+	},
 ];
 
 export const requestIntegrations = [
