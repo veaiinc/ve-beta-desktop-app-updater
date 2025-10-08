@@ -30,7 +30,7 @@ struct NotchView: View {
                 return CGSize(width: 340, height: 48)
             } else {
                 // Without physical notch: smaller width 150px, centered
-                return CGSize(width: 210, height: 40)
+                return CGSize(width: 250, height: 48)
             }
         case .opened:
             return vm.notchOpenedSize
@@ -57,7 +57,7 @@ struct NotchView: View {
             return CGSize(width: 340, height: 48)
         } else {
             // Without physical notch: smaller width 150px, centered
-            return CGSize(width: 210, height: 40)
+            return CGSize(width: 250, height: 48)
         }
     }
 
@@ -296,7 +296,8 @@ var notch: some View {
 
             }
             .padding(.horizontal, 8)
-            .padding(.vertical, 0)
+            .padding(.top, 8)
+            .padding(.bottom, 0)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
 
