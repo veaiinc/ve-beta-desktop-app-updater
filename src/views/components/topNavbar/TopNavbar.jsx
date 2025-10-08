@@ -554,7 +554,6 @@ const TopNavbar = () => {
 			<>
 				<nav className={s.topNavbarContainer}>
 					{/* Draggable area for window dragging */}
-					<div className={s.draggableArea}></div>
 
 					{/* Mobile Menu Button */}
 					<button
