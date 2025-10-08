@@ -125,9 +125,10 @@ export const ChatStreamState = () => {
 					console.log('Api for new refresh token is failed');
 				} finally {
 					fetchingAccessTokenRef.current = false;
-					if (!response?.success) {
-						return;
-					}
+				}
+
+				if (!response?.success) {
+					return;
 				}
 			}
 
