@@ -645,22 +645,22 @@ struct NotchBaseView<BackgroundMask: View>: View {
             .overlay(innerShadowOverlay)
             // .overlay(whiteBorderOverlay)
             .shadow(
-                color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay)
+                color: (vm.controlledByDynamicIsland )
                     ? DynamicIslandTheme.primaryGreen.opacity(0.3)
                     : .clear,
-                radius: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? 12 : 0
+                radius: (vm.controlledByDynamicIsland ) ? 12 : 0
             )
             .shadow(
-                color: (vm.isChatMode && !vm.showNotificationOverlay)
+                color: (vm.isChatMode )
                     ? DynamicIslandTheme.primaryGreen.opacity(0.4)
                     : .clear,
-                radius: (vm.isChatMode && !vm.showNotificationOverlay) ? 16 : 0
+                radius: (vm.isChatMode ) ? 16 : 0
             )
             .shadow(
-                color: (vm.status == .opened && !vm.showNotificationOverlay)
+                color: (vm.status == .opened )
                     ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1)
                     : .clear,
-                radius: (vm.status == .opened && !vm.showNotificationOverlay)
+                radius: (vm.status == .opened )
                     ? 20 + hoverGlow * 10
                     : 0
             )
