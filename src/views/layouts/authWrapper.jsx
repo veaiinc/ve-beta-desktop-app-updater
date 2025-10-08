@@ -168,13 +168,13 @@ const AuthWrapper = ({
 					className="auth-wrapper-container"
 				>
 					{/* {layoutModeComponentMap[layoutMode]} */}
-					{workspaceMode === 'stable' ? (
+					{/* {workspaceMode === 'stable' ? ( */}
 						!hideSidebar ? (
 							<NewSidebar />
 						) : null
-					) : (
+					{/* ) : (
 						<TopNavbar />
-					)}
+					)} */}
 
 					<div
 						style={{
