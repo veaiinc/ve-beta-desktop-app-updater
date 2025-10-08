@@ -333,7 +333,7 @@ const AppContent = () => {
 			<NotchDropVoiceActivator />
 
 			{/* Test Permission Overlay Button - Remove in production */}
-			{/* {process.env.NODE_ENV === 'development' && (
+			{process.env.NODE_ENV === 'development' && (
 				<button
 					onClick={() => window.electronApi?.permission?.showWindow()}
 					style={{

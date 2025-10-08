@@ -380,11 +380,23 @@ const PermissionOverlay = () => {
 		setCurrentStep(1);
 	};
 
-	const handleFinish = () => {
-		// Close the permission overlay regardless of screen recording permission
-		// Screen recording is optional, only mic and camera are required
+	const handleFinish = async () => {
 		console.log('🎉 Setup completed! Closing permission overlay...');
-		window.electronApi.permission.closeWindow();
+		
+		try {
+			const result = await window.electronApi.permission.closeWindow();
+			console.log('✅ Close window result:', result);
+			
+			if (result && result.success && result.onboardingMarked) {
+				console.log('✅✅✅ SUCCESS! Onboarding marked as completed - overlay will NEVER show again!');
+			} else if (result && result.success) {
+				console.log('⚠️ Window closed but onboarding may not have been marked');
+			} else {
+				console.error('❌ Failed to close window:', result);
+			}
+		} catch (error) {
+			console.error('❌ Error closing permission overlay:', error);
+		}
 	};
 
 	const openDevTools = () => {
