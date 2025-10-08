@@ -506,21 +506,4 @@ const AIMessage = ({
 	);
 };
 
-export default memo(AIMessage, (prevProps, nextProps) => {
-	return (
-		prevProps.text === nextProps.text &&
-		prevProps.messageId === nextProps.messageId &&
-		prevProps.rating === nextProps.rating &&
-		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
-		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-		JSON.stringify(prevProps.messageData?.tool_invocations) ===
-			JSON.stringify(nextProps.messageData?.tool_invocations) &&
-		prevProps.messageData?.stream_end === nextProps.messageData?.stream_end &&
-		prevProps.isLastMessage === nextProps.isLastMessage &&
-		prevProps.handleSourcesClick === nextProps.handleSourcesClick &&
-		prevProps.messageIndex === nextProps.messageIndex &&
-		prevProps.showCitationsButton === nextProps.showCitationsButton &&
-		prevProps.sessionId === nextProps.sessionId &&
-		prevProps.showResponseEditBtn === nextProps.showResponseEditBtn
-	);
-});
+export default memo(AIMessage);
