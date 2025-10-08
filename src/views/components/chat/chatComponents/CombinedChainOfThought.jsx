@@ -5,10 +5,16 @@ import DeepResearchChainOfThought from './DeepResearchChainOfThought';
 import { updateCitationIdsWithCitations } from '../../../../helpers/chat/chatHelpers';
 
 const CombinedChainOfThought = ({ data, citations = null }) => {
-	const { thoughts, deepSearches, deepResearches } = data;
+	const { thoughts, deepSearches, deepResearches, chainOfThought } = data;
 
 	return (
 		<div className="combined-chain-of-thought-container">
+			{chainOfThought?.length > 0 && (
+				<div className="chainOfThought">
+					<DeepSearchChainOfThought data={chainOfThought} />
+				</div>
+			)}
+
 			<div className="thoughts-container">
 				{(thoughts || [])?.map((thoughtData, index) => {
 					const { thought } = thoughtData;

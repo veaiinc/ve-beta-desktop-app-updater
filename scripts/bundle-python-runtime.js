@@ -9,16 +9,16 @@ console.log('🐍 Python Runtime Bundling for Hey Ve Feature\n');
 /**
  * For production apps, we need to handle Python dependencies gracefully:
  * 1. Include Python scripts and ONNX models in the bundle
- * 2. Detect system Python at runtime 
+ * 2. Detect system Python at runtime
  * 3. Gracefully fallback if Python/deps unavailable
  * 4. Show user-friendly error messages
  */
 
 // Function to create Python environment checker
 function createPythonChecker() {
-    const checkerPath = path.join(__dirname, '..', 'electron', 'wakeWord', 'check_environment.py');
-    
-    const checkerScript = `#!/usr/bin/env python3
+	const checkerPath = path.join(__dirname, '..', 'electron', 'wakeWord', 'check_environment.py');
+
+	const checkerScript = `#!/usr/bin/env python3
 """
 Python environment checker for Hey Ve wake word feature.
 Returns JSON status of Python dependencies.
@@ -78,17 +78,17 @@ if __name__ == "__main__":
         sys.exit(1)
 `;
 
-    fs.writeFileSync(checkerPath, checkerScript);
-    fs.chmodSync(checkerPath, 0o755);
-    console.log('✅ Created Python environment checker');
-    return checkerPath;
+	fs.writeFileSync(checkerPath, checkerScript);
+	fs.chmodSync(checkerPath, 0o755);
+	console.log('✅ Created Python environment checker');
+	return checkerPath;
 }
 
 // Function to create bundled requirements installer
 function createBundledInstaller() {
-    const installerPath = path.join(__dirname, '..', 'electron', 'wakeWord', 'install_deps.py');
-    
-    const installerScript = `#!/usr/bin/env python3
+	const installerPath = path.join(__dirname, '..', 'electron', 'wakeWord', 'install_deps.py');
+
+	const installerScript = `#!/usr/bin/env python3
 """
 Bundled dependency installer for Hey Ve feature.
 Attempts to install Python dependencies for end users.
@@ -145,78 +145,73 @@ if __name__ == "__main__":
         sys.exit(1)
 `;
 
-    fs.writeFileSync(installerPath, installerScript);
-    fs.chmodSync(installerPath, 0o755);
-    console.log('✅ Created bundled dependency installer');
-    return installerPath;
+	fs.writeFileSync(installerPath, installerScript);
+	fs.chmodSync(installerPath, 0o755);
+	console.log('✅ Created bundled dependency installer');
+	return installerPath;
 }
 
 // Function to verify ONNX models are present
 function verifyModels() {
-    const modelsDir = path.join(__dirname, '..', 'electron', 'wakeWord');
-    const requiredModels = [
-        'hey_ve_ee.onnx',
-        'melspectrogram.onnx',
-        'embedding_model.onnx'
-    ];
-    
-    console.log('🔍 Verifying ONNX models...');
-    
-    const missing = [];
-    const present = [];
-    
-    for (const model of requiredModels) {
-        const modelPath = path.join(modelsDir, model);
-        if (fs.existsSync(modelPath)) {
-            const stats = fs.statSync(modelPath);
-            present.push({ name: model, size: stats.size });
-            console.log(`✅ ${model} (${(stats.size / 1024 / 1024).toFixed(2)} MB)`);
-        } else {
-            missing.push(model);
-            console.log(`❌ ${model} (missing)`);
-        }
-    }
-    
-    if (missing.length > 0) {
-        console.log(`\n⚠️ Missing ${missing.length} ONNX models for Hey Ve feature`);
-        console.log('💡 The Hey Ve feature will be disabled in production builds');
-        return false;
-    }
-    
-    console.log(`\n✅ All ${requiredModels.length} ONNX models present for Hey Ve feature`);
-    return true;
+	const modelsDir = path.join(__dirname, '..', 'electron', 'wakeWord');
+	const requiredModels = ['hey_ve_ee.onnx', 'melspectrogram.onnx', 'embedding_model.onnx'];
+
+	console.log('🔍 Verifying ONNX models...');
+
+	const missing = [];
+	const present = [];
+
+	for (const model of requiredModels) {
+		const modelPath = path.join(modelsDir, model);
+		if (fs.existsSync(modelPath)) {
+			const stats = fs.statSync(modelPath);
+			present.push({ name: model, size: stats.size });
+			console.log(`✅ ${model} (${(stats.size / 1024 / 1024).toFixed(2)} MB)`);
+		} else {
+			missing.push(model);
+			console.log(`❌ ${model} (missing)`);
+		}
+	}
+
+	if (missing.length > 0) {
+		console.log(`\n⚠️ Missing ${missing.length} ONNX models for Hey Ve feature`);
+		console.log('💡 The Hey Ve feature will be disabled in production builds');
+		return false;
+	}
+
+	console.log(`\n✅ All ${requiredModels.length} ONNX models present for Hey Ve feature`);
+	return true;
 }
 
 // Main bundling function
 function bundlePythonRuntime() {
-    console.log('📦 Preparing Python runtime for production bundle...\n');
-    
-    try {
-        // Create helper scripts
-        createPythonChecker();
-        createBundledInstaller();
-        
-        // Verify models
-        const modelsReady = verifyModels();
-        
-        console.log('\n🎯 Production Bundle Configuration:');
-        console.log('  ✅ Python scripts included in extraResources');
-        console.log('  ✅ ONNX models included in extraResources');
-        console.log('  ✅ Environment checker created');
-        console.log('  ✅ Dependency installer created');
-        console.log('  ✅ Graceful fallback implemented in wakeWordService.js');
-        
-        if (modelsReady) {
-            console.log('\n🎉 Hey Ve feature is ready for production bundling!');
-            console.log('💡 End users will get automatic Python dependency installation');
-        } else {
-            console.log('\n⚠️ Hey Ve feature will be disabled (missing models)');
-        }
-        
-    } catch (error) {
-        console.error('❌ Python runtime bundling failed:', error.message);
-        process.exit(1);
-    }
+	console.log('📦 Preparing Python runtime for production bundle...\n');
+
+	try {
+		// Create helper scripts
+		createPythonChecker();
+		createBundledInstaller();
+
+		// Verify models
+		const modelsReady = verifyModels();
+
+		console.log('\n🎯 Production Bundle Configuration:');
+		console.log('  ✅ Python scripts included in extraResources');
+		console.log('  ✅ ONNX models included in extraResources');
+		console.log('  ✅ Environment checker created');
+		console.log('  ✅ Dependency installer created');
+		console.log('  ✅ Graceful fallback implemented in wakeWordService.js');
+
+		if (modelsReady) {
+			console.log('\n🎉 Hey Ve feature is ready for production bundling!');
+			console.log('💡 End users will get automatic Python dependency installation');
+		} else {
+			console.log('\n⚠️ Hey Ve feature will be disabled (missing models)');
+		}
+	} catch (error) {
+		console.error('❌ Python runtime bundling failed:', error.message);
+		process.exit(1);
+	}
 }
 
 // Run bundling

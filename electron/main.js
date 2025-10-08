@@ -1737,27 +1737,30 @@ function createWindow(restoreState = false) {
 				}
 
 				// Check if index.html exists
-				if (!fs.existsSync(buildPath)) {
-					log.error('❌ Build file not found:', buildPath);
-					await showErrorPage(
-						'Build file not found',
-						`The main application file is missing: ${buildPath}`,
-					);
-					return;
-				}
+			// ⚡ OPTIMIZATION: Use async file operations
+			try {
+				await fs.promises.access(buildPath);
+			} catch {
+				log.error('❌ Build file not found:', buildPath);
+				await showErrorPage(
+					'Build file not found',
+					`The main application file is missing: ${buildPath}`,
+				);
+				return;
+			}
 
-				// Check if build directory has content
-				const buildFiles = fs.readdirSync(buildDir);
-				log.info('📋 Build directory contents:', buildFiles);
+			// ⚡ OPTIMIZATION: Check build directory content asynchronously
+			const buildFiles = await fs.promises.readdir(buildDir);
+			log.info('📋 Build directory contents:', buildFiles);
 
-				if (buildFiles.length === 0) {
-					log.error('❌ Build directory is empty');
-					await showErrorPage(
-						'Empty build directory',
-						'The build directory exists but contains no files. Please rebuild the application.',
-					);
-					return;
-				}
+			if (buildFiles.length === 0) {
+				log.error('❌ Build directory is empty');
+				await showErrorPage(
+					'Empty build directory',
+					'The build directory exists but contains no files. Please rebuild the application.',
+				);
+				return;
+			}
 
 				// Try to load the file
 				log.info('📁 Loading production build file:', buildPath);
@@ -1915,25 +1918,25 @@ function createWindow(restoreState = false) {
 </body>
 </html>`;
 
-			// Write error page to a temporary file
-			const errorPagePath = path.join(__dirname, 'error-page.html');
-			fs.writeFileSync(errorPagePath, errorHtml);
+		// ⚡ OPTIMIZATION: Write error page asynchronously
+		const errorPagePath = path.join(__dirname, 'error-page.html');
+		await fs.promises.writeFile(errorPagePath, errorHtml);
 
-			// Load the error page from file
-			await mainWindow.loadFile(errorPagePath);
-			log.info('✅ Error page displayed to user');
+		// Load the error page from file
+		await mainWindow.loadFile(errorPagePath);
+		log.info('✅ Error page displayed to user');
 
-			// Clean up the temporary file after a delay
-			setTimeout(() => {
-				try {
-					if (fs.existsSync(errorPagePath)) {
-						fs.unlinkSync(errorPagePath);
-						log.info('🧹 Cleaned up temporary error page file');
-					}
-				} catch (cleanupError) {
+		// ⚡ OPTIMIZATION: Clean up the temporary file asynchronously after a delay
+		setTimeout(async () => {
+			try {
+				await fs.promises.unlink(errorPagePath);
+				log.info('🧹 Cleaned up temporary error page file');
+			} catch (cleanupError) {
+				if (cleanupError.code !== 'ENOENT') {
 					log.warn('⚠️ Failed to clean up error page file:', cleanupError.message);
 				}
-			}, 30000); // Clean up after 30 seconds
+			}
+		}, 30000); // Clean up after 30 seconds
 		} catch (errorPageError) {
 			log.error('❌ Failed to show error page:', errorPageError);
 
@@ -2406,18 +2409,38 @@ app.whenReady().then(async () => {
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
 
-	// CRITICAL: Add watchdog timer to prevent main process hanging
+	// ⚡ CRITICAL MEMORY LEAK FIX: Add periodic garbage collection
+	const memoryCleanupInterval = setInterval(() => {
+		const memUsage = process.memoryUsage();
+		const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+
+		// Force garbage collection if memory exceeds 300MB (lowered from 500MB)
+		if (heapUsedMB > 300) {
+			log.warn(`⚠️ High memory usage: ${heapUsedMB}MB - forcing garbage collection...`);
+			if (global.gc) {
+				global.gc();
+				const afterGC = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
+				log.info(
+					`✅ GC completed: ${heapUsedMB}MB → ${afterGC}MB (freed ${
+						heapUsedMB - afterGC
+					}MB)`,
+				);
+			}
+		}
+	}, 10000); // Check every 10 seconds
+
+	// ⚡ OPTIMIZED: Less aggressive watchdog (was checking every 5s for 30s hang)
 	let lastHeartbeat = Date.now();
 	const watchdogInterval = setInterval(() => {
 		const now = Date.now();
-		if (now - lastHeartbeat > 30000) {
-			// 30 seconds without heartbeat
+		if (now - lastHeartbeat > 60000) {
+			// 60 seconds without heartbeat (increased from 30s)
 			log.error('❌ Main process appears to be hanging - forcing restart...');
 			app.relaunch();
 			app.exit(1);
 		}
 		lastHeartbeat = now;
-	}, 5000); // Check every 5 seconds
+	}, 15000); // Check every 15 seconds (reduced frequency)
 
 	// Update heartbeat on any activity
 	process.on('message', () => {
@@ -2432,29 +2455,22 @@ app.whenReady().then(async () => {
 		log.error('❌ Unhandled rejection:', reason);
 	});
 
-	// CRITICAL: Add process monitoring to detect hanging
+	// ⚡ OPTIMIZED: Less frequent process monitoring (reduced overhead)
+	let lastMemoryLog = Date.now();
 	const processMonitor = setInterval(() => {
-		const memUsage = process.memoryUsage();
-		const cpuUsage = process.cpuUsage();
+		const now = Date.now();
 
-		// Log memory usage every 30 seconds
-		if (Date.now() % 30000 < 5000) {
+		// Log memory usage every 60 seconds (reduced from 30s)
+		if (now - lastMemoryLog > 60000) {
+			const memUsage = process.memoryUsage();
 			log.info('📊 Process stats:', {
-				memory: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+				heap: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
 				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
 				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB',
 			});
+			lastMemoryLog = now;
 		}
-
-		// Force garbage collection if memory usage is too high
-		if (memUsage.heapUsed > 500 * 1024 * 1024) {
-			// 500MB
-			log.warn('⚠️ High memory usage detected, forcing garbage collection...');
-			if (global.gc) {
-				global.gc();
-			}
-		}
-	}, 5000);
+	}, 30000); // Check every 30 seconds (reduced from 5s)
 
 	// Run startup diagnostics
 	runStartupDiagnostics();
@@ -2609,7 +2625,7 @@ app.whenReady().then(async () => {
 				process.arch,
 			);
 			dynamicIslandHelper = new DynamicIslandHelper();
-			dynamicIslandHelper.createDynamicIslandWindow();
+			await dynamicIslandHelper.createDynamicIslandWindow();
 			log.info('Dynamic Island Helper initialized successfully');
 		} catch (error) {
 			log.error('Failed to initialize Dynamic Island Helper:', error);

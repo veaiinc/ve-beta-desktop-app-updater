@@ -687,20 +687,37 @@ struct DynamicIslandContentView: View {
             // Set up listener for Swift actions to handle received messages
             setupMessageListener()
             
-            // Set up Spotify detection timer for the whole view
+            // ⚡ CRITICAL FIX: Set up Spotify detection timer with proper cleanup
             setupSpotifyDetectionTimer()
+        }
+        .onDisappear {
+            // ⚡ CRITICAL FIX: Clean up timer to prevent accumulation
+            cleanupSpotifyDetectionTimer()
         }
     }
     
+    // ⚡ PERFORMANCE FIX: Store timer reference for proper cleanup
+    @State private var spotifyDetectionTimer: Timer?
+    
     // MARK: - Spotify Detection Timer
     private func setupSpotifyDetectionTimer() {
+        // Clean up any existing timer first
+        cleanupSpotifyDetectionTimer()
+        
         // Initial check
         updateSpotifyStatus()
         
-        // Set up periodic updates for Spotify status
-        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+        // ⚡ OPTIMIZATION: Increased interval from 2s to 5s to reduce CPU usage
+        // Store timer reference so we can invalidate it later
+        spotifyDetectionTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
             updateSpotifyStatus()
         }
+    }
+    
+    // ⚡ CRITICAL FIX: Proper timer cleanup
+    private func cleanupSpotifyDetectionTimer() {
+        spotifyDetectionTimer?.invalidate()
+        spotifyDetectionTimer = nil
     }
     
     private func updateSpotifyStatus() {

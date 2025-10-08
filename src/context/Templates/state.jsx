@@ -107,7 +107,6 @@ export const intialState = {
 	activePromptForChat: null,
 	activePayloadForChat: null,
 	activeInputForChat: null,
-	leftSidebarState: null,
 	recentChatStorage: null,
 	moreRecentChatStorage: null,
 	llmModels: null,
@@ -132,6 +131,8 @@ export const intialState = {
 	aiMessagesInfo: null,
 	proactiveInfoForChat: null,
 	isDirectSearchAgent: false,
+	sidebarState: null,
+	isSidebarMobileView: false,
 };
 
 export const TemplatesState = (props) => {

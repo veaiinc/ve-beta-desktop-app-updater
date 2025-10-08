@@ -44,11 +44,14 @@ class AudioStorageService {
 			// Check if audio already exists to prevent duplicates
 			const hasExistingAudio = await this.hasAudio(meetingId);
 			if (hasExistingAudio) {
-				console.log('⚠️ Audio already exists for meeting, skipping duplicate save:', meetingId);
+				console.log(
+					'⚠️ Audio already exists for meeting, skipping duplicate save:',
+					meetingId,
+				);
 				return {
 					success: true,
 					skipped: true,
-					message: 'Audio already exists for this meeting'
+					message: 'Audio already exists for this meeting',
 				};
 			}
 
@@ -462,7 +465,7 @@ class AudioStorageService {
 				return {
 					success: true,
 					uploadUrl: metadataResult.metadata.assemblyaiUploadUrl,
-					skipped: true
+					skipped: true,
 				};
 			}
 
@@ -515,7 +518,9 @@ class AudioStorageService {
 						console.warn('⚠️ No JWT token found - cannot send to workspace API');
 					}
 				} else {
-					console.log('⚠️ Skipping workspace API call - upload was skipped (already exists)');
+					console.log(
+						'⚠️ Skipping workspace API call - upload was skipped (already exists)',
+					);
 				}
 			}
 
@@ -652,10 +657,7 @@ class AudioStorageService {
 				throw new Error('JWT token not found');
 			}
 
-			const workspaceResult = await assemblyAIService.sendToWorkspaceAPI(
-				meetingId,
-				jwtToken,
-			);
+			const workspaceResult = await assemblyAIService.sendToWorkspaceAPI(meetingId, jwtToken);
 
 			if (workspaceResult.success) {
 				console.log('✅ Successfully sent meeting ID to workspace API!');
