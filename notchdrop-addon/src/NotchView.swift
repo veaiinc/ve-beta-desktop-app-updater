@@ -600,6 +600,7 @@ struct NotchBaseView<BackgroundMask: View>: View {
     let hoverGlow: CGFloat
     @Binding var isHoveringNotch: Bool
     @ViewBuilder let backgroundMask: () -> BackgroundMask
+    @State private var showInsetOverlay: Bool = false
     
     var body: some View {
         Rectangle()
@@ -618,7 +619,7 @@ struct NotchBaseView<BackgroundMask: View>: View {
             .scaleEffect(1.0)
             .animation(DynamicIslandTheme.hoverAnimation, value: vm.status)
             .overlay(innerShadowOverlay)
-            .overlay(whiteBorderOverlay)
+            // .overlay(whiteBorderOverlay)
             .shadow(
                 color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay)
                     ? DynamicIslandTheme.primaryGreen.opacity(0.3)
@@ -639,39 +640,113 @@ struct NotchBaseView<BackgroundMask: View>: View {
                     ? 20 + hoverGlow * 10
                     : 0
             )
+            .onChange(of: vm.status) { _, newStatus in
+                if newStatus == .opened {
+                    // Defer showing inset a bit to allow open animation to complete
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        if vm.status == .opened {
+                            showInsetOverlay = true
+                        }
+                    }
+                } else {
+                    showInsetOverlay = false
+                }
+            }
     }
     
     @ViewBuilder
     private var innerShadowOverlay: some View {
         Group {
-            if vm.status == .opened {
-                RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.6), lineWidth: 5) // 10px inset glow
-                    .blur(radius: 10)
-                    .mask(backgroundMask())
-                    .transition(.opacity) // fade-in when opening
-                    .animation(.easeInOut(duration: 0.15), value: vm.status)
+            if vm.status == .opened && !vm.isAuthenticated && showInsetOverlay {
+                ZStack {
+                    // Top inset shadow with gradient (reduced width to avoid corner overlap)
+                    RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.4),  // Edge - full opacity
+                                    Color.white.opacity(0.0)   // Center - transparent
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .frame(width: notchSize.width - 30, height: 10) // Reduce width to avoid corners
+                        .offset(y: -notchSize.height/2 + 10)
+                        .blur(radius: 12)
+                    
+                    // Bottom inset shadow with gradient (reduced width to avoid corner overlap)
+                    RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.4),  // Edge - full opacity
+                                    Color.white.opacity(0.0)   // Center - transparent
+                                ],
+                                startPoint: .bottom,
+                                endPoint: .top
+                            )
+                        )
+                        .frame(width: notchSize.width - 30, height: 10) // Reduce width to avoid corners
+                        .offset(y: notchSize.height/2 - 10)
+                        .blur(radius: 12)
+                    
+                    // Left inset shadow with gradient (reduced height to avoid corner overlap)
+                    RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.4),  // Edge - full opacity
+                                    Color.white.opacity(0.0)   // Center - transparent
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: 10, height: notchSize.height - 30) // Reduce height to avoid corners
+                        .offset(x: -notchSize.width/2 + 10)
+                        .blur(radius: 12)
+                    
+                    // Right inset shadow with gradient (reduced height to avoid corner overlap)
+                    RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.4),  // Edge - full opacity
+                                    Color.white.opacity(0.0)   // Center - transparent
+                                ],
+                                startPoint: .trailing,
+                                endPoint: .leading
+                            )
+                        )
+                        .frame(width: 10, height: notchSize.height - 30) // Reduce height to avoid corners
+                        .offset(x: notchSize.width/2 - 10)
+                        .blur(radius: 12)
+                }
+                .mask(backgroundMask())
+                .transition(.opacity) // fade-in when opening
+                .animation(.easeInOut(duration: 0.15), value: vm.status)
             }
         }
     }
     
-    @ViewBuilder
-    private var whiteBorderOverlay: some View {
-        Group {
-            if vm.status == .opened && !vm.isAuthenticated {
-                // Create a border that only shows on left, right, and bottom edges (not top)
-                BottomRoundedThreeSidedBorder(cornerRadius: notchCornerRadius)
-                    .stroke(Color.white, lineWidth: 1)
-                    .frame(
-                        width: notchSize.width,
-                        height: notchSize.height
-                    )
-                    .mask(backgroundMask())
-                    .transition(.opacity)
-                    .animation(.easeInOut(duration: 0.15), value: vm.status)
-            }
-        }
-    }
+    // @ViewBuilder
+    // private var whiteBorderOverlay: some View {
+    //     Group {
+    //         if vm.status == .opened && !vm.isAuthenticated {
+    //             // Create a border that only shows on left, right, and bottom edges (not top)
+    //             BottomRoundedThreeSidedBorder(cornerRadius: notchCornerRadius)
+    //                 .stroke(Color.white, lineWidth: 1)
+    //                 .frame(
+    //                     width: notchSize.width,
+    //                     height: notchSize.height
+    //                 )
+    //                 .mask(backgroundMask())
+    //                 .transition(.opacity)
+    //                 .animation(.easeInOut(duration: 0.15), value: vm.status)
+    //         }
+    //     }
+    // }
 }
 
 struct BottomRoundedThreeSidedBorder: Shape {
