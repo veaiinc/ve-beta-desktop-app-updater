@@ -154,33 +154,33 @@ const LiveIntelligencePanel = ({
 		{ key: 'all-threads', label: 'All threads', count: getBadgeCount('all-threads') },
 		...(getBadgeCount('ask-user') > 0
 			? [
-				{
-					key: 'ask-user',
-					label: 'Ask Speaker',
-					icon: userIcon,
-					count: getBadgeCount('ask-user'),
-				},
-			]
+					{
+						key: 'ask-user',
+						label: 'Ask Speaker',
+						icon: userIcon,
+						count: getBadgeCount('ask-user'),
+					},
+			  ]
 			: []),
 		...(getBadgeCount('need-help') > 0
 			? [
-				{
-					key: 'need-help',
-					label: 'Ask AI',
-					icon: needHelpIcon,
-					count: getBadgeCount('need-help'),
-				},
-			]
+					{
+						key: 'need-help',
+						label: 'Ask AI',
+						icon: needHelpIcon,
+						count: getBadgeCount('need-help'),
+					},
+			  ]
 			: []),
 		...(getBadgeCount('actions') > 0
 			? [
-				{
-					key: 'actions',
-					label: 'Actions',
-					icon: actionsIcon,
-					count: getBadgeCount('actions'),
-				},
-			]
+					{
+						key: 'actions',
+						label: 'Actions',
+						icon: actionsIcon,
+						count: getBadgeCount('actions'),
+					},
+			  ]
 			: []),
 		...(getBadgeCount('files') > 0
 			? [{ key: 'files', label: 'Files', count: getBadgeCount('files') }]
@@ -228,9 +228,10 @@ const LiveIntelligencePanel = ({
 								return (
 									<div
 										key={thread.reference_id || thread.id || index}
-										className={`thread-item clickable ${''
+										className={`thread-item clickable ${
+											''
 											// thread.entity === 'user' ? 'ask-user-item' : 'clickable'
-											}`}
+										}`}
 										onClick={() =>
 											handleThreadItemClick(
 												thread,

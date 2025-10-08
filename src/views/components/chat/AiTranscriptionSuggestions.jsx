@@ -33,7 +33,7 @@ const AiTranscriptionSuggestions = ({
 		notes: { getRevampedPrompt },
 	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
-	
+
 	// Local state for data and loading (following MeetSummary/MeetingAnalytics pattern)
 	const [processedData, setProcessedData] = useState({
 		userQuestions: [],
@@ -46,7 +46,7 @@ const AiTranscriptionSuggestions = ({
 	const [error, setError] = useState(null);
 	const [revampedPromptLoading, setRevampedPromptLoading] = useState(false);
 	const [revampedPromptError, setRevampedPromptError] = useState(null);
-	
+
 	const bodyRef = useRef(null);
 
 	// Fetch suggestions data (following MeetSummary/MeetingAnalytics pattern)
@@ -62,8 +62,13 @@ const AiTranscriptionSuggestions = ({
 
 		try {
 			// Check if we have props data (from parent component)
-			const hasPropsData = userQuestions.length > 0 || aiQuestions.length > 0 || actions.length > 0 || files.length > 0 || allSuggestions.length > 0;
-			
+			const hasPropsData =
+				userQuestions.length > 0 ||
+				aiQuestions.length > 0 ||
+				actions.length > 0 ||
+				files.length > 0 ||
+				allSuggestions.length > 0;
+
 			if (hasPropsData) {
 				// Use props data (already processed by parent)
 				setProcessedData({
@@ -74,7 +79,10 @@ const AiTranscriptionSuggestions = ({
 					allSuggestions,
 				});
 				setIsLoading(false);
-			} else if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
+			} else if (
+				aiTranscriptionSuggestions &&
+				aiTranscriptionSuggestions?.suggestions?.length > 0
+			) {
 				// Process context data directly
 				const allThreads = [];
 				const askUser = [];
@@ -145,7 +153,15 @@ const AiTranscriptionSuggestions = ({
 
 	useEffect(() => {
 		fetchSuggestionsData();
-	}, [meetingId, userQuestions, aiQuestions, actions, files, allSuggestions, aiTranscriptionSuggestions]);
+	}, [
+		meetingId,
+		userQuestions,
+		aiQuestions,
+		actions,
+		files,
+		allSuggestions,
+		aiTranscriptionSuggestions,
+	]);
 
 	useEffect(() => {
 		if (isRevampedPrompt) {
@@ -448,20 +464,50 @@ const AiTranscriptionSuggestions = ({
 						{isRevampedPrompt ? (
 							<>
 								{revampedPromptLoading || isRevampedPromptLoading ? (
-									<div className="meet-transcript-empty" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+									<div
+										className="meet-transcript-empty"
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											flexDirection: 'column',
+										}}
+									>
 										<Spinner size={24} />
-										<p style={{ color: '#94989e', fontSize: '14px', marginTop: '8px' }}>
+										<p
+											style={{
+												color: '#94989e',
+												fontSize: '14px',
+												marginTop: '8px',
+											}}
+										>
 											Loading meeting suggestions...
 										</p>
 									</div>
 								) : revampedPromptError ? (
-									<div className="meet-transcript-empty" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+									<div
+										className="meet-transcript-empty"
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											flexDirection: 'column',
+										}}
+									>
 										<p style={{ color: '#94989e', fontSize: '14px' }}>
 											No meeting suggestions available
 										</p>
 									</div>
 								) : revampedPrompt?.length === 0 ? (
-									<div className="meet-transcript-empty" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+									<div
+										className="meet-transcript-empty"
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											flexDirection: 'column',
+										}}
+									>
 										<p style={{ color: '#94989e', fontSize: '14px' }}>
 											No meeting suggestions available
 										</p>
@@ -477,7 +523,15 @@ const AiTranscriptionSuggestions = ({
 						) : (
 							<>
 								{processedData.allSuggestions?.length === 0 ? (
-									<div className="meet-transcript-empty" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+									<div
+										className="meet-transcript-empty"
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											flexDirection: 'column',
+										}}
+									>
 										<p style={{ color: '#94989e', fontSize: '14px' }}>
 											No suggestions available
 										</p>

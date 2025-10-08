@@ -183,44 +183,56 @@ class NotchDropService {
 	setupEventListeners() {
 		if (!this.notchDropAddon) return;
 
+		// ⚡ CRITICAL MEMORY LEAK FIX: Store event handler references for proper cleanup
+		this.eventHandlers = this.eventHandlers || {};
+
 		// Listen for status changes
-		this.notchDropAddon.on('statusChanged', (status) => {
+		this.eventHandlers.statusChanged = (status) => {
 			// Emit to renderer process if needed
 			this.emitToRenderer('notchdrop-status-changed', status);
-		});
+		};
+		this.notchDropAddon.on('statusChanged', this.eventHandlers.statusChanged);
 
 		// Listen for file drops
-		this.notchDropAddon.on('fileDropped', (filePath) => {
+		this.eventHandlers.fileDropped = (filePath) => {
 			log.info('File dropped on NotchDrop:', filePath);
 			// Handle the dropped file
 			this.handleDroppedFile(filePath);
-		});
+		};
+		this.notchDropAddon.on('fileDropped', this.eventHandlers.fileDropped);
 
 		// Listen for item changes
-		this.notchDropAddon.on('itemAdded', (itemData) => {
+		this.eventHandlers.itemAdded = (itemData) => {
 			log.info('Item added to NotchDrop:', itemData);
 			this.emitToRenderer('notchdrop-item-added', itemData);
-		});
+		};
+		this.notchDropAddon.on('itemAdded', this.eventHandlers.itemAdded);
 
-		this.notchDropAddon.on('itemRemoved', (itemData) => {
+		this.eventHandlers.itemRemoved = (itemData) => {
 			log.info('Item removed from NotchDrop:', itemData);
 			this.emitToRenderer('notchdrop-item-removed', itemData);
-		});
+		};
+		this.notchDropAddon.on('itemRemoved', this.eventHandlers.itemRemoved);
 
 		// Listen for Swift log messages
-		this.notchDropAddon.on('swiftLog', (message) => {
+		this.eventHandlers.swiftLog = (message) => {
 			log.info('📝 Swift UI sent log message:', message);
 			this.handleSwiftLog(message);
-		});
+		};
+		this.notchDropAddon.on('swiftLog', this.eventHandlers.swiftLog);
 
 		// Listen for overlay recording requests from Swift UI
-		this.notchDropAddon.on('requestOverlayRecording', () => {
+		this.eventHandlers.requestOverlayRecording = () => {
 			log.info('🎤 Swift UI requested overlay recording');
 			this.handleOverlayRecordingRequest();
-		});
+		};
+		this.notchDropAddon.on(
+			'requestOverlayRecording',
+			this.eventHandlers.requestOverlayRecording,
+		);
 
 		// Listen for Ask AI chat submissions from Swift UI
-		this.notchDropAddon.on('submitChat', (message) => {
+		this.eventHandlers.submitChat = (message) => {
 			try {
 				const text = typeof message === 'string' ? message : String(message || '');
 				const chatMessage = {
@@ -228,13 +240,13 @@ class NotchDropService {
 					message: text,
 					timestamp: new Date().toISOString(),
 					source: 'notchdrop-swift-ui',
-                    path : `/chat/${ObjectID().toString()}`,
-					updateObject : {
-						type : 'chat',
-						payload : {
-							query : text,
-						}
-					}
+					path: `/chat/${ObjectID().toString()}`,
+					updateObject: {
+						type: 'chat',
+						payload: {
+							query: text,
+						},
+					},
 				};
 
 				// Emit to main via process event to reuse main.js flow
@@ -242,58 +254,57 @@ class NotchDropService {
 			} catch (error) {
 				log.error('❌ Error handling Swift UI submitChat:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('submitChat', this.eventHandlers.submitChat);
 
 		// Listen for voice agent start requests from Swift UI
-		this.notchDropAddon.on('startVoiceAgent', (data) => {
+		this.eventHandlers.startVoiceAgent = (data) => {
 			try {
 				log.info('🎤 Swift UI requested voice agent start');
-				console.log(
-					'🎤 NotchDrop: Received startVoiceAgent event, activating voice agent...',
-				);
 				this.activateVoiceAgent();
 			} catch (error) {
 				log.error('❌ Error handling Swift UI startVoiceAgent:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('startVoiceAgent', this.eventHandlers.startVoiceAgent);
 
 		// Listen for voice agent disconnect requests from Swift UI
-		this.notchDropAddon.on('disconnectVoice', (data) => {
+		this.eventHandlers.disconnectVoice = (data) => {
 			try {
 				log.info('🔌 Swift UI requested voice agent disconnect');
-				console.log(
-					'🔌 NotchDrop: Received disconnectVoice event, deactivating voice agent...',
-				);
 				this.deactivateVoiceAgent();
 			} catch (error) {
 				log.error('❌ Error handling Swift UI disconnectVoice:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('disconnectVoice', this.eventHandlers.disconnectVoice);
 
-		this.notchDropAddon.on('toggleStealthMode', () => {
+		this.eventHandlers.toggleStealthMode = () => {
 			Promise.resolve(this.handleToggleStealthModeRequest('swift-event')).catch((error) => {
 				log.error('❌ Error handling Swift UI stealth toggle event:', error);
 			});
-		});
+		};
+		this.notchDropAddon.on('toggleStealthMode', this.eventHandlers.toggleStealthMode);
 
 		// Listen for voice mute toggle requests from Swift UI
-		this.notchDropAddon.on('toggleVoiceMute', (data) => {
+		this.eventHandlers.toggleVoiceMute = (data) => {
 			try {
 				log.info('🔇 Swift UI requested voice mute toggle');
-				console.log('🔇 NotchDrop: Received toggleVoiceMute event, toggling microphone...');
 				this.toggleVoiceMute();
 			} catch (error) {
 				log.error('❌ Error handling Swift UI toggleVoiceMute:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('toggleVoiceMute', this.eventHandlers.toggleVoiceMute);
 
 		// Listen for messages received by Swift UI from Electron
-		this.notchDropAddon.on('messageReceived', (message) => {
+		this.eventHandlers.messageReceived = (message) => {
 			log.info('📨 Swift UI received message from Electron:', message);
 			// You can add additional handling here if needed
-		});
+		};
+		this.notchDropAddon.on('messageReceived', this.eventHandlers.messageReceived);
 
-		this.notchDropAddon.on('navigateToMainScreen', (targetPath) => {
+		this.eventHandlers.navigateToMainScreen = (targetPath) => {
 			try {
 				log.info('🏠 Swift UI requested main window navigation:', targetPath);
 				// Special handling for Meeting AI click: decide based on workspace suspension
@@ -307,7 +318,10 @@ class NotchDropService {
 			} catch (error) {
 				log.error('❌ Error handling Swift UI main window navigation request:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('navigateToMainScreen', this.eventHandlers.navigateToMainScreen);
+
+		log.info('✅ All NotchDrop event listeners registered with cleanup support');
 	}
 
 	enable() {
@@ -668,35 +682,65 @@ class NotchDropService {
 	}
 
 	cleanup() {
+		log.info('🧹 Starting NotchDrop cleanup...');
+
 		if (this.isInitialized) {
 			try {
 				this.disable();
 			} catch (error) {
-				log.error('❌ Error during NotchDrop cleanup:', error);
+				log.error('❌ Error during NotchDrop disable:', error);
 			}
 		}
 
-		// CRITICAL: Remove all event listeners to prevent memory leaks
+		// ⚡ CRITICAL MEMORY LEAK FIX: Remove event listeners properly with stored references
 		try {
-			if (this.notchDropAddon) {
+			if (this.notchDropAddon && this.eventHandlers) {
+				// Remove each event listener individually using stored references
+				const events = Object.keys(this.eventHandlers);
+				events.forEach((eventName) => {
+					if (this.eventHandlers[eventName]) {
+						this.notchDropAddon.removeListener(
+							eventName,
+							this.eventHandlers[eventName],
+						);
+					}
+				});
+
+				// Clear all remaining listeners as safety
 				this.notchDropAddon.removeAllListeners();
+
+				log.info(`🧹 Removed ${events.length} NotchDrop event listeners`);
 			}
 
 			// Clear any pending timeouts
 			if (this._initTimeout) {
 				clearTimeout(this._initTimeout);
+				this._initTimeout = null;
 			}
 			if (this._addonInitTimeout) {
 				clearTimeout(this._addonInitTimeout);
+				this._addonInitTimeout = null;
 			}
+
+			// ⚡ CRITICAL: Null out all references to allow garbage collection
+			this.eventHandlers = null;
+			this.mainWindow = null;
+			this.createMainWindowFn = null;
+			this.stealthModeController = null;
+			this.swiftJSBridge = null;
 
 			// Reset state
 			this.isInitialized = false;
 			this.isEnabled = false;
 			this.notchDropAddon = null;
-			this.swiftJSBridge = null;
 
-			log.info('🧹 NotchDrop service cleaned up successfully');
+			// Force garbage collection if available
+			if (global.gc) {
+				global.gc();
+				log.info('🗑️ Forced garbage collection after cleanup');
+			}
+
+			log.info('✅ NotchDrop service cleaned up successfully');
 		} catch (error) {
 			log.error('❌ Error during NotchDrop cleanup:', error);
 		}

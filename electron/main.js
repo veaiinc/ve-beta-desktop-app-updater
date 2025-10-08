@@ -2406,18 +2406,38 @@ app.whenReady().then(async () => {
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
 
-	// CRITICAL: Add watchdog timer to prevent main process hanging
+	// ⚡ CRITICAL MEMORY LEAK FIX: Add periodic garbage collection
+	const memoryCleanupInterval = setInterval(() => {
+		const memUsage = process.memoryUsage();
+		const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+
+		// Force garbage collection if memory exceeds 300MB (lowered from 500MB)
+		if (heapUsedMB > 300) {
+			log.warn(`⚠️ High memory usage: ${heapUsedMB}MB - forcing garbage collection...`);
+			if (global.gc) {
+				global.gc();
+				const afterGC = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
+				log.info(
+					`✅ GC completed: ${heapUsedMB}MB → ${afterGC}MB (freed ${
+						heapUsedMB - afterGC
+					}MB)`,
+				);
+			}
+		}
+	}, 10000); // Check every 10 seconds
+
+	// ⚡ OPTIMIZED: Less aggressive watchdog (was checking every 5s for 30s hang)
 	let lastHeartbeat = Date.now();
 	const watchdogInterval = setInterval(() => {
 		const now = Date.now();
-		if (now - lastHeartbeat > 30000) {
-			// 30 seconds without heartbeat
+		if (now - lastHeartbeat > 60000) {
+			// 60 seconds without heartbeat (increased from 30s)
 			log.error('❌ Main process appears to be hanging - forcing restart...');
 			app.relaunch();
 			app.exit(1);
 		}
 		lastHeartbeat = now;
-	}, 5000); // Check every 5 seconds
+	}, 15000); // Check every 15 seconds (reduced frequency)
 
 	// Update heartbeat on any activity
 	process.on('message', () => {
@@ -2432,29 +2452,22 @@ app.whenReady().then(async () => {
 		log.error('❌ Unhandled rejection:', reason);
 	});
 
-	// CRITICAL: Add process monitoring to detect hanging
+	// ⚡ OPTIMIZED: Less frequent process monitoring (reduced overhead)
+	let lastMemoryLog = Date.now();
 	const processMonitor = setInterval(() => {
-		const memUsage = process.memoryUsage();
-		const cpuUsage = process.cpuUsage();
+		const now = Date.now();
 
-		// Log memory usage every 30 seconds
-		if (Date.now() % 30000 < 5000) {
+		// Log memory usage every 60 seconds (reduced from 30s)
+		if (now - lastMemoryLog > 60000) {
+			const memUsage = process.memoryUsage();
 			log.info('📊 Process stats:', {
-				memory: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+				heap: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
 				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
 				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB',
 			});
+			lastMemoryLog = now;
 		}
-
-		// Force garbage collection if memory usage is too high
-		if (memUsage.heapUsed > 500 * 1024 * 1024) {
-			// 500MB
-			log.warn('⚠️ High memory usage detected, forcing garbage collection...');
-			if (global.gc) {
-				global.gc();
-			}
-		}
-	}, 5000);
+	}, 30000); // Check every 30 seconds (reduced from 5s)
 
 	// Run startup diagnostics
 	runStartupDiagnostics();
