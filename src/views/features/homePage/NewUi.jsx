@@ -511,12 +511,12 @@ const NewUi = ({ handleActiveChatChange }) => {
 								info?.dataLength,
 								info?.scrollDirection,
 							);
-							const key =
-								session?.type === 'chatbox'
-									? index === 0 || index === info?.dataLength - 2
-										? 'chatbox1'
-										: 'chatbox2'
-									: index;
+							const key = index;
+							// session?.type === 'chatbox'
+							// 	? index === 0 || index === info?.dataLength - 2
+							// 		? 'chatbox1'
+							// 		: 'chatbox2'
+							// 	: index;
 							return (
 								<div
 									key={key}

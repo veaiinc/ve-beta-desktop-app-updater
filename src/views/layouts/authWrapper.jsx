@@ -130,7 +130,12 @@ const AuthWrapper = ({
 					style={{
 						...outerContainerStyle,
 						paddingLeft:
-							isSidebarOpen && !isSidebarOverlay && !hideSidebar ? '256px' : '0',
+							isSidebarOpen &&
+							!isSidebarOverlay &&
+							!hideSidebar &&
+							workspaceMode === 'stable'
+								? '256px'
+								: '0',
 					}}
 					className="auth-wrapper-container"
 				>
