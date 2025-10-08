@@ -792,26 +792,86 @@ ipcMain.handle('open-microphone-settings', async () => {
 });
 
 // 🖥️ Screen Recording privacy settings
-// ipcMain.handle('open-screen-recording-settings', async () => {
-// 	if (os.platform() === 'darwin') {
-// 		exec(
-// 			"open 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording'",
-// 		);
-// 	} else {
-// 		console.warn('Screen recording settings not supported on this platform');
-// 	}
-// });
+ipcMain.handle('open-screen-recording-settings', async () => {
+	const platform = os.platform();
+	
+	try {
+		if (platform === 'darwin') {
+			// macOS: Opens Privacy > Screen Recording
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording"',
+				(error) => {
+					if (error) {
+						console.error('Failed to open Screen Recording Settings:', error);
+					}
+				},
+			);
+			return { success: true, platform: 'macOS' };
+		} else if (platform === 'win32') {
+			// Windows doesn't have direct screen recording settings
+			console.warn('Screen recording settings not supported on Windows');
+			return { success: false, error: 'Not supported on Windows' };
+		} else {
+			console.warn('Screen recording settings not supported on this platform');
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (error) {
+		console.error('Error opening screen recording settings:', error);
+		return { success: false, error: error.message };
+	}
+});
 
-// 📡 Screen Sharing (optional)
-// ipcMain.handle('open-screen-sharing-settings', async () => {
-// 	if (os.platform() === 'darwin') {
-// 		exec(
-// 			"open 'x-apple.systempreferences:com.apple.preference.sharing?Services_ScreenSharing'",
-// 		);
-// 	} else {
-// 		console.warn('Screen sharing settings not supported on this platform');
-// 	}
-// });
+// 📸 Media Library (Photos) privacy settings
+ipcMain.handle('open-media-settings', async () => {
+	const platform = os.platform();
+	
+	try {
+		if (platform === 'darwin') {
+			// macOS: Opens Privacy > Photos
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Media"',
+				(error) => {
+					if (error) {
+						console.error('Failed to open Media Library Settings:', error);
+					}
+				},
+			);
+			return { success: true, platform: 'macOS', method: 'Privacy_Photos' };
+		} else {
+			console.warn('Media library settings not supported on this platform');
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (error) {
+		console.error('Error opening media library settings:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// 📅 Calendar privacy settings
+ipcMain.handle('open-calendar-settings', async () => {
+	const platform = os.platform();
+	
+	try {
+		if (platform === 'darwin') {
+			// macOS: Opens Privacy > Calendars
+			exec(
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars"',
+				(error) => {
+					if (error) {
+						console.error('Failed to open Calendar Settings:', error);
+					}
+				},
+			);
+			return { success: true, platform: 'macOS' };
+		} else {
+			console.warn('Calendar settings not supported on this platform');
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (error) {
+		console.error('Error opening calendar settings:', error);
+		return { success: false, error: error.message };
+	}
+});
 
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
