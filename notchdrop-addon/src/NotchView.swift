@@ -22,19 +22,16 @@ struct NotchView: View {
                 return CGSize(width: 320, height: 20)
             }
 
-            // Authenticated: fixed base dimensions with MacBook Pro scaling
-            let isMacBookPro = vm.deviceNotchRect.width > 180
-            let baseWidth: CGFloat = 343
-            let baseHeight: CGFloat = 48
-            let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0
+            // Authenticated: different sizing based on physical notch
+            let hasPhysicalNotch = vm.deviceNotchRect.width > 180
             
-            var ans = CGSize(
-                width: baseWidth * widthMultiplier,
-                height: baseHeight * widthMultiplier
-            )
-            if ans.width < 0 { ans.width = 0 }
-            if ans.height < 0 { ans.height = 0 }
-            return ans
+            if hasPhysicalNotch {
+                // With physical notch: fixed width 340px, keep space between
+                return CGSize(width: 340, height: 48)
+            } else {
+                // Without physical notch: smaller width 150px, centered
+                return CGSize(width: 210, height: 40)
+            }
         case .opened:
             return vm.notchOpenedSize
         case .popping:
@@ -51,18 +48,17 @@ struct NotchView: View {
         if !vm.isAuthenticated {
             return CGSize(width: 350, height: 20)
         }
-        let isMacBookPro = vm.deviceNotchRect.width > 180
-        let baseWidth: CGFloat = 343
-        let baseHeight: CGFloat = 48
-        let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0
         
-        var ans = CGSize(
-            width: baseWidth * widthMultiplier,
-            height: baseHeight * widthMultiplier
-        )
-        if ans.width < 0 { ans.width = 0 }
-        if ans.height < 0 { ans.height = 0 }
-        return ans
+        // Different sizing based on physical notch
+        let hasPhysicalNotch = vm.deviceNotchRect.width > 180
+        
+        if hasPhysicalNotch {
+            // With physical notch: fixed width 340px, keep space between
+            return CGSize(width: 340, height: 48)
+        } else {
+            // Without physical notch: smaller width 150px, centered
+            return CGSize(width: 210, height: 40)
+        }
     }
 
     var notchCornerRadius: CGFloat {
