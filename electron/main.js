@@ -625,6 +625,32 @@ ipcMain.handle('reposition-dynamic-island', () => {
 	return { success: false, error: 'Dynamic Island helper not available' };
 });
 
+// Glass mode sync handler
+ipcMain.handle('sync-glass-mode-state', async (event, data) => {
+	try {
+		const { enabled } = data;
+		if (typeof enabled === 'boolean' && windowHelper) {
+			// Update the window helper's translucency state
+			windowHelper.isTranslucencyEnabled = enabled;
+
+			// Apply vibrancy to main window if on macOS
+			if (process.platform === 'darwin' && windowHelper.mainWindow) {
+				const mainWindow = windowHelper.mainWindow;
+				if (!mainWindow.isDestroyed() && mainWindow.setVibrancy) {
+					mainWindow.setVibrancy(enabled ? 'fullscreen-ui' : '');
+				}
+			}
+
+			log.info(`🪟 Glass mode ${enabled ? 'enabled' : 'disabled'} via sync`);
+			return { success: true, enabled };
+		}
+		return { success: false, error: 'Invalid glass mode state' };
+	} catch (error) {
+		log.error('❌ Glass mode sync failed:', error);
+		return { success: false, error: error.message };
+	}
+});
+
 // System Settings handler
 // ipcMain.handle('open-system-settings', async () => {
 // 	const platform = os.platform();
@@ -781,11 +807,9 @@ ipcMain.handle('open-calendar-settings', async () => {
 
 	try {
 		if (platform === 'darwin') {
-			// macOS: Use shell.openExternal with URL schemes to open specific privacy settings
 			log.info('📅 Opening Calendar privacy settings...');
 			
 			try {
-				// Open Calendar privacy settings
 				await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars');
 				log.info('✅ Successfully opened Calendar privacy settings');
 				return { success: true, platform: 'macOS', method: 'shell.openExternal' };
@@ -794,7 +818,6 @@ ipcMain.handle('open-calendar-settings', async () => {
 				return { success: false, error: 'Failed to open Calendar settings', details: calendarError.message };
 			}
 		} else if (platform === 'win32') {
-			// Windows: Open Calendar privacy settings
 			exec('start ms-settings:privacy-calendar', (error) => {
 				if (error) {
 					console.error('❌ Failed to open Calendar Settings on Windows:', error);
@@ -832,29 +855,6 @@ ipcMain.handle('open-system-settings', async () => {
 		return { success: false, error: error.message };
 	}
 });
-
-
-// 🖥️ Screen Recording privacy settings
-// ipcMain.handle('open-screen-recording-settings', async () => {
-// 	if (os.platform() === 'darwin') {
-// 		exec(
-// 			"open 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording'",
-// 		);
-// 	} else {
-// 		console.warn('Screen recording settings not supported on this platform');
-// 	}
-// });
-
-// 📡 Screen Sharing (optional)
-// ipcMain.handle('open-screen-sharing-settings', async () => {
-// 	if (os.platform() === 'darwin') {
-// 		exec(
-// 			"open 'x-apple.systempreferences:com.apple.preference.sharing?Services_ScreenSharing'",
-// 		);
-// 	} else {
-// 		console.warn('Screen sharing settings not supported on this platform');
-// 	}
-// });
 
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
@@ -1569,7 +1569,7 @@ function createWindow(restoreState = false) {
 			? { ...defaultBounds, ...lastWindowState.windowBounds }
 			: defaultBounds;
 
-	mainWindow = new BrowserWindow({
+	const mainWindowSettings = {
 		title: 'Ve AI - Priority',
 		width: windowBounds.width,
 		height: windowBounds.height,
@@ -1577,42 +1577,70 @@ function createWindow(restoreState = false) {
 		y: windowBounds.y,
 		show: false,
 		icon: iconPath,
-		backgroundColor: '#1a1a1a', // Set dark background to prevent white flash
+		backgroundColor: '#00000000', // Fully transparent background
+		resizable: true, // Allow resizing for better UX
+		movable: true,
+		transparent: true,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
 			contextIsolation: true,
-			devTools: true, // Enable developer tools in production
+			devTools: true, // Enable dev tools
 			webSecurity: true,
 			allowRunningInsecureContent: false,
 			sandbox: false,
 			// Keep timers/raf unthrottled to improve responsiveness after idle
 			backgroundThrottling: false,
 		},
-	});
+		type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+		thickFrame: false,
+		hasShadow: true, // Enable shadow for depth
+		skipTaskbar: false,
+		alwaysOnTop: false,
+		opacity: 1.0,
+		visualEffectState: 'active',
+	};
+
+	const isWindows = process.platform === 'win32';
+	const isMacOS = process.platform === 'darwin';
+
+	// Platform-specific vibrancy/acrylic for beautiful translucent blur
+	if (isMacOS) {
+		mainWindowSettings.vibrancy = 'fullscreen-ui'; // Beautiful blur effect
+		mainWindowSettings.titleBarStyle = 'hiddenInset'; // Keep window controls
+	} else if (isWindows) {
+		mainWindowSettings.backgroundMaterial = 'acrylic'; // Windows 11 acrylic
+		mainWindowSettings.vibrancy = 'acrylic'; // Additional vibrancy
+	}
+
+	mainWindow = new BrowserWindow(mainWindowSettings);
+
+	mainWindow.setWindowButtonVisibility(false);
 
 	if (notchDropService) {
 		notchDropService.setMainWindow(mainWindow);
 	}
 
-	// Add focus event handler (removed auto-show of permission overlay - permissions are now optional)
+	// Add focus event handler to show permission overlay if needed
 	mainWindow.on('focus', async () => {
 		log.info('Main window focused');
 		// Emit focus event to renderer
 		mainWindow.webContents.send('window-focus');
 
-		// Permissions are now optional - users can access the app without granting them
-		// The permission overlay can be accessed manually from settings if needed
+		// Check if permissions are missing and show overlay if needed
 		try {
-			if (userAuthenticationStatus.isLoggedIn) {
-				const permissionsGranted = await checkAllPermissions();
-				if (!permissionsGranted.allGranted) {
-					log.info(
-						'ℹ️ Main window focused - permissions not fully granted but app is accessible (optional permissions)',
-					);
-				}
-			} else {
-				log.info('👤 User not logged in on focus');
+			const permissionsGranted = await checkAllPermissions();
+			if (!permissionsGranted.allGranted) {
+				log.info(
+					'🔍 Main window focused but permissions missing, showing permission overlay',
+				);
+				setTimeout(() => {
+					try {
+						// windowHelper?.showPermissionWindow();
+					} catch (error) {
+						log.error('❌ Error showing permission overlay on focus:', error);
+					}
+				}, 500);
 			}
 		} catch (error) {
 			log.error('❌ Error checking permissions on window focus:', error);
@@ -1697,25 +1725,13 @@ function createWindow(restoreState = false) {
 
 		// Handle authentication status messages
 		if (msg === 'authorized') {
-			log.info('✅ User authenticated - showing optional permission setup');
+			log.info('✅ User authenticated - hiding permission overlay if visible');
 			userAuthenticationStatus.isLoggedIn = true;
-			userAuthenticationStatus.shouldShowPermissionOverlay = true;
+			userAuthenticationStatus.shouldShowPermissionOverlay = false;
 
-			// Check if user has completed onboarding (show overlay only once)
-			try {
-				const completed = hasCompletedOnboarding();
-				
-				if (!completed) {
-					log.info('🆕 First time login - showing permission overlay');
-					// Show permission overlay after a short delay
-					setTimeout(() => {
-						windowHelper?.showPermissionWindow();
-					}, 500);
-				} else {
-					log.info('✅ User has completed onboarding - skipping overlay (will never show again)');
-				}
-			} catch (e) {
-				log.error('❌ Error checking onboarding status post-login:', e);
+			// Hide permission overlay if it's currently visible
+			if (windowHelper?.isPermissionVisible) {
+				windowHelper.hidePermissionWindow();
 			}
 		} else if (msg === 'unauthorized') {
 			log.info('🔓 User not authenticated - permission overlay may be needed');
@@ -1781,27 +1797,30 @@ function createWindow(restoreState = false) {
 				}
 
 				// Check if index.html exists
-				if (!fs.existsSync(buildPath)) {
-					log.error('❌ Build file not found:', buildPath);
-					await showErrorPage(
-						'Build file not found',
-						`The main application file is missing: ${buildPath}`,
-					);
-					return;
-				}
+			// ⚡ OPTIMIZATION: Use async file operations
+			try {
+				await fs.promises.access(buildPath);
+			} catch {
+				log.error('❌ Build file not found:', buildPath);
+				await showErrorPage(
+					'Build file not found',
+					`The main application file is missing: ${buildPath}`,
+				);
+				return;
+			}
 
-				// Check if build directory has content
-				const buildFiles = fs.readdirSync(buildDir);
-				log.info('📋 Build directory contents:', buildFiles);
+			// ⚡ OPTIMIZATION: Check build directory content asynchronously
+			const buildFiles = await fs.promises.readdir(buildDir);
+			log.info('📋 Build directory contents:', buildFiles);
 
-				if (buildFiles.length === 0) {
-					log.error('❌ Build directory is empty');
-					await showErrorPage(
-						'Empty build directory',
-						'The build directory exists but contains no files. Please rebuild the application.',
-					);
-					return;
-				}
+			if (buildFiles.length === 0) {
+				log.error('❌ Build directory is empty');
+				await showErrorPage(
+					'Empty build directory',
+					'The build directory exists but contains no files. Please rebuild the application.',
+				);
+				return;
+			}
 
 				// Try to load the file
 				log.info('📁 Loading production build file:', buildPath);
@@ -1959,25 +1978,25 @@ function createWindow(restoreState = false) {
 </body>
 </html>`;
 
-			// Write error page to a temporary file
-			const errorPagePath = path.join(__dirname, 'error-page.html');
-			fs.writeFileSync(errorPagePath, errorHtml);
+		// ⚡ OPTIMIZATION: Write error page asynchronously
+		const errorPagePath = path.join(__dirname, 'error-page.html');
+		await fs.promises.writeFile(errorPagePath, errorHtml);
 
-			// Load the error page from file
-			await mainWindow.loadFile(errorPagePath);
-			log.info('✅ Error page displayed to user');
+		// Load the error page from file
+		await mainWindow.loadFile(errorPagePath);
+		log.info('✅ Error page displayed to user');
 
-			// Clean up the temporary file after a delay
-			setTimeout(() => {
-				try {
-					if (fs.existsSync(errorPagePath)) {
-						fs.unlinkSync(errorPagePath);
-						log.info('🧹 Cleaned up temporary error page file');
-					}
-				} catch (cleanupError) {
+		// ⚡ OPTIMIZATION: Clean up the temporary file asynchronously after a delay
+		setTimeout(async () => {
+			try {
+				await fs.promises.unlink(errorPagePath);
+				log.info('🧹 Cleaned up temporary error page file');
+			} catch (cleanupError) {
+				if (cleanupError.code !== 'ENOENT') {
 					log.warn('⚠️ Failed to clean up error page file:', cleanupError.message);
 				}
-			}, 30000); // Clean up after 30 seconds
+			}
+		}, 30000); // Clean up after 30 seconds
 		} catch (errorPageError) {
 			log.error('❌ Failed to show error page:', errorPageError);
 
@@ -2061,7 +2080,6 @@ function createWindow(restoreState = false) {
 
 	// Enhanced ready-to-show with better error handling
 	mainWindow.once('ready-to-show', () => {
-		
 		// Always minimize the window on startup to keep app running in background
 		mainWindow.minimize();
 
@@ -2360,7 +2378,7 @@ if (!gotTheLock) {
 async function checkUserAuthenticationStatus() {
 	try {
 		if (!mainWindow || mainWindow.isDestroyed()) {
-			log.warn('⚠️ Main window not available for auth check');
+			// log.warn('⚠️ Main window not available for auth check');
 			return false;
 		}
 
@@ -2374,7 +2392,6 @@ async function checkUserAuthenticationStatus() {
 					
 					// User is considered authenticated if they have token, workspace, and are onboarded
 					const authenticated = !!(usertoken && workspaceId && isOnboard);
-					console.log('🔍 Auth check - token:', !!usertoken, 'workspace:', !!workspaceId, 'onboard:', isOnboard, 'result:', authenticated);
 					return authenticated;
 				} catch (error) {
 					console.error('❌ Error checking auth status:', error);
@@ -2401,79 +2418,6 @@ async function checkUserAuthenticationStatus() {
 	}
 }
 
-// Helper functions for onboarding completion tracking
-function hasCompletedOnboarding() {
-	try {
-		const configPath = path.join(app.getPath('userData'), 'config.json');
-		
-		if (!fs.existsSync(configPath)) {
-			log.info('📋 No config file found - user has not completed onboarding');
-			return false;
-		}
-		
-		const configData = fs.readFileSync(configPath, 'utf8');
-		const config = JSON.parse(configData);
-		const completed = config.onboardingCompleted === true;
-		
-		log.info(`📋 Onboarding status: ${completed ? 'COMPLETED ✅' : 'NOT COMPLETED ❌'}`);
-		return completed;
-	} catch (error) {
-		log.error('❌ Error checking onboarding status:', error);
-		return false; // If error, show overlay (safe default)
-	}
-}
-
-function markOnboardingCompleted() {
-	try {
-		const userDataPath = app.getPath('userData');
-		const configPath = path.join(userDataPath, 'config.json');
-		
-		log.info('💾 Marking onboarding as completed...');
-		log.info('📁 User data path:', userDataPath);
-		log.info('📄 Config file path:', configPath);
-		
-		// Ensure directory exists
-		if (!fs.existsSync(userDataPath)) {
-			fs.mkdirSync(userDataPath, { recursive: true });
-			log.info('✅ Created user data directory');
-		}
-		
-		// Read existing config or create new
-		let config = {};
-		if (fs.existsSync(configPath)) {
-			try {
-				const configData = fs.readFileSync(configPath, 'utf8');
-				config = JSON.parse(configData);
-				log.info('📖 Read existing config:', config);
-			} catch (error) {
-				log.error('❌ Error reading existing config, will create new:', error);
-			}
-		}
-		
-		// Set the flag
-		config.onboardingCompleted = true;
-		
-		// Write to disk
-		fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-		log.info('✅ Onboarding marked as completed!');
-		log.info('💾 Config saved:', config);
-		
-		// Verify it was written
-		if (fs.existsSync(configPath)) {
-			const verification = fs.readFileSync(configPath, 'utf8');
-			log.info('✅ VERIFIED: Config file exists and contains:', verification);
-			return true;
-		} else {
-			log.error('❌ FAILED: Config file was not created!');
-			return false;
-		}
-	} catch (error) {
-		log.error('❌ Error marking onboarding as completed:', error);
-		log.error('❌ Stack trace:', error.stack);
-		return false;
-	}
-}
-
 // Function to check all required permissions
 async function checkAllPermissions() {
 	try {
@@ -2481,65 +2425,35 @@ async function checkAllPermissions() {
 			microphone: false,
 			screen: false,
 			camera: false,
-			calendar: false,
-			media: false,
 			allGranted: false,
 		};
 
-		// Check all permissions using electron-mac-permissions
-		if (isMacRuntime && permissions) {
-			// Use electron-mac-permissions for accurate permission status
-			const micStatus = permissions.getAuthStatus('microphone');
-			results.microphone = micStatus === 'authorized';
-
-			const screenStatus = permissions.getAuthStatus('screen');
-			results.screen = screenStatus === 'authorized';
-
-			const cameraStatus = permissions.getAuthStatus('camera');
-			results.camera = cameraStatus === 'authorized';
-
-			const calendarStatus = permissions.getAuthStatus('calendar');
-			results.calendar = calendarStatus === 'authorized';
-
-			const mediaStatus = permissions.getAuthStatus('media');
-			results.media = mediaStatus === 'authorized';
-		} else if (isMacRuntime) {
-			// Fallback to systemPreferences if electron-mac-permissions not available
+		// Check microphone permission
+		if (isMacRuntime) {
 			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
 			results.microphone = micStatus === 'granted';
 
+			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
+			results.screen = screenStatus === 'granted';
+
 			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
 			results.camera = cameraStatus === 'granted';
-
-			// Note: screen, calendar, and media not available via systemPreferences
-			results.screen = false;
-			results.calendar = false;
-			results.media = false;
 		} else {
 			// On non-macOS platforms, assume permissions are handled by system
 			results.microphone = true;
 			results.screen = true;
 			results.camera = true;
-			results.calendar = true;
-			results.media = true;
 		}
 
-		// All core permissions must be granted (for macOS) or we're on non-macOS
-		// Core permissions: microphone, camera, calendar (screen, media are optional)
-		results.allGranted = results.microphone && results.camera && results.calendar;
+		// All permissions must be granted (for macOS) or we're on non-macOS
+		results.allGranted = results.microphone && results.camera;
+		// Note: screen is optional for now, only require mic and screen
 
 		log.info('🔍 Permission check results:', results);
 		return results;
 	} catch (error) {
 		log.error('❌ Error checking all permissions:', error);
-		return { 
-			allGranted: false, 
-			microphone: false, 
-			screen: false, 
-			camera: false,
-			calendar: false,
-			media: false
-		};
+		return { allGranted: false, microphone: false, screen: false, camera: false };
 	}
 }
 
@@ -2555,18 +2469,38 @@ app.whenReady().then(async () => {
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
 
-	// CRITICAL: Add watchdog timer to prevent main process hanging
+	// ⚡ CRITICAL MEMORY LEAK FIX: Add periodic garbage collection
+	const memoryCleanupInterval = setInterval(() => {
+		const memUsage = process.memoryUsage();
+		const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+
+		// Force garbage collection if memory exceeds 300MB (lowered from 500MB)
+		if (heapUsedMB > 300) {
+			log.warn(`⚠️ High memory usage: ${heapUsedMB}MB - forcing garbage collection...`);
+			if (global.gc) {
+				global.gc();
+				const afterGC = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
+				log.info(
+					`✅ GC completed: ${heapUsedMB}MB → ${afterGC}MB (freed ${
+						heapUsedMB - afterGC
+					}MB)`,
+				);
+			}
+		}
+	}, 10000); // Check every 10 seconds
+
+	// ⚡ OPTIMIZED: Less aggressive watchdog (was checking every 5s for 30s hang)
 	let lastHeartbeat = Date.now();
 	const watchdogInterval = setInterval(() => {
 		const now = Date.now();
-		if (now - lastHeartbeat > 30000) {
-			// 30 seconds without heartbeat
+		if (now - lastHeartbeat > 60000) {
+			// 60 seconds without heartbeat (increased from 30s)
 			log.error('❌ Main process appears to be hanging - forcing restart...');
 			app.relaunch();
 			app.exit(1);
 		}
 		lastHeartbeat = now;
-	}, 5000); // Check every 5 seconds
+	}, 15000); // Check every 15 seconds (reduced frequency)
 
 	// Update heartbeat on any activity
 	process.on('message', () => {
@@ -2581,29 +2515,22 @@ app.whenReady().then(async () => {
 		log.error('❌ Unhandled rejection:', reason);
 	});
 
-	// CRITICAL: Add process monitoring to detect hanging
+	// ⚡ OPTIMIZED: Less frequent process monitoring (reduced overhead)
+	let lastMemoryLog = Date.now();
 	const processMonitor = setInterval(() => {
-		const memUsage = process.memoryUsage();
-		const cpuUsage = process.cpuUsage();
+		const now = Date.now();
 
-		// Log memory usage every 30 seconds
-		if (Date.now() % 30000 < 5000) {
+		// Log memory usage every 60 seconds (reduced from 30s)
+		if (now - lastMemoryLog > 60000) {
+			const memUsage = process.memoryUsage();
 			log.info('📊 Process stats:', {
-				memory: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+				heap: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
 				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
 				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB',
 			});
+			lastMemoryLog = now;
 		}
-
-		// Force garbage collection if memory usage is too high
-		if (memUsage.heapUsed > 500 * 1024 * 1024) {
-			// 500MB
-			log.warn('⚠️ High memory usage detected, forcing garbage collection...');
-			if (global.gc) {
-				global.gc();
-			}
-		}
-	}, 5000);
+	}, 30000); // Check every 30 seconds (reduced from 5s)
 
 	// Run startup diagnostics
 	runStartupDiagnostics();
@@ -2694,49 +2621,49 @@ app.whenReady().then(async () => {
 	}
 
 	// ✅ Request all permissions on startup (macOS only)
-	// if (isMacRuntime) {
-	// 	// Request microphone permission
-	// 	setTimeout(async () => {
-	// 		try {
-	// 			const granted = await systemPreferences.askForMediaAccess('microphone');
-	// 			log.info('🎤 Microphone permission request result:', granted);
-	// 		} catch (error) {
-	// 			log.error('Error requesting microphone permission:', error);
-	// 		}
-	// 	}, 1000);
+	if (isMacRuntime) {
+		// Request microphone permission
+		setTimeout(async () => {
+			try {
+				const granted = await systemPreferences.askForMediaAccess('microphone');
+				log.info('🎤 Microphone permission request result:', granted);
+			} catch (error) {
+				log.error('Error requesting microphone permission:', error);
+			}
+		}, 1000);
 
-	// 	// Request screen sharing permission (replaces screen recording)
-	// 	setTimeout(async () => {
-	// 		try {
-	// 			log.info('🖥️ Testing screen sharing capability on startup...');
-	// 			// Test if we can capture screen sources (this will trigger permission prompt if needed)
-	// 			const sources = await desktopCapturer.getSources({
-	// 				types: ['screen'],
-	// 				thumbnailSize: { width: 1, height: 1 },
-	// 			});
-	// 			const hasPermission = sources && sources.length > 0;
-	// 			log.info(
-	// 				'🖥️ Screen sharing capability test result:',
-	// 				hasPermission ? 'granted' : 'denied',
-	// 			);
-	// 		} catch (error) {
-	// 			log.info(
-	// 				'🖥️ Screen sharing capability test failed (expected for permission prompt):',
-	// 				error.message,
-	// 			);
-	// 		}
-	// 	}, 2000);
+		// Request screen sharing permission (replaces screen recording)
+		setTimeout(async () => {
+			try {
+				log.info('🖥️ Testing screen sharing capability on startup...');
+				// Test if we can capture screen sources (this will trigger permission prompt if needed)
+				const sources = await desktopCapturer.getSources({
+					types: ['screen'],
+					thumbnailSize: { width: 1, height: 1 },
+				});
+				const hasPermission = sources && sources.length > 0;
+				log.info(
+					'🖥️ Screen sharing capability test result:',
+					hasPermission ? 'granted' : 'denied',
+				);
+			} catch (error) {
+				log.info(
+					'🖥️ Screen sharing capability test failed (expected for permission prompt):',
+					error.message,
+				);
+			}
+		}, 2000);
 
-	// 	// Request camera permission
-	// 	setTimeout(async () => {
-	// 		try {
-	// 			const granted = await systemPreferences.askForMediaAccess('camera');
-	// 			log.info('📷 Camera permission request result:', granted);
-	// 		} catch (error) {
-	// 			log.error('Error requesting camera permission:', error);
-	// 		}
-	// 	}, 3000);
-	// }
+		// Request camera permission
+		setTimeout(async () => {
+			try {
+				const granted = await systemPreferences.askForMediaAccess('camera');
+				log.info('📷 Camera permission request result:', granted);
+			} catch (error) {
+				log.error('Error requesting camera permission:', error);
+			}
+		}, 3000);
+	}
 
 	meetingMonitor.setNotificationHandler(showNotification);
 	meetingMonitor.startMeetingMonitor();
@@ -2758,7 +2685,7 @@ app.whenReady().then(async () => {
 				process.arch,
 			);
 			dynamicIslandHelper = new DynamicIslandHelper();
-			dynamicIslandHelper.createDynamicIslandWindow();
+			await dynamicIslandHelper.createDynamicIslandWindow();
 			log.info('Dynamic Island Helper initialized successfully');
 		} catch (error) {
 			log.error('Failed to initialize Dynamic Island Helper:', error);
@@ -2900,6 +2827,21 @@ app.whenReady().then(async () => {
 	});
 
 	// DevTools IPC handler
+	ipcMain.handle('open-dev-tools', () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				mainWindow.webContents.openDevTools();
+				log.info('🔧 DevTools opened');
+				return { success: true };
+			} else {
+				log.warn('⚠️ Cannot open DevTools - main window not available');
+				return { success: false, error: 'Main window not available' };
+			}
+		} catch (error) {
+			log.error('❌ Failed to open DevTools:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {
@@ -2940,23 +2882,29 @@ app.whenReady().then(async () => {
 	ipcMain.handle('check-microphone-permission', async () => {
 		log.info('🎤 Microphone permission check handler called');
 		try {
-		if (isMacRuntime && permissions) {
-			// Use electron-mac-permissions for proper microphone permission check
-			const microphoneStatus = permissions.getAuthStatus('microphone');
-			log.info('🎤 Microphone permission check:', microphoneStatus);
+			if (isMacRuntime) {
+				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
+				log.info(
+					'🎤 Microphone permission check:',
+					microphoneStatus,
+					'granted:',
+					microphoneStatus === 'granted',
+				);
 
-			return {
-				success: true,
-				permission: microphoneStatus === 'authorized' ? 'granted' : microphoneStatus === 'denied' ? 'denied' : 'not-determined',
-				hasPermission: microphoneStatus === 'authorized',
-				message:
-					microphoneStatus === 'authorized'
-						? 'Microphone access granted'
-						: microphoneStatus === 'denied'
-						? 'Microphone access denied'
-						: 'Microphone permission not yet determined',
-			};
-		} else {
+				return {
+					success: true,
+					permission: microphoneStatus,
+					hasPermission: microphoneStatus === 'granted',
+					message:
+						microphoneStatus === 'granted'
+							? 'Microphone access granted'
+							: microphoneStatus === 'denied'
+							? 'Microphone access denied'
+							: microphoneStatus === 'not-determined'
+							? 'Microphone permission not yet determined'
+							: 'Microphone access restricted',
+				};
+			} else {
 				// For non-macOS platforms, assume permission is available
 				return {
 					success: true,
@@ -2983,27 +2931,21 @@ app.whenReady().then(async () => {
 	windowHelper.registerGlobalShortcuts(mainWindow);
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
 
-	// Check authentication status on startup and show permission overlay if needed
+	// Check authentication status and show permission overlay only for unauthenticated users
 	setTimeout(async () => {
 		try {
 			const isAuthenticated = await checkUserAuthenticationStatus();
+
 			if (!isAuthenticated) {
-				log.info(
-					'👤 User not authenticated - permission overlay will show on login',
-				);
+				// windowHelper.showPermissionWindow();
+				log.info('📋 Permission overlay shown for unauthenticated user');
 			} else {
-				// If already authenticated, check if user has completed onboarding
-				const completed = hasCompletedOnboarding();
-				
-				if (!completed) {
-					log.info('🆕 First time user - showing permission overlay');
-					windowHelper?.showPermissionWindow();
-				} else {
-					log.info('✅ User has completed onboarding - skipping overlay (will never show again)');
-				}
+				log.info('👤 User is authenticated - skipping permission overlay');
 			}
 		} catch (error) {
-			log.error('❌ Error checking authentication/permissions at startup:', error);
+			log.error('❌ Error checking authentication or showing permission overlay:', error);
+			// Show overlay on error to be safe
+			// windowHelper.showPermissionWindow();
 		}
 	}, 2000); // Delay to ensure main window is ready
 
@@ -3158,8 +3100,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('show-permission-window', async () => {
 		try {
-			// Re-enabled to allow manual access to permission window from settings
-			windowHelper?.showPermissionWindow();
+			// windowHelper?.showPermissionWindow();
 			return { success: true };
 		} catch (error) {
 			log.error('Error showing Permission window:', error);
@@ -3169,21 +3110,10 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('hide-permission-window', async () => {
 		try {
-			log.info('🔒 Hide permission window called - marking onboarding as completed');
 			windowHelper?.hidePermissionWindow();
-			
-			// Mark that user has completed onboarding - THIS IS KEY!
-			const marked = markOnboardingCompleted();
-			
-			if (marked) {
-				log.info('✅ Onboarding marked as completed - overlay will NEVER show again');
-			} else {
-				log.error('❌ Failed to mark onboarding as completed - overlay may show again!');
-			}
-			
-			return { success: true, onboardingMarked: marked };
+			return { success: true };
 		} catch (error) {
-			log.error('❌ Error hiding Permission window:', error);
+			log.error('Error hiding Permission window:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -3195,10 +3125,10 @@ app.whenReady().then(async () => {
 
 			if (!isAuthenticated) {
 				// windowHelper?.showPermissionWindow();
-				log.info('📋 Permission overlay shown after auth check');
+				// log.info('📋 Permission overlay shown after auth check');
 				return { success: true, shown: true, authenticated: false };
 			} else {
-				log.info('👤 User is authenticated - permission overlay not needed');
+				// log.info('👤 User is authenticated - permission overlay not needed');
 				return { success: true, shown: false, authenticated: true };
 			}
 		} catch (error) {
@@ -3831,31 +3761,37 @@ app.whenReady().then(async () => {
 	// Check camera permission status handler
 	ipcMain.handle('check-camera-permission', async () => {
 		try {
-		if (isMacRuntime && permissions) {
-			// Use electron-mac-permissions for proper camera permission check
-			const cameraStatus = permissions.getAuthStatus('camera');
-			log.info('📷 Camera permission check:', cameraStatus);
+			if (isMacRuntime) {
+				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
+				log.info(
+					'📷 Camera permission check:',
+					cameraStatus,
+					'granted:',
+					cameraStatus === 'granted',
+				);
 
-			return {
-				success: true,
-				permission: cameraStatus === 'authorized' ? 'granted' : cameraStatus === 'denied' ? 'denied' : 'not-determined',
-				hasPermission: cameraStatus === 'authorized',
-				message:
-					cameraStatus === 'authorized'
-						? 'Camera access granted'
-						: cameraStatus === 'denied'
-						? 'Camera access denied'
-						: 'Camera permission not yet determined',
-			};
-		} else {
-			// For non-macOS platforms, assume permission is available
-			return {
-				success: true,
-				permission: 'granted',
-				hasPermission: true,
-				message: 'Camera access available',
-			};
-		}
+				return {
+					success: true,
+					permission: cameraStatus,
+					hasPermission: cameraStatus === 'granted',
+					message:
+						cameraStatus === 'granted'
+							? 'Camera access granted'
+							: cameraStatus === 'denied'
+							? 'Camera access denied'
+							: cameraStatus === 'not-determined'
+							? 'Camera permission not yet determined'
+							: 'Camera access restricted',
+				};
+			} else {
+				// For non-macOS platforms, assume permission is available
+				return {
+					success: true,
+					permission: 'granted',
+					hasPermission: true,
+					message: 'Camera access available',
+				};
+			}
 		} catch (error) {
 			log.error('Error checking camera permission:', error);
 			return {
@@ -4442,7 +4378,7 @@ app.whenReady().then(async () => {
 				if (!notchDropService) {
 					return { success: false, error: 'NotchDrop service not initialized' };
 				}
-				log.info('🎯 Swift action received in main.js:', action, data);
+				// log.info('🎯 Swift action received in main.js:', action, data);
 				const result = await notchDropService.handleSwiftAction(action, data);
 				return result;
 			} catch (error) {
@@ -4541,7 +4477,7 @@ app.whenReady().then(async () => {
 	// New NotchDropLatest IPC handlers
 	ipcMain.handle('notchdrop-open-airdrop', async () => {
 		try {
-			log.info('Opening AirDrop from NotchDropLatest');
+			// log.info('Opening AirDrop from NotchDropLatest');
 			// Open AirDrop sharing dialog
 			exec('open -a AirDrop', (error) => {
 				if (error) {
@@ -4557,7 +4493,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-open-share', async () => {
 		try {
-			log.info('Opening share dialog from NotchDropLatest');
+			// log.info('Opening share dialog from NotchDropLatest');
 			// Open file picker for sharing
 			const result = await dialog.showOpenDialog(mainWindow, {
 				properties: ['openFile', 'multiSelections'],
@@ -4572,7 +4508,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-open-file', async (event, filePath) => {
 		try {
-			log.info('Opening file from NotchDropLatest:', filePath);
+			// log.info('Opening file from NotchDropLatest:', filePath);
 			await shell.openPath(filePath);
 			return { success: true };
 		} catch (error) {
@@ -4583,7 +4519,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-delete-file', async (event, fileId) => {
 		try {
-			log.info('Deleting file from NotchDropLatest:', fileId);
+			// log.info('Deleting file from NotchDropLatest:', fileId);
 			// This would integrate with the file storage system
 			// For now, just return success
 			return { success: true };
@@ -4596,7 +4532,7 @@ app.whenReady().then(async () => {
 	// Update voice status in NotchDrop
 	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
 		try {
-			log.info('Updating NotchDrop voice status:', status);
+			// log.info('Updating NotchDrop voice status:', status);
 			if (notchDropService) {
 				await notchDropService.updateVoiceStatus(status);
 				return { success: true };
@@ -4611,7 +4547,7 @@ app.whenReady().then(async () => {
 	// Update voice connection state in NotchDrop
 	ipcMain.handle('notchdrop-update-voice-connection-state', async (event, status) => {
 		try {
-			log.info('Updating NotchDrop voice connection state:', status);
+			// log.info('Updating NotchDrop voice connection state:', status);
 			if (notchDropService) {
 				await notchDropService.updateVoiceConnectionState(status);
 				return { success: true };
@@ -4662,7 +4598,7 @@ app.whenReady().then(async () => {
 	// Update voice mute state in NotchDrop
 	ipcMain.handle('notchdrop-update-voice-mute-state', async (event, isMuted) => {
 		try {
-			log.info('Updating NotchDrop voice mute state:', isMuted);
+			// log.info('Updating NotchDrop voice mute state:', isMuted);
 			if (notchDropService) {
 				await notchDropService.updateVoiceMuteState(isMuted);
 				return { success: true };
@@ -4792,7 +4728,7 @@ app.whenReady().then(async () => {
 				return { success: false, error: 'Dynamic Island Helper not initialized' };
 			}
 			// For now, just log the request - this could be extended to control microphone access
-			log.info(`Dynamic Island microphone access ${enabled ? 'enabled' : 'disabled'}`);
+			// log.info(`Dynamic Island microphone access ${enabled ? 'enabled' : 'disabled'}`);
 			return {
 				success: true,
 				message: `Microphone access ${enabled ? 'enabled' : 'disabled'}`,
@@ -4806,7 +4742,7 @@ app.whenReady().then(async () => {
 	// Voice integration handlers for Dynamic Island
 	ipcMain.handle('dynamic-island-voice-connect', async () => {
 		try {
-			log.info('Dynamic Island voice connect requested');
+			// log.info('Dynamic Island voice connect requested');
 			// In the future, this could trigger specific voice setup for Dynamic Island
 			return { success: true, message: 'Voice connection initiated from Dynamic Island' };
 		} catch (error) {
@@ -4817,7 +4753,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('dynamic-island-voice-disconnect', async () => {
 		try {
-			log.info('Dynamic Island voice disconnect requested');
+			// log.info('Dynamic Island voice disconnect requested');
 			// In the future, this could trigger specific voice cleanup for Dynamic Island
 			return { success: true, message: 'Voice disconnection initiated from Dynamic Island' };
 		} catch (error) {
@@ -4850,7 +4786,7 @@ app.whenReady().then(async () => {
 			// Send notification to Dynamic Island window
 			dynamicIslandWindow.webContents.send('dynamic-island-notification', notification);
 
-			log.info('Notification sent to Dynamic Island:', notification);
+			// log.info('Notification sent to Dynamic Island:', notification);
 			return { success: true, message: 'Notification sent to Dynamic Island' };
 		} catch (error) {
 			log.error('Error showing notification in Dynamic Island:', error);
@@ -4888,16 +4824,16 @@ app.whenReady().then(async () => {
 	// CRITICAL FIX: Enhanced NotchDrop overlay integration handlers with immediate response
 	ipcMain.handle('notchdrop:triggerOverlayRecording', async () => {
 		try {
-			log.info('⚡ SWIFT UI START BUTTON: Immediate overlay recording - ZERO DELAY MODE');
+			// log.info('⚡ SWIFT UI START BUTTON: Immediate overlay recording - ZERO DELAY MODE');
 
 			// CRITICAL FIX: Try immediate response method first
 			const immediateResult = await handleSwiftOverlayRequestImmediate('startRecording');
 			if (immediateResult.success) {
-				log.info('🚀 SUCCESS: Immediate overlay recording triggered instantly!');
+				// 	log.info('🚀 SUCCESS: Immediate overlay recording triggered instantly!');
 				return immediateResult;
 			}
 
-			log.info('🔄 Immediate failed, using fallback method...');
+			// log.info('🔄 Immediate failed, using fallback method...');
 
 			// CRITICAL FIX: Verify windowHelper is available
 			if (!windowHelper) {
@@ -4911,7 +4847,7 @@ app.whenReady().then(async () => {
 			const maxRetries = 3;
 
 			while (!overlayWindow && retryCount < maxRetries) {
-				log.info(`🔧 Attempt ${retryCount + 1}: Creating overlay window...`);
+				// log.info(`🔧 Attempt ${retryCount + 1}: Creating overlay window...`);
 				windowHelper.createOverlayWindow();
 
 				// Progressive wait times: 100ms, 200ms, 300ms
@@ -4933,7 +4869,7 @@ app.whenReady().then(async () => {
 
 				// CRITICAL FIX: Enhanced window visibility handling
 				if (!overlayWindow.isVisible()) {
-					log.info('👁️ Showing overlay window...');
+					// log.info('👁️ Showing overlay window...');
 					windowHelper.showOverlayWindow();
 
 					// Wait for window to be properly visible
@@ -4956,11 +4892,11 @@ app.whenReady().then(async () => {
 					commandSent = windowHelper.sendOverlayCommand({
 						action: 'startRecording',
 					});
-					log.info(
-						`✅ SMART QUEUE: StartRecording command ${
-							commandSent ? 'sent immediately' : 'queued'
-						} from Swift UI`,
-					);
+					// log.info(
+					// 	`✅ SMART QUEUE: StartRecording command ${
+					// 		commandSent ? 'sent immediately' : 'queued'
+					// 	} from Swift UI`,
+					// );
 				}
 
 				// Fallback: Direct webContents send if queuing failed
@@ -4973,9 +4909,9 @@ app.whenReady().then(async () => {
 						overlayWindow.webContents.send('overlay-command', {
 							action: 'startRecording',
 						});
-						log.info(
-							'✅ FALLBACK: StartRecording command sent directly to webContents',
-						);
+						// log.info(
+						// 	'✅ FALLBACK: StartRecording command sent directly to webContents',
+						// );
 						commandSent = true;
 					} catch (fallbackError) {
 						log.error('❌ Fallback command sending failed:', fallbackError);
@@ -4991,7 +4927,7 @@ app.whenReady().then(async () => {
 					// Force window to be interactive
 					overlayWindow.setIgnoreMouseEvents(false);
 
-					log.info('✅ Overlay window focused and brought to front');
+					// log.info('✅ Overlay window focused and brought to front');
 				} catch (focusError) {
 					log.warn('⚠️ Could not focus overlay window:', focusError);
 				}
@@ -5020,7 +4956,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'stopRecording',
 				});
-				log.info('Sent stopRecording command to overlay window from NotchDrop');
+				// log.info('Sent stopRecording command to overlay window from NotchDrop');
 			} else {
 				log.warn('Overlay window not available for stopRecording');
 			}
@@ -5033,13 +4969,13 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop:triggerOverlayPauseRecording', async () => {
 		try {
-			log.info('⏸️ NotchDrop requested overlay pause recording');
+			// log.info('⏸️ NotchDrop requested overlay pause recording');
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'pauseRecording',
 				});
-				log.info('Sent pauseRecording command to overlay window from NotchDrop');
+				// log.info('Sent pauseRecording command to overlay window from NotchDrop');
 			} else {
 				log.warn('Overlay window not available for pauseRecording');
 			}
@@ -5057,7 +4993,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'resumeRecording',
 				});
-				log.info('Sent resumeRecording command to overlay window from NotchDrop');
+				// log.info('Sent resumeRecording command to overlay window from NotchDrop');
 			} else {
 				log.warn('Overlay window not available for resumeRecording');
 			}
@@ -5070,7 +5006,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop:triggerOverlayToggleLiveIntelligence', async () => {
 		try {
-			log.info('🧠 NotchDrop requested overlay toggle live intelligence');
+			// log.info('🧠 NotchDrop requested overlay toggle live intelligence');
 			let overlayWindow = windowHelper?.getOverlayWindow();
 			if (!overlayWindow) {
 				// Create overlay window if it doesn't exist
@@ -5089,7 +5025,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'toggleLiveIntelligence',
 				});
-				log.info('Sent toggleLiveIntelligence command to overlay window from NotchDrop');
+				// log.info('Sent toggleLiveIntelligence command to overlay window from NotchDrop');
 			} else {
 				log.error('Overlay window not available after creating');
 				return { success: false, error: 'Overlay window not available' };
@@ -5155,7 +5091,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'stopRecording',
 				});
-				log.info('Sent stopRecording command to overlay window');
+				// log.info('Sent stopRecording command to overlay window');
 			} else {
 				log.warn('Overlay window not available for stopRecording');
 			}
@@ -5166,7 +5102,7 @@ app.whenReady().then(async () => {
 			// Hide the Are You There window if it's visible
 			if (windowHelper) {
 				windowHelper.hideAreYouThereWindow();
-				log.info('🏠 Hiding Are You There window - recording stopped from Dynamic Island');
+				// log.info('🏠 Hiding Are You There window - recording stopped from Dynamic Island');
 			}
 
 			return { success: true };
@@ -5183,7 +5119,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'pauseRecording',
 				});
-				log.info('Sent pauseRecording command to overlay window');
+				// log.info('Sent pauseRecording command to overlay window');
 			} else {
 				log.warn('Overlay window not available for pauseRecording');
 			}
@@ -5201,7 +5137,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'resumeRecording',
 				});
-				log.info('Sent resumeRecording command to overlay window');
+				// log.info('Sent resumeRecording command to overlay window');
 			} else {
 				log.warn('Overlay window not available for resumeRecording');
 			}
@@ -5236,7 +5172,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'toggleLiveIntelligence',
 				});
-				log.info('Sent toggleLiveIntelligence command to overlay window');
+				// log.info('Sent toggleLiveIntelligence command to overlay window');
 			} else {
 				log.error('Overlay window not available after creating');
 				return { success: false, error: 'Overlay window not available' };
@@ -5256,7 +5192,7 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'getRecordingState',
 				});
-				log.info('Sent getRecordingState command to overlay window');
+				// log.info('Sent getRecordingState command to overlay window');
 			} else {
 				log.warn('Overlay window not available for getRecordingState');
 			}
@@ -5282,7 +5218,7 @@ app.whenReady().then(async () => {
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				// Forward state to Dynamic Island window
 				dynamicIslandWindow.webContents.send('overlay-state-changed', state);
-				log.debug('State forwarded to Dynamic Island window');
+				// log.debug('State forwarded to Dynamic Island window');
 			} else {
 				// log.warn('Dynamic Island window not available for state update');
 			}
@@ -5460,7 +5396,7 @@ app.whenReady().then(async () => {
 	// Are You There window IPC handlers
 	ipcMain.handle('are-you-there-continue-meeting', async () => {
 		try {
-			log.info("✅ User clicked I'm here - continuing meeting");
+			// log.info("✅ User clicked I'm here - continuing meeting");
 
 			// Reset the flag to allow next popup
 			isAreYouThereWindowShown = false;
