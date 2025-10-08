@@ -1737,27 +1737,30 @@ function createWindow(restoreState = false) {
 				}
 
 				// Check if index.html exists
-				if (!fs.existsSync(buildPath)) {
-					log.error('❌ Build file not found:', buildPath);
-					await showErrorPage(
-						'Build file not found',
-						`The main application file is missing: ${buildPath}`,
-					);
-					return;
-				}
+			// ⚡ OPTIMIZATION: Use async file operations
+			try {
+				await fs.promises.access(buildPath);
+			} catch {
+				log.error('❌ Build file not found:', buildPath);
+				await showErrorPage(
+					'Build file not found',
+					`The main application file is missing: ${buildPath}`,
+				);
+				return;
+			}
 
-				// Check if build directory has content
-				const buildFiles = fs.readdirSync(buildDir);
-				log.info('📋 Build directory contents:', buildFiles);
+			// ⚡ OPTIMIZATION: Check build directory content asynchronously
+			const buildFiles = await fs.promises.readdir(buildDir);
+			log.info('📋 Build directory contents:', buildFiles);
 
-				if (buildFiles.length === 0) {
-					log.error('❌ Build directory is empty');
-					await showErrorPage(
-						'Empty build directory',
-						'The build directory exists but contains no files. Please rebuild the application.',
-					);
-					return;
-				}
+			if (buildFiles.length === 0) {
+				log.error('❌ Build directory is empty');
+				await showErrorPage(
+					'Empty build directory',
+					'The build directory exists but contains no files. Please rebuild the application.',
+				);
+				return;
+			}
 
 				// Try to load the file
 				log.info('📁 Loading production build file:', buildPath);
@@ -1915,25 +1918,25 @@ function createWindow(restoreState = false) {
 </body>
 </html>`;
 
-			// Write error page to a temporary file
-			const errorPagePath = path.join(__dirname, 'error-page.html');
-			fs.writeFileSync(errorPagePath, errorHtml);
+		// ⚡ OPTIMIZATION: Write error page asynchronously
+		const errorPagePath = path.join(__dirname, 'error-page.html');
+		await fs.promises.writeFile(errorPagePath, errorHtml);
 
-			// Load the error page from file
-			await mainWindow.loadFile(errorPagePath);
-			log.info('✅ Error page displayed to user');
+		// Load the error page from file
+		await mainWindow.loadFile(errorPagePath);
+		log.info('✅ Error page displayed to user');
 
-			// Clean up the temporary file after a delay
-			setTimeout(() => {
-				try {
-					if (fs.existsSync(errorPagePath)) {
-						fs.unlinkSync(errorPagePath);
-						log.info('🧹 Cleaned up temporary error page file');
-					}
-				} catch (cleanupError) {
+		// ⚡ OPTIMIZATION: Clean up the temporary file asynchronously after a delay
+		setTimeout(async () => {
+			try {
+				await fs.promises.unlink(errorPagePath);
+				log.info('🧹 Cleaned up temporary error page file');
+			} catch (cleanupError) {
+				if (cleanupError.code !== 'ENOENT') {
 					log.warn('⚠️ Failed to clean up error page file:', cleanupError.message);
 				}
-			}, 30000); // Clean up after 30 seconds
+			}
+		}, 30000); // Clean up after 30 seconds
 		} catch (errorPageError) {
 			log.error('❌ Failed to show error page:', errorPageError);
 
@@ -2622,7 +2625,7 @@ app.whenReady().then(async () => {
 				process.arch,
 			);
 			dynamicIslandHelper = new DynamicIslandHelper();
-			dynamicIslandHelper.createDynamicIslandWindow();
+			await dynamicIslandHelper.createDynamicIslandWindow();
 			log.info('Dynamic Island Helper initialized successfully');
 		} catch (error) {
 			log.error('Failed to initialize Dynamic Island Helper:', error);

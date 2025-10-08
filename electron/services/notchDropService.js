@@ -2,6 +2,8 @@ const path = require('path');
 const log = require('electron-log');
 const { BrowserWindow } = require('electron');
 const { default: ObjectID } = require('bson-objectid');
+// ⚡ ULTRA OPTIMIZATION: Import IPC throttling service
+const ipcThrottleService = require('./ipcThrottleService');
 // const { WakeWordIntegration } = import('../../notchdrop-addon/wake-word-integration');
 
 let NotchDropAddonWrapper;
@@ -506,11 +508,27 @@ class NotchDropService {
 		this.emitToRenderer('notchdrop-file-dropped', filePath);
 	}
 
+	// ⚡ ULTRA OPTIMIZATION: Use throttling for high-frequency events
 	emitToRenderer(event, data) {
 		// This method will be overridden by the main process
 		// to emit events to the renderer process
 		if (this.mainWindow && this.mainWindow.webContents) {
-			this.mainWindow.webContents.send(event, data);
+			// Detect high-frequency channels that should be throttled
+			const highFrequencyChannels = [
+				'notchdrop-transcription-update',
+				'notchdrop-intelligence-update',
+				'swift-log-message',
+			];
+
+			const shouldThrottle = highFrequencyChannels.some(channel => event.includes(channel));
+
+			if (shouldThrottle) {
+				// Use throttling service for high-frequency updates
+				ipcThrottleService.sendThrottled(this.mainWindow, event, data);
+			} else {
+				// Send immediately for low-frequency events
+				this.mainWindow.webContents.send(event, data);
+			}
 		}
 	}
 

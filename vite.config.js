@@ -46,43 +46,44 @@ export default defineConfig({
 						copyPublicDir: false,
 						rollupOptions: {
 							external: [],
-							input: {
-								main: 'electron/main',
-								bridge: 'electron/bridge.js',
-								store: 'electron/store.js',
-								featuresIndex: 'electron/features/index.js',
-								featuresMeetingIndex: 'electron/features/meeting/index.js',
-								windowHelper: 'electron/helpers/windowHelper.js',
-								galleryHelper: 'electron/galleryHelper.js',
-								overlayWindowHelper: 'electron/overlayWindowHelper.js',
-								windowsCompatibility: 'electron/windowsCompatibility.js',
-								notchDropService: 'electron/services/notchDropService.js',
-								notificationHelper: 'electron/notificationHelper.js',
-								dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
-								desktopUtilHelper: 'electron/desktopUtilHelper.js',
-								autoUpdateHelper: 'electron/helpers/autoUpdateHelper.js',
-							},
+						input: {
+							main: 'electron/main',
+							bridge: 'electron/bridge.js',
+							store: 'electron/store.js',
+							featuresIndex: 'electron/features/index.js',
+							featuresMeetingIndex: 'electron/features/meeting/index.js',
+							windowHelper: 'electron/helpers/windowHelper.js',
+							galleryHelper: 'electron/galleryHelper.js',
+							overlayWindowHelper: 'electron/overlayWindowHelper.js',
+							windowsCompatibility: 'electron/windowsCompatibility.js',
+							notchDropService: 'electron/services/notchDropService.js',
+							ipcThrottleService: 'electron/services/ipcThrottleService.js',
+							notificationHelper: 'electron/notificationHelper.js',
+							dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
+							desktopUtilHelper: 'electron/desktopUtilHelper.js',
+							autoUpdateHelper: 'electron/helpers/autoUpdateHelper.js',
+						},
 							output: {
 								format: 'cjs',
-								entryFileNames: (chunkInfo) => {
-									if (
-										chunkInfo.name === 'windowHelper' ||
-										chunkInfo.name === 'dynamicIslandHelper' ||
-										chunkInfo.name === 'autoUpdateHelper'
-									) {
-										return 'helpers/[name].js';
-									}
-									if (chunkInfo.name === 'notchDropService') {
-										return 'services/[name].js';
-									}
-									if (chunkInfo.name === 'featuresIndex') {
-										return 'features/index.js';
-									}
-									if (chunkInfo.name === 'featuresMeetingIndex') {
-										return 'features/meeting/index.js';
-									}
-									return '[name].js';
-								},
+							entryFileNames: (chunkInfo) => {
+								if (
+									chunkInfo.name === 'windowHelper' ||
+									chunkInfo.name === 'dynamicIslandHelper' ||
+									chunkInfo.name === 'autoUpdateHelper'
+								) {
+									return 'helpers/[name].js';
+								}
+								if (chunkInfo.name === 'notchDropService' || chunkInfo.name === 'ipcThrottleService') {
+									return 'services/[name].js';
+								}
+								if (chunkInfo.name === 'featuresIndex') {
+									return 'features/index.js';
+								}
+								if (chunkInfo.name === 'featuresMeetingIndex') {
+									return 'features/meeting/index.js';
+								}
+								return '[name].js';
+							},
 							},
 						},
 					},
