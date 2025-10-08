@@ -22,6 +22,7 @@ import InternalServer from '../components/globalComponents/InternalServer';
 import NewSidebar from '../components/sidebar/newSidebar/NewSidebar';
 import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 import { useLocation, useNavigate } from 'react-router-dom';
+import GlobalMeetingHelper from '../features/meetBot/GlobalMeetingHelper';
 
 const AuthWrapper = ({
 	title,
@@ -193,6 +194,8 @@ const AuthWrapper = ({
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
 			<CustomToast />
+			<GlobalMeetingHelper />
+
 			{showVoiceWidget && <VoiceWrapper />}
 		</main>
 	);

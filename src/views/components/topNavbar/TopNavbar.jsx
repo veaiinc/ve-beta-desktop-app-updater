@@ -96,7 +96,8 @@ const TopNavbar = () => {
 		pathname.includes('agent/') ||
 		pathname.includes('note/') ||
 		pathname.includes('meet/') ||
-		pathname.includes('chat/');
+		pathname.includes('chat/') ||
+		pathname.includes('ongoing-meeting');
 
 	const {
 		profileInfo: {
@@ -501,7 +502,7 @@ const TopNavbar = () => {
 					))}
 
 					<Tooltip
-						open={info.settingsTooltipOpen}
+						open={true || info.settingsTooltipOpen}
 						onOpenChange={() =>
 							setInfo((prev) => ({
 								...prev,

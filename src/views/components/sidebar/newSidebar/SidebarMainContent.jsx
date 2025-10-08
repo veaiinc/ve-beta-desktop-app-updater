@@ -31,6 +31,7 @@ const SidebarMainContent = ({
 }) => {
 	const {
 		subscriptionInfo: { getShareAndEarn, referralData },
+		notes: { activeMeetingDetails },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -104,6 +105,19 @@ const SidebarMainContent = ({
 						{option?.label}
 					</button>
 				))}
+				{activeMeetingDetails?.meetingId && (
+					<button
+						className={`${s.btn} ${activeTab === 'meetings' ? s.active : ''}`}
+						onClick={() =>
+							handleTabClick({
+								value: 'meetings',
+								route: '/ongoing-meeting',
+							})
+						}
+					>
+						Ongoing Meeting
+					</button>
+				)}
 
 				<div className={s.chatList}>
 					<div className={s.leftContainer}>

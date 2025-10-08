@@ -45,6 +45,7 @@ export const ChatStreamState = () => {
 				...(onMessageFunc && { onMessageFunc }),
 				isPublicChat,
 			};
+			console.log(sessionId, socketRefs.current[sessionId], 'socketRefs.current[sessionId]');
 			return new Promise((resolve, reject) => {
 				let attempts = 0;
 
@@ -136,6 +137,8 @@ export const ChatStreamState = () => {
 			if (socketRefs.current[sessionId]) {
 				return;
 			}
+
+			console.log(sessionId, 'sessionId');
 
 			const agent = agentTypeMap[agentType] || 'multi_agent_chat_streaming';
 

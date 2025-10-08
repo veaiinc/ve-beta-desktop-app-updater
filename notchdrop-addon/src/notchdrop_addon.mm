@@ -34,6 +34,7 @@ public:
             InstanceMethod("sendLiveIntelligenceData", &NotchDropAddon::SendLiveIntelligenceData),
   InstanceMethod("replaceTranscriptions", &NotchDropAddon::ReplaceTranscriptions),
             InstanceMethod("setRecordingPanelMode", &NotchDropAddon::SetRecordingPanelMode),
+            InstanceMethod("clearLiveIntelligenceData", &NotchDropAddon::ClearLiveIntelligenceData),
             InstanceMethod("updateStealthModeState", &NotchDropAddon::UpdateStealthModeState),
             InstanceMethod("handleWakeWordDetected", &NotchDropAddon::HandleWakeWordDetected),
             InstanceMethod("triggerSwiftAction", &NotchDropAddon::TriggerSwiftAction),
@@ -468,6 +469,18 @@ private:
         std::string mode = info[0].As<Napi::String>();
         NSString* nsMode = [NSString stringWithUTF8String:mode.c_str()];
         [NotchDropBridge setRecordingPanelMode:nsMode];
+        return env.Undefined();
+    }
+
+    Napi::Value ClearLiveIntelligenceData(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        
+        // Console log in C++ bridge
+        NSLog(@"🧠 C++ Bridge: Clearing live intelligence data");
+        
+        [NotchDropBridge clearLiveIntelligenceData];
+        NSLog(@"🧠 C++ Bridge: Forwarded clear request to Objective-C bridge");
+        
         return env.Undefined();
     }
         Napi::Value UpdateStealthModeState(const Napi::CallbackInfo& info) {

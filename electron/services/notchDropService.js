@@ -520,7 +520,7 @@ class NotchDropService {
 				'swift-log-message',
 			];
 
-			const shouldThrottle = highFrequencyChannels.some(channel => event.includes(channel));
+			const shouldThrottle = highFrequencyChannels.some((channel) => event.includes(channel));
 
 			if (shouldThrottle) {
 				// Use throttling service for high-frequency updates
@@ -1160,6 +1160,32 @@ action: 'toggle_microphone_mute'
 			return false;
 		} catch (error) {
 			console.error('❌ Error replacing transcriptions in NotchDrop:', error);
+			return false;
+		}
+	}
+
+	// Clear live intelligence data in NotchDrop
+	async clearLiveIntelligenceData() {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot clear live intelligence data');
+				return false;
+			}
+
+			// Console log the live intelligence data clearing in NotchDrop service
+			console.log('🧠 NotchDrop Service: Clearing live intelligence data');
+
+			// Send to Swift via native addon
+			if (this.notchDropAddon && this.notchDropAddon.clearLiveIntelligenceData) {
+				this.notchDropAddon.clearLiveIntelligenceData();
+				console.log('✅ Live intelligence data cleared in NotchDrop native addon');
+				return true;
+			} else {
+				console.warn('⚠️ clearLiveIntelligenceData method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error clearing live intelligence data in NotchDrop:', error);
 			return false;
 		}
 	}

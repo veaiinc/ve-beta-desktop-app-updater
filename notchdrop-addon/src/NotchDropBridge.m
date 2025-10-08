@@ -176,6 +176,11 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared setRecordingPanelMode:mode];
 }
 
++ (void)clearLiveIntelligenceData {
+    NSLog(@"🧠 Objective-C Bridge: Clearing live intelligence data");
+    [NotchDropCore.shared clearLiveIntelligenceData];
+}
+
 + (void)updateStealthModeState:(BOOL)isEnabled {
     [NotchDropCore.shared updateStealthModeState:isEnabled];
 }

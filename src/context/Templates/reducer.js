@@ -716,6 +716,7 @@ const actionHandlers = {
 			},
 		};
 	},
+
 	RESET_STATE: () => intialState,
 };
 

@@ -145,129 +145,129 @@ class WindowHelper {
 	}
 
 	createOverlayWindow() {
-		if (this.overlayWindow !== null) return;
+		// if (this.overlayWindow !== null) return;
 
-		// CRITICAL FIX: Reset readiness state when creating new window
-		this.overlayWindowReady = false;
-		this.pendingOverlayActions = [];
+		// // CRITICAL FIX: Reset readiness state when creating new window
+		// this.overlayWindowReady = false;
+		// this.pendingOverlayActions = [];
 
-		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;
-		this.screenWidth = workArea.width;
-		this.screenHeight = workArea.height;
+		// const primaryDisplay = screen.getPrimaryDisplay();
+		// const workArea = primaryDisplay.workAreaSize;
+		// this.screenWidth = workArea.width;
+		// this.screenHeight = workArea.height;
 
-		this.step = Math.floor(this.screenWidth / 10);
-		// Position at center, below Dynamic Island with proper spacing
-		this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
+		// this.step = Math.floor(this.screenWidth / 10);
+		// // Position at center, below Dynamic Island with proper spacing
+		// this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
 
-		// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
-		const dynamicIslandHeight = 180; // Height of expanded Dynamic Island
-		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		this.currentY = 0 + dynamicIslandHeight + gapFromDynamicIsland;
+		// // Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
+		// const dynamicIslandHeight = 180; // Height of expanded Dynamic Island
+		// const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		// this.currentY = 0 + dynamicIslandHeight + gapFromDynamicIsland;
 
-		// Initialize window position for future position persistence
-		this.windowPosition = { x: this.currentX, y: this.currentY };
+		// // Initialize window position for future position persistence
+		// this.windowPosition = { x: this.currentX, y: this.currentY };
 
-		const windowSettings = {
-			width: this.windowSize.width,
-			height: this.windowSize.height,
-			x: this.currentX,
-			y: this.currentY,
-			webPreferences: {
-				nodeIntegration: false,
-				contextIsolation: true,
-				preload: path.join(__dirname, '..', 'preload.js'),
-				devTools: true, // Enable developer tools
-				// Prevent Chromium from throttling timers/RAF when window is backgrounded
-				backgroundThrottling: false,
-				sandbox: false,
-			},
-			show: false,
-			alwaysOnTop: true,
-			frame: false,
-			transparent: true,
-			fullscreenable: false,
-			hasShadow: false,
-			backgroundColor: '#00000000',
-			focusable: true,
-			skipTaskbar: true,
-			visibleOnAllWorkspaces: true,
-			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel', // Use normal window type in development
-			acceptFirstMouse: true,
-			disableAutoHideCursor: true,
-			resizable: false, // Disable resizing
-			movable: true, // Explicitly enable window movement
-		};
+		// const windowSettings = {
+		// 	width: this.windowSize.width,
+		// 	height: this.windowSize.height,
+		// 	x: this.currentX,
+		// 	y: this.currentY,
+		// 	webPreferences: {
+		// 		nodeIntegration: false,
+		// 		contextIsolation: true,
+		// 		preload: path.join(__dirname, '..', 'preload.js'),
+		// 		devTools: true, // Enable developer tools
+		// 		// Prevent Chromium from throttling timers/RAF when window is backgrounded
+		// 		backgroundThrottling: false,
+		// 		sandbox: false,
+		// 	},
+		// 	show: false,
+		// 	alwaysOnTop: true,
+		// 	frame: false,
+		// 	transparent: true,
+		// 	fullscreenable: false,
+		// 	hasShadow: false,
+		// 	backgroundColor: '#00000000',
+		// 	focusable: true,
+		// 	skipTaskbar: true,
+		// 	visibleOnAllWorkspaces: true,
+		// 	type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel', // Use normal window type in development
+		// 	acceptFirstMouse: true,
+		// 	disableAutoHideCursor: true,
+		// 	resizable: false, // Disable resizing
+		// 	movable: true, // Explicitly enable window movement
+		// };
 
-		// Platform-specific window settings
-		if (process.platform === 'win32') {
-			// Windows-specific settings
-			windowSettings.type = 'toolbar'; // Use toolbar type for Windows overlay windows
-			windowSettings.alwaysOnTop = true;
-			windowSettings.skipTaskbar = true;
-			windowSettings.focusable = true;
-			windowSettings.transparent = true;
-			windowSettings.hasShadow = false;
-		}
+		// // Platform-specific window settings
+		// if (process.platform === 'win32') {
+		// 	// Windows-specific settings
+		// 	windowSettings.type = 'toolbar'; // Use toolbar type for Windows overlay windows
+		// 	windowSettings.alwaysOnTop = true;
+		// 	windowSettings.skipTaskbar = true;
+		// 	windowSettings.focusable = true;
+		// 	windowSettings.transparent = true;
+		// 	windowSettings.hasShadow = false;
+		// }
 
-		this.overlayWindow = new BrowserWindow(windowSettings);
+		// this.overlayWindow = new BrowserWindow(windowSettings);
 
-		// Apply content protection to overlay window
-		this.applyContentProtection(this.overlayWindow);
+		// // Apply content protection to overlay window
+		// this.applyContentProtection(this.overlayWindow);
 
-		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
-			/\/$/,
-			'',
-		);
-		const isDevelopment =
-			process.env.NODE_ENV === 'development' ||
-			process.env.NODE_ENV?.trim() === 'development';
+		// const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+		// 	/\/$/,
+		// 	'',
+		// );
+		// const isDevelopment =
+		// 	process.env.NODE_ENV === 'development' ||
+		// 	process.env.NODE_ENV?.trim() === 'development';
 
-		const overlayUrl = isDevelopment
-			? `${devURL}/overlay.html`
-			: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
+		// const overlayUrl = isDevelopment
+		// 	? `${devURL}/overlay.html`
+		// 	: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
 
-		this.overlayWindow.loadURL(overlayUrl).catch((err) => {
-			log.error('Failed to load overlay URL:', err);
-		});
+		// this.overlayWindow.loadURL(overlayUrl).catch((err) => {
+		// 	log.error('Failed to load overlay URL:', err);
+		// });
 
-		if (process.platform === 'darwin') {
-			// Use the highest window level for maximum visibility during desktop switching
-			this.overlayWindow.setAlwaysOnTop(true, 'floating');
+		// if (process.platform === 'darwin') {
+		// 	// Use the highest window level for maximum visibility during desktop switching
+		// 	this.overlayWindow.setAlwaysOnTop(true, 'floating');
 
-			// Configure for all workspaces/desktops with fullscreen support
-			this.overlayWindow.setVisibleOnAllWorkspaces(true, {
-				visibleOnFullScreen: true,
-				skipTransformProcessType: true,
-			});
+		// 	// Configure for all workspaces/desktops with fullscreen support
+		// 	this.overlayWindow.setVisibleOnAllWorkspaces(true, {
+		// 		visibleOnFullScreen: true,
+		// 		skipTransformProcessType: true,
+		// 	});
 
-			// Hide from Mission Control but keep visible during transitions
-			this.overlayWindow.setHiddenInMissionControl(true);
+		// 	// Hide from Mission Control but keep visible during transitions
+		// 	this.overlayWindow.setHiddenInMissionControl(true);
 
-			// Disable click-through - overlay should be interactive
-			this.overlayWindow.setIgnoreMouseEvents(false);
-			this.overlayWindow.setMovable(true);
-		} else if (process.platform === 'win32') {
-			// Windows-specific window behavior
-			this.overlayWindow.setAlwaysOnTop(true, 'floating');
-			this.overlayWindow.setIgnoreMouseEvents(false);
-			this.overlayWindow.setMovable(true);
-			// Windows doesn't have the same workspace concept as macOS
-			this.overlayWindow.setVisibleOnAllWorkspaces(true);
-		} else {
-			// For Linux and other platforms
-			this.overlayWindow.setAlwaysOnTop(true, 'floating');
-			// Disable click-through - overlay should be interactive
-			this.overlayWindow.setIgnoreMouseEvents(false);
-		}
+		// 	// Disable click-through - overlay should be interactive
+		// 	this.overlayWindow.setIgnoreMouseEvents(false);
+		// 	this.overlayWindow.setMovable(true);
+		// } else if (process.platform === 'win32') {
+		// 	// Windows-specific window behavior
+		// 	this.overlayWindow.setAlwaysOnTop(true, 'floating');
+		// 	this.overlayWindow.setIgnoreMouseEvents(false);
+		// 	this.overlayWindow.setMovable(true);
+		// 	// Windows doesn't have the same workspace concept as macOS
+		// 	this.overlayWindow.setVisibleOnAllWorkspaces(true);
+		// } else {
+		// 	// For Linux and other platforms
+		// 	this.overlayWindow.setAlwaysOnTop(true, 'floating');
+		// 	// Disable click-through - overlay should be interactive
+		// 	this.overlayWindow.setIgnoreMouseEvents(false);
+		// }
 
-		this.setupWindowListeners();
+		// this.setupWindowListeners();
 
-		const bounds = this.overlayWindow.getBounds();
-		this.windowPosition = { x: bounds.x, y: bounds.y };
-		this.windowSize = { width: bounds.width, height: bounds.height };
-		this.currentX = bounds.x;
-		this.currentY = bounds.y;
+		// const bounds = this.overlayWindow.getBounds();
+		// this.windowPosition = { x: bounds.x, y: bounds.y };
+		// this.windowSize = { width: bounds.width, height: bounds.height };
+		// this.currentX = bounds.x;
+		// this.currentY = bounds.y;
 	}
 
 	createAskAIWindow() {
