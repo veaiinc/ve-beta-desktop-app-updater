@@ -123,9 +123,14 @@ export default defineConfig({
 				manualChunks: (id) => {
 					// Vendor chunk for node_modules
 					if (id.includes('node_modules')) {
+						// React core must be bundled together with antd to avoid context issues
+						if (id.includes('react') || id.includes('react-dom')) {
+							return 'react-vendor';
+						}
 						// Large libraries get their own chunks
 						if (id.includes('@blocknote')) return 'blocknote';
-						if (id.includes('antd')) return 'antd';
+						// Antd goes with react to ensure createContext is available
+						if (id.includes('antd')) return 'react-vendor';
 						if (id.includes('@apollo')) return 'apollo';
 						if (id.includes('react-router')) return 'react-router';
 						if (id.includes('firebase')) return 'firebase';
