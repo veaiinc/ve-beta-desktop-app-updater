@@ -12,18 +12,19 @@ import UniformTypeIdentifiers
 // ⚡ ULTRA OPTIMIZATION: Use DispatchGroup instead of semaphore to avoid blocking main thread
 extension NSItemProvider {
     private func duplicateToOurStorage(_ url: URL?) throws -> URL {
-        guard let url else { throw NSError() }
+        guard let url else { throw NSError(domain: "FileProvider", code: -1, userInfo: [NSLocalizedDescriptionKey: "URL is nil"]) }
         let temp = FileManager.default.temporaryDirectory
             .appendingPathComponent("TemporaryDrop")
             .appendingPathComponent(UUID().uuidString)
             .appendingPathComponent(url.lastPathComponent)
-        try? FileManager.default.createDirectory(
+        try FileManager.default.createDirectory(
             at: temp.deletingLastPathComponent(),
             withIntermediateDirectories: true
         )
         
         // ⚡ OPTIMIZATION: Use async file operations on background queue
         try FileManager.default.copyItem(at: url, to: temp)
+        print("✅ Duplicated file to temp: \(temp.lastPathComponent)")
         return temp
     }
 
@@ -60,8 +61,20 @@ extension NSItemProvider {
         let group = DispatchGroup()
         
         group.enter()
-        _ = loadObject(ofClass: URL.self) { item, _ in
-            url = try? self.duplicateToOurStorage(item)
+        
+        print("🔄 Converting item provider with types: \(registeredTypeIdentifiers)")
+        
+        // First try loading as URL (direct file drops)
+        _ = loadObject(ofClass: URL.self) { item, error in
+            if let error = error {
+                print("⚠️ Error loading URL: \(error.localizedDescription)")
+            }
+            if let item = item {
+                url = try? self.duplicateToOurStorage(item)
+                if url != nil {
+                    print("✅ Successfully loaded as URL object")
+                }
+            }
             group.leave()
         }
         
@@ -70,13 +83,45 @@ extension NSItemProvider {
         
         if url == nil && result != .timedOut {
             group.enter()
-            loadInPlaceFileRepresentation(
-                forTypeIdentifier: UTType.data.identifier
-            ) { input, _, _ in
-                url = try? self.duplicateToOurStorage(input)
-                group.leave()
+            
+            // If that didn't work, try loading as file representation
+            if url == nil {
+                print("⚠️ URL loading failed, trying file representation...")
+                // Try common file types
+                let fileTypes = [
+                    UTType.fileURL.identifier,
+                    UTType.item.identifier,
+                    UTType.data.identifier
+                ]
+                
+                for typeIdentifier in fileTypes {
+                    if hasItemConformingToTypeIdentifier(typeIdentifier) {
+                        print("🔍 Trying type: \(typeIdentifier)")
+                        loadInPlaceFileRepresentation(
+                            forTypeIdentifier: typeIdentifier
+                        ) { input, _, error in
+                            defer { group.leave() }
+                            if let error = error {
+                                print("⚠️ Error loading \(typeIdentifier): \(error.localizedDescription)")
+                            } else if let input = input {
+                                url = try? self.duplicateToOurStorage(input)
+                                if url != nil {
+                                    print("✅ Successfully loaded as \(typeIdentifier)")
+                                }
+                            }
+                        }
+                        
+                        group.wait()
+                        if url != nil { break }
+                    }
+                }
             }
-            _ = group.wait(timeout: .now() + 10.0)
+        }
+        
+        if let url = url {
+            print("✅ Final URL: \(url.lastPathComponent)")
+        } else {
+            print("❌ Failed to convert item provider")
         }
         
         return url
@@ -122,12 +167,16 @@ extension [NSItemProvider] {
         // ⚡ CRITICAL: This should NEVER be called on main thread
         assert(!Thread.isMainThread, "⚠️ File conversion should not be called on main thread!")
         
+        print("🔄 Converting \(count) item provider(s) to URLs...")
         let urls = compactMap { provider -> URL? in
             provider.convertToFilePathThatIsWhatWeThinkItWillWorkWithNotchDrop()
         }
+        print("✅ Successfully converted \(urls.count) of \(count) items")
+        
         guard urls.count == count else {
+            print("❌ Failed to convert all items - only got \(urls.count) of \(count)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                NSAlert.popError(NSLocalizedString("One or more files failed to load", comment: ""))
+                NSAlert.popError(NSLocalizedString("One or more files failed to load. Please try again.", comment: ""))
             }
             return nil
         }

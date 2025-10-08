@@ -50,10 +50,12 @@ class NotchDropPanel: NSPanel {
     private var notchViewModel: NotchViewModel?
     // Prevent App Nap / idle sleep to keep hover responsiveness after inactivity
     private var appNapActivity: NSObjectProtocol?
+    // Use high window level but allow drag/drop
     private let notchWindowLevel: NSWindow.Level = {
         let assistive = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
         let statusBar = NSWindow.Level.statusBar
-        return assistive.rawValue > statusBar.rawValue ? assistive : statusBar
+        // Use statusBar instead of assistive to allow drag/drop while staying high
+        return statusBar
     }()
 
     // MARK: - Callbacks
@@ -101,6 +103,7 @@ class NotchDropPanel: NSPanel {
             height: notchHeight
         )
 
+        // Keep .nonactivatingPanel but allow drag/drop with special window subclass
         let panelStyle: NSWindow.StyleMask = [
             .borderless,
             .fullSizeContentView,
@@ -116,7 +119,7 @@ class NotchDropPanel: NSPanel {
 
         guard let window = notchWindow else { return }
 
-        // Use the same window properties as NotchDropLatest
+        // Use the notchWindowLevel (statusBar level)
         window.level = notchWindowLevel
         window.isOpaque = false
         window.alphaValue = 1
@@ -125,11 +128,12 @@ class NotchDropPanel: NSPanel {
         window.backgroundColor = NSColor.clear
         window.isMovable = false
         window.hasShadow = false
+        // Keep stationary but remove transient to allow drag/drop
         window.collectionBehavior = [
             .fullScreenAuxiliary,
             .canJoinAllSpaces,
-            .stationary,
-            .transient,
+            .stationary,  // Keep stationary for proper positioning
+            // .transient,  // REMOVED: This blocks drag/drop!
             .ignoresCycle,
         ]
         window.isExcludedFromWindowsMenu = true
@@ -137,7 +141,7 @@ class NotchDropPanel: NSPanel {
         window.animationBehavior = .none
         window.isRestorable = false
         
-        // CRITICAL: Enable keyboard input and first responder capabilities
+        // CRITICAL: Enable keyboard input and mouse/drag events
         window.acceptsMouseMovedEvents = true
         window.setFrame(topRect, display: false)
         
@@ -146,6 +150,17 @@ class NotchDropPanel: NSPanel {
         window.isMovable = false
         // window.ignoresMouseEvents = false
         window.hidesOnDeactivate = false
+        
+        // CRITICAL: Enable drag and drop for the window
+        window.registerForDraggedTypes([
+            .fileURL,
+            .URL,
+            .string,
+            .tiff,
+            .png
+        ])
+        
+        print("✅ NotchDropCore: Window configured for drag and drop")
 
         // Don't set initial first responder - let SwiftUI manage TextField focus
 
