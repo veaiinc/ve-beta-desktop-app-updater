@@ -89,7 +89,7 @@ struct NotchView: View {
             notch
                 .zIndex(0)
                 .disabled(true)
-                .opacity(vm.notchVisible ? 1 : 0.3)
+                .opacity(vm.notchVisible ? 1 : 1)
             
             // Collapsed state content - always present but with smooth transitions
             HStack(spacing: 6) {
@@ -289,7 +289,7 @@ HStack(spacing: 4) {
 }
 
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
 
@@ -604,12 +604,12 @@ struct NotchBaseView<BackgroundMask: View>: View {
     
     var body: some View {
         Rectangle()
-            .foregroundStyle(.ultraThinMaterial)
+            .foregroundStyle(DynamicIslandTheme.cardMaterial)
             .background(
                 Rectangle()
                     .fill(.clear)
-                    .background(.ultraThinMaterial)
-                    .blur(radius: vm.status == .closed ? 50 : 0)
+                    .background(DynamicIslandTheme.cardMaterial)
+                    .blur(radius: 10) // Apply same blur to both closed and opened states
             )
             .mask(backgroundMask())
             .frame(
