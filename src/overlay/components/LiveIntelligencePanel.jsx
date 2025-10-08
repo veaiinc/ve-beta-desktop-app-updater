@@ -102,13 +102,16 @@ const LiveIntelligencePanel = ({
 		// Extract the main content text (the thread question)
 		const questionText = item.prompt || item.name || item.description || 'No content available';
 
+		// Use the meeting session ID for the chat path to keep all actions in the same session
+		const chatSessionId = sessionId || ObjectID().toString();
+
 		// Build navigation payload to open main window chat
 		const navData = {
 			type: 'chat',
 			message: questionText,
 			timestamp: new Date().toISOString(),
 			source: 'overlay-live-intelligence',
-			path: `/chat/${ObjectID().toString()}`,
+			path: `/chat/${chatSessionId}`,
 			updateObject: {
 				type: 'chat',
 				payload: {
@@ -120,7 +123,7 @@ const LiveIntelligencePanel = ({
 				tabLabel: tabs.find((tab) => tab.key === tabKey)?.label || tabKey,
 				itemData: item,
 				isNeedHelp,
-				sessionId: sessionId,
+				sessionId: chatSessionId,
 			},
 		};
 
