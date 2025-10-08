@@ -172,6 +172,12 @@ struct DynamicIslandContentView: View {
     @State private var isMeetingButtonHovered: Bool = false
     @State private var isTrayButtonHovered: Bool = false
     
+    // Auto-scroll state variables
+    @State private var isTranscriptionHovered: Bool = false
+    @State private var isLiveIntelligenceHovered: Bool = false
+    @State private var hasInitialScrolledTranscription: Bool = false
+    @State private var hasInitialScrolledLiveIntelligence: Bool = false
+    
     var body: some View {
         VStack(spacing: 3.0) {
             if !vm.isAuthenticated {
@@ -562,65 +568,102 @@ struct DynamicIslandContentView: View {
                     HStack(alignment: .center, spacing: 8) {
                         if vm.isRecording && vm.showTranscriptionDuringRecording {
                             // Show transcription data in chat-like format
-                            ScrollView(.vertical, showsIndicators: true) {
-                                LazyVStack(spacing: 12) {
-                                    if vm.voiceMessages.isEmpty {
-                                        Text("No transcription data yet...")
-                                            .font(.system(size: 14))
-                                            .foregroundColor(.white.opacity(0.6))
-                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                            .padding()
-                                    } else {
-                                        ForEach(vm.voiceMessages) { message in
-                                            TranscriptionMessageView(message: message)
-                                                .padding(.horizontal, 4)
+                            ScrollViewReader { proxy in
+                                ScrollView(.vertical, showsIndicators: true) {
+                                    LazyVStack(spacing: 12) {
+                                        if vm.voiceMessages.isEmpty {
+                                            Text("No transcription data yet...")
+                                                .font(.system(size: 14))
+                                                .foregroundColor(.white.opacity(0.6))
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                .padding()
+                                        } else {
+                                            ForEach(vm.voiceMessages) { message in
+                                                TranscriptionMessageView(message: message)
+                                                    .padding(.horizontal, 4)
+                                                    .id(message.id)
+                                            }
+                                        }
+                                    }
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                }
+                                .frame(width: vm.notchOpenedSize.width - 140, height: 100)
+                                .cornerRadius(10)
+                                .onHover { hovering in
+                                    isTranscriptionHovered = hovering
+                                }
+                                .onAppear {
+                                    // Initial scroll to latest message when container appears
+                                    if !hasInitialScrolledTranscription && !vm.voiceMessages.isEmpty {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                proxy.scrollTo(vm.voiceMessages.last?.id, anchor: .bottom)
+                                            }
+                                            hasInitialScrolledTranscription = true
                                         }
                                     }
                                 }
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 12)
+                                .onChange(of: vm.voiceMessages.count) { newCount in
+                                    // Auto-scroll to latest message if not hovering
+                                    if !isTranscriptionHovered && newCount > 0 {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            proxy.scrollTo(vm.voiceMessages.last?.id, anchor: .bottom)
+                                        }
+                                    }
+                                }
                             }
-                            .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 100)
-                            // .background(Color.black.opacity(0.4))
-                            
-                            .cornerRadius(10)
                         } else if vm.isRecording && !vm.showTranscriptionDuringRecording {
                             // Show live intelligence data in chat-like format
-                            ScrollView(.vertical, showsIndicators: true) {
-                                LazyVStack(spacing: 12) {
-                                    if vm.liveIntelligenceMessages.isEmpty {
-                                        Text("No live intelligence data yet...")
-                                            .font(.system(size: 14))
-                                            .foregroundColor(.white.opacity(0.6))
-                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                            .padding()
-                                    } else {
-                                        ForEach(vm.liveIntelligenceMessages) { message in
-                                            TranscriptionMessageView(message: message)
-                                                .padding(.horizontal, 4)
+                            ScrollViewReader { proxy in
+                                ScrollView(.vertical, showsIndicators: true) {
+                                    LazyVStack(spacing: 12) {
+                                        if vm.liveIntelligenceMessages.isEmpty {
+                                            Text("No live intelligence data yet...")
+                                                .font(.system(size: 14))
+                                                .foregroundColor(.white.opacity(0.6))
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                .padding()
+                                        } else {
+                                            ForEach(vm.liveIntelligenceMessages) { message in
+                                                TranscriptionMessageView(message: message)
+                                                    .padding(.horizontal, 4)
+                                                    .id(message.id)
+                                            }
+                                        }
+                                    }
+                                    .padding(.vertical, 8)
+                                    // .padding(.horizontal, 12)
+                                }
+                                .frame(width: vm.notchOpenedSize.width - 140, height: 100)
+                                .cornerRadius(10)
+                                .onHover { hovering in
+                                    isLiveIntelligenceHovered = hovering
+                                }
+                                .onAppear {
+                                    // Initial scroll to latest message when container appears
+                                    if !hasInitialScrolledLiveIntelligence && !vm.liveIntelligenceMessages.isEmpty {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                proxy.scrollTo(vm.liveIntelligenceMessages.last?.id, anchor: .bottom)
+                                            }
+                                            hasInitialScrolledLiveIntelligence = true
                                         }
                                     }
                                 }
-                                .padding(.vertical, 8)
-                                // .padding(.horizontal, 12)
-                            }
-                            .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 100)
-                            // .background(Color.black.opacity(0.4))
-                            
-                            .cornerRadius(10)
-                            // .onAppear {
-                            //     // Console log live intelligence data display in SwiftUI
-                            //     print("🧠 NotchContentView: Displaying live intelligence data")
-                            //     print("🧠 Total live intelligence messages: \(vm.liveIntelligenceMessages.count)")
-                            //     if let lastMessage = vm.liveIntelligenceMessages.last {
-                            //         print("🧠 Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
-                            //     }
-                            // }
-                            .onChange(of: vm.liveIntelligenceMessages.count) { newCount in
-                                // Console log when live intelligence messages count changes
-                                print("🧠 NotchContentView: Live intelligence messages count changed to: \(newCount)")
-                                if let lastMessage = vm.liveIntelligenceMessages.last {
-                                    print("🧠 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
+                                .onChange(of: vm.liveIntelligenceMessages.count) { newCount in
+                                    // Auto-scroll to latest message if not hovering
+                                    if !isLiveIntelligenceHovered && newCount > 0 {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            proxy.scrollTo(vm.liveIntelligenceMessages.last?.id, anchor: .bottom)
+                                        }
+                                    }
+                                    
+                                    // Console log when live intelligence messages count changes
+                                    print("🧠 NotchContentView: Live intelligence messages count changed to: \(newCount)")
+                                    if let lastMessage = vm.liveIntelligenceMessages.last {
+                                        print("🧠 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
+                                    }
                                 }
                             }
                         }
@@ -630,20 +673,23 @@ struct DynamicIslandContentView: View {
                             VoiceSplitLayout(vm: vm)
                         } else if vm.isTeamsView {
                             // Teams view: maintain even spacing between components
-                            HStack(spacing: 12) {
+                            HStack(spacing: vm.isRecording ? 0 : 12) {
                                 // Smart meeting card - only show when not recording
                                 if !vm.isRecording {
                                     SmartMeetingCard(vm: vm)
                                         .frame(width: 220, height: 100)
                                 }
                                 
-                                ChatTextAreaView(
-                                    chatInput: $vm.chatInput,
-                                    isTextFieldActive: $isTextFieldActive,
-                                    vm: vm
-                                )
-                                .frame(width: vm.isRecording ? 400 : 400, height: 100)
-                                .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
+                                // Chat input - hide when recording
+                                if !vm.isRecording {
+                                    ChatTextAreaView(
+                                        chatInput: $vm.chatInput,
+                                        isTextFieldActive: $isTextFieldActive,
+                                        vm: vm
+                                    )
+                                    .frame(width: 400, height: 100)
+                                    .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
+                                }
                                 
                                 WebcamButton(vm: vm)
                                     .frame(width: 100, height: 100)
@@ -655,14 +701,15 @@ struct DynamicIslandContentView: View {
                                 .transition(.scale.combined(with: .opacity))
                         } else {
                             // Default chat input section with voice/arrow icon inside - matches image layout
-                            ChatTextAreaView(
-                                chatInput: $vm.chatInput,
-                                isTextFieldActive: $isTextFieldActive,
-                                vm: vm
-                            )
-                            .frame(width: vm.isRecording ? (vm.showTranscriptionDuringRecording ? 240 : 410) : 510) // Adaptive width
-                            .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
-                            .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
+                            if !vm.isRecording {
+                                ChatTextAreaView(
+                                    chatInput: $vm.chatInput,
+                                    isTextFieldActive: $isTextFieldActive,
+                                    vm: vm
+                                )
+                                .frame(width: 510) // Fixed width when not recording
+                                .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
+                            }
                             
                             // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
@@ -707,6 +754,16 @@ struct DynamicIslandContentView: View {
         }
         .padding(vm.spacing)
         .frame(width: vm.notchOpenedSize.width, height: vm.notchOpenedSize.height)
+        .onChange(of: vm.isRecording) { newValue in
+            // Reset scroll flags when recording state changes
+            hasInitialScrolledTranscription = false
+            hasInitialScrolledLiveIntelligence = false
+        }
+        .onChange(of: vm.showTranscriptionDuringRecording) { newValue in
+            // Reset scroll flags when switching between transcription and live intelligence
+            hasInitialScrolledTranscription = false
+            hasInitialScrolledLiveIntelligence = false
+        }
         .onAppear {
             // Set up listener for Swift actions to handle received messages
             setupMessageListener()
