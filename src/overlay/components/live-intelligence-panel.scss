@@ -166,8 +166,6 @@
 			line-height: normal;
 			border-bottom: 1px solid transparent;
 			transition: all 0.2s ease;
-			-webkit-app-region: no-drag; /* Prevent dragging on tab buttons */
-			app-region: no-drag; /* Standard property for non-draggable regions */
 			position: relative;
 			cursor: pointer;
 
@@ -249,8 +247,6 @@
 
 				&.clickable {
 					cursor: pointer;
-					-webkit-app-region: no-drag; /* Prevent dragging on clickable thread items */
-					app-region: no-drag; /* Standard property for non-draggable regions */
 					&:hover {
 						background: rgba(255, 255, 255, 0.12);
 						border-color: rgba(255, 255, 255, 0.25);

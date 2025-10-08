@@ -11,6 +11,7 @@ body {
 	/* Native vibrancy handles the blur - no CSS backdrop-filter needed */
 	/* backdrop-filter: none !important;
 	-webkit-backdrop-filter: none !important; */
+	/* -webkit-app-region: drag; */
 }
 
 /* Only enable full transparency when glass is enabled */
