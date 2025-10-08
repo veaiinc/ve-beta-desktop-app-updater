@@ -170,6 +170,7 @@ struct DynamicIslandContentView: View {
     // Hover states for left side buttons
     @State private var isHomeButtonHovered: Bool = false
     @State private var isMeetingButtonHovered: Bool = false
+    @State private var isTrayButtonHovered: Bool = false
     
     var body: some View {
         VStack(spacing: 3.0) {
@@ -245,13 +246,13 @@ struct DynamicIslandContentView: View {
                                     }
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 6)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? 
-                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear) :
-                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84))
-                                            )
-                                    )
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .fill((!vm.isTeamsView && !vm.isTrayMode) ? 
+                                            (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                            (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
+                                        )
+                                )
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .onHover { hovering in
@@ -322,12 +323,26 @@ struct DynamicIslandContentView: View {
                                     .padding(.vertical, 8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTrayMode ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.clear)
+                                            .fill(vm.isTrayMode ? 
+                                                (isTrayButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                                (isTrayButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
                                     )
                                    
                                    
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isTrayButtonHovered = hovering && !vm.isTrayMode
+                                    }
+                                }
+                                .onChange(of: vm.isTrayMode) { newValue in
+                                    if newValue {
+                                        // Tray button is now active, reset hover state
+                                        isTrayButtonHovered = false
+                                    }
+                                }
                               
                             } else if vm.showVoiceInterface {
                                 // Voice controls (mute/unmute and cancel buttons)
