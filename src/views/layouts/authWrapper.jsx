@@ -1,7 +1,7 @@
 import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 // import Sidebar from '../components/sidebar/Sidebar';
-import TopNavbar from '../components/topNavbar/TopNavbar';
+// import TopNavbar from '../components/topNavbar/TopNavbar';
 import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
@@ -20,7 +20,7 @@ import Offline from '../features/offline/Offline';
 import { internalServerEmitter } from '../../services';
 import InternalServer from '../components/globalComponents/InternalServer';
 import NewSidebar from '../components/sidebar/newSidebar/NewSidebar';
-import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+// import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 import { useLocation, useNavigate } from 'react-router-dom';
 import GlobalMeetingHelper from '../features/meetBot/GlobalMeetingHelper';
 
@@ -37,7 +37,7 @@ const AuthWrapper = ({
 }) => {
 	const navigate = useNavigate();
 	const { isOnline } = useNetworkStatus();
-	const { workspaceMode } = useWorkspaceMode();
+	// const { workspaceMode } = useWorkspaceMode();
 	const location = useLocation();
 	const { pathname } = location;
 
@@ -157,24 +157,20 @@ const AuthWrapper = ({
 				<div
 					style={{
 						...outerContainerStyle,
-						paddingLeft:
-							isSidebarOpen &&
-							!isSidebarOverlay &&
-							!hideSidebar &&
-							workspaceMode === 'stable'
-								? '256px'
-								: '0',
+						paddingLeft: isSidebarOpen && !isSidebarOverlay && !hideSidebar,
+						// && workspaceMode === 'stable' ? '256px' : '0',
 					}}
 					className="auth-wrapper-container"
 				>
 					{/* {layoutModeComponentMap[layoutMode]} */}
-					{/* {workspaceMode === 'stable' ? ( */}
+					{/* {workspaceMode === 'stable' ? (
 						!hideSidebar ? (
 							<NewSidebar />
 						) : null
-					{/* ) : (
+					) : (
 						<TopNavbar />
 					)} */}
+					{!hideSidebar ? <NewSidebar /> : null}
 
 					<div
 						style={{
