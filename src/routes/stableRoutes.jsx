@@ -75,16 +75,16 @@ const stableRoutes = [
 	// ========================================
 	// CHAT & COMMUNICATION
 	// ========================================
-	{
-		path: '/chats',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Chats'}>
-					<ChatPage />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/chats',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Chats'}>
+	// 				<ChatPage />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/new-chat',
 		element: (
