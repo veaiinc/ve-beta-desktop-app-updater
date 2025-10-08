@@ -799,7 +799,7 @@ ipcMain.handle('open-screen-recording-settings', async () => {
 		if (platform === 'darwin') {
 			// macOS: Opens Privacy > Screen Recording
 			exec(
-				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording"',
+				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"',
 				(error) => {
 					if (error) {
 						console.error('Failed to open Screen Recording Settings:', error);
