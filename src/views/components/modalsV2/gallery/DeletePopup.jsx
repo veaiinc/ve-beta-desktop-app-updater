@@ -92,7 +92,11 @@ const DeletePopup = ({
 						<button
 							className="deletePopupDeleteButton"
 							onClick={handleDeleteConfirm}
-							style={{ cursor: 'pointer' }}
+							disabled={!inputValue.trim()}
+							style={{
+								cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
+								opacity: inputValue.trim() ? 1 : 0.5,
+							}}
 						>
 							Delete
 						</button>
