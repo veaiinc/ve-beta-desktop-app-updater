@@ -66,15 +66,15 @@ struct EnhancedDropItemView: View {
                         tvm.delete(item.id)
                     }) {
                         Circle()
-                            .fill(.red.opacity(0.9))
+                            .fill(Color(red: 0x79 / 255.0, green: 0xec / 255.0, blue: 0xc9 / 255.0).opacity(0.9))
                             .overlay(
                                 Image(systemName: "xmark")
                                     .foregroundStyle(.white)
-                                    .font(.system(size: 10))
+                                    .font(.system(size: 8))
                                     .fontWeight(.bold)
                             )
-                            .frame(width: 24, height: 24)
-                            .shadow(color: .black.opacity(0.6), radius: 5)
+                            .frame(width: 18, height: 18)
+                            .shadow(color: .black.opacity(0.6), radius: 4)
                     }
                     .buttonStyle(PlainButtonStyle())
                     .offset(x: 10, y: -10)
