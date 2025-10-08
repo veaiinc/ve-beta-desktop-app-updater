@@ -2246,10 +2246,7 @@ export const NotesState = (props) => {
 	const updateActiveMeetingDetails = async (payload) => {
 		dispatch({
 			type: Actions.UPDATE_ACTIVE_MEETING_DETAILS,
-			payload: {
-				...state?.activeMeetingDetails,
-				...payload,
-			},
+			payload,
 		});
 	};
 

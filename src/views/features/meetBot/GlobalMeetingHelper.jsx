@@ -257,7 +257,6 @@ const GlobalMeetingHelper = () => {
 
 			// Reset local transcription ref and context
 			localTranscriptionsRef.current = [];
-			updateActiveMeetingDetails({ transcriptions: [] });
 
 			setInfo((prev) => ({
 				...prev,

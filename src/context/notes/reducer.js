@@ -534,7 +534,10 @@ const actionHandlers = {
 	}),
 	UPDATE_ACTIVE_MEETING_DETAILS: (state, action) => ({
 		...state,
-		activeMeetingDetails: action?.payload,
+		activeMeetingDetails: {
+			...state?.activeMeetingDetails,
+			...action?.payload,
+		},
 	}),
 
 	HANDLE_LIVE_INTELLIGENCE_DATA: (state, action) => {
@@ -581,12 +584,12 @@ const actionHandlers = {
 				...state?.activeMeetingDetails,
 				liveIntelligenceData: {
 					allThreads: suggestions,
-					askUser: suggestions.filter((s) => s.entity === 'user'),
-					needHelp: suggestions.filter(
-						(s) => s.entity === 'agent' && s.type === 'search',
-					),
-					actions: suggestions.filter((s) => s.entity === 'agent' && s.type === 'action'),
-					files: suggestions.filter((s) => s.entity === 'file'),
+					// askUser: suggestions.filter((s) => s.entity === 'user'),
+					// needHelp: suggestions.filter(
+					// 	(s) => s.entity === 'agent' && s.type === 'search',
+					// ),
+					// actions: suggestions.filter((s) => s.entity === 'agent' && s.type === 'action'),
+					// files: suggestions.filter((s) => s.entity === 'file'),
 				},
 			},
 		};
