@@ -1,13 +1,13 @@
 .newChatContainer {
 	width: 100%;
-	height: 100%;
+	height: 100vh;
 	display: flex;
 	justify-content: center;
 	overflow-y: auto;
+	align-items: center;
 
 	.mainContent {
 		align-items: center;
-		height:100vh;
 		width: 100%;
 		display: flex;
 		flex-direction: column;
