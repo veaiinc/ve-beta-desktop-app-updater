@@ -60,7 +60,7 @@ const AuthWrapper = ({
 
 	const {
 		aiSetup: { showVoiceWidget },
-		templates: { sidebarState, isSidebarMobileView , updateStateValues},
+		templates: { sidebarState, isSidebarMobileView, updateStateValues },
 	} = useContext(Context);
 	const [showServerError, setShowServerError] = useState(false);
 	const [isSidebarOpen, setIsSidebarOpen] = useState(

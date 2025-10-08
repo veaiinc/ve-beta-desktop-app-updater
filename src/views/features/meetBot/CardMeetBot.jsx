@@ -733,7 +733,7 @@ const CardMeetBot = () => {
 															activeMeetingId === meeting?._id &&
 															window.electronApi
 														) {
-															window.electronApi.minimizeMainWindow();
+															navigate('/ongoing-meeting');
 														} else {
 															navigate(
 																`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
@@ -916,7 +916,7 @@ const CardMeetBot = () => {
 							</div>
 
 							<div className={styles.cardMeetBot_actionButtonsContainer}>
-								<button
+								{/* <button
 									className={styles.createNewBtn}
 									onClick={() =>
 										setInfo((prev) => ({ ...prev, modalOpen: true }))
@@ -927,7 +927,7 @@ const CardMeetBot = () => {
 										<AddIcon />
 									</div>
 									<div className={styles.text}>Create New</div>
-								</button>
+								</button> */}
 								{actionTabs
 									.filter((tab) => {
 										// Hide upcoming tab if no upcoming meetings exist

@@ -16,7 +16,7 @@ const OngoingMeeting = memo(() => {
 
 	const {
 		notes: { activeMeetingDetails },
-		templates: { updateStateValues },
+		templates: { updateStateValues, sidebarState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -57,6 +57,15 @@ const OngoingMeeting = memo(() => {
 	}, []);
 
 	useEffect(() => {
+		if (sidebarState?.open === true) {
+			toggleSidebar(true);
+		}
+		if (sidebarState?.open === false) {
+			toggleSidebar(false);
+		}
+	}, [sidebarState?.open]);
+
+	useEffect(() => {
 		console.log('activeMeetingDetails', activeMeetingDetails);
 	}, [activeMeetingDetails]);
 
@@ -87,6 +96,7 @@ const OngoingMeeting = memo(() => {
 			newWidth = info?.dimentions?.width + CHAT_WIDTH;
 		} else {
 			newWidth = info?.dimentions?.width - CHAT_WIDTH;
+			newWidth = newWidth < 522 ? 522 : newWidth;
 		}
 		window?.electronApi?.resizeMainWindow({
 			dimensions: {
@@ -113,6 +123,7 @@ const OngoingMeeting = memo(() => {
 			newWidth = info?.dimentions?.width + SIDEBAR_WIDTH;
 		} else {
 			newWidth = info?.dimentions?.width - SIDEBAR_WIDTH;
+			newWidth = newWidth < 522 ? 522 : newWidth;
 		}
 		window?.electronApi?.resizeMainWindow({
 			dimensions: {
@@ -148,7 +159,6 @@ const OngoingMeeting = memo(() => {
 
 	return (
 		<div className={s.ongoingMeetingWrapper}>
-			<button className={s.sidebarHandler} onClick={() => toggleSidebar(true)} />
 			<div className={s.ongoingMeetingHeader}>
 				<button className={s.ongoingMeetingHeaderButton}>
 					<Maximize2 size={16} />
