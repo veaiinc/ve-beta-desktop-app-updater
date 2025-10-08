@@ -118,14 +118,10 @@ struct TrayView: View {
     }
 
     var text: String {
-        [
-            String(
-                format: NSLocalizedString("Drag files here to keep them for %@", comment: ""),
-                storageTime
-            ),
-            "&",
-            NSLocalizedString("Press Option to delete", comment: ""),
-        ].joined(separator: " ")
+        String(
+            format: NSLocalizedString("Drag files here to keep them for %@", comment: ""),
+            storageTime
+        )
     }
 
     var content: some View {
