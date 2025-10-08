@@ -126,7 +126,6 @@ export const ChatStreamState = () => {
 				} finally {
 					fetchingAccessTokenRef.current = false;
 				}
-
 				if (!response?.success) {
 					return;
 				}

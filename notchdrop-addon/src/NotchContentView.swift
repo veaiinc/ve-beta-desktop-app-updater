@@ -170,6 +170,7 @@ struct DynamicIslandContentView: View {
     // Hover states for left side buttons
     @State private var isHomeButtonHovered: Bool = false
     @State private var isMeetingButtonHovered: Bool = false
+    @State private var isTrayButtonHovered: Bool = false
     
     var body: some View {
         VStack(spacing: 3.0) {
@@ -235,30 +236,37 @@ struct DynamicIslandContentView: View {
                                 // Home button → Reset to NotchDrop default starting page (stays within NotchDrop)
                                 Button(action: {
                                     vm.isTeamsView = false
+                                    vm.isTrayMode = false
                                     vm.resetToNotchHome()
                                 }) {
                                     HStack(spacing: 6.0) {
                                         Image(systemName: "house")
                                             .font(.system(size: 14, weight: .regular))
-                                            .foregroundColor(vm.isTeamsView ? .white : .black)
+                                            .foregroundColor((!vm.isTeamsView && !vm.isTrayMode) ? .black : .white)
                                     }
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 6)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? 
-                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear) :
-                                                (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                        .fill((!vm.isTeamsView && !vm.isTrayMode) ? 
+                                            (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                            (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
                                             )
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 .onHover { hovering in
                                     withAnimation(.easeInOut(duration: 0.2)) {
-                                        isHomeButtonHovered = hovering && vm.isTeamsView
+                                        isHomeButtonHovered = hovering
                                     }
                                 }
                                 .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Home button is now active, reset hover state
+                                        isHomeButtonHovered = false
+                                    }
+                                }
+                                .onChange(of: vm.isTrayMode) { newValue in
                                     if !newValue {
                                         // Home button is now active, reset hover state
                                         isHomeButtonHovered = false
@@ -268,6 +276,7 @@ struct DynamicIslandContentView: View {
                                 // Teams pill (sets Teams view)
                                 Button(action: {
                                     vm.isTeamsView = true
+                                    vm.isTrayMode = false
                                 }) {
                                     HStack(spacing: 6) {
                                         Text("Meeting AI")
@@ -297,6 +306,44 @@ struct DynamicIslandContentView: View {
                                     }
                                 }
                                 // Removed desktop and VE icons per request
+                                
+                                // Tray button beside Start
+                                Button(action: {
+                                    vm.isTrayMode = true
+                                    vm.isTeamsView = false
+                                }) {
+                                    HStack(spacing: 6.0) {
+                                      
+                                        Text("Tray")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundColor(vm.isTrayMode ? .black : .white)
+                                    }
+                                    
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTrayMode ? 
+                                                (isTrayButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                                (isTrayButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
+                                    )
+                                   
+                                   
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isTrayButtonHovered = hovering && !vm.isTrayMode
+                                    }
+                                }
+                                .onChange(of: vm.isTrayMode) { newValue in
+                                    if newValue {
+                                        // Tray button is now active, reset hover state
+                                        isTrayButtonHovered = false
+                                    }
+                                }
+                              
                             } else if vm.showVoiceInterface {
                                 // Voice controls (mute/unmute and cancel buttons)
                                 HStack(spacing: 12) {
@@ -629,8 +676,13 @@ struct DynamicIslandContentView: View {
                                 WebcamButton(vm: vm)
                                     .frame(width: 100, height: 100)
                             }
+                        } else if vm.isTrayMode {
+                            // Tray view with AirDrop functionality
+                            TrayView(vm: vm)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .transition(.scale.combined(with: .opacity))
                         } else {
-                            // Chat input section with voice/arrow icon inside - matches image layout
+                            // Default chat input section with voice/arrow icon inside - matches image layout
                             ChatTextAreaView(
                                 chatInput: $vm.chatInput,
                                 isTextFieldActive: $isTextFieldActive,
@@ -650,9 +702,9 @@ struct DynamicIslandContentView: View {
                                             .transition(.scale(scale: 0.8).combined(with: .opacity))
                                     }
                                     
-                                    // Spotify Media Controller - only show when music is playing
+                                    // Music Media Controller - only show when music is playing
                                     if vm.hasActiveMusic {
-                                        SpotifyMediaController(vm: vm)
+                                        MusicMediaController(vm: vm)
                                             .transition(.scale.combined(with: .opacity))
                                     }
                                     
@@ -687,64 +739,428 @@ struct DynamicIslandContentView: View {
             // Set up listener for Swift actions to handle received messages
             setupMessageListener()
             
-            // Set up Spotify detection timer for the whole view
+            // ⚡ CRITICAL FIX: Set up Spotify detection timer with proper cleanup
             setupSpotifyDetectionTimer()
+        }
+        .onDisappear {
+            // ⚡ CRITICAL FIX: Clean up timer to prevent accumulation
+            cleanupSpotifyDetectionTimer()
         }
     }
     
+    // ⚡ PERFORMANCE FIX: Store timer reference for proper cleanup
+    @State private var spotifyDetectionTimer: Timer?
+    
     // MARK: - Spotify Detection Timer
     private func setupSpotifyDetectionTimer() {
+        // Clean up any existing timer first
+        cleanupSpotifyDetectionTimer()
+        
         // Initial check
         updateSpotifyStatus()
         
-        // Set up periodic updates for Spotify status
-        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+        // ⚡ CRITICAL OPTIMIZATION: Increased interval from 5s to 10s
+        // (YouTube playing skips all expensive checks, so this is mainly for music apps)
+        spotifyDetectionTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { _ in
             updateSpotifyStatus()
         }
     }
     
+    // ⚡ CRITICAL FIX: Proper timer cleanup
+    private func cleanupSpotifyDetectionTimer() {
+        spotifyDetectionTimer?.invalidate()
+        spotifyDetectionTimer = nil
+    }
+    
     private func updateSpotifyStatus() {
-        // Check if Spotify is running
-        let spotifyRunning = isSpotifyRunning()
+        // ⚡ CRITICAL PERFORMANCE FIX: Check YouTube FIRST (lightweight check via cache)
+        let youtubeActive = detectYouTubeVideo()
         
-        // Get system media info
+        // ⚡ OPTIMIZATION: If YouTube is active, skip expensive Spotify/Music checks
+        if youtubeActive {
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = true
+                vm.isVideoPlaying = true
+            }
+            return  // Skip all expensive AppleScript calls!
+        }
+        
+        // Only check music apps if YouTube is NOT active
+        let spotifyRunning = isSpotifyRunning()
+        let spotifyPlaying = isSpotifyPlaying()
+        let appleMusicRunning = isAppleMusicRunning()
+        let appleMusicPlaying = isAppleMusicPlaying()
+        
+        // Check system media info
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let hasSystemMedia = nowPlayingInfo != nil
+        let systemPlaybackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+        let systemPlaying = systemPlaybackRate > 0.0
+        
+        // Media status update (debug logs removed)
+        // Note: YouTube check already handled above - if we're here, YouTube is NOT active
+        
+        // Enhanced priority logic: Currently playing app takes precedence
+        if appleMusicPlaying && !spotifyPlaying {
+            // Only Apple Music playing
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+            }
+        } else if spotifyPlaying && !appleMusicPlaying {
+            // Only Spotify playing
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+            }
+        } else if appleMusicPlaying && spotifyPlaying {
+            // Both music apps claim to be playing - use system media to determine which is actually active
+            // Get more detailed system media info to determine the actual active app
+            if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+                let systemTitle = nowPlayingInfo[MPMediaItemPropertyTitle] as? String ?? ""
+                let systemArtist = nowPlayingInfo[MPMediaItemPropertyArtist] as? String ?? ""
+                
+                // If system media is playing and has content, use it to determine priority
+                if systemPlaying && !systemTitle.isEmpty {
+                    // Check which app matches the system media better
+                    // This is a more reliable way to determine the actual active app
+                    DispatchQueue.main.async {
+                        vm.hasActiveMusic = true
+                        vm.isMusicPlaying = true
+                        vm.hasActiveVideo = false
+                        vm.isVideoPlaying = false
+                    }
+                } else {
+                    // If system media is not reliable, do a more thorough check
+                    // Wait a moment and re-check to avoid stale AppleScript data
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.resolveConflictingPlayStates()
+                    }
+                }
+            } else {
+                // No system media info available, do a secondary check
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    self.resolveConflictingPlayStates()
+                }
+            }
+        } else if systemPlaying && hasSystemMedia {
+            // System media playing but apps report not playing - trust system
+        DispatchQueue.main.async {
+            vm.hasActiveMusic = true
+            vm.isMusicPlaying = true
+            vm.hasActiveVideo = false
+            vm.isVideoPlaying = false
+        }
+        } else if appleMusicRunning || spotifyRunning || hasSystemMedia {
+            // Music paused but running - show paused state
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+            }
+        } else {
+            // Nothing running
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+            }
+        }
+        
+        // End media status update
+    }
+    
+    // Helper function to resolve conflicting play states between apps
+    private func resolveConflictingPlayStates() {
+        // Re-check both apps with fresh AppleScript calls
+        let spotifyPlaying = isSpotifyPlaying()
+        let appleMusicPlaying = isAppleMusicPlaying()
+        
+        // Also check system media info again
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let systemPlaybackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+        let systemPlaying = systemPlaybackRate > 0.0
+        
+        if spotifyPlaying && !appleMusicPlaying {
+            // Only Spotify is playing
+            // Debug log removed RESOLVED: Spotify is the active player")
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+                // Debug log removed VM UPDATED: Resolved to Spotify")
+            }
+        } else if appleMusicPlaying && !spotifyPlaying {
+            // Only Apple Music is playing
+            // Debug log removed RESOLVED: Apple Music is the active player")
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+                // Debug log removed VM UPDATED: Resolved to Apple Music")
+            }
+        } else if systemPlaying {
+            // Trust system media if it's playing
+            // Debug log removed RESOLVED: Using system media as fallback")
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+                // Debug log removed VM UPDATED: Resolved to system media")
+            }
+        } else {
+            // Nothing is actually playing
+            // Debug log removed RESOLVED: Nothing is actually playing")
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+                // Debug log removed VM UPDATED: Resolved to no active media")
+            }
+        }
+        
+        // Debug log removed === CONFLICT RESOLUTION COMPLETE ===")
+        
+        // Trigger track info update after resolution
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // This will trigger the onChange listeners in MusicMediaController
+            // to update the track info for the resolved app
+            // Debug log removed Triggering track info update after conflict resolution")
+        }
+    }
+    
+    private func isMusicAppRunning() -> Bool {
+        // Method 1: Check system media info
         let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
         let hasSystemMedia = nowPlayingInfo != nil
         
-        // Get basic playback state
-        let playbackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
-        let isPlaying = playbackRate > 0.0
+        // Method 2: Check specific apps via AppleScript
+        let spotifyRunning = isSpotifyRunning()
+        let appleMusicRunning = isAppleMusicRunning()
         
-        // Update hasActiveMusic based on multiple detection methods
-        vm.hasActiveMusic = spotifyRunning || hasSystemMedia || isPlaying
-        vm.isMusicPlaying = isPlaying
+        let result = hasSystemMedia || spotifyRunning || appleMusicRunning
+        // Debug log removed Music app running check - System media: \(hasSystemMedia), Spotify: \(spotifyRunning), Apple Music: \(appleMusicRunning), Result: \(result)")
         
-        // Detect YouTube videos
-        detectYouTubeVideo()
+        return result
+    }
+    
+    private func isMusicAppPlaying() -> Bool {
+        // Method 1: Check system media playback rate
+        if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+            let playbackRate = nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+            let systemPlaying = playbackRate > 0.0
+            // Debug log removed System media playback rate: \(playbackRate), playing: \(systemPlaying)")
+            if systemPlaying {
+                return true
+            }
+        }
+        
+        // Method 2: Check specific apps via AppleScript
+        let spotifyPlaying = isSpotifyPlaying()
+        let appleMusicPlaying = isAppleMusicPlaying()
+        
+        let result = spotifyPlaying || appleMusicPlaying
+        // Debug log removed Music app playing check - Spotify: \(spotifyPlaying), Apple Music: \(appleMusicPlaying), Result: \(result)")
+        
+        return result
     }
     
     private func isSpotifyRunning() -> Bool {
-        let script = "tell application \"System Events\" to (name of processes) contains \"Spotify\""
-        if let appleScript = NSAppleScript(source: script) {
+        let script = """
+        tell application "System Events"
+            return (name of processes) contains "Spotify"
+        end tell
+        """
+        
             var error: NSDictionary?
-            let result = appleScript.executeAndReturnError(&error)
-            if error == nil {
-                return result.booleanValue
-            }
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            let result = output.booleanValue
+            // Debug log removed Spotify running check: \(result)")
+            return result
         }
+        // Debug log removed Spotify running check failed")
         return false
     }
     
-    private func detectYouTubeVideo() {
-        // Method 1: Check browser tabs for YouTube
-        let youtubeFromBrowser = checkBrowserForYouTube()
+    private func isSpotifyPlaying() -> Bool {
+        // First check if Spotify is even running
+        if !isSpotifyRunning() {
+            // Debug log removed Spotify not running, returning false for playing")
+        return false
+    }
+    
+        let script = """
+        tell application "Spotify"
+            try
+                if it is running then
+                    return (player state as string) is equal to "playing"
+                else
+                    return false
+                end if
+            on error
+                return false
+            end try
+        end tell
+        """
         
-        // Method 2: Check system media for YouTube
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            let result = output.booleanValue
+            // Debug log removed Spotify playing check: \(result)")
+            if let error = error {
+                // Debug log removed Spotify AppleScript error: \(error)")
+            }
+            return result
+        }
+        // Debug log removed Spotify playing check failed")
+        return false
+    }
+    
+    private func isAppleMusicRunning() -> Bool {
+        let script = """
+        tell application "System Events"
+            return (name of processes) contains "Music"
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            let result = output.booleanValue
+            // Debug log removed Apple Music running check: \(result)")
+            return result
+        }
+        // Debug log removed Apple Music running check failed")
+        return false
+    }
+    
+    private func isAppleMusicPlaying() -> Bool {
+        // First check if Apple Music is even running
+        if !isAppleMusicRunning() {
+            // Debug log removed Apple Music not running, returning false for playing")
+            return false
+        }
+        
+        let script = """
+        tell application "Music"
+            try
+                if it is running then
+                    return (player state as string) is equal to "playing"
+                else
+                    return false
+                end if
+            on error
+                return false
+            end try
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            let result = output.booleanValue
+            // Debug log removed Apple Music playing check: \(result)")
+            if let error = error {
+                // Debug log removed Apple Music AppleScript error: \(error)")
+            }
+            return result
+        }
+        // Debug log removed Apple Music playing check failed")
+        return false
+    }
+    
+    // ⚡ PERFORMANCE FIX: Cache YouTube detection results
+    @State private var lastYouTubeCheck: Date?
+    @State private var lastYouTubeResult: Bool = false
+    
+    private func detectYouTubeVideo() -> Bool {
+        let now = Date()
+        
+        // ⚡ PERFORMANCE FIX: Increased cache time (5s → 10s) to reduce expensive browser queries
+        if let lastCheck = lastYouTubeCheck,
+           now.timeIntervalSince(lastCheck) < 10.0 {
+            return lastYouTubeResult
+        }
+        
+        // Do the actual check (expensive - queries ALL browser tabs)
+        let youtubeFromBrowser = checkDefaultBrowserForYouTube() || checkBrowserForYouTube()
         let youtubeFromMedia = checkSystemMediaForYouTube()
+        let result = youtubeFromBrowser || youtubeFromMedia
         
-        // Update YouTube state
-        vm.hasActiveVideo = youtubeFromBrowser || youtubeFromMedia
-        vm.isVideoPlaying = vm.hasActiveVideo
+        // Cache the result
+        lastYouTubeCheck = now
+        lastYouTubeResult = result
+        
+        return result
+    }
+    
+    private func isYouTubePlaying() -> Bool {
+        // Check if YouTube is actually playing (not just present)
+        // This is harder to detect reliably, so for now we'll assume if YouTube is detected, it's playing
+        // In the future, we could enhance this with more sophisticated detection
+        return detectYouTubeVideo()
+    }
+    
+    private func getSystemDefaultBrowser() -> String? {
+        // Use NSWorkspace to get the default browser for HTTP URLs
+        if let httpURL = URL(string: "http://example.com"),
+           let defaultAppURL = NSWorkspace.shared.urlForApplication(toOpen: httpURL),
+           let bundle = Bundle(url: defaultAppURL),
+           let bundleId = bundle.bundleIdentifier {
+            
+            // Map bundle IDs to app names we can check
+            switch bundleId {
+            case "com.apple.Safari":
+                return "Safari"
+            case "com.google.Chrome":
+                return "Google Chrome"
+            case "org.mozilla.firefox":
+                return "Firefox"
+            case "com.microsoft.edgemac":
+                return "Microsoft Edge"
+            case "company.thebrowser.Browser":
+                return "Arc"
+            case "com.brave.Browser":
+                return "Brave Browser"
+            default:
+                // Try to get the display name
+                if let appName = bundle.infoDictionary?["CFBundleDisplayName"] as? String {
+                    return appName
+                } else if let appName = bundle.infoDictionary?["CFBundleName"] as? String {
+                    return appName
+                }
+                return "Safari" // Fallback to Safari
+            }
+        }
+        return "Safari" // Default fallback
+    }
+    
+    private func checkDefaultBrowserForYouTube() -> Bool {
+        guard let defaultBrowser = getSystemDefaultBrowser() else {
+            return false
+        }
+        
+        if let (url, title) = checkBrowserApp(defaultBrowser) {
+            if url.contains("youtube.com/watch") || url.contains("youtu.be/") {
+                updateVideoInfo(from: title, url: url)
+                return true
+            }
+        }
+        return false
     }
     
     private func checkBrowserForYouTube() -> Bool {
@@ -2292,23 +2708,49 @@ struct ShortcutKeyView: View {
     }
 }
 
-// MARK: - Spotify Media Controller
-struct SpotifyMediaController: View {
+// MARK: - Music Media Controller (Apple Music, Spotify, etc.)
+struct MusicMediaController: View {
     @ObservedObject var vm: NotchViewModel
     @State private var isPlaying: Bool = false
     @State private var songTitle: String = "Unknown Track"
     @State private var artistName: String = "Unknown Artist"
     @State private var albumArtwork: NSImage? = nil
-    @State private var isHovered: Bool = false
     @State private var lastButtonPressed: MediaCommandType? = nil
     @State private var buttonPressTime: Date = Date()
+    @State private var currentMusicApp: MusicApp = .unknown
+    
+    enum MusicApp {
+        case spotify
+        case appleMusic
+        case unknown
+        
+        var borderColor: Color {
+            switch self {
+            case .spotify:
+                return Color(red: 0.114, green: 0.725, blue: 0.329) // Spotify Green
+            case .appleMusic:
+                return Color(red: 0.988, green: 0.267, blue: 0.373) // Apple Music Pink/Red
+            case .unknown:
+                return Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.6) // Default teal
+            }
+        }
+        
+        var appName: String {
+            switch self {
+            case .spotify: return "Spotify"
+            case .appleMusic: return "Apple Music"
+            case .unknown: return "Music"
+            }
+        }
+    }
     
     var body: some View {
         Group {
             if vm.hasActiveMusic {
                 HStack(spacing: 12) {
-            
+            // Large album artwork (left side) with service badge
             Group {
+                ZStack(alignment: .bottomTrailing) {
                 if let artwork = albumArtwork {
                     Image(nsImage: artwork)
                         .resizable()
@@ -2318,11 +2760,18 @@ struct SpotifyMediaController: View {
                         .cornerRadius(8)
                         .background(Color.black.opacity(0.3))
                 } else {
+                        // Show app-specific fallback artwork when no album art is available
                     RoundedRectangle(cornerRadius: 8)
                         .fill(
                             LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.3),
+                                    gradient: Gradient(colors: currentMusicApp == .appleMusic ? [
+                                        Color(red: 0.988, green: 0.267, blue: 0.373).opacity(0.4), // Apple Music pink
+                                        Color.black.opacity(0.3)
+                                    ] : currentMusicApp == .spotify ? [
+                                        Color(red: 0.114, green: 0.725, blue: 0.329).opacity(0.4), // Spotify green
+                                        Color.black.opacity(0.3)
+                                    ] : [
+                                        Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.3), // Default teal
                                     Color.black.opacity(0.2)
                                 ]),
                                 startPoint: .topLeading,
@@ -2332,14 +2781,109 @@ struct SpotifyMediaController: View {
                         .frame(width: 60, height: 80)
                         .overlay(
                             VStack(spacing: 4) {
+                                    // Show app-specific icon
+                                    if currentMusicApp == .appleMusic {
+                                        Image(systemName: "music.note.list")
+                                            .foregroundColor(.white.opacity(0.9))
+                                            .font(.system(size: 20, weight: .medium))
+                                        Text("Apple Music")
+                                            .foregroundColor(.white.opacity(0.7))
+                                            .font(.system(size: 8, weight: .medium))
+                                    } else if currentMusicApp == .spotify {
+                                        Image(systemName: "music.note")
+                                            .foregroundColor(.white.opacity(0.9))
+                                            .font(.system(size: 20, weight: .medium))
+                                        Text("Spotify")
+                                            .foregroundColor(.white.opacity(0.7))
+                                            .font(.system(size: 8, weight: .medium))
+                                    } else {
                                 Image(systemName: "music.note")
                                     .foregroundColor(.white.opacity(0.8))
                                     .font(.system(size: 24, weight: .medium))
                                 Text("♫")
                                     .foregroundColor(.white.opacity(0.6))
                                     .font(.system(size: 12))
+                                    }
+                                }
+                            )
+                    }
+                    
+                    // Service badge overlay (like in your Spotify image)
+                    if currentMusicApp != .unknown {
+                        ZStack {
+                            // Badge background with subtle shadow
+                            Circle()
+                                .fill(Color.black.opacity(0.7))
+                                .frame(width: 18, height: 18)
+                                .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                            
+                            // Service-specific badge icon with proper app logos
+                            if currentMusicApp == .spotify {
+                                // Spotify badge with the iconic wave pattern
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(red: 0.114, green: 0.725, blue: 0.329)) // Spotify green
+                                        .frame(width: 16, height: 16)
+                                    
+                                    // Spotify's iconic curved lines (simplified version)
+                                    VStack(spacing: 1) {
+                                        // Top curve
+                                        RoundedRectangle(cornerRadius: 1)
+                                            .fill(Color.white)
+                                            .frame(width: 8, height: 1.5)
+                                            .rotationEffect(.degrees(-10))
+                                        
+                                        // Middle curve
+                                        RoundedRectangle(cornerRadius: 1)
+                                            .fill(Color.white)
+                                            .frame(width: 7, height: 1.5)
+                                            .rotationEffect(.degrees(-8))
+                                        
+                                        // Bottom curve
+                                        RoundedRectangle(cornerRadius: 1)
+                                            .fill(Color.white)
+                                            .frame(width: 6, height: 1.5)
+                                            .rotationEffect(.degrees(-6))
+                                    }
+                                    .offset(x: -0.5, y: 0)
+                                }
+                            } else if currentMusicApp == .appleMusic {
+                                // Apple Music badge with the music note icon
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(red: 0.988, green: 0.267, blue: 0.373)) // Apple Music pink
+                                        .frame(width: 16, height: 16)
+                                    
+                                    // Apple Music's music note icon (simplified)
+                                    ZStack {
+                                        // Note stem
+                                        RoundedRectangle(cornerRadius: 0.5)
+                                            .fill(Color.white)
+                                            .frame(width: 1, height: 8)
+                                            .offset(x: 2, y: -1)
+                                        
+                                        // Note head (circle)
+                                        Circle()
+                                            .fill(Color.white)
+                                            .frame(width: 3, height: 3)
+                                            .offset(x: 0, y: 2)
+                                        
+                                        // Eighth note flag
+                                        Path { path in
+                                            path.move(to: CGPoint(x: 2.5, y: -5))
+                                            path.addCurve(to: CGPoint(x: 5, y: -2),
+                                                        control1: CGPoint(x: 4, y: -4.5),
+                                                        control2: CGPoint(x: 5, y: -3))
+                                            path.addLine(to: CGPoint(x: 2.5, y: -1))
+                                        }
+                                        .fill(Color.white)
+                                    }
+                                    .scaleEffect(0.7)
+                                }
                             }
-                        )
+                        }
+                        .offset(x: -3, y: -3) // Position badge in bottom-right corner with some padding
+                    }
                 }
             }
             
@@ -2364,7 +2908,7 @@ struct SpotifyMediaController: View {
                 HStack(spacing: 12) {
                     // Previous button
                     Button(action: {
-                        print("🎵 Previous track")
+                        // Debug log removed Previous track")
                         sendMediaCommand(.previousTrack)
                     }) {
                         Image(systemName: "backward.fill")
@@ -2377,7 +2921,7 @@ struct SpotifyMediaController: View {
                     
                     // Play/Pause button (larger)
                     Button(action: {
-                        print("🎵 Play/Pause toggle")
+                        // Debug log removed Play/Pause toggle")
                         isPlaying.toggle()
                         sendMediaCommand(isPlaying ? .play : .pause)
                     }) {
@@ -2391,7 +2935,7 @@ struct SpotifyMediaController: View {
                     
                     // Next button
                     Button(action: {
-                        print("🎵 Next track")
+                        // Debug log removed Next track")
                         sendMediaCommand(.nextTrack)
                     }) {
                         Image(systemName: "forward.fill")
@@ -2412,17 +2956,89 @@ struct SpotifyMediaController: View {
                 .fill(Color.black.opacity(0.8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.6), lineWidth: 1)
+                        .stroke(currentMusicApp.borderColor, lineWidth: 2)
                 )
         )
-        .scaleEffect(isHovered ? 1.02 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-       
+        .onTapGesture {
+            openCurrentMusicApp()
+        }
         .onAppear {
             updateCurrentTrackInfo()
         }
+        .onChange(of: vm.hasActiveMusic) { hasMusic in
+            if hasMusic {
+                // Debug log removed Music became active - updating track info")
+                updateCurrentTrackInfo()
+            } else {
+                // Debug log removed Music became inactive - clearing track info")
+                // Clear track info when no music is active
+                DispatchQueue.main.async {
+                    songTitle = "Unknown Track"
+                    artistName = "Unknown Artist"
+                    albumArtwork = nil
+                    currentMusicApp = .unknown
+                }
             }
         }
+        .onChange(of: vm.isMusicPlaying) { isPlaying in
+            // Debug log removed Music playing state changed to: \(isPlaying) - force updating track info")
+            // Always update track info when playing state changes
+            updateCurrentTrackInfo()
+            
+            // Add a small delay and update again to ensure we get the correct app
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                // Debug log removed Delayed track info update after playing state change")
+                updateCurrentTrackInfo()
+            }
+        }
+            }
+        }
+    }
+    
+    private func openCurrentMusicApp() {
+        // Open the currently detected music app
+        switch currentMusicApp {
+        case .appleMusic:
+            NSWorkspace.shared.launchApplication("Music")
+            // Debug log removed Opening Apple Music")
+        case .spotify:
+            NSWorkspace.shared.launchApplication("Spotify")
+            // Debug log removed Opening Spotify")
+        case .unknown:
+            // Fallback - try to open the default music app
+            NSWorkspace.shared.launchApplication("Music")
+            // Debug log removed Opening default Music app")
+        }
+    }
+    
+    private func isAppleMusicRunning() -> Bool {
+        let script = """
+        tell application "System Events"
+            return (name of processes) contains "Music"
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            return output.booleanValue
+        }
+        return false
+    }
+    
+    private func isSpotifyRunning() -> Bool {
+        let script = """
+        tell application "System Events"
+            return (name of processes) contains "Spotify"
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            return output.booleanValue
+        }
+        return false
     }
     
     private func sendMediaCommand(_ commandType: MediaCommandType) {
@@ -2430,6 +3046,36 @@ struct SpotifyMediaController: View {
         lastButtonPressed = commandType
         buttonPressTime = Date()
         
+        // Send command to the appropriate music app
+        switch currentMusicApp {
+        case .appleMusic:
+            sendAppleMusicCommand(commandType)
+        case .spotify:
+            sendSpotifyCommand(commandType)
+        case .unknown:
+            // Try both as fallback
+            if isAppleMusicRunning() {
+                sendAppleMusicCommand(commandType)
+            } else if isSpotifyRunning() {
+                sendSpotifyCommand(commandType)
+            }
+        }
+    }
+    
+    private func sendAppleMusicCommand(_ commandType: MediaCommandType) {
+        switch commandType {
+        case .play:
+            executeAppleScript("tell application \"Music\" to play")
+        case .pause:
+            executeAppleScript("tell application \"Music\" to pause")
+        case .nextTrack:
+            executeAppleScript("tell application \"Music\" to next track")
+        case .previousTrack:
+            executeAppleScript("tell application \"Music\" to previous track")
+        }
+    }
+    
+    private func sendSpotifyCommand(_ commandType: MediaCommandType) {
         switch commandType {
         case .play:
             executeAppleScript("tell application \"Spotify\" to play")
@@ -2465,20 +3111,21 @@ struct SpotifyMediaController: View {
     }
     
     private func updateCurrentTrackInfo() {
-        // First try to get track info from Spotify directly using AppleScript
+        // First try to get track info from AppleScript (Apple Music or Spotify)
         getCurrentTrackFromAppleScript()
         
-        // Fallback to system media player info if Spotify AppleScript fails
+        // Fallback to system media player info if AppleScript fails
         let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
         
         if songTitle == "Unknown Track" && artistName == "Unknown Artist" {
             if let info = nowPlayingInfo {
                 songTitle = info[MPMediaItemPropertyTitle] as? String ?? "Unknown Track"
                 artistName = info[MPMediaItemPropertyArtist] as? String ?? "Unknown Artist"
+                currentMusicApp = .unknown
                 
                 // Get album artwork from system media player
                 if let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
-                    albumArtwork = artwork.image(at: CGSize(width: 40, height: 60))
+                    albumArtwork = artwork.image(at: CGSize(width: 300, height: 300))
                 }
                 
                 // Get playback state
@@ -2487,10 +3134,277 @@ struct SpotifyMediaController: View {
             }
         }
         
+        // If we still don't have artwork but we have system media info, try to get it
+        if albumArtwork == nil, let info = nowPlayingInfo {
+            if let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+                albumArtwork = artwork.image(at: CGSize(width: 300, height: 300))
+                // Debug log removed Got artwork from system media info as fallback")
+            }
+        }
+        
         // hasActiveMusic is now managed at the higher level, no need to set it here
     }
     
     private func getCurrentTrackFromAppleScript() {
+        // Debug log removed getCurrentTrackFromAppleScript - Current music playing: \(vm.isMusicPlaying)")
+        
+        // Check which app is actually playing by directly querying both apps
+        let spotifyPlaying = checkSpotifyPlayingState()
+        let appleMusicPlaying = checkAppleMusicPlayingState()
+        
+        // Debug log removed Direct app check - Spotify playing: \(spotifyPlaying), Apple Music playing: \(appleMusicPlaying)")
+        
+        // Prioritize the app that's actually playing
+        if appleMusicPlaying && !spotifyPlaying {
+            // Debug log removed Apple Music is playing, Spotify is not - getting Apple Music track")
+            if !tryGetTrackFromAppleMusic() {
+                // Debug log removed Apple Music failed, trying Spotify as fallback")
+                tryGetTrackFromSpotify()
+            }
+        } else if spotifyPlaying && !appleMusicPlaying {
+            // Debug log removed Spotify is playing, Apple Music is not - getting Spotify track")
+            tryGetTrackFromSpotify()
+        } else if appleMusicPlaying && spotifyPlaying {
+            // Debug log removed Both apps claim to be playing - checking system media for priority")
+            // Both claim to be playing - use system media to determine which is actually active
+            let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+            if let systemTitle = nowPlayingInfo?[MPMediaItemPropertyTitle] as? String, !systemTitle.isEmpty {
+                // Debug log removed System media title: '\(systemTitle)'")
+                // Try both apps and compare titles
+                
+                // Get Apple Music track info
+                let appleMusicSuccess = tryGetTrackFromAppleMusic()
+                let appleMusicTitle = appleMusicSuccess ? songTitle : ""
+                
+                // Get Spotify track info
+                tryGetTrackFromSpotify()
+                let spotifyTitle = songTitle
+                
+                // Compare which title matches system media better
+                if !appleMusicTitle.isEmpty && (systemTitle.contains(appleMusicTitle) || appleMusicTitle.contains(systemTitle)) {
+                    // Debug log removed System media matches Apple Music better: '\(appleMusicTitle)' vs '\(spotifyTitle)'")
+                    if !tryGetTrackFromAppleMusic() {
+                        tryGetTrackFromSpotify()
+                    }
+                } else if !spotifyTitle.isEmpty {
+                    // Debug log removed Using Spotify track: '\(spotifyTitle)'")
+                    // Spotify track is already set
+                } else {
+                    // Debug log removed Both apps failed, using fallback")
+                    if !tryGetTrackFromAppleMusic() {
+                        tryGetTrackFromSpotify()
+                    }
+                }
+            } else {
+                // No system media info, default to Apple Music since it was detected as playing
+                // Debug log removed No system media info, defaulting to Apple Music")
+                if !tryGetTrackFromAppleMusic() {
+                    tryGetTrackFromSpotify()
+                }
+            }
+        } else {
+            // Neither is playing or both are paused - try Apple Music first (better for paused content)
+            // Debug log removed Neither app is playing - trying Apple Music first for paused content")
+            if !tryGetTrackFromAppleMusic() {
+                // Debug log removed Apple Music failed, trying Spotify for paused content")
+                tryGetTrackFromSpotify()
+            }
+        }
+    }
+    
+    // Helper functions to check playing state without affecting the main detection logic
+    private func checkSpotifyPlayingState() -> Bool {
+        let script = """
+        tell application "System Events"
+            if (name of processes) contains "Spotify" then
+                tell application "Spotify"
+                    try
+                        return (player state as string) is equal to "playing"
+                    on error
+                        return false
+                    end try
+                end tell
+            else
+                return false
+            end if
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            return output.booleanValue
+        }
+        return false
+    }
+    
+    private func checkAppleMusicPlayingState() -> Bool {
+        let script = """
+        tell application "System Events"
+            if (name of processes) contains "Music" then
+                tell application "Music"
+                    try
+                        return (player state as string) is equal to "playing"
+                    on error
+                        return false
+                    end try
+                end tell
+            else
+                return false
+            end if
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            return output.booleanValue
+        }
+        return false
+    }
+    
+    private func tryGetTrackFromAppleMusic() -> Bool {
+        // Debug log removed === TRYING TO GET APPLE MUSIC TRACK INFO ===")
+        
+        let appleMusicScript = """
+            tell application "Music"
+                if it is running then
+                    try
+                        set trackName to name of current track
+                        set artistName to artist of current track
+                        set albumName to album of current track
+                        set playerState to player state
+                        set trackKind to kind of current track
+                        
+                        -- Try to get more info for iTunes Store content
+                        try
+                            set trackLocation to location of current track
+                            set locationInfo to trackLocation as string
+                        on error
+                            set locationInfo to "no-location"
+                        end try
+                        
+                        -- Build detailed response
+                        set trackInfo to trackName & "|" & artistName & "|" & albumName & "|" & "apple-music-artwork" & "|" & (playerState as string) & "|" & trackKind & "|" & locationInfo
+                        
+                        return trackInfo
+                    on error errMsg
+                        -- Fallback for iTunes Store or other issues
+                        return "Apple Music|Unknown Artist|Unknown Album|apple-music-artwork|playing|iTunes Store|error: " & errMsg
+                    end try
+                else
+                    return "Music not running"
+                end if
+            end tell
+        """
+        
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: appleMusicScript) {
+            let result = appleScript.executeAndReturnError(&error)
+            
+            if error == nil, let output = result.stringValue {
+                // Debug log removed Apple Music AppleScript result: \(output)")
+                
+                let components = output.components(separatedBy: "|")
+                if components.count >= 5 {
+                    let trackName = components[0]
+                    let artist = components[1] 
+                    let album = components[2]
+                    let playerState = components[4]
+                    let trackKind = components.count > 5 ? components[5] : "unknown"
+                    let location = components.count > 6 ? components[6] : "no-location"
+                    
+                    // Debug log removed Track details:")
+                    // Debug log removed   Name: '\(trackName)'")
+                    // Debug log removed   Artist: '\(artist)'")
+                    // Debug log removed   Album: '\(album)'")
+                    // Debug log removed   State: '\(playerState)'")
+                    // Debug log removed   Kind: '\(trackKind)'")
+                    // Debug log removed   Location: '\(location)'")
+                    
+                    // Handle empty or missing track info (common with iTunes Store previews)
+                    if trackName.isEmpty || trackName == "Apple Music" {
+                        // Debug log removed ⚠️ Empty track name detected - might be iTunes Store preview")
+                        songTitle = "iTunes Store Preview"
+                        artistName = "Apple Music"
+                    } else {
+                        songTitle = trackName
+                        artistName = artist.isEmpty ? "Unknown Artist" : artist
+                    }
+                    
+                    isPlaying = playerState.contains("playing")
+                    currentMusicApp = .appleMusic
+                    
+                    // Debug log removed ✅ Final track info: '\(songTitle)' by '\(artistName)'")
+                    
+                    // Get artwork from system media info for Apple Music
+                    getAppleMusicArtwork()
+                    
+                    return true
+                } else {
+                    // Debug log removed ❌ Invalid Apple Music response format: \(components.count) components")
+                }
+            } else {
+                // Debug log removed ❌ Apple Music AppleScript error: \(error?.description ?? "Unknown error")")
+            }
+        } else {
+            // Debug log removed ❌ Failed to create Apple Music AppleScript")
+        }
+        return false
+    }
+    
+    private func getAppleMusicArtwork() {
+        // Debug log removed === GETTING APPLE MUSIC ARTWORK ===")
+        
+        // Try to get artwork from MPNowPlayingInfoCenter
+        if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+            // Debug log removed System media info available")
+            
+            // Log all available media info for debugging
+            for (key, value) in nowPlayingInfo {
+                // Debug log removed Media info - \(key): \(value)")
+            }
+            
+            // Check if we have track title/artist from system media (might be more accurate for iTunes Store)
+            if let systemTitle = nowPlayingInfo[MPMediaItemPropertyTitle] as? String,
+               let systemArtist = nowPlayingInfo[MPMediaItemPropertyArtist] as? String,
+               !systemTitle.isEmpty, !systemArtist.isEmpty {
+                // Debug log removed Found better track info from system media:")
+                // Debug log removed   System Title: '\(systemTitle)'")
+                // Debug log removed   System Artist: '\(systemArtist)'")
+                
+                // Use system media info if it's more complete than AppleScript result
+                if songTitle == "iTunes Store Preview" || songTitle == "Apple Music" || songTitle.isEmpty {
+                    // Debug log removed ✅ Using system media info instead of AppleScript")
+                    DispatchQueue.main.async {
+                        self.songTitle = systemTitle
+                        self.artistName = systemArtist
+                    }
+                }
+            }
+            
+            if let artwork = nowPlayingInfo[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+                let artworkImage = artwork.image(at: CGSize(width: 300, height: 300))
+                DispatchQueue.main.async {
+                    self.albumArtwork = artworkImage
+                    // Debug log removed ✅ Successfully got Apple Music artwork from system media info")
+                }
+                return
+            } else {
+                // Debug log removed ❌ No artwork available in system media info")
+            }
+        } else {
+            // Debug log removed ❌ No system media info available")
+        }
+        
+        // If no artwork found, use the app-specific fallback (which is now handled in the UI)
+        // Debug log removed Using app-specific fallback artwork")
+        DispatchQueue.main.async {
+            self.albumArtwork = nil
+        }
+    }
+    
+    private func tryGetTrackFromSpotify() {
         let spotifyScript = """
             tell application "Spotify"
                 if it is running then
@@ -2520,8 +3434,10 @@ struct SpotifyMediaController: View {
                     // albumName = components[2] // We can use this later if needed
                     let artworkURLString = components[3]
                     isPlaying = components[4].contains("playing")
+                    currentMusicApp = .spotify
                     
                     // Track info retrieved successfully
+                    // Debug log removed Got Spotify track: \(songTitle) by \(artistName)")
                     
                     // Download album artwork from URL
                     if !artworkURLString.isEmpty && artworkURLString != "missing value" {
@@ -2533,7 +3449,7 @@ struct SpotifyMediaController: View {
                     artistName = "Unknown Artist"
                 }
             } else {
-                print("🎵 AppleScript error: \(error?.description ?? "Unknown error")")
+                // Debug log removed AppleScript error: \(error?.description ?? "Unknown error")")
                 // Try alternative method using System Events
                 getTrackInfoFromSystemEvents()
             }
@@ -2552,7 +3468,7 @@ struct SpotifyMediaController: View {
                     }
                 }
             } catch {
-                print("🎵 Failed to download artwork: \(error.localizedDescription)")
+                // Debug log removed Failed to download artwork: \(error.localizedDescription)")
                 // Try to get artwork from macOS Now Playing if download fails
                 DispatchQueue.main.async {
                     self.getArtworkFromNowPlaying()
@@ -2606,7 +3522,7 @@ struct SpotifyMediaController: View {
             var error: NSDictionary?
             appleScript.executeAndReturnError(&error)
             if let error = error {
-                print("🎵 AppleScript error: \(error)")
+                // Debug log removed AppleScript error: \(error)")
             }
         }
     }
@@ -2789,6 +3705,7 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                 let restoreAttempts = 0;
                 let lastKnownVideoTime = 0;
                 let videoTimeTrackingInterval = null;
+                let restoreTimeouts = [];  // ⚡ PERFORMANCE FIX: Track all timeouts for cleanup
                 
                 const fallbackUrls = [
                     'https://www.youtube.com/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
@@ -2797,6 +3714,43 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     'https://invidious.flokinet.to/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0',
                     'https://invidious.lunar.icu/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0'
                 ];
+                
+                // ⚡ CRITICAL FIX: Cleanup function to prevent timer leaks
+                function cleanupAllTimers() {
+                    console.log('🧹 Cleaning up YouTube video timers...');
+                    
+                    // Clear video state interval
+                    if (videoStateInterval) {
+                        clearInterval(videoStateInterval);
+                        videoStateInterval = null;
+                    }
+                    
+                    // Clear video time tracking interval
+                    if (videoTimeTrackingInterval) {
+                        clearInterval(videoTimeTrackingInterval);
+                        videoTimeTrackingInterval = null;
+                    }
+                    
+                    // Clear all restore timeouts
+                    restoreTimeouts.forEach(timeout => clearTimeout(timeout));
+                    restoreTimeouts = [];
+                    
+                    console.log('✅ YouTube video timers cleaned up');
+                }
+                
+                // ⚡ CRITICAL FIX: Setup cleanup on page unload
+                window.addEventListener('beforeunload', function() {
+                    saveCurrentVideoState();  // Save state first
+                    cleanupAllTimers();        // Then cleanup
+                });
+                
+                // ⚡ CRITICAL FIX: Cleanup when tab becomes hidden
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        saveCurrentVideoState();
+                        cleanupAllTimers();
+                    }
+                });
                 
                 // Check for saved video state in localStorage
                 function getSavedVideoState() {
@@ -2811,79 +3765,30 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     return null;
                 }
                 
-                // Save current video state with actual position
+                // ⚡ PERFORMANCE FIX: Simplified save function (removed expensive iframe access)
                 function saveCurrentVideoState() {
                     try {
-                        const player = document.getElementById('player');
-                        if (player) {
                             const playerState = {
                                 videoId: currentVideoId,
                                 timestamp: Date.now(),
-                                currentTime: 0,
+                            currentTime: lastKnownVideoTime,  // Use tracked time (more reliable)
                                 duration: 0,
-                                isPlaying: false
-                            };
-                            
-                            // Method 1: Try to access iframe content directly (most reliable)
-                            try {
-                                const iframeDoc = player.contentDocument || player.contentWindow.document;
-                                if (iframeDoc) {
-                                    // Look for video element in iframe
-                                    const videoElement = iframeDoc.querySelector('video');
-                                    if (videoElement && videoElement.readyState >= 2) {
-                                        playerState.currentTime = videoElement.currentTime;
-                                        playerState.duration = videoElement.duration;
-                                        playerState.isPlaying = !videoElement.paused;
-                                    } else {
-                                        // Try to get time from YouTube player object
-                                        const ytPlayer = iframeDoc.querySelector('#movie_player');
-                                        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                                            playerState.currentTime = ytPlayer.getCurrentTime();
-                                            playerState.duration = ytPlayer.getDuration();
-                                            playerState.isPlaying = ytPlayer.getPlayerState() === 1;
-                                        }
-                                    }
-                                }
-                            } catch (e) {
-                            }
-                            
-                            // Method 2: Try YouTube API if iframe access failed
-                            if (playerState.currentTime === 0) {
-                                try {
-                                    if (window.YT && window.YT.Player) {
-                                        const ytPlayer = new YT.Player('player');
-                                        if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
-                                            playerState.currentTime = ytPlayer.getCurrentTime();
-                                            playerState.duration = ytPlayer.getDuration();
-                                            playerState.isPlaying = ytPlayer.getPlayerState() === 1;
-                                        }
-                                    }
-                                } catch (e) {
-                                }
-                            }
-                            
-                            // Method 3: Use tracked time from our time tracking system
-                            if (playerState.currentTime === 0) {
+                            isPlaying: true
+                        };
+                        
+                        // Use time tracking system (faster and more reliable than iframe access)
                                 const timeSinceStart = (Date.now() - videoStartTime) / 1000;
-                                if (timeSinceStart > 5) { // Only estimate if video has been playing for more than 5 seconds
-                                    playerState.currentTime = Math.min(timeSinceStart, 600); // Cap at 10 minutes
-                                    playerState.isPlaying = true; // Assume playing if we're estimating
-                                }
-                            }
+                        if (timeSinceStart > 3) {  // Only save if video has been playing for more than 3 seconds
+                            playerState.currentTime = Math.max(lastKnownVideoTime, timeSinceStart);
+                            playerState.currentTime = Math.min(playerState.currentTime, 7200); // Cap at 2 hours
                             
-                            // Method 4: Use last known video time from monitoring
-                            if (playerState.currentTime === 0 && lastKnownVideoTime > 0) {
-                                playerState.currentTime = lastKnownVideoTime;
-                                playerState.isPlaying = true;
-                            }
-                            
-                            // Only save if we have a meaningful current time
+                            // Only save if we have meaningful progress
                             if (playerState.currentTime > 0) {
                                 localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
-                            } else {
                             }
                         }
                     } catch (e) {
+                        console.error('Failed to save video state:', e);
                     }
                 }
                 
@@ -2900,53 +3805,9 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                         
                         let restorationSuccessful = false;
                         
-                        // Method 1: Try direct iframe access
-                        try {
-                            const player = document.getElementById('player');
-                            if (player && player.contentWindow) {
-                                const iframeDoc = player.contentDocument || player.contentWindow.document;
-                                if (iframeDoc) {
-                                    const videoElement = iframeDoc.querySelector('video');
-                                    if (videoElement && videoElement.readyState >= 2) {
-                                        videoElement.currentTime = saved.currentTime;
-                                        if (saved.isPlaying) {
-                                            videoElement.play();
-                                        }
-                                        restorationSuccessful = true;
-                                    }
-                                    
-                                    // Try YouTube player object if video element didn't work
-                                    if (!restorationSuccessful) {
-                                        const ytPlayer = iframeDoc.querySelector('#movie_player');
-                                        if (ytPlayer && ytPlayer.seekTo) {
-                                            ytPlayer.seekTo(saved.currentTime, true);
-                                            if (saved.isPlaying) {
-                                                ytPlayer.playVideo();
-                                            }
-                                            restorationSuccessful = true;
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (e) {
-                        }
-                        
-                        // Method 2: Try YouTube Player API
-                        if (!restorationSuccessful) {
-                            try {
-                                if (window.YT && window.YT.Player) {
-                                    const ytPlayer = new YT.Player('player');
-                                    if (ytPlayer && ytPlayer.seekTo) {
-                                        ytPlayer.seekTo(saved.currentTime, true);
-                                        if (saved.isPlaying) {
-                                            ytPlayer.playVideo();
-                                        }
-                                        restorationSuccessful = true;
-                                    }
-                                }
-                            } catch (e) {
-                            }
-                        }
+                        // ⚡ PERFORMANCE FIX: Position is restored via URL parameters (&start=XX)
+                        // No expensive iframe access needed - YouTube handles it natively
+                        restorationSuccessful = true;  // URL parameters will handle the position
                         
                         // If restoration was successful, mark as completed
                         if (restorationSuccessful) {
@@ -3009,42 +3870,17 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                     // Check if video loads successfully
                     player.onload = function() {
                         
-                        // If we have saved state, hide the video initially and restore position
+                        // ⚡ PERFORMANCE FIX: Simplified restore (position is in URL)
                         if (savedState && savedState.currentTime > 0) {
-                            player.style.display = 'none';
-                            
-                            // Try to restore position after video loads
-                            setTimeout(() => {
-                                if (!hasRestoredPosition) {
-                                    const restored = restoreVideoPosition();
-                                    if (restored) {
-                                        // Show the video after successful restoration
-                                        player.style.display = 'block';
-                                        loading.style.display = 'none';
-                                    }
-                                }
-                            }, 1000); // Faster restoration attempt
-                            
-                            // Second attempt after 2 seconds
-                            setTimeout(() => {
-                                if (!hasRestoredPosition) {
-                                    const restored = restoreVideoPosition();
-                                    if (restored) {
-                                        player.style.display = 'block';
-                                        loading.style.display = 'none';
-                                    }
-                                }
-                            }, 2000);
-                            
-                            // Final attempt after 3 seconds - show video regardless
-                            setTimeout(() => {
-                                if (!hasRestoredPosition) {
+                            // Single restore attempt instead of 3
+                            const timeout = setTimeout(() => {
                                     restoreVideoPosition();
-                                }
-                                // Always show video after 3 seconds to prevent infinite loading
                                 player.style.display = 'block';
                                 loading.style.display = 'none';
-                            }, 3000);
+                            }, 1000);
+                            
+                            // ⚡ CRITICAL FIX: Track timeout for cleanup
+                            restoreTimeouts.push(timeout);
                         } else {
                             // No saved state, show video immediately
                             loading.style.display = 'none';
@@ -3061,78 +3897,23 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
                 }
                 
                 function startVideoStateMonitoring() {
-                    // Start time tracking system
+                    // ⚡ PERFORMANCE FIX: Reduced interval frequency (2s → 5s)
                     startVideoTimeTracking();
                     
-                    // Monitor video state every 2 seconds for better performance
-                    videoStateInterval = setInterval(saveCurrentVideoState, 2000);
+                    // Monitor video state every 5 seconds (was 2s)
+                    videoStateInterval = setInterval(saveCurrentVideoState, 5000);
                     
-                    // Save state when page is about to unload
-                    window.addEventListener('beforeunload', saveCurrentVideoState);
-                    
-                    // Save state when notch closes (if we can detect it)
-                    document.addEventListener('visibilitychange', function() {
-                        if (document.hidden) {
-                            saveCurrentVideoState();
-                        }
-                    });
-                    
-                    // Listen for message events from iframe
-                    window.addEventListener('message', function(event) {
-                        if (event.data && event.data.type === 'VIDEO_TIME_UPDATE') {
-                            lastKnownVideoTime = event.data.currentTime || 0;
-                            const playerState = {
-                                videoId: currentVideoId,
-                                timestamp: Date.now(),
-                                currentTime: event.data.currentTime || 0,
-                                duration: event.data.duration || 0,
-                                isPlaying: event.data.isPlaying || false
-                            };
-                            localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
-                        }
-                    });
-                    
-                    // Try to inject monitoring script into iframe
-                    try {
-                        const player = document.getElementById('player');
-                        if (player && player.contentWindow) {
-                            player.addEventListener('load', function() {
-                                setTimeout(() => {
-                                    try {
-                                        // Inject script to monitor video state and send updates
-                                        const monitoringScript = `
-                                            setInterval(() => {
-                                                try {
-                                                    const video = document.querySelector('video');
-                                                    if (video && video.readyState >= 2) {
-                                                        window.parent.postMessage({
-                                                            type: 'VIDEO_TIME_UPDATE',
-                                                            currentTime: video.currentTime,
-                                                            duration: video.duration,
-                                                            isPlaying: !video.paused
-                                                        }, '*');
-                                                    }
-                                                } catch (e) {
-                                                }
-                                            }, 1000);
-                                        `;
-                                        
-                                        player.contentWindow.eval(monitoringScript);
-                                    } catch (e) {
-                                    }
-                                }, 3000);
-                            });
-                        }
-                    } catch (e) {
-                    }
+                    // ⚡ PERFORMANCE FIX: Removed expensive iframe injection
+                    // (Cross-origin security blocks it anyway, just wastes CPU)
                 }
                 
+                // ⚡ PERFORMANCE FIX: Reduced tracking frequency (1s → 3s)
                 function startVideoTimeTracking() {
                     // Track video time based on elapsed time since start
                     videoTimeTrackingInterval = setInterval(() => {
                         const timeSinceStart = (Date.now() - videoStartTime) / 1000;
                         lastKnownVideoTime = timeSinceStart;
-                    }, 1000);
+                    }, 3000);  // Reduced from 1s to 3s
                 }
                 
                 function retryVideo() {

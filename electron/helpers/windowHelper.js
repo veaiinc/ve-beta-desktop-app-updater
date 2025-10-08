@@ -827,6 +827,14 @@ class WindowHelper {
 			}
 		});
 
+		// Hide window when it loses focus (user clicks outside)
+		this.askAIWindow.on('blur', () => {
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				log.info('🎯 ASK AI BLUR: Hiding window due to focus loss');
+				this.hideAskAIWindow();
+			}
+		});
+
 		this.askAIWindow.on('closed', () => {
 			this.askAIWindow = null;
 			this.isAskAIVisible = false;

@@ -54,6 +54,7 @@
 	/* navbar colors */
 	--navbar: #141415; /* #202123 */
 	--right-bar: #18191b; /* #171819 */
+	--svg-color:  rgb(12, 12, 12);
 
 	/* ai color code */
 	--ai-color-code: linear-gradient(
@@ -182,19 +183,15 @@
 .glass-mode-enabled {
 	/* SCSS Data Structures for Glass Mode */
 	$glass-variables: (
-		'--background-color': transparent,
-		'--popup': rgba(255, 255, 255, 0.1),
-		'--card': rgba(255, 255, 255, 0.1),
-		'--card-over-card': rgba(255, 255, 255, 0.2),
-		'--card-over-card-hover': rgba(255, 255, 255, 0.2),
+		'--background-color': rgba(255, 255, 255, 0.1),
 		'--card-hover': rgba(255, 255, 255, 0.2),
-		'--navbar': rgba(255, 255, 255, 0.2),
 		'--right-bar': rgba(255, 255, 255, 0.2),
 		'--new-card': rgba(255, 255, 255, 0.2),
-		'--stroke': rgba(255, 255, 255, 0.2),
+		'--stroke': rgba(255, 255, 255, 0.1),
 		'--stroke-hover': rgba(255, 255, 255, 0.2),
 		'--stroke-active': rgba(255, 255, 255, 0.2),
 		'--dividers': rgba(255, 255, 255, 0.2),
+		'--svg-color': rgb(12, 12, 12),
 	);
 
 	$backdrop-filter-variables: ('--background-color', '--popup');
@@ -239,7 +236,7 @@
 	);
 
 	$transparent-properties: (
-		'background': transparent,
+		'background': rgba(255, 255, 255, 0.1),
 	);
 
 	/* Apply glass mode variable overrides using @each loop */

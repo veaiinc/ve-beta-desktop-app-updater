@@ -153,7 +153,16 @@ const DynamicIslandUI = memo(() => {
 			setVoiceError(error.message || 'Failed to connect to voice assistant');
 			setShowVoiceInterface(false);
 		}
-	}, [isVoiceModeActive, voiceConnectionStatus, handleConnect, handleDisconnect, updateAiSetupState, shouldConnect, voiceIntegrationData, resetState]);
+	}, [
+		isVoiceModeActive,
+		voiceConnectionStatus,
+		handleConnect,
+		handleDisconnect,
+		updateAiSetupState,
+		shouldConnect,
+		voiceIntegrationData,
+		resetState,
+	]);
 
 	useEffect(() => {
 		// Check authentication status
@@ -174,10 +183,10 @@ const DynamicIslandUI = memo(() => {
 			}
 		};
 
-		// Listen for periodic auth checks (fallback)
+		// ⚡ PERFORMANCE FIX: Reduced auth check frequency (2s → 30s)
 		const authCheckInterval = setInterval(() => {
 			checkAuthStatus();
-		}, 2000); // Check every 2 seconds
+		}, 30000); // Check every 30 seconds (was 2s - massive CPU waste)
 
 		window.addEventListener('storage', handleStorageChange);
 
@@ -507,54 +516,57 @@ const DynamicIslandUI = memo(() => {
 	}, [cameraStream]);
 
 	// Handle Swift control actions
-	const handleSwiftControl = useCallback((action, data) => {
-		console.log('🎯 Handling Swift control:', action, data);
+	const handleSwiftControl = useCallback(
+		(action, data) => {
+			console.log('🎯 Handling Swift control:', action, data);
 
-		switch (action) {
-			case 'startRecording':
-				console.log('🎤 Swift requested start recording');
-				handleStartRecording();
-				break;
-			case 'stopRecording':
-				console.log('⏹️ Swift requested stop recording');
-				handleStopRecording();
-				break;
-			case 'pauseRecording':
-				console.log('⏸️ Swift requested pause recording');
-				handlePauseResume();
-				break;
-			case 'resumeRecording':
-				console.log('▶️ Swift requested resume recording');
-				handlePauseResume();
-				break;
-			case 'toggleChatMode':
-				console.log('💬 Swift requested chat mode toggle');
-				setIsChatMode(!isChatMode);
-				break;
-			case 'submitChat':
-				console.log('💬 Swift submitted chat:', data);
-				// Handle chat submission from Swift
-				break;
-			case 'setAuthenticated':
-				console.log('🔐 Swift set authentication:', data);
-				setIsAuthenticated(data);
-				break;
-			case 'expand':
-				console.log('📏 Swift requested expand');
-				if (!isExpanded && isConnected) {
-					expand();
-				}
-				break;
-			case 'collapse':
-				console.log('📏 Swift requested collapse');
-				if (isExpanded && isConnected) {
-					collapse();
-				}
-				break;
-			default:
-				console.warn('⚠️ Unknown Swift action:', action);
-		}
-	}, [isChatMode, isExpanded, isConnected]);
+			switch (action) {
+				case 'startRecording':
+					console.log('🎤 Swift requested start recording');
+					handleStartRecording();
+					break;
+				case 'stopRecording':
+					console.log('⏹️ Swift requested stop recording');
+					handleStopRecording();
+					break;
+				case 'pauseRecording':
+					console.log('⏸️ Swift requested pause recording');
+					handlePauseResume();
+					break;
+				case 'resumeRecording':
+					console.log('▶️ Swift requested resume recording');
+					handlePauseResume();
+					break;
+				case 'toggleChatMode':
+					console.log('💬 Swift requested chat mode toggle');
+					setIsChatMode(!isChatMode);
+					break;
+				case 'submitChat':
+					console.log('💬 Swift submitted chat:', data);
+					// Handle chat submission from Swift
+					break;
+				case 'setAuthenticated':
+					console.log('🔐 Swift set authentication:', data);
+					setIsAuthenticated(data);
+					break;
+				case 'expand':
+					console.log('📏 Swift requested expand');
+					if (!isExpanded && isConnected) {
+						expand();
+					}
+					break;
+				case 'collapse':
+					console.log('📏 Swift requested collapse');
+					if (isExpanded && isConnected) {
+						collapse();
+					}
+					break;
+				default:
+					console.warn('⚠️ Unknown Swift action:', action);
+			}
+		},
+		[isChatMode, isExpanded, isConnected],
+	);
 
 	// Send current state to Swift
 	const sendStateToSwift = () => {

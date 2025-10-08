@@ -22,8 +22,10 @@ import { CustomDomainState } from './customDomain/state';
 import { ChatStreamState } from './chatStream/state';
 import { ChatBoxSuggestionsState } from './chatBoxSuggestions/state';
 
+// ⚡ PERFORMANCE FIX: Call all hooks (React Rules of Hooks requirement)
+// But rely on individual state hooks to be optimized internally
 const useCombineState = () => {
-	// Call all hooks at the top level
+	// Call all hooks at the top level (cannot be conditional per React rules)
 	const chatInfo = ChatState();
 	const templates = TemplatesState();
 	const themeInfo = ThemeState();
@@ -46,7 +48,9 @@ const useCombineState = () => {
 	const customDomainInfo = CustomDomainState();
 	const chatStream = ChatStreamState();
 	const chatBoxSuggestionsSocket = ChatBoxSuggestionsState();
-	// Only memoize the final combined object
+
+	// ⚡ OPTIMIZATION: Only memoize the final combined object to prevent unnecessary re-renders
+	// The memoization here ensures child components only re-render when values actually change
 	return useMemo(
 		() => ({
 			chatInfo,
