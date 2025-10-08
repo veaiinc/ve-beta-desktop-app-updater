@@ -109,6 +109,7 @@ const PermissionOverlay = () => {
 			clearInterval(intervalRef.current);
 		}
 
+		// ⚡ PERFORMANCE FIX: Reduced permission check frequency (2s → 10s)
 		intervalRef.current = setInterval(() => {
 			// Only check if we're not already checking and it's been at least 1 second
 			const now = Date.now();
@@ -116,7 +117,7 @@ const PermissionOverlay = () => {
 				console.log('🔄 Auto-checking permissions...');
 				checkPermissions();
 			}
-		}, 2000); // Check every 2 seconds for more responsive updates
+		}, 10000); // Check every 10 seconds (was 2s - expensive IPC calls)
 	}, [isCheckingPermissions, lastPermissionCheck]);
 
 	const stopPermissionMonitoring = useCallback(() => {

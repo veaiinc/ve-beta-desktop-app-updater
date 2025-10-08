@@ -183,10 +183,10 @@ const DynamicIslandUI = memo(() => {
 			}
 		};
 
-		// Listen for periodic auth checks (fallback)
+		// ⚡ PERFORMANCE FIX: Reduced auth check frequency (2s → 30s)
 		const authCheckInterval = setInterval(() => {
 			checkAuthStatus();
-		}, 2000); // Check every 2 seconds
+		}, 30000); // Check every 30 seconds (was 2s - massive CPU waste)
 
 		window.addEventListener('storage', handleStorageChange);
 
