@@ -73,6 +73,18 @@ struct NotchView: View {
         }
     }
     
+    // Give the bottom corners a slightly larger radius for a more pronounced curve
+    var notchBottomCornerRadius: CGFloat {
+        switch vm.status {
+        case .closed:
+            return DynamicIslandTheme.collapsedRadius + 6
+        case .opened:
+            return DynamicIslandTheme.expandedRadius + 16
+        case .popping:
+            return 16
+        }
+    }
+    
     var collapsedContentText: String {
         if vm.isRecording {
             if vm.isPaused {
@@ -195,8 +207,8 @@ struct NotchView: View {
                 height: notchSize.height
             )
             .clipShape(.rect(
-                bottomLeadingRadius: notchCornerRadius,
-                bottomTrailingRadius: notchCornerRadius
+                bottomLeadingRadius: notchBottomCornerRadius,
+                bottomTrailingRadius: notchBottomCornerRadius
             ))
             .overlay {
                 ZStack(alignment: .topTrailing) {
@@ -275,17 +287,11 @@ HStack(spacing: 4) {
     .frame(width: 14, height: 8)
     .padding(5)
     .frame(width: 24, height: 24)
-    .overlay(
-        Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
-    )
 
 
     // ✅ Replaced small circle with IncognitoIcon SVG
     IncognitoIconSVG()
         .frame(width: 24, height: 24)
-        .overlay(
-            Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
-        )
 }
 
             }
@@ -301,10 +307,6 @@ HStack(spacing: 4) {
                     .foregroundColor(.white)
                     .frame(width: 50, height: 24)
                     .background(Color.clear)
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
-                    )
             }
         }
     }
@@ -558,23 +560,24 @@ struct IncognitoIconSVG: View {
                 path.move(to: CGPoint(x: 0.4375, y: 6.5625))
                 path.addLine(to: CGPoint(x: 13.5625, y: 6.5625))
             }
-            .stroke(Color.white, style: StrokeStyle(lineWidth: 0.875, lineCap: .round, lineJoin: .round))
+
+            .stroke(Color.clear, style: StrokeStyle(lineWidth: 0.875, lineCap: .round, lineJoin: .round))
             
             Path { path in
                 path.addEllipse(in: CGRect(x: 2.625, y: 8.3125, width: 3.125, height: 3.0625))
             }
-            .stroke(Color.white, lineWidth: 0.875)
+            .stroke(Color.clear, lineWidth: 0.875)
 
             Path { path in
                 path.addEllipse(in: CGRect(x: 8.3125, y: 8.3125, width: 3.0625, height: 3.0625))
             }
-            .stroke(Color.white, lineWidth: 0.875)
+            .stroke(Color.clear, lineWidth: 0.875)
 
             Path { path in
                 path.move(to: CGPoint(x: 5.67188, y: 10.0625))
                 path.addLine(to: CGPoint(x: 8.3275, y: 10.0625))
             }
-            .stroke(Color.white, lineWidth: 0.875)
+            .stroke(Color.clear, lineWidth: 0.875)
             
             Path { path in
                 // top glasses frame
@@ -587,7 +590,7 @@ struct IncognitoIconSVG: View {
                 path.addLine(to: CGPoint(x: 9.08414, y: 2.80488))
                 path.addLine(to: CGPoint(x: 11.8125, y: 6.56245))
             }
-            .stroke(Color.white, style: StrokeStyle(lineWidth: 0.875, lineCap: .round, lineJoin: .round))
+            .stroke(Color.clear, style: StrokeStyle(lineWidth: 0.875, lineCap: .round, lineJoin: .round))
         }
         .frame(width: 14, height: 14)
     }
@@ -618,7 +621,6 @@ struct NotchBaseView<BackgroundMask: View>: View {
             .scaleEffect(1.0)
             .animation(DynamicIslandTheme.hoverAnimation, value: vm.status)
             .overlay(innerShadowOverlay)
-            .overlay(whiteBorderOverlay)
             .shadow(
                 color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay)
                     ? DynamicIslandTheme.primaryGreen.opacity(0.3)
@@ -646,7 +648,7 @@ struct NotchBaseView<BackgroundMask: View>: View {
         Group {
             if vm.status == .opened {
                 RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.6), lineWidth: 5) // 10px inset glow
+                    .strokeBorder(Color.clear, lineWidth: 5) // 10px inset glow
                     .blur(radius: 10)
                     .mask(backgroundMask())
                     .transition(.opacity) // fade-in when opening
@@ -655,62 +657,4 @@ struct NotchBaseView<BackgroundMask: View>: View {
         }
     }
     
-    @ViewBuilder
-    private var whiteBorderOverlay: some View {
-        Group {
-            if vm.status == .opened && !vm.isAuthenticated {
-                // Create a border that only shows on left, right, and bottom edges (not top)
-                BottomRoundedThreeSidedBorder(cornerRadius: notchCornerRadius)
-                    .stroke(Color.white, lineWidth: 1)
-                    .frame(
-                        width: notchSize.width,
-                        height: notchSize.height
-                    )
-                    .mask(backgroundMask())
-                    .transition(.opacity)
-                    .animation(.easeInOut(duration: 0.15), value: vm.status)
-            }
-        }
-    }
-}
-
-struct BottomRoundedThreeSidedBorder: Shape {
-    let cornerRadius: CGFloat
-
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let width = rect.width
-        let height = rect.height
-        let r = min(cornerRadius, height / 2, width / 2)
-
-        // Left edge
-        path.move(to: CGPoint(x: 0, y: 0))
-        path.addLine(to: CGPoint(x: 0, y: height - r))
-
-        // Bottom-left corner
-        path.addArc(
-            center: CGPoint(x: r, y: height - r),
-            radius: r,
-            startAngle: .degrees(180),
-            endAngle: .degrees(90),
-            clockwise: true
-        )
-
-        // Bottom edge
-        path.addLine(to: CGPoint(x: width - r, y: height))
-
-        // Bottom-right corner
-        path.addArc(
-            center: CGPoint(x: width - r, y: height - r),
-            radius: r,
-            startAngle: .degrees(90),
-            endAngle: .degrees(0),
-            clockwise: true
-        )
-
-        // Right edge
-        path.addLine(to: CGPoint(x: width, y: 0))
-
-        return path
-    }
 }
