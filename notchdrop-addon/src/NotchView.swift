@@ -270,26 +270,37 @@ var notch: some View {
 
                 // Right icons replaced with original SVG equivalents
                // Right icons replaced with SVG equivalents
-HStack(spacing: 4) {
-   VEIcon(color: .white)
-    .frame(width: 14, height: 8)
-    .padding(5)
-    .frame(width: 24, height: 24)
-    .overlay(
-        Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
-    )
+            HStack(spacing: 4) {
+            VEIcon(color: .white)
+                .frame(width: 15, height: 17)
+                .frame(width: 24, height: 24)
+                .padding(2)
+                .overlay(
+                    Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(LinearGradient(
+                    stops: [
+                        Gradient.Stop(color: .white.opacity(0.06), location: 0.0),
+                        Gradient.Stop(color: .white.opacity(0.03), location: 0.5),
+                        Gradient.Stop(color: .white.opacity(0.06), location: 1.0),
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing,
+                ))
+                .cornerRadius(100)
 
 
-    // ✅ Replaced small circle with IncognitoIcon SVG
-    // IncognitoIconSVG()
-    //     .frame(width: 24, height: 24)
-    //     .overlay(
-    //         Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
-    //     )
-}
+                // ✅ Replaced small circle with IncognitoIcon SVG
+                // IncognitoIconSVG()
+                //     .frame(width: 24, height: 24)
+                //     .overlay(
+                //         Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                //     )
+            }
 
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 2)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
 
