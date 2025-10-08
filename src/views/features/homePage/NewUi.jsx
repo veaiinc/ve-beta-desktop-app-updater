@@ -511,12 +511,12 @@ const NewUi = ({ handleActiveChatChange }) => {
 								info?.dataLength,
 								info?.scrollDirection,
 							);
-							const key =
-								session?.type === 'chatbox'
-									? index === 0 || index === info?.dataLength - 2
-										? 'chatbox1'
-										: 'chatbox2'
-									: index;
+							const key = index;
+							// session?.type === 'chatbox'
+							// 	? index === 0 || index === info?.dataLength - 2
+							// 		? 'chatbox1'
+							// 		: 'chatbox2'
+							// 	: index;
 							return (
 								<div
 									key={key}
@@ -703,10 +703,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 							{info?.data?.[info?.activeIndex]?.createdAt
 								? new Date(
 										info?.data?.[info?.activeIndex]?.createdAt * 1000,
-								  ).toLocaleString('en-US', {
-										year: 'numeric',
-										month: 'short',
-										day: 'numeric',
+								  ).toLocaleTimeString('en-US', {
 										hour: 'numeric',
 										minute: '2-digit',
 										hour12: true,
