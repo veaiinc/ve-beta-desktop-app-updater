@@ -7,9 +7,8 @@
 	border-radius: 16px;
 	border: 1px solid var(--dividers, #1e1f20);
 	background: var(--popup, #202123);
-	top: 22px;
-	right: -130px;
-	position: absolute;
+	position: relative;
+	top: 16px;
 
 	.loadingText {
 		color: var(--primary-font, #f2f2f3);
