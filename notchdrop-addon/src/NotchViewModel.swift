@@ -68,6 +68,14 @@ class NotchViewModel: NSObject, ObservableObject {
     let hoverAnimation: Animation = DynamicIslandTheme.hoverAnimation
     // Fixed size - no width expansion functionality
     var notchOpenedSize: CGSize {
+        // Fixed dimensions for unauthenticated users
+        if !isAuthenticated {
+            return .init(
+                width: 500,  // Fixed width
+                height: 180   // Fixed height
+            )
+        }
+        
         // Teams view: fixed compact width
         if isTeamsView {
             // When meeting is active (start card hidden), fix width to 580 so chat + webcam fit

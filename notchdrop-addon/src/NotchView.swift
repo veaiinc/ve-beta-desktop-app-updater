@@ -17,20 +17,21 @@ struct NotchView: View {
     var notchSize: CGSize {
         switch vm.status {
         case .closed:
-            // Fixed base dimensions with MacBook Pro scaling
-            let isMacBookPro = vm.deviceNotchRect.width > 180
-            let baseWidth: CGFloat = 343  // Fixed base width for better TemporaryFolder display
-            let baseHeight: CGFloat = 48  // Fixed base height for better TemporaryFolder display
+            // If not authenticated, use strict size 320x20
+            if !vm.isAuthenticated {
+                return CGSize(width: 320, height: 20)
+            }
+
+            // Authenticated: different sizing based on physical notch
+            let hasPhysicalNotch = vm.deviceNotchRect.width > 180
             
-            // Make it bigger for MacBook Pro
-            let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0  // 20% larger for MacBook Pro
-            var ans = CGSize(
-                width: baseWidth * widthMultiplier,
-                height: baseHeight * widthMultiplier
-            )
-            if ans.width < 0 { ans.width = 0 }
-            if ans.height < 0 { ans.height = 0 }
-            return ans
+            if hasPhysicalNotch {
+                // With physical notch: fixed width 340px, keep space between
+                return CGSize(width: 340, height: 48)
+            } else {
+                // Without physical notch: smaller width 150px, centered
+                return CGSize(width: 250, height: 48)
+            }
         case .opened:
             return vm.notchOpenedSize
         case .popping:
@@ -44,17 +45,20 @@ struct NotchView: View {
     // Freeze collapsed size to avoid content stretching during open animation
     var collapsedNotchSize: CGSize {
         // Same computation as the .closed branch of notchSize
-        let isMacBookPro = vm.deviceNotchRect.width > 180
-        let baseWidth: CGFloat = 343
-        let baseHeight: CGFloat = 48
-        let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0
-        var ans = CGSize(
-            width: baseWidth * widthMultiplier,
-            height: baseHeight * widthMultiplier
-        )
-        if ans.width < 0 { ans.width = 0 }
-        if ans.height < 0 { ans.height = 0 }
-        return ans
+        if !vm.isAuthenticated {
+            return CGSize(width: 350, height: 20)
+        }
+        
+        // Different sizing based on physical notch
+        let hasPhysicalNotch = vm.deviceNotchRect.width > 180
+        
+        if hasPhysicalNotch {
+            // With physical notch: fixed width 340px, keep space between
+            return CGSize(width: 340, height: 48)
+        } else {
+            // Without physical notch: smaller width 150px, centered
+            return CGSize(width: 250, height: 48)
+        }
     }
 
     var notchCornerRadius: CGFloat {
@@ -81,7 +85,7 @@ struct NotchView: View {
             notch
                 .zIndex(0)
                 .disabled(true)
-                .opacity(vm.notchVisible ? 1 : 0.3)
+                .opacity(vm.notchVisible ? 1 : 1)
             
             // Collapsed state content - always present but with smooth transitions
             HStack(spacing: 6) {
@@ -113,12 +117,12 @@ struct NotchView: View {
                         MediaCollapsedIndicator(vm: vm, showMusic: false, showVideo: vm.hasActiveVideo)
                     }
                 } else if vm.isAuthenticated {
-                    // Show TemporaryFolder component in empty state only when authenticated
-                    TemporaryFolderView()
+                    // Show TemporaryFolder compact UI after login (matches Swift TemporaryFolder components)
+                    ClosedNotchTemporaryFolderUI()
                 }
                 // When not authenticated, show nothing in collapsed state
             }
-            .frame(maxWidth: collapsedNotchSize.width - 16, maxHeight: collapsedNotchSize.height - 4)
+            .frame(maxWidth: collapsedNotchSize.width - 16, maxHeight: collapsedNotchSize.height - 6)
             .clipped()
             .opacity(vm.status == .closed ? 1 : 0) // Fade out when opening
             // Remove scale/animation to prevent closed-state icon growth on hover
@@ -175,58 +179,160 @@ struct NotchView: View {
         .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isChatExpanded)
         .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isRecording) // Smooth recording state transition
         .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isPaused) // Smooth pause state transition
-        .animation(.easeInOut(duration: 0.3), value: vm.isTrayMode) // Smooth tray mode transition
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
-    var notch: some View {
+    var notchBackgroundMaskGroup: some View {
         Rectangle()
-            .foregroundStyle(.regularMaterial)
-            .mask(notchBackgroundMaskGroup)
+            .foregroundStyle(.black)
             .frame(
-                width: notchSize.width + notchCornerRadius * 2,
+                width: notchSize.width,
                 height: notchSize.height
             )
-            .scaleEffect(1.0) // Remove hover/open scaling to keep icons fixed
-            .animation(DynamicIslandTheme.hoverAnimation, value: vm.status)
-            // Removed hover-driven scale animation
-            .shadow(
-                // color: .black.opacity(([.opened, .popping].contains(vm.status) && !vm.showNotificationOverlay) ? 1 : 0),
-                color: .black.opacity(([.opened, .popping].contains(vm.status)) ? 1 : 0),
-                radius: 16
-            )
-            // Enhanced professional glows
-            .shadow(
-                // color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
-                // radius: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? 12 : 0
-                color : (vm.controlledByDynamicIsland) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
-                radius: (vm.controlledByDynamicIsland) ? 12 : 0
-            )
-            .shadow(
-                // color: (vm.isChatMode && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.4) : .clear,
-                // radius: (vm.isChatMode && !vm.showNotificationOverlay) ? 16 : 0
-                color : (vm.isChatMode) ? DynamicIslandTheme.primaryGreen.opacity(0.4) : .clear,
-                radius: (vm.isChatMode) ? 16 : 0
-            )
-            // Professional hover glow effect
-            .shadow(
-                // color: (vm.status == .opened && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1) : .clear,
-                // radius: (vm.status == .opened && !vm.showNotificationOverlay) ? 20 + hoverGlow * 10 : 0
-                color : (vm.status == .opened) ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1) : .clear,
-                radius: (vm.status == .opened) ? 20 + hoverGlow * 10 : 0
-            )
-            .onHover { hovering in
-                withAnimation(hovering ? DynamicIslandTheme.sideBounceKick : DynamicIslandTheme.sideBounceReturn) {
-                    // Keep glow feedback, but do not change scale
-                    hoverGlow = hovering ? 1.0 : 0.0
-                    isHoveringNotch = hovering
+            .clipShape(.rect(
+                bottomLeadingRadius: notchCornerRadius,
+                bottomTrailingRadius: notchCornerRadius
+            ))
+            .overlay {
+                ZStack(alignment: .topTrailing) {
+                    Rectangle()
+                        .frame(width: notchCornerRadius, height: notchCornerRadius)
+                        .foregroundStyle(.black)
+                    Rectangle()
+                        .clipShape(.rect(topTrailingRadius: notchCornerRadius))
+                        .foregroundStyle(.white)
+                        .frame(
+                            width: notchCornerRadius + vm.spacing,
+                            height: notchCornerRadius + vm.spacing
+                        )
+                        .blendMode(.destinationOut)
                 }
+                .compositingGroup()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .offset(x: -notchCornerRadius - vm.spacing + 0.5, y: -0.5)
             }
+            .overlay {
+                ZStack(alignment: .topLeading) {
+                    Rectangle()
+                        .frame(width: notchCornerRadius, height: notchCornerRadius)
+                        .foregroundStyle(.black)
+                    Rectangle()
+                        .clipShape(.rect(topLeadingRadius: notchCornerRadius))
+                        .foregroundStyle(.white)
+                        .frame(
+                            width: notchCornerRadius + vm.spacing,
+                            height: notchCornerRadius + vm.spacing
+                        )
+                        .blendMode(.destinationOut)
+                }
+                .compositingGroup()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .offset(x: notchCornerRadius + vm.spacing - 0.5, y: -0.5)
+            }
+    }
+
+var notch: some View {
+    NotchBaseView(
+            vm: vm,
+            notchSize: notchSize,
+            notchCornerRadius: notchCornerRadius,
+            hoverGlow: hoverGlow,
+            isHoveringNotch: $isHoveringNotch
+        ) {
+            notchBackgroundMaskGroup
+        }
+        .onHover { hovering in
+            withAnimation(hovering ? DynamicIslandTheme.sideBounceKick : DynamicIslandTheme.sideBounceReturn) {
+                hoverGlow = hovering ? 1.0 : 0.0
+                isHoveringNotch = hovering
+            }
+        }
     }
 
     // Side bounce pulse during hover-open
     // Removed sidePulseOffset to prevent width wobble on hover
+    // MARK: - Closed Notch TemporaryFolder UI (compact, reused components)
+    struct ClosedNotchTemporaryFolderUI: View {
+        var body: some View {
+            HStack {
+                // Left buttons
+                HStack(spacing: 4) {
+                    PillButtonSmall(title: "Listen")
+                    PillButtonSmall(title: "See")
+                }
+
+                Spacer(minLength: 8)
+
+                // Right icons replaced with original SVG equivalents
+               // Right icons replaced with SVG equivalents
+            HStack(spacing: 4) {
+            VEIcon(color: .white)
+                .frame(width: 15, height: 17)
+                .frame(width: 24, height: 24)
+                .padding(2)
+                .overlay(
+                    Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                )
+                .background(LinearGradient(
+                    stops: [
+                        Gradient.Stop(color: .white.opacity(0.06), location: 0.0),
+                        Gradient.Stop(color: .white.opacity(0.03), location: 0.5),
+                        Gradient.Stop(color: .white.opacity(0.06), location: 1.0),
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing,
+                ))
+                .cornerRadius(100)
+
+
+                // ✅ Replaced small circle with IncognitoIcon SVG
+                // IncognitoIconSVG()
+                //     .frame(width: 24, height: 24)
+                //     .overlay(
+                //         Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                //     )
+            }
+
+            }
+            .padding(.horizontal, 8)
+            .padding(.top, 8)
+            .padding(.bottom, 0)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        }
+
+        struct PillButtonSmall: View {
+            let title: String
+            var body: some View {
+                HStack(spacing: 4) {
+                    Text(title)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .frame(width: 40, height: 24)
+                .padding(.horizontal, 12)
+
+                .background(
+                    LinearGradient(
+                        stops: [
+                            Gradient.Stop(color: .white.opacity(0.06), location: 0.0),
+                            Gradient.Stop(color: .white.opacity(0.03), location: 0.5),
+                            Gradient.Stop(color: .white.opacity(0.06), location: 1.0),
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing,
+                    )
+                )
+                .cornerRadius(5)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                )
+                .shadow(color: .white.opacity(0.25), radius: 3, x: 0, y: 0) // Inset shadow effect
+                .shadow(color: .black.opacity(0.10), radius: 5, x: 0, y: 0) // Outer shadow
+            }
+        }
+    }
 
     // Mini collapsed audio visualizer (5 bars) - matches CSS animation
     struct CollapsedAudioViz: View {
@@ -267,7 +373,6 @@ struct NotchView: View {
         @State private var phase: CGFloat = 0
         @State private var playbackPollTimer: Timer? = nil
         @State private var waveTimer: Timer? = nil
-        @State private var albumArtTimer: Timer? = nil  // ⚡ PERFORMANCE FIX: Store album art timer for cleanup
         
         var body: some View {
             HStack(spacing: 6) {
@@ -342,23 +447,19 @@ struct NotchView: View {
                 // Start/stop wave animation based on closed state and real playback
                 updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
                 
-                // ⚡ CRITICAL FIX: Store album art timer reference for cleanup
+                // Get current album artwork (only if showing music)
                 if showMusic {
                     getCurrentAlbumArt()
                     
-                    // Clean up existing timer before creating new one
-                    albumArtTimer?.invalidate()
-                    
-                    // ⚡ OPTIMIZATION: Increased interval from 3s to 10s (album art doesn't change often)
-                    albumArtTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { _ in
+                    // Update album art periodically
+                    Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
                         getCurrentAlbumArt()
                     }
                 }
 
-                // ⚡ OPTIMIZATION: Increased interval from 1.5s to 3s
                 // Lightweight polling to keep collapsed indicator in sync
                 playbackPollTimer?.invalidate()
-                playbackPollTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                playbackPollTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { _ in
                     updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
                 }
             }
@@ -372,11 +473,8 @@ struct NotchView: View {
                 updateWave(active: vm.status == .closed && (isPlaying || vm.isMusicPlaying))
             }
             .onDisappear {
-                // ⚡ CRITICAL FIX: Clean up all timers
                 playbackPollTimer?.invalidate()
                 playbackPollTimer = nil
-                albumArtTimer?.invalidate()
-                albumArtTimer = nil
                 stopWave()
             }
             .onChange(of: vm.hasActiveMusic) { _, _ in
@@ -453,54 +551,6 @@ struct NotchView: View {
         }
     }
 
-    var notchBackgroundMaskGroup: some View {
-        Rectangle()
-            .foregroundStyle(.black)
-            .frame(
-                width: notchSize.width,
-                height: notchSize.height
-            )
-            .clipShape(.rect(
-                bottomLeadingRadius: notchCornerRadius,
-                bottomTrailingRadius: notchCornerRadius
-            ))
-            .overlay {
-                ZStack(alignment: .topTrailing) {
-                    Rectangle()
-                        .frame(width: notchCornerRadius, height: notchCornerRadius)
-                        .foregroundStyle(.black)
-                    Rectangle()
-                        .clipShape(.rect(topTrailingRadius: notchCornerRadius))
-                        .foregroundStyle(.white)
-                        .frame(
-                            width: notchCornerRadius + vm.spacing,
-                            height: notchCornerRadius + vm.spacing
-                        )
-                        .blendMode(.destinationOut)
-                }
-                .compositingGroup()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .offset(x: -notchCornerRadius - vm.spacing + 0.5, y: -0.5)
-            }
-            .overlay {
-                ZStack(alignment: .topLeading) {
-                    Rectangle()
-                        .frame(width: notchCornerRadius, height: notchCornerRadius)
-                        .foregroundStyle(.black)
-                    Rectangle()
-                        .clipShape(.rect(topLeadingRadius: notchCornerRadius))
-                        .foregroundStyle(.white)
-                        .frame(
-                            width: notchCornerRadius + vm.spacing,
-                            height: notchCornerRadius + vm.spacing
-                        )
-                        .blendMode(.destinationOut)
-                }
-                .compositingGroup()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                .offset(x: notchCornerRadius + vm.spacing - 0.5, y: -0.5)
-            }
-    }
 
     @ViewBuilder
     var dragDetector: some View {
@@ -526,3 +576,240 @@ struct NotchView: View {
     }
 }
 
+struct IncognitoIconSVG: View {
+    var body: some View {
+        ZStack {
+            Path { path in
+                path.move(to: CGPoint(x: 0.4375, y: 6.5625))
+                path.addLine(to: CGPoint(x: 13.5625, y: 6.5625))
+            }
+            .stroke(Color.white, style: StrokeStyle(lineWidth: 0.875, lineCap: .round, lineJoin: .round))
+            
+            Path { path in
+                path.addEllipse(in: CGRect(x: 2.625, y: 8.3125, width: 3.125, height: 3.0625))
+            }
+            .stroke(Color.white, lineWidth: 0.875)
+
+            Path { path in
+                path.addEllipse(in: CGRect(x: 8.3125, y: 8.3125, width: 3.0625, height: 3.0625))
+            }
+            .stroke(Color.white, lineWidth: 0.875)
+
+            Path { path in
+                path.move(to: CGPoint(x: 5.67188, y: 10.0625))
+                path.addLine(to: CGPoint(x: 8.3275, y: 10.0625))
+            }
+            .stroke(Color.white, lineWidth: 0.875)
+            
+            Path { path in
+                // top glasses frame
+                path.move(to: CGPoint(x: 2.1875, y: 6.56245))
+                path.addLine(to: CGPoint(x: 4.91586, y: 2.80488))
+                path.addLine(to: CGPoint(x: 5.61039, y: 2.78902))
+                path.addLine(to: CGPoint(x: 6.31805, y: 3.60933))
+                path.addLine(to: CGPoint(x: 7.68195, y: 3.60933))
+                path.addLine(to: CGPoint(x: 8.38961, y: 2.78902))
+                path.addLine(to: CGPoint(x: 9.08414, y: 2.80488))
+                path.addLine(to: CGPoint(x: 11.8125, y: 6.56245))
+            }
+            .stroke(Color.white, style: StrokeStyle(lineWidth: 0.875, lineCap: .round, lineJoin: .round))
+        }
+        .frame(width: 14, height: 14)
+    }
+}
+
+struct NotchBaseView<BackgroundMask: View>: View {
+    let vm: NotchViewModel
+    let notchSize: CGSize
+    let notchCornerRadius: CGFloat
+    let hoverGlow: CGFloat
+    @Binding var isHoveringNotch: Bool
+    @ViewBuilder let backgroundMask: () -> BackgroundMask
+    @State private var showInsetOverlay: Bool = false
+    
+    var body: some View {
+        Rectangle()
+            .foregroundStyle(DynamicIslandTheme.cardMaterial)
+            .background(
+                Rectangle()
+                    .fill(.clear)
+                    .background(DynamicIslandTheme.cardMaterial)
+                    .blur(radius: 10) // Apply same blur to both closed and opened states
+            )
+            .mask(backgroundMask())
+            .frame(
+                width: notchSize.width + notchCornerRadius * 2,
+                height: notchSize.height
+            )
+            .scaleEffect(1.0)
+            .animation(DynamicIslandTheme.hoverAnimation, value: vm.status)
+            .overlay(innerShadowOverlay)
+            // .overlay(whiteBorderOverlay)
+            .shadow(
+                color: (vm.controlledByDynamicIsland )
+                    ? DynamicIslandTheme.primaryGreen.opacity(0.3)
+                    : .clear,
+                radius: (vm.controlledByDynamicIsland ) ? 12 : 0
+            )
+            .shadow(
+                color: (vm.isChatMode )
+                    ? DynamicIslandTheme.primaryGreen.opacity(0.4)
+                    : .clear,
+                radius: (vm.isChatMode ) ? 16 : 0
+            )
+            .shadow(
+                color: (vm.status == .opened )
+                    ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1)
+                    : .clear,
+                radius: (vm.status == .opened )
+                    ? 20 + hoverGlow * 10
+                    : 0
+            )
+            .onChange(of: vm.status) { _, newStatus in
+                if newStatus == .opened {
+                    // Show inset immediately when opening, but with a smooth fade-in
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showInsetOverlay = true
+                    }
+                } else {
+                    showInsetOverlay = false
+                }
+            }
+    }
+    
+    @ViewBuilder
+    private var innerShadowOverlay: some View {
+        Group {
+            if vm.status == .opened && !vm.isAuthenticated && showInsetOverlay {
+                ZStack {
+                    // Top inset shadow with gradient (reduced width to avoid corner overlap)
+                    RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.4),  // Edge - full opacity
+                                    Color.white.opacity(0.0)   // Center - transparent
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .frame(width: notchSize.width - 30, height: 10) // Reduce width to avoid corners
+                        .offset(y: -notchSize.height/2 + 10)
+                        .blur(radius: 12)
+                    
+                    // Bottom inset shadow with gradient (reduced width to avoid corner overlap)
+                    RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.4),  // Edge - full opacity
+                                    Color.white.opacity(0.0)   // Center - transparent
+                                ],
+                                startPoint: .bottom,
+                                endPoint: .top
+                            )
+                        )
+                        .frame(width: notchSize.width - 30, height: 10) // Reduce width to avoid corners
+                        .offset(y: notchSize.height/2 - 10)
+                        .blur(radius: 12)
+                    
+                    // Left inset shadow with gradient (reduced height to avoid corner overlap)
+                    RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.4),  // Edge - full opacity
+                                    Color.white.opacity(0.0)   // Center - transparent
+                                ],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: 10, height: notchSize.height - 30) // Reduce height to avoid corners
+                        .offset(x: -notchSize.width/2 + 10)
+                        .blur(radius: 12)
+                    
+                    // Right inset shadow with gradient (reduced height to avoid corner overlap)
+                    RoundedRectangle(cornerRadius: notchCornerRadius, style: .continuous)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.4),  // Edge - full opacity
+                                    Color.white.opacity(0.0)   // Center - transparent
+                                ],
+                                startPoint: .trailing,
+                                endPoint: .leading
+                            )
+                        )
+                        .frame(width: 10, height: notchSize.height - 30) // Reduce height to avoid corners
+                        .offset(x: notchSize.width/2 - 10)
+                        .blur(radius: 12)
+                }
+                .mask(backgroundMask())
+                .opacity(showInsetOverlay ? 1.0 : 0.0)
+                .transition(.opacity.combined(with: .scale(scale: 0.95))) // Smooth fade-in with slight scale
+                .animation(.easeInOut(duration: 0.3), value: showInsetOverlay)
+            }
+        }
+    }
+    
+    // @ViewBuilder
+    // private var whiteBorderOverlay: some View {
+    //     Group {
+    //         if vm.status == .opened && !vm.isAuthenticated {
+    //             // Create a border that only shows on left, right, and bottom edges (not top)
+    //             BottomRoundedThreeSidedBorder(cornerRadius: notchCornerRadius)
+    //                 .stroke(Color.white, lineWidth: 1)
+    //                 .frame(
+    //                     width: notchSize.width,
+    //                     height: notchSize.height
+    //                 )
+    //                 .mask(backgroundMask())
+    //                 .transition(.opacity)
+    //                 .animation(.easeInOut(duration: 0.15), value: vm.status)
+    //         }
+    //     }
+    // }
+}
+
+struct BottomRoundedThreeSidedBorder: Shape {
+    let cornerRadius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+        let r = min(cornerRadius, height / 2, width / 2)
+
+        // Left edge
+        path.move(to: CGPoint(x: 0, y: 0))
+        path.addLine(to: CGPoint(x: 0, y: height - r))
+
+        // Bottom-left corner
+        path.addArc(
+            center: CGPoint(x: r, y: height - r),
+            radius: r,
+            startAngle: .degrees(180),
+            endAngle: .degrees(90),
+            clockwise: true
+        )
+
+        // Bottom edge
+        path.addLine(to: CGPoint(x: width - r, y: height))
+
+        // Bottom-right corner
+        path.addArc(
+            center: CGPoint(x: width - r, y: height - r),
+            radius: r,
+            startAngle: .degrees(90),
+            endAngle: .degrees(0),
+            clockwise: true
+        )
+
+        // Right edge
+        path.addLine(to: CGPoint(x: width, y: 0))
+
+        return path
+    }
+}
