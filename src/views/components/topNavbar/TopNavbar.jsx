@@ -351,9 +351,6 @@ const TopNavbar = () => {
 					arrow={false}
 					rootClassName={s.shareAndEarnTooltip}
 					color={'transparent'}
-					style={{
-						backdropFilter: 'blur(20px)',
-					}}
 				>
 					<ShareAndEarnSvg />
 				</Tooltip>

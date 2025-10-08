@@ -110,9 +110,9 @@
 	max-width: unset;
 }
 
-.toggleButtonContainer :global(.ant-switch-handle::before) {
-	background-color: var(--secondary-button) !important; /* Default white handle */
-}
-.toggleButtonContainer :global(.ant-switch-checked) :global(.ant-switch-handle::before) {
-	background-color: var(--background-color) !important;
-}
+// .toggleButtonContainer :global(.ant-switch-handle::before) {
+// 	background-color: var(--secondary-button) !important; /* Default white handle */
+// }
+// .toggleButtonContainer :global(.ant-switch-checked) :global(.ant-switch-handle::before) {
+// 	background-color: var(--background-color) !important;
+// }

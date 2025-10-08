@@ -554,23 +554,23 @@ struct NotchEventListView: View {
     }
 
     var body: some View {
-        List {
-            ForEach(Array(filteredEvents.enumerated()), id: \.element.id) { index, event in
-                Button(action: {
-                    // Use the robust calendar opening method with multiple fallbacks
-                    event.openInCalendar()
-                }) {
-                    eventRow(event, isLast: index == filteredEvents.count - 1)
+        // ⚡ PERFORMANCE FIX: Use LazyVStack instead of List for better performance
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(filteredEvents.indices, id: \.self) { index in
+                    let event = filteredEvents[index]
+                    Button(action: {
+                        // Use the robust calendar opening method with multiple fallbacks
+                        event.openInCalendar()
+                    }) {
+                        eventRow(event, isLast: index == filteredEvents.count - 1)
+                    }
+                    .padding(.leading, -5)
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .padding(.leading, -5)
-                .buttonStyle(PlainButtonStyle())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
             }
         }
-        .listStyle(.plain)
         .scrollIndicators(.never)
-        .scrollContentBackground(.hidden)
         .background(Color.clear)
         Spacer(minLength: 0)
     }

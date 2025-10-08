@@ -175,6 +175,7 @@ struct NotchView: View {
         .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isChatExpanded)
         .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isRecording) // Smooth recording state transition
         .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isPaused) // Smooth pause state transition
+        .animation(.easeInOut(duration: 0.3), value: vm.isTrayMode) // Smooth tray mode transition
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -266,6 +267,7 @@ struct NotchView: View {
         @State private var phase: CGFloat = 0
         @State private var playbackPollTimer: Timer? = nil
         @State private var waveTimer: Timer? = nil
+        @State private var albumArtTimer: Timer? = nil  // ⚡ PERFORMANCE FIX: Store album art timer for cleanup
         
         var body: some View {
             HStack(spacing: 6) {
@@ -340,19 +342,23 @@ struct NotchView: View {
                 // Start/stop wave animation based on closed state and real playback
                 updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
                 
-                // Get current album artwork (only if showing music)
+                // ⚡ CRITICAL FIX: Store album art timer reference for cleanup
                 if showMusic {
                     getCurrentAlbumArt()
                     
-                    // Update album art periodically
-                    Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                    // Clean up existing timer before creating new one
+                    albumArtTimer?.invalidate()
+                    
+                    // ⚡ OPTIMIZATION: Increased interval from 3s to 10s (album art doesn't change often)
+                    albumArtTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { _ in
                         getCurrentAlbumArt()
                     }
                 }
 
+                // ⚡ OPTIMIZATION: Increased interval from 1.5s to 3s
                 // Lightweight polling to keep collapsed indicator in sync
                 playbackPollTimer?.invalidate()
-                playbackPollTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { _ in
+                playbackPollTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
                     updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
                 }
             }
@@ -366,8 +372,11 @@ struct NotchView: View {
                 updateWave(active: vm.status == .closed && (isPlaying || vm.isMusicPlaying))
             }
             .onDisappear {
+                // ⚡ CRITICAL FIX: Clean up all timers
                 playbackPollTimer?.invalidate()
                 playbackPollTimer = nil
+                albumArtTimer?.invalidate()
+                albumArtTimer = nil
                 stopWave()
             }
             .onChange(of: vm.hasActiveMusic) { _, _ in

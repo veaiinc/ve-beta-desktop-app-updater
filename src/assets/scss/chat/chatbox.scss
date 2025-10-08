@@ -455,12 +455,12 @@ $primary-font-family: 'GeneralSans';
 					}
 					.voice-wave-icon {
 						flex-shrink: 0 !important;
-						rect {
-							fill: var(--background-color) !important;
-						}
-						path {
-							stroke: var(--background-color) !important;
-						}
+						// rect {
+						// 	fill: var(--svg-color);
+						// }
+						// path {
+						// 	stroke: var(--svg-color);
+						// }
 					}
 				}
 
