@@ -1,17 +1,13 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import '../../../assets/scss/notes/notesWrapper.scss';
 import { ReactComponent as SidebarClosingSvg } from '../../../assets/svg/sidebar/SidebarClosingPrimary.svg';
 import RecentChat from '../chat/RecentChat';
 import ObjectID from 'bson-objectid';
-import Context from '../../../context/context';
 import { useSearchParams } from 'react-router-dom';
 import TranscriptionSidebar from './TranscriptionSidebar';
 import DatabaseWithNote from './DatabaseWithNote';
 
 const NotesWrapper = () => {
-	const {
-		templates: { updateStateValues },
-	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
 	const [info, setInfo] = useState({
@@ -22,12 +18,6 @@ const NotesWrapper = () => {
 		transcriptionActive: false,
 	});
 	const sessionId = searchParams.get('sId') || ObjectID()?.toString();
-
-	useEffect(() => {
-		updateStateValues({
-			leftSidebarState: 'close',
-		});
-	}, []);
 
 	useEffect(() => {
 		if (sessionId && sessionId !== searchParams.get('sId')) {

@@ -58,8 +58,8 @@
 					border-radius: 100px;
 
 					svg {
-						width: 15px;
-						height: 15px;
+						width: 16px;
+						height: 16px;
 					}
 				}
 			}
@@ -81,8 +81,8 @@
 			flex-shrink: 0;
 
 			.website-name {
-				flex: 1 0 0;
-				white-space: nowrap;
+				max-width: 140px;
+				// white-space: nowrap;
 				overflow: hidden;
 				color: var(--secondary-font);
 				text-overflow: ellipsis;

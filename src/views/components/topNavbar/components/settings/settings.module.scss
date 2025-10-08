@@ -4,6 +4,7 @@
 	flex-direction: column;
 	gap: 16px;
 	top: 22px;
+	background: var(--background-color);
 }
 .settingsContainer {
 	display: flex;
@@ -21,6 +22,14 @@
 	z-index: 10001;
 	max-height: calc(100vh - 80px);
 	overflow-y: auto;
+
+	/* Backdrop filter with proper browser support */
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	backdrop-filter: blur(20px) saturate(180%);
+
+	/* Ensure proper stacking context */
+	will-change: backdrop-filter;
+	transform: translateZ(0); /* Force hardware acceleration */
 
 	// overlay and sheet are used in mobile only
 	.mobileOverlay {
@@ -362,7 +371,7 @@
 		}
 
 		span {
-			color: var(--background-color, #121212);
+			color: var(--font-primary-color, #121212);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
@@ -640,12 +649,21 @@
 		bottom: 0;
 		width: 100%;
 		height: 100vh;
-		background: var(--navbar, #141415);
+		background: rgba(20, 20, 21, 0.85); /* Semi-transparent for mobile */
 		border: none;
 		border-radius: 0;
 		padding: 14px 16px;
 		overflow: hidden;
 		z-index: 10001;
+
+		/* Enhanced backdrop filter for mobile */
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+		backdrop-filter: blur(20px) saturate(180%);
+
+		/* Fallback for mobile browsers */
+		@supports not (backdrop-filter: blur(20px)) {
+			background: rgba(20, 20, 21, 0.95);
+		}
 	}
 
 	.mobileOverlay {
@@ -655,7 +673,16 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: var(--navbar, #141415);
+		background: rgba(20, 20, 21, 0.6); /* Semi-transparent overlay */
+
+		/* Backdrop filter for overlay */
+		-webkit-backdrop-filter: blur(10px);
+		backdrop-filter: blur(10px);
+
+		/* Fallback for unsupported browsers */
+		@supports not (backdrop-filter: blur(10px)) {
+			background: rgba(20, 20, 21, 0.8);
+		}
 	}
 
 	.mobileSheet {
@@ -665,13 +692,22 @@
 		right: 0;
 		width: 100%;
 		height: 100%;
-		background: var(--navbar, #141415);
+		background: rgba(20, 20, 21, 0.85); /* Semi-transparent for mobile sheet */
 		border-left: 1px solid var(--dividers, #1e1f20);
 		transform: translateX(100%);
 		animation: slideInRight 0.3s ease-out forwards;
-		will-change: transform;
+		will-change: transform, backdrop-filter;
 		overflow-y: auto;
 		padding: 14px 16px;
+
+		/* Enhanced backdrop filter for mobile sheet */
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+		backdrop-filter: blur(20px) saturate(180%);
+
+		/* Fallback for mobile browsers */
+		@supports not (backdrop-filter: blur(20px)) {
+			background: rgba(20, 20, 21, 0.95);
+		}
 	}
 
 	.settingsContainer .mobileHeader {

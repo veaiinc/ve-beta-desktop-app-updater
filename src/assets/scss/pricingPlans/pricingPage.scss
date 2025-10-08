@@ -821,7 +821,7 @@
 	height: auto;
 
 	position: relative;
-	flex: 1;
+	// flex: 1;
 	max-width: 353px;
 	// &:hover {
 	// 	border: 1px solid var(--primary-button, #79ecc9);
@@ -953,7 +953,7 @@
 				}
 				&:hover {
 					background: var(--primary-button, #79ecc9);
-					color: var(--background-color, #121212);
+					color: var(--font-primary-color, #121212);
 				}
 			}
 		}

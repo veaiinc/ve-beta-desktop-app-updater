@@ -15,12 +15,23 @@
 	--pending: rgb(255, 163, 47); /* #ffa32f */
 	--info: rgb(80, 137, 249); /* #5089f9 */
 
-	/* main colors */
-	--background-color: #121212; /* #0f0f10 */
+	/* main colors - Simplified for glass mode */
+	--background-color: #121212;
 	--chat-background-color: #19191a;
+
+	/* Beautiful glass morphism for components */
+	--card: rgba(18, 18, 18, 0.12);
+	--new-card: rgba(18, 18, 18, 0.12);
+	--card-hover: rgba(18, 18, 18, 0.18);
+	--card-over-card: rgba(18, 18, 18, 0.12);
+	--card-over-card-hover: rgba(18, 18, 18, 0.18);
+	--popup: rgba(18, 18, 18, 0.15);
+	--navbar: rgba(18, 18, 18, 0.05);
+	--right-bar: rgba(18, 18, 18, 0.12);
 
 	/* font colors */
 	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
+	--font-primary-color: #18181b; /* #0c0c0d */
 	--secondary-font: #94989e; /* #7a7e85 */
 	--chat-secondary-font: #e1e1e5; /* rgb(193, 193, 201) */
 
@@ -35,7 +46,7 @@
 	--backdrop: #0f0f10;
 
 	/* stroke colors */
-	--stroke: rgb(44, 45, 46); /* #2c2d2e */
+	--stroke: #2c2d2e; /* #2c2d2e */
 	--stroke-hover: rgb(66, 69, 72); /* #424548 */
 	--stroke-active: rgb(32, 33, 35); /* #202123 */
 	--dividers: rgba(30, 31, 32, 1);
@@ -43,6 +54,7 @@
 	/* navbar colors */
 	--navbar: #141415; /* #202123 */
 	--right-bar: #18191b; /* #171819 */
+	--svg-color:  rgb(12, 12, 12);
 
 	/* ai color code */
 	--ai-color-code: linear-gradient(
@@ -57,7 +69,7 @@
 	--primary-opacity: rgba(121, 236, 201, 0.3);
 	--primary-button-hover: rgb(38, 40, 41); /* #262829 */
 	--primary-button-active: rgb(38, 40, 41); /* #262829 */
-	--primary-button-font: var(--background-color); /* #0c0c0d */
+	--primary-button-font: #0c0c0d; /* #0c0c0d */
 
 	--secondary-button: rgb(122, 126, 133); /* #7a7e85 */
 	--secondary-button-hover: rgb(255, 255, 231); /* #ffffe7 */
@@ -95,7 +107,7 @@
 
 /* light theme global css variables */
 [theme='light'] {
-	/* main colors */
+	/* main colors - Simplified for glass mode */
 	--background-color: #ffffff; /* #fafafa */
 	--chat-background-color: #f4f5f5;
 
@@ -107,6 +119,7 @@
 
 	/* font colors */
 	--primary-font: #18181b; /* #0c0c0d */
+	--font-primary-color: #18181b; /* #0c0c0d */
 	--secondary-font: #7f858f; /* #7b7e84 */
 	--chat-secondary-font: rgb(12, 12, 13); /* rgb(79, 96, 100) */
 
@@ -136,7 +149,7 @@
 	--primary-opacity: rgba(121, 236, 201, 0.3);
 	--primary-button-hover: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-active: rgb(242, 242, 243); /* #f2f2f3 */
-	--primary-button-font: var(--background-color); /* #0c0c0d */
+	--primary-button-font: #fff; /* #0c0c0d */
 
 	--secondary-button: rgb(242, 242, 243); /* #f2f2f3 */
 	--secondary-button-hover: rgb(228, 228, 231); /* #e4e4e7 */
@@ -164,4 +177,126 @@
 	--primary-dark: #79ecc9;
 	--primary-dark-text: #123b35;
 	--primary-opacity: rgba(52, 160, 144, 0.1);
+}
+
+/* Glass Mode Styles - Advanced Data-Driven Approach */
+.glass-mode-enabled {
+	/* SCSS Data Structures for Glass Mode */
+	$glass-variables: (
+		'--background-color': rgba(255, 255, 255, 0.1),
+		'--card-hover': rgba(255, 255, 255, 0.2),
+		'--right-bar': rgba(255, 255, 255, 0.2),
+		'--new-card': rgba(255, 255, 255, 0.2),
+		'--stroke': rgba(255, 255, 255, 0.1),
+		'--stroke-hover': rgba(255, 255, 255, 0.2),
+		'--stroke-active': rgba(255, 255, 255, 0.2),
+		'--dividers': rgba(255, 255, 255, 0.2),
+		'--svg-color': rgb(12, 12, 12),
+	);
+
+	$backdrop-filter-variables: ('--background-color', '--popup');
+
+	$common-elements: (
+		'.app-content',
+		'.glass-app',
+		'.card',
+		'.panel',
+		'.sidebar',
+		'.content-panel',
+		'.navbar',
+		'.header',
+		'.modal',
+		'.overlay',
+		'.popup',
+		'.dialog'
+	);
+
+	$text-elements: (
+		'p',
+		'h1',
+		'h2',
+		'h3',
+		'h4',
+		'h5',
+		'h6',
+		'span',
+		'a',
+		'button',
+		'input',
+		'textarea',
+		'select'
+	);
+
+	$main-containers: ('html', 'body', '#root');
+
+	/* Glass mode blur properties */
+	$blur-properties: (
+		'backdrop-filter': blur(20px),
+		'-webkit-backdrop-filter': blur(20px),
+	);
+
+	$transparent-properties: (
+		'background': rgba(255, 255, 255, 0.1),
+	);
+
+	/* Apply glass mode variable overrides using @each loop */
+	@each $variable, $value in $glass-variables {
+		#{$variable}: #{$value};
+	}
+
+	/* Apply backdrop-filter to elements using CSS variables with @each loop */
+	@each $variable in $backdrop-filter-variables {
+		*[style*='background-color: var(#{$variable})'],
+		*[style*='background: var(#{$variable})'],
+		*[style*="backgroundColor: 'var(#{$variable})'"],
+		*[style*='backgroundColor: "var(#{$variable})"'] {
+			@each $property, $value in $blur-properties {
+				#{$property}: #{$value} !important;
+			}
+		}
+
+		/* Target elements that use the variable in CSS */
+		* {
+			&[style*='background-color: var(#{$variable})'],
+			&[style*='background: var(#{$variable})'] {
+				@each $property, $value in $blur-properties {
+					#{$property}: #{$value} !important;
+				}
+			}
+		}
+	}
+
+	/* Specific targeting for --popup variable usage */
+	*[style*='background-color: var(--popup)'],
+	*[style*='background: var(--popup)'],
+	*[style*="backgroundColor: 'var(--popup)'"],
+	*[style*='backgroundColor: "var(--popup)"'],
+	*[style*='background-color: var(--popup)'],
+	*[style*='background: var(--popup)'],
+	.create-meeting-modal,
+	.modal,
+	.popup,
+	.dialog {
+		backdrop-filter: blur(20px) !important;
+		-webkit-backdrop-filter: blur(20px) !important;
+		will-change: backdrop-filter !important;
+	}
+
+	/* Apply backdrop-filter to common elements using @each loop */
+	@each $element in $common-elements {
+		#{$element} {
+			@each $property, $value in $blur-properties {
+				#{$property}: #{$value} !important;
+			}
+		}
+	}
+
+	/* Ensure main containers are transparent using @each loop */
+	@each $container in $main-containers {
+		#{$container} {
+			@each $property, $value in $transparent-properties {
+				#{$property}: #{$value} !important;
+			}
+		}
+	}
 }

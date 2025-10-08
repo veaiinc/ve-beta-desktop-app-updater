@@ -52,23 +52,34 @@
 			align-items: flex-start;
 			flex-shrink: 0;
 			border-radius: 16px;
-			background: var(--popup, #202123);
+			/* Glass morphism background - semi-transparent for backdrop-filter to work */
+			backdrop-filter: blur(20px) saturate(180%);
+			-webkit-backdrop-filter: blur(20px) saturate(180%);
+			/* Ensure proper backdrop context for text hiding */
+			isolation: isolate;
 			box-shadow: 0px 4px 30px 0px rgba(0, 0, 0, 0.04);
 			position: relative;
 			cursor: pointer;
 			position: absolute;
 			bottom: 0;
-			transform: translateX(-50%);
+			transform: translateX(-50%) translateZ(0);
 			transition: all 0.3s ease;
 			display: none;
 			border: 1px solid var(--stroke);
+			/* Performance optimizations for backdrop-filter */
+			will-change: backdrop-filter;
+			background-color: var(--card);
 
 			&.cardMeetBot_selected {
 				left: 50%;
 				z-index: 3;
 				display: flex;
-				background-color: var(--popup);
+				/* Enhanced glass morphism for selected card to hide overlapping text */
+				backdrop-filter: blur(30px) saturate(200%) brightness(0.8);
+				-webkit-backdrop-filter: blur(30px) saturate(200%) brightness(0.8);
 				border: 1.5px solid var(--primary-button);
+				background-color: var(--card);
+				/* Additional properties to ensure text hiding */
 
 				.cardMeetBot_liveBadge {
 					position: absolute;
@@ -92,6 +103,9 @@
 				display: flex;
 				bottom: -2px;
 				transform: translateX(-50%) rotate(-2deg);
+				/* Maintain glass effect for side cards */
+				backdrop-filter: blur(15px) saturate(150%);
+				-webkit-backdrop-filter: blur(15px) saturate(150%);
 			}
 			&.cardMeetBot_left2 {
 				left: 15%;
@@ -102,6 +116,9 @@
 				display: flex;
 				transform: translateX(-50%) rotate(-4deg);
 				opacity: 0.5;
+				/* Maintain glass effect for far side cards */
+				backdrop-filter: blur(10px) saturate(120%);
+				-webkit-backdrop-filter: blur(10px) saturate(120%);
 			}
 			&.cardMeetBot_right1 {
 				left: 70%;
@@ -111,6 +128,9 @@
 				display: flex;
 				bottom: -2px;
 				transform: translateX(-50%) rotate(2deg);
+				/* Maintain glass effect for side cards */
+				backdrop-filter: blur(15px) saturate(150%);
+				-webkit-backdrop-filter: blur(15px) saturate(150%);
 			}
 			&.cardMeetBot_right2 {
 				left: 85%;
@@ -121,6 +141,9 @@
 				display: flex;
 				transform: translateX(-50%) rotate(4deg);
 				opacity: 0.5;
+				/* Maintain glass effect for far side cards */
+				backdrop-filter: blur(10px) saturate(120%);
+				-webkit-backdrop-filter: blur(10px) saturate(120%);
 			}
 
 			.cardMeetBot_header {
@@ -424,7 +447,7 @@
 		margin-bottom: 18px;
 		&:hover {
 			background: var(--primary-button, #cfff48);
-			color: var(--background-color, #202122);
+			color: var(--font-primary-color, #202122);
 		}
 
 		&:disabled {

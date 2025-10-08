@@ -160,7 +160,7 @@
 			transition: all 0.2s ease;
 			&:hover {
 				border-color: var(--stroke-hover);
-				color: var(--background-color);
+				color: var(--font-primary-color);
 				background-color: var(--primary-font);
 			}
 		}
@@ -181,7 +181,7 @@
 			transition: all 0.2s ease;
 			&:hover {
 				border-color: var(--stroke-hover);
-				color: var(--background-color);
+				color: var(--font-primary-color);
 				background-color: var(--primary-button);
 			}
 		}

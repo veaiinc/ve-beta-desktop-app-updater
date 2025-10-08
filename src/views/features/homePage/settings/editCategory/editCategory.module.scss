@@ -135,7 +135,7 @@
 			&:hover {
 				border-color: var(--stroke-hover);
 				background-color: var(--primary-font);
-				color: var(--background-color);
+				color: var(--font-primary-color);
 			}
 		}
 
@@ -146,7 +146,7 @@
 			&:hover {
 				border-color: var(--stroke-hover);
 				background-color: var(--primary-button);
-				color: var(--background-color);
+				color: var(--font-primary-color);
 			}
 		}
 	}

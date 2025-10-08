@@ -19,7 +19,9 @@ import Offline from '../features/offline/Offline';
 // const UnderMaintainence = lazy(() => import('../features/underMaintainence/underMaintainence'));
 import { internalServerEmitter } from '../../services';
 import InternalServer from '../components/globalComponents/InternalServer';
-import { useNavigate } from 'react-router-dom';
+import NewSidebar from '../components/sidebar/newSidebar/NewSidebar';
+import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const AuthWrapper = ({
 	title,
@@ -34,6 +36,9 @@ const AuthWrapper = ({
 }) => {
 	const navigate = useNavigate();
 	const { isOnline } = useNetworkStatus();
+	const { workspaceMode } = useWorkspaceMode();
+	const location = useLocation();
+	const { pathname } = location;
 
 	const showPushNotification = useCallback((payload) => {
 		const { title, body } = payload.notification || {};
@@ -54,9 +59,27 @@ const AuthWrapper = ({
 
 	const {
 		aiSetup: { showVoiceWidget },
-		templates: { updateStateValues },
+		templates: { sidebarState, isSidebarMobileView, updateStateValues },
 	} = useContext(Context);
 	const [showServerError, setShowServerError] = useState(false);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(
+		JSON.parse(localStorage.getItem('isSidebarOpen')) ?? false,
+	);
+	const isSidebarOverlay = (sidebarState?.overlay || isSidebarMobileView) ?? false;
+	const hideSidebar =
+		pathname.includes('builder') ||
+		pathname.includes('galleries') ||
+		pathname.includes('create-workspace') ||
+		pathname.includes('agent/') ||
+		pathname.includes('note/') ||
+		pathname.includes('meet/') ||
+		pathname.includes('chat/');
+
+	useEffect(() => {
+		if (typeof sidebarState?.open === 'boolean' && sidebarState?.open !== isSidebarOpen) {
+			setIsSidebarOpen(sidebarState?.open);
+		}
+	}, [sidebarState?.open]);
 
 	useEffect(() => {
 		const handler = () => setShowServerError(true);
@@ -124,7 +147,7 @@ const AuthWrapper = ({
 	return authInitialized ? (
 		<PageLoader />
 	) : (
-		<main className="main-container">
+		<main className="main-container translucent">
 			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 				<Helmet>
 					<meta charSet="utf-8" />
@@ -132,17 +155,21 @@ const AuthWrapper = ({
 				</Helmet>
 				<div
 					style={{
-						display: 'flex',
-						// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
-						flexDirection: 'column',
-						height: '100dvh',
-						padding: '0',
 						...outerContainerStyle,
+						paddingLeft:
+							isSidebarOpen && !isSidebarOverlay && !hideSidebar ? '256px' : '0',
 					}}
 					className="auth-wrapper-container"
 				>
 					{/* {layoutModeComponentMap[layoutMode]} */}
-					<TopNavbar />
+					{workspaceMode === 'stable' ? (
+						!hideSidebar ? (
+							<NewSidebar />
+						) : null
+					) : (
+						<TopNavbar />
+					)}
+
 					<div
 						style={{
 							flex: 1,

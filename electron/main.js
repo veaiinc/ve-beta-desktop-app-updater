@@ -17,7 +17,7 @@ const {
 	clipboard,
 	dialog,
 	shell,
-    powerSaveBlocker,
+	powerSaveBlocker,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -28,6 +28,17 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
 const os = require('os');
+
+// Import electron-mac-permissions for proper Calendar and Media Library access
+let permissions;
+try {
+	permissions = require('electron-mac-permissions');
+	log.info('✅ electron-mac-permissions loaded successfully');
+} catch (error) {
+	log.warn('⚠️ electron-mac-permissions not available:', error.message);
+	permissions = null;
+}
+
 const cpuCores = os.cpus().length;
 const safeLimit = Math.max(4, Math.min(cpuCores - 1, 8));
 const pLimit = require('p-limit'); // ← THIS IS THE FIX
@@ -61,13 +72,13 @@ const meetingMonitor = require('./notificationHelper'); // Adjust path if needed
 
 // Chromium switches to reduce/disable background throttling and occlusion issues
 try {
-    app.commandLine.appendSwitch('disable-renderer-backgrounding');
-    app.commandLine.appendSwitch('disable-background-timer-throttling');
-    app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
-    // Disable native occlusion calculation which can pause hidden windows on macOS
-    app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+	app.commandLine.appendSwitch('disable-renderer-backgrounding');
+	app.commandLine.appendSwitch('disable-background-timer-throttling');
+	app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+	// Disable native occlusion calculation which can pause hidden windows on macOS
+	app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 } catch (e) {
-    // Non-fatal; continue without switches
+	// Non-fatal; continue without switches
 }
 
 // Import NotchDrop service
@@ -345,28 +356,40 @@ process.on('unhandledRejection', (reason, promise) => {
 	// Don't exit the process, just log the error
 });
 
-autoUpdater.on('checking-for-update', () => checkForUpdates(mainWindow));
+autoUpdater.on('checking-for-update', () => {
+	log.info('🔍 Checking for updates...');
+	checkForUpdates(mainWindow);
+});
 
-autoUpdater.on('update-available', (info) =>
-	updateAvailable({ info, mainWindow, setIsUpdateInProgress }),
-);
+autoUpdater.on('update-available', (info) => {
+	log.info('🆕 Update available:', info);
+	updateAvailable({ info, mainWindow, setIsUpdateInProgress });
+});
 
-autoUpdater.on('update-not-available', (info) =>
-	updateNotAvailable({ mainWindow, info, setIsUpdateInProgress }),
-);
+autoUpdater.on('update-not-available', (info) => {
+	log.info('✅ No updates available');
+	updateNotAvailable({ mainWindow, info, setIsUpdateInProgress });
+});
 
 // Add download progress tracking
-autoUpdater.on('download-progress', (progressObj) => downloadProgress({ progressObj, mainWindow }));
+autoUpdater.on('download-progress', (progressObj) => {
+	log.info('📥 Download progress:', Math.round(progressObj.percent), '%');
+	downloadProgress({ progressObj, mainWindow });
+});
 
-autoUpdater.on('error', (err) => handleError({ err, setIsUpdateInProgress, mainWindow }));
+autoUpdater.on('error', (err) => {
+	log.error('❌ Auto-updater error:', err);
+	handleError({ err, setIsUpdateInProgress, mainWindow });
+});
 
-autoUpdater.on('update-downloaded', (info) =>
+autoUpdater.on('update-downloaded', (info) => {
+	log.info('✅ Update downloaded successfully:', info);
 	handleUpdateDownloaded({
 		info,
 		mainWindow,
 		setIsUpdateInProgress,
-	}),
-);
+	});
+});
 
 async function showNotification(title, body) {
 	const notification = new Notification({
@@ -521,6 +544,12 @@ function handleOverlayWindowReady(overlayWindow) {
 // IPC Handlers for updates
 ipcMain.handle('check-for-updates', async () => {
 	try {
+		// Prevent concurrent update checks
+		if (getIsUpdateInProgress()) {
+			log.warn('⚠️ Update check already in progress, skipping...');
+			return { success: false, error: 'Update check already in progress' };
+		}
+
 		// Add timeout to prevent hanging
 		const timeoutPromise = new Promise((_, reject) =>
 			setTimeout(() => reject(new Error('Update check timeout')), 30000),
@@ -534,12 +563,19 @@ ipcMain.handle('check-for-updates', async () => {
 		return await Promise.race([updatePromise, timeoutPromise]);
 	} catch (error) {
 		log.error('❌ Update check failed:', error);
+		setIsUpdateInProgress(false); // Reset flag on error
 		return { success: false, error: error.message };
 	}
 });
 
 ipcMain.handle('download-update', async () => {
 	try {
+		// Prevent concurrent downloads
+		if (getIsUpdateInProgress()) {
+			log.warn('⚠️ Update download already in progress, skipping...');
+			return { success: false, error: 'Update download already in progress' };
+		}
+
 		// Add timeout to prevent hanging
 		const timeoutPromise = new Promise((_, reject) =>
 			setTimeout(() => reject(new Error('Download update timeout')), 60000),
@@ -553,17 +589,32 @@ ipcMain.handle('download-update', async () => {
 		return await Promise.race([downloadPromise, timeoutPromise]);
 	} catch (error) {
 		log.error('❌ Download update failed:', error);
+		setIsUpdateInProgress(false); // Reset flag on error
 		return { success: false, error: error.message };
 	}
 });
 
-ipcMain.handle('restart-app', () =>
-	ipcMainHandleRestartApp({
-		setIsUpdateInProgress,
-		dynamicIslandHelper,
-		windowHelper,
-	}),
-);
+ipcMain.handle('restart-app', async () => {
+	try {
+		log.info('🔄 Restart app requested...');
+
+		// Add timeout to prevent hanging
+		const timeoutPromise = new Promise((_, reject) =>
+			setTimeout(() => reject(new Error('Restart app timeout')), 30000),
+		);
+
+		const restartPromise = ipcMainHandleRestartApp({
+			setIsUpdateInProgress,
+			dynamicIslandHelper,
+			windowHelper,
+		});
+
+		return await Promise.race([restartPromise, timeoutPromise]);
+	} catch (error) {
+		log.error('❌ Restart app failed:', error);
+		return { success: false, error: error.message };
+	}
+});
 
 // Dynamic Island repositioning handler
 ipcMain.handle('reposition-dynamic-island', () => {
@@ -572,6 +623,32 @@ ipcMain.handle('reposition-dynamic-island', () => {
 		return { success: true, platform: process.platform };
 	}
 	return { success: false, error: 'Dynamic Island helper not available' };
+});
+
+// Glass mode sync handler
+ipcMain.handle('sync-glass-mode-state', async (event, data) => {
+	try {
+		const { enabled } = data;
+		if (typeof enabled === 'boolean' && windowHelper) {
+			// Update the window helper's translucency state
+			windowHelper.isTranslucencyEnabled = enabled;
+
+			// Apply vibrancy to main window if on macOS
+			if (process.platform === 'darwin' && windowHelper.mainWindow) {
+				const mainWindow = windowHelper.mainWindow;
+				if (!mainWindow.isDestroyed() && mainWindow.setVibrancy) {
+					mainWindow.setVibrancy(enabled ? 'fullscreen-ui' : '');
+				}
+			}
+
+			log.info(`🪟 Glass mode ${enabled ? 'enabled' : 'disabled'} via sync`);
+			return { success: true, enabled };
+		}
+		return { success: false, error: 'Invalid glass mode state' };
+	} catch (error) {
+		log.error('❌ Glass mode sync failed:', error);
+		return { success: false, error: error.message };
+	}
 });
 
 // System Settings handler
@@ -604,68 +681,156 @@ ipcMain.handle('reposition-dynamic-island', () => {
 // 	}
 // });
 
-// Generic system settings
-
+// 📸 Camera privacy settings
 ipcMain.handle('open-camera-settings', async () => {
 	const platform = os.platform();
 
 	try {
 		if (platform === 'darwin') {
-			// macOS: Opens Privacy > Camera
-			exec(
-				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"',
-				(error) => {
-					if (error) {
-						console.error('Failed to open macOS Camera Settings:', error);
-					}
-				},
-			);
+			log.info('📸 Opening Camera privacy settings...');
+			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Camera');
+			log.info('✅ Successfully opened Camera privacy settings');
+			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
-			// Windows: Opens Camera privacy settings
 			exec('start ms-settings:privacy-webcam', (error) => {
 				if (error) {
-					console.error('Failed to open Windows Camera Settings:', error);
+					console.error('❌ Failed to open Camera Settings on Windows:', error);
 				}
 			});
+			return { success: true, platform: 'Windows' };
 		} else {
-			console.warn('Unsupported platform for camera settings:', platform);
 			return { success: false, error: 'Unsupported platform' };
 		}
-		return { success: true, platform };
-	} catch (error) {
-		console.error('Error opening camera settings:', error);
-		return { success: false, error: error.message };
+	} catch (err) {
+		log.error('❌ Error opening camera settings:', err);
+		return { success: false, error: err.message };
 	}
 });
-ipcMain.handle('open-screen-settings', async () => {
+
+// 🎤 Microphone privacy settings
+ipcMain.handle('open-microphone-settings', async () => {
 	const platform = os.platform();
 
 	try {
 		if (platform === 'darwin') {
-			// macOS: Opens Privacy > Screen Recording
-			exec(
-				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"',
-				(error) => {
-					if (error) {
-						console.error('Failed to open Screen Recording Settings (macOS):', error);
-					}
-				},
-			);
+			log.info('🎤 Opening Microphone privacy settings...');
+			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone');
+			log.info('✅ Successfully opened Microphone privacy settings');
+			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
-			// Windows: No direct screen recording permission
-			console.warn('Screen recording permission not required or configurable on Windows.');
-			return {
-				success: true,
-				message: 'Screen recording permissions are not required on Windows.',
-				platform,
-			};
+			exec('start ms-settings:privacy-microphone', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Microphone Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
 		} else {
 			return { success: false, error: 'Unsupported platform' };
 		}
-		return { success: true, platform };
-	} catch (error) {
-		console.error('Error opening screen recording settings:', error);
-		return { success: false, error: error.message };
+	} catch (err) {
+		log.error('❌ Error opening microphone settings:', err);
+		return { success: false, error: err.message };
+	}
+});
+
+// 🖥️ Screen Recording privacy settings
+ipcMain.handle('open-screen-recording-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			log.info('🖥️ Opening Screen Recording privacy settings...');
+			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture');
+			log.info('✅ Successfully opened Screen Recording privacy settings');
+			return { success: true, platform: 'macOS' };
+		} else if (platform === 'win32') {
+			exec('start ms-settings:privacy', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Privacy Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
+		} else {
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (err) {
+		log.error('❌ Error opening screen recording settings:', err);
+		return { success: false, error: err.message };
+	}
+});
+
+// 🎵 Media Library privacy settings
+ipcMain.handle('open-media-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			log.info('🎵 Opening Media Library privacy settings...');
+			
+			try {
+				// First try Privacy_Media URL scheme
+				await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Media');
+				log.info('✅ Successfully opened Media Library privacy settings');
+				return { success: true, platform: 'macOS', method: 'Privacy_Media' };
+			} catch (mediaError) {
+				log.warn('⚠️ Privacy_Media failed, trying Photos as fallback:', mediaError.message);
+				
+				try {
+					// Fallback to Privacy_Photos
+					await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Photos');
+					log.info('✅ Successfully opened Photos privacy settings as fallback');
+					return { success: true, platform: 'macOS', method: 'Privacy_Photos' };
+				} catch (photosError) {
+					log.error('❌ Both Media and Photos settings failed:', photosError.message);
+					return { success: false, error: 'Failed to open Media/Photos settings' };
+				}
+			}
+		} else if (platform === 'win32') {
+			exec('start ms-settings:privacy-photos', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Media Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
+		} else {
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (err) {
+		log.error('❌ Error opening media library settings:', err);
+		return { success: false, error: err.message };
+	}
+});
+
+// 📅 Calendar privacy settings
+ipcMain.handle('open-calendar-settings', async () => {
+	const platform = os.platform();
+
+	try {
+		if (platform === 'darwin') {
+			log.info('📅 Opening Calendar privacy settings...');
+			
+			try {
+				await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars');
+				log.info('✅ Successfully opened Calendar privacy settings');
+				return { success: true, platform: 'macOS', method: 'shell.openExternal' };
+			} catch (calendarError) {
+				log.error('❌ Calendar settings failed:', calendarError.message);
+				return { success: false, error: 'Failed to open Calendar settings', details: calendarError.message };
+			}
+		} else if (platform === 'win32') {
+			exec('start ms-settings:privacy-calendar', (error) => {
+				if (error) {
+					console.error('❌ Failed to open Calendar Settings on Windows:', error);
+				}
+			});
+			return { success: true, platform: 'Windows' };
+		} else {
+			console.warn('⚠️ Unsupported platform for calendar settings:', platform);
+			return { success: false, error: 'Unsupported platform' };
+		}
+	} catch (err) {
+		console.error('❌ Error opening calendar settings:', err);
+		return { success: false, error: err.message };
 	}
 });
 
@@ -690,62 +855,6 @@ ipcMain.handle('open-system-settings', async () => {
 		return { success: false, error: error.message };
 	}
 });
-
-// 🎤 Microphone privacy settings
-ipcMain.handle('open-microphone-settings', async () => {
-	const platform = os.platform();
-
-	try {
-		if (platform === 'darwin') {
-			// macOS: Open Microphone privacy settings
-			exec(
-				'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"',
-				(error) => {
-					if (error) {
-						console.error('❌ Failed to open Microphone Settings on macOS:', error);
-					}
-				},
-			);
-			return { success: true, platform: 'macOS' };
-		} else if (platform === 'win32') {
-			// Windows: Open Microphone privacy settings
-			exec('start ms-settings:privacy-microphone', (error) => {
-				if (error) {
-					console.error('❌ Failed to open Microphone Settings on Windows:', error);
-				}
-			});
-			return { success: true, platform: 'Windows' };
-		} else {
-			console.warn('⚠️ Unsupported platform for microphone settings:', platform);
-			return { success: false, error: 'Unsupported platform' };
-		}
-	} catch (err) {
-		console.error('❌ Error opening microphone settings:', err);
-		return { success: false, error: err.message };
-	}
-});
-
-// 🖥️ Screen Recording privacy settings
-// ipcMain.handle('open-screen-recording-settings', async () => {
-// 	if (os.platform() === 'darwin') {
-// 		exec(
-// 			"open 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording'",
-// 		);
-// 	} else {
-// 		console.warn('Screen recording settings not supported on this platform');
-// 	}
-// });
-
-// 📡 Screen Sharing (optional)
-// ipcMain.handle('open-screen-sharing-settings', async () => {
-// 	if (os.platform() === 'darwin') {
-// 		exec(
-// 			"open 'x-apple.systempreferences:com.apple.preference.sharing?Services_ScreenSharing'",
-// 		);
-// 	} else {
-// 		console.warn('Screen sharing settings not supported on this platform');
-// 	}
-// });
 
 ipcMain.handle('desktop:capture-screen', async () => {
 	try {
@@ -776,31 +885,48 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 	}
 
 	try {
-		// Instead of checking screen recording permission (which requires admin auth),
-		// we'll test if we can actually capture screen sources
-		log.info('🖥️ Testing screen capture capability...');
+		if (permissions) {
+			// Use electron-mac-permissions for proper screen capture permission check
+			const screenStatus = permissions.getAuthStatus('screen');
+			log.info('🖥️ Screen recording permission check:', screenStatus);
 
-		const sources = await desktopCapturer.getSources({
-			types: ['screen'],
-			thumbnailSize: { width: 1, height: 1 },
-		});
+			return {
+				success: true,
+				permission: screenStatus === 'authorized' ? 'granted' : screenStatus === 'denied' ? 'denied' : 'not-determined',
+				hasPermission: screenStatus === 'authorized',
+				message:
+					screenStatus === 'authorized'
+						? 'Screen recording access granted'
+						: screenStatus === 'denied'
+						? 'Screen recording access denied'
+						: 'Screen recording permission not yet determined',
+			};
+		} else {
+			// Fallback: test if we can actually capture screen sources
+			log.info('🖥️ Testing screen capture capability (fallback)...');
 
-		const hasPermission = sources && sources.length > 0;
-		log.info(
-			'🖥️ Screen capture test result:',
-			hasPermission ? 'success' : 'failed',
-			'sources found:',
-			sources?.length || 0,
-		);
+			const sources = await desktopCapturer.getSources({
+				types: ['screen'],
+				thumbnailSize: { width: 1, height: 1 },
+			});
 
-		return {
-			success: true,
-			permission: hasPermission ? 'granted' : 'denied',
-			hasPermission: hasPermission,
-			message: hasPermission
-				? 'Screen sharing access granted'
-				: 'Screen sharing access denied - please grant permission in System Settings',
-		};
+			const hasPermission = sources && sources.length > 0;
+			log.info(
+				'🖥️ Screen capture test result:',
+				hasPermission ? 'success' : 'failed',
+				'sources found:',
+				sources?.length || 0,
+			);
+
+			return {
+				success: true,
+				permission: hasPermission ? 'granted' : 'denied',
+				hasPermission: hasPermission,
+				message: hasPermission
+					? 'Screen sharing access granted'
+					: 'Screen sharing access denied - please grant permission in System Settings',
+			};
+		}
 	} catch (error) {
 		log.info('🖥️ Screen capture test failed (permission likely denied):', error.message);
 		return {
@@ -1443,7 +1569,7 @@ function createWindow(restoreState = false) {
 			? { ...defaultBounds, ...lastWindowState.windowBounds }
 			: defaultBounds;
 
-	mainWindow = new BrowserWindow({
+	const mainWindowSettings = {
 		title: 'Ve AI - Priority',
 		width: windowBounds.width,
 		height: windowBounds.height,
@@ -1451,19 +1577,45 @@ function createWindow(restoreState = false) {
 		y: windowBounds.y,
 		show: false,
 		icon: iconPath,
-		backgroundColor: '#1a1a1a', // Set dark background to prevent white flash
+		backgroundColor: '#00000000', // Fully transparent background
+		resizable: true, // Allow resizing for better UX
+		movable: true,
+		transparent: true,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
 			contextIsolation: true,
-			devTools: true, // Enable developer tools in production
+			devTools: true, // Enable dev tools
 			webSecurity: true,
 			allowRunningInsecureContent: false,
 			sandbox: false,
 			// Keep timers/raf unthrottled to improve responsiveness after idle
 			backgroundThrottling: false,
 		},
-	});
+		type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+		thickFrame: false,
+		hasShadow: true, // Enable shadow for depth
+		skipTaskbar: false,
+		alwaysOnTop: false,
+		opacity: 1.0,
+		visualEffectState: 'active',
+	};
+
+	const isWindows = process.platform === 'win32';
+	const isMacOS = process.platform === 'darwin';
+
+	// Platform-specific vibrancy/acrylic for beautiful translucent blur
+	if (isMacOS) {
+		mainWindowSettings.vibrancy = 'fullscreen-ui'; // Beautiful blur effect
+		mainWindowSettings.titleBarStyle = 'hiddenInset'; // Keep window controls
+	} else if (isWindows) {
+		mainWindowSettings.backgroundMaterial = 'acrylic'; // Windows 11 acrylic
+		mainWindowSettings.vibrancy = 'acrylic'; // Additional vibrancy
+	}
+
+	mainWindow = new BrowserWindow(mainWindowSettings);
+
+	mainWindow.setWindowButtonVisibility(false);
 
 	if (notchDropService) {
 		notchDropService.setMainWindow(mainWindow);
@@ -1645,27 +1797,30 @@ function createWindow(restoreState = false) {
 				}
 
 				// Check if index.html exists
-				if (!fs.existsSync(buildPath)) {
-					log.error('❌ Build file not found:', buildPath);
-					await showErrorPage(
-						'Build file not found',
-						`The main application file is missing: ${buildPath}`,
-					);
-					return;
-				}
+			// ⚡ OPTIMIZATION: Use async file operations
+			try {
+				await fs.promises.access(buildPath);
+			} catch {
+				log.error('❌ Build file not found:', buildPath);
+				await showErrorPage(
+					'Build file not found',
+					`The main application file is missing: ${buildPath}`,
+				);
+				return;
+			}
 
-				// Check if build directory has content
-				const buildFiles = fs.readdirSync(buildDir);
-				log.info('📋 Build directory contents:', buildFiles);
+			// ⚡ OPTIMIZATION: Check build directory content asynchronously
+			const buildFiles = await fs.promises.readdir(buildDir);
+			log.info('📋 Build directory contents:', buildFiles);
 
-				if (buildFiles.length === 0) {
-					log.error('❌ Build directory is empty');
-					await showErrorPage(
-						'Empty build directory',
-						'The build directory exists but contains no files. Please rebuild the application.',
-					);
-					return;
-				}
+			if (buildFiles.length === 0) {
+				log.error('❌ Build directory is empty');
+				await showErrorPage(
+					'Empty build directory',
+					'The build directory exists but contains no files. Please rebuild the application.',
+				);
+				return;
+			}
 
 				// Try to load the file
 				log.info('📁 Loading production build file:', buildPath);
@@ -1823,25 +1978,25 @@ function createWindow(restoreState = false) {
 </body>
 </html>`;
 
-			// Write error page to a temporary file
-			const errorPagePath = path.join(__dirname, 'error-page.html');
-			fs.writeFileSync(errorPagePath, errorHtml);
+		// ⚡ OPTIMIZATION: Write error page asynchronously
+		const errorPagePath = path.join(__dirname, 'error-page.html');
+		await fs.promises.writeFile(errorPagePath, errorHtml);
 
-			// Load the error page from file
-			await mainWindow.loadFile(errorPagePath);
-			log.info('✅ Error page displayed to user');
+		// Load the error page from file
+		await mainWindow.loadFile(errorPagePath);
+		log.info('✅ Error page displayed to user');
 
-			// Clean up the temporary file after a delay
-			setTimeout(() => {
-				try {
-					if (fs.existsSync(errorPagePath)) {
-						fs.unlinkSync(errorPagePath);
-						log.info('🧹 Cleaned up temporary error page file');
-					}
-				} catch (cleanupError) {
+		// ⚡ OPTIMIZATION: Clean up the temporary file asynchronously after a delay
+		setTimeout(async () => {
+			try {
+				await fs.promises.unlink(errorPagePath);
+				log.info('🧹 Cleaned up temporary error page file');
+			} catch (cleanupError) {
+				if (cleanupError.code !== 'ENOENT') {
 					log.warn('⚠️ Failed to clean up error page file:', cleanupError.message);
 				}
-			}, 30000); // Clean up after 30 seconds
+			}
+		}, 30000); // Clean up after 30 seconds
 		} catch (errorPageError) {
 			log.error('❌ Failed to show error page:', errorPageError);
 
@@ -2054,12 +2209,27 @@ function createWindow(restoreState = false) {
 		}
 	});
 
-	// Check for updates in both dev and production
-	log.info('Starting automatic update check...');
-	// Delay update check to ensure app is fully loaded
-	setTimeout(() => {
-		autoUpdater.checkForUpdatesAndNotify();
-	}, 5000); // Wait 5 seconds after app loads
+	// Check for updates only in production
+	if (process.env.NODE_ENV === 'production') {
+		log.info('🔍 Starting automatic update check...');
+		// Delay update check to ensure app is fully loaded
+		setTimeout(() => {
+			log.info('🔍 Checking for updates...');
+			autoUpdater.checkForUpdatesAndNotify();
+		}, 5000); // Wait 5 seconds after app loads
+
+		// Set up periodic update checks (every 4 hours)
+		setInterval(() => {
+			if (!getIsUpdateInProgress()) {
+				log.info('🔍 Periodic update check...');
+				autoUpdater.checkForUpdatesAndNotify();
+			} else {
+				log.info('⏳ Skipping periodic update check - update in progress');
+			}
+		}, 4 * 60 * 60 * 1000); // 4 hours in milliseconds
+	} else {
+		log.info('🔧 Skipping update check in development mode');
+	}
 
 	return mainWindow;
 }
@@ -2299,18 +2469,38 @@ app.whenReady().then(async () => {
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
 
-	// CRITICAL: Add watchdog timer to prevent main process hanging
+	// ⚡ CRITICAL MEMORY LEAK FIX: Add periodic garbage collection
+	const memoryCleanupInterval = setInterval(() => {
+		const memUsage = process.memoryUsage();
+		const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+
+		// Force garbage collection if memory exceeds 300MB (lowered from 500MB)
+		if (heapUsedMB > 300) {
+			log.warn(`⚠️ High memory usage: ${heapUsedMB}MB - forcing garbage collection...`);
+			if (global.gc) {
+				global.gc();
+				const afterGC = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
+				log.info(
+					`✅ GC completed: ${heapUsedMB}MB → ${afterGC}MB (freed ${
+						heapUsedMB - afterGC
+					}MB)`,
+				);
+			}
+		}
+	}, 10000); // Check every 10 seconds
+
+	// ⚡ OPTIMIZED: Less aggressive watchdog (was checking every 5s for 30s hang)
 	let lastHeartbeat = Date.now();
 	const watchdogInterval = setInterval(() => {
 		const now = Date.now();
-		if (now - lastHeartbeat > 30000) {
-			// 30 seconds without heartbeat
+		if (now - lastHeartbeat > 60000) {
+			// 60 seconds without heartbeat (increased from 30s)
 			log.error('❌ Main process appears to be hanging - forcing restart...');
 			app.relaunch();
 			app.exit(1);
 		}
 		lastHeartbeat = now;
-	}, 5000); // Check every 5 seconds
+	}, 15000); // Check every 15 seconds (reduced frequency)
 
 	// Update heartbeat on any activity
 	process.on('message', () => {
@@ -2325,29 +2515,22 @@ app.whenReady().then(async () => {
 		log.error('❌ Unhandled rejection:', reason);
 	});
 
-	// CRITICAL: Add process monitoring to detect hanging
+	// ⚡ OPTIMIZED: Less frequent process monitoring (reduced overhead)
+	let lastMemoryLog = Date.now();
 	const processMonitor = setInterval(() => {
-		const memUsage = process.memoryUsage();
-		const cpuUsage = process.cpuUsage();
+		const now = Date.now();
 
-		// Log memory usage every 30 seconds
-		if (Date.now() % 30000 < 5000) {
+		// Log memory usage every 60 seconds (reduced from 30s)
+		if (now - lastMemoryLog > 60000) {
+			const memUsage = process.memoryUsage();
 			log.info('📊 Process stats:', {
-				memory: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+				heap: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
 				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
 				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB',
 			});
+			lastMemoryLog = now;
 		}
-
-		// Force garbage collection if memory usage is too high
-		if (memUsage.heapUsed > 500 * 1024 * 1024) {
-			// 500MB
-			log.warn('⚠️ High memory usage detected, forcing garbage collection...');
-			if (global.gc) {
-				global.gc();
-			}
-		}
-	}, 5000);
+	}, 30000); // Check every 30 seconds (reduced from 5s)
 
 	// Run startup diagnostics
 	runStartupDiagnostics();
@@ -2502,7 +2685,7 @@ app.whenReady().then(async () => {
 				process.arch,
 			);
 			dynamicIslandHelper = new DynamicIslandHelper();
-			dynamicIslandHelper.createDynamicIslandWindow();
+			await dynamicIslandHelper.createDynamicIslandWindow();
 			log.info('Dynamic Island Helper initialized successfully');
 		} catch (error) {
 			log.error('Failed to initialize Dynamic Island Helper:', error);
@@ -2917,7 +3100,7 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('show-permission-window', async () => {
 		try {
-			// windowHelper?.showPermissionWindow();
+			windowHelper?.showPermissionWindow();
 			return { success: true };
 		} catch (error) {
 			log.error('Error showing Permission window:', error);
@@ -3179,7 +3362,7 @@ app.whenReady().then(async () => {
 		}
 	}
 
-	process.on('swift-ui-submit-chat', async (data ={}) => {
+	process.on('swift-ui-submit-chat', async (data = {}) => {
 		// try {
 		// 	// if (!windowHelper) {
 		// 	// 	log.error('windowHelper not available for AskAI forwarding');
@@ -3222,7 +3405,7 @@ app.whenReady().then(async () => {
 		// 		// Normal mode - show and focus the window
 		// 		mainWindow.show();
 		// 		mainWindow.focus();
-			
+
 		// 	mainWindow.webContents.send('navigate-to', {path:"/chats"});
 		// } catch (error) {
 		// 	log.error('❌ Error forwarding Swift UI chat to AskAI:', error);
@@ -3257,15 +3440,14 @@ app.whenReady().then(async () => {
 				await new Promise((resolve) => {
 					if (mainWindow && !mainWindow.isDestroyed()) {
 						mainWindow.once('ready-to-show', () => {
-
-								// Normal mode - show and focus the window
-								mainWindow.show();
-								mainWindow.focus();
-								mainWindow.webContents.send('navigate-to', data);
-								log.info(
-									'Main window recreated and shown successfully with state restoration and navigated to:',
-									data?.path,
-								);
+							// Normal mode - show and focus the window
+							mainWindow.show();
+							mainWindow.focus();
+							mainWindow.webContents.send('navigate-to', data);
+							log.info(
+								'Main window recreated and shown successfully with state restoration and navigated to:',
+								data?.path,
+							);
 
 							resolve();
 						});
@@ -3545,7 +3727,7 @@ app.whenReady().then(async () => {
 
 							if (dockHidden) {
 								// In background mode, just navigate without showing/focusing the window
-								mainWindow.webContents.send('navigate-to', {path:data?.path});
+								mainWindow.webContents.send('navigate-to', { path: data?.path });
 								log.info(
 									'Main window recreated in background mode and navigated to:',
 									data?.path,
@@ -3554,7 +3736,7 @@ app.whenReady().then(async () => {
 								// Normal mode - show and focus the window
 								mainWindow.show();
 								mainWindow.focus();
-								mainWindow.webContents.send('navigate-to', {path:data?.path});
+								mainWindow.webContents.send('navigate-to', { path: data?.path });
 								log.info(
 									'Main window recreated and shown successfully with state restoration and navigated to:',
 									data?.path,
@@ -3612,6 +3794,162 @@ app.whenReady().then(async () => {
 			}
 		} catch (error) {
 			log.error('Error checking camera permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
+	// Check media permission status handler (Media Library)
+	ipcMain.handle('check-media-permission', async () => {
+		try {
+			if (isMacRuntime && permissions) {
+				// Use electron-mac-permissions for proper Media Library access
+				const mediaStatus = permissions.getAuthStatus('media');
+				log.info(
+					'🎵 Media Library permission check:',
+					mediaStatus,
+					'granted:',
+					mediaStatus === 'authorized',
+				);
+
+				return {
+					success: true,
+					permission: mediaStatus === 'authorized' ? 'granted' : mediaStatus === 'denied' ? 'denied' : 'not-determined',
+					hasPermission: mediaStatus === 'authorized',
+					message:
+						mediaStatus === 'authorized'
+							? 'Media Library access granted'
+							: mediaStatus === 'denied'
+							? 'Media Library access denied'
+							: 'Media Library permission not yet determined',
+				};
+			} else {
+				// For non-macOS platforms or when electron-mac-permissions not available
+				return {
+					success: false,
+					error: 'Media permission check requires electron-mac-permissions on macOS',
+					hasPermission: false,
+					permission: 'not-determined',
+				};
+			}
+		} catch (error) {
+			log.error('Error checking media permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
+	// Check calendar permission status handler
+	ipcMain.handle('check-calendar-permission', async () => {
+		try {
+			if (isMacRuntime && permissions) {
+				// Use electron-mac-permissions for proper Calendar access (EventKit)
+				const calendarStatus = permissions.getAuthStatus('calendar');
+				log.info(
+					'📅 Calendar permission check:',
+					calendarStatus,
+					'granted:',
+					calendarStatus === 'authorized',
+				);
+
+				return {
+					success: true,
+					permission: calendarStatus === 'authorized' ? 'granted' : calendarStatus === 'denied' ? 'denied' : 'not-determined',
+					hasPermission: calendarStatus === 'authorized',
+					message:
+						calendarStatus === 'authorized'
+							? 'Calendar access granted'
+							: calendarStatus === 'denied'
+							? 'Calendar access denied'
+							: 'Calendar permission not yet determined',
+				};
+			} else {
+				// For non-macOS platforms or when electron-mac-permissions not available
+				return {
+					success: false,
+					error: 'Calendar permission check requires electron-mac-permissions on macOS',
+					hasPermission: false,
+					permission: 'not-determined',
+				};
+			}
+		} catch (error) {
+			log.error('Error checking calendar permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
+	// Request media permission handler (Media Library)
+	ipcMain.handle('request-media-permission', async () => {
+		try {
+			if (isMacRuntime && permissions) {
+				log.info('🎵 Requesting Media Library permission...');
+				const granted = await permissions.askForMediaAccess();
+				log.info('🎵 Media Library permission request result:', granted);
+				
+				return {
+					success: true,
+					permission: granted ? 'granted' : 'denied',
+					hasPermission: granted,
+					message: granted ? 'Media Library access granted' : 'Media Library access denied',
+				};
+			} else {
+				log.warn('🎵 Media Library permission request not available - electron-mac-permissions required');
+				return {
+					success: false,
+					error: 'Media Library permission request requires electron-mac-permissions package',
+					hasPermission: false,
+					permission: 'not-determined',
+				};
+			}
+		} catch (error) {
+			log.error('Error requesting media permission:', error);
+			return {
+				success: false,
+				error: error.message,
+				hasPermission: false,
+				permission: 'error',
+			};
+		}
+	});
+
+	// Request calendar permission handler
+	ipcMain.handle('request-calendar-permission', async () => {
+		try {
+			if (isMacRuntime && permissions) {
+				log.info('📅 Requesting Calendar permission...');
+				const granted = await permissions.askForCalendarAccess();
+				log.info('📅 Calendar permission request result:', granted);
+				
+				return {
+					success: true,
+					permission: granted ? 'granted' : 'denied',
+					hasPermission: granted,
+					message: granted ? 'Calendar access granted' : 'Calendar access denied',
+				};
+			} else {
+				log.warn('📅 Calendar permission request not available - electron-mac-permissions required');
+				return {
+					success: false,
+					error: 'Calendar permission request requires electron-mac-permissions package',
+					hasPermission: false,
+					permission: 'not-determined',
+				};
+			}
+		} catch (error) {
+			log.error('Error requesting calendar permission:', error);
 			return {
 				success: false,
 				error: error.message,
