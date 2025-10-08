@@ -22,7 +22,7 @@ export const GlassModeProvider = ({ children }) => {
 		// Initialize from localStorage
 		try {
 			const saved = localStorage.getItem('glassModeEnabled');
-			return saved ? JSON.parse(saved) : false;
+			return saved ? JSON.parse(saved) : true;
 		} catch (error) {
 			console.warn('Failed to load glass mode state from localStorage:', error);
 			return false;
