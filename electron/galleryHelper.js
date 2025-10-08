@@ -384,11 +384,12 @@ const createZipFromUrls = async (
 			const safeName = sanitize(filename || 'unknown.jpg');
 			const filePath = path.join(tempDir, safeName);
 
-			if (!url) {
-				fs.writeFileSync(path.join(tempDir, `ERROR_${safeName}.txt`), 'No URL');
-				errors.push({ file: safeName, error: 'No URL' });
-				return;
-			}
+		if (!url) {
+			// ⚡ OPTIMIZATION: Use async file write
+			await fs.promises.writeFile(path.join(tempDir, `ERROR_${safeName}.txt`), 'No URL').catch(() => {});
+			errors.push({ file: safeName, error: 'No URL' });
+			return;
+		}
 
 			const MAX_RETRIES = 3;
 			for (let retry = 0; retry < MAX_RETRIES; retry++) {
@@ -418,14 +419,15 @@ const createZipFromUrls = async (
 						throw new Error(`Not an image: ${contentType}`);
 					}
 
-					const writer = fs.createWriteStream(filePath);
-					await streamToPromise(res.data, writer);
+			const writer = fs.createWriteStream(filePath);
+			await streamToPromise(res.data, writer);
 
-					const stats = fs.statSync(filePath);
-					if (stats.size === 0) {
-						fs.unlinkSync(filePath);
-						throw new Error('Empty file');
-					}
+			// ⚡ OPTIMIZATION: Use async file operations
+			const stats = await fs.promises.stat(filePath);
+			if (stats.size === 0) {
+				await fs.promises.unlink(filePath);
+				throw new Error('Empty file');
+			}
 
 					downloadedFiles.push({ path: filePath, name: safeName });
 					completedDownloads++;
@@ -456,13 +458,14 @@ const createZipFromUrls = async (
 						? 'Timeout'
 						: err.message;
 
-					if (retry === MAX_RETRIES - 1) {
-						fs.writeFileSync(
-							path.join(tempDir, `ERROR_${safeName}.txt`),
-							`Download failed: ${errMsg}`,
-						);
-						errors.push({ file: safeName, error: errMsg });
-					} else {
+				if (retry === MAX_RETRIES - 1) {
+					// ⚡ OPTIMIZATION: Use async file write
+					await fs.promises.writeFile(
+						path.join(tempDir, `ERROR_${safeName}.txt`),
+						`Download failed: ${errMsg}`,
+					).catch(() => {});
+					errors.push({ file: safeName, error: errMsg });
+				} else {
 						const delay = Math.min(2000 * Math.pow(2, retry), 8000);
 						await new Promise((r) => setTimeout(r, delay));
 					}
@@ -510,19 +513,20 @@ const createZipFromUrls = async (
 
 		startNewArchive();
 
-		for (const { path: filePath, name } of downloadedFiles) {
-			const fileSize = fs.statSync(filePath).size;
-			if (currentSize > 0 && currentSize + fileSize > maxZipSize) {
-				await new Promise((resolve, reject) => {
-					archive.finalize();
-					output.on('close', resolve);
-					output.on('error', reject);
-				});
-				startNewArchive();
-			}
-			archive.file(filePath, { name });
-			currentSize += fileSize;
+	for (const { path: filePath, name } of downloadedFiles) {
+		// ⚡ OPTIMIZATION: Use async file stat
+		const fileSize = (await fs.promises.stat(filePath)).size;
+		if (currentSize > 0 && currentSize + fileSize > maxZipSize) {
+			await new Promise((resolve, reject) => {
+				archive.finalize();
+				output.on('close', resolve);
+				output.on('error', reject);
+			});
+			startNewArchive();
 		}
+		archive.file(filePath, { name });
+		currentSize += fileSize;
+	}
 
 		await new Promise((resolve, reject) => {
 			archive.finalize();

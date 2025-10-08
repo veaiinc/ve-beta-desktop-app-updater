@@ -9,7 +9,7 @@ class PerformanceMonitor {
 			fps: [],
 			swiftUpdates: [],
 			electronIPC: [],
-			reactRenders: []
+			reactRenders: [],
 		};
 		this.isEnabled = process.env.NODE_ENV === 'development';
 		this.startTime = Date.now();
@@ -18,11 +18,11 @@ class PerformanceMonitor {
 	// Track render performance
 	trackRender(componentName, renderTime) {
 		if (!this.isEnabled) return;
-		
+
 		this.metrics.renderTimes.push({
 			component: componentName,
 			time: renderTime,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 
 		// Keep only last 100 render times
@@ -31,7 +31,8 @@ class PerformanceMonitor {
 		}
 
 		// Log slow renders
-		if (renderTime > 16) { // > 60fps threshold
+		if (renderTime > 16) {
+			// > 60fps threshold
 			console.warn(`🐌 Slow render detected: ${componentName} took ${renderTime}ms`);
 		}
 	}
@@ -44,7 +45,7 @@ class PerformanceMonitor {
 			used: performance.memory.usedJSHeapSize,
 			total: performance.memory.totalJSHeapSize,
 			limit: performance.memory.jsHeapSizeLimit,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		};
 
 		this.metrics.memoryUsage.push(memory);
@@ -71,12 +72,12 @@ class PerformanceMonitor {
 		const measureFPS = () => {
 			frameCount++;
 			const currentTime = performance.now();
-			
+
 			if (currentTime - lastTime >= 1000) {
 				const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
 				this.metrics.fps.push({
 					fps,
-					timestamp: Date.now()
+					timestamp: Date.now(),
 				});
 
 				// Keep only last 30 FPS measurements
@@ -106,7 +107,7 @@ class PerformanceMonitor {
 		this.metrics.swiftUpdates.push({
 			action,
 			duration,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 
 		// Keep only last 50 updates
@@ -127,7 +128,7 @@ class PerformanceMonitor {
 		this.metrics.electronIPC.push({
 			channel,
 			duration,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 
 		// Keep only last 50 IPC calls
@@ -148,7 +149,7 @@ class PerformanceMonitor {
 		this.metrics.reactRenders.push({
 			component: componentName,
 			reason,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 
 		// Keep only last 100 renders
@@ -162,32 +163,38 @@ class PerformanceMonitor {
 		const now = Date.now();
 		const uptime = now - this.startTime;
 
-		const avgRenderTime = this.metrics.renderTimes.length > 0
-			? this.metrics.renderTimes.reduce((sum, r) => sum + r.time, 0) / this.metrics.renderTimes.length
-			: 0;
+		const avgRenderTime =
+			this.metrics.renderTimes.length > 0
+				? this.metrics.renderTimes.reduce((sum, r) => sum + r.time, 0) /
+				  this.metrics.renderTimes.length
+				: 0;
 
-		const avgFPS = this.metrics.fps.length > 0
-			? this.metrics.fps.reduce((sum, f) => sum + f.fps, 0) / this.metrics.fps.length
-			: 0;
+		const avgFPS =
+			this.metrics.fps.length > 0
+				? this.metrics.fps.reduce((sum, f) => sum + f.fps, 0) / this.metrics.fps.length
+				: 0;
 
-		const currentMemory = this.metrics.memoryUsage.length > 0
-			? this.metrics.memoryUsage[this.metrics.memoryUsage.length - 1]
-			: null;
+		const currentMemory =
+			this.metrics.memoryUsage.length > 0
+				? this.metrics.memoryUsage[this.metrics.memoryUsage.length - 1]
+				: null;
 
 		return {
 			uptime: Math.round(uptime / 1000),
 			avgRenderTime: Math.round(avgRenderTime * 100) / 100,
 			avgFPS: Math.round(avgFPS),
-			currentMemory: currentMemory ? {
-				used: Math.round(currentMemory.used / 1024 / 1024),
-				total: Math.round(currentMemory.total / 1024 / 1024),
-				limit: Math.round(currentMemory.limit / 1024 / 1024),
-				usagePercent: Math.round((currentMemory.used / currentMemory.limit) * 100)
-			} : null,
+			currentMemory: currentMemory
+				? {
+						used: Math.round(currentMemory.used / 1024 / 1024),
+						total: Math.round(currentMemory.total / 1024 / 1024),
+						limit: Math.round(currentMemory.limit / 1024 / 1024),
+						usagePercent: Math.round((currentMemory.used / currentMemory.limit) * 100),
+				  }
+				: null,
 			totalRenders: this.metrics.renderTimes.length,
 			totalSwiftUpdates: this.metrics.swiftUpdates.length,
 			totalIPC: this.metrics.electronIPC.length,
-			totalReactRenders: this.metrics.reactRenders.length
+			totalReactRenders: this.metrics.reactRenders.length,
 		};
 	}
 
@@ -203,7 +210,7 @@ class PerformanceMonitor {
 		if (!this.isEnabled) return;
 
 		console.log('🚀 Performance monitoring started');
-		
+
 		// Track memory every 5 seconds
 		setInterval(() => {
 			this.trackMemory();

@@ -113,6 +113,9 @@ const PermissionOverlay = () => {
 			setPermissionRequestMessage(
 				'✅ Essential permissions granted! You can proceed to the next step.',
 			);
+			setPermissionRequestMessage(
+				'✅ Essential permissions granted! You can proceed to the next step.',
+			);
 			setTimeout(() => setPermissionRequestMessage(''), 5000);
 		}
 
@@ -520,7 +523,23 @@ const PermissionOverlay = () => {
 	};
 
 	const handleFinish = async () => {
+	const handleFinish = async () => {
 		console.log('🎉 Setup completed! Closing permission overlay...');
+		
+		try {
+			const result = await window.electronApi.permission.closeWindow();
+			console.log('✅ Close window result:', result);
+			
+			if (result && result.success && result.onboardingMarked) {
+				console.log('✅✅✅ SUCCESS! Onboarding marked as completed - overlay will NEVER show again!');
+			} else if (result && result.success) {
+				console.log('⚠️ Window closed but onboarding may not have been marked');
+			} else {
+				console.error('❌ Failed to close window:', result);
+			}
+		} catch (error) {
+			console.error('❌ Error closing permission overlay:', error);
+		}
 		
 		try {
 			const result = await window.electronApi.permission.closeWindow();

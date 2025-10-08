@@ -226,10 +226,10 @@ const NewUi = ({ handleActiveChatChange }) => {
 				sessions?.length === 1
 					? [{ type: 'chatbox', _id: 'chatbox' }, ...sessions]
 					: [
-						sessions?.[0],
-						{ type: 'chatbox', _id: 'chatbox' },
-						...(sessions?.slice(1) || []),
-					];
+							sessions?.[0],
+							{ type: 'chatbox', _id: 'chatbox' },
+							...(sessions?.slice(1) || []),
+					  ];
 			sessions = [...sessions, ...(sessions?.slice(0, 3) || [])];
 			sessions = sessions?.filter(
 				(session) =>
@@ -520,15 +520,16 @@ const NewUi = ({ handleActiveChatChange }) => {
 							return (
 								<div
 									key={key}
-									className={`new-ui-item ${info?.data?.length === 1 ? 'single-card' : ''
-										} ${animationClass}`}
+									className={`new-ui-item ${
+										info?.data?.length === 1 ? 'single-card' : ''
+									} ${animationClass}`}
 									style={
 										!info?.scrollDirection
 											? getCardStyles(
-												index,
-												info?.activeIndex,
-												info?.dataLength,
-											)
+													index,
+													info?.activeIndex,
+													info?.dataLength,
+											  )
 											: {}
 									}
 								>
@@ -537,8 +538,8 @@ const NewUi = ({ handleActiveChatChange }) => {
 										style={{
 											cursor:
 												index === info?.activeIndex - 1 ||
-													(info?.dataLength > 4 &&
-														index === info?.activeIndex - 2)
+												(info?.dataLength > 4 &&
+													index === info?.activeIndex - 2)
 													? 'pointer'
 													: 'default',
 										}}
@@ -547,15 +548,16 @@ const NewUi = ({ handleActiveChatChange }) => {
 										{(index === info?.activeIndex - 1 ||
 											(info?.dataLength > 4 &&
 												index === info?.activeIndex - 2)) && (
-												<div
-													className={`item-title ${index === info?.activeIndex - 2
+											<div
+												className={`item-title ${
+													index === info?.activeIndex - 2
 														? 'low-visibility'
 														: ''
-														}`}
-												>
-													{session?.title || 'New Chat'}
-												</div>
-											)}
+												}`}
+											>
+												{session?.title || 'New Chat'}
+											</div>
+										)}
 
 										<div
 											className="item"
@@ -700,24 +702,25 @@ const NewUi = ({ handleActiveChatChange }) => {
 						<div className="chat-created-at">
 							{info?.data?.[info?.activeIndex]?.createdAt
 								? new Date(
-									info?.data?.[info?.activeIndex]?.createdAt * 1000,
-								).toLocaleString('en-US', {
-									year: 'numeric',
-									month: 'short',
-									day: 'numeric',
-									hour: 'numeric',
-									minute: '2-digit',
-									hour12: true,
-								})
+										info?.data?.[info?.activeIndex]?.createdAt * 1000,
+								  ).toLocaleString('en-US', {
+										year: 'numeric',
+										month: 'short',
+										day: 'numeric',
+										hour: 'numeric',
+										minute: '2-digit',
+										hour12: true,
+								  })
 								: ''}
 						</div>
 					</div>
 
 					<div
-						className={`new-btn ${!(info?.activeIndex === 0 || info?.activeIndex === info?.dataLength - 2)
-							? 'active'
-							: ''
-							}`}
+						className={`new-btn ${
+							!(info?.activeIndex === 0 || info?.activeIndex === info?.dataLength - 2)
+								? 'active'
+								: ''
+						}`}
 						onClick={handleNewChat}
 					>
 						New

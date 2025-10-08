@@ -252,7 +252,7 @@ class AssemblyAIService {
 
 			console.log('🏗️ ===== BUILDING PAYLOAD =====');
 			console.log('🏗️ meeting_id:', meetingId);
-			
+
 			const payload = {
 				meeting_id: meetingId,
 			};

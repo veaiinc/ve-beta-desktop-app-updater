@@ -50,10 +50,12 @@ class NotchDropPanel: NSPanel {
     private var notchViewModel: NotchViewModel?
     // Prevent App Nap / idle sleep to keep hover responsiveness after inactivity
     private var appNapActivity: NSObjectProtocol?
+    // Use high window level but allow drag/drop
     private let notchWindowLevel: NSWindow.Level = {
         let assistive = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
         let statusBar = NSWindow.Level.statusBar
-        return assistive.rawValue > statusBar.rawValue ? assistive : statusBar
+        // Use statusBar instead of assistive to allow drag/drop while staying high
+        return statusBar
     }()
 
     // MARK: - Callbacks
@@ -101,6 +103,7 @@ class NotchDropPanel: NSPanel {
             height: notchHeight
         )
 
+        // Keep .nonactivatingPanel but allow drag/drop with special window subclass
         let panelStyle: NSWindow.StyleMask = [
             .borderless,
             .fullSizeContentView,
@@ -116,7 +119,7 @@ class NotchDropPanel: NSPanel {
 
         guard let window = notchWindow else { return }
 
-        // Use the same window properties as NotchDropLatest
+        // Use the notchWindowLevel (statusBar level)
         window.level = notchWindowLevel
         window.isOpaque = false
         window.alphaValue = 1
@@ -125,11 +128,12 @@ class NotchDropPanel: NSPanel {
         window.backgroundColor = NSColor.clear
         window.isMovable = false
         window.hasShadow = false
+        // Keep stationary but remove transient to allow drag/drop
         window.collectionBehavior = [
             .fullScreenAuxiliary,
             .canJoinAllSpaces,
-            .stationary,
-            .transient,
+            .stationary,  // Keep stationary for proper positioning
+            // .transient,  // REMOVED: This blocks drag/drop!
             .ignoresCycle,
         ]
         window.isExcludedFromWindowsMenu = true
@@ -137,7 +141,7 @@ class NotchDropPanel: NSPanel {
         window.animationBehavior = .none
         window.isRestorable = false
         
-        // CRITICAL: Enable keyboard input and first responder capabilities
+        // CRITICAL: Enable keyboard input and mouse/drag events
         window.acceptsMouseMovedEvents = true
         window.setFrame(topRect, display: false)
         
@@ -146,6 +150,17 @@ class NotchDropPanel: NSPanel {
         window.isMovable = false
         // window.ignoresMouseEvents = false
         window.hidesOnDeactivate = false
+        
+        // CRITICAL: Enable drag and drop for the window
+        window.registerForDraggedTypes([
+            .fileURL,
+            .URL,
+            .string,
+            .tiff,
+            .png
+        ])
+        
+        print("✅ NotchDropCore: Window configured for drag and drop")
 
         // Don't set initial first responder - let SwiftUI manage TextField focus
 
@@ -616,18 +631,17 @@ class NotchDropPanel: NSPanel {
         }
     }
     
+    // ⚡ ULTRA OPTIMIZATION: Parse JSON on background queue, then dispatch to main
     @objc public func addTranscriptionData(_ messageJson: String) {
         print("📝 Swift Core: Received transcription data JSON: \(messageJson)")
         
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, let viewModel = self.notchViewModel else { 
-                print("📝 Swift Core: No viewModel available")
-                return 
-            }
+        // ⚡ CRITICAL: Parse JSON on background queue to avoid blocking UI
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
             
-            print("📝 Swift Core: Parsing JSON data...")
+            print("📝 Swift Core: Parsing JSON data on background queue...")
             
-            // Parse JSON message
+            // Parse JSON message on background thread
             guard let messageData = messageJson.data(using: .utf8),
                   let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
                   let sender = json["sender"] as? String,
@@ -643,32 +657,39 @@ class NotchDropPanel: NSPanel {
             
             print("📝 Swift Core: Parsed data - Sender: \(sender), Content: \(content.prefix(50))..., IsFromAgent: \(isFromAgent)")
             
-            // Add transcription data to viewModel
-            viewModel.addTranscriptionData(
-                sender: sender, 
-                content: content, 
-                isFromAgent: isFromAgent,
-                timestamp: timestamp,
-                confidence: confidence,
-                words: words
-            )
-            
-            print("📝 Swift Core: Called viewModel.addTranscriptionData")
+            // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, let viewModel = self.notchViewModel else { 
+                    print("📝 Swift Core: No viewModel available")
+                    return 
+                }
+                
+                // Add transcription data to viewModel
+                viewModel.addTranscriptionData(
+                    sender: sender, 
+                    content: content, 
+                    isFromAgent: isFromAgent,
+                    timestamp: timestamp,
+                    confidence: confidence,
+                    words: words
+                )
+                
+                print("📝 Swift Core: Called viewModel.addTranscriptionData")
+            }
         }
     }
 
+    // ⚡ ULTRA OPTIMIZATION: Parse JSON on background queue, then dispatch to main
     @objc public func sendLiveIntelligenceData(_ messageJson: String) {
         print("🧠 Swift Core: Received live intelligence data JSON: \(messageJson)")
         
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, let viewModel = self.notchViewModel else { 
-                print("🧠 Swift Core: No viewModel available")
-                return 
-            }
+        // ⚡ CRITICAL: Parse JSON on background queue to avoid blocking UI
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
             
-            print("🧠 Swift Core: Parsing JSON data...")
+            print("🧠 Swift Core: Parsing JSON data on background queue...")
             
-            // Parse JSON message
+            // Parse JSON message on background thread
             guard let messageData = messageJson.data(using: .utf8),
                   let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
                   let sender = json["sender"] as? String,
@@ -684,24 +705,34 @@ class NotchDropPanel: NSPanel {
             
             print("🧠 Swift Core: Parsed data - Sender: \(sender), Content: \(content.prefix(50))..., IsFromAgent: \(isFromAgent)")
             
-            // Add live intelligence data to viewModel
-            viewModel.addLiveIntelligenceData(
-                sender: sender, 
-                content: content, 
-                isFromAgent: isFromAgent,
-                timestamp: timestamp,
-                confidence: confidence,
-                metadata: metadata
-            )
-            
-            print("🧠 Swift Core: Called viewModel.addLiveIntelligenceData")
+            // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, let viewModel = self.notchViewModel else { 
+                    print("🧠 Swift Core: No viewModel available")
+                    return 
+                }
+                
+                // Add live intelligence data to viewModel
+                viewModel.addLiveIntelligenceData(
+                    sender: sender, 
+                    content: content, 
+                    isFromAgent: isFromAgent,
+                    timestamp: timestamp,
+                    confidence: confidence,
+                    metadata: metadata
+                )
+                
+                print("🧠 Swift Core: Called viewModel.addLiveIntelligenceData")
+            }
         }
     }
 
+    // ⚡ ULTRA OPTIMIZATION: Parse JSON on background queue for bulk replace operations
     // Replace the entire transcription/voiceMessages array from JSON array
     @objc public func replaceTranscriptions(_ messagesJson: String) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, let viewModel = self.notchViewModel else { return }
+        // ⚡ CRITICAL: Parse JSON on background queue for large arrays
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
 
             guard let data = messagesJson.data(using: .utf8),
                   let jsonArray = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
@@ -709,7 +740,7 @@ class NotchDropPanel: NSPanel {
                 return
             }
 
-            // Map to VoiceMessage
+            // Map to VoiceMessage on background thread
             var newMessages: [NotchViewModel.VoiceMessage] = []
             for obj in jsonArray {
                 let sender = (obj["sender"] as? String) ?? "overlay"
@@ -719,8 +750,12 @@ class NotchDropPanel: NSPanel {
                 newMessages.append(message)
             }
 
-            viewModel.replaceTranscriptions(messages: newMessages)
-            print("📝 Swift Core: Replaced voiceMessages (count=\(newMessages.count))")
+            // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, let viewModel = self.notchViewModel else { return }
+                viewModel.replaceTranscriptions(messages: newMessages)
+                print("📝 Swift Core: Replaced voiceMessages (count=\(newMessages.count))")
+            }
         }
     }
 

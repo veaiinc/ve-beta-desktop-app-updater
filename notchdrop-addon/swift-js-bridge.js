@@ -362,7 +362,6 @@ class SwiftJSBridge {
 
 	async triggerOverlayToggleLiveIntelligence(data) {
 		try {
-
 			// Check if we're in main process or renderer process
 			try {
 				// Try to use ipcRenderer (renderer process)
@@ -435,7 +434,6 @@ class SwiftJSBridge {
 
 	async handleVoiceConnect(data) {
 		try {
-
 			// Find the main window to trigger the existing voice agent
 			const { BrowserWindow } = require('electron');
 			const windows = BrowserWindow.getAllWindows();
@@ -445,7 +443,6 @@ class SwiftJSBridge {
 					const title = window.getTitle();
 					// Look for main window (not overlay or dynamic island)
 					if (!title.includes('Overlay') && !title.includes('Dynamic Island')) {
-
 						// Trigger direct voice activation via IPC
 						window.webContents.send('notchdrop:showVoiceAgent', {
 							source: 'notchdrop',
@@ -461,8 +458,7 @@ class SwiftJSBridge {
 									source: 'swift-bridge',
 								});
 							}
-						} catch (e) {
-						}
+						} catch (e) {}
 
 						// Try to trigger your existing voice agent component
 						try {

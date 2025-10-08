@@ -68,6 +68,7 @@
 			border: 1px solid var(--stroke);
 			/* Performance optimizations for backdrop-filter */
 			will-change: backdrop-filter;
+			background-color: var(--card);
 
 			&.cardMeetBot_selected {
 				left: 50%;
@@ -77,7 +78,7 @@
 				backdrop-filter: blur(30px) saturate(200%) brightness(0.8);
 				-webkit-backdrop-filter: blur(30px) saturate(200%) brightness(0.8);
 				border: 1.5px solid var(--primary-button);
-				background: rgba(255, 255, 255, 0.1);
+				background-color: var(--card);
 				/* Additional properties to ensure text hiding */
 
 				.cardMeetBot_liveBadge {
@@ -105,7 +106,6 @@
 				/* Maintain glass effect for side cards */
 				backdrop-filter: blur(15px) saturate(150%);
 				-webkit-backdrop-filter: blur(15px) saturate(150%);
-				filter: blur(1.5px);
 			}
 			&.cardMeetBot_left2 {
 				left: 15%;
@@ -131,7 +131,6 @@
 				/* Maintain glass effect for side cards */
 				backdrop-filter: blur(15px) saturate(150%);
 				-webkit-backdrop-filter: blur(15px) saturate(150%);
-				filter: blur(1.5px);
 			}
 			&.cardMeetBot_right2 {
 				left: 85%;
