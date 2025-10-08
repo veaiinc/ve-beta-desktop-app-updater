@@ -126,7 +126,7 @@ struct NotchView: View {
                 }
                 // When not authenticated, show nothing in collapsed state
             }
-            .frame(maxWidth: collapsedNotchSize.width - 16, maxHeight: collapsedNotchSize.height - 4)
+            .frame(maxWidth: collapsedNotchSize.width - 16, maxHeight: collapsedNotchSize.height - 6)
             .clipped()
             .opacity(vm.status == .closed ? 1 : 0) // Fade out when opening
             // Remove scale/animation to prevent closed-state icon growth on hover
@@ -299,8 +299,8 @@ var notch: some View {
             }
 
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 2)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 0)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
 
