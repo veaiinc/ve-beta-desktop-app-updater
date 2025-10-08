@@ -182,14 +182,14 @@ struct DynamicIslandContentView: View {
                 .lineSpacing(-4) // Optional: Adjust if you want total line height to be close to 50px
                 .foregroundColor(.white)
 
-                    Text(" I’m Ve From the living intelligence company")
+                    Text(" I'm Ve From the living intelligence company")
                         .font(.custom("Urbanist", size: 13))
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(.white.opacity(0.6))
                         .lineSpacing(17)
 
                     Text("of San Francisco")
                     .font(.custom("Urbanist", size: 13))
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.white.opacity(0.6))
                     .lineSpacing(17)
                     .italic()
                     
@@ -207,20 +207,7 @@ struct DynamicIslandContentView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .buttonStyle(PlainButtonStyle())
 
-                        // Button("Test Notification") {
-                        //     vm.showNotification(
-                        //         title: "Test Meeting",
-                        //         body: "This is a test notification from SwiftUI",
-                        //         type: "meeting"
-                        //     )
-                        // }
-                        // .font(.system(size: 12, weight: .medium))
-                        // .foregroundColor(.white)
-                        // .padding(.horizontal, 16)
-                        // .padding(.vertical, 8)
-                        // .background(Color.green.opacity(0.3))
-                        // .clipShape(RoundedRectangle(cornerRadius: 8))
-                        // .buttonStyle(PlainButtonStyle())
+                        
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -310,10 +297,6 @@ struct DynamicIslandContentView: View {
                                             .foregroundColor(.white)
                                             .frame(width: 24, height: 24)
                                             .background(Color.clear)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 6)
-                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                            )
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
@@ -327,10 +310,6 @@ struct DynamicIslandContentView: View {
                                             .frame(width: 14, height: 14)
                                             .frame(width: 24, height: 24)
                                             .background(Color.clear)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 6)
-                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                            )
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
@@ -445,10 +424,6 @@ struct DynamicIslandContentView: View {
                                         RoundedRectangle(cornerRadius: 6)
                                             .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
                                     )
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                                            .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                                    )
                                     .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -477,10 +452,6 @@ struct DynamicIslandContentView: View {
                                 .background(
                                     RoundedRectangle(cornerRadius: 6)
                                         .fill(isStealthIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                                        .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
                                 )
                                 .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
@@ -515,7 +486,7 @@ struct DynamicIslandContentView: View {
                                     )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6)
-                                            .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
+                                            .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.clear, lineWidth: 0.5)
                                     )
                                     .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
@@ -1918,7 +1889,7 @@ struct WebcamButton: View {
                             .background(.ultraThinMaterial) // backdrop-filter: blur(15px)
                             .overlay(
                                 Circle()
-                                    .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
+                                    .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.clear, lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
                             )
                             .overlay(
                                 // Inner shadow effect using gradient
@@ -3492,7 +3463,7 @@ struct SecondaryButtonStyle: ButtonStyle {
             .background(Color.white.opacity(0.1))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                    .stroke(Color.clear, lineWidth: 0.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
@@ -3534,7 +3505,7 @@ struct TemporaryFolderIcon: View {
                 .frame(width: 24, height: 24)
                 .overlay(
                     Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     Circle()
@@ -3583,7 +3554,7 @@ struct TemporaryFolderListenButton: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 100)
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     RoundedRectangle(cornerRadius: 100)
@@ -3623,7 +3594,7 @@ struct TemporaryFolderShareButton: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 100)
-                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                            .stroke(Color.clear, lineWidth: 0.5)
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 100)
@@ -3667,7 +3638,7 @@ struct TemporaryFolderIncognitoButton: View {
                 .frame(width: 24, height: 24)
                 .overlay(
                     Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     Circle()
@@ -3784,7 +3755,7 @@ struct CompactTemporaryFolderIcon: View {
                 .frame(width: 20, height: 20)
                 .overlay(
                     Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     Circle()
@@ -3832,7 +3803,7 @@ struct CompactTemporaryFolderListenButton: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 100)
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     RoundedRectangle(cornerRadius: 100)
@@ -3871,7 +3842,7 @@ struct CompactTemporaryFolderShareButton: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 100)
-                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                            .stroke(Color.clear, lineWidth: 0.5)
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 100)
