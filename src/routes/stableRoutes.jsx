@@ -8,7 +8,7 @@ const Public = lazy(() => import('../views/layouts/Public'));
 // lazy loaded pages
 // const ShareAndEarn = lazy(() => import('../views/features/shareAndEarn/ShareAndEarn'));
 const SettingsWrapper = lazy(() => import('../views/features/settings/SettingsWrapper'));
-// const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
+const RecentChat = lazy(() => import('../views/features/chat/RecentChat'));
 const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'));
 // const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 // const Agents = lazy(() => import('../views/features/agents/Agents'));
@@ -102,31 +102,31 @@ const stableRoutes = [
 			</Suspense>
 		),
 	},
-	// {
-	// 	path: '/chat/:sessionId',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper
-	// 				title={'Chat'}
-	// 				showBottomToolbar={false}
-	// 				outerContainerStyle={{
-	// 					paddingRight: '0px',
-	// 					backgroundColor: 'var(--background-color)',
-	// 				}}
-	// 				authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
-	// 				maxWidth="100%"
-	// 			>
-	// 				<RecentChat
-	// 					showDeleteChat={true}
-	// 					showRightBar={true}
-	// 					showChats={true}
-	// 					showChatsButton={true}
-	// 					showBrowser={true}
-	// 				/>
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
+	{
+		path: '/chat/:sessionId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper
+					title={'Chat'}
+					showBottomToolbar={false}
+					outerContainerStyle={{
+						paddingRight: '0px',
+						backgroundColor: 'var(--background-color)',
+					}}
+					authParentContainerStyle={{ backgroundColor: 'var(--background-color)' }}
+					maxWidth="100%"
+				>
+					<RecentChat
+						showDeleteChat={true}
+						showRightBar={true}
+						showChats={true}
+						showChatsButton={true}
+						showBrowser={true}
+					/>
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 	// {
 	// 	path: '/meet',
 	// 	element: (
