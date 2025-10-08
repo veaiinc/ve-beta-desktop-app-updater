@@ -227,7 +227,7 @@ const NewsletterSection = () => {
 							className={s.backToTop}
 							onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
 						>
-							<span>Back top</span>
+							<span>Back to top</span>
 							<ArrowUp />
 						</button>
 					</div>
