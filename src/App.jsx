@@ -7,8 +7,12 @@ import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
 import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
+// Removed complex translucency utilities - now using simplified CSS approach
+import { GlassModeProvider, useGlassMode } from './context/GlassModeContext.jsx';
+import { initializeGlassModeSync } from './helpers/glassModeSync';
 
-const App = () => {
+// AppContent component that uses glass mode context
+const AppContent = () => {
 	const { routes } = useWorkspaceMode();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
@@ -17,6 +21,14 @@ const App = () => {
 
 	// NotchDrop Voice Integration - DIRECT APPROACH
 	const [showVoiceFromNotch, setShowVoiceFromNotch] = useState(false);
+
+	// Use glass mode context instead of local state
+	const { isGlassModeEnabled } = useGlassMode();
+
+	// Initialize glass mode sync on app start
+	useEffect(() => {
+		initializeGlassModeSync();
+	}, []);
 
 	// Voice integration for NotchDrop (disabled when LiveKit is active)
 	const [disableOldVoiceIntegration, setDisableOldVoiceIntegration] = useState(false);
@@ -313,8 +325,10 @@ const App = () => {
 		};
 	}, []);
 
+	// Glass mode is now handled by CSS classes - no complex initialization needed
+
 	return (
-		<>
+		<div className="app-content glass-app">
 			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
 			<NotchDropVoiceActivator />
 
@@ -341,7 +355,26 @@ const App = () => {
 					Test Permission Overlay
 				</button>
 			)} */}
-		
+			{/* <button
+					onClick={() => window.electronApi?.permission?.showWindow()}
+					style={{
+						position: 'fixed',
+						top: '20px',
+						left: '20px',
+						background: '#42e09b',
+						color: '#121212',
+						border: 'none',
+						padding: '12px 24px',
+						borderRadius: '8px',
+						cursor: 'pointer',
+						fontSize: '14px',
+						fontWeight: '600',
+						zIndex: 9999,
+						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+					}}
+				>
+					Test Permission Overlay
+				</button> */}
 
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
@@ -466,7 +499,16 @@ const App = () => {
 					onDismiss={() => setIsUpdatePopupVisible(false)}
 				/>
 			)}
-		</>
+		</div>
+	);
+};
+
+// Main App component with GlassModeProvider
+const App = () => {
+	return (
+		<GlassModeProvider>
+			<AppContent />
+		</GlassModeProvider>
 	);
 };
 

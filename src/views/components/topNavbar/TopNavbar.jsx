@@ -274,6 +274,9 @@ const TopNavbar = () => {
 					arrow={false}
 					color={'transparent'}
 					rootClassName={s.topNavbarSettings}
+					style={{
+						backdropFilter: 'blur(20px)',
+					}}
 				>
 					<div className={s.creditsLeftContainer}>
 						<CreditsLeftSvg
@@ -323,6 +326,9 @@ const TopNavbar = () => {
 					arrow={false}
 					color={'transparent'}
 					rootClassName={s.topNavbarNotifications}
+					style={{
+						backdropFilter: 'blur(20px)',
+					}}
 				>
 					<div className={s.creditsLeftContainer}>
 						<NotificationsSvg />
@@ -344,6 +350,9 @@ const TopNavbar = () => {
 					arrow={false}
 					rootClassName={s.shareAndEarnTooltip}
 					color={'transparent'}
+					style={{
+						backdropFilter: 'blur(20px)',
+					}}
 				>
 					<ShareAndEarnSvg />
 				</Tooltip>
@@ -526,6 +535,9 @@ const TopNavbar = () => {
 						arrow={false}
 						color={'transparent'}
 						rootClassName={s.topNavbarSettings}
+						style={{
+							backdropFilter: 'blur(20px)',
+						}}
 					>
 						<li className={`${s.navItem} ${s.profileItem}`}>
 							{profilePicExists ? (
@@ -544,6 +556,9 @@ const TopNavbar = () => {
 		!hideTopNavbar && (
 			<>
 				<nav className={s.topNavbarContainer}>
+					{/* Draggable area for window dragging */}
+					<div className={s.draggableArea}></div>
+
 					{/* Mobile Menu Button */}
 					<button
 						className={s.mobileMenuButton}

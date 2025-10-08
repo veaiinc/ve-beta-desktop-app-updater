@@ -15,9 +15,9 @@ const AskAIApp = () => {
 		sessionId: ObjectID()?.toString(),
 	});
 
-    // Fixed-size overlay (compact chatbox sizing, units are CSS vw/vh interpreted by main)
-    const FIXED_WIDTH = 46;
-    const FIXED_HEIGHT = 6;
+	// Fixed-size overlay (compact chatbox sizing, units are CSS vw/vh interpreted by main)
+	const FIXED_WIDTH = 46;
+	const FIXED_HEIGHT = 6;
 
 	const setFixedDimensions = useCallback(() => {
 		try {
@@ -91,7 +91,7 @@ const AskAIApp = () => {
 			setDragState(state);
 			window.addEventListener('mousemove', handleDragMouseMove, { capture: true });
 			window.addEventListener('mouseup', handleDragMouseUp, { once: true, capture: true });
-		} catch (_) {}
+		} catch (_) { }
 	}, []);
 
 	const handleDragMouseMove = useCallback((e) => {
@@ -177,3 +177,4 @@ const AskAIApp = () => {
 };
 
 export default AskAIApp;
+

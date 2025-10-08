@@ -28,6 +28,7 @@ const Contacts = () => {
 	const timeoutIdRef = useRef(null);
 
 	const {
+		templates: { updateStateValues },
 		contacts: { clientList, getClients, updateStateValues: updateContactState },
 	} = useContext(Context);
 
@@ -49,6 +50,7 @@ const Contacts = () => {
 	const searchValueRef = useRef('');
 
 	useEffect(() => {
+		updateStateValues({ leftSidebarState: 'open' });
 		fetchClientList();
 		return () => {
 			if (searchValueRef.current !== '') {

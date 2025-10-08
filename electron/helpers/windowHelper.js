@@ -357,12 +357,12 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: false, 
+			resizable: false,
 
-			movable: true, 
-            minWidth: 460,
-            minHeight: 40, 
-		
+			movable: true,
+			minWidth: 460,
+			minHeight: 40,
+
 			devTools: true,
 		};
 
@@ -586,16 +586,16 @@ class WindowHelper {
 				sandbox: false,
 			},
 			show: false,
-			alwaysOnTop: false, // Don't force always on top
-			frame: false, // Frameless (no close/minimize buttons)
-			transparent: true, // Keep transparency for overlay look
+			alwaysOnTop: true,
+			frame: false,
+			transparent: true,
 			fullscreenable: false,
-			hasShadow: false, // No shadow for clean overlay look
-			backgroundColor: '#00000000', // Transparent background
+			hasShadow: false,
+			backgroundColor: '#00000000',
 			focusable: true,
-			skipTaskbar: false, // Show in taskbar like normal window
-			visibleOnAllWorkspaces: false, // Don't force visibility on all workspaces
-			type: 'normal', // Always normal type
+			skipTaskbar: true,
+			visibleOnAllWorkspaces: true,
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
 			resizable: false,
@@ -603,8 +603,19 @@ class WindowHelper {
 			devTools: true,
 		};
 
-		// Remove all platform-specific overrides - keep it as a normal window
-		// No platform-specific settings needed
+		// Platform-specific window settings
+		if (process.platform === 'win32') {
+			// Windows-specific settings
+			windowSettings.type = 'toolbar';
+			windowSettings.alwaysOnTop = true;
+			windowSettings.skipTaskbar = true;
+			windowSettings.focusable = true;
+			windowSettings.transparent = true;
+			windowSettings.hasShadow = false;
+		} else if (process.platform === 'darwin') {
+			// macOS-specific settings
+			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
+		}
 
 		this.permissionWindow = new BrowserWindow(windowSettings);
 
@@ -629,9 +640,27 @@ class WindowHelper {
 			log.error('Failed to load Permission URL:', err);
 		});
 
-		// Make it behave like a completely normal window - no special settings
-		this.permissionWindow.setIgnoreMouseEvents(false);
-		this.permissionWindow.setMovable(true);
+		if (process.platform === 'darwin') {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			this.permissionWindow.setHiddenInMissionControl(true);
+			// Permission window should always be interactive
+			this.permissionWindow.setIgnoreMouseEvents(false);
+			this.permissionWindow.setMovable(true);
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setIgnoreMouseEvents(false);
+			this.permissionWindow.setMovable(true);
+			this.permissionWindow.setVisibleOnAllWorkspaces(true);
+		} else {
+			// For Linux and other platforms
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setIgnoreMouseEvents(false);
+		}
 
 		this.setupPermissionWindowListeners();
 
@@ -1215,7 +1244,7 @@ class WindowHelper {
 
 		// Don't hide ask AI window - allow both to be visible
 		// if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-		// 	this.hideAskAIWindow();
+		//  this.hideAskAIWindow();
 		// }
 
 		const primaryDisplay = screen.getPrimaryDisplay();
@@ -1299,7 +1328,7 @@ class WindowHelper {
 
 		// Don't hide main window - keep it independent
 		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-		// 	this.mainWindow.hide();
+		//  this.mainWindow.hide();
 		// }
 
 		this.isOverlayVisible = true;
@@ -1315,7 +1344,7 @@ class WindowHelper {
 
 		// Don't hide overlay window - allow both to be visible
 		// if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-		// 	this.hideOverlayWindow();
+		//  this.hideOverlayWindow();
 		// }
 
 		let askAIX, askAIY;
@@ -1421,7 +1450,7 @@ class WindowHelper {
 
 		// Don't hide main window - keep it independent
 		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-		// 	this.mainWindow.hide();
+		//  this.mainWindow.hide();
 		// }
 
 		this.isAskAIVisible = true;
@@ -1504,8 +1533,23 @@ class WindowHelper {
 			height: this.permissionWindowSize.height,
 		});
 
-		// Just bring to front like a normal window - no special behavior
-		this.permissionWindow.moveTop();
+		// Ensure window properties for all desktops/spaces on macOS
+		if (process.platform === 'darwin') {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			// Ensure permission window is above all other windows
+			this.permissionWindow.moveTop();
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true);
+			this.permissionWindow.moveTop();
+		} else {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+		}
 
 		// Update position tracking
 		this.permissionWindowPosition = { x: permissionX, y: permissionY };
@@ -1643,8 +1687,8 @@ class WindowHelper {
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
 		// Apply min constraints that match the window creation settings
-        const minWidth = 420;
-        const minHeight = 60; // small height ask ai
+		const minWidth = 420;
+		const minHeight = 60; // small height ask ai
 
 		// Get current bounds to preserve dimensions when not specified
 		const currentBounds = this.askAIWindow.getBounds();
@@ -1721,6 +1765,9 @@ class WindowHelper {
 			return;
 		}
 
+		// Initialize translucency state
+		this.isTranslucencyEnabled = this.isTranslucencyEnabled ?? false;
+
 		// Register Cmd+\ to toggle overlay window only (independent of main window)
 		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
 			// Check if overlay window is visible
@@ -1766,13 +1813,13 @@ class WindowHelper {
 			// Call the toggle function directly through IPC invoke
 			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 				this.mainWindow.webContents.executeJavaScript(`
-					if (window.electronApi && window.electronApi.toggleContentProtection) {
-						window.electronApi.toggleContentProtection().then(status => {
-						}).catch(err => {
-							console.error('Error toggling content protection:', err);
-						});
-					}
-				`);
+                    if (window.electronApi && window.electronApi.toggleContentProtection) {
+                        window.electronApi.toggleContentProtection().then(status => {
+                        }).catch(err => {
+                            console.error('Error toggling content protection:', err);
+                        });
+                    }
+                `);
 			}
 		});
 
@@ -1783,13 +1830,13 @@ class WindowHelper {
 				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
 					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 						this.mainWindow.webContents.executeJavaScript(`
-							if (window.electronApi && window.electronApi.toggleContentProtection) {
-								window.electronApi.toggleContentProtection().then(status => {
-								}).catch(err => {
-									console.error('Error toggling content protection:', err);
-								});
-							}
-						`);
+                            if (window.electronApi && window.electronApi.toggleContentProtection) {
+                                window.electronApi.toggleContentProtection().then(status => {
+                                }).catch(err => {
+                                    console.error('Error toggling content protection:', err);
+                                });
+                            }
+                        `);
 					}
 				});
 			}
@@ -1801,22 +1848,22 @@ class WindowHelper {
 			this.createAskAIWindow?.();
 
 			// Always show chatbox mode when Command+Enter is pressed
-			
+
 			const isAskAIVisible = this.isAskAIWindowVisible();
 
-            if (isAskAIVisible) {
-                // Hide ask AI window only
-                this.hideAskAIWindow?.();
-            } else {
-                // Show ask AI window only
-                this.showAskAIWindow?.();
-			
-			// Send message to show chatbox mode
-			const askAIWindow = this.getAskAIWindow();
-			if (askAIWindow && !askAIWindow.isDestroyed()) {
-				askAIWindow.webContents.send('askAI-show-chatbox');
+			if (isAskAIVisible) {
+				// Hide ask AI window only
+				this.hideAskAIWindow?.();
+			} else {
+				// Show ask AI window only
+				this.showAskAIWindow?.();
+
+				// Send message to show chatbox mode
+				const askAIWindow = this.getAskAIWindow();
+				if (askAIWindow && !askAIWindow.isDestroyed()) {
+					askAIWindow.webContents.send('askAI-show-chatbox');
+				}
 			}
-		}
 		});
 
 		if (cmdEnterRegistered) {
@@ -1873,6 +1920,72 @@ class WindowHelper {
 						process.emit('recreate-main-window');
 					}
 				});
+			}
+		}
+
+		// Register Cmd+G to toggle glass mode (Cross-platform)
+		const cmdGRegistered = globalShortcut.register('CommandOrControl+G', () => {
+			try {
+				log.info('🎨 Command+G pressed: Toggling glass mode');
+
+				// Toggle glass mode state
+				this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+
+				// Notify renderer to toggle glass mode using the new CSS-based approach
+				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+					this.mainWindow.webContents.send('translucency-changed', {
+						enabled: this.isTranslucencyEnabled,
+						platform: process.platform,
+						source: 'keyboard-shortcut',
+					});
+
+					log.info(
+						`🎨 Glass mode ${
+							this.isTranslucencyEnabled ? 'enabled' : 'disabled'
+						} via Command+G`,
+					);
+				} else {
+					log.warn('⚠️ Main window not available for glass mode toggle');
+				}
+			} catch (error) {
+				log.error('❌ Glass mode toggle failed:', error);
+			}
+		});
+
+		if (cmdGRegistered) {
+			log.info('✅ Command+G glass mode shortcut registered successfully');
+		} else {
+			log.error('❌ Failed to register Command+G glass mode shortcut');
+
+			// Try alternative shortcuts on Windows if the main one fails
+			if (process.platform === 'win32') {
+				const altGlassRegistered = globalShortcut.register('Ctrl+Alt+G', () => {
+					try {
+						log.info('🎨 Ctrl+Alt+G pressed: Toggling glass mode');
+						this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+
+						if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+							this.mainWindow.webContents.send('translucency-changed', {
+								enabled: this.isTranslucencyEnabled,
+								platform: process.platform,
+								source: 'keyboard-shortcut',
+							});
+							log.info(
+								`🎨 Glass mode ${
+									this.isTranslucencyEnabled ? 'enabled' : 'disabled'
+								} via Ctrl+Alt+G`,
+							);
+						}
+					} catch (error) {
+						log.error('❌ Alternative glass mode toggle failed:', error);
+					}
+				});
+
+				if (altGlassRegistered) {
+					log.info('✅ Ctrl+Alt+G glass mode shortcut registered as fallback');
+				} else {
+					log.error('❌ Failed to register alternative glass mode shortcut');
+				}
 			}
 		}
 	}

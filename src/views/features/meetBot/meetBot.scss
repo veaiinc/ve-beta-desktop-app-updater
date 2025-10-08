@@ -109,7 +109,7 @@
 		padding: 0px 24px;
 		justify-content: center;
 		align-items: center;
-		color: var(--background-color, #121212);
+		color: var(--font-primary-color, #121212);
 		font-family: var(--primary-font-family);
 		font-size: 14px;
 		font-style: normal;
@@ -377,7 +377,7 @@
 					gap: 6px;
 					border-radius: 24px;
 					background: var(--primary-button, #79ecc9);
-					color: var(--background-color, #121212);
+					color: var(--font-primary-color, #121212);
 					font-family: var(--primary-font-family);
 					font-size: 13px;
 					font-style: normal;
@@ -464,7 +464,7 @@
 			border-radius: 24px;
 			border: 1px solid var(--primary-button, #79ecc9);
 			background: var(--primary-button, #79ecc9);
-			color: var(--background-color, #121212);
+			color: var(--font-primary-color, #121212);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
 			font-style: normal;
@@ -475,7 +475,7 @@
 		.meetbot__audio-btn--disabled {
 			cursor: not-allowed;
 			background: var(--primary-button, #79ecc9);
-			color: var(--background-color, #121212);
+			color: var(--font-primary-color, #121212);
 		}
 		.meetbot__drawer-tick {
 			cursor: pointer;
@@ -971,7 +971,7 @@
 				border-radius: 24px;
 				border: 1px solid var(--primary-button, #79ecc9);
 				background: var(--primary-button, #79ecc9);
-				color: var(--background-color, #121212);
+				color: var(--font-primary-color, #121212);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -982,7 +982,7 @@
 			.meetbot__audio-btn--disabled {
 				cursor: not-allowed;
 				background: var(--primary-button, #79ecc9);
-				color: var(--background-color, #121212);
+				color: var(--font-primary-color, #121212);
 			}
 			.meetbot__drawer-tick {
 				cursor: pointer;
@@ -1297,7 +1297,7 @@
 
 				.ai-enabled {
 					background: var(--primary-button, #79ecc9);
-					color: var(--background-color);
+					color: var(--font-primary-color);
 					padding: 4px 8px;
 					border-radius: 4px;
 					font-size: 12px;

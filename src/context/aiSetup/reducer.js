@@ -50,7 +50,7 @@ const actionHandlers = {
 					agentType,
 					assistantId,
 				};
-				if (!aiChatSessions?.data) {
+				if (!sessions?.length) {
 					sessions = [{ ...newSession }];
 					aiChatSessions = {
 						...aiChatSessions,
@@ -111,7 +111,6 @@ const actionHandlers = {
 					data: sessions,
 					hasMore,
 					currentPage,
-					getData: false,
 				},
 			};
 		}

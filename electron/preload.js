@@ -44,11 +44,12 @@ contextBridge.exposeInMainWorld('electronApi', {
 	},
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 	openSystemSettings: () => ipcRenderer.invoke('open-system-settings'),
-	openCameraSettings: () => ipcRenderer.invoke('open-camera-settings'),
 	openMicrophoneSettings: () => ipcRenderer.invoke('open-microphone-settings'),
-	openScreenRecordingSettings: () => ipcRenderer.invoke('open-screen-recording-settings'),
-	openMediaSettings: () => ipcRenderer.invoke('open-media-settings'),
-	openCalendarSettings: () => ipcRenderer.invoke('open-calendar-settings'),
+	// openScreenRecordingSettings: () => ipcRenderer.invoke('open-screen-recording-settings'),
+	// openScreenSharingSettings: () => ipcRenderer.invoke('open-screen-sharing-settings'),
+	openScreenSettings: () => ipcRenderer.invoke('open-screen-settings'),
+
+	openCameraSettings: () => ipcRenderer.invoke('open-camera-settings'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {
@@ -305,12 +306,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 		checkCameraPermission: () => ipcRenderer.invoke('check-camera-permission'),
 		requestCameraPermission: () => ipcRenderer.invoke('request-camera-permission'),
 		showCameraPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
-		// Media permission APIs
-		checkMediaPermission: () => ipcRenderer.invoke('check-media-permission'),
-		requestMediaPermission: () => ipcRenderer.invoke('request-media-permission'),
-		// Calendar permission APIs
-		checkCalendarPermission: () => ipcRenderer.invoke('check-calendar-permission'),
-		requestCalendarPermission: () => ipcRenderer.invoke('request-calendar-permission'),
 		// System settings opener
 		openSystemSettings: (section) => ipcRenderer.invoke('open-system-settings', section),
 		// Debug permissions
@@ -342,9 +337,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// Wake word APIs
 	// wakeWord: {
-	// 	start: () => ipcRenderer.invoke('wake-word-start'),
-	// 	stop: () => ipcRenderer.invoke('wake-word-stop'),
-	// 	getStatus: () => ipcRenderer.invoke('wake-word-status'),
+	//  start: () => ipcRenderer.invoke('wake-word-start'),
+	//  stop: () => ipcRenderer.invoke('wake-word-stop'),
+	//  getStatus: () => ipcRenderer.invoke('wake-word-status'),
 	// },
 
 	// Clipboard APIs
@@ -552,5 +547,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		exists: (filePath) => ipcRenderer.invoke('fs-exists', filePath),
 		remove: (filePath) => ipcRenderer.invoke('fs-remove', filePath),
 		readdir: (dirPath) => ipcRenderer.invoke('fs-readdir', dirPath),
+	},
+
+	// Translucency toggle APIs
+	onTranslucencyChanged: (callback) => {
+		ipcRenderer.on('translucency-changed', (_e, data) => callback(data));
+	},
+	removeTranslucencyChangedListener: () => {
+		ipcRenderer.removeAllListeners('translucency-changed');
+	},
+
+	// Glass mode sync API
+	syncGlassModeState: (isEnabled) => {
+		ipcRenderer.invoke('sync-glass-mode-state', { enabled: isEnabled });
 	},
 });
