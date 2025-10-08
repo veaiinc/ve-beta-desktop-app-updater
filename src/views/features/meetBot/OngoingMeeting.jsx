@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../../store/store';
 import s from './ongoingMeeting.module.scss';
@@ -404,6 +404,16 @@ OngoingMeeting.displayName = 'OngoingMeeting';
 export default OngoingMeeting;
 
 const TranscriptPanel = ({ transcripts = [] }) => {
+	const bottomRef = useRef(null);
+
+	// Auto-scroll to bottom when new transcripts arrive
+	useEffect(() => {
+		if (bottomRef.current && transcripts.length > 0) {
+			bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+			console.log('📜 TranscriptPanel: Auto-scrolled to bottom for new transcript');
+		}
+	}, [transcripts.length]);
+
 	console.log(transcripts);
 
 	return (
@@ -437,6 +447,7 @@ const TranscriptPanel = ({ transcripts = [] }) => {
 					<div className={s.noTranscriptsText}>No transcripts yet</div>
 				</div>
 			)}
+			<div ref={bottomRef} />
 		</div>
 	);
 };
@@ -449,6 +460,18 @@ const typeMap = {
 };
 
 const LiveIntelligencePanel = ({ liveIntelligence = [], handleActionClick }) => {
+	const bottomRef = useRef(null);
+
+	// Auto-scroll to bottom when new live intelligence arrives
+	useEffect(() => {
+		if (bottomRef.current && liveIntelligence.length > 0) {
+			bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+			console.log(
+				'🧠 LiveIntelligencePanel: Auto-scrolled to bottom for new live intelligence',
+			);
+		}
+	}, [liveIntelligence.length]);
+
 	const getLiveIntelligenceType = (data) => {
 		if (data.entity === 'user') {
 			return 'askUser';
@@ -466,8 +489,9 @@ const LiveIntelligencePanel = ({ liveIntelligence = [], handleActionClick }) => 
 	return (
 		<div className={s.liveIntelligenceList}>
 			{liveIntelligence.length > 0 ? (
-				liveIntelligence.map((item) => (
+				liveIntelligence.map((item, index) => (
 					<div
+						key={item.id || index}
 						className={s.liveIntelligenceItem}
 						onClick={() =>
 							handleActionClick(
@@ -488,6 +512,7 @@ const LiveIntelligencePanel = ({ liveIntelligence = [], handleActionClick }) => 
 					<div className={s.noLiveIntelligenceText}>No live intelligence yet</div>
 				</div>
 			)}
+			<div ref={bottomRef} />
 		</div>
 	);
 };
