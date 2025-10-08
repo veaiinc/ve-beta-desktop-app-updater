@@ -9,7 +9,7 @@ class WindowHelper {
 		this.overlayWindow = null;
 		this.isOverlayVisible = false;
 		this.windowPosition = { x: 0, y: 0 };
-		this.windowSize = { width: 500, height: 150 };
+		this.windowSize = { width: 500, height: 0 };
 
 		// Store callback to apply content protection to new windows
 		this.applyContentProtection = applyContentProtectionCallback || (() => {});
@@ -23,7 +23,7 @@ class WindowHelper {
 		this.askAIWindow = null;
 		this.isAskAIVisible = false;
 		this.askAIWindowPosition = { x: 0, y: 0 };
-		this.askAIWindowSize = { width: 600, height: 600 };
+		this.askAIWindowSize = { width: 600, height: 100 };
 
 		// Are You There window properties
 		this.areYouThereWindow = null;
@@ -357,11 +357,12 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: true, // Enable resizing for user customization
-			movable: true, // Explicitly enable window movement
-			minWidth: 400, // Minimum width for usability
-			minHeight: 300, // Minimum height for usability
-			// maxWidth and maxHeight removed to allow full screen expansion
+			resizable: false,
+
+			movable: true,
+			minWidth: 460,
+			minHeight: 40,
+
 			devTools: true,
 		};
 
@@ -826,6 +827,14 @@ class WindowHelper {
 			}
 		});
 
+		// Hide window when it loses focus (user clicks outside)
+		this.askAIWindow.on('blur', () => {
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				log.info('🎯 ASK AI BLUR: Hiding window due to focus loss');
+				this.hideAskAIWindow();
+			}
+		});
+
 		this.askAIWindow.on('closed', () => {
 			this.askAIWindow = null;
 			this.isAskAIVisible = false;
@@ -1243,7 +1252,7 @@ class WindowHelper {
 
 		// Don't hide ask AI window - allow both to be visible
 		// if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-		// 	this.hideAskAIWindow();
+		//  this.hideAskAIWindow();
 		// }
 
 		const primaryDisplay = screen.getPrimaryDisplay();
@@ -1327,7 +1336,7 @@ class WindowHelper {
 
 		// Don't hide main window - keep it independent
 		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-		// 	this.mainWindow.hide();
+		//  this.mainWindow.hide();
 		// }
 
 		this.isOverlayVisible = true;
@@ -1343,7 +1352,7 @@ class WindowHelper {
 
 		// Don't hide overlay window - allow both to be visible
 		// if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-		// 	this.hideOverlayWindow();
+		//  this.hideOverlayWindow();
 		// }
 
 		let askAIX, askAIY;
@@ -1449,7 +1458,7 @@ class WindowHelper {
 
 		// Don't hide main window - keep it independent
 		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-		// 	this.mainWindow.hide();
+		//  this.mainWindow.hide();
 		// }
 
 		this.isAskAIVisible = true;
@@ -1686,8 +1695,8 @@ class WindowHelper {
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
 		// Apply min constraints that match the window creation settings
-		const minWidth = 400;
-		const minHeight = 300;
+		const minWidth = 420;
+		const minHeight = 60; // small height ask ai
 
 		// Get current bounds to preserve dimensions when not specified
 		const currentBounds = this.askAIWindow.getBounds();
@@ -1764,6 +1773,9 @@ class WindowHelper {
 			return;
 		}
 
+		// Initialize translucency state
+		this.isTranslucencyEnabled = this.isTranslucencyEnabled ?? false;
+
 		// Register Cmd+\ to toggle overlay window only (independent of main window)
 		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
 			// Check if overlay window is visible
@@ -1809,13 +1821,13 @@ class WindowHelper {
 			// Call the toggle function directly through IPC invoke
 			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 				this.mainWindow.webContents.executeJavaScript(`
-					if (window.electronApi && window.electronApi.toggleContentProtection) {
-						window.electronApi.toggleContentProtection().then(status => {
-						}).catch(err => {
-							console.error('Error toggling content protection:', err);
-						});
-					}
-				`);
+                    if (window.electronApi && window.electronApi.toggleContentProtection) {
+                        window.electronApi.toggleContentProtection().then(status => {
+                        }).catch(err => {
+                            console.error('Error toggling content protection:', err);
+                        });
+                    }
+                `);
 			}
 		});
 
@@ -1826,22 +1838,24 @@ class WindowHelper {
 				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
 					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 						this.mainWindow.webContents.executeJavaScript(`
-							if (window.electronApi && window.electronApi.toggleContentProtection) {
-								window.electronApi.toggleContentProtection().then(status => {
-								}).catch(err => {
-									console.error('Error toggling content protection:', err);
-								});
-							}
-						`);
+                            if (window.electronApi && window.electronApi.toggleContentProtection) {
+                                window.electronApi.toggleContentProtection().then(status => {
+                                }).catch(err => {
+                                    console.error('Error toggling content protection:', err);
+                                });
+                            }
+                        `);
 					}
 				});
 			}
 		}
 
-		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
+		// Register Cmd+Enter to show ask AI chatbox mode
 		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
 			// Create ask AI window if it doesn't exist
 			this.createAskAIWindow?.();
+
+			// Always show chatbox mode when Command+Enter is pressed
 
 			const isAskAIVisible = this.isAskAIWindowVisible();
 
@@ -1851,6 +1865,12 @@ class WindowHelper {
 			} else {
 				// Show ask AI window only
 				this.showAskAIWindow?.();
+
+				// Send message to show chatbox mode
+				const askAIWindow = this.getAskAIWindow();
+				if (askAIWindow && !askAIWindow.isDestroyed()) {
+					askAIWindow.webContents.send('askAI-show-chatbox');
+				}
 			}
 		});
 
@@ -1908,6 +1928,72 @@ class WindowHelper {
 						process.emit('recreate-main-window');
 					}
 				});
+			}
+		}
+
+		// Register Cmd+G to toggle glass mode (Cross-platform)
+		const cmdGRegistered = globalShortcut.register('CommandOrControl+G', () => {
+			try {
+				log.info('🎨 Command+G pressed: Toggling glass mode');
+
+				// Toggle glass mode state
+				this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+
+				// Notify renderer to toggle glass mode using the new CSS-based approach
+				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+					this.mainWindow.webContents.send('translucency-changed', {
+						enabled: this.isTranslucencyEnabled,
+						platform: process.platform,
+						source: 'keyboard-shortcut',
+					});
+
+					log.info(
+						`🎨 Glass mode ${
+							this.isTranslucencyEnabled ? 'enabled' : 'disabled'
+						} via Command+G`,
+					);
+				} else {
+					log.warn('⚠️ Main window not available for glass mode toggle');
+				}
+			} catch (error) {
+				log.error('❌ Glass mode toggle failed:', error);
+			}
+		});
+
+		if (cmdGRegistered) {
+			log.info('✅ Command+G glass mode shortcut registered successfully');
+		} else {
+			log.error('❌ Failed to register Command+G glass mode shortcut');
+
+			// Try alternative shortcuts on Windows if the main one fails
+			if (process.platform === 'win32') {
+				const altGlassRegistered = globalShortcut.register('Ctrl+Alt+G', () => {
+					try {
+						log.info('🎨 Ctrl+Alt+G pressed: Toggling glass mode');
+						this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+
+						if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+							this.mainWindow.webContents.send('translucency-changed', {
+								enabled: this.isTranslucencyEnabled,
+								platform: process.platform,
+								source: 'keyboard-shortcut',
+							});
+							log.info(
+								`🎨 Glass mode ${
+									this.isTranslucencyEnabled ? 'enabled' : 'disabled'
+								} via Ctrl+Alt+G`,
+							);
+						}
+					} catch (error) {
+						log.error('❌ Alternative glass mode toggle failed:', error);
+					}
+				});
+
+				if (altGlassRegistered) {
+					log.info('✅ Ctrl+Alt+G glass mode shortcut registered as fallback');
+				} else {
+					log.error('❌ Failed to register alternative glass mode shortcut');
+				}
 			}
 		}
 	}

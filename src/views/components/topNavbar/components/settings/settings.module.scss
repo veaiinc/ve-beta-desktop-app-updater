@@ -21,6 +21,8 @@
 	z-index: 10001;
 	max-height: calc(100vh - 80px);
 	overflow-y: auto;
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
 
 	// overlay and sheet are used in mobile only
 	.mobileOverlay {
@@ -362,7 +364,7 @@
 		}
 
 		span {
-			color: var(--background-color, #121212);
+			color: var(--font-primary-color, #121212);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;

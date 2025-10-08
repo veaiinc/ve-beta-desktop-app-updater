@@ -117,7 +117,10 @@ const NotchDropLiveKitIntegration = () => {
 						const lastSent = currentLastSent.find((m) => m.id === message.id);
 
 						// Only send final transcriptions to avoid duplicates
-						if (message.isFinal && (!lastSent || lastSent.content !== message.content)) {
+						if (
+							message.isFinal &&
+							(!lastSent || lastSent.content !== message.content)
+						) {
 							sendToNotchDrop(message);
 						}
 					});

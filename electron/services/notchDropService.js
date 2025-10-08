@@ -1,6 +1,9 @@
 const path = require('path');
 const log = require('electron-log');
 const { BrowserWindow } = require('electron');
+const { default: ObjectID } = require('bson-objectid');
+// ⚡ ULTRA OPTIMIZATION: Import IPC throttling service
+const ipcThrottleService = require('./ipcThrottleService');
 // const { WakeWordIntegration } = import('../../notchdrop-addon/wake-word-integration');
 
 let NotchDropAddonWrapper;
@@ -182,51 +185,70 @@ class NotchDropService {
 	setupEventListeners() {
 		if (!this.notchDropAddon) return;
 
+		// ⚡ CRITICAL MEMORY LEAK FIX: Store event handler references for proper cleanup
+		this.eventHandlers = this.eventHandlers || {};
+
 		// Listen for status changes
-		this.notchDropAddon.on('statusChanged', (status) => {
+		this.eventHandlers.statusChanged = (status) => {
 			// Emit to renderer process if needed
 			this.emitToRenderer('notchdrop-status-changed', status);
-		});
+		};
+		this.notchDropAddon.on('statusChanged', this.eventHandlers.statusChanged);
 
 		// Listen for file drops
-		this.notchDropAddon.on('fileDropped', (filePath) => {
+		this.eventHandlers.fileDropped = (filePath) => {
 			log.info('File dropped on NotchDrop:', filePath);
 			// Handle the dropped file
 			this.handleDroppedFile(filePath);
-		});
+		};
+		this.notchDropAddon.on('fileDropped', this.eventHandlers.fileDropped);
 
 		// Listen for item changes
-		this.notchDropAddon.on('itemAdded', (itemData) => {
+		this.eventHandlers.itemAdded = (itemData) => {
 			log.info('Item added to NotchDrop:', itemData);
 			this.emitToRenderer('notchdrop-item-added', itemData);
-		});
+		};
+		this.notchDropAddon.on('itemAdded', this.eventHandlers.itemAdded);
 
-		this.notchDropAddon.on('itemRemoved', (itemData) => {
+		this.eventHandlers.itemRemoved = (itemData) => {
 			log.info('Item removed from NotchDrop:', itemData);
 			this.emitToRenderer('notchdrop-item-removed', itemData);
-		});
+		};
+		this.notchDropAddon.on('itemRemoved', this.eventHandlers.itemRemoved);
 
 		// Listen for Swift log messages
-		this.notchDropAddon.on('swiftLog', (message) => {
+		this.eventHandlers.swiftLog = (message) => {
 			log.info('📝 Swift UI sent log message:', message);
 			this.handleSwiftLog(message);
-		});
+		};
+		this.notchDropAddon.on('swiftLog', this.eventHandlers.swiftLog);
 
 		// Listen for overlay recording requests from Swift UI
-		this.notchDropAddon.on('requestOverlayRecording', () => {
+		this.eventHandlers.requestOverlayRecording = () => {
 			log.info('🎤 Swift UI requested overlay recording');
 			this.handleOverlayRecordingRequest();
-		});
+		};
+		this.notchDropAddon.on(
+			'requestOverlayRecording',
+			this.eventHandlers.requestOverlayRecording,
+		);
 
 		// Listen for Ask AI chat submissions from Swift UI
-		this.notchDropAddon.on('submitChat', (message) => {
+		this.eventHandlers.submitChat = (message) => {
 			try {
 				const text = typeof message === 'string' ? message : String(message || '');
 				const chatMessage = {
-					type: 'notchdrop-chat',
+					type: 'chat',
 					message: text,
 					timestamp: new Date().toISOString(),
 					source: 'notchdrop-swift-ui',
+					path: `/chat/${ObjectID().toString()}`,
+					updateObject: {
+						type: 'chat',
+						payload: {
+							query: text,
+						},
+					},
 				};
 
 				// Emit to main via process event to reuse main.js flow
@@ -234,58 +256,57 @@ class NotchDropService {
 			} catch (error) {
 				log.error('❌ Error handling Swift UI submitChat:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('submitChat', this.eventHandlers.submitChat);
 
 		// Listen for voice agent start requests from Swift UI
-		this.notchDropAddon.on('startVoiceAgent', (data) => {
+		this.eventHandlers.startVoiceAgent = (data) => {
 			try {
 				log.info('🎤 Swift UI requested voice agent start');
-				console.log(
-					'🎤 NotchDrop: Received startVoiceAgent event, activating voice agent...',
-				);
 				this.activateVoiceAgent();
 			} catch (error) {
 				log.error('❌ Error handling Swift UI startVoiceAgent:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('startVoiceAgent', this.eventHandlers.startVoiceAgent);
 
 		// Listen for voice agent disconnect requests from Swift UI
-		this.notchDropAddon.on('disconnectVoice', (data) => {
+		this.eventHandlers.disconnectVoice = (data) => {
 			try {
 				log.info('🔌 Swift UI requested voice agent disconnect');
-				console.log(
-					'🔌 NotchDrop: Received disconnectVoice event, deactivating voice agent...',
-				);
 				this.deactivateVoiceAgent();
 			} catch (error) {
 				log.error('❌ Error handling Swift UI disconnectVoice:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('disconnectVoice', this.eventHandlers.disconnectVoice);
 
-		this.notchDropAddon.on('toggleStealthMode', () => {
+		this.eventHandlers.toggleStealthMode = () => {
 			Promise.resolve(this.handleToggleStealthModeRequest('swift-event')).catch((error) => {
 				log.error('❌ Error handling Swift UI stealth toggle event:', error);
 			});
-		});
+		};
+		this.notchDropAddon.on('toggleStealthMode', this.eventHandlers.toggleStealthMode);
 
 		// Listen for voice mute toggle requests from Swift UI
-		this.notchDropAddon.on('toggleVoiceMute', (data) => {
+		this.eventHandlers.toggleVoiceMute = (data) => {
 			try {
 				log.info('🔇 Swift UI requested voice mute toggle');
-				console.log('🔇 NotchDrop: Received toggleVoiceMute event, toggling microphone...');
 				this.toggleVoiceMute();
 			} catch (error) {
 				log.error('❌ Error handling Swift UI toggleVoiceMute:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('toggleVoiceMute', this.eventHandlers.toggleVoiceMute);
 
 		// Listen for messages received by Swift UI from Electron
-		this.notchDropAddon.on('messageReceived', (message) => {
+		this.eventHandlers.messageReceived = (message) => {
 			log.info('📨 Swift UI received message from Electron:', message);
 			// You can add additional handling here if needed
-		});
+		};
+		this.notchDropAddon.on('messageReceived', this.eventHandlers.messageReceived);
 
-		this.notchDropAddon.on('navigateToMainScreen', (targetPath) => {
+		this.eventHandlers.navigateToMainScreen = (targetPath) => {
 			try {
 				log.info('🏠 Swift UI requested main window navigation:', targetPath);
 				// Special handling for Meeting AI click: decide based on workspace suspension
@@ -299,7 +320,10 @@ class NotchDropService {
 			} catch (error) {
 				log.error('❌ Error handling Swift UI main window navigation request:', error);
 			}
-		});
+		};
+		this.notchDropAddon.on('navigateToMainScreen', this.eventHandlers.navigateToMainScreen);
+
+		log.info('✅ All NotchDrop event listeners registered with cleanup support');
 	}
 
 	enable() {
@@ -484,11 +508,27 @@ class NotchDropService {
 		this.emitToRenderer('notchdrop-file-dropped', filePath);
 	}
 
+	// ⚡ ULTRA OPTIMIZATION: Use throttling for high-frequency events
 	emitToRenderer(event, data) {
 		// This method will be overridden by the main process
 		// to emit events to the renderer process
 		if (this.mainWindow && this.mainWindow.webContents) {
-			this.mainWindow.webContents.send(event, data);
+			// Detect high-frequency channels that should be throttled
+			const highFrequencyChannels = [
+				'notchdrop-transcription-update',
+				'notchdrop-intelligence-update',
+				'swift-log-message',
+			];
+
+			const shouldThrottle = highFrequencyChannels.some(channel => event.includes(channel));
+
+			if (shouldThrottle) {
+				// Use throttling service for high-frequency updates
+				ipcThrottleService.sendThrottled(this.mainWindow, event, data);
+			} else {
+				// Send immediately for low-frequency events
+				this.mainWindow.webContents.send(event, data);
+			}
 		}
 	}
 
@@ -660,35 +700,65 @@ class NotchDropService {
 	}
 
 	cleanup() {
+		log.info('🧹 Starting NotchDrop cleanup...');
+
 		if (this.isInitialized) {
 			try {
 				this.disable();
 			} catch (error) {
-				log.error('❌ Error during NotchDrop cleanup:', error);
+				log.error('❌ Error during NotchDrop disable:', error);
 			}
 		}
 
-		// CRITICAL: Remove all event listeners to prevent memory leaks
+		// ⚡ CRITICAL MEMORY LEAK FIX: Remove event listeners properly with stored references
 		try {
-			if (this.notchDropAddon) {
+			if (this.notchDropAddon && this.eventHandlers) {
+				// Remove each event listener individually using stored references
+				const events = Object.keys(this.eventHandlers);
+				events.forEach((eventName) => {
+					if (this.eventHandlers[eventName]) {
+						this.notchDropAddon.removeListener(
+							eventName,
+							this.eventHandlers[eventName],
+						);
+					}
+				});
+
+				// Clear all remaining listeners as safety
 				this.notchDropAddon.removeAllListeners();
+
+				log.info(`🧹 Removed ${events.length} NotchDrop event listeners`);
 			}
 
 			// Clear any pending timeouts
 			if (this._initTimeout) {
 				clearTimeout(this._initTimeout);
+				this._initTimeout = null;
 			}
 			if (this._addonInitTimeout) {
 				clearTimeout(this._addonInitTimeout);
+				this._addonInitTimeout = null;
 			}
+
+			// ⚡ CRITICAL: Null out all references to allow garbage collection
+			this.eventHandlers = null;
+			this.mainWindow = null;
+			this.createMainWindowFn = null;
+			this.stealthModeController = null;
+			this.swiftJSBridge = null;
 
 			// Reset state
 			this.isInitialized = false;
 			this.isEnabled = false;
 			this.notchDropAddon = null;
-			this.swiftJSBridge = null;
 
-			log.info('🧹 NotchDrop service cleaned up successfully');
+			// Force garbage collection if available
+			if (global.gc) {
+				global.gc();
+				log.info('🗑️ Forced garbage collection after cleanup');
+			}
+
+			log.info('✅ NotchDrop service cleaned up successfully');
 		} catch (error) {
 			log.error('❌ Error during NotchDrop cleanup:', error);
 		}
@@ -939,7 +1009,6 @@ action: 'toggle_microphone_mute'
 			// Call the native addon to add the voice message to Swift UI
 			if (this.notchDropAddon && this.notchDropAddon.addVoiceMessage) {
 				this.notchDropAddon.addVoiceMessage(messageData);
-				// console.log(`✅ Voice message added to NotchDrop`);
 				return true;
 			} else {
 				console.warn('⚠️ addVoiceMessage method not available on addon');
@@ -948,6 +1017,232 @@ action: 'toggle_microphone_mute'
 		} catch (error) {
 			console.error('❌ Error adding voice message to NotchDrop:', error);
 			return false;
+		}
+	}
+
+	// Add transcription data to NotchDrop (following voice message pattern)
+	async addTranscriptionData(transcriptionData) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot add transcription data');
+				return false;
+			}
+
+			// Console log the transcription data in NotchDrop service
+			console.log('📝 NotchDrop Service: Adding transcription data:', transcriptionData);
+
+			// Send to Swift via native addon
+			if (this.notchDropAddon && this.notchDropAddon.addTranscriptionData) {
+				// Pass the messageData object directly, not the JSON string
+				this.notchDropAddon.addTranscriptionData({
+					sender: transcriptionData.source || 'overlay',
+					content: transcriptionData.text || '',
+					isFromAgent: false, // Transcription is from user, not agent
+					timestamp: transcriptionData.timestamp || new Date().toISOString(),
+					confidence: transcriptionData.confidence,
+					words: transcriptionData.words,
+					type: 'transcription',
+				});
+				console.log('✅ Transcription data sent to NotchDrop native addon');
+				return true;
+			} else {
+				console.warn('⚠️ addTranscriptionData method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error adding transcription data to NotchDrop:', error);
+			return false;
+		}
+	}
+
+	// Send live intelligence data to NotchDrop
+	async sendLiveIntelligenceData(liveIntelligenceData) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot send live intelligence data');
+				return false;
+			}
+
+			// Console log the live intelligence data in NotchDrop service
+			console.log(
+				'🧠 NotchDrop Service: Adding live intelligence data:',
+				liveIntelligenceData,
+			);
+
+			// Send to Swift via native addon
+			if (this.notchDropAddon && this.notchDropAddon.sendLiveIntelligenceData) {
+				// Pass the messageData object directly, not the JSON string
+				this.notchDropAddon.sendLiveIntelligenceData({
+					sender: liveIntelligenceData.source || 'ai-agent',
+					content: liveIntelligenceData.text || '',
+					isFromAgent: true, // Live intelligence is from AI agent
+					timestamp: liveIntelligenceData.timestamp || new Date().toISOString(),
+					confidence: liveIntelligenceData.confidence,
+					type: 'live-intelligence',
+					metadata: liveIntelligenceData.metadata,
+				});
+				console.log('✅ Live intelligence data sent to NotchDrop native addon');
+				return true;
+			} else {
+				console.warn('⚠️ sendLiveIntelligenceData method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			console.error('❌ Error sending live intelligence data to NotchDrop:', error);
+			return false;
+		}
+	}
+
+	// Send transcription data to NotchDrop
+	async sendTranscriptionData(transcriptionData) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot send transcription data');
+				return { success: false, error: 'NotchDrop not initialized' };
+			}
+
+			// Console log the transcription data in NotchDrop service
+			console.log('📝 NotchDrop Service: Received transcription data:', transcriptionData);
+
+			// Log additional details for debugging
+			if (transcriptionData) {
+				console.log('📝 NotchDrop Service: Transcription details:', {
+					text: transcriptionData.text,
+					source: transcriptionData.source,
+					timestamp: transcriptionData.timestamp,
+					confidence: transcriptionData.confidence,
+					words: transcriptionData.words?.length || 0,
+				});
+			}
+
+			// Use the existing sendMessage method with transcription type
+			const messageData = {
+				type: 'transcription',
+				content: transcriptionData.text || '',
+				text: transcriptionData.text || '',
+				sender: transcriptionData.source || 'overlay',
+				timestamp: transcriptionData.timestamp || new Date().toISOString(),
+				confidence: transcriptionData.confidence,
+				words: transcriptionData.words,
+				originalData: transcriptionData,
+			};
+
+			return await this.sendMessage(messageData);
+		} catch (error) {
+			console.error('❌ Error sending transcription data to NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Replace entire transcription list in Swift UI
+	async replaceTranscriptions(messages) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot replace transcriptions');
+				return false;
+			}
+
+			if (this.notchDropAddon && this.notchDropAddon.replaceTranscriptions) {
+				// Ensure messages are well-formed
+				const normalized = (messages || []).map((m) => ({
+					sender: m.sender || 'overlay',
+					content: m.content || m.text || '',
+					isFromAgent: Boolean(m.isFromAgent) || false,
+					timestamp: m.timestamp || new Date().toISOString(),
+					confidence: m.confidence,
+					words: m.words,
+					type: 'transcription',
+				}));
+				this.notchDropAddon.replaceTranscriptions(normalized);
+				return true;
+			}
+			console.warn('⚠️ replaceTranscriptions method not available on addon');
+			return false;
+		} catch (error) {
+			console.error('❌ Error replacing transcriptions in NotchDrop:', error);
+			return false;
+		}
+	}
+
+	// Opposite panel sync: transcription vs live intelligence
+	async setRecordingPanelMode(mode) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot set panel mode');
+				return false;
+			}
+
+			if (this.notchDropAddon && this.notchDropAddon.setRecordingPanelMode) {
+				this.notchDropAddon.setRecordingPanelMode(mode);
+				log.info(`🧭 NotchDrop: setRecordingPanelMode(${mode})`);
+				return true;
+			} else {
+				log.warn('⚠️ setRecordingPanelMode method not available on addon');
+				return false;
+			}
+		} catch (error) {
+			log.error('❌ Error setting recording panel mode:', error);
+			return false;
+		}
+	}
+
+	// GENERAL PURPOSE MESSAGE SYSTEM
+	async sendMessage(messageData) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot send message');
+				return { success: false, error: 'NotchDrop not initialized' };
+			}
+
+			if (!this.notchDropAddon) {
+				log.warn('NotchDrop addon not available');
+				return { success: false, error: 'NotchDrop addon not available' };
+			}
+
+			// Handle different message types
+			switch (messageData.type) {
+				case 'voice':
+				case 'audio':
+				case 'transcription':
+					// Use existing voice message system for audio-related data
+					if (this.notchDropAddon.addVoiceMessage) {
+						this.notchDropAddon.addVoiceMessage({
+							sender: messageData.sender || 'System',
+							content: messageData.content || messageData.text || '',
+							isFromAgent: messageData.isFromAgent || false,
+						});
+						return { success: true, type: 'voice' };
+					} else {
+						return { success: false, error: 'Voice message method not available' };
+					}
+
+				case 'data':
+				case 'command':
+				case 'notification':
+				case 'status':
+				default:
+					// Use general message system for other data types
+					if (this.notchDropAddon.sendGeneralMessage) {
+						this.notchDropAddon.sendGeneralMessage(JSON.stringify(messageData));
+						return { success: true, type: 'general' };
+					} else {
+						// Fallback to voice message system if general method not available
+						log.info('📝 Fallback: Using voice message system for general data');
+						if (this.notchDropAddon.addVoiceMessage) {
+							this.notchDropAddon.addVoiceMessage({
+								sender: messageData.sender || 'System',
+								content: JSON.stringify(messageData),
+								isFromAgent: messageData.isFromAgent || false,
+							});
+							return { success: true, type: 'fallback' };
+						} else {
+							return { success: false, error: 'No message methods available' };
+						}
+					}
+			}
+		} catch (error) {
+			console.error('❌ Error sending message to NotchDrop:', error);
+			return { success: false, error: error.message };
 		}
 	}
 

@@ -8,7 +8,8 @@
 	gap: 32px;
 	flex-shrink: 0;
 	padding: 24px;
-
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
 	.title {
 		.text1 {
 			color: var(--primary-font, #f2f2f3);

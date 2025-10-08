@@ -1,6 +1,5 @@
 .citation-container {
 	cursor: pointer !important;
-	margin: 0 0 0 4px;
 	padding: 0;
 	background-color: transparent;
 	display: inline-block;
@@ -21,7 +20,7 @@
 			&:hover {
 				background-color: var(--primary-font);
 				.citation-text {
-					color: var(--background-color);
+					color: var(--font-primary-color);
 					opacity: 1;
 				}
 			}

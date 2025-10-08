@@ -10,8 +10,7 @@ struct NotchView: View {
     @StateObject var vm: NotchViewModel
 
     @State var dropTargeting: Bool = false
-	@State private var isHoveringNotch: Bool = false
-    @State private var hoverScale: CGFloat = 1.0
+    @State private var isHoveringNotch: Bool = false
     @State private var hoverGlow: CGFloat = 0.0
 	@State private var isQuitting: Bool = false
 
@@ -40,6 +39,22 @@ struct NotchView: View {
                 height: vm.deviceNotchRect.height + 4
             )
         }
+    }
+
+    // Freeze collapsed size to avoid content stretching during open animation
+    var collapsedNotchSize: CGSize {
+        // Same computation as the .closed branch of notchSize
+        let isMacBookPro = vm.deviceNotchRect.width > 180
+        let baseWidth: CGFloat = 343
+        let baseHeight: CGFloat = 48
+        let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0
+        var ans = CGSize(
+            width: baseWidth * widthMultiplier,
+            height: baseHeight * widthMultiplier
+        )
+        if ans.width < 0 { ans.width = 0 }
+        if ans.height < 0 { ans.height = 0 }
+        return ans
     }
 
     var notchCornerRadius: CGFloat {
@@ -103,11 +118,11 @@ struct NotchView: View {
                 }
                 // When not authenticated, show nothing in collapsed state
             }
-            .frame(maxWidth: notchSize.width - 16, maxHeight: notchSize.height - 4)
+            .frame(maxWidth: collapsedNotchSize.width - 16, maxHeight: collapsedNotchSize.height - 4)
             .clipped()
             .opacity(vm.status == .closed ? 1 : 0) // Fade out when opening
-            .scaleEffect(vm.status == .closed ? 1 : 0.9) // Subtle scale down when opening
-            .animation(DynamicIslandTheme.hoverAnimation, value: vm.status) // Ultra-smooth transition
+            // Remove scale/animation to prevent closed-state icon growth on hover
+            .scaleEffect(1)
             .zIndex(1)
             
             Group {
@@ -170,33 +185,40 @@ struct NotchView: View {
             .foregroundStyle(.regularMaterial)
             .mask(notchBackgroundMaskGroup)
             .frame(
-                width: notchSize.width + notchCornerRadius * 2 + sidePulseOffset,
+                width: notchSize.width + notchCornerRadius * 2,
                 height: notchSize.height
             )
-            .scaleEffect(vm.status == .closed ? hoverScale : 1.02) // Dynamic hover scale
+            .scaleEffect(1.0) // Remove hover/open scaling to keep icons fixed
             .animation(DynamicIslandTheme.hoverAnimation, value: vm.status)
-            .animation(DynamicIslandTheme.hoverAnimation, value: hoverScale)
+            // Removed hover-driven scale animation
             .shadow(
-                color: .black.opacity(([.opened, .popping].contains(vm.status) && !vm.showNotificationOverlay) ? 1 : 0),
+                // color: .black.opacity(([.opened, .popping].contains(vm.status) && !vm.showNotificationOverlay) ? 1 : 0),
+                color: .black.opacity(([.opened, .popping].contains(vm.status)) ? 1 : 0),
                 radius: 16
             )
             // Enhanced professional glows
             .shadow(
-                color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
-                radius: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? 12 : 0
+                // color: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
+                // radius: (vm.controlledByDynamicIsland && !vm.showNotificationOverlay) ? 12 : 0
+                color : (vm.controlledByDynamicIsland) ? DynamicIslandTheme.primaryGreen.opacity(0.3) : .clear,
+                radius: (vm.controlledByDynamicIsland) ? 12 : 0
             )
             .shadow(
-                color: (vm.isChatMode && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.4) : .clear,
-                radius: (vm.isChatMode && !vm.showNotificationOverlay) ? 16 : 0
+                // color: (vm.isChatMode && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.4) : .clear,
+                // radius: (vm.isChatMode && !vm.showNotificationOverlay) ? 16 : 0
+                color : (vm.isChatMode) ? DynamicIslandTheme.primaryGreen.opacity(0.4) : .clear,
+                radius: (vm.isChatMode) ? 16 : 0
             )
             // Professional hover glow effect
             .shadow(
-                color: (vm.status == .opened && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1) : .clear,
-                radius: (vm.status == .opened && !vm.showNotificationOverlay) ? 20 + hoverGlow * 10 : 0
+                // color: (vm.status == .opened && !vm.showNotificationOverlay) ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1) : .clear,
+                // radius: (vm.status == .opened && !vm.showNotificationOverlay) ? 20 + hoverGlow * 10 : 0
+                color : (vm.status == .opened) ? DynamicIslandTheme.primaryGreen.opacity(0.1 + hoverGlow * 0.1) : .clear,
+                radius: (vm.status == .opened) ? 20 + hoverGlow * 10 : 0
             )
             .onHover { hovering in
                 withAnimation(hovering ? DynamicIslandTheme.sideBounceKick : DynamicIslandTheme.sideBounceReturn) {
-                    hoverScale = hovering ? 1.05 : 1.0
+                    // Keep glow feedback, but do not change scale
                     hoverGlow = hovering ? 1.0 : 0.0
                     isHoveringNotch = hovering
                 }
@@ -204,11 +226,7 @@ struct NotchView: View {
     }
 
     // Side bounce pulse during hover-open
-    private var sidePulseOffset: CGFloat {
-        guard vm.status == .opened else { return 0 }
-        // small width wobble to sell the bubbly feel
-        return isHoveringNotch ? 6 : 0
-    }
+    // Removed sidePulseOffset to prevent width wobble on hover
 
     // Mini collapsed audio visualizer (5 bars) - matches CSS animation
     struct CollapsedAudioViz: View {
@@ -249,6 +267,7 @@ struct NotchView: View {
         @State private var phase: CGFloat = 0
         @State private var playbackPollTimer: Timer? = nil
         @State private var waveTimer: Timer? = nil
+        @State private var albumArtTimer: Timer? = nil  // ⚡ PERFORMANCE FIX: Store album art timer for cleanup
         
         var body: some View {
             HStack(spacing: 6) {
@@ -323,19 +342,23 @@ struct NotchView: View {
                 // Start/stop wave animation based on closed state and real playback
                 updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
                 
-                // Get current album artwork (only if showing music)
+                // ⚡ CRITICAL FIX: Store album art timer reference for cleanup
                 if showMusic {
                     getCurrentAlbumArt()
                     
-                    // Update album art periodically
-                    Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                    // Clean up existing timer before creating new one
+                    albumArtTimer?.invalidate()
+                    
+                    // ⚡ OPTIMIZATION: Increased interval from 3s to 10s (album art doesn't change often)
+                    albumArtTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { _ in
                         getCurrentAlbumArt()
                     }
                 }
 
+                // ⚡ OPTIMIZATION: Increased interval from 1.5s to 3s
                 // Lightweight polling to keep collapsed indicator in sync
                 playbackPollTimer?.invalidate()
-                playbackPollTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { _ in
+                playbackPollTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
                     updateWave(active: vm.status == .closed && (vm.isMusicPlaying || vm.isVideoPlaying))
                 }
             }
@@ -349,8 +372,11 @@ struct NotchView: View {
                 updateWave(active: vm.status == .closed && (isPlaying || vm.isMusicPlaying))
             }
             .onDisappear {
+                // ⚡ CRITICAL FIX: Clean up all timers
                 playbackPollTimer?.invalidate()
                 playbackPollTimer = nil
+                albumArtTimer?.invalidate()
+                albumArtTimer = nil
                 stopWave()
             }
             .onChange(of: vm.hasActiveMusic) { _, _ in

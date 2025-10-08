@@ -31,6 +31,17 @@ contextBridge.exposeInMainWorld('electronApi', {
 	checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 	downloadUpdate: () => ipcRenderer.invoke('download-update'),
 	restartApp: () => ipcRenderer.invoke('restart-app'),
+
+	// Manual update check with better error handling
+	checkForUpdatesManual: async () => {
+		try {
+			const result = await ipcRenderer.invoke('check-for-updates');
+			return result;
+		} catch (error) {
+			console.error('❌ Manual update check failed:', error);
+			return { success: false, error: error.message };
+		}
+	},
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
 	openSystemSettings: () => ipcRenderer.invoke('open-system-settings'),
 	openMicrophoneSettings: () => ipcRenderer.invoke('open-microphone-settings'),
@@ -147,6 +158,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		// Send state updates to Dynamic Island
 		sendStateUpdate: (state) => ipcRenderer.invoke('overlay-state-update', state),
+		// Send transcription data to main process
+		sendTranscriptionData: (transcriptionData) =>
+			ipcRenderer.invoke('overlay-send-transcription-data', transcriptionData),
+		// Set current panel mode for recording (affects NotchDrop via main)
+		setPanelMode: (mode) => ipcRenderer.invoke('overlay-set-panel-mode', mode),
+		// Send live intelligence data to main process
+		sendLiveIntelligenceData: (liveIntelligenceData) =>
+			ipcRenderer.invoke('overlay-send-live-intelligence-data', liveIntelligenceData),
 		// Test connection
 		testConnection: () => ipcRenderer.invoke('test-overlay-connection'),
 		// Test command sending
@@ -163,6 +182,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		showWindow: () => ipcRenderer.invoke('show-askAI-window'),
 		isWindowVisible: () => ipcRenderer.invoke('is-askAI-window-visible'),
 		updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
+		// Drag/move helpers
+		getPosition: () => ipcRenderer.invoke('askAI-get-position'),
+		moveTo: (x, y) => ipcRenderer.invoke('askAI-move-to', { x, y }),
 		setIgnoreMouseEvents: (ignore) =>
 			ipcRenderer.invoke('set-askAI-ignore-mouse-events', ignore),
 		setInputFocus: (isFocused) => ipcRenderer.invoke('set-askAI-input-focus', isFocused),
@@ -181,6 +203,35 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.on('receive-chat-message', (event, data) => {
 				callback(data);
 			});
+		},
+
+		// Show chatbox mode
+		showChatbox: () => ipcRenderer.invoke('show-askAI-chatbox'),
+
+		// Show response window mode
+		showResponse: () => ipcRenderer.invoke('show-askAI-response'),
+
+		// Listen for show chatbox command
+		onShowChatbox: (callback) => {
+			ipcRenderer.on('askAI-show-chatbox', (event, data) => {
+				callback(data);
+			});
+		},
+
+		// Listen for show response command
+		onShowResponse: (callback) => {
+			ipcRenderer.on('askAI-show-response', (event, data) => {
+				callback(data);
+			});
+		},
+
+		// Remove listeners
+		removeShowChatboxListener: () => {
+			ipcRenderer.removeAllListeners('askAI-show-chatbox');
+		},
+
+		removeShowResponseListener: () => {
+			ipcRenderer.removeAllListeners('askAI-show-response');
 		},
 
 		// Camera permission API
@@ -286,9 +337,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	// Wake word APIs
 	// wakeWord: {
-	// 	start: () => ipcRenderer.invoke('wake-word-start'),
-	// 	stop: () => ipcRenderer.invoke('wake-word-stop'),
-	// 	getStatus: () => ipcRenderer.invoke('wake-word-status'),
+	//  start: () => ipcRenderer.invoke('wake-word-start'),
+	//  stop: () => ipcRenderer.invoke('wake-word-stop'),
+	//  getStatus: () => ipcRenderer.invoke('wake-word-status'),
 	// },
 
 	// Clipboard APIs
@@ -432,11 +483,16 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
 		addVoiceMessage: (messageData) =>
 			ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
+		// GENERAL PURPOSE MESSAGE SYSTEM
+		sendMessage: (messageData) => ipcRenderer.invoke('notchdrop-send-message', messageData),
 		// New NotchDropLatest APIs
 		openAirDrop: () => ipcRenderer.invoke('notchdrop-open-airdrop'),
 		openShare: () => ipcRenderer.invoke('notchdrop-open-share'),
 		openFile: (filePath) => ipcRenderer.invoke('notchdrop-open-file', filePath),
 		deleteFile: (fileId) => ipcRenderer.invoke('notchdrop-delete-file', fileId),
+		// Replace entire transcription list in NotchDrop
+		replaceTranscriptions: (messages) =>
+			ipcRenderer.invoke('notchdrop-replace-transcriptions', messages),
 		onFileDropped: (callback) => {
 			ipcRenderer.on('notchdrop-file-dropped', (event, data) => {
 				callback(data);
@@ -448,7 +504,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	},
 
 	navigateMainWindow: (data) => ipcRenderer.invoke('navigate-main-window', data),
-	onNavigate: (callback) => ipcRenderer.on('navigate-to', (_, path) => callback(path)),
+	onNavigate: (callback) => ipcRenderer.on('navigate-to', (_, data) => callback(data)),
 
 	// Simple Content Protection APIs
 	toggleContentProtection: () => ipcRenderer.invoke('toggle-content-protection'),
@@ -482,5 +538,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		exists: (filePath) => ipcRenderer.invoke('fs-exists', filePath),
 		remove: (filePath) => ipcRenderer.invoke('fs-remove', filePath),
 		readdir: (dirPath) => ipcRenderer.invoke('fs-readdir', dirPath),
+	},
+
+	// Translucency toggle APIs
+	onTranslucencyChanged: (callback) => {
+		ipcRenderer.on('translucency-changed', (_e, data) => callback(data));
+	},
+	removeTranslucencyChangedListener: () => {
+		ipcRenderer.removeAllListeners('translucency-changed');
+	},
+
+	// Glass mode sync API
+	syncGlassModeState: (isEnabled) => {
+		ipcRenderer.invoke('sync-glass-mode-state', { enabled: isEnabled });
 	},
 });

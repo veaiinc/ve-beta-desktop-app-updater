@@ -90,7 +90,9 @@ const PermissionOverlay = () => {
 	useEffect(() => {
 		if (microphonePermission && cameraPermission && !isLoading) {
 			setShowSuccessMessage(true);
-			setPermissionRequestMessage('✅ Essential permissions granted! You can proceed to the next step.');
+			setPermissionRequestMessage(
+				'✅ Essential permissions granted! You can proceed to the next step.',
+			);
 			setTimeout(() => setPermissionRequestMessage(''), 5000);
 		}
 
@@ -224,11 +226,11 @@ const PermissionOverlay = () => {
 	const handleMicrophoneAction = async () => {
 		try {
 			console.log('🎤 Requesting microphone permission...');
-			
+
 			// First, try to request the permission from macOS
 			const requestResult = await window.electronApi.permission.requestMicrophonePermission();
 			console.log('🎤 Microphone permission request result:', requestResult);
-			
+
 			if (requestResult.success && requestResult.granted) {
 				console.log('✅ Microphone permission granted!');
 				setPermissionRequestMessage('🎉 Microphone permission granted!');
@@ -237,7 +239,9 @@ const PermissionOverlay = () => {
 				checkPermissions();
 			} else if (requestResult.success && !requestResult.granted) {
 				console.log('❌ Microphone permission denied by user');
-				setPermissionRequestMessage('❌ Microphone permission denied. Please enable it manually in System Settings.');
+				setPermissionRequestMessage(
+					'❌ Microphone permission denied. Please enable it manually in System Settings.',
+				);
 				setTimeout(() => setPermissionRequestMessage(''), 5000);
 				// Still re-check to update the UI
 				checkPermissions();
@@ -249,7 +253,9 @@ const PermissionOverlay = () => {
 					console.log('✅ Microphone settings opened successfully');
 					// Start more frequent checking after opening settings
 					setTimeout(() => {
-						console.log('🔄 Re-checking permissions after opening microphone settings...');
+						console.log(
+							'🔄 Re-checking permissions after opening microphone settings...',
+						);
 						checkPermissions();
 					}, 1000);
 				} else {
@@ -276,14 +282,16 @@ const PermissionOverlay = () => {
 	const handleScreenAction = async () => {
 		try {
 			console.log('🖥️ Opening screen recording settings...');
-			
+
 			// Directly open system settings for screen recording
 			const result = await window.electronApi.openScreenSettings();
 			if (result.success) {
 				console.log('✅ Screen recording settings opened successfully');
-				setPermissionRequestMessage('📋 Screen recording settings opened. Please enable "Ve.AI" in Privacy & Security > Screen Recording, then return here.');
+				setPermissionRequestMessage(
+					'📋 Screen recording settings opened. Please enable "Ve.AI" in Privacy & Security > Screen Recording, then return here.',
+				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
-				
+
 				// Start checking for permission updates after opening settings
 				setTimeout(() => {
 					console.log('🔄 Re-checking permissions after opening screen settings...');
@@ -291,12 +299,16 @@ const PermissionOverlay = () => {
 				}, 2000);
 			} else {
 				console.error('❌ Failed to open screen recording settings:', result.error);
-				setPermissionRequestMessage('❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.');
+				setPermissionRequestMessage(
+					'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.',
+				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
 			}
 		} catch (error) {
 			console.error('❌ Error opening screen recording settings:', error);
-			setPermissionRequestMessage('❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.');
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.',
+			);
 			setTimeout(() => setPermissionRequestMessage(''), 8000);
 		}
 	};
@@ -304,18 +316,20 @@ const PermissionOverlay = () => {
 	const handleCameraAction = async () => {
 		try {
 			console.log('📷 Requesting camera permission...');
-			
+
 			// First, try to request the permission from macOS
 			const requestResult = await window.electronApi.permission.requestCameraPermission();
 			console.log('📷 Camera permission request result:', requestResult);
-			
+
 			if (requestResult.success && requestResult.granted) {
 				console.log('✅ Camera permission granted!');
 				// Re-check permissions immediately
 				checkPermissions();
 			} else if (requestResult.success && !requestResult.granted) {
 				console.log('❌ Camera permission denied by user');
-				setPermissionRequestMessage('❌ Camera permission denied. Please enable it manually in System Settings.');
+				setPermissionRequestMessage(
+					'❌ Camera permission denied. Please enable it manually in System Settings.',
+				);
 				setTimeout(() => setPermissionRequestMessage(''), 5000);
 				// Still re-check to update the UI
 				checkPermissions();
@@ -366,13 +380,15 @@ const PermissionOverlay = () => {
 	const handleNext = () => {
 		// Microphone and camera are mandatory for proceeding to next step
 		const requiredPermissionsGranted = microphonePermission && cameraPermission;
-		
+
 		if (!requiredPermissionsGranted) {
-			setPermissionRequestMessage('⚠️ Please grant microphone and camera permissions to continue.');
+			setPermissionRequestMessage(
+				'⚠️ Please grant microphone and camera permissions to continue.',
+			);
 			setTimeout(() => setPermissionRequestMessage(''), 5000);
 			return;
 		}
-		
+
 		setCurrentStep(2);
 	};
 
@@ -402,7 +418,7 @@ const PermissionOverlay = () => {
 			console.log('🔍 Debugging permissions...');
 			const debugResult = await window.electronApi.permission.debugPermissions();
 			console.log('🔍 Debug permissions result:', debugResult);
-			
+
 			if (debugResult.success) {
 				console.log('🔍 Platform:', debugResult.debugInfo.platform);
 				console.log('🔍 Is Mac Runtime:', debugResult.debugInfo.isMacRuntime);
@@ -533,12 +549,15 @@ const PermissionOverlay = () => {
 						{showSuccessMessage ? (
 							<div className="success-message">
 								<CheckCircle size={20} />
-								<p className="success-text">Essential permissions granted! Ready to proceed.</p>
+								<p className="success-text">
+									Essential permissions granted! Ready to proceed.
+								</p>
 							</div>
 						) : (
 							<p className="subtitle">
-								We'll need permission to access your microphone and camera for full functionality. 
-								Screen recording is optional and enhances your experience.
+								We'll need permission to access your microphone and camera for full
+								functionality. Screen recording is optional and enhances your
+								experience.
 								{finalIsMac &&
 									' Click the buttons below to grant permissions, then return here.'}
 							</p>
@@ -642,7 +661,9 @@ const PermissionOverlay = () => {
 										<Monitor size={20} />
 									</div>
 									<div className="permission-details">
-										<h3 className="permission-title">Screen Recording (Optional)</h3>
+										<h3 className="permission-title">
+											Screen Recording (Optional)
+										</h3>
 										<p className="permission-description">
 											Allow Ve to capture your screen for enhanced features
 										</p>

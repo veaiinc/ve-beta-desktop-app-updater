@@ -10,6 +10,8 @@
 	top: 22px;
 	right: -130px;
 	position: absolute;
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
 
 	.loadingText {
 		color: var(--primary-font, #f2f2f3);

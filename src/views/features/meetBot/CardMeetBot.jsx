@@ -699,13 +699,12 @@ const CardMeetBot = () => {
 											<div
 												key={meeting._id}
 												className={classList.join(' ')}
-												style={{
-													background: classList.includes(
-														styles.cardMeetBot_selected,
-													)
-														? 'var(--popup)'
-														: 'var(--background-color)',
-												}}
+												style={
+													{
+														// Remove inline background to allow CSS glass morphism to work
+														// The CSS classes handle the glass morphism effect with proper backdrop-filter
+													}
+												}
 												onClick={() => {
 													// Don't allow interaction while creating meeting
 													if (info.creatingMeetingId) return;
