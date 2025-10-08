@@ -32,23 +32,6 @@
 	position: relative;
 	z-index: 1;
 
-	/* Make the entire navbar draggable by default */
-	-webkit-app-region: drag;
-	app-region: drag;
-
-	/* Add a specific draggable area for the empty space */
-	.draggableArea {
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		z-index: -1;
-		-webkit-app-region: drag;
-		app-region: drag;
-		pointer-events: auto;
-	}
-
 	ul {
 		list-style: none;
 		margin: 0;
@@ -75,10 +58,6 @@
 			cursor: pointer;
 			transition: background 0.3s ease;
 
-			/* Make navigation items non-draggable */
-			-webkit-app-region: no-drag;
-			app-region: no-drag;
-
 			&.active,
 			&:hover {
 				background: var(--card-over-card, #1f2123);
@@ -98,8 +77,6 @@
 		transform: translate(-50%, -50%);
 
 		/* Make middle container non-draggable since it contains interactive elements */
-		-webkit-app-region: no-drag;
-		app-region: no-drag;
 
 		.navItem {
 			display: flex;
@@ -119,10 +96,6 @@
 			border-radius: 100px;
 			border: 1px solid transparent;
 
-			/* Make middle nav items non-draggable */
-			-webkit-app-region: no-drag;
-			app-region: no-drag;
-
 			&.active,
 			&:hover {
 				border: 1px solid var(--primary-button, #79ecc9);
@@ -135,17 +108,11 @@
 		gap: 28px;
 
 		/* Make right container non-draggable since it contains interactive elements */
-		-webkit-app-region: no-drag;
-		app-region: no-drag;
 
 		.navItem {
 			display: flex;
 			align-items: center;
 			cursor: pointer;
-
-			/* Make right nav items non-draggable */
-			-webkit-app-region: no-drag;
-			app-region: no-drag;
 
 			svg {
 				width: 24px;
@@ -220,10 +187,6 @@
 		align-items: center;
 		justify-content: center;
 
-		/* Make mobile menu button non-draggable */
-		-webkit-app-region: no-drag;
-		app-region: no-drag;
-
 		svg {
 			width: 24px;
 			height: 24px;
@@ -241,10 +204,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-
-		/* Make mobile close button non-draggable */
-		-webkit-app-region: no-drag;
-		app-region: no-drag;
 
 		svg {
 			width: 24px;

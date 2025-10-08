@@ -1613,11 +1613,9 @@ function createWindow(restoreState = false) {
 			// Keep timers/raf unthrottled to improve responsiveness after idle
 			backgroundThrottling: false,
 		},
-		type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+		type: 'normal',
 		thickFrame: false,
-		hasShadow: true, // Enable shadow for depth
 		skipTaskbar: false,
-		alwaysOnTop: false,
 		opacity: 1.0,
 		visualEffectState: 'active',
 	};
