@@ -1,0 +1,91 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 12px;
+	align-self: stretch;
+	background: var(--popup);
+	border-top: 1px solid var(--stroke);
+	padding: 12px;
+	height: 50vh;
+
+	.title {
+		color: var(--secondary-font, #94989e);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+		letter-spacing: -0.24px;
+	}
+
+	.searchInputContainer {
+		display: flex;
+		padding: 10px;
+		align-items: center;
+		gap: 14px;
+		align-self: stretch;
+		border-radius: 8px;
+		background: var(--card-over-card-hover, #242628);
+		margin-bottom: -7px;
+
+		.searchInput {
+			flex: 1;
+			font-size: 14px;
+			font-weight: 500;
+			caret-color: var(--primary-font);
+		}
+	}
+
+	.workspaceList {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		overflow-y: auto;
+
+		.workspaceItem {
+			display: flex;
+			padding: 10px;
+			align-items: center;
+			gap: 16px;
+			align-self: stretch;
+			justify-content: space-between;
+			background-color: inherit;
+			cursor: pointer;
+			position: relative;
+			border-radius: 8px;
+			width: 100%;
+
+			&:hover {
+				background: var(--card, #1b1c1d);
+			}
+
+			&.selectedWorkspace {
+				background: var(--card, #1b1c1d);
+			}
+
+			.leftContainer {
+				display: flex;
+				align-items: center;
+				gap: 14px;
+				flex-grow: 1;
+
+				.workspaceLogo {
+					width: 18px;
+					height: 18px;
+					border-radius: 100px;
+				}
+
+				.workspaceName {
+					color: var(--primary-font, #f2f2f3);
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+				}
+			}
+		}
+	}
+}

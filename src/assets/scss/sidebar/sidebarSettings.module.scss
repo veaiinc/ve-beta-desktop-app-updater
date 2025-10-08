@@ -1,0 +1,145 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	align-self: stretch;
+	height: 100%;
+	overflow: auto;
+	.settings {
+		flex-grow: 1;
+		overflow: auto;
+		width: 100%;
+		padding: 12px 10px 0 10px;
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+
+		.settingsContainer {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 8px;
+			align-self: stretch;
+			.title {
+				color: #94989e;
+				font-family: var(--primary-font-family);
+				font-size: 12px;
+				font-style: normal;
+				font-weight: 400;
+				line-height: normal;
+				letter-spacing: 1.44px;
+			}
+
+			.settingsItemsContainer {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 4px;
+				align-self: stretch;
+				.item {
+					display: flex;
+					padding: 10px;
+					align-items: center;
+					gap: 14px;
+					align-self: stretch;
+					border-radius: 6px;
+					cursor: pointer;
+
+					&.active {
+						background-color: var(--card-over-card-hover);
+					}
+
+					&:hover {
+						background-color: var(--card-over-card-hover);
+					}
+
+					.icon {
+						height: 100%;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+
+						svg {
+							path {
+								fill: var(--secondary-font);
+							}
+						}
+					}
+
+					.label {
+						color: var(--primary-font, #f2f2f3);
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 400;
+						line-height: normal;
+					}
+				}
+			}
+		}
+	}
+	.footer {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+		align-self: stretch;
+		position: relative;
+
+		.workspaceBtn {
+			background: transparent;
+			border: none;
+			cursor: pointer;
+			display: flex;
+			padding: 10px;
+			align-items: center;
+			gap: 14px;
+			align-self: stretch;
+			border-radius: 8px;
+
+			color: var(--primary-font, #f2f2f3);
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+
+			&:hover {
+				background: var(--card-over-card-hover);
+			}
+			&.active {
+				background: var(--card-over-card-hover);
+			}
+		}
+	}
+
+	.switchWorkspaceContainer {
+		width: 256px;
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		z-index: 1001;
+		height: 100dvh;
+
+		.overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: var(--backdrop);
+			z-index: 1;
+			cursor: pointer;
+		}
+
+		.switchWorkspaceContent {
+			width: 100%;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			z-index: 2;
+		}
+	}
+}
