@@ -135,18 +135,18 @@ export const useScrollAnimation = () => {
 					let stage1End = 1.8;
 					let stage2End = 3.0;
 
-					if (currentScreenWidth <= 1400) {
-						maxScale = 1.6;
-						stage1End = 1.6;
-						stage2End = 0.8;
+					if (currentScreenWidth <= 1024) {
+						maxScale = 2.4;
+						stage1End = 1.2;
+						stage2End = 1.8;
 					} else if (currentScreenWidth <= 1200) {
 						maxScale = 2.8;
-						stage1End = 0.6;
-						stage2End = 1.2;
-					} else if (currentScreenWidth <= 1024) {
-						maxScale = 2.4;
-						stage1End = 0.4;
-						stage2End = 0.8;
+						stage1End = 1.4;
+						stage2End = 2.2;
+					} else if (currentScreenWidth <= 1400) {
+						maxScale = 3.5;
+						stage1End = 1.6;
+						stage2End = 2.5;
 					}
 
 					if (progress < stageOneSnapPoint) {
@@ -262,9 +262,6 @@ export const useScrollAnimation = () => {
 
 			// Kill all ScrollTriggers
 			ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-
-			if (iMacFrameRef.current) {
-			}
 
 			if (fullscreenIMacRef.current) {
 				gsap.set(fullscreenIMacRef.current, { scale: 0.3, opacity: 0, zIndex: -1 });
