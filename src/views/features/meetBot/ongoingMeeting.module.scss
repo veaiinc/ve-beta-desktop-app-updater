@@ -17,6 +17,7 @@
 		align-self: stretch;
 		flex-shrink: 0;
 		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+		-webkit-app-region: drag;
 
 		.ongoingMeetingHeaderButton {
 			display: flex;
@@ -30,6 +31,7 @@
 			padding: 0;
 			color: var(--primary-font);
 			cursor: pointer;
+			-webkit-app-region: no-drag;
 		}
 
 		.ongoingMeetingHeaderButtonClose {
@@ -48,6 +50,7 @@
 			padding: 0;
 			color: var(--primary-font);
 			cursor: pointer;
+			-webkit-app-region: no-drag;
 		}
 	}
 

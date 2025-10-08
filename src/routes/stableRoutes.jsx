@@ -141,16 +141,16 @@ const stableRoutes = [
 	// 		</Suspense>
 	// 	),
 	// },
-	// {
-	// 	path: '/meet/:meetingId',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title={'Meet'}>
-	// 				<MeetBotWrapper />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
+	{
+		path: '/meet/:meetingId',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Meet'}>
+					<MeetBotWrapper />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 
 	// ========================================
 	// Playbook

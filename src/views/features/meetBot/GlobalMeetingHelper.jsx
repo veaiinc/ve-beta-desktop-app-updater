@@ -350,6 +350,23 @@ const GlobalMeetingHelper = () => {
 			},
 		}));
 
+		// Send empty arrays to notch to clear data when meeting ends
+		try {
+			// Clear transcriptions in notch
+			if (window.electronApi?.notchdrop?.replaceTranscriptions) {
+				window.electronApi.notchdrop.replaceTranscriptions([]);
+				console.log('✅ Sent empty transcription array to NotchDrop for cleanup');
+			}
+
+			// Clear live intelligence data in notch
+			if (window.electronApi?.notchdrop?.clearLiveIntelligenceData) {
+				window.electronApi.notchdrop.clearLiveIntelligenceData();
+				console.log('✅ Cleared live intelligence data in NotchDrop for cleanup');
+			}
+		} catch (e) {
+			console.error('Failed to clear data in NotchDrop during meeting cleanup:', e);
+		}
+
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
 			isStoppingRef.current = false;

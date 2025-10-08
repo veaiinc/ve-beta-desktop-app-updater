@@ -688,7 +688,9 @@ ipcMain.handle('open-camera-settings', async () => {
 	try {
 		if (platform === 'darwin') {
 			log.info('📸 Opening Camera privacy settings...');
-			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Camera');
+			await shell.openExternal(
+				'x-apple.systempreferences:com.apple.preference.security?Privacy_Camera',
+			);
 			log.info('✅ Successfully opened Camera privacy settings');
 			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
@@ -714,7 +716,9 @@ ipcMain.handle('open-microphone-settings', async () => {
 	try {
 		if (platform === 'darwin') {
 			log.info('🎤 Opening Microphone privacy settings...');
-			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone');
+			await shell.openExternal(
+				'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone',
+			);
 			log.info('✅ Successfully opened Microphone privacy settings');
 			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
@@ -740,7 +744,9 @@ ipcMain.handle('open-screen-recording-settings', async () => {
 	try {
 		if (platform === 'darwin') {
 			log.info('🖥️ Opening Screen Recording privacy settings...');
-			await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture');
+			await shell.openExternal(
+				'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture',
+			);
 			log.info('✅ Successfully opened Screen Recording privacy settings');
 			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
@@ -766,18 +772,22 @@ ipcMain.handle('open-media-settings', async () => {
 	try {
 		if (platform === 'darwin') {
 			log.info('🎵 Opening Media Library privacy settings...');
-			
+
 			try {
 				// First try Privacy_Media URL scheme
-				await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Media');
+				await shell.openExternal(
+					'x-apple.systempreferences:com.apple.preference.security?Privacy_Media',
+				);
 				log.info('✅ Successfully opened Media Library privacy settings');
 				return { success: true, platform: 'macOS', method: 'Privacy_Media' };
 			} catch (mediaError) {
 				log.warn('⚠️ Privacy_Media failed, trying Photos as fallback:', mediaError.message);
-				
+
 				try {
 					// Fallback to Privacy_Photos
-					await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Photos');
+					await shell.openExternal(
+						'x-apple.systempreferences:com.apple.preference.security?Privacy_Photos',
+					);
 					log.info('✅ Successfully opened Photos privacy settings as fallback');
 					return { success: true, platform: 'macOS', method: 'Privacy_Photos' };
 				} catch (photosError) {
@@ -808,14 +818,20 @@ ipcMain.handle('open-calendar-settings', async () => {
 	try {
 		if (platform === 'darwin') {
 			log.info('📅 Opening Calendar privacy settings...');
-			
+
 			try {
-				await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars');
+				await shell.openExternal(
+					'x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars',
+				);
 				log.info('✅ Successfully opened Calendar privacy settings');
 				return { success: true, platform: 'macOS', method: 'shell.openExternal' };
 			} catch (calendarError) {
 				log.error('❌ Calendar settings failed:', calendarError.message);
-				return { success: false, error: 'Failed to open Calendar settings', details: calendarError.message };
+				return {
+					success: false,
+					error: 'Failed to open Calendar settings',
+					details: calendarError.message,
+				};
 			}
 		} else if (platform === 'win32') {
 			exec('start ms-settings:privacy-calendar', (error) => {
@@ -892,7 +908,12 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 
 			return {
 				success: true,
-				permission: screenStatus === 'authorized' ? 'granted' : screenStatus === 'denied' ? 'denied' : 'not-determined',
+				permission:
+					screenStatus === 'authorized'
+						? 'granted'
+						: screenStatus === 'denied'
+						? 'denied'
+						: 'not-determined',
 				hasPermission: screenStatus === 'authorized',
 				message:
 					screenStatus === 'authorized'
@@ -1797,30 +1818,30 @@ function createWindow(restoreState = false) {
 				}
 
 				// Check if index.html exists
-			// ⚡ OPTIMIZATION: Use async file operations
-			try {
-				await fs.promises.access(buildPath);
-			} catch {
-				log.error('❌ Build file not found:', buildPath);
-				await showErrorPage(
-					'Build file not found',
-					`The main application file is missing: ${buildPath}`,
-				);
-				return;
-			}
+				// ⚡ OPTIMIZATION: Use async file operations
+				try {
+					await fs.promises.access(buildPath);
+				} catch {
+					log.error('❌ Build file not found:', buildPath);
+					await showErrorPage(
+						'Build file not found',
+						`The main application file is missing: ${buildPath}`,
+					);
+					return;
+				}
 
-			// ⚡ OPTIMIZATION: Check build directory content asynchronously
-			const buildFiles = await fs.promises.readdir(buildDir);
-			log.info('📋 Build directory contents:', buildFiles);
+				// ⚡ OPTIMIZATION: Check build directory content asynchronously
+				const buildFiles = await fs.promises.readdir(buildDir);
+				log.info('📋 Build directory contents:', buildFiles);
 
-			if (buildFiles.length === 0) {
-				log.error('❌ Build directory is empty');
-				await showErrorPage(
-					'Empty build directory',
-					'The build directory exists but contains no files. Please rebuild the application.',
-				);
-				return;
-			}
+				if (buildFiles.length === 0) {
+					log.error('❌ Build directory is empty');
+					await showErrorPage(
+						'Empty build directory',
+						'The build directory exists but contains no files. Please rebuild the application.',
+					);
+					return;
+				}
 
 				// Try to load the file
 				log.info('📁 Loading production build file:', buildPath);
@@ -1978,25 +1999,25 @@ function createWindow(restoreState = false) {
 </body>
 </html>`;
 
-		// ⚡ OPTIMIZATION: Write error page asynchronously
-		const errorPagePath = path.join(__dirname, 'error-page.html');
-		await fs.promises.writeFile(errorPagePath, errorHtml);
+			// ⚡ OPTIMIZATION: Write error page asynchronously
+			const errorPagePath = path.join(__dirname, 'error-page.html');
+			await fs.promises.writeFile(errorPagePath, errorHtml);
 
-		// Load the error page from file
-		await mainWindow.loadFile(errorPagePath);
-		log.info('✅ Error page displayed to user');
+			// Load the error page from file
+			await mainWindow.loadFile(errorPagePath);
+			log.info('✅ Error page displayed to user');
 
-		// ⚡ OPTIMIZATION: Clean up the temporary file asynchronously after a delay
-		setTimeout(async () => {
-			try {
-				await fs.promises.unlink(errorPagePath);
-				log.info('🧹 Cleaned up temporary error page file');
-			} catch (cleanupError) {
-				if (cleanupError.code !== 'ENOENT') {
-					log.warn('⚠️ Failed to clean up error page file:', cleanupError.message);
+			// ⚡ OPTIMIZATION: Clean up the temporary file asynchronously after a delay
+			setTimeout(async () => {
+				try {
+					await fs.promises.unlink(errorPagePath);
+					log.info('🧹 Cleaned up temporary error page file');
+				} catch (cleanupError) {
+					if (cleanupError.code !== 'ENOENT') {
+						log.warn('⚠️ Failed to clean up error page file:', cleanupError.message);
+					}
 				}
-			}
-		}, 30000); // Clean up after 30 seconds
+			}, 30000); // Clean up after 30 seconds
 		} catch (errorPageError) {
 			log.error('❌ Failed to show error page:', errorPageError);
 
@@ -3789,19 +3810,18 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('resize-main-window', async (event, data) => {
 		try {
-			const {dimensions,exitFullScreen} = data;
+			const { dimensions, exitFullScreen } = data;
 			if (mainWindow) {
-				if(exitFullScreen) {
-					if(mainWindow.isFullScreen()) {
+				if (exitFullScreen) {
+					if (mainWindow.isFullScreen()) {
 						mainWindow.setFullScreen(false);
 						mainWindow.once('leave-full-screen', () => {
 							mainWindow.setBounds(dimensions);
 						});
-					}else{
+					} else {
 						mainWindow.setBounds(dimensions);
 					}
-					
-				}else{
+				} else {
 					mainWindow.setBounds(dimensions);
 				}
 			}
@@ -3939,7 +3959,12 @@ app.whenReady().then(async () => {
 
 				return {
 					success: true,
-					permission: mediaStatus === 'authorized' ? 'granted' : mediaStatus === 'denied' ? 'denied' : 'not-determined',
+					permission:
+						mediaStatus === 'authorized'
+							? 'granted'
+							: mediaStatus === 'denied'
+							? 'denied'
+							: 'not-determined',
 					hasPermission: mediaStatus === 'authorized',
 					message:
 						mediaStatus === 'authorized'
@@ -3983,7 +4008,12 @@ app.whenReady().then(async () => {
 
 				return {
 					success: true,
-					permission: calendarStatus === 'authorized' ? 'granted' : calendarStatus === 'denied' ? 'denied' : 'not-determined',
+					permission:
+						calendarStatus === 'authorized'
+							? 'granted'
+							: calendarStatus === 'denied'
+							? 'denied'
+							: 'not-determined',
 					hasPermission: calendarStatus === 'authorized',
 					message:
 						calendarStatus === 'authorized'
@@ -4019,15 +4049,19 @@ app.whenReady().then(async () => {
 				log.info('🎵 Requesting Media Library permission...');
 				const granted = await permissions.askForMediaAccess();
 				log.info('🎵 Media Library permission request result:', granted);
-				
+
 				return {
 					success: true,
 					permission: granted ? 'granted' : 'denied',
 					hasPermission: granted,
-					message: granted ? 'Media Library access granted' : 'Media Library access denied',
+					message: granted
+						? 'Media Library access granted'
+						: 'Media Library access denied',
 				};
 			} else {
-				log.warn('🎵 Media Library permission request not available - electron-mac-permissions required');
+				log.warn(
+					'🎵 Media Library permission request not available - electron-mac-permissions required',
+				);
 				return {
 					success: false,
 					error: 'Media Library permission request requires electron-mac-permissions package',
@@ -4053,7 +4087,7 @@ app.whenReady().then(async () => {
 				log.info('📅 Requesting Calendar permission...');
 				const granted = await permissions.askForCalendarAccess();
 				log.info('📅 Calendar permission request result:', granted);
-				
+
 				return {
 					success: true,
 					permission: granted ? 'granted' : 'denied',
@@ -4061,7 +4095,9 @@ app.whenReady().then(async () => {
 					message: granted ? 'Calendar access granted' : 'Calendar access denied',
 				};
 			} else {
-				log.warn('📅 Calendar permission request not available - electron-mac-permissions required');
+				log.warn(
+					'📅 Calendar permission request not available - electron-mac-permissions required',
+				);
 				return {
 					success: false,
 					error: 'Calendar permission request requires electron-mac-permissions package',
@@ -5414,6 +5450,20 @@ app.whenReady().then(async () => {
 			return { success: false, error: 'NotchDrop service not available' };
 		} catch (error) {
 			log.error('Error adding transcription data to NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Handle clearing live intelligence data in NotchDrop
+	ipcMain.handle('notchdrop-clear-live-intelligence-data', async (event) => {
+		try {
+			if (notchDropService && notchDropService.isInitialized) {
+				await notchDropService.clearLiveIntelligenceData();
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error clearing live intelligence data in NotchDrop:', error);
 			return { success: false, error: error.message };
 		}
 	});

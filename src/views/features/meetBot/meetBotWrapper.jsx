@@ -45,7 +45,7 @@ const MeetBotWrapper = () => {
 		<div className={s.meetingContainer}>
 			<div className={s.innerContainer}>
 				<div className={s.headerArea}>
-					<button className={s.backButton} onClick={() => navigate('/meet')}>
+					<button className={s.backButton} onClick={() => navigate('/home')}>
 						<BackArrow /> Back
 					</button>
 				</div>

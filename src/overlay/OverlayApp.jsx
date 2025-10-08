@@ -109,7 +109,13 @@ const OverlayApp = () => {
 
 		// Send transcription data to main process
 		if (window.electronApi?.overlay?.sendTranscriptionData) {
+			console.log(
+				'📝 OverlayApp: Sending individual transcription to main process:',
+				newTranscript.text?.substring(0, 50) + '...',
+			);
 			window.electronApi.overlay.sendTranscriptionData(newTranscript);
+		} else {
+			console.warn('⚠️ OverlayApp: sendTranscriptionData method not available');
 		}
 
 		// Don't send transcription data as live intelligence - keep them separate
@@ -119,8 +125,19 @@ const OverlayApp = () => {
 	// Send full transcription array to NotchDrop on every change
 	useEffect(() => {
 		try {
-			if (!window.electronApi?.notchdrop?.replaceTranscriptions) return;
-			const messages = (info?.transcriptions || []).map((t) => ({
+			if (!window.electronApi?.notchdrop?.replaceTranscriptions) {
+				console.warn('⚠️ OverlayApp: replaceTranscriptions method not available');
+				return;
+			}
+
+			const transcriptions = info?.transcriptions || [];
+			console.log(
+				'📝 OverlayApp: Sending transcriptions to NotchDrop:',
+				transcriptions.length,
+				'transcriptions',
+			);
+
+			const messages = transcriptions.map((t) => ({
 				sender: t.source || 'overlay',
 				content: t.text || '',
 				isFromAgent: false,
@@ -129,9 +146,11 @@ const OverlayApp = () => {
 				words: t.words,
 				type: 'transcription',
 			}));
+
 			window.electronApi.notchdrop.replaceTranscriptions(messages);
+			console.log('✅ OverlayApp: Transcriptions sent to NotchDrop successfully');
 		} catch (e) {
-			console.error('Failed to send full transcriptions to NotchDrop:', e);
+			console.error('❌ OverlayApp: Failed to send full transcriptions to NotchDrop:', e);
 		}
 	}, [info?.transcriptions]);
 
@@ -457,7 +476,7 @@ const OverlayApp = () => {
 			// promptToBoxMapping.current = {};
 			// boxIdCounter.current = 0;
 		} else {
-			console.error('Failed to create meeting:', meetingResponse);
+			console.error('Failed to create meeting');
 			notification.error(
 				'Meeting creation failed',
 				'Failed to create meeting. Please try again.',
@@ -509,11 +528,8 @@ const OverlayApp = () => {
 		// Stop audio recording for local storage
 		try {
 			console.log('OverlayApp: Stopping audio recording for meeting:', currentMeetingId);
-			console.log(
-				'OverlayApp: stopAudioRecording function available:',
-				typeof stopAudioRecording,
-			);
-			stopAudioRecording();
+			console.log('OverlayApp: stopRecording function available:', typeof stopRecording);
+			// Note: stopRecording is already called above, this is for local audio storage cleanup
 			console.log('OverlayApp: Audio recording stopped successfully');
 		} catch (error) {
 			console.error('OverlayApp: Error stopping audio recording:', error);
@@ -532,6 +548,23 @@ const OverlayApp = () => {
 				allThreads: [],
 			},
 		}));
+
+		// Send empty arrays to notch to clear data when meeting ends
+		try {
+			// Clear transcriptions in notch
+			if (window.electronApi?.notchdrop?.replaceTranscriptions) {
+				window.electronApi.notchdrop.replaceTranscriptions([]);
+				console.log('✅ Sent empty transcription array to NotchDrop for cleanup');
+			}
+
+			// Clear live intelligence data in notch
+			if (window.electronApi?.notchdrop?.clearLiveIntelligenceData) {
+				window.electronApi.notchdrop.clearLiveIntelligenceData();
+				console.log('✅ Cleared live intelligence data in NotchDrop for cleanup');
+			}
+		} catch (e) {
+			console.error('Failed to clear data in NotchDrop during meeting cleanup:', e);
+		}
 
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
@@ -674,9 +707,16 @@ const OverlayApp = () => {
 
 			// Notify Notch: overlay is showing live intelligence → Notch should show transcription
 			try {
-				window?.electronApi?.overlay?.setPanelMode?.('live-intel');
+				if (window?.electronApi?.overlay?.setPanelMode) {
+					window.electronApi.overlay.setPanelMode('live-intel');
+					console.log(
+						'🧭 OverlayApp: Set panel mode to live-intel (Notch will show transcription)',
+					);
+				} else {
+					console.warn('⚠️ OverlayApp: setPanelMode method not available');
+				}
 			} catch (e) {
-				console.error('Failed to send panel mode (live-intel) to Notch:', e);
+				console.error('❌ OverlayApp: Failed to send panel mode (live-intel) to Notch:', e);
 			}
 
 			// Mark current threads as seen when opening live intelligence
@@ -706,9 +746,16 @@ const OverlayApp = () => {
 
 		// Notify Notch: overlay is showing live intelligence → Notch should show transcription
 		try {
-			window?.electronApi?.overlay?.setPanelMode?.('live-intel');
+			if (window?.electronApi?.overlay?.setPanelMode) {
+				window.electronApi.overlay.setPanelMode('live-intel');
+				console.log(
+					'🧭 OverlayApp: Set panel mode to live-intel (Notch will show transcription)',
+				);
+			} else {
+				console.warn('⚠️ OverlayApp: setPanelMode method not available');
+			}
 		} catch (e) {
-			console.error('Failed to send panel mode (live-intel) to Notch:', e);
+			console.error('❌ OverlayApp: Failed to send panel mode (live-intel) to Notch:', e);
 		}
 
 		// Mark current threads as seen when opening live intelligence via Dynamic Island
@@ -737,9 +784,16 @@ const OverlayApp = () => {
 
 		// Notify Notch of current overlay mode so it can show the opposite
 		try {
-			window?.electronApi?.overlay?.setPanelMode?.('transcription');
+			if (window?.electronApi?.overlay?.setPanelMode) {
+				window.electronApi.overlay.setPanelMode('transcription');
+				console.log(
+					'🧭 OverlayApp: Set panel mode to transcription (Notch will show live intelligence)',
+				);
+			} else {
+				console.warn('⚠️ OverlayApp: setPanelMode method not available');
+			}
 		} catch (e) {
-			console.error('Failed to send panel mode (transcription) to Notch:', e);
+			console.error('❌ OverlayApp: Failed to send panel mode (transcription) to Notch:', e);
 		}
 	};
 
@@ -753,9 +807,16 @@ const OverlayApp = () => {
 
 		// Notify Notch of current overlay mode so it can show the opposite
 		try {
-			window?.electronApi?.overlay?.setPanelMode?.('live-intel');
+			if (window?.electronApi?.overlay?.setPanelMode) {
+				window.electronApi.overlay.setPanelMode('live-intel');
+				console.log(
+					'🧭 OverlayApp: Set panel mode to live-intel (Notch will show transcription)',
+				);
+			} else {
+				console.warn('⚠️ OverlayApp: setPanelMode method not available');
+			}
 		} catch (e) {
-			console.error('Failed to send panel mode (live-intel) to Notch:', e);
+			console.error('❌ OverlayApp: Failed to send panel mode (live-intel) to Notch:', e);
 		}
 	};
 
@@ -797,11 +858,17 @@ const OverlayApp = () => {
 
 	useEffect(() => {
 		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
+			console.log(
+				'🧠 OverlayApp: Processing live intelligence suggestions:',
+				aiTranscriptionSuggestions.suggestions.length,
+			);
+
 			const allThreads = [];
 			const askUser = [];
 			const needHelp = [];
 			const actions = [];
 			const files = [];
+
 			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
 				if (suggestion.entity === 'user') {
 					askUser.push(suggestion);
@@ -829,6 +896,11 @@ const OverlayApp = () => {
 			// Send live intelligence data to notch immediately when it arrives
 			try {
 				if (window?.electronApi?.overlay?.sendLiveIntelligenceData) {
+					console.log(
+						'🧠 OverlayApp: Sending live intelligence data to NotchDrop:',
+						allThreads.length,
+						'threads',
+					);
 					allThreads.forEach((thread) => {
 						const message = {
 							source: 'ai-agent',
@@ -841,12 +913,34 @@ const OverlayApp = () => {
 						};
 						window.electronApi.overlay.sendLiveIntelligenceData(message);
 					});
+					console.log(
+						'✅ OverlayApp: Live intelligence data sent to NotchDrop successfully',
+					);
+				} else {
+					console.warn('⚠️ OverlayApp: sendLiveIntelligenceData method not available');
 				}
 			} catch (e) {
-				console.error('Failed to send live intelligence data to Notch:', e);
+				console.error('❌ OverlayApp: Failed to send live intelligence data to Notch:', e);
 			}
 		}
 	}, [aiTranscriptionSuggestions]);
+
+	// Debug effect to monitor state changes
+	useEffect(() => {
+		console.log('🔍 OverlayApp State Debug:', {
+			activePanel,
+			isRecording,
+			transcriptionsCount: info?.transcriptions?.length || 0,
+			liveIntelligenceCount: info?.liveIntelligenceData?.allThreads?.length || 0,
+			aiSuggestionsCount: aiTranscriptionSuggestions?.suggestions?.length || 0,
+		});
+	}, [
+		activePanel,
+		isRecording,
+		info?.transcriptions?.length,
+		info?.liveIntelligenceData?.allThreads?.length,
+		aiTranscriptionSuggestions?.suggestions?.length,
+	]);
 
 	return (
 		<div

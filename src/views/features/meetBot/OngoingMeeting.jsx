@@ -53,6 +53,42 @@ const OngoingMeeting = memo(() => {
 					chatOpen: false,
 				}));
 			}
+
+			// Send empty arrays to notch to clear data when component unmounts
+			try {
+				console.log(
+					'🧹 OngoingMeeting: Cleaning up data in NotchDrop on component unmount',
+				);
+
+				// Clear transcriptions in notch
+				if (window.electronApi?.notchdrop?.replaceTranscriptions) {
+					window.electronApi.notchdrop.replaceTranscriptions([]);
+					console.log(
+						'✅ OngoingMeeting: Sent empty transcription array to NotchDrop for cleanup',
+					);
+				} else {
+					console.warn(
+						'⚠️ OngoingMeeting: replaceTranscriptions method not available for cleanup',
+					);
+				}
+
+				// Clear live intelligence data in notch
+				if (window.electronApi?.notchdrop?.clearLiveIntelligenceData) {
+					window.electronApi.notchdrop.clearLiveIntelligenceData();
+					console.log(
+						'✅ OngoingMeeting: Cleared live intelligence data in NotchDrop for cleanup',
+					);
+				} else {
+					console.warn(
+						'⚠️ OngoingMeeting: clearLiveIntelligenceData method not available for cleanup',
+					);
+				}
+			} catch (e) {
+				console.error(
+					'❌ OngoingMeeting: Failed to clear data in NotchDrop during component cleanup:',
+					e,
+				);
+			}
 		};
 	}, []);
 
@@ -65,14 +101,151 @@ const OngoingMeeting = memo(() => {
 		}
 	}, [sidebarState?.open]);
 
+	// Use the correct data source for OngoingMeeting: activeMeetingDetails.liveIntelligenceData.allThreads
 	useEffect(() => {
-		console.log('activeMeetingDetails', activeMeetingDetails);
-	}, [activeMeetingDetails]);
+		const allThreads = liveIntelligenceData?.allThreads || [];
+
+		if (allThreads.length > 0) {
+			console.log(
+				'🧠 OngoingMeeting: Processing live intelligence data:',
+				allThreads.length,
+				'threads',
+			);
+
+			// Send live intelligence data to notch immediately when it arrives
+			try {
+				if (window?.electronApi?.overlay?.sendLiveIntelligenceData) {
+					console.log(
+						'🧠 OngoingMeeting: Sending live intelligence data to NotchDrop:',
+						allThreads.length,
+						'threads',
+					);
+					allThreads.forEach((thread) => {
+						const message = {
+							source: 'ai-agent',
+							text: thread.prompt || thread.name || thread.description || '',
+							timestamp:
+								thread.timestamp || thread.created_at || new Date().toISOString(),
+							type: 'live-intelligence',
+							confidence: thread.confidence,
+							metadata: thread,
+						};
+						window.electronApi.overlay.sendLiveIntelligenceData(message);
+					});
+					console.log(
+						'✅ OngoingMeeting: Live intelligence data sent to NotchDrop successfully',
+					);
+				} else {
+					console.warn(
+						'⚠️ OngoingMeeting: sendLiveIntelligenceData method not available',
+					);
+				}
+			} catch (e) {
+				console.error(
+					'❌ OngoingMeeting: Failed to send live intelligence data to Notch:',
+					e,
+				);
+			}
+		}
+	}, [liveIntelligenceData?.allThreads]);
+
+	useEffect(() => {
+		if (transcriptions.length > 0) {
+			console.log(
+				'📝 OngoingMeeting: Processing transcriptions:',
+				transcriptions.length,
+				'transcriptions',
+			);
+
+			try {
+				if (!window?.electronApi?.notchdrop?.replaceTranscriptions) {
+					console.warn('⚠️ OngoingMeeting: replaceTranscriptions method not available');
+					return;
+				}
+
+				console.log(
+					'📝 OngoingMeeting: Sending transcriptions to NotchDrop:',
+					transcriptions.length,
+					'transcriptions',
+				);
+
+				const messages = (transcriptions || []).map((t) => ({
+					sender: t.source || 'overlay',
+					content: t.text || '',
+					isFromAgent: false,
+					timestamp: t.timestamp || new Date().toISOString(),
+					confidence: t.confidence,
+					words: t.words,
+					type: 'transcription',
+				}));
+
+				window.electronApi.notchdrop.replaceTranscriptions(messages);
+				console.log('✅ OngoingMeeting: Transcriptions sent to NotchDrop successfully');
+			} catch (e) {
+				console.error(
+					'❌ OngoingMeeting: Failed to send full transcriptions to NotchDrop:',
+					e,
+				);
+			}
+		}
+	}, [transcriptions]);
+
+	// Debug effect to monitor state changes
+	useEffect(() => {
+		console.log('🔍 OngoingMeeting State Debug:', {
+			showingTranscripts: info.showingTranscripts,
+			chatOpen: info.chatOpen,
+			transcriptionsCount: transcriptions?.length || 0,
+			liveIntelligenceCount: liveIntelligenceData?.allThreads?.length || 0,
+			meetingId,
+		});
+	}, [
+		info.showingTranscripts,
+		info.chatOpen,
+		transcriptions?.length,
+		liveIntelligenceData?.allThreads?.length,
+		meetingId,
+	]);
 
 	const handleStateChange = (data) => {
 		setInfo((prev) => ({
 			...prev,
 			...data,
+		}));
+	};
+
+	const toggleTranscripts = (open) => {
+		console.log('🔄 OngoingMeeting: Toggling transcripts:', open);
+
+		try {
+			if (open === true) {
+				// Showing transcripts in main app → Notch should show live intelligence
+				if (window?.electronApi?.overlay?.setPanelMode) {
+					window.electronApi.overlay.setPanelMode('transcription');
+					console.log(
+						'🧭 OngoingMeeting: Set panel mode to transcription (Notch will show live intelligence)',
+					);
+				} else {
+					console.warn('⚠️ OngoingMeeting: setPanelMode method not available');
+				}
+			} else {
+				// Showing live intelligence in main app → Notch should show transcription
+				if (window?.electronApi?.overlay?.setPanelMode) {
+					window.electronApi.overlay.setPanelMode('live-intel');
+					console.log(
+						'🧭 OngoingMeeting: Set panel mode to live-intel (Notch will show transcription)',
+					);
+				} else {
+					console.warn('⚠️ OngoingMeeting: setPanelMode method not available');
+				}
+			}
+		} catch (e) {
+			console.error('❌ OngoingMeeting: Failed to send panel mode to Notch:', e);
+		}
+
+		setInfo((prev) => ({
+			...prev,
+			showingTranscripts: open,
 		}));
 	};
 
@@ -178,9 +351,7 @@ const OngoingMeeting = memo(() => {
 						</div>
 						<button
 							className={s.ongoingMeetingNavButton}
-							onClick={() =>
-								handleStateChange({ showingTranscripts: !info.showingTranscripts })
-							}
+							onClick={() => toggleTranscripts(!info.showingTranscripts)}
 						>
 							<ArrowLeftRight size={16} />{' '}
 							{info.showingTranscripts

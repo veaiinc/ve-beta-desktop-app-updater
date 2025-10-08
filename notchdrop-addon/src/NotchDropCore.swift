@@ -770,6 +770,15 @@ class NotchDropPanel: NSPanel {
             print("🧭 Swift Core: setRecordingPanelMode=\(normalized) | showTranscriptionDuringRecording=\(viewModel.showTranscriptionDuringRecording)")
         }
     }
+
+    // Clear live intelligence data
+    @objc public func clearLiveIntelligenceData() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            viewModel.clearLiveIntelligenceData()
+            print("🧠 Swift Core: Cleared live intelligence data")
+        }
+    }
     
     // MARK: - Wake Word Detection Methods
     

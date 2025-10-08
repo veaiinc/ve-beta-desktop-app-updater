@@ -146,7 +146,6 @@ if (process.platform !== 'darwin') {
 
 	module.exports = MockNotchDropAddonWrapper;
 	module.exports.NotchDropAddonWrapper = MockNotchDropAddonWrapper;
-	return;
 }
 
 // Load the native addon with fallback to prebuilt binaries (macOS only)
@@ -1268,6 +1267,24 @@ class NotchDropAddonWrapper extends EventEmitter {
 			}
 		} catch (error) {
 			console.error('❌ Error setting panel mode:', error);
+			throw error;
+		}
+	}
+
+	// Clear live intelligence data in NotchDrop
+	clearLiveIntelligenceData() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			if (this.addon.clearLiveIntelligenceData) {
+				this.addon.clearLiveIntelligenceData();
+				console.log('🧠 Cleared live intelligence data in NotchDrop');
+			} else {
+				console.warn('⚠️ clearLiveIntelligenceData not available on native addon');
+			}
+		} catch (error) {
+			console.error('❌ Error clearing live intelligence data:', error);
 			throw error;
 		}
 	}

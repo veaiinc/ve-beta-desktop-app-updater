@@ -68,9 +68,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 	// Diagnostic function
 	getDiagnosticInfo: () => ipcRenderer.invoke('get-diagnostic-info'),
 
-	// DevTools function
-	openDevTools: () => ipcRenderer.invoke('open-dev-tools'),
-
 	// New: Download album as ZIP(s)
 	downloadAlbumZip: (payload) => ipcRenderer.invoke('download-album-zip', payload),
 
@@ -498,6 +495,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Replace entire transcription list in NotchDrop
 		replaceTranscriptions: (messages) =>
 			ipcRenderer.invoke('notchdrop-replace-transcriptions', messages),
+		// Clear live intelligence data in NotchDrop
+		clearLiveIntelligenceData: () =>
+			ipcRenderer.invoke('notchdrop-clear-live-intelligence-data'),
 		onFileDropped: (callback) => {
 			ipcRenderer.on('notchdrop-file-dropped', (event, data) => {
 				callback(data);
