@@ -182,7 +182,7 @@ struct DynamicIslandContentView: View {
                 .lineSpacing(-4) // Optional: Adjust if you want total line height to be close to 50px
                 .foregroundColor(.white)
 
-                    Text("I'm Ve, From the living intelligence company")
+                    Text(" I’m Ve From the living intelligence company")
                         .font(.custom("Urbanist", size: 13))
                         .foregroundColor(.white.opacity(0.8))
                         .lineSpacing(17)
@@ -191,6 +191,7 @@ struct DynamicIslandContentView: View {
                     .font(.custom("Urbanist", size: 13))
                     .foregroundColor(.white.opacity(0.8))
                     .lineSpacing(17)
+                    .italic()
                     
                     // Test buttons
                     HStack(spacing: 8) {
@@ -202,7 +203,7 @@ struct DynamicIslandContentView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.gray.opacity(0.3))
+                        // .background(Color.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .buttonStyle(PlainButtonStyle())
 
