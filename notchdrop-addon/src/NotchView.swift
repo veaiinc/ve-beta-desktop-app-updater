@@ -49,7 +49,7 @@ struct NotchView: View {
     var collapsedNotchSize: CGSize {
         // Same computation as the .closed branch of notchSize
         if !vm.isAuthenticated {
-            return CGSize(width: 320, height: 20)
+            return CGSize(width: 350, height: 20)
         }
         let isMacBookPro = vm.deviceNotchRect.width > 180
         let baseWidth: CGFloat = 343
@@ -261,7 +261,7 @@ var notch: some View {
         var body: some View {
             HStack {
                 // Left buttons
-                HStack(spacing: 2) {
+                HStack(spacing: 4) {
                     PillButtonSmall(title: "Listen")
                     PillButtonSmall(title: "See")
                 }
@@ -281,11 +281,11 @@ HStack(spacing: 4) {
 
 
     // ✅ Replaced small circle with IncognitoIcon SVG
-    IncognitoIconSVG()
-        .frame(width: 24, height: 24)
-        .overlay(
-            Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
-        )
+    // IncognitoIconSVG()
+    //     .frame(width: 24, height: 24)
+    //     .overlay(
+    //         Circle().stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+    //     )
 }
 
             }
@@ -296,15 +296,32 @@ HStack(spacing: 4) {
         struct PillButtonSmall: View {
             let title: String
             var body: some View {
-                Text(title)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.white)
-                    .frame(width: 50, height: 24)
-                    .background(Color.clear)
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                HStack(spacing: 4) {
+                    Text(title)
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .frame(width: 40, height: 24)
+                .padding(.horizontal, 12)
+
+                .background(
+                    LinearGradient(
+                        stops: [
+                            Gradient.Stop(color: .white.opacity(0.06), location: 0.0),
+                            Gradient.Stop(color: .white.opacity(0.03), location: 0.5),
+                            Gradient.Stop(color: .white.opacity(0.06), location: 1.0),
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing,
                     )
+                )
+                .cornerRadius(5)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                )
+                .shadow(color: .white.opacity(0.25), radius: 3, x: 0, y: 0) // Inset shadow effect
+                .shadow(color: .black.opacity(0.10), radius: 5, x: 0, y: 0) // Outer shadow
             }
         }
     }
