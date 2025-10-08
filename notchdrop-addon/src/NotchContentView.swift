@@ -612,46 +612,47 @@ struct DynamicIslandContentView: View {
                             // .background(Color.black.opacity(0.4))
                             
                             .cornerRadius(10)
-                        } else if vm.isRecording && !vm.showTranscriptionDuringRecording {
-                            // Show live intelligence data in chat-like format
-                            ScrollView(.vertical, showsIndicators: true) {
-                                LazyVStack(spacing: 12) {
-                                    if vm.liveIntelligenceMessages.isEmpty {
-                                        Text("No live intelligence data yet...")
-                                            .font(.system(size: 14))
-                                            .foregroundColor(.white.opacity(0.6))
-                                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                            .padding()
-                                    } else {
-                                        ForEach(vm.liveIntelligenceMessages) { message in
-                                            TranscriptionMessageView(message: message)
-                                                .padding(.horizontal, 4)
-                                        }
-                                    }
-                                }
-                                .padding(.vertical, 8)
-                                // .padding(.horizontal, 12)
-                            }
-                            .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 100)
-                            // .background(Color.black.opacity(0.4))
+                        } 
+                        // else if vm.isRecording && !vm.showTranscriptionDuringRecording {
+                        //     // Show live intelligence data in chat-like format
+                        //     ScrollView(.vertical, showsIndicators: true) {
+                        //         LazyVStack(spacing: 12) {
+                        //             if vm.liveIntelligenceMessages.isEmpty {
+                        //                 Text("No live intelligence data yet...")
+                        //                     .font(.system(size: 14))
+                        //                     .foregroundColor(.white.opacity(0.6))
+                        //                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        //                     .padding()
+                        //             } else {
+                        //                 ForEach(vm.liveIntelligenceMessages) { message in
+                        //                     TranscriptionMessageView(message: message)
+                        //                         .padding(.horizontal, 4)
+                        //                 }
+                        //             }
+                        //         }
+                        //         .padding(.vertical, 8)
+                        //         // .padding(.horizontal, 12)
+                        //     }
+                        //     .frame(width: min(240, vm.notchOpenedSize.width - 240), height: 100)
+                        //     // .background(Color.black.opacity(0.4))
                             
-                            .cornerRadius(10)
-                            // .onAppear {
-                            //     // Console log live intelligence data display in SwiftUI
-                            //     print("🧠 NotchContentView: Displaying live intelligence data")
-                            //     print("🧠 Total live intelligence messages: \(vm.liveIntelligenceMessages.count)")
-                            //     if let lastMessage = vm.liveIntelligenceMessages.last {
-                            //         print("🧠 Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
-                            //     }
-                            // }
-                            .onChange(of: vm.liveIntelligenceMessages.count) { newCount in
-                                // Console log when live intelligence messages count changes
-                                print("🧠 NotchContentView: Live intelligence messages count changed to: \(newCount)")
-                                if let lastMessage = vm.liveIntelligenceMessages.last {
-                                    print("🧠 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
-                                }
-                            }
-                        }
+                        //     .cornerRadius(10)
+                        //     // .onAppear {
+                        //     //     // Console log live intelligence data display in SwiftUI
+                        //     //     print("🧠 NotchContentView: Displaying live intelligence data")
+                        //     //     print("🧠 Total live intelligence messages: \(vm.liveIntelligenceMessages.count)")
+                        //     //     if let lastMessage = vm.liveIntelligenceMessages.last {
+                        //     //         print("🧠 Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
+                        //     //     }
+                        //     // }
+                        //     .onChange(of: vm.liveIntelligenceMessages.count) { newCount in
+                        //         // Console log when live intelligence messages count changes
+                        //         print("🧠 NotchContentView: Live intelligence messages count changed to: \(newCount)")
+                        //         if let lastMessage = vm.liveIntelligenceMessages.last {
+                        //             print("🧠 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
+                        //         }
+                        //     }
+                        // }
 
                         if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls) - PRIORITY: Always show voice interface when active
