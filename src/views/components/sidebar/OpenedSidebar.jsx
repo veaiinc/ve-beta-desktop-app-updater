@@ -257,7 +257,7 @@ const OpenedSidebar = ({
 	const settingsNavigationItems = settingsNavItemsMap[workspaceMode];
 
 	const {
-		templates: { leftSidebarState, updateStateValues },
+		templates: { updateStateValues },
 		profileInfo: {
 			userDetailsData,
 			updateUserLogo,
@@ -334,12 +334,6 @@ const OpenedSidebar = ({
 		}
 	}, [tennantSettingsData]);
 
-	useEffect(() => {
-		if (leftSidebarState && leftSidebarState === 'close') {
-			handleSidebarCollapse();
-			updateStateValues({ leftSidebarState: null });
-		}
-	}, [leftSidebarState]);
 	const channel = useBroadcastChannel();
 	useEffect(() => {
 		const handleResize = () => {
