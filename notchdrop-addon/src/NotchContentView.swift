@@ -183,15 +183,16 @@ struct DynamicIslandContentView: View {
                 .lineSpacing(-4) // Optional: Adjust if you want total line height to be close to 50px
                 .foregroundColor(.white)
 
-                    Text("I'm Ve, From the living intelligence company")
+                    Text(" I'm Ve From the living intelligence company")
                         .font(.custom("Urbanist", size: 13))
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(.white.opacity(0.6))
                         .lineSpacing(17)
 
                     Text("of San Francisco")
                     .font(.custom("Urbanist", size: 13))
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.white.opacity(0.6))
                     .lineSpacing(17)
+                    .italic()
                     
                     // Test buttons
                     HStack(spacing: 8) {
@@ -203,24 +204,11 @@ struct DynamicIslandContentView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.gray.opacity(0.3))
+                        // .background(Color.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .buttonStyle(PlainButtonStyle())
 
-                        // Button("Test Notification") {
-                        //     vm.showNotification(
-                        //         title: "Test Meeting",
-                        //         body: "This is a test notification from SwiftUI",
-                        //         type: "meeting"
-                        //     )
-                        // }
-                        // .font(.system(size: 12, weight: .medium))
-                        // .foregroundColor(.white)
-                        // .padding(.horizontal, 16)
-                        // .padding(.vertical, 8)
-                        // .background(Color.green.opacity(0.3))
-                        // .clipShape(RoundedRectangle(cornerRadius: 8))
-                        // .buttonStyle(PlainButtonStyle())
+                        
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -356,10 +344,6 @@ struct DynamicIslandContentView: View {
                                             .foregroundColor(.white)
                                             .frame(width: 24, height: 24)
                                             .background(Color.clear)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 6)
-                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                            )
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
@@ -373,10 +357,6 @@ struct DynamicIslandContentView: View {
                                             .frame(width: 14, height: 14)
                                             .frame(width: 24, height: 24)
                                             .background(Color.clear)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 6)
-                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                                            )
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
@@ -491,10 +471,6 @@ struct DynamicIslandContentView: View {
                                         RoundedRectangle(cornerRadius: 6)
                                             .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
                                     )
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                                            .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                                    )
                                     .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -523,10 +499,6 @@ struct DynamicIslandContentView: View {
                                 .background(
                                     RoundedRectangle(cornerRadius: 6)
                                         .fill(isStealthIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
-                                )
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                                        .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
                                 )
                                 .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
@@ -561,7 +533,7 @@ struct DynamicIslandContentView: View {
                                     )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6)
-                                            .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
+                                            .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.clear, lineWidth: 0.5)
                                     )
                                     .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
@@ -2013,46 +1985,112 @@ struct ChatTextAreaView: View {
 struct VEIcon: View {
     var color: Color = .white
     var body: some View {
-        // Simple, clean V and E representation
-        HStack(spacing: 1) {
-            // V shape
-            ZStack {
-                Path { path in
-                    path.move(to: CGPoint(x: 0, y: 0))
-                    path.addLine(to: CGPoint(x: 3, y: 8))
-                    path.addLine(to: CGPoint(x: 4, y: 8))
-                    path.addLine(to: CGPoint(x: 7, y: 0))
-                    path.addLine(to: CGPoint(x: 5.5, y: 0))
-                    path.addLine(to: CGPoint(x: 3.5, y: 6))
-                    path.addLine(to: CGPoint(x: 1.5, y: 0))
-                    path.closeSubpath()
-                }
-                .fill(color)
+        ZStack {
+            // V shape from SVG
+            Path { path in
+                path.move(to: CGPoint(x: 7.5466, y: 0.00034523))
+                path.addCurve(to: CGPoint(x: 6.90741, y: 0.031127), control1: CGPoint(x: 7.26923, y: 0.00531769), control2: CGPoint(x: 7.07517, y: 0.0147889))
+                path.addCurve(to: CGPoint(x: 5.88864, y: 0.368307), control1: CGPoint(x: 6.46667, y: 0.0739848), control2: CGPoint(x: 6.17616, y: 0.170356))
+                path.addCurve(to: CGPoint(x: 5.58405, y: 0.629006), control1: CGPoint(x: 5.77649, y: 0.445735), control2: CGPoint(x: 5.68535, y: 0.523637))
+                path.addCurve(to: CGPoint(x: 5.38075, y: 0.871472), control1: CGPoint(x: 5.50651, y: 0.709512), control2: CGPoint(x: 5.45136, y: 0.775575))
+                path.addCurve(to: CGPoint(x: 4.35021, y: 2.79889), control1: CGPoint(x: 5.06393, y: 1.30242), control2: CGPoint(x: 4.72011, y: 1.94552))
+                path.addCurve(to: CGPoint(x: 3.77841, y: 4.21012), control1: CGPoint(x: 4.18222, y: 3.18627), control2: CGPoint(x: 4.062, y: 3.48343))
+                path.addCurve(to: CGPoint(x: 3.42997, y: 5.06491), control1: CGPoint(x: 3.53935, y: 4.82315), control2: CGPoint(x: 3.49227, y: 4.93847))
+                path.addCurve(to: CGPoint(x: 3.36282, y: 5.17786), control1: CGPoint(x: 3.39997, y: 5.12576), control2: CGPoint(x: 3.3799, y: 5.15962))
+                path.addCurve(to: CGPoint(x: 3.34182, y: 5.19159), control1: CGPoint(x: 3.35174, y: 5.18946), control2: CGPoint(x: 3.34851, y: 5.19159))
+                path.addCurve(to: CGPoint(x: 3.32198, y: 5.17383), control1: CGPoint(x: 3.33282, y: 5.19159), control2: CGPoint(x: 3.32913, y: 5.18804))
+                path.addCurve(to: CGPoint(x: 3.23498, y: 4.19473), control1: CGPoint(x: 3.28483, y: 5.09735), control2: CGPoint(x: 3.25806, y: 4.79569))
+                path.addCurve(to: CGPoint(x: 3.20729, y: 3.30679), control1: CGPoint(x: 3.22714, y: 3.98636), control2: CGPoint(x: 3.21975, y: 3.75313))
+                path.addCurve(to: CGPoint(x: 3.16807, y: 2.05421), control1: CGPoint(x: 3.18837, y: 2.62864), control2: CGPoint(x: 3.18006, y: 2.36345))
+                path.addCurve(to: CGPoint(x: 3.06423, y: 0.651974), control1: CGPoint(x: 3.14038, y: 1.34433), control2: CGPoint(x: 3.10415, y: 0.855134))
+                path.addCurve(to: CGPoint(x: 2.67241, y: 0.0640397), control1: CGPoint(x: 3.00492, y: 0.350311), control2: CGPoint(x: 2.8727, y: 0.152123))
+                path.addCurve(to: CGPoint(x: 2.39043, y: 0.00792217), control1: CGPoint(x: 2.58334, y: 0.0247336), control2: CGPoint(x: 2.49888, y: 0.00792217))
+                path.addCurve(to: CGPoint(x: 1.91739, y: 0.101215), control1: CGPoint(x: 2.26513, y: 0.00792217), control2: CGPoint(x: 2.17814, y: 0.0249706))
+                path.addCurve(to: CGPoint(x: 0.874153, y: 0.467283), control1: CGPoint(x: 1.61187, y: 0.190246), control2: CGPoint(x: 1.28628, y: 0.304612))
+                path.addCurve(to: CGPoint(x: 0.156974, y: 0.760657), control1: CGPoint(x: 0.664168, y: 0.550394), control2: CGPoint(x: 0.184434, y: 0.74645))
+                path.addCurve(to: CGPoint(x: 0.010677, y: 0.924748), control1: CGPoint(x: 0.0861331, y: 0.797359), control2: CGPoint(x: 0.031214, y: 0.858686))
+                path.addCurve(to: CGPoint(x: 0.0178303, y: 1.0796), control1: CGPoint(x: -0.00570645, y: 0.977314), control2: CGPoint(x: -0.00316817, y: 1.03272))
+                path.addCurve(to: CGPoint(x: 0.193664, y: 1.22073), control1: CGPoint(x: 0.0485204, y: 1.14756), control2: CGPoint(x: 0.107593, y: 1.19492))
+                path.addCurve(to: CGPoint(x: 0.52041, y: 1.36919), control1: CGPoint(x: 0.332808, y: 1.26264), control2: CGPoint(x: 0.426955, y: 1.30526))
+                path.addCurve(to: CGPoint(x: 0.742624, y: 1.59224), control1: CGPoint(x: 0.604865, y: 1.42673), control2: CGPoint(x: 0.683552, y: 1.50558))
+                path.addCurve(to: CGPoint(x: 0.951456, y: 2.19272), control1: CGPoint(x: 0.843002, y: 1.73952), control2: CGPoint(x: 0.907613, y: 1.92516))
+                path.addCurve(to: CGPoint(x: 1.01168, y: 2.66984), control1: CGPoint(x: 0.968993, y: 2.3007), control2: CGPoint(x: 0.973839, y: 2.33929))
+                path.addCurve(to: CGPoint(x: 1.40881, y: 5.96706), control1: CGPoint(x: 1.14436, y: 3.83553), control2: CGPoint(x: 1.27451, y: 4.91621))
+                path.addCurve(to: CGPoint(x: 1.47434, y: 6.40345), control1: CGPoint(x: 1.4448, y: 6.25001), control2: CGPoint(x: 1.4538, y: 6.30968))
+                path.addCurve(to: CGPoint(x: 1.77432, y: 6.93503), control1: CGPoint(x: 1.52857, y: 6.65349), control2: CGPoint(x: 1.62087, y: 6.81687))
+                path.addCurve(to: CGPoint(x: 1.89662, y: 7.01103), control1: CGPoint(x: 1.81055, y: 6.96273), control2: CGPoint(x: 1.84747, y: 6.9857))
+                path.addCurve(to: CGPoint(x: 2.67079, y: 7.22651), control1: CGPoint(x: 2.12483, y: 7.12753), control2: CGPoint(x: 2.39343, y: 7.20236))
+                path.addCurve(to: CGPoint(x: 3.14038, y: 7.22201), control1: CGPoint(x: 2.81501, y: 7.23906), control2: CGPoint(x: 2.99385, y: 7.2374))
+                path.addCurve(to: CGPoint(x: 4.11877, y: 6.92721), control1: CGPoint(x: 3.48004, y: 7.18625), control2: CGPoint(x: 3.81325, y: 7.08586))
+                path.addCurve(to: CGPoint(x: 5.0037, y: 6.16595), control1: CGPoint(x: 4.4822, y: 6.73826), control2: CGPoint(x: 4.78656, y: 6.47661))
+                path.addCurve(to: CGPoint(x: 5.19569, y: 5.83564), control1: CGPoint(x: 5.06877, y: 6.07314), control2: CGPoint(x: 5.1057, y: 6.00944))
+                path.addCurve(to: CGPoint(x: 6.28899, y: 3.59448), control1: CGPoint(x: 5.49613, y: 5.25552), control2: CGPoint(x: 5.76149, y: 4.71163))
+                path.addCurve(to: CGPoint(x: 7.04286, y: 2.03526), control1: CGPoint(x: 6.68243, y: 2.76148), control2: CGPoint(x: 6.86611, y: 2.3812))
+                path.addCurve(to: CGPoint(x: 7.61005, y: 1.02657), control1: CGPoint(x: 7.263, y: 1.60432), control2: CGPoint(x: 7.44045, y: 1.28892))
+                path.addCurve(to: CGPoint(x: 7.94534, y: 0.570994), control1: CGPoint(x: 7.7342, y: 0.834534), control2: CGPoint(x: 7.82327, y: 0.713538))
+                path.addCurve(to: CGPoint(x: 8.05264, y: 0.43508), control1: CGPoint(x: 7.99472, y: 0.513219), control2: CGPoint(x: 8.02818, y: 0.470834))
+                path.addCurve(to: CGPoint(x: 8.15048, y: 0.189535), control1: CGPoint(x: 8.12209, y: 0.333499), control2: CGPoint(x: 8.15394, y: 0.25394))
+                path.addCurve(to: CGPoint(x: 8.09602, y: 0.083693), control1: CGPoint(x: 8.14817, y: 0.144783), control2: CGPoint(x: 8.13156, y: 0.112581))
+                path.addCurve(to: CGPoint(x: 7.80273, y: 0.0036602), control1: CGPoint(x: 8.04272, y: 0.0398881), control2: CGPoint(x: 7.94926, y: 0.0145522))
+                path.addCurve(to: CGPoint(x: 7.5466, y: 0.00034523), control1: CGPoint(x: 7.76743, y: 0.00105558), control2: CGPoint(x: 7.61513, y: -0.000838688))
+                path.closeSubpath()
             }
-            .frame(width: 7, height: 8)
+            .fill(color)
             
-            // E shape
-            ZStack {
-                Path { path in
-                    path.move(to: CGPoint(x: 0, y: 0))
-                    path.addLine(to: CGPoint(x: 0, y: 8))
-                    path.addLine(to: CGPoint(x: 6, y: 8))
-                    path.addLine(to: CGPoint(x: 6, y: 6.5))
-                    path.addLine(to: CGPoint(x: 1.5, y: 6.5))
-                    path.addLine(to: CGPoint(x: 1.5, y: 4.5))
-                    path.addLine(to: CGPoint(x: 5, y: 4.5))
-                    path.addLine(to: CGPoint(x: 5, y: 3.5))
-                    path.addLine(to: CGPoint(x: 1.5, y: 3.5))
-                    path.addLine(to: CGPoint(x: 1.5, y: 1.5))
-                    path.addLine(to: CGPoint(x: 6, y: 1.5))
-                    path.addLine(to: CGPoint(x: 6, y: 0))
-                    path.closeSubpath()
-                }
-                .fill(color)
+            // E shape from SVG
+            Path { path in
+                path.move(to: CGPoint(x: 11.2273, y: 0.332537))
+                path.addCurve(to: CGPoint(x: 8.48854, y: 1.47318), control1: CGPoint(x: 10.2399, y: 0.374469), control2: CGPoint(x: 9.26458, y: 0.78073))
+                path.addCurve(to: CGPoint(x: 8.13183, y: 1.82858), control1: CGPoint(x: 8.37314, y: 1.5763), control2: CGPoint(x: 8.23329, y: 1.71561))
+                path.addCurve(to: CGPoint(x: 7.06283, y: 4.07184), control1: CGPoint(x: 7.55299, y: 2.47314), control2: CGPoint(x: 7.18234, y: 3.25084))
+                path.addCurve(to: CGPoint(x: 7.05826, y: 5.17674), control1: CGPoint(x: 7.0041, y: 4.47581), control2: CGPoint(x: 7.0025, y: 4.83945))
+                path.addCurve(to: CGPoint(x: 8.21318, y: 6.84097), control1: CGPoint(x: 7.18051, y: 5.91869), control2: CGPoint(x: 7.57196, y: 6.4826))
+                path.addCurve(to: CGPoint(x: 9.24493, y: 7.22455), control1: CGPoint(x: 8.47917, y: 6.98968), control2: CGPoint(x: 8.88022, y: 7.13862))
+                path.addCurve(to: CGPoint(x: 10.6688, y: 7.29352), control1: CGPoint(x: 9.72047, y: 7.33659), control2: CGPoint(x: 10.2052, y: 7.35997))
+                path.addCurve(to: CGPoint(x: 12.2739, y: 6.69363), control1: CGPoint(x: 11.2189, y: 7.21446), control2: CGPoint(x: 11.7533, y: 7.01466))
+                path.addCurve(to: CGPoint(x: 12.7993, y: 6.24063), control1: CGPoint(x: 12.5321, y: 6.53438), control2: CGPoint(x: 12.6836, y: 6.40354))
+                path.addCurve(to: CGPoint(x: 12.9908, y: 5.69528), control1: CGPoint(x: 12.9026, y: 6.09467), control2: CGPoint(x: 12.9702, y: 5.90173))
+                path.addCurve(to: CGPoint(x: 12.9894, y: 5.52572), control1: CGPoint(x: 12.9949, y: 5.65312), control2: CGPoint(x: 12.9942, y: 5.56146))
+                path.addCurve(to: CGPoint(x: 12.8386, y: 5.27023), control1: CGPoint(x: 12.9716, y: 5.39167), control2: CGPoint(x: 12.9231, y: 5.30964))
+                path.addCurve(to: CGPoint(x: 12.7063, y: 5.248), control1: CGPoint(x: 12.7995, y: 5.2519), control2: CGPoint(x: 12.7657, y: 5.24617))
+                path.addCurve(to: CGPoint(x: 12.3171, y: 5.35455), control1: CGPoint(x: 12.6144, y: 5.25052), control2: CGPoint(x: 12.55, y: 5.26817))
+                path.addCurve(to: CGPoint(x: 11.0251, y: 5.63777), control1: CGPoint(x: 11.8975, y: 5.51037), control2: CGPoint(x: 11.4597, y: 5.60637))
+                path.addCurve(to: CGPoint(x: 10.7166, y: 5.64716), control1: CGPoint(x: 10.911, y: 5.64601), control2: CGPoint(x: 10.8756, y: 5.64716))
+                path.addCurve(to: CGPoint(x: 10.4024, y: 5.63662), control1: CGPoint(x: 10.553, y: 5.64716), control2: CGPoint(x: 10.5262, y: 5.64624))
+                path.addCurve(to: CGPoint(x: 9.41494, y: 5.36074), control1: CGPoint(x: 9.98326, y: 5.60454), control2: CGPoint(x: 9.63615, y: 5.50739))
+                path.addCurve(to: CGPoint(x: 9.07034, y: 4.83258), control1: CGPoint(x: 9.22482, y: 5.23425), control2: CGPoint(x: 9.11147, y: 5.0608))
+                path.addCurve(to: CGPoint(x: 9.058, y: 4.74207), control1: CGPoint(x: 9.06463, y: 4.8005), control2: CGPoint(x: 9.058, y: 4.74207))
+                path.addCurve(to: CGPoint(x: 9.45859, y: 4.66553), control1: CGPoint(x: 9.06029, y: 4.73977), control2: CGPoint(x: 9.39621, y: 4.67562))
+                path.addCurve(to: CGPoint(x: 10.7806, y: 4.46939), control1: CGPoint(x: 9.53674, y: 4.6527), control2: CGPoint(x: 9.97527, y: 4.58763))
+                path.addCurve(to: CGPoint(x: 11.6535, y: 4.34016), control1: CGPoint(x: 11.1014, y: 4.42219), control2: CGPoint(x: 11.4483, y: 4.37086))
+                path.addCurve(to: CGPoint(x: 12.9782, y: 4.13256), control1: CGPoint(x: 12.212, y: 4.25629), control2: CGPoint(x: 12.8973, y: 4.14906))
+                path.addCurve(to: CGPoint(x: 13.2334, y: 4.05488), control1: CGPoint(x: 13.0598, y: 4.11583), control2: CGPoint(x: 13.1619, y: 4.08467))
+                path.addCurve(to: CGPoint(x: 13.9409, y: 3.14956), control1: CGPoint(x: 13.5947, y: 3.90342), control2: CGPoint(x: 13.8317, y: 3.60004))
+                path.addCurve(to: CGPoint(x: 14.0134, y: 2.68097), control1: CGPoint(x: 13.9757, y: 3.00658), control2: CGPoint(x: 13.9997, y: 2.85076))
+                path.addCurve(to: CGPoint(x: 14.0145, y: 2.33497), control1: CGPoint(x: 14.0184, y: 2.61819), control2: CGPoint(x: 14.0191, y: 2.39432))
+                path.addCurve(to: CGPoint(x: 13.9453, y: 1.91473), control1: CGPoint(x: 14.0022, y: 2.17778), control2: CGPoint(x: 13.9802, y: 2.0442))
+                path.addCurve(to: CGPoint(x: 13.5253, y: 1.13085), control1: CGPoint(x: 13.8651, y: 1.61685), control2: CGPoint(x: 13.727, y: 1.35953))
+                path.addCurve(to: CGPoint(x: 13.3685, y: 0.973664), control1: CGPoint(x: 13.4919, y: 1.09304), control2: CGPoint(x: 13.4071, y: 1.00803))
+                path.addCurve(to: CGPoint(x: 12.0317, y: 0.382946), control1: CGPoint(x: 13.0271, y: 0.670056), control2: CGPoint(x: 12.5895, y: 0.476664))
+                path.addCurve(to: CGPoint(x: 11.2273, y: 0.332537), control1: CGPoint(x: 11.8694, y: 0.355679), control2: CGPoint(x: 11.7154, y: 0.339868))
+                path.closeSubpath()
+                
+                // Inner path for E
+                path.move(to: CGPoint(x: 10.9451, y: 2.03022))
+                path.addCurve(to: CGPoint(x: 11.2458, y: 2.07375), control1: CGPoint(x: 11.0513, y: 2.03572), control2: CGPoint(x: 11.159, y: 2.0513))
+                path.addCurve(to: CGPoint(x: 11.6249, y: 2.32237), control1: CGPoint(x: 11.4209, y: 2.11912), control2: CGPoint(x: 11.5433, y: 2.19932))
+                path.addCurve(to: CGPoint(x: 11.6882, y: 2.44954), control1: CGPoint(x: 11.6443, y: 2.35193), control2: CGPoint(x: 11.675, y: 2.41288))
+                path.addCurve(to: CGPoint(x: 11.7508, y: 2.79164), control1: CGPoint(x: 11.7223, y: 2.54234), control2: CGPoint(x: 11.7444, y: 2.66333))
+                path.addCurve(to: CGPoint(x: 11.7447, y: 2.82418), control1: CGPoint(x: 11.7524, y: 2.82281), control2: CGPoint(x: 11.7447, y: 2.82418))
+                path.addCurve(to: CGPoint(x: 9.45333, y: 3.17476), control1: CGPoint(x: 11.7118, y: 2.83014), control2: CGPoint(x: 9.45333, y: 3.17476))
+                path.addCurve(to: CGPoint(x: 9.47459, y: 3.08288), control1: CGPoint(x: 9.45174, y: 3.17339), control2: CGPoint(x: 9.46293, y: 3.12504))
+                path.addCurve(to: CGPoint(x: 9.99332, y: 2.32649), control1: CGPoint(x: 9.55708, y: 2.78408), control2: CGPoint(x: 9.73944, y: 2.51805))
+                path.addCurve(to: CGPoint(x: 10.9451, y: 2.03022), control1: CGPoint(x: 10.2669, y: 2.11981), control2: CGPoint(x: 10.6101, y: 2.01303))
+                path.closeSubpath()
             }
-            .frame(width: 6, height: 8)
+            .fill(color)
         }
-        .frame(width: 14, height: 8)
+        .frame(width: 15, height: 8)
     }
 }
 
@@ -2267,7 +2305,7 @@ struct WebcamButton: View {
                             .background(.ultraThinMaterial) // backdrop-filter: blur(15px)
                             .overlay(
                                 Circle()
-                                    .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
+                                    .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.clear, lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
                             )
                             .overlay(
                                 // Inner shadow effect using gradient
@@ -4206,7 +4244,7 @@ struct SecondaryButtonStyle: ButtonStyle {
             .background(Color.white.opacity(0.1))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                    .stroke(Color.clear, lineWidth: 0.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
@@ -4248,7 +4286,7 @@ struct TemporaryFolderIcon: View {
                 .frame(width: 24, height: 24)
                 .overlay(
                     Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     Circle()
@@ -4297,7 +4335,7 @@ struct TemporaryFolderListenButton: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 100)
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     RoundedRectangle(cornerRadius: 100)
@@ -4337,7 +4375,7 @@ struct TemporaryFolderShareButton: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 100)
-                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                            .stroke(Color.clear, lineWidth: 0.5)
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 100)
@@ -4381,7 +4419,7 @@ struct TemporaryFolderIncognitoButton: View {
                 .frame(width: 24, height: 24)
                 .overlay(
                     Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     Circle()
@@ -4498,7 +4536,7 @@ struct CompactTemporaryFolderIcon: View {
                 .frame(width: 20, height: 20)
                 .overlay(
                     Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     Circle()
@@ -4546,7 +4584,7 @@ struct CompactTemporaryFolderListenButton: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 100)
-                        .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                        .stroke(Color.clear, lineWidth: 0.5)
                 )
                 .background(
                     RoundedRectangle(cornerRadius: 100)
@@ -4585,7 +4623,7 @@ struct CompactTemporaryFolderShareButton: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 100)
-                            .stroke(Color.white.opacity(0.7), lineWidth: 0.5)
+                            .stroke(Color.clear, lineWidth: 0.5)
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 100)
