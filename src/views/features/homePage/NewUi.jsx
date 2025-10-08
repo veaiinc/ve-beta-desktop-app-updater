@@ -230,10 +230,6 @@ const NewUi = ({ handleActiveChatChange }) => {
 							{ type: 'chatbox', _id: 'chatbox' },
 							...(sessions?.slice(1) || []),
 					  ];
-							sessions?.[0],
-							{ type: 'chatbox', _id: 'chatbox' },
-							...(sessions?.slice(1) || []),
-					  ];
 			sessions = [...sessions, ...(sessions?.slice(0, 3) || [])];
 			sessions = sessions?.filter(
 				(session) =>
@@ -707,10 +703,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 							{info?.data?.[info?.activeIndex]?.createdAt
 								? new Date(
 										info?.data?.[info?.activeIndex]?.createdAt * 1000,
-								  ).toLocaleString('en-US', {
-										year: 'numeric',
-										month: 'short',
-										day: 'numeric',
+								  ).toLocaleTimeString('en-US', {
 										hour: 'numeric',
 										minute: '2-digit',
 										hour12: true,
