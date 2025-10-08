@@ -113,9 +113,6 @@ const PermissionOverlay = () => {
 			setPermissionRequestMessage(
 				'✅ Essential permissions granted! You can proceed to the next step.',
 			);
-			setPermissionRequestMessage(
-				'✅ Essential permissions granted! You can proceed to the next step.',
-			);
 			setTimeout(() => setPermissionRequestMessage(''), 5000);
 		}
 
@@ -319,54 +316,44 @@ const PermissionOverlay = () => {
 
 	const handleScreenAction = async () => {
 		try {
-			console.log('🖥️ Requesting screen recording permission...');
-			
-			// Request permission - this will trigger the system permission prompt
-			const result = await window.electronApi.permission.requestScreenPermission();
-			
-			if (result.success && result.granted) {
-				console.log('✅ Screen recording permission granted!');
-				setPermissionRequestMessage('✅ Screen recording permission granted!');
-				setTimeout(() => setPermissionRequestMessage(''), 3000);
-				
-				// Re-check permissions immediately
-				checkPermissions();
-			} else if (result.status === 'denied') {
-				// Permission denied, need to open System Settings
-				console.log('⚠️ Screen recording permission denied, opening System Settings...');
+			console.log('🖥️ Opening screen recording settings...');
+
+		// Directly open system settings for screen recording
+		const result = await window.electronApi.openScreenRecordingSettings();
+			if (result.success) {
+				console.log('✅ Screen recording settings opened successfully');
 				setPermissionRequestMessage(
-					'⚠️ Permission denied. Opening System Settings - please enable "Ve.AI" for Screen Recording.',
+					'📋 Screen recording settings opened. Please enable "Ve.AI" in Privacy & Security > Screen Recording, then return here.',
 				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
+
+				// Start aggressive permission monitoring after opening settings
+				console.log('🔄 Starting aggressive permission monitoring for screen recording...');
+				stopPermissionMonitoring(); // Stop existing monitoring
+				startPermissionMonitoring(); // Restart with fresh interval
 				
-				// Open System Settings as fallback
-				await window.electronApi.openScreenRecordingSettings();
-				
-				// Start aggressive permission monitoring
-				stopPermissionMonitoring();
-				startPermissionMonitoring();
+				// Also do immediate re-checks
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening screen settings (1s)...');
+					checkPermissions();
+				}, 1000);
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening screen settings (3s)...');
+					checkPermissions();
+				}, 3000);
 			} else {
-				// First time request - system prompt should appear
-				console.log('🔄 Screen recording permission dialog shown, monitoring for changes...');
-				setPermissionRequestMessage('📋 Please allow screen recording access in the system dialog that appeared.');
-				setTimeout(() => setPermissionRequestMessage(''), 5000);
-				
-				// Re-check after delay
-				setTimeout(() => checkPermissions(), 2000);
+				console.error('❌ Failed to open screen recording settings:', result.error);
+				setPermissionRequestMessage(
+					'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
 			}
 		} catch (error) {
-			console.error('❌ Error requesting screen recording permission:', error);
+			console.error('❌ Error opening screen recording settings:', error);
 			setPermissionRequestMessage(
-				'❌ Unable to request permission. Opening System Settings...',
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Screen Recording.',
 			);
 			setTimeout(() => setPermissionRequestMessage(''), 8000);
-			
-			// Fallback to opening settings
-			try {
-				await window.electronApi.openScreenRecordingSettings();
-			} catch (settingsError) {
-				console.error('❌ Failed to open settings:', settingsError);
-			}
 		}
 	};
 
@@ -523,23 +510,7 @@ const PermissionOverlay = () => {
 	};
 
 	const handleFinish = async () => {
-	const handleFinish = async () => {
 		console.log('🎉 Setup completed! Closing permission overlay...');
-		
-		try {
-			const result = await window.electronApi.permission.closeWindow();
-			console.log('✅ Close window result:', result);
-			
-			if (result && result.success && result.onboardingMarked) {
-				console.log('✅✅✅ SUCCESS! Onboarding marked as completed - overlay will NEVER show again!');
-			} else if (result && result.success) {
-				console.log('⚠️ Window closed but onboarding may not have been marked');
-			} else {
-				console.error('❌ Failed to close window:', result);
-			}
-		} catch (error) {
-			console.error('❌ Error closing permission overlay:', error);
-		}
 		
 		try {
 			const result = await window.electronApi.permission.closeWindow();
