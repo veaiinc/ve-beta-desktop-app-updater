@@ -91,18 +91,21 @@ const AskAIApp = () => {
 			setDragState(state);
 			window.addEventListener('mousemove', handleDragMouseMove, { capture: true });
 			window.addEventListener('mouseup', handleDragMouseUp, { once: true, capture: true });
-		} catch (_) { }
+		} catch (_) {}
 	}, []);
 
-	const handleDragMouseMove = useCallback((e) => {
-		if (!dragState) return;
-		const dx = Math.abs(e.screenX - dragState.initialMouseX);
-		const dy = Math.abs(e.screenY - dragState.initialMouseY);
-		if (dx > 3 || dy > 3) dragState.moved = true;
-		const newX = dragState.initialWindowX + (e.screenX - dragState.initialMouseX);
-		const newY = dragState.initialWindowY + (e.screenY - dragState.initialMouseY);
-		window?.electronApi?.askAI?.moveTo?.(newX, newY);
-	}, [dragState]);
+	const handleDragMouseMove = useCallback(
+		(e) => {
+			if (!dragState) return;
+			const dx = Math.abs(e.screenX - dragState.initialMouseX);
+			const dy = Math.abs(e.screenY - dragState.initialMouseY);
+			if (dx > 3 || dy > 3) dragState.moved = true;
+			const newX = dragState.initialWindowX + (e.screenX - dragState.initialMouseX);
+			const newY = dragState.initialWindowY + (e.screenY - dragState.initialMouseY);
+			window?.electronApi?.askAI?.moveTo?.(newX, newY);
+		},
+		[dragState],
+	);
 
 	const handleDragMouseUp = useCallback(() => {
 		if (!dragState) return;
@@ -110,36 +113,32 @@ const AskAIApp = () => {
 		setDragState(null);
 	}, [dragState, handleDragMouseMove]);
 
-	const handleSendWebsocketMessage = useCallback(
-		async (_data, lastQuery) => {
-			try {
-				// Build navigation payload similar to NotchDrop Swift submitChat
-				const navData = {
+	const handleSendWebsocketMessage = useCallback(async (_data, lastQuery) => {
+		try {
+			// Build navigation payload similar to NotchDrop Swift submitChat
+			const navData = {
+				type: 'chat',
+				message: lastQuery,
+				timestamp: new Date().toISOString(),
+				source: 'askai-overlay',
+				path: `/chat/${ObjectID().toString()}`,
+				updateObject: {
 					type: 'chat',
-					message: lastQuery,
-					timestamp: new Date().toISOString(),
-					source: 'askai-overlay',
-					path: `/chat/${ObjectID().toString()}`,
-					updateObject: {
-						type: 'chat',
-						payload: {
-							query: lastQuery,
-						},
+					payload: {
+						query: lastQuery,
 					},
-				};
+				},
+			};
 
-				// Ask main process to open/focus main window and navigate
-				await window?.electronApi?.navigateMainWindow(navData);
+			// Ask main process to open/focus main window and navigate
+			await window?.electronApi?.navigateMainWindow(navData);
 
-				// Reset to a fresh session so input isn't blocked by prior stream state
-				setInfo((prev) => ({ ...prev, sessionId: ObjectID()?.toString() }));
-
-			} catch (error) {
-				console.error('Failed to navigate main window for chat:', error);
-			}
-		},
-		[],
-	);
+			// Reset to a fresh session so input isn't blocked by prior stream state
+			setInfo((prev) => ({ ...prev, sessionId: ObjectID()?.toString() }));
+		} catch (error) {
+			console.error('Failed to navigate main window for chat:', error);
+		}
+	}, []);
 
 	return (
 		<div className="ask-ai-app">
@@ -177,4 +176,3 @@ const AskAIApp = () => {
 };
 
 export default AskAIApp;
-
