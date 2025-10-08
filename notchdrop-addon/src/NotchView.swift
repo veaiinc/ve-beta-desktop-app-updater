@@ -642,11 +642,9 @@ struct NotchBaseView<BackgroundMask: View>: View {
             )
             .onChange(of: vm.status) { _, newStatus in
                 if newStatus == .opened {
-                    // Defer showing inset a bit to allow open animation to complete
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        if vm.status == .opened {
-                            showInsetOverlay = true
-                        }
+                    // Show inset immediately when opening, but with a smooth fade-in
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showInsetOverlay = true
                     }
                 } else {
                     showInsetOverlay = false
@@ -724,8 +722,9 @@ struct NotchBaseView<BackgroundMask: View>: View {
                         .blur(radius: 12)
                 }
                 .mask(backgroundMask())
-                .transition(.opacity) // fade-in when opening
-                .animation(.easeInOut(duration: 0.15), value: vm.status)
+                .opacity(showInsetOverlay ? 1.0 : 0.0)
+                .transition(.opacity.combined(with: .scale(scale: 0.95))) // Smooth fade-in with slight scale
+                .animation(.easeInOut(duration: 0.3), value: showInsetOverlay)
             }
         }
     }
