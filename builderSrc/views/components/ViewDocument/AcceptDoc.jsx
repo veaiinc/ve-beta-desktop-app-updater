@@ -368,7 +368,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			const finalDescription = descriptionParts.filter((part) => part).join(' | ');
 
 			const payload = {
-				title: task.title,
+				title: `${workflowInfoDetails?.clientDetails?.name} | ${task.title}`,
 				description: finalDescription,
 				// priority: 'low',
 				// status: statusId,
@@ -417,7 +417,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			const endDateTime = dayjs.tz(endDate, 'Asia/Calcutta').endOf('day').format();
 
 			const payload = {
-				title: event.title,
+				title: `${workflowInfoDetails?.clientDetails?.name} | ${event.title}`,
 				description: event.description,
 				location: event.location || null,
 				startDateTime:
