@@ -5,6 +5,8 @@
 	/* CRITICAL FIX: Override CSS variables for transparency ONLY when glass mode is enabled */
 	--background-color: transparent !important;
 	// --chat-background-color: rgba(18, 18, 18, 0.1) !important;
+	
+	/* CRITICAL FIX: Keep these commented so production uses same defaults as dev mode */
 	// --card: rgba(18, 18, 18, 0.12) !important;
 	// --new-card: rgba(18, 18, 18, 0.12) !important;
 	// --card-hover: rgba(18, 18, 18, 0.18) !important;
