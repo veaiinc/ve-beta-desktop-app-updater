@@ -96,9 +96,6 @@ const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, 
 
 	const navigate = useNavigate();
 
-	const isLoadingWorkspaces = userWorkSpaceList === undefined || userWorkSpaceList === null;
-	const hasMoreThanOneWorkspace = userWorkSpaceList?.length > 1;
-
 	useEffect(() => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
@@ -184,19 +181,10 @@ const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, 
 			</div>
 
 		<div className={s.footer}>
-			{isLoadingWorkspaces ? (
-				<button className={`${s.workspaceBtn} ${s.loading}`} disabled>
-					<div className={s.skeletonIcon} />
-					<div className={s.skeletonText} />
-				</button>
-			) : (
-				hasMoreThanOneWorkspace && (
-					<button className={s.workspaceBtn} onClick={handleSwitchWorkspace}>
-						<SwitchWorkspaceSvg />
-						Switch Workspace
-					</button>
-				)
-			)}
+			<button className={s.workspaceBtn} onClick={handleSwitchWorkspace}>
+				<SwitchWorkspaceSvg />
+				Switch Workspace
+			</button>
 
 			<button
 				className={`${s.workspaceBtn} ${

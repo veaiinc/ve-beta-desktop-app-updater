@@ -36,7 +36,7 @@ const Onboarding = () => {
 	}, []);
 
 	const handleLogoClick = () => {
-		navigate('/');
+		navigate('/new-chat');
 	};
 
 	return (
