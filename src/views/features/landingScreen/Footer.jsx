@@ -186,7 +186,7 @@ const Footer = () => {
 						</div>
 						<div className={s.bottom__topPart_rightPart}>
 							<div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-								<span>Back top </span>
+								<span>Back to top </span>
 								<ArrowUp />
 							</div>
 						</div>

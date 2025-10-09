@@ -57,8 +57,8 @@ const ProductIntro = forwardRef((props, ref) => {
 				if (!glowPaths.length) return false;
 
 				const pathLength = 3527;
-				const dashLength = pathLength * 0.3;
-				const gapLength = pathLength * 0.7;
+				const dashLength = pathLength * 0.15;
+				const gapLength = pathLength * 0.85;
 
 				glowPaths.forEach((path) => {
 					gsap.set(path, {
@@ -66,13 +66,13 @@ const ProductIntro = forwardRef((props, ref) => {
 						strokeDashoffset: pathLength,
 					});
 
-					gsap.timeline({ repeat: -1, ease: 'none' })
-						.to(path, {
-							strokeDashoffset: -pathLength,
-							duration: 14,
-							ease: 'power2.inOut',
-						})
-						.set(path, { strokeDashoffset: pathLength });
+					gsap.to(path, {
+						strokeDashoffset: -pathLength * 2,
+						duration: 14,
+						ease: 'none',
+						repeat: -1,
+						repeatDelay: 0,
+					});
 				});
 
 				return true;
@@ -140,31 +140,26 @@ const ProductIntro = forwardRef((props, ref) => {
 			const endAlignDelta = Math.max(0, listHeight - numHeight);
 			const slowDistance = (endAlignDelta + 50) * 1.8;
 
-			const setListY = gsap.quickTo(powersList, 'y', { duration: 0.25, ease: 'power3.out' });
-			const setNumY = gsap.quickTo(largeNumber, 'y', { duration: 0.25, ease: 'power2.out' });
-			const setGlowY = lightPassingRef.current
-				? gsap.quickTo(lightPassingRef.current, 'y', { duration: 0.25, ease: 'power3.out' })
-				: null;
-			const setHeroY = hero
-				? gsap.quickTo(hero, 'y', { duration: 0.55, ease: 'power3.out' })
-				: null;
-
+			// Use direct animation instead of quickTo for better performance
 			ScrollTrigger.create({
 				trigger: container,
 				start: 'top bottom+600px',
 				end: 'bottom top',
-				scrub: 3.2,
+				scrub: 2,
 				markers: false,
 				invalidateOnRefresh: true,
 				onUpdate: (self) => {
 					const p = self.progress;
-					// Smoother perceived motion for the large number with more movement
 					const easeNum = gsap.parseEase('power2.inOut');
 					const pNum = easeNum(p) * 0.7 + p * 0.3;
-					setListY(-(p * fastDistance));
-					if (setHeroY) setHeroY(-(p * fastDistance));
-					setNumY(-(pNum * slowDistance));
-					if (setGlowY) setGlowY(-(p * fastDistance));
+
+					// Direct transform instead of quickTo
+					gsap.set(powersList, { y: -(p * fastDistance) });
+					if (hero) gsap.set(hero, { y: -(p * fastDistance) });
+					gsap.set(largeNumber, { y: -(pNum * slowDistance) });
+					if (lightPassingRef.current) {
+						gsap.set(lightPassingRef.current, { y: -(p * fastDistance * 0.8) });
+					}
 				},
 			});
 
@@ -192,7 +187,6 @@ const ProductIntro = forwardRef((props, ref) => {
 			const onResize = () => ScrollTrigger.refresh();
 			window.addEventListener('resize', onResize);
 
-			// Ensure we clean listeners created within this context
 			gsap.delayedCall(0, () => {
 				ScrollTrigger.refresh();
 			});
