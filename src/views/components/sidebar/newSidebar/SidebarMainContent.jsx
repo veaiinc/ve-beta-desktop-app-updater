@@ -107,10 +107,10 @@ const SidebarMainContent = ({
 				))}
 				{activeMeetingDetails?.meetingId && (
 					<button
-						className={`${s.btn} ${activeTab === 'meetings' ? s.active : ''}`}
+						className={`${s.btn} ${activeTab === 'ongoingMeeting' ? s.active : ''}`}
 						onClick={() =>
 							handleTabClick({
-								value: 'meetings',
+								value: 'ongoingMeeting',
 								route: '/ongoing-meeting',
 							})
 						}
