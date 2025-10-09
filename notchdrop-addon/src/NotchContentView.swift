@@ -35,10 +35,32 @@ struct NotchContentView: View {
             // }
         }
         .animation(vm.animation, value: vm.contentType)
-        // Pin underline to the true bottom edge of the notch (top-level container)
+        // Underline + upward glow clipped to notch
         .overlay(alignment: .bottom) {
-            MeetWaveUnderline(isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted)
-                .frame(width: 301, height: 16)
+            VStack(spacing: 0) {
+                // Upward glow that fades as it rises
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.35), location: 0.0),
+                        .init(color: Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.18), location: 0.25),
+                        .init(color: .clear, location: 0.55)
+                    ]),
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+                .frame(height: vm.notchOpenedSize.height * 0.45)
+                .blur(radius: 22)
+                .opacity(vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: vm.voiceConnectionStatus)
+
+                // Animated underline
+                MeetWaveUnderline(isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted)
+                    .frame(width: 301, height: 16)
+            }
+            .compositingGroup()
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .allowsHitTesting(false)
         }
         // .animation(vm.animation, value: vm.showNotificationOverlay)
         .onAppear {
@@ -1478,7 +1500,7 @@ struct VoiceTranscriptionArea: View {
             
             // Show current status only when there are no voice messages
             if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
-                Text(vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...")
+                Text(vm.isMicrophoneMuted ? "🔇 Muted" : " Listening...")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -4766,7 +4788,7 @@ struct WaveShape: Shape {
 
 // MARK: - Thin Meet-style Underline (ends pinned, center bulges up/down)
 struct MeetWaveUnderline: View {
-    @State private var bulge: CGFloat = 8
+    @State private var bulge: CGFloat = 12
     let isActive: Bool
 
     var body: some View {
@@ -4786,7 +4808,7 @@ struct MeetWaveUnderline: View {
                 )
                 .blur(radius: 18)
                 .opacity(isActive ? 0.5 : 0)
-                .animation(.easeInOut(duration: 0.25), value: isActive)
+                .animation(.easeInOut(duration: 0.2), value: isActive)
 
             // Crisp 1–2px line following the same curve (dark ends, light middle)
             MeetUnderlineBulge(bulge: bulge)
@@ -4808,15 +4830,15 @@ struct MeetWaveUnderline: View {
         .allowsHitTesting(false)
         .onAppear {
             if isActive {
-                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.8).repeatForever(autoreverses: true)) {
-                    bulge = 26
+                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
+                    bulge = 30
                 }
             }
         }
         .onChange(of: isActive) { _, active in
             if active {
-                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.8).repeatForever(autoreverses: true)) {
-                    bulge = 26
+                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
+                    bulge = 30
                 }
             } else {
                 withAnimation(.easeOut(duration: 0.2)) { bulge = 0 }
