@@ -142,7 +142,7 @@ class NotchViewModel: NSObject, ObservableObject {
             )
         }
     }
-    let dropDetectorRange: CGFloat = 32
+    let dropDetectorRange: CGFloat = 64
 
     enum Status: String, Codable, Hashable, Equatable {
         case closed
