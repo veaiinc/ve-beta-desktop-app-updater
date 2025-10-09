@@ -281,7 +281,7 @@ const AppContent = () => {
 				>
 					Test Permission Overlay
 				</button>
-			)}  */}
+			)}   */}
 			{/* <button
 					onClick={() => window.electronApi?.permission?.showWindow()}
 					style={{
