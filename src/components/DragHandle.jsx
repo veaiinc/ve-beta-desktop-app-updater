@@ -97,7 +97,7 @@ const DragHandle = () => {
 			></div> */}
 
 			{/* Top Left Handle */}
-			<div
+			{/* <div
 				className={`drag-handle drag-handle--top-left ${
 					activeHandles.has('top-left') ? 'drag-handle--active' : ''
 				}`}
@@ -111,10 +111,10 @@ const DragHandle = () => {
 				onDragEnd={() => handleDragEnd('top-left')}
 			>
 				<GripVertical size={16} />
-			</div>
+			</div> */}
 
 			{/* Top Right Handle */}
-			<div
+			{/* <div
 				className={`drag-handle drag-handle--top-right ${
 					activeHandles.has('top-right') ? 'drag-handle--active' : ''
 				}`}
@@ -128,7 +128,7 @@ const DragHandle = () => {
 				onDragEnd={() => handleDragEnd('top-right')}
 			>
 				<GripVertical size={16} />
-			</div>
+			</div> */}
 
 			{/* Bottom Left Handle */}
 			<div

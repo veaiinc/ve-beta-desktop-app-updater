@@ -16,6 +16,7 @@
 	&.active {
 		transform: translateX(0);
 	}
+	-webkit-app-region: no-drag !important;
 
 	.sidebarContainer {
 		width: 256px;
@@ -289,6 +290,7 @@
 
 	.closeSidebar {
 		transform: rotate(180deg);
+		-webkit-app-region: no-drag;
 		:global(svg) {
 			flex-shrink: 0;
 		}

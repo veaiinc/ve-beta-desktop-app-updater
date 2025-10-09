@@ -130,6 +130,12 @@ const OngoingMeeting = memo(() => {
 	}, []);
 
 	useEffect(() => {
+		if (!activeMeetingDetails?.meetingId) {
+			navigate('/home');
+		}
+	}, []);
+
+	useEffect(() => {
 		if (sidebarState?.open === true) {
 			toggleSidebar(true);
 		}
@@ -353,9 +359,11 @@ const OngoingMeeting = memo(() => {
 	return (
 		<div className={s.ongoingMeetingWrapper}>
 			<div className={s.ongoingMeetingHeader}>
-				<button className={s.ongoingMeetingHeaderButton}>
+				{!info?.sidebarOpen && <div className={s.sidebarButton} />}
+				<div className={s.dragArea}></div>
+				{/* <button className={s.ongoingMeetingHeaderButton}>
 					<Maximize2 size={16} />
-				</button>
+				</button> */}
 				<button
 					onClick={() => navigate('/home')}
 					className={s.ongoingMeetingHeaderButtonClose}
@@ -378,7 +386,8 @@ const OngoingMeeting = memo(() => {
 								? 'Show Live Intelligence'
 								: 'View Transcriptions'}
 						</button> */}
-						<div className={s.dropDownContainer}>
+
+						{/* <div className={s.dropDownContainer}>
 							<div className={s.dropDownBody}>
 								<div
 									className={s.dropDownSelectedItem}
@@ -425,7 +434,7 @@ const OngoingMeeting = memo(() => {
 									</>
 								)}
 							</div>
-						</div>
+						</div> */}
 					</div>
 					<div className={s.ongoingMeetingContent}>
 						{info.showingTranscripts ? (
