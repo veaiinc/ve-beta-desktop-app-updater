@@ -1299,6 +1299,10 @@ struct DynamicIslandContentView: View {
     }
     
     private func checkBrowserForYouTube() -> Bool {
+        // DISABLED: Browser detection removed to prevent system accessibility permission dialog
+        // The AppleScript-based browser detection was triggering macOS system dialogs
+        // asking for accessibility permissions to control Safari, Chrome, Firefox
+        
         // Only check browsers if we have permission
         guard vm.hasBrowserPermission else {
             // Request permission first time
@@ -1308,6 +1312,13 @@ struct DynamicIslandContentView: View {
             return false
         }
         
+        // DISABLED: Skip browser detection to avoid system permission dialog
+        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
+        print("🌐 Browser detection disabled to prevent system permission dialog")
+        return false
+        
+        // Original code (commented out to prevent system dialog):
+        /*
         // Check only major browsers: Safari, Chrome, Firefox
         let browsers = ["Safari", "Google Chrome", "Firefox"]
         
@@ -1320,9 +1331,18 @@ struct DynamicIslandContentView: View {
             }
         }
         return false
+        */
     }
     
     private func checkBrowserApp(_ appName: String) -> (String, String)? {
+        // DISABLED: This function was causing system accessibility permission dialogs
+        // The AppleScript execution triggers macOS to ask for permission to control other apps
+        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
+        print("🌐 checkBrowserApp disabled to prevent system permission dialog for: \(appName)")
+        return nil
+        
+        // Original AppleScript code (commented out to prevent system dialog):
+        /*
         let script: String
         
         if appName == "Safari" {
@@ -1369,6 +1389,7 @@ struct DynamicIslandContentView: View {
             }
         }
         return nil
+        */
     }
     
     private func checkSystemMediaForYouTube() -> Bool {
