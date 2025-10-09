@@ -38,6 +38,13 @@
 -   **Smoke test native bridge wiring**:  
     `npm run validate:notchdrop`
 
+### Window Constraints
+
+-   **Minimum window size**: 522px width × 433px height (enforced by Electron)
+-   **Implementation**: `minWidth` and `minHeight` in `mainWindowSettings`
+-   **Validation**: Resize event handler provides additional logging and validation
+-   **Cross-platform**: Works on macOS, Windows, and Linux
+
 ---
 
 ## Repo Map (Change source code only in these)
