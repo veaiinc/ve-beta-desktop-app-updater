@@ -18,6 +18,7 @@ const {
 	dialog,
 	shell,
 	powerSaveBlocker,
+	nativeTheme,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -625,7 +626,7 @@ ipcMain.handle('reposition-dynamic-island', () => {
 	return { success: false, error: 'Dynamic Island helper not available' };
 });
 
-// Glass mode sync handler
+// Glass mode sync handler - PREVENTS fully transparent window
 ipcMain.handle('sync-glass-mode-state', async (event, data) => {
 	try {
 		const { enabled } = data;
@@ -633,15 +634,28 @@ ipcMain.handle('sync-glass-mode-state', async (event, data) => {
 			// Update the window helper's translucency state
 			windowHelper.isTranslucencyEnabled = enabled;
 
-			// Apply vibrancy to main window if on macOS
-			if (process.platform === 'darwin' && windowHelper.mainWindow) {
+			// CRITICAL: Apply vibrancy and background to main window
+			// Always set BOTH together to prevent fully transparent window
+			if (windowHelper.mainWindow && !windowHelper.mainWindow.isDestroyed()) {
 				const mainWindow = windowHelper.mainWindow;
-				if (!mainWindow.isDestroyed() && mainWindow.setVibrancy) {
-					mainWindow.setVibrancy(enabled ? 'fullscreen-ui' : '');
+				
+				if (enabled) {
+					// Glass mode: Enable vibrancy WITH transparent background
+					if (process.platform === 'darwin') {
+						mainWindow.setVibrancy('fullscreen-ui');
+					}
+					mainWindow.setBackgroundColor('#00000000'); // Transparent for vibrancy
+					log.info('🪟 Glass mode ENABLED: vibrancy + transparent background');
+				} else {
+					// Normal mode: NO vibrancy WITH solid background
+					if (process.platform === 'darwin') {
+						mainWindow.setVibrancy(null);
+					}
+					mainWindow.setBackgroundColor('#121212'); // Solid background
+					log.info('🪟 Glass mode DISABLED: solid background #121212');
 				}
 			}
 
-			log.info(`🪟 Glass mode ${enabled ? 'enabled' : 'disabled'} via sync`);
 			return { success: true, enabled };
 		}
 		return { success: false, error: 'Invalid glass mode state' };
@@ -1598,10 +1612,11 @@ function createWindow(restoreState = false) {
 		y: windowBounds.y,
 		show: false,
 		icon: iconPath,
-		backgroundColor: '#00000000', // Fully transparent background
+		// CRITICAL FIX: Start with solid background, will be updated based on glass mode state
+		backgroundColor: '#121212', // Solid background (not fully transparent)
 		resizable: true, // Allow resizing for better UX
 		movable: true,
-		transparent: true,
+		transparent: true, // Still need transparent for vibrancy to work, but we control background color
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
@@ -1623,13 +1638,13 @@ function createWindow(restoreState = false) {
 	const isWindows = process.platform === 'win32';
 	const isMacOS = process.platform === 'darwin';
 
-	// Platform-specific vibrancy/acrylic for beautiful translucent blur
+	// CRITICAL FIX: Don't set vibrancy initially, will be set based on glass mode state after load
 	if (isMacOS) {
-		mainWindowSettings.vibrancy = 'fullscreen-ui'; // Beautiful blur effect
 		mainWindowSettings.titleBarStyle = 'hiddenInset'; // Keep window controls
+		// vibrancy will be set dynamically based on glass mode state
 	} else if (isWindows) {
-		mainWindowSettings.backgroundMaterial = 'acrylic'; // Windows 11 acrylic
-		mainWindowSettings.vibrancy = 'acrylic'; // Additional vibrancy
+		mainWindowSettings.backgroundMaterial = 'none'; // Don't force acrylic initially
+		// Will be set based on glass mode state
 	}
 
 	mainWindow = new BrowserWindow(mainWindowSettings);
@@ -1858,6 +1873,55 @@ function createWindow(restoreState = false) {
 				await mainWindow.loadFile(buildPath);
 				log.info('✅ Production build loaded successfully');
 			}
+
+			// CRITICAL FIX: After loading, ensure window background matches glass mode state
+			// This PREVENTS fully transparent window - always either glass with blur OR solid color
+			mainWindow.webContents.once('did-finish-load', () => {
+				// Execute script to check localStorage glass mode state and update window background
+				mainWindow.webContents.executeJavaScript(`
+					(function() {
+						try {
+							const glassModeEnabled = localStorage.getItem('glassModeEnabled') === 'true';
+							return glassModeEnabled;
+						} catch (e) {
+							return false; // Default to normal mode (solid background)
+						}
+					})();
+				`).then((isGlassEnabled) => {
+					log.info(`🎨 Initial glass mode state from localStorage: ${isGlassEnabled}`);
+					
+					// CRITICAL: Always set BOTH vibrancy AND background color together
+					// This ensures window is NEVER fully transparent without vibrancy
+					if (isGlassEnabled) {
+						// Glass mode: Enable vibrancy WITH transparent background
+						if (process.platform === 'darwin') {
+							mainWindow.setVibrancy('fullscreen-ui');
+						}
+						mainWindow.setBackgroundColor('#00000000'); // Transparent for vibrancy to show through
+						log.info('🎨 Glass mode enabled: vibrancy + transparent background');
+					} else {
+						// Normal mode: NO vibrancy WITH solid background
+						if (process.platform === 'darwin') {
+							mainWindow.setVibrancy(null);
+						}
+						mainWindow.setBackgroundColor('#121212'); // Solid dark background
+						log.info('🎨 Normal mode enabled: solid background #121212');
+					}
+					
+					// Update window helper state
+					if (windowHelper) {
+						windowHelper.isTranslucencyEnabled = isGlassEnabled;
+					}
+				}).catch((error) => {
+					log.error('❌ Error checking initial glass mode state:', error);
+					// CRITICAL FALLBACK: Always use solid background, never fully transparent
+					if (process.platform === 'darwin') {
+						mainWindow.setVibrancy(null);
+					}
+					mainWindow.setBackgroundColor('#121212');
+					log.info('🎨 Fallback: solid background #121212');
+				});
+			});
 		} catch (error) {
 			log.error('❌ Critical error loading main window:', error);
 			log.error('❌ Error stack:', error.stack);
@@ -2572,6 +2636,9 @@ app.whenReady().then(async () => {
 	log.info('🔍 Working directory:', process.cwd());
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
+
+	// 🎨 Force dark theme - prevents system theme changes from affecting app colors
+	nativeTheme.themeSource = 'dark';
 
 	// ⚡ CRITICAL MEMORY LEAK FIX: Add periodic garbage collection
 	const memoryCleanupInterval = setInterval(() => {

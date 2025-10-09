@@ -1939,19 +1939,31 @@ class WindowHelper {
 				// Toggle glass mode state
 				this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
 
-				// Notify renderer to toggle glass mode using the new CSS-based approach
+				// CRITICAL FIX: Always set BOTH vibrancy AND background TOGETHER
+				// This PREVENTS fully transparent window with no background
 				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+					if (this.isTranslucencyEnabled) {
+						// Glass mode: Enable vibrancy WITH transparent background
+						if (process.platform === 'darwin') {
+							this.mainWindow.setVibrancy('fullscreen-ui');
+						}
+						this.mainWindow.setBackgroundColor('#00000000'); // Transparent for vibrancy
+						log.info('🎨 Glass mode ENABLED: vibrancy + transparent background');
+					} else {
+						// Normal mode: NO vibrancy WITH solid background
+						if (process.platform === 'darwin') {
+							this.mainWindow.setVibrancy(null);
+						}
+						this.mainWindow.setBackgroundColor('#121212'); // Solid background
+						log.info('🎨 Glass mode DISABLED: solid background #121212');
+					}
+
+					// Notify renderer to toggle glass mode CSS classes
 					this.mainWindow.webContents.send('translucency-changed', {
 						enabled: this.isTranslucencyEnabled,
 						platform: process.platform,
 						source: 'keyboard-shortcut',
 					});
-
-					log.info(
-						`🎨 Glass mode ${
-							this.isTranslucencyEnabled ? 'enabled' : 'disabled'
-						} via Command+G`,
-					);
 				} else {
 					log.warn('⚠️ Main window not available for glass mode toggle');
 				}
@@ -1973,16 +1985,20 @@ class WindowHelper {
 						this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
 
 						if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+							// CRITICAL FIX: Always set background color - never fully transparent
+							if (this.isTranslucencyEnabled) {
+								this.mainWindow.setBackgroundColor('#00000000'); // Transparent for glass
+								log.info('🎨 Glass mode ENABLED via Ctrl+Alt+G');
+							} else {
+								this.mainWindow.setBackgroundColor('#121212'); // Solid background
+								log.info('🎨 Glass mode DISABLED via Ctrl+Alt+G: solid background');
+							}
+							
 							this.mainWindow.webContents.send('translucency-changed', {
 								enabled: this.isTranslucencyEnabled,
 								platform: process.platform,
 								source: 'keyboard-shortcut',
 							});
-							log.info(
-								`🎨 Glass mode ${
-									this.isTranslucencyEnabled ? 'enabled' : 'disabled'
-								} via Ctrl+Alt+G`,
-							);
 						}
 					} catch (error) {
 						log.error('❌ Alternative glass mode toggle failed:', error);
