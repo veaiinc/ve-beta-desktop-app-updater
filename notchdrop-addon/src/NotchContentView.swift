@@ -200,24 +200,25 @@ struct DynamicIslandContentView: View {
                     .lineSpacing(17)
                     .italic()
                     
-                    // Test buttons
+                    // Click anywhere to login
                     HStack(spacing: 8) {
-                        Button("LOGIN") {
-                            vm.navigateToMainScreen(path: "/verify-user")
-                        }
-                        .font(.custom("Urbanist", size: 13))
-                        .lineSpacing(17)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        // .background(Color.gray.opacity(0.3))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .buttonStyle(PlainButtonStyle())
-
-                        
+                        Text("LOGIN")
+                            .font(.custom("Urbanist", size: 13))
+                            .lineSpacing(17)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            // .background(
+                            //     RoundedRectangle(cornerRadius: 8)
+                            //         .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            // )
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle()) 
+                .onTapGesture {
+                    vm.navigateToMainScreen(path: "/verify-user")
+                }
             } else {
                 // Full UI when authenticated
                 // Reduce spacing to bring chat input closer to the header

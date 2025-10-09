@@ -51,12 +51,8 @@
 			href="/src/assets/scss/global.scss"
 			onload="this.rel='stylesheet'"
 		/>
-		<link rel="preload" as="style" href="/src/assets/scss/glass-effects.scss" />
-		<link
-			rel="stylesheet"
-			href="/src/assets/scss/force-glass-effect.scss"
-			onload="this.rel='stylesheet'"
-		/>
+		<!-- REMOVED: All glass effect stylesheet preloads -->
+		<!-- Glass effects are now ONLY controlled by glass-mode.scss when .glass-mode-enabled class is present -->
 		<link
 			rel="stylesheet"
 			href="/src/assets/scss/antd-translucency.scss"
@@ -191,11 +187,10 @@
 				/>
 				<link rel="stylesheet" href="/src/assets/fonts/generalSans/general-sans.css" />
 				<link rel="stylesheet" href="/src/assets/fonts/Inter/inter.css" />
-				<link rel="stylesheet" href="/src/assets/scss/global.scss" />
-				<link rel="stylesheet" href="/src/assets/scss/glass-effects.scss" />
-				<link rel="stylesheet" href="/src/assets/scss/force-glass-effect.scss" />
-				<link rel="stylesheet" href="/src/assets/scss/beautiful-glass.scss" />
-				<link rel="stylesheet" href="/src/index.css" />
+			<link rel="stylesheet" href="/src/assets/scss/global.scss" />
+			<!-- REMOVED glass effect files - they were forcing transparency even when glass mode was OFF -->
+			<!-- Glass effects are now ONLY controlled by glass-mode.scss when .glass-mode-enabled class is present -->
+			<link rel="stylesheet" href="/src/index.css" />
 			</noscript>
 		</noscript>
 
