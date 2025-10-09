@@ -1,0 +1,264 @@
+/**
+ * DragHandle Styles
+ * Provides draggable grip icons in the four corners of the Electron window
+ * Uses -webkit-app-region: drag for native Electron window dragging
+ * Handles are hidden by default and only appear when hovering over their respective corners
+ */
+
+.drag-handle-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none; /* Allow clicks to pass through to underlying content */
+	z-index: 2147483647; /* Maximum z-index to ensure handles are above all other content */
+}
+
+/* Invisible hover zones for each corner - expanded to cover handle areas */
+.drag-hover-zone {
+	position: absolute;
+	width: 80px; /* Increased from 60px to cover handle area */
+	height: 80px; /* Increased from 60px to cover handle area */
+	pointer-events: auto; /* Enable hover detection */
+	z-index: 2147483646; /* Just below handles */
+}
+
+.drag-hover-zone--top-left {
+	top: 0;
+	left: 0;
+}
+
+.drag-hover-zone--top-right {
+	top: 0;
+	right: 0;
+}
+
+.drag-hover-zone--bottom-left {
+	bottom: 0;
+	left: 0;
+}
+
+.drag-hover-zone--bottom-right {
+	bottom: 0;
+	right: 0;
+}
+
+.drag-handle {
+	position: absolute;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	// background: rgba(0, 0, 0, 0.1);
+	border-radius: 6px;
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	// border: 1px solid rgba(255, 255, 255, 0.1);
+	transition: all 0.3s ease;
+	pointer-events: auto; /* Enable pointer events for this element */
+
+	/* Hidden by default */
+	opacity: 0;
+	transform: scale(0.8);
+
+	/* Electron drag region - this enables window dragging */
+	-webkit-app-region: drag;
+
+	/* Prevent text selection during drag */
+	-webkit-user-select: none;
+	user-select: none;
+
+	/* Ensure smooth cursor changes */
+	cursor: grab;
+
+	/* Show on hover of corresponding corner - handled by parent container hover */
+
+	/* Keep visible when handle itself is hovered or active - CSS fallback */
+	&:hover,
+	&:active,
+	&:focus-within {
+		opacity: 1 !important; /* Force visibility on direct hover */
+		transform: scale(1);
+	}
+
+	/* Subtle hover effect on the handle itself */
+	&:hover {
+		// background: rgba(0, 0, 0, 0.2);
+		// border-color: rgba(255, 255, 255, 0.2);
+		transform: scale(1.05);
+	}
+
+	/* Active state when dragging - keep visible and enhance */
+	&:active {
+		cursor: grabbing;
+		// background: rgba(0, 0, 0, 0.3);
+		transform: scale(0.95);
+		opacity: 1; /* Ensure it stays visible during drag */
+	}
+
+	/* Icon styling */
+	svg {
+		color: rgba(255, 255, 255, 0.7);
+		transition: color 0.2s ease;
+	}
+
+	&:hover svg {
+		color: rgba(255, 255, 255, 0.9);
+	}
+}
+
+/* Corner positioning */
+.drag-handle--top-left {
+	top: 12px;
+	left: 12px;
+}
+
+.drag-handle--top-right {
+	top: 12px;
+	right: 12px;
+}
+
+.drag-handle--bottom-left {
+	bottom: 12px;
+	left: 12px;
+}
+
+.drag-handle--bottom-right {
+	bottom: 12px;
+	right: 12px;
+}
+
+/* Hover zone interactions - show handles when hovering over corner zones */
+.drag-hover-zone--top-left:hover ~ .drag-handle--top-left,
+.drag-hover-zone--top-right:hover ~ .drag-handle--top-right,
+.drag-hover-zone--bottom-left:hover ~ .drag-handle--bottom-left,
+.drag-hover-zone--bottom-right:hover ~ .drag-handle--bottom-right {
+	opacity: 1;
+	transform: scale(1);
+}
+
+/* Keep handles visible when they're being actively used */
+.drag-handle--top-left:hover,
+.drag-handle--top-left:active,
+.drag-handle--top-left:focus-within,
+.drag-handle--top-left.drag-handle--active,
+.drag-handle--top-right:hover,
+.drag-handle--top-right:active,
+.drag-handle--top-right:focus-within,
+.drag-handle--top-right.drag-handle--active,
+.drag-handle--bottom-left:hover,
+.drag-handle--bottom-left:active,
+.drag-handle--bottom-left:focus-within,
+.drag-handle--bottom-left.drag-handle--active,
+.drag-handle--bottom-right:hover,
+.drag-handle--bottom-right:active,
+.drag-handle--bottom-right:focus-within,
+.drag-handle--bottom-right.drag-handle--active {
+	opacity: 1;
+	transform: scale(1);
+}
+
+/* Enhanced active state styling */
+// .drag-handle--active {
+// 	background: rgba(0, 0, 0, 0.25);
+// 	border-color: rgba(255, 255, 255, 0.3);
+// 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+// }
+
+/* Responsive adjustments for smaller windows */
+@media (max-width: 400px) {
+	.drag-hover-zone {
+		width: 70px; /* Increased to maintain coverage */
+		height: 70px; /* Increased to maintain coverage */
+	}
+
+	.drag-handle {
+		width: 28px;
+		height: 28px;
+
+		svg {
+			width: 14px;
+			height: 14px;
+		}
+	}
+
+	.drag-handle--top-left,
+	.drag-handle--top-right {
+		top: 8px;
+	}
+
+	.drag-handle--top-left,
+	.drag-handle--bottom-left {
+		left: 8px;
+	}
+
+	.drag-handle--top-right,
+	.drag-handle--bottom-right {
+		right: 8px;
+	}
+
+	.drag-handle--bottom-left,
+	.drag-handle--bottom-right {
+		bottom: 8px;
+	}
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+	.drag-handle {
+		// background: rgba(255, 255, 255, 0.05);
+		border-color: rgba(255, 255, 255, 0.1);
+
+		&:hover {
+			// background: rgba(255, 255, 255, 0.1);
+			border-color: rgba(255, 255, 255, 0.2);
+		}
+
+		svg {
+			color: rgba(255, 255, 255, 0.6);
+		}
+
+		&:hover svg {
+			color: rgba(255, 255, 255, 0.8);
+		}
+	}
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+	.drag-handle {
+		// 	background: rgba(0, 0, 0, 0.8);
+		border: 2px solid rgba(255, 255, 255, 0.9);
+
+		svg {
+			color: rgba(255, 255, 255, 0.9);
+		}
+	}
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+	.drag-handle {
+		transition: opacity 0.1s ease; /* Keep opacity transition for accessibility */
+		transform: none; /* Remove scale animations */
+
+		&:hover {
+			transform: none;
+		}
+
+		&:active {
+			transform: none;
+		}
+	}
+
+	/* Maintain hover zone functionality even with reduced motion */
+	.drag-hover-zone--top-left:hover ~ .drag-handle--top-left,
+	.drag-hover-zone--top-right:hover ~ .drag-handle--top-right,
+	.drag-hover-zone--bottom-left:hover ~ .drag-handle--bottom-left,
+	.drag-hover-zone--bottom-right:hover ~ .drag-handle--bottom-right {
+		opacity: 1;
+		transform: none;
+	}
+}

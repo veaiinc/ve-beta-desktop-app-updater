@@ -3,6 +3,9 @@ import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
 import useVoiceIntegration from './hooks/useVoiceIntegration';
 import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
+// import PerformanceMonitor from './components/PerformanceMonitor';
+import DragHandle from './components/DragHandle';
+// Removed complex translucency utilities - now using simplified CSS approach
 import { GlassModeProvider, useGlassMode } from './context/GlassModeContext.jsx';
 import { initializeGlassModeSync } from './helpers/glassModeSync';
 
@@ -241,6 +244,12 @@ const AppContent = () => {
 
 	return (
 		<div className="app-content glass-app">
+			{/* ⚡ PERFORMANCE MONITOR - tracks app performance in development */}
+			{/* <PerformanceMonitor /> */}
+
+			{/* Drag Handle - provides window dragging functionality */}
+			<DragHandle />
+
 			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
 			<NotchDropVoiceActivator />
 
