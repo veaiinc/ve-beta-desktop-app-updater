@@ -259,7 +259,7 @@ var notch: some View {
                 // Left buttons
                 HStack(spacing: 4) {
                     PillButtonSmall(title: "Listen")
-                    PillButtonSmall(title: "See")
+                    PillButtonSmall(title: "Ask")
                 }
 
                 Spacer(minLength: 8)
