@@ -1,4 +1,4 @@
-import { memo, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { memo, useContext, useState, useCallback, useEffect, useRef, lazy } from 'react';
 import Context from '../../../context/context';
 import { Markdown } from '../../../helpers/markdownHelper';
 import { Tooltip } from 'antd';
@@ -7,18 +7,23 @@ import { ReactComponent as GraduationCapSvg } from '../../../assets/svg/graduati
 import { ReactComponent as TickSvg } from '../../../assets/svg/tick.svg';
 import { ReactComponent as CopyIcon } from '../../../assets/svg/ai_agents/copy.svg';
 import { ReactComponent as ViewDocumentIcon } from '../../../assets/svg/chat/viewDocument.svg';
-import AISuggestionsReportAiComponent from './chatComponents/AiSuggestionsReportAiComponent';
 import '../../../assets/scss/chat/aiMessage.scss';
 import PromptPopup from '../homePage/PromptPopup';
-import ClarifyWidget from './chatWidgets/ClarifyWidget';
-import FormWidget from './FormWidget';
-import UnintegratedAgentApps from './chatComponents/UnintegratedAgentApps';
-import IntermediateSteps from './chatComponents/IntermediateSteps';
 import { fileTypeIcons, getFaviconUrl, getWebsiteName } from '../../../helpers';
-import BrowserChainOfThought from './chatComponents/BrowserChainOfThought';
 import { ReactComponent as VeLogoSvg } from '../../../assets/svg/veLogo.svg';
 import TextSelector from './chatComponents/TextSelector';
 import { copyToClipboard } from '../../../helpers/clipboardHelper';
+
+const FormWidget = lazy(() => import('./FormWidget'));
+const BrowserChainOfThought = lazy(() => import('./chatComponents/BrowserChainOfThought'));
+const IntermediateSteps = lazy(() => import('./chatComponents/IntermediateSteps'));
+const AISuggestionsReportAiComponent = lazy(() =>
+	import('./chatComponents/AiSuggestionsReportAiComponent'),
+);
+const ClarifyWidget = lazy(() => import('./chatWidgets/ClarifyWidget'));
+const UnintegratedAgentApps = lazy(() => import('./chatComponents/UnintegratedAgentApps'));
+
+import ChatError from './chatErrors/ChatError';
 
 const tooltipStyles = {
 	body: { color: 'var(--primary-font)' },
@@ -306,7 +311,7 @@ const AIMessage = ({
 				''
 			)}
 
-			{messageData?.tool_invocations && !isSkipped ? (
+			{messageData?.tool_invocations?.length > 0 && !isSkipped ? (
 				<IntermediateSteps
 					steps={messageData?.tool_invocations}
 					isStreaming={effectiveStreamEnd === false}
@@ -335,6 +340,8 @@ const AIMessage = ({
 					)}
 				</div>
 			)}
+
+			{messageData?.status === 'error' && <ChatError error={messageData?.error} />}
 
 			{messageData?.unintegrated_apps?.length > 0 ? (
 				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
@@ -499,21 +506,4 @@ const AIMessage = ({
 	);
 };
 
-export default memo(AIMessage, (prevProps, nextProps) => {
-	return (
-		prevProps.text === nextProps.text &&
-		prevProps.messageId === nextProps.messageId &&
-		prevProps.rating === nextProps.rating &&
-		JSON.stringify(prevProps.citations) === JSON.stringify(nextProps.citations) &&
-		prevProps.messageData?.messageId === nextProps.messageData?.messageId &&
-		JSON.stringify(prevProps.messageData?.tool_invocations) ===
-			JSON.stringify(nextProps.messageData?.tool_invocations) &&
-		prevProps.messageData?.stream_end === nextProps.messageData?.stream_end &&
-		prevProps.isLastMessage === nextProps.isLastMessage &&
-		prevProps.handleSourcesClick === nextProps.handleSourcesClick &&
-		prevProps.messageIndex === nextProps.messageIndex &&
-		prevProps.showCitationsButton === nextProps.showCitationsButton &&
-		prevProps.sessionId === nextProps.sessionId &&
-		prevProps.showResponseEditBtn === nextProps.showResponseEditBtn
-	);
-});
+export default memo(AIMessage);

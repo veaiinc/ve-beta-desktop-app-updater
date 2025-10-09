@@ -10,7 +10,7 @@ import { ReactComponent as InfoIcon } from '../../../assets/svg/Settings/Info.sv
 import { ReactComponent as ChevronDownIcon } from '../../../assets/svg/smartFile/downArrow.svg';
 import { ReactComponent as EmailIcon } from '../../../views/components/library/svgs/logicform/email.svg';
 import { ReactComponent as AssistantIcon } from '../../../views/components/library/svgs/LeftBar/AIassit.svg';
-import { DatePicker, Modal, Input, Button } from 'antd';
+import { DatePicker, Modal, Input } from 'antd';
 import dayjs from 'dayjs';
 import Context from '../../../context/context';
 import { message } from 'antd';

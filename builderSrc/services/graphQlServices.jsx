@@ -1,4 +1,69 @@
-import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloLink, HttpLink, from, InMemoryCache } from '@apollo/client';
+import { onError } from '@apollo/client/link/error';
+import { Observable } from '@apollo/client/utilities';
+import getBuilderSrcSharedRefreshToken from './utils/sharedTokenRefresh.js';
+
+const refreshTokenForGraphQL = async () => {
+	const refreshResult = await getBuilderSrcSharedRefreshToken();
+
+	// If refresh failed, return the error
+	if (!refreshResult.success) {
+		return [false, refreshResult.refreshTokenResponse, refreshResult.status];
+	}
+
+	// If refresh succeeded, return the new token
+	return [true, refreshResult.accessToken, refreshResult.status];
+};
+
+const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) => {
+	if (graphQLErrors) {
+		graphQLErrors.forEach(({ message, locations, path }) => {
+			console.log(
+				`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+			);
+		});
+		return forward(operation);
+	}
+
+	if (networkError) {
+		if (
+			networkError.statusCode === 401 ||
+			(networkError.message && networkError.message.includes('401')) ||
+			(networkError.message && networkError.message.includes('jwt expired'))
+		) {
+			return new Observable((observer) => {
+				refreshTokenForGraphQL()
+					.then(([success, accessToken, status]) => {
+						if (success) {
+							operation.setContext({
+								...operation.getContext(),
+								headers: {
+									...operation.getContext().headers,
+									authorization: accessToken ? `Bearer ${accessToken}` : '',
+								},
+							});
+
+							const retryObservable = forward(operation);
+							retryObservable.subscribe({
+								next: observer.next.bind(observer),
+								error: observer.error.bind(observer),
+								complete: observer.complete.bind(observer),
+							});
+						} else {
+							console.error('Token refresh failed:', status);
+							observer.error(networkError);
+						}
+					})
+					.catch((error) => {
+						console.error('Token refresh error:', error);
+						observer.error(networkError);
+					});
+			});
+		}
+	}
+
+	return forward(operation);
+});
 
 import {
 	graphql_server,
@@ -46,9 +111,11 @@ const Service = {
 				? `${apiEndPointMapper?.[url] || `${graphql_server}`}/${workspaceId}/graphql`
 				: `${apiEndPointMapperUS?.[url] || `${graphql_server_US}`}/${workspaceId}/graphql`;
 
-		const apolloClient = new ApolloClient({
-			uri: url,
+		const httpLink = new HttpLink({ uri: url });
+		const link = from([errorLink, httpLink]);
 
+		const apolloClient = new ApolloClient({
+			link,
 			cache: new InMemoryCache({
 				resultCaching: true,
 			}),
@@ -94,9 +161,11 @@ const Service = {
 			subUrl = region === 'ap-south-1' ? `${graphql_server}` : `${graphql_server_US}`;
 		}
 		let URL = `${subUrl}/${workspaceId}/graphql`;
-		const apolloClient = new ApolloClient({
-			uri: URL,
+		const httpLink = new HttpLink({ uri: URL });
+		const link = from([errorLink, httpLink]);
 
+		const apolloClient = new ApolloClient({
+			link,
 			cache: new InMemoryCache(),
 			defaultOptions,
 			connectToDevTools: true,

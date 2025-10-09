@@ -30,9 +30,10 @@ import { ReactComponent as PlayIcon } from './assets/playIcon.svg';
 import { ReactComponent as PauseIcon } from './assets/pauseIcon.svg';
 import HeroSection from './heroSection/HeroSection';
 import VeSvg from '../../../assets/svg/veSvg';
+import TextOverlay from './TextOverlay';
 
 import '../../../assets/scss/landingScreen/index.scss';
-import DownloadVeAppPopup from '../../components/downloadVeAppPopup/DownloadVeAppPopup';
+import DownloadVeAppPopup from '../../components/desktopApp/DownloadVeAppPopup';
 
 const isMac =
 	navigator.userAgentData?.platform === 'macOS' ||
@@ -51,7 +52,7 @@ const getMacArchitecture = async () => {
 	}
 };
 
-// Function to get the appropriate desktop app download URL
+// Function to get the appropriate desktop app download
 const getDesktopAppDownloadUrl = async () => {
 	if (!isMac) return null;
 
@@ -93,10 +94,22 @@ const LandingPage = () => {
 		downloadSectionRef,
 		iMacFrameRef,
 		fullscreenIMacRef,
+		textOverlayRef,
 		backgroundRef,
 		productIntroRef,
 		videoRef: scrollVideoRef,
 	} = useScrollAnimation();
+
+	// Ensure light background on landing page to avoid black rubber-band background
+	useEffect(() => {
+		document.documentElement.classList.add('light-page');
+		document.body.classList.add('light-page');
+
+		return () => {
+			document.documentElement.classList.remove('light-page');
+			document.body.classList.remove('light-page');
+		};
+	}, []);
 
 	// sync tab with URL
 	useEffect(() => {
@@ -111,9 +124,13 @@ const LandingPage = () => {
 		const workspaceId = localStorage.getItem('workspaceId');
 		const isOnboard = JSON.parse(localStorage.getItem('isOnboard') || 'false');
 
-		if (token && region && workspaceId) {
-			if (!isOnboard) return navigate('/early-access');
-			return navigate('/home');
+		// Only redirect if we have all required authentication data
+		if (token && region && workspaceId && token.trim() !== '') {
+			if (!isOnboard) {
+				navigate('/early-access');
+			} else {
+				navigate('/home');
+			}
 		}
 	}, [navigate]);
 
@@ -190,7 +207,8 @@ const LandingPage = () => {
 	const tabComponents = {
 		0: (
 			<div className="page-body">
-				<div className="heroContainer">
+				{/* Desktop Layout */}
+				<div className="heroContainer desktop-only">
 					<div className="title-container">
 						<DownloadSection
 							ref={downloadSectionRef}
@@ -225,37 +243,39 @@ const LandingPage = () => {
 					</div> */}
 				</div>
 
-				{/* Fullscreen iMac Component for Scroll Animation */}
+				{/* Fullscreen iMac Component for Scroll Animation - Desktop only */}
 				<FullscreenIMac ref={fullscreenIMacRef} />
-				{/* Additional content to ensure scrollable height for fullscreen animation and pinned text */}
+				{/* Additional content to ensure scrollable height for fullscreen animation and pinned text - Desktop only */}
 				<div
+					className="dummy-div desktop-only"
 					style={{
 						height: '93vh',
 						background: 'transparent',
-						minHeight: '600px', // Ensure minimum height for small screens
+						minHeight: '100px',
 					}}
 				></div>
+				<TextOverlay ref={textOverlayRef} />
 
 				{/* Product Intro */}
 				<ProductIntro ref={productIntroRef} />
 
 				{/* (Ambient Intelligence + Actions) with Ellipse Transition */}
-				<AmbientIntelligence />
+				{/* <AmbientIntelligence /> */}
 
 				{/* (Super Agent + Actions) */}
 				{/* <SuperAgent /> */}
 
 				{/* (Meeting Intelligence + Actions) */}
-				<MeetingIntelligence />
+				{/* <MeetingIntelligence /> */}
 
 				{/* <Tagline /> */}
 
 				{/* Combined sections with shared animated background */}
-				<AnimatedGlowBackground variant="subtle" intensity="medium" fitContent>
-					<PartnerSection />
-					<FAQ />
-					<NewsletterSection />
-				</AnimatedGlowBackground>
+
+				<PartnerSection />
+				<FAQ />
+				<NewsletterSection />
+				{/* </AnimatedGlowBackground> */}
 
 				{/* <Footer /> */}
 
@@ -290,7 +310,13 @@ const LandingPage = () => {
 	return (
 		<>
 			<Helmet>
+				{/* LFEEDER TRACKER */}
 				<title>Ve - The World's First Ambient AI OS</title>
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `(function(ss,ex){ window.ldfdr=window.ldfdr||function(){(ldfdr._q=ldfdr._q||[]).push([].slice.call(arguments));}; (function(d,s){ fs=d.getElementsByTagName(s)[0]; function ce(src){ var cs=d.createElement(s); cs.src=src; cs.async=1; fs.parentNode.insertBefore(cs,fs); }; ce('https://sc.lfeeder.com/lftracker_v1_'+ss+(ex?'_'+ex:'')+'.js'); })(document,'script'); })('YEgkB8lxY9M8ep3Z');`,
+					}}
+				/>
 			</Helmet>
 			<main
 				className={`landing-page-container${
@@ -310,22 +336,13 @@ const LandingPage = () => {
 							{/* Navigation items will be added here if needed */}
 						</div>
 						<div className="right-container">
-							<Link className="login-btn-text hide-on-mobile" to="/verify-user">
-								Login
-							</Link>
-							<div className="login-container">
-								<button
-									className="login-btn"
-									onClick={() => navigate('/verify-user')}
-								>
-									Signup
-								</button>
-								<button
-									className="sidebar-button mobile-only"
-									onClick={() => setMobileMenuOpen(true)}
-								>
-									<MenuIcon />
-								</button>
+							<div className="nav-buttons">
+								<Link className="nav-btn" to="/pricing">
+									Pricing
+								</Link>
+								<Link className="nav-btn primary" to="/verify-user">
+									Get Started
+								</Link>
 							</div>
 						</div>
 					</div>

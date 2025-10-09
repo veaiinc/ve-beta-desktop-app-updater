@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import Public from '../views/layouts/Public';
 
 // pages
-import LandingPage from '../views/features/landingScreen/LandingPage';
+// import LandingPage from '../views/features/landingScreen/LandingPage';
 
 import { lazy, Suspense } from 'react';
 
@@ -14,12 +14,13 @@ const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'))
 const TermsOfService = lazy(() => import('../views/features/signin/TermsOfService'));
 const CookiePolicy = lazy(() => import('../views/features/signin/CookiePolicy'));
 const PrivacyPolicy = lazy(() => import('../views/features/signin/PrivacyPolicy'));
-const ChageLog = lazy(() => import('../views/features/signin/ChageLog'));
+const ChangeLog = lazy(() => import('../views/features/signin/ChangeLog'));
 const OauthVerify = lazy(() => import('../views/features/signin/oauth/OauthVerify'));
+// const PricingPageWebsite = lazy(() => import('../views/features/pricingPlans/PricingPageWebsite'));
+const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DownloadDesktopApp'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import PricingPageWebsite from '../views/features/pricingPlans/PricingPageWebsite';
 import LiveIntelligence from '../views/features/onboarding/LiveIntelligence';
 
 const publicRoutes = [
@@ -32,54 +33,54 @@ const publicRoutes = [
 			<Navigate to="/verify-user" replace />
 		),
 	},
-	{
-		path: '/manifesto',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/contact-us',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/api',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/about-us',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/careers',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
-	{
-		path: '/forefront',
-		element: (
-			<Public>
-				<LandingPage />
-			</Public>
-		),
-	},
+	// {
+	// 	path: '/manifesto',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/contact-us',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/api',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/about-us',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/careers',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
+	// {
+	// 	path: '/forefront',
+	// 	element: (
+	// 		<Public>
+	// 			<LandingPage />
+	// 		</Public>
+	// 	),
+	// },
 	{
 		path: '/onboarding',
 		element: (
@@ -88,14 +89,14 @@ const publicRoutes = [
 			</Public>
 		),
 	},
-	{
-		path: '/live-intelligence',
-		element: (
-			<Public>
-				<LiveIntelligence />
-			</Public>
-		),
-	},
+	// {
+	// 	path: '/live-intelligence',
+	// 	element: (
+	// 		<Public>
+	// 			<LiveIntelligence />
+	// 		</Public>
+	// 	),
+	// },
 	{
 		path: '/verify-user',
 		element: (
@@ -104,26 +105,36 @@ const publicRoutes = [
 			</Public>
 		),
 	},
+	// {
+	// 	path: '/pricing',
+	// 	element: (
+	// 		<Public>
+	// 			<Suspense fallback={<SuspenseFallback />}>
+	// 				<LoginPage />
+	// 			</Suspense>
+	// 		</Public>
+	// 	),
+	// },
 	{
-		path: '/pricing',
+		path: '/download-app',
 		element: (
 			<Public>
 				<Suspense fallback={<SuspenseFallback />}>
-					<LoginPage />
+					<DownloadDesktopApp />
 				</Suspense>
 			</Public>
 		),
 	},
-	{
-		path: '/pricing',
-		element: (
-			<Public>
-				<Suspense fallback={<SuspenseFallback />}>
-					<PricingPageWebsite />
-				</Suspense>
-			</Public>
-		),
-	},
+	// {
+	// 	path: '/pricing',
+	// 	element: (
+	// 		<Public>
+	// 			<Suspense fallback={<SuspenseFallback />}>
+	// 				<PricingPageWebsite />
+	// 			</Suspense>
+	// 		</Public>
+	// 	),
+	// },
 	{
 		path: '/referral/:referralCode',
 		element: (
@@ -160,7 +171,9 @@ const publicRoutes = [
 		path: '/changelog',
 		element: (
 			<Public>
-				<ChageLog />
+				<Suspense fallback={<SuspenseFallback />}>
+					<ChangeLog />
+				</Suspense>
 			</Public>
 		),
 	},

@@ -32,7 +32,7 @@ export const updateCitationIdsWithCitations = (input = '', citations = []) => {
 		const match = matches[index];
 		if (match) {
 			const id = match?.slice(1, -1);
-			result?.push(<CitationsTooltip key={index} citationId={id} citations={citations} />);
+			result?.push(<CitationsTooltip key={index} citationIds={[id]} citations={citations} />);
 		}
 	});
 
@@ -165,72 +165,80 @@ export const handleCombinedChainOfThought = (chainOfThought) => {
 	const thoughts = [],
 		deepSearches = {},
 		deepResearches = {},
-		searchIdMapper = {};
+		searchIdMapper = {},
+		chainOfThoughtData = [];
 
 	for (let i = 0; i < chainOfThought?.length; i++) {
 		const data = chainOfThought?.[i] || {};
-		const { search_id, processing, thought } = data || {};
+		const { search_id, processing, thought, reading } = data || {};
 
-		if (typeof data === 'string') {
-			thoughts?.push({
-				thought: data,
-			});
+		if (reading) {
+			chainOfThoughtData?.push({ step: data?.step, readings: reading });
+		} else {
+			chainOfThoughtData?.push(data);
 		}
 
-		if (thought) {
-			thoughts?.push({ thought: thought?.step || thought });
-		}
+		// if (typeof data === 'string') {
+		// 	thoughts?.push({
+		// 		thought: data,
+		// 	});
+		// }
 
-		if (processing === 'Deep Search') {
-			searchIdMapper[search_id] = 'deepSearch';
-		}
+		// if (thought) {
+		// 	thoughts?.push({ thought: thought?.step || thought });
+		// }
 
-		if (processing === 'Deep Research') {
-			searchIdMapper[search_id] = 'deepResearch';
-		}
+		// if (processing === 'Deep Search') {
+		// 	searchIdMapper[search_id] = 'deepSearch';
+		// }
 
-		if (search_id) {
-			if (searchIdMapper[search_id] === 'deepSearch') {
-				if (deepSearches[search_id]) {
-					deepSearches[search_id]?.chainOfThought?.push(data);
-				} else {
-					deepSearches[search_id] = {
-						order: i,
-						chainOfThought: [data],
-					};
-				}
-			}
+		// if (processing === 'Deep Research') {
+		// 	searchIdMapper[search_id] = 'deepResearch';
+		// }
 
-			if (searchIdMapper[search_id] === 'deepResearch') {
-				if (deepResearches[search_id]) {
-					deepResearches[search_id]?.chainOfThought?.push(data);
-				} else {
-					deepResearches[search_id] = {
-						order: i,
-						chainOfThought: [data],
-					};
-				}
-			}
-		}
+		// if (search_id) {
+		// 	if (searchIdMapper[search_id] === 'deepSearch') {
+		// 		if (deepSearches[search_id]) {
+		// 			deepSearches[search_id]?.chainOfThought?.push(data);
+		// 		} else {
+		// 			deepSearches[search_id] = {
+		// 				order: i,
+		// 				chainOfThought: [data],
+		// 			};
+		// 		}
+		// 	}
+
+		// 	if (searchIdMapper[search_id] === 'deepResearch') {
+		// 		if (deepResearches[search_id]) {
+		// 			deepResearches[search_id]?.chainOfThought?.push(data);
+		// 		} else {
+		// 			deepResearches[search_id] = {
+		// 				order: i,
+		// 				chainOfThought: [data],
+		// 			};
+		// 		}
+		// 	}
+		// }
 	}
 
-	let deepSearchesArray = Object?.values(deepSearches);
-	let deepResearchesArray = Object?.values(deepResearches);
+	// let deepSearchesArray = Object?.values(deepSearches);
+	// let deepResearchesArray = Object?.values(deepResearches);
 
-	deepSearchesArray = deepSearchesArray?.map((deepSearch) => {
-		const chainOfThought = deepSearch?.chainOfThought || [];
-		return handleChainOfThought(chainOfThought);
-	});
+	// deepSearchesArray = deepSearchesArray?.map((deepSearch) => {
+	// 	const chainOfThought = deepSearch?.chainOfThought || [];
+	// 	return handleChainOfThought(chainOfThought);
+	// });
 
-	deepResearchesArray = deepResearchesArray?.map((deepResearch) => {
-		const chainOfThought = deepResearch?.chainOfThought || [];
-		return handleDeepResearchChainOfThought(chainOfThought);
-	});
+	// deepResearchesArray = deepResearchesArray?.map((deepResearch) => {
+	// 	const chainOfThought = deepResearch?.chainOfThought || [];
+	// 	return handleDeepResearchChainOfThought(chainOfThought);
+	// });
 
 	return {
-		thoughts,
-		deepSearches: deepSearchesArray,
-		deepResearches: deepResearchesArray,
+		// thoughts,
+		// deepSearches: deepSearchesArray,
+		// deepResearches: deepResearchesArray,
+		chainOfThought: chainOfThoughtData,
 		hasChainOfThought: chainOfThought?.length > 0,
 	};
 };

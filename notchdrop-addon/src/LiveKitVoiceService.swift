@@ -78,7 +78,6 @@ import AVFoundation
         self.accessToken = token
         self.participantName = participantName
         
-        print("🎤 LiveKit Voice Service configured with URL: \(self.liveKitURL)")
     }
     
     /// Connect to LiveKit room and start voice conversation
@@ -101,8 +100,6 @@ import AVFoundation
             setupRoomDelegates()
             
             // Connect to room - LiveKit SDK will automatically add /rtc path and query parameters
-            print("🔗 Connecting to LiveKit URL: \(liveKitURL)")
-            print("🎫 Using access token: \(String(accessToken.prefix(20)))...")
             try await room.connect(url: liveKitURL, token: accessToken)
             
             // Enable audio
@@ -111,7 +108,6 @@ import AVFoundation
             await MainActor.run {
                 isConnecting = false
                 connectionState = .connected
-                print("✅ Connected to LiveKit room successfully")
             }
             
             // Notify delegate
@@ -123,7 +119,6 @@ import AVFoundation
                 connectionState = .error
             }
             onConnectionStateChanged?(.error)
-            print("❌ Failed to connect to LiveKit: \(error)")
             throw error
         }
     }
@@ -151,7 +146,6 @@ import AVFoundation
         }
         
         onConnectionStateChanged?(.disconnected)
-        print("🔌 Disconnected from LiveKit room")
     }
     
     /// Toggle microphone mute state
@@ -165,13 +159,11 @@ import AVFoundation
             isMuted = newMutedState
         }
         
-        print("🎤 Microphone \(newMutedState ? "muted" : "unmuted")")
     }
     
     /// Send a text message to the agent (for debugging/testing)
     @objc public func sendMessage(_ message: String) {
         guard let room = room, room.connectionState == .connected else {
-            print("❌ Cannot send message: not connected to room")
             return
         }
         
@@ -194,7 +186,6 @@ import AVFoundation
         }
         
         onMessageReceived?(userMessage)
-        print("💬 Sent message: \(message)")
     }
     
     // MARK: - Callback Registration
@@ -228,9 +219,7 @@ import AVFoundation
             let audioSession = AVAudioSession.sharedInstance()
             try audioSession.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetooth, .defaultToSpeaker])
             try audioSession.setActive(true)
-            print("🔊 Audio session configured for voice chat")
         } catch {
-            print("❌ Failed to configure audio session: \(error)")
         }
     }
     
@@ -305,7 +294,6 @@ import AVFoundation
         currentSpeaker = participant.name ?? "Agent"
         
         onMessageReceived?(agentMessage)
-        print("🤖 Received agent message: \(messageContent)")
     }
     
     private func enableAudio() async throws {
@@ -318,7 +306,6 @@ import AVFoundation
         // Publish audio track
         try await room.localParticipant.publish(audioTrack: audioTrack)
         
-        print("🎤 Audio track enabled and published")
     }
     
     // MARK: - Cleanup

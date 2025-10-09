@@ -146,45 +146,126 @@ const codeColorTheme = {
 	},
 };
 
+// const rehypeCITPlugin = () => {
+// 	return (tree) => {
+// 		const visit = (node) => {
+// 			if (!node || typeof node !== 'object') return;
+
+// 			if (node?.type === 'text' && node?.value) {
+// 				const regex = /(\[C\d+\])/g;
+// 				const matches = node?.value?.match(regex);
+// 				if (!matches) return;
+
+// 				// Create a new node instead of modifying in place
+// 				const newNode = {
+// 					type: 'element',
+// 					tagName: 'span',
+// 					properties: node?.properties || {},
+// 					children: node?.value?.split(regex)?.map((part) => {
+// 						if (regex?.test(part)) {
+// 							return {
+// 								type: 'element',
+// 								tagName: 'span',
+// 								properties: {
+// 									citationId: part?.slice(1, -1),
+// 								},
+// 								children: [{ type: 'text', value: 'Citation' }],
+// 							};
+// 						}
+// 						return { type: 'text', value: part };
+// 					}),
+// 				};
+
+// 				Object.assign(node, newNode);
+// 			}
+
+// 			if (node?.children && Array?.isArray(node?.children)) {
+// 				node?.children?.forEach(visit);
+// 			}
+// 		};
+
+// 		visit(tree);
+// 	};
+// };
+
 const rehypeCITPlugin = () => {
 	return (tree) => {
-		const visit = (node) => {
+		const visit = (node, parent) => {
 			if (!node || typeof node !== 'object') return;
 
-			if (node?.type === 'text' && node?.value) {
+			// Only process text nodes
+			if (node.type === 'text' && node.value) {
 				const regex = /(\[C\d+\])/g;
-				const matches = node?.value?.match(regex);
-				if (!matches) return;
+				const parts = [];
+				let lastIndex = 0;
+				const matches = [...node.value.matchAll(regex)];
 
-				// Create a new node instead of modifying in place
-				const newNode = {
-					type: 'element',
-					tagName: 'span',
-					properties: node?.properties || {},
-					children: node?.value?.split(regex)?.map((part) => {
-						if (regex?.test(part)) {
-							return {
-								type: 'element',
-								tagName: 'span',
-								properties: {
-									citationId: part?.slice(1, -1),
-								},
-								children: [{ type: 'text', value: 'Citation' }],
-							};
+				// if (matches?.length === 0) return;
+
+				if (matches?.length > 0) {
+					let idx = 0;
+					while (idx < matches.length) {
+						const match = matches[idx];
+						const start = match.index;
+						const end = start + match[0].length;
+
+						// push text before citation
+						if (start > lastIndex) {
+							parts.push({ type: 'text', value: node.value.slice(lastIndex, start) });
 						}
-						return { type: 'text', value: part };
-					}),
-				};
 
-				Object.assign(node, newNode);
+						// group consecutive citations (no text between them)
+						let groupEnd = end;
+						const groupIds = [match[0].slice(1, -1)];
+
+						while (matches[idx + 1] && matches[idx + 1].index === groupEnd) {
+							groupIds.push(matches[idx + 1][0].slice(1, -1));
+							groupEnd = matches[idx + 1].index + matches[idx + 1][0].length;
+							idx++;
+						}
+
+						// push the grouped citation span (single span for all consecutive citations)
+						parts.push({
+							type: 'element',
+							tagName: 'span',
+							properties: { citationIds: groupIds },
+							children: [{ type: 'text', value: 'Citation' }],
+						});
+
+						lastIndex = groupEnd;
+						idx++;
+					}
+
+					// push remaining text
+					if (lastIndex < node.value.length) {
+						parts.push({ type: 'text', value: node.value.slice(lastIndex) });
+					}
+
+					// // Replace node value with new element
+					// Object.assign(node, {
+					// 	type: 'element',
+					// 	tagName: 'span',
+					// 	properties: node.properties || {},
+					// 	children: parts,
+					// });
+
+					// Replace node in parent's children
+					if (parent && parent.children) {
+						const index = parent.children.indexOf(node);
+						parent.children.splice(index, 1, ...parts);
+					}
+
+					return; // stop recursion for this node
+				}
 			}
 
-			if (node?.children && Array?.isArray(node?.children)) {
-				node?.children?.forEach(visit);
+			// Recurse into original children
+			if (node.children && Array.isArray(node.children)) {
+				node.children.forEach((child) => visit(child, node));
 			}
 		};
 
-		visit(tree);
+		visit(tree, null);
 	};
 };
 
@@ -358,9 +439,15 @@ MarkdownTable.displayName = 'MarkdownTable';
 
 // Memoize citation-specific components
 const createCustomComponents = (citationsRef, markdownRef, plotsRef) => ({
-	span: ({ children, citationId, fadeIn, ...props }) => {
-		if (citationId)
-			return <CitationsTooltip citationId={citationId} citations={citationsRef.current} />;
+	span: ({ children, citationIds, fadeIn, ...props }) => {
+		if (citationIds?.length > 0) {
+			return (
+				<CitationsTooltip
+					citationIds={citationIds?.split(' ')}
+					citations={citationsRef.current}
+				/>
+			);
+		}
 
 		if (fadeIn) {
 			return <span className="chat-fade-in">{children}</span>;

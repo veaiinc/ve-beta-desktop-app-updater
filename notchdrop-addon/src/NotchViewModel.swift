@@ -12,27 +12,135 @@ class NotchViewModel: NSObject, ObservableObject {
         self.inset = inset
         super.init()
         setupCancellables()
+        
+        // CRITICAL: Validate lock state on initialization
+        DispatchQueue.main.async { [weak self] in
+            self?.validateLockState()
+        }
+        
+        // Calendar will be initialized directly by Calendar
     }
 
     deinit {
+        // Clean up browser permission window
+        if let window = browserPermissionWindow {
+            window.orderOut(nil)
+            browserPermissionWindow = nil
+        }
         destroy()
+    }
+    
+    // MARK: - Performance Optimization Methods
+    
+    /// Throttles UI updates to prevent excessive re-renders
+    private var lastUpdateTime: Date = Date()
+    private let updateThrottleInterval: TimeInterval = 0.016 // ~60fps
+    
+    /// Batch updates to reduce re-render frequency
+    private func performBatchedUpdate(_ update: @escaping () -> Void) {
+        let now = Date()
+        guard now.timeIntervalSince(lastUpdateTime) >= updateThrottleInterval else {
+            // Queue the update for later
+            DispatchQueue.main.asyncAfter(deadline: .now() + updateThrottleInterval) { [weak self] in
+                self?.performBatchedUpdate(update)
+            }
+            return
+        }
+        
+        lastUpdateTime = now
+        update()
+    }
+    
+    /// Optimized property update with change detection
+    private func updateProperty<T: Equatable>(_ keyPath: WritableKeyPath<NotchViewModel, T>, to newValue: T) {
+        guard self[keyPath: keyPath] != newValue else { return }
+        performBatchedUpdate { [weak self] in
+            self?[keyPath: keyPath] = newValue
+        }
+    }
+    
+    /// Optimized multiple property updates
+    private func updateProperties(_ updates: @escaping () -> Void) {
+        performBatchedUpdate(updates)
     }
 
     let animation: Animation = DynamicIslandTheme.expansionAnimation
+    let hoverAnimation: Animation = DynamicIslandTheme.hoverAnimation
     // Fixed size - no width expansion functionality
     var notchOpenedSize: CGSize {
-        // When showing notification, use notification-specific dimensions matching Figma
-        if showNotificationOverlay {
+        // Fixed dimensions for unauthenticated users
+        if !isAuthenticated {
             return .init(
-                width: 370,  // Figma design width
-                height: 100   // Figma design height
+                width: 500,  // Fixed width
+                height: 180   // Fixed height
             )
         }
-        // Always use fixed compact width - no expansion for any state
-        return .init(
-            width: 550, // Increased width to accommodate new UI layout
-            height: DynamicIslandTheme.expandedHeight
-        )
+        
+        // Teams view: fixed compact width
+        if isTeamsView {
+            // When meeting is active (start card hidden), fix width to 580 so chat + webcam fit
+            if isRecording {
+                let fixedWidth: CGFloat = 792
+                let maxAllowed = max(792, screenRect.width - 40)
+                return .init(
+                    width: min(fixedWidth, maxAllowed),
+                    height: DynamicIslandTheme.expandedHeight
+                )
+            }
+            // Responsive width for Meeting mode with Start card visible
+            let startWidth: CGFloat = 220
+            let chatWidth: CGFloat = 400 // Fixed chat width
+            let webcamWidth: CGFloat = 100
+            let innerGaps: CGFloat = 12 * 2 // spacing between the three items
+            let outerPadding: CGFloat = spacing * 2 // view padding
+            let buffer: CGFloat = 24 // breathing room for outlines/shadows
+            let desiredWidth = startWidth + chatWidth + webcamWidth + innerGaps + outerPadding + buffer
+            let minComfortableWidth: CGFloat = 800 // Increased minimum width for larger screens
+            let targetWidth = max(desiredWidth, minComfortableWidth)
+            let maxAllowed = max(600, screenRect.width - 40) // Increased minimum allowed width
+            let baseWidth = min(targetWidth, maxAllowed)
+            let adjustedWidth = max(600, baseWidth) // Increased minimum width
+            return .init(
+                width: adjustedWidth,
+                height: DynamicIslandTheme.expandedHeight
+            )
+        }
+        // When showing notification, use notification-specific dimensions matching Figma
+        // if showNotificationOverlay {
+        //     return .init(
+        //         width: 370,  // Figma design width
+        //         height: 100   // Figma design height
+        //     )
+        // }
+        // Tray mode - wider to show file items
+        if isTrayMode {
+            return .init(
+                width: 700,  // Wider for tray items
+                height: 180   // Taller for tray with AirDrop
+            )
+        }
+        // Dynamic width based on chat mode, voice agent mode, meeting mode, and media controllers
+        if isChatMode || showVoiceInterface || isRecording {
+            // Chat mode, Voice Agent mode, or Meeting/Recording mode - use compact width
+            let compactWidth: CGFloat = 580  // Width optimized for chat/voice/meeting input only
+            return .init(
+                width: compactWidth,
+                height: DynamicIslandTheme.expandedHeight
+            )
+        } else {
+            // Normal mode - show calendar and media controllers if available
+            let baseWidth: CGFloat = 580  // Width without any additional components
+            let calendarWidth: CGFloat = 240  // Width of Boring Notch style calendar component (increased for month header)
+            let spotifyWidth: CGFloat = 160  // Width of Spotify controller
+            let youtubeWidth: CGFloat = showVideoPlayer ? 300 : 200  // Width of YouTube player (300) vs controller (200)
+            let mediaWidth = (hasActiveMusic ? spotifyWidth : 0) + (hasActiveVideo ? youtubeWidth : 0)
+            let totalWidth = baseWidth + calendarWidth + mediaWidth
+            
+            return .init(
+                width: totalWidth,
+                height: DynamicIslandTheme.expandedHeight
+            )
+        }
     }
     let dropDetectorRange: CGFloat = 32
 
@@ -64,6 +172,25 @@ class NotchViewModel: NSObject, ObservableObject {
             height: notchOpenedSize.height
         )
     }
+    
+    var notchClosedRect: CGRect {
+        // Use fixed dimensions with MacBook Pro scaling
+        let isMacBookPro = deviceNotchRect.width > 180
+        let baseWidth: CGFloat = 343  // Fixed base width for better TemporaryFolder display
+        let baseHeight: CGFloat = 48  // Fixed base height for better TemporaryFolder display
+        
+        // Make it bigger for MacBook Pro
+        let widthMultiplier: CGFloat = isMacBookPro ? 1.2 : 1.0  // 20% larger for MacBook Pro
+        let visualWidth = baseWidth * widthMultiplier
+        let visualHeight = baseHeight * widthMultiplier
+        
+        return .init(
+            x: screenRect.origin.x + (screenRect.width - visualWidth) / 2,
+            y: screenRect.origin.y + screenRect.height - visualHeight,
+            width: visualWidth,
+            height: visualHeight
+        )
+    }
 
     var headlineOpenedRect: CGRect {
         .init(
@@ -74,16 +201,53 @@ class NotchViewModel: NSObject, ObservableObject {
         )
     }
 
+    // MARK: - Core UI State (Grouped for performance)
     @Published private(set) var status: Status = .closed
     @Published var openReason: OpenReason = .unknown
     @Published var contentType: ContentType = .normal
 
+    // MARK: - Layout Properties (Grouped)
     @Published var spacing: CGFloat = 16
     @Published var cornerRadius: CGFloat = 16
     @Published var deviceNotchRect: CGRect = .zero
     @Published var screenRect: CGRect = .zero
     @Published var optionKeyPressed: Bool = false
     @Published var notchVisible: Bool = true
+
+    // MARK: - Media State (Grouped for performance)
+    @Published var hasActiveMusic: Bool = false
+    @Published var isMusicPlaying: Bool = false
+    @Published var hasActiveVideo: Bool = false
+    @Published var videoTitle: String = ""
+    @Published var videoChannel: String = ""
+    @Published var videoThumbnail: NSImage? = nil
+    @Published var videoDuration: String = ""
+    @Published var videoCurrentTime: String = ""
+    @Published var isVideoPlaying: Bool = false
+    @Published var videoURL: String = ""
+    @Published var videoEmbedURL: String = ""
+    @Published var showVideoPlayer: Bool = false
+    @PublishedPersist(key: "isNotchLocked", defaultValue: true)
+    var isNotchLocked: Bool
+    
+    // Video state persistence
+    @PublishedPersist(key: "savedVideoCurrentTime", defaultValue: 0.0)
+    var savedVideoCurrentTime: Double
+    
+    @PublishedPersist(key: "savedVideoDuration", defaultValue: 0.0)
+    var savedVideoDuration: Double
+    
+    @PublishedPersist(key: "savedVideoIsPlaying", defaultValue: false)
+    var savedVideoIsPlaying: Bool
+    
+    // Browser permission state for YouTube detection
+    @PublishedPersist(key: "hasBrowserPermission", defaultValue: false)
+    var hasBrowserPermission: Bool
+    @Published var browserPermissionRequested: Bool = false
+    @Published var showBrowserPermissionRequest: Bool = false
+    
+    // Browser permission window
+    private var browserPermissionWindow: NSWindow?
 
     @PublishedPersist(key: "selectedLanguage", defaultValue: .system)
     var selectedLanguage: Language
@@ -93,7 +257,54 @@ class NotchViewModel: NSObject, ObservableObject {
 
     let hapticSender = PassthroughSubject<Void, Never>()
     
-    // Dynamic Island UI state
+    // Lightweight hover edge-detection flags (not published)
+    var wasInClosedHoverZone: Bool = false
+    var wasInOpenedHoverZone: Bool = false
+
+    // Keep the app in a high-responsiveness mode during interaction
+    private var performanceActivity: NSObjectProtocol?
+    private var performanceStopWorkItem: DispatchWorkItem?
+    private let performanceIdleTimeout: TimeInterval = 90 // seconds
+
+    func ensureInteractivePerformance() {
+        // Begin activity if not already begun
+        if performanceActivity == nil {
+            performanceActivity = ProcessInfo.processInfo.beginActivity(options: [
+                .userInitiatedAllowingIdleSystemSleep,
+                .latencyCritical,
+            ], reason: "Keep NotchDrop responsive during hover/expand") as NSObjectProtocol
+        }
+
+        // Reset the idle timer to end activity later
+        performanceStopWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.endInteractivePerformance()
+        }
+        performanceStopWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + performanceIdleTimeout, execute: workItem)
+    }
+
+    private func endInteractivePerformance() {
+        if let token = performanceActivity {
+            ProcessInfo.processInfo.endActivity(token)
+            performanceActivity = nil
+        }
+        performanceStopWorkItem?.cancel()
+        performanceStopWorkItem = nil
+    }
+
+    // Debounce hover haptics to avoid repeated feedback on micro-movements
+    private var lastHoverHapticTime: Date = .distantPast
+    private let hoverHapticMinInterval: TimeInterval = 0.3
+    func performHoverHapticIfNeeded() {
+        let now = Date()
+        if now.timeIntervalSince(lastHoverHapticTime) >= hoverHapticMinInterval {
+            NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .default)
+            lastHoverHapticTime = now
+        }
+    }
+    
+    // MARK: - Dynamic Island UI State (Grouped for performance)
     @Published var isRecording: Bool = false
     @Published var isPaused: Bool = false
     @Published var timer: Int = 0
@@ -105,44 +316,57 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var controlledByDynamicIsland: Bool = false
     @Published var isConnecting = false
     @Published var isStealthModeEnabled: Bool = false
+    @Published var isTeamsView: Bool = false
     
+    // Transition state to defer heavy UI work during animations
+    @Published var isTransitioning: Bool = false
+
     // Chat expansion state
     @Published var isChatExpanded: Bool = false // Deprecated - no longer used for width expansion
     @Published var chatTextHeight: CGFloat = 100
+    
+    // Tray/Shelf state
+    @Published var isTrayMode: Bool = false
 
-    // Voice UI state (UI parity with React)
+    // MARK: - Voice UI State (Grouped for performance)
     enum VoiceConnectionStatus: String { case disconnected, connecting, connected, error }
     @Published var showVoiceInterface: Bool = false
     @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
     @Published var isMicrophoneMuted: Bool = false
     
+    // Calendar UI state
+    @Published var showCalendar: Bool = true // Show calendar by default in normal mode
+    
     // Voice Assistant Integration (Web-based approach)
     @Published var voiceMessages: [VoiceMessage] = []
+    @Published var liveIntelligenceMessages: [VoiceMessage] = []
     @Published var isVoiceActive: Bool = false
     @Published var audioLevel: Float = 0.0
+    // When recording: true -> show transcription panel; false -> show live intelligence (voice UI)
+    @Published var showTranscriptionDuringRecording: Bool = true
     
-    // MARK: - Wake Word Detection Properties
+    // MARK: - Wake Word Detection Properties (Grouped)
     @Published var isWakeWordEnabled: Bool = false
     @Published var wakeWordScore: Float = 0.0
 
-    // Notification Overlay State
-    @Published var showNotificationOverlay: Bool = false
-    @Published var notificationTitle: String = ""
-    @Published var notificationBody: String = ""
-    @Published var notificationType: String = ""
-    @Published var isNotificationHovered: Bool = false
+    // MARK: - Notification Overlay State (Grouped for performance)
+    // @Published var showNotificationOverlay: Bool = false
+    // @Published var notificationTitle: String = ""
+    // @Published var notificationBody: String = ""
+    // @Published var notificationType: String = ""
+    // @Published var isNotificationHovered: Bool = false
     
     // Notification Timer State
-    private var notificationTimer: Timer?
-    private var notificationStartTime: Date?
-    private var notificationPausedTime: TimeInterval = 0
-    private let notificationDuration: TimeInterval = 10.0
+    // private var notificationTimer: Timer?
+    // private var notificationStartTime: Date?
+    // private var notificationPausedTime: TimeInterval = 0
+    // private let notificationDuration: TimeInterval = 10.0
     
     // Voice configuration (VE.AI settings)
     private var voiceURL: String = "wss://ve-ai-voice-agent-ginreaey.livekit.cloud"
     private var voiceToken: String = ""
     
-    // Camera/Webcam state
+    // MARK: - Camera/Webcam State (Grouped for performance)
     @Published var isCameraActive: Bool = false
     @Published var showCameraPreview: Bool = false  // Controls whether to show camera preview or icon
     @Published var cameraPermission: String = "not-determined" // 'not-determined', 'granted', 'denied', 'restricted'
@@ -181,6 +405,9 @@ class NotchViewModel: NSObject, ObservableObject {
         case showNotification(String, String, String)
         // Webcam Actions
         case toggleWebcam
+        // Video State Actions
+        case saveVideoState
+        case restoreVideoState
         case startWebcam
         case stopWebcam
         case checkCameraPermission
@@ -206,11 +433,19 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     private var timerCancellable: AnyCancellable?
+    private var lastNavigationTimestamp: Date = .distantPast
+    private var lastNavigationPath: String? = nil
 
     func notchOpen(_ reason: OpenReason) {
-        openReason = reason
-        status = .opened
-        contentType = .normal
+        // Prevent rapid opening/closing that can cause performance issues
+        guard status != .opened else { return }
+        
+        updateProperties {
+            self.openReason = reason
+            self.status = .opened
+            self.contentType = .normal
+        }
+        
         // Avoid stealing focus when opening due to hover
         if reason != .hover {
             NSApp.activate(ignoringOtherApps: true)
@@ -220,12 +455,101 @@ class NotchViewModel: NSObject, ObservableObject {
     }
 
     func notchClose() {
+        // CRITICAL: Always validate lock state before attempting to close
+        
+        // Don't close if notch is locked - simple rule
+        guard !isNotchLocked else { 
+            return 
+        }
+        
+        // Prevent rapid opening/closing that can cause performance issues
+        guard status != .closed else { return }
+        
+        // Save video state before closing if video is playing
+        if hasActiveVideo && showVideoPlayer {
+            // Send save video state action to trigger JavaScript saving
+            swiftActionSender.send(.saveVideoState)
+            
+            // Also save to persistent storage immediately
+            saveVideoState(currentTime: 0.0, duration: 0.0, isPlaying: false)
+        }
+        
+        isTransitioning = true
         openReason = .unknown
         status = .closed
         contentType = .normal
         
-        // Emit collapse action for JavaScript
-        swiftActionSender.send(.collapse)
+        // Emit collapse action for JavaScript ONLY after we've actually closed (non-blocking)
+        DispatchQueue.global().async { [weak self] in
+            self?.swiftActionSender.send(.collapse)
+        }
+        
+        // End transition after animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + DynamicIslandTheme.expansionDuration) { [weak self] in
+            self?.isTransitioning = false
+        }
+    }
+    
+    func toggleNotchLock() {
+        let currentState = isNotchLocked
+        let newValue = !currentState
+        
+        
+        // IMMEDIATE synchronous state update to prevent race conditions
+        isNotchLocked = newValue
+        
+        // Verify state was actually updated
+        
+        // Force UI refresh immediately
+        objectWillChange.send()
+        
+        if isNotchLocked {
+            // If locking, ensure notch is open
+            notchOpen(.click)
+        } else {
+            // If unlocking, log the state change
+            print("🔒 Notch UNLOCKED - click outside should now work")
+            
+            // Force another UI update to ensure consistency
+            DispatchQueue.main.async { [weak self] in
+                self?.objectWillChange.send()
+            }
+        }
+    }
+
+    // MARK: - Lock State Validation
+    
+    /// Validates and ensures lock state consistency
+    private func validateLockState() {
+        // Lightweight validation without expensive operations
+        // Force UI update to ensure consistency
+        objectWillChange.send()
+    }
+    
+    /// Forces a complete state refresh
+    func forceLockStateRefresh() {
+        validateLockState()
+    }
+    
+    // MARK: - Video State Management
+    
+    /// Saves the current video state when notch closes
+    func saveVideoState(currentTime: Double, duration: Double, isPlaying: Bool) {
+        savedVideoCurrentTime = currentTime
+        savedVideoDuration = duration
+        savedVideoIsPlaying = isPlaying
+    }
+    
+    /// Restores the saved video state when notch reopens
+    func restoreVideoState() -> (currentTime: Double, duration: Double, isPlaying: Bool) {
+        return (savedVideoCurrentTime, savedVideoDuration, savedVideoIsPlaying)
+    }
+    
+    /// Clears saved video state (when video changes)
+    func clearVideoState() {
+        savedVideoCurrentTime = 0.0
+        savedVideoDuration = 0.0
+        savedVideoIsPlaying = false
     }
 
     func showSettings() {
@@ -239,14 +563,23 @@ class NotchViewModel: NSObject, ObservableObject {
     
     // Dynamic Island UI functions
     func startRecording() {
-        isConnecting = false // Set to false immediately to show recording state
-        isRecording = true
-        isPaused = false
-        timer = 0
-        startTimer()
+        updateProperties {
+            self.isConnecting = false // Set to false immediately to show recording state
+            self.isRecording = true
+            self.isPaused = false
+            self.timer = 0
+            // Ensure voice interface is not shown when recording
+            self.showVoiceInterface = false
+        }
         
-        // Ensure voice interface is not shown when recording
-        showVoiceInterface = false
+        // Clear previous meeting's live intelligence data to start fresh for new meeting
+        DispatchQueue.main.async {
+            // print("🧠 Starting new meeting - clearing previous live intelligence data")
+            self.liveIntelligenceMessages.removeAll()
+            // print("🧠 Live intelligence data cleared for new meeting")
+        }
+        
+        startTimer()
         
         // Emit action for JavaScript
         swiftActionSender.send(.startRecording)
@@ -258,10 +591,13 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func stopRecording() {
-        isRecording = false
-        isPaused = false
-        isConnecting = false
-        timer = 0
+        updateProperties {
+            self.isRecording = false
+            self.isPaused = false
+            self.isConnecting = false
+            self.timer = 0
+        }
+        
         stopTimer()
         
         // Emit action for JavaScript
@@ -320,6 +656,15 @@ class NotchViewModel: NSObject, ObservableObject {
         
         // Emit action for JavaScript
         swiftActionSender.send(.toggleChatMode)
+    }
+    
+    func toggleTrayMode() {
+        isTrayMode.toggle()
+        // Close other modes when opening tray
+        if isTrayMode {
+            isChatMode = false
+            showVoiceInterface = false
+        }
     }
     
     func submitChat() {
@@ -468,6 +813,117 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
     
+    /// Add transcription data from overlay (microphone data only)
+    func addTranscriptionData(sender: String, content: String, isFromAgent: Bool, timestamp: String?, confidence: Double?, words: [Any]?) {
+        DispatchQueue.main.async {
+            // Only accept microphone/transcription data for transcription section
+            // Filter out AI agent data - it should go to live intelligence section only
+            guard !isFromAgent && sender != "ai-agent" else {
+                print("📝 Skipping AI agent data for transcription: \(sender)")
+                return
+            }
+            
+            // Check for duplicate messages (same sender and content)
+            let isDuplicate = self.voiceMessages.contains { existingMessage in
+                existingMessage.sender == sender && 
+                existingMessage.content == content &&
+                existingMessage.isFromAgent == isFromAgent
+            }
+            
+            if !isDuplicate {
+                let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+                self.voiceMessages.append(message)
+                
+                // print("📝 Added microphone transcription data: \(sender): \(content.prefix(50))...")
+                if let confidence = confidence {
+                    print("📝 Confidence: \(confidence)")
+                }
+                if let wordCount = words?.count {
+                    print("📝 Word count: \(wordCount)")
+                }
+                if let timestamp = timestamp {
+                    print("📝 Timestamp: \(timestamp)")
+                }
+            } else {
+                print("⚠️ Skipped duplicate transcription data: \(sender): \(content.prefix(50))...")
+            }
+        }
+    }
+
+    /// Add live intelligence data from overlay (AI agent only)
+    func addLiveIntelligenceData(sender: String, content: String, isFromAgent: Bool, timestamp: String?, confidence: Double?, metadata: [String: Any]?) {
+        DispatchQueue.main.async {
+            // Only accept AI agent data for live intelligence section
+            // Filter out transcription data - it should go to transcription section only
+            guard isFromAgent || sender == "ai-agent" else {
+                print("🧠 Skipping non-AI data for live intelligence: \(sender)")
+                return
+            }
+            
+            // Check for duplicate messages (same sender and content)
+            let isDuplicate = self.liveIntelligenceMessages.contains { existingMessage in
+                existingMessage.sender == sender && 
+                existingMessage.content == content &&
+                existingMessage.isFromAgent == isFromAgent
+            }
+            
+            if !isDuplicate {
+                let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+                self.liveIntelligenceMessages.append(message)
+                
+                // If we're currently recording and showing transcription panel,
+                // immediately switch to live intelligence view in the notch
+                if self.isRecording && self.showTranscriptionDuringRecording {
+                    self.showTranscriptionDuringRecording = false
+                    // Ensure notch is open/expanded so the user sees the new insight
+                    self.notchOpen(.click)
+                    // Inform Electron/bridge so renderer stays in sync
+                    self.swiftActionSender.send(.triggerOverlayToggleLiveIntelligence)
+                }
+                
+                // print("🧠 Added AI agent live intelligence data: \(sender): \(content.prefix(50))...")
+                if let confidence = confidence {
+                    print("🧠 Confidence: \(confidence)")
+                }
+                if let metadata = metadata {
+                    print("🧠 Metadata: \(metadata)")
+                }
+                if let timestamp = timestamp {
+                    print("🧠 Timestamp: \(timestamp)")
+                }
+            } else {
+                print("⚠️ Skipped duplicate live intelligence data: \(sender): \(content.prefix(50))...")
+            }
+        }
+    }
+    
+    /// Replace entire transcription array with new data from overlay
+    func replaceTranscriptions(messages: [NotchViewModel.VoiceMessage]) {
+        DispatchQueue.main.async {
+            print("📝 Replacing transcription array with \(messages.count) messages")
+            self.voiceMessages = messages
+            print("📝 Transcription array replaced successfully")
+        }
+    }
+    
+    /// Clear all live intelligence data to start fresh for new meeting
+    func clearLiveIntelligenceData() {
+        DispatchQueue.main.async {
+            // print("🧠 Clearing all live intelligence data for new meeting")
+            self.liveIntelligenceMessages.removeAll()
+            // print("🧠 Live intelligence data cleared successfully")
+        }
+    }
+    
+    /// Replace entire live intelligence array with new data from overlay
+    func replaceLiveIntelligenceData(messages: [NotchViewModel.VoiceMessage]) {
+        DispatchQueue.main.async {
+            // print("🧠 Replacing live intelligence array with \(messages.count) messages")
+            self.liveIntelligenceMessages = messages
+            // print("🧠 Live intelligence array replaced successfully")
+        }
+    }
+    
     // MARK: - Wake Word Detection Integration
     
     /// Handle wake word detection from Python service - automatically trigger voice agent
@@ -499,91 +955,91 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
 
-    /// Show notification overlay in the notch
-    func showNotification(title: String, body: String, type: String = "meeting") {
-        print("🔔 Showing notification overlay: \(title) - \(body)")
+    // /// Show notification overlay in the notch
+    // func showNotification(title: String, body: String, type: String = "meeting") {
+    //     print("🔔 Showing notification overlay: \(title) - \(body)")
 
-        DispatchQueue.main.async {
-            // Force open the notch to show the notification
-            print("🔔 Opening notch to show notification")
-            self.notchOpen(.click)
+    //     DispatchQueue.main.async {
+    //         // Force open the notch to show the notification
+    //         print("🔔 Opening notch to show notification")
+    //         self.notchOpen(.click)
             
-            // Set notification content
-            self.notificationTitle = title
-            self.notificationBody = body
-            self.notificationType = type
-            self.showNotificationOverlay = true
+    //         // Set notification content
+    //         self.notificationTitle = title
+    //         self.notificationBody = body
+    //         self.notificationType = type
+    //         // self.showNotificationOverlay = true
 
-            print("🔔 Notification state set - showOverlay: \(self.showNotificationOverlay), title: '\(self.notificationTitle)'")
+    //         print("🔔 Notification state set - showOverlay: \(self.showNotificationOverlay), title: '\(self.notificationTitle)'")
 
-            // Emit action for JavaScript integration
-            self.swiftActionSender.send(.showNotification(title, body, type))
+    //         // Emit action for JavaScript integration
+    //         self.swiftActionSender.send(.showNotification(title, body, type))
 
-            // Start the notification timer
-            self.startNotificationTimer()
-        }
-    }
+    //         // Start the notification timer
+    //         self.startNotificationTimer()
+    //     }
+    // }
 
-    /// Hide notification overlay
-    func hideNotification() {
-        DispatchQueue.main.async {
-            self.showNotificationOverlay = false
-            self.notificationTitle = ""
-            self.notificationBody = ""
-            self.notificationType = ""
-            self.isNotificationHovered = false
+    // /// Hide notification overlay
+    // func hideNotification() {
+    //     DispatchQueue.main.async {
+    //         self.showNotificationOverlay = false
+    //         self.notificationTitle = ""
+    //         self.notificationBody = ""
+    //         self.notificationType = ""
+    //         self.isNotificationHovered = false
             
-            // Clean up timer
-            self.stopNotificationTimer()
-        }
-    }
+    //         // Clean up timer
+    //         self.stopNotificationTimer()
+    //     }
+    // }
     
-    /// Start the notification auto-dismiss timer
-    private func startNotificationTimer() {
-        stopNotificationTimer() // Clean up any existing timer
+    // /// Start the notification auto-dismiss timer
+    // private func startNotificationTimer() {
+    //     stopNotificationTimer() // Clean up any existing timer
         
-        notificationStartTime = Date()
-        notificationPausedTime = 0
+    //     notificationStartTime = Date()
+    //     notificationPausedTime = 0
         
-        notificationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
+    //     notificationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+    //         guard let self = self else { return }
             
-            if !self.isNotificationHovered {
-                let elapsed = Date().timeIntervalSince(self.notificationStartTime ?? Date()) - self.notificationPausedTime
+    //         if !self.isNotificationHovered {
+    //             let elapsed = Date().timeIntervalSince(self.notificationStartTime ?? Date()) - self.notificationPausedTime
                 
-                if elapsed >= self.notificationDuration {
-                    self.hideNotification()
-                }
-            }
-        }
-    }
+    //             if elapsed >= self.notificationDuration {
+    //                 self.hideNotification()
+    //             }
+    //         }
+    //     }
+    // }
     
-    /// Stop the notification timer
-    private func stopNotificationTimer() {
-        notificationTimer?.invalidate()
-        notificationTimer = nil
-        notificationStartTime = nil
-        notificationPausedTime = 0
-    }
+    // /// Stop the notification timer
+    // private func stopNotificationTimer() {
+    //     notificationTimer?.invalidate()
+    //     notificationTimer = nil
+    //     notificationStartTime = nil
+    //     notificationPausedTime = 0
+    // }
     
     /// Pause the notification timer when hovering
-    func pauseNotificationTimer() {
-        if let startTime = notificationStartTime, !isNotificationHovered {
-            notificationPausedTime += Date().timeIntervalSince(startTime)
-            notificationStartTime = Date()
-            isNotificationHovered = true
-            print("⏸️ Notification timer paused")
-        }
-    }
+    // func pauseNotificationTimer() {
+    //     if let startTime = notificationStartTime, !isNotificationHovered {
+    //         notificationPausedTime += Date().timeIntervalSince(startTime)
+    //         notificationStartTime = Date()
+    //         isNotificationHovered = true
+    //         print("⏸️ Notification timer paused")
+    //     }
+    // }
     
     /// Resume the notification timer when not hovering
-    func resumeNotificationTimer() {
-        if isNotificationHovered {
-            notificationStartTime = Date()
-            isNotificationHovered = false
-            print("▶️ Notification timer resumed")
-        }
-    }
+    // func resumeNotificationTimer() {
+    //     if isNotificationHovered {
+    //         notificationStartTime = Date()
+    //         isNotificationHovered = false
+    //         print("▶️ Notification timer resumed")
+    //     }
+    // }
 
     // Voice UI helpers (UI-only; wiring can follow once UI is approved)
     func connectVoiceUI() {
@@ -637,7 +1093,7 @@ class NotchViewModel: NSObject, ObservableObject {
                let body = data["body"] as? String,
                let type = data["type"] as? String {
                 print("🔔 Processing notification: \(title) - \(body)")
-                showNotification(title: title, body: body, type: type)
+                // showNotification(title: title, body: body, type: type)
             } else {
                 print("⚠️ Invalid notification data format")
             }
@@ -668,6 +1124,9 @@ class NotchViewModel: NSObject, ObservableObject {
             timer = 0
             startTimer()
 
+            // Clear previous meeting's live intelligence data for fresh start
+            clearLiveIntelligenceData()
+
             // Show webcam when meeting starts
             startWebcam()
 
@@ -685,7 +1144,17 @@ class NotchViewModel: NSObject, ObservableObject {
     }
     
     func navigateToMainScreen(path: String? = nil) {
-        print("🏠 Navigating to main screen - resetting UI state")
+        // Throttle duplicate/rapid navigations to avoid feedback loops
+        let now = Date()
+        let since = now.timeIntervalSince(lastNavigationTimestamp)
+        if since < 0.5 && (path == nil || path == lastNavigationPath) {
+            return
+        }
+        lastNavigationTimestamp = now
+        lastNavigationPath = path
+        
+        // Reset to default home mode (exit Teams view)
+        isTeamsView = false
         
         // Reset chat-related state
         isChatMode = false
@@ -711,7 +1180,40 @@ class NotchViewModel: NSObject, ObservableObject {
         // Emit action for JavaScript integration
         swiftActionSender.send(.navigateToMainScreen(path))
         
-        print("✅ Main screen navigation completed - all states reset")
+    }
+    
+    func resetToNotchHome() {
+        
+        // Reset to default home mode (exit Teams view)
+        isTeamsView = false
+        
+        // Reset chat-related state
+        isChatMode = false
+        isChatExpanded = false
+        chatInput = ""
+        isSendingMessage = false
+        
+        // Reset voice interface state
+        if showVoiceInterface {
+            disconnectVoiceUI()
+        }
+        
+        // Reset recording state if active
+        if isRecording {
+            stopRecording()
+        }
+        
+        // Reset webcam state
+        if isCameraActive {
+            stopWebcam()
+        }
+        
+        // Reset notification overlay
+        // if showNotificationOverlay {
+        //     hideNotification()
+        // }
+        
+        // Do NOT send JavaScript action - stay within NotchDrop Swift interface
     }
     
     // MARK: - Webcam Functionality
@@ -832,10 +1334,150 @@ class NotchViewModel: NSObject, ObservableObject {
     func updateCameraError(_ error: String?) {
         DispatchQueue.main.async {
             self.cameraError = error
-            if let error = error {
-                // print("📹 Camera error: \(error)")
+            if error != nil {
+                // print("📹 Camera error: \(error ?? "Unknown error")")
             }
         }
+    }
+    
+    // MARK: - Browser Permission Methods
+    
+    /// Set up browser permission window monitoring
+    func setupBrowserPermissionWindow() {
+        // Monitor showBrowserPermissionRequest changes
+        $showBrowserPermissionRequest
+            .sink { [weak self] shouldShow in
+                if shouldShow {
+                    self?.createBrowserPermissionWindow()
+                } else {
+                    self?.closeBrowserPermissionWindow()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    /// Request browser permission for YouTube detection
+    func requestBrowserPermission() {
+        print("🌐 Requesting browser permission for YouTube detection...")
+        
+        DispatchQueue.main.async {
+            self.browserPermissionRequested = true
+            self.showBrowserPermissionRequest = true
+        }
+    }
+    
+    /// Grant browser permission
+    func grantBrowserPermission() {
+        print("🌐 Browser permission granted - starting permission flow")
+        
+        DispatchQueue.main.async {
+            print("🌐 Setting hasBrowserPermission = true")
+            self.hasBrowserPermission = true
+            print("🌐 Setting showBrowserPermissionRequest = false")
+            self.showBrowserPermissionRequest = false
+            print("🌐 Browser permission flow completed")
+        }
+    }
+    
+    /// Deny browser permission
+    func denyBrowserPermission() {
+        print("🌐 Browser permission denied")
+        
+        DispatchQueue.main.async {
+            self.hasBrowserPermission = false
+            self.showBrowserPermissionRequest = false
+        }
+    }
+    
+    /// Create centered browser permission window
+    private func createBrowserPermissionWindow() {
+        guard browserPermissionWindow == nil else { 
+            print("🌐 Browser permission window already exists, skipping creation")
+            return 
+        }
+        
+        print("🌐 Creating browser permission window...")
+        
+        // Get the main screen
+        guard let screen = NSScreen.main else { 
+            print("🌐 Error: Could not get main screen")
+            return 
+        }
+        let screenFrame = screen.frame
+        
+        // Create a centered window like system notifications
+        let windowWidth: CGFloat = 360
+        let windowHeight: CGFloat = 200
+        let windowFrame = NSRect(
+            x: screenFrame.midX - windowWidth / 2,
+            y: screenFrame.midY - windowHeight / 2 + 100, // Slightly above center like system notifications
+            width: windowWidth,
+            height: windowHeight
+        )
+        
+        browserPermissionWindow = NSWindow(
+            contentRect: windowFrame,
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        
+        guard let window = browserPermissionWindow else { 
+            print("🌐 Error: Failed to create browser permission window")
+            return 
+        }
+        
+        print("🌐 Browser permission window created successfully")
+        
+        // Configure window like system notifications - but safer settings
+        window.level = .modalPanel  // Use modalPanel instead of floating to avoid conflicts
+        window.isOpaque = false
+        window.backgroundColor = NSColor.clear
+        window.hasShadow = true
+        window.isMovable = false
+        window.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        window.animationBehavior = .documentWindow
+        window.isReleasedWhenClosed = false  // Prevent automatic cleanup
+        window.hidesOnDeactivate = false     // Don't hide when app loses focus
+        
+        // Create the permission view
+        let permissionView = BrowserPermissionRequestView(vm: self)
+        let hostingView = NSHostingView(rootView: permissionView)
+        window.contentView = hostingView
+        
+        // Show with animation - but don't make it key window
+        window.alphaValue = 0
+        window.orderFront(nil)  // Use orderFront instead of makeKeyAndOrderFront
+        
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.3
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            window.animator().alphaValue = 1.0
+        }
+    }
+    
+    /// Close browser permission window
+    private func closeBrowserPermissionWindow() {
+        guard let window = browserPermissionWindow else { 
+            print("🌐 Browser permission window already closed")
+            return 
+        }
+        
+        print("🌐 Closing browser permission window...")
+        
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.2
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            window.animator().alphaValue = 0.0
+        }, completionHandler: {
+            // Safely close the window
+            DispatchQueue.main.async {
+                print("🌐 Ordering out browser permission window")
+                window.orderOut(nil)  // Use orderOut instead of close()
+                self.browserPermissionWindow = nil
+                print("🌐 Browser permission window closed successfully")
+            }
+        })
     }
     
     // New method to send log messages to Electron

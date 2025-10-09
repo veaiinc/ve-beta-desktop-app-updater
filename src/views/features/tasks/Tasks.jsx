@@ -105,11 +105,9 @@ const Tasks = () => {
 			sideBarData,
 			handleDeleteInGroup,
 		},
-		templates: { updateStateValues },
 		companyInfo: { getTeamMembers, tenantsUserList },
 		subscriptionInfo: { validateExpiryData, updateSubscriptionState },
 		contacts: { getClientsForTask, clientListForTask },
-		templates: { updateStateValues: updateSidebarState },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -273,9 +271,6 @@ const Tasks = () => {
 		}),
 		[info?.taskMetadata],
 	);
-	useEffect(() => {
-		updateSidebarState({ leftSidebarState: 'open' });
-	}, []);
 
 	useEffect(() => {
 		handleDebounceFetch();

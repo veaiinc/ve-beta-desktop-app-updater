@@ -68,6 +68,7 @@ import {
 	getAiLiveIntelligenceHistoryQuery,
 	deleteMeetingMutation,
 	updateMeetingMutation,
+	getRevampedPromptQuery,
 } from './graphQlFunctions';
 import { useReducer } from 'react';
 import Reducer from './reducer';
@@ -95,6 +96,18 @@ export const intialState = {
 	transcriptionList: [],
 	aiLiveIntelligenceHistory: null,
 	createBotInfo: null,
+	activeMeetingRevampedPrompt: null,
+	activeMeetingDetails: {
+		meetingId: null,
+		transcriptions: null,
+		liveIntelligenceData: {
+			askUser: [],
+			needHelp: [],
+			actions: [],
+			files: [],
+			allThreads: [],
+		},
+	},
 };
 
 export const NotesState = (props) => {
@@ -2182,6 +2195,68 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getRevampedPrompt = async (payload) => {
+		try {
+			const workspaceId = localStorage.getItem('workspaceId');
+			const usertoken = localStorage.getItem('usertoken');
+			const response = await service.query(
+				getRevampedPromptQuery,
+				payload,
+				workspaceId,
+				usertoken,
+				'meeting_api',
+			);
+			if (response?.[0]) {
+				dispatch({
+					type: Actions.SET_ACTIVE_MEETING_REVPROMPT,
+					payload: {
+						meetingId: payload?.meetingId,
+						revampedPrompt:
+							response?.[1]?.data?.getRevampedPrompt?.revampedPrompt || [],
+					},
+				});
+				return response;
+			} else {
+				dispatch({
+					type: Actions.SET_ACTIVE_MEETING_REVPROMPT,
+					payload: {
+						meetingId: payload?.meetingId,
+						revampedPrompt: [],
+					},
+				});
+				return response;
+			}
+		} catch (error) {
+			console.error('error==>getRevampedPrompt', error);
+		}
+	};
+
+	const getAllCalendarEventsForMeetings = async (page, limit, payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/calendar/combined-events?page=${page}&limit=${limit}`;
+			const response = await Service.fetchPost(url, payload, usertoken, 'calendar_api');
+			return response;
+		} catch (error) {
+			console.log('error ==> fetchingCalendarEvents', error);
+		}
+	};
+
+	const updateActiveMeetingDetails = async (payload) => {
+		dispatch({
+			type: Actions.UPDATE_ACTIVE_MEETING_DETAILS,
+			payload,
+		});
+	};
+
+	const handleLiveIntelligenceData = async (payload) => {
+		dispatch({
+			type: Actions.HANDLE_LIVE_INTELLIGENCE_DATA,
+			payload: payload,
+		});
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -2250,5 +2325,9 @@ export const NotesState = (props) => {
 		initializeMeetingSummary,
 		deleteMeeting,
 		updateMeeting,
+		getRevampedPrompt,
+		getAllCalendarEventsForMeetings,
+		updateActiveMeetingDetails,
+		handleLiveIntelligenceData,
 	};
 };

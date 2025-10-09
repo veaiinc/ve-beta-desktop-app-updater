@@ -1,6 +1,5 @@
 .citation-container {
 	cursor: pointer !important;
-	margin: 0 0 0 4px;
 	padding: 0;
 	background-color: transparent;
 	display: inline-block;
@@ -21,40 +20,8 @@
 			&:hover {
 				background-color: var(--primary-font);
 				.citation-text {
-					color: var(--background-color);
+					color: var(--font-primary-color);
 					opacity: 1;
-				}
-			}
-
-			.citation-icon {
-				width: 10px;
-				height: 10px;
-				flex-shrink: 0;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				svg {
-					width: 10px;
-					height: 10px;
-				}
-
-				.favicon-image {
-					width: 100%;
-					height: 100%;
-					object-fit: cover;
-					border-radius: 100px;
-				}
-
-				.company-icon {
-					width: 100%;
-					height: 100%;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					color: var(--primary-font);
-					font-weight: 500;
-					font-size: 14px;
-					border-radius: 100px;
 				}
 			}
 
@@ -71,7 +38,11 @@
 				font-style: normal;
 				font-weight: 400;
 				line-height: normal;
-				letter-spacing: 0.2px;
+
+				span {
+					color: var(--secondary-font);
+					font-weight: 600;
+				}
 
 				&:first-letter {
 					text-transform: capitalize;
@@ -83,36 +54,66 @@
 
 .citation-tooltip-wrapper {
 	max-width: unset;
+
 	.ant-tooltip-inner {
-		padding: 3px 0 0 0;
+		padding: 0;
 	}
 	.citation-tooltip-container {
 		display: flex;
 		width: 350px;
-		padding: 13px;
 		flex-direction: column;
-		gap: 10px;
 		border-radius: 12px;
-		background: var(--popup);
+		background: var(--card-over-card);
 		cursor: pointer;
 		position: relative;
 		box-shadow: 0 4px 16px 0 #0a12170d;
 		border: 1px solid var(--dividers);
+		overflow: hidden;
+		top: 3px;
 
-		.tooltip-content {
-			flex-grow: 1;
-			min-height: 0px;
-			max-height: 270px;
-			overflow-y: auto;
-			flex-shrink: 0;
-			color: var(--primary-font);
-			font-family: var(--chat-primary-font-family);
-			font-size: 12px;
-			font-style: normal;
-			font-weight: 500;
-			line-height: 18px; /* 150% */
-			padding-left: 10px;
-			border-left: 1px solid var(--stroke-hover);
+		.controls {
+			display: flex;
+			gap: 4px;
+			justify-content: space-between;
+			align-items: center;
+			width: 100%;
+			padding: 6px 12px 6px 6px;
+			background-color: var(--stroke);
+			.icons-container {
+				display: flex;
+				gap: 2px;
+
+				.left-chevron {
+					transform: rotate(180deg);
+				}
+
+				.icon-container {
+					cursor: pointer;
+					height: 22px;
+					width: 22px;
+					padding: 4px;
+					border-radius: 6px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					&:hover {
+						background-color: var(--stroke-hover);
+					}
+				}
+			}
+
+			.count {
+				color: var(--secondary-font);
+				font-family: var(--chat-primary-font-family);
+				font-size: 11px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				letter-spacing: -0.5px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
 		}
 
 		.info {
@@ -121,6 +122,7 @@
 			flex-direction: column;
 			align-items: flex-start;
 			gap: 4px;
+			padding: 13px;
 
 			.citation-link-container {
 				display: flex;
@@ -128,50 +130,56 @@
 				gap: 8px;
 				align-self: stretch;
 
-				.icon {
-					width: 16px;
-					height: 16px;
-					flex-shrink: 0;
-					aspect-ratio: 1/1;
-					padding: 0;
+				.left-container {
+					flex-grow: 1;
 					display: flex;
+					gap: 8px;
 
-					.favicon-image {
-						width: 100%;
-						height: 100%;
-						object-fit: cover;
-						border-radius: 100px;
-					}
-
-					.company-icon {
-						width: 100%;
-						height: 100%;
+					.icon {
+						width: 16px;
+						height: 16px;
+						flex-shrink: 0;
+						aspect-ratio: 1/1;
+						padding: 0;
 						display: flex;
-						align-items: center;
-						justify-content: center;
-						color: var(--primary-font);
-						font-weight: 500;
-						font-size: 14px;
-						border-radius: 100px;
 
-						svg {
-							width: 15px;
-							height: 15px;
+						.favicon-image {
+							width: 100%;
+							height: 100%;
+							object-fit: cover;
+							border-radius: 100px;
+						}
+
+						.company-icon {
+							width: 100%;
+							height: 100%;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							color: var(--primary-font);
+							font-weight: 500;
+							font-size: 14px;
+							border-radius: 100px;
+
+							svg {
+								width: 15px;
+								height: 15px;
+							}
 						}
 					}
-				}
 
-				.citation-link {
-					flex-grow: 1;
-					color: var(--primary-font);
-					font-family: var(--chat-primary-font-family);
-					font-size: 14px;
-					font-style: normal;
-					font-weight: 500;
-					line-height: normal;
-					text-overflow: ellipsis;
-					overflow: hidden;
-					white-space: nowrap;
+					.citation-link {
+						flex-grow: 1;
+						color: var(--primary-font);
+						font-family: var(--chat-primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 500;
+						line-height: normal;
+						text-overflow: ellipsis;
+						overflow: hidden;
+						white-space: nowrap;
+					}
 				}
 			}
 

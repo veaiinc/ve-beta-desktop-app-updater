@@ -21,6 +21,11 @@
                   "src/TrayDrop.swift",
                   "src/TrayDrop+DropItem.swift",
                   "src/TrayDrop+DropItemView.swift",
+                  "src/AirDrop.swift",
+                  "src/AirDropView.swift",
+                  "src/DropItemView.swift",
+                  "src/DragDropView.swift",
+                  "src/TrayDropView.swift",
                   "src/PublishedPersist.swift",
                   "src/Language.swift",
                   "src/EventMonitor.swift",
@@ -30,7 +35,8 @@
                   "src/Ext+NSImage.swift",
                   "src/Ext+NSAlert.swift",
                   "src/Ext+FileProvider.swift",
-                  "src/NotchViewController.swift"
+                  "src/NotchViewController.swift",
+                  "src/NotchCalendarView.swift"
                 ],
         "include_dirs": [
           "<!@(node -p \"require('node-addon-api').include\")",
@@ -86,6 +92,10 @@
               "src/TrayDrop.swift",
               "src/TrayDrop+DropItem.swift",
               "src/TrayDrop+DropItemView.swift",
+              "src/AirDrop.swift",
+              "src/AirDropView.swift",
+              "src/DropItemView.swift",
+              "src/DragDropView.swift",
               "src/PublishedPersist.swift",
               "src/Language.swift",
               "src/EventMonitor.swift",
@@ -95,7 +105,8 @@
               "src/Ext+NSImage.swift",
               "src/Ext+NSAlert.swift",
               "src/Ext+FileProvider.swift",
-              "src/NotchViewController.swift"
+              "src/NotchViewController.swift",
+              "src/NotchCalendarView.swift"
             ],
             "outputs": [
               "build_swift/libNotchDropCore.a",
@@ -118,6 +129,11 @@
               "src/TrayDrop.swift",
               "src/TrayDrop+DropItem.swift",
               "src/TrayDrop+DropItemView.swift",
+              "src/AirDrop.swift",
+              "src/AirDropView.swift",
+              "src/DropItemView.swift",
+              "src/DragDropView.swift",
+              "src/TrayDropView.swift",
               "src/PublishedPersist.swift",
               "src/Language.swift",
               "src/EventMonitor.swift",
@@ -128,6 +144,7 @@
               "src/Ext+NSAlert.swift",
               "src/Ext+FileProvider.swift",
               "src/NotchViewController.swift",
+              "src/NotchCalendarView.swift",
               "-emit-objc-header-path", "./build_swift/notchdrop_addon-Swift.h",
               "-emit-library", "-o", "./build_swift/libNotchDropCore.a",
               "-emit-module", "-module-name", "notchdrop_addon",

@@ -560,6 +560,17 @@ export const AuthState = () => {
 		}
 	};
 
+	const getLocationDetails = async () => {
+		const path = '/geo-location/ip-location';
+		const response = await service?.fetchGet(path, null, 'auth');
+		if (response?.[0] === true) {
+			localStorage.setItem('locationDetails', JSON.stringify(response?.[1]));
+			return [true, response?.[1]];
+		} else {
+			return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
+		}
+	};
+
 	return {
 		...state,
 		checkAccountExistsUsingEmail,
@@ -576,5 +587,6 @@ export const AuthState = () => {
 		getAddOnsForCurrentPlan,
 		purchaseAddOn,
 		getNewAccessToken,
+		getLocationDetails,
 	};
 };

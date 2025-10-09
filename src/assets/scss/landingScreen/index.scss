@@ -7,6 +7,13 @@
 	--primary-button: #34ad9b;
 }
 
+// Desktop-only class - hide on mobile and tablet
+.desktop-only {
+	@media (max-width: 1024px) {
+		display: none !important;
+	}
+}
+
 .landing-page-container {
 	width: 100%;
 	background-color: var(--background-color, #f3f6f5);
@@ -26,7 +33,7 @@
 		left: 0;
 		right: 0;
 		width: 100%;
-		background: var(--background-color, #0c0c0d);
+		// background: var(--background-color, #0c0c0d);
 		font-family: var(--primary-font-family);
 		z-index: 150;
 		transition: all 0.3s ease;
@@ -59,6 +66,8 @@
 			max-width: 1845px;
 			width: 100%;
 			box-sizing: border-box;
+
+			height: 80px;
 			// padding-top: 10px;
 
 			.left-container {
@@ -188,10 +197,6 @@
 					display: flex;
 					align-items: center;
 					gap: 8px;
-
-					@media (max-width: 768px) {
-						display: none;
-					}
 				}
 
 				.nav-btn {
@@ -209,6 +214,12 @@
 					text-decoration: none;
 					transition: all 0.2s ease;
 
+					@media (max-width: 768px) {
+						padding: 10px 14px;
+						font-size: 13px;
+						color: #ffffff;
+					}
+
 					&:hover {
 						color: var(--primary-font);
 					}
@@ -216,6 +227,10 @@
 					&.primary {
 						font-weight: 600;
 						color: #34ad9b;
+
+						@media (max-width: 768px) {
+							color: #79ecc9;
+						}
 					}
 				}
 
@@ -240,7 +255,7 @@
 						gap: 6px;
 						border-radius: 100px;
 						background: var(--primary-button, #cfff48);
-						color: var(--background-color, #0c0c0d);
+						color: var(--font-primary-color, #0c0c0d);
 						cursor: pointer;
 						border: none;
 						font-family: var(--primary-font-family);
@@ -278,7 +293,7 @@
 					&:hover {
 						background-color: var(--primary-font);
 						border-color: var(--stroke-hover);
-						color: var(--background-color);
+						color: var(--font-primary-color);
 					}
 				}
 			}
@@ -543,13 +558,37 @@
 @media screen and (max-width: 1000px) {
 	.landing-page-container {
 		.page-header {
-			padding: 20px;
+			padding: 0 20px;
+			position: fixed !important; // Ensure header stays fixed on mobile
+			z-index: 200 !important; // Higher z-index to stay above all content
+			// border-radius: 597px;
+			// border-top-left-radius: 0;
+			// border-top-right-radius: 0;
+			background: rgba(4, 10, 66, 0.01);
+			backdrop-filter: blur(10px);
+
+			height: 76px;
+			width: auto;
+			flex-shrink: 0;
+
+			// Make logo white on mobile
+			.ve-logo-container {
+				svg {
+					* {
+						color: #ffffff !important;
+						fill: #ffffff !important;
+					}
+				}
+			}
 
 			.page-header-wrapper {
 				.middle-container {
 					display: none;
 				}
 				.right-container {
+					.nav-buttons {
+						gap: 6px;
+					}
 					.login-container {
 						.login-btn {
 							display: none;
@@ -563,11 +602,21 @@
 		}
 
 		.page-body {
-			gap: 50px;
+			// gap: 50px;
+			background: linear-gradient(270deg, rgba(1, 8, 65, 1) 0%, rgba(21, 26, 73, 1) 100%);
+			// Hide desktop-only elements on mobile
+			.desktop-only {
+				display: none !important;
+			}
+
+			.dummy-div {
+				height: 0 !important;
+				min-height: 0 !important;
+			}
 
 			.heroContainer {
-				margin-top: 60px;
-				height: 100vh;
+				margin-top: 0; // Remove margin since we have padding-top on page-body
+				height: auto; // Allow natural height
 				.videoContainer {
 					height: 50%;
 					button {

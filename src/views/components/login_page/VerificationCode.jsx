@@ -2,11 +2,11 @@ import { memo, useState, useEffect, useRef, useContext, useCallback } from 'reac
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../../assets/scss/login_page/verification_code.scss';
 import { message } from '../globalComponents/CustomToast';
-import { getLocationsDetails } from '../../../helpers';
 import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
 import CustomOtp from '../globalComponents/CustomOtp';
 import '../../../assets/scss/otp_input/otp_input.scss';
+import { getLocationsDetails } from '../../../helpers';
 
 const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveStage }) => {
 	const navigate = useNavigate();
@@ -15,6 +15,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			createAccountUsingEmail,
 			checkAccountExistsUsingEmail,
 			verifyEmailVerificationCode,
+			getLocationDetails,
 		},
 		profileInfo: { getWorkSpaceInfo },
 	} = useContext(Context);
@@ -60,8 +61,6 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 				localStorage.removeItem('otpBlock');
 			}
 		}
-
-		handleLocationDetailsData();
 
 		return () => {
 			clearInterval(info?.resendTimerInterval);
@@ -240,7 +239,12 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	const handleLocationDetailsData = useCallback(async () => {
 		let locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
 		if (!locationDetails) {
-			locationDetails = await getLocationsDetails();
+			const response = await getLocationsDetails();
+			if (response?.[0] === true) {
+				locationDetails = response?.[1];
+			} else {
+				message?.error(response?.[1]?.message);
+			}
 			// Optionally save it
 			localStorage.setItem('locationDetails', JSON.stringify(locationDetails));
 		}
@@ -299,20 +303,24 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			</div>
 
 			<div className="acknowledge-container">
-				<span className="acknowledge-text">By signing in, you agree to our </span>
-				<span
-					className="acknowledge-text-link"
-					onClick={() => window.open('/terms-of-service', '_blank')}
-				>
-					Terms & Conditions
-				</span>{' '}
-				<span className="acknowledge-text">and</span>{' '}
-				<span
-					className="acknowledge-text-link"
-					onClick={() => window.open('/privacy-policy', '_blank')}
-				>
-					Privacy Policy
-				</span>
+				<p className="acknowledge-text">
+					By continuing, you acknowledge that you understand
+					<br />
+					{' and agree to the '}
+					<span
+						className="acknowledge-text-link"
+						onClick={() => window.open('/terms-of-service', '_blank')}
+					>
+						Terms & Conditions
+					</span>{' '}
+					and{' '}
+					<span
+						className="acknowledge-text-link"
+						onClick={() => window.open('/privacy-policy', '_blank')}
+					>
+						Privacy Policy
+					</span>
+				</p>
 			</div>
 		</div>
 	);

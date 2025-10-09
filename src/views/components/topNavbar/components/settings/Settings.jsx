@@ -186,6 +186,14 @@ export const settingsItems = [
 		route: null,
 		category: 'workspace',
 	},
+	{
+		id: 10,
+		label: 'Keyboard Shortcuts',
+		icon: <HelpSvg />,
+		route: '/settings/keyboard-shortcuts',
+		value: 'keyboard-shortcuts',
+		category: 'workspace',
+	},
 ];
 
 const Settings = memo(

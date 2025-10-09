@@ -51,7 +51,7 @@ module.exports = class DynamicIslandHelper {
 		}
 	}
 
-	createDynamicIslandWindow() {
+	async createDynamicIslandWindow() {
 		if (this.dynamicIslandWindow !== null) return;
 
 		// Check environment variable for Dynamic Island window creation
@@ -92,6 +92,8 @@ module.exports = class DynamicIslandHelper {
 				contextIsolation: true,
 				preload: path.join(__dirname, '..', 'preload.js'),
 				devTools: true, // Enable dev tools in production too
+				// Prevent Chromium from throttling timers/RAF when window is backgrounded
+				backgroundThrottling: false,
 			},
 			show: true, // Show immediately when created
 			alwaysOnTop: true,
@@ -115,16 +117,21 @@ module.exports = class DynamicIslandHelper {
 
 		// Check preload file exists
 		const preloadPath = path.join(__dirname, '..', 'preload.js');
-		const fs = require('fs');
-		if (!fs.existsSync(preloadPath)) {
-			log.error('Preload file not found at:', preloadPath);
-			log.error(
-				'Available files in parent directory:',
-				fs.readdirSync(path.join(__dirname, '..')),
-			);
-			return;
-		}
+	const fs = require('fs');
+	// ⚡ OPTIMIZATION: Use async file operations
+	try {
+		await fs.promises.access(preloadPath);
 		log.info('Preload file found at:', preloadPath);
+	} catch {
+		log.error('Preload file not found at:', preloadPath);
+		try {
+			const parentFiles = await fs.promises.readdir(path.join(__dirname, '..'));
+			log.error('Available files in parent directory:', parentFiles);
+		} catch (dirError) {
+			log.error('Could not read parent directory:', dirError.message);
+		}
+		return;
+	}
 
 		try {
 			this.dynamicIslandWindow = new BrowserWindow(windowSettings);
@@ -153,34 +160,39 @@ module.exports = class DynamicIslandHelper {
 				path.join(process.resourcesPath, 'app', 'build', 'dynamic-island.html'),
 			];
 
-			let htmlPath = null;
-			for (const testPath of possiblePaths) {
-				if (fs.existsSync(testPath)) {
-					htmlPath = testPath;
-					log.info('Found Dynamic Island HTML at:', htmlPath);
-					break;
-				}
+		let htmlPath = null;
+		for (const testPath of possiblePaths) {
+			try {
+				await fs.promises.access(testPath);
+				htmlPath = testPath;
+				log.info('Found Dynamic Island HTML at:', htmlPath);
+				break;
+			} catch {
+				// File doesn't exist, try next path
 			}
+		}
 
 			if (!htmlPath) {
 				log.error('Dynamic Island HTML file not found in any of these locations:');
 				possiblePaths.forEach((p) => log.error('  -', p));
 
-				// Debug: show what directories exist
+			// ⚡ OPTIMIZATION: Debug with async file operations
+			try {
+				const parentDir = path.join(__dirname, '..');
 				try {
-					const parentDir = path.join(__dirname, '..');
-					if (fs.existsSync(parentDir)) {
-						const parentFiles = fs.readdirSync(parentDir);
-						log.error('Available in parent directory:', parentFiles);
-					}
+					const parentFiles = await fs.promises.readdir(parentDir);
+					log.error('Available in parent directory:', parentFiles);
+				} catch {}
 
-					if (process.resourcesPath && fs.existsSync(process.resourcesPath)) {
-						const resourceFiles = fs.readdirSync(process.resourcesPath);
+				if (process.resourcesPath) {
+					try {
+						const resourceFiles = await fs.promises.readdir(process.resourcesPath);
 						log.error('Available in resources directory:', resourceFiles);
-					}
-				} catch (dirError) {
-					log.error('Could not read directories:', dirError);
+					} catch {}
 				}
+			} catch (dirError) {
+				log.error('Could not read directories:', dirError);
+			}
 				return;
 			}
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
 
-const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });;
+const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
 const useAssemblyTranscription = ({
 	onTranscriptionUpdate,
@@ -221,7 +221,7 @@ const useAssemblyTranscription = ({
 			setTimeout(() => {
 				if (window?.electronApi?.navigateMainWindow) {
 					window?.electronApi?.navigateMainWindow({
-						path: `/meet/${meetingId}?type=desktop&history=true`,
+						path: `/meet/${meetingId}?type=in_app_meeting&history=true`,
 					});
 				}
 			}, 2000);
@@ -1123,18 +1123,32 @@ const useAssemblyTranscription = ({
 			// });
 
 			try {
+				// Ensure clean timer state
+				stopTimer();
+				let permissionGranted = false;
+
+				try {
+					const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+					permissionGranted = true;
+					log('Microphone access granted', stream);
+				} catch (err) {
+					log('Microphone permission denied or unavailable.', err);
+				}
+
+				if (!permissionGranted) {
+					if (window.electronApi) {
+						window.electronApi.sendMessageFrmVeApp('meetingstopped');
+						// window?.electronApi?.overlay?.hideOverlayWindow();
+					}
+					notification?.error('Please give microphone permission');
+					return;
+				}
+
 				// Reset all states
 				setIsMuted(false);
 				setIsPaused(false);
 				muteRef.current = false;
 				meetingIdRef.current = meetingId;
-
-				// Ensure clean timer state
-				stopTimer();
-
-				// Skip permission checking to avoid timing issues with Electron APIs
-				// The browser will handle permission prompts when we call getUserMedia/getDisplayMedia
-				log('Skipping pre-permission checks, will rely on browser permission prompts...');
 
 				// First establish WebSocket connection
 				log('Establishing WebSocket connection...');

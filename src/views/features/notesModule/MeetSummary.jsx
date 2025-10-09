@@ -7,7 +7,7 @@ import Spinner from '../../components/loaders/Spinner';
 import ClockSvg from '../meetBot/clock.svg';
 import DownSvg from '../../../assets/svg/activity/DownSvg';
 
-const MeetSummary = ({ meetingId }) => {
+const MeetSummary = ({ meetingId, handleActionClick }) => {
 	const {
 		notes: { getMeetingAnalytics },
 		templates: { updateStateValues },
@@ -81,7 +81,7 @@ const MeetSummary = ({ meetingId }) => {
 			? chapters.map((chapter) => ({
 					title: chapter.title || chapter.topic || 'Untitled Chapter',
 					description: chapter.description || chapter.summary || '',
-					points: chapter.points || chapter.keyPoints || [],
+					points: chapter.sub_topics || chapter.points || chapter.keyPoints || [],
 			  }))
 			: [];
 
@@ -166,9 +166,9 @@ const MeetSummary = ({ meetingId }) => {
 	const getPriorityColor = (priority) => {
 		switch (priority) {
 			case 'High':
-				return '#E03F4F1A';
+				return '#E03F4F';
 			case 'Medium':
-				return '#EDA1451A';
+				return '#EDA145';
 			case 'Low':
 				return '#66bb6a';
 			default:
@@ -356,7 +356,11 @@ const MeetSummary = ({ meetingId }) => {
 								</div>
 								<div className={s.actionList}>
 									{meetingData.actionItems.map((action, index) => (
-										<div key={index} className={s.actionItem}>
+										<div
+											key={index}
+											className={s.actionItem}
+											onClick={() => handleActionClick(action.text)}
+										>
 											<div className={s.actionText}>
 												<span className={s.actionDescription}>
 													{action.text}

@@ -1,7 +1,7 @@
 import { memo, useContext, useEffect, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 // import Sidebar from '../components/sidebar/Sidebar';
-import TopNavbar from '../components/topNavbar/TopNavbar';
+// import TopNavbar from '../components/topNavbar/TopNavbar';
 import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
@@ -10,16 +10,19 @@ import CustomToast, { message } from '../components/globalComponents/CustomToast
 import PageLoader from '../features/app/PageLoader';
 import useAuthInitializer from '../../hooks/useAuthInitializer';
 import usePushNotifications from '../../hooks/usePushNotifications';
-import useMigrationGate from '../../hooks/useMigrationGate';
+// const useMigrationGate = lazy(() => import('../../hooks/useMigrationGate'));
 import VoiceWrapper from './VoiceWrapper';
 import Context from '../../context/context';
 import useNetworkStatus from '../../hooks/useNetworkStatus';
 import useIntercom from '../../hooks/useIntercom';
 import Offline from '../features/offline/Offline';
-import UnderMaintainence from '../features/underMaintainence/underMaintainence';
+// const UnderMaintainence = lazy(() => import('../features/underMaintainence/underMaintainence'));
 import { internalServerEmitter } from '../../services';
 import InternalServer from '../components/globalComponents/InternalServer';
-import { useNavigate } from 'react-router-dom';
+import NewSidebar from '../components/sidebar/newSidebar/NewSidebar';
+// import useWorkspaceMode from '../../hooks/useWorkspaceMode';
+import { useLocation, useNavigate } from 'react-router-dom';
+import GlobalMeetingHelper from '../features/meetBot/GlobalMeetingHelper';
 
 const AuthWrapper = ({
 	title,
@@ -27,13 +30,16 @@ const AuthWrapper = ({
 	maxWidth = '',
 	outerContainerStyle = {},
 	authParentContainerStyle = {},
-	sidebarContainerStyles = {},
-	sidebarContainerClassName = '',
+	// sidebarContainerStyles = {},
+	// sidebarContainerClassName = '',
 	childrenContainerStyles = {},
-	showSidebar = true,
+	// showSidebar = true,
 }) => {
 	const navigate = useNavigate();
 	const { isOnline } = useNetworkStatus();
+	// const { workspaceMode } = useWorkspaceMode();
+	const location = useLocation();
+	const { pathname } = location;
 
 	const showPushNotification = useCallback((payload) => {
 		const { title, body } = payload.notification || {};
@@ -54,8 +60,27 @@ const AuthWrapper = ({
 
 	const {
 		aiSetup: { showVoiceWidget },
+		templates: { sidebarState, isSidebarMobileView, updateStateValues },
 	} = useContext(Context);
 	const [showServerError, setShowServerError] = useState(false);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(
+		JSON.parse(localStorage.getItem('isSidebarOpen')) ?? false,
+	);
+	const isSidebarOverlay = (sidebarState?.overlay || isSidebarMobileView) ?? false;
+	const hideSidebar =
+		pathname.includes('builder') ||
+		pathname.includes('galleries') ||
+		pathname.includes('create-workspace') ||
+		pathname.includes('agent/') ||
+		pathname.includes('note/') ||
+		pathname.includes('meet/') ||
+		pathname.includes('chat/');
+
+	useEffect(() => {
+		if (typeof sidebarState?.open === 'boolean' && sidebarState?.open !== isSidebarOpen) {
+			setIsSidebarOpen(sidebarState?.open);
+		}
+	}, [sidebarState?.open]);
 
 	useEffect(() => {
 		const handler = () => setShowServerError(true);
@@ -68,8 +93,21 @@ const AuthWrapper = ({
 	});
 
 	useEffect(() => {
-		window.electronApi.onNavigate((path) => {
-			console.log('navigate', path);
+		window.electronApi.onNavigate((data) => {
+			const { path, updateObject = null } = data;
+
+			if (updateObject) {
+				if (updateObject.type === 'chat') {
+					const sessionId = path.split('/')[2];
+					updateStateValues({
+						activePromptForChat: {
+							sessionId: sessionId,
+							prompt: updateObject.payload?.query,
+						},
+					});
+				}
+			}
+			console.log('navigate', updateObject, path);
 			navigate(path); // client-side navigation
 		});
 	}, [navigate]);
@@ -95,22 +133,22 @@ const AuthWrapper = ({
 
 	if (!isOnline) return <Offline />;
 
-	const region = localStorage.getItem('region');
+	// const region = localStorage.getItem('region');
 
-	if (region === 'ap-south-1') {
-		const { migrationLoading, migrationInProgress } = useMigrationGate();
+	// if (region === 'ap-south-1') {
+	// 	const { migrationLoading, migrationInProgress } = useMigrationGate();
 
-		// While checking migration, show loader to avoid flicker
-		if (migrationLoading) return <PageLoader />;
+	// 	// While checking migration, show loader to avoid flicker
+	// 	if (migrationLoading) return <PageLoader />;
 
-		// Show offline-like page when migration is in progress (status 102)
-		if (migrationInProgress) return <UnderMaintainence />;
-	}
+	// 	// Show offline-like page when migration is in progress (status 102)
+	// 	if (migrationInProgress) return <UnderMaintainence />;
+	// }
 
 	return authInitialized ? (
 		<PageLoader />
 	) : (
-		<main className="main-container">
+		<main className="main-container translucent">
 			<div className="authParentContainer" style={{ ...(authParentContainerStyle || {}) }}>
 				<Helmet>
 					<meta charSet="utf-8" />
@@ -118,17 +156,22 @@ const AuthWrapper = ({
 				</Helmet>
 				<div
 					style={{
-						display: 'flex',
-						// flexDirection: layoutMode === 'topNavbar' ? 'column' : 'row',
-						flexDirection: 'column',
-						height: '100dvh',
-						padding: '0',
 						...outerContainerStyle,
+						paddingLeft: isSidebarOpen && !isSidebarOverlay && !hideSidebar,
+						// && workspaceMode === 'stable' ? '256px' : '0',
 					}}
 					className="auth-wrapper-container"
 				>
 					{/* {layoutModeComponentMap[layoutMode]} */}
-					<TopNavbar />
+					{/* {workspaceMode === 'stable' ? (
+						!hideSidebar ? (
+							<NewSidebar />
+						) : null
+					) : (
+						<TopNavbar />
+					)} */}
+					{!hideSidebar ? <NewSidebar /> : null}
+
 					<div
 						style={{
 							flex: 1,
@@ -152,6 +195,8 @@ const AuthWrapper = ({
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
 			<CustomToast />
+			<GlobalMeetingHelper />
+
 			{showVoiceWidget && <VoiceWrapper />}
 		</main>
 	);

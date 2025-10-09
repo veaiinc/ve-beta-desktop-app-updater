@@ -30,6 +30,11 @@ public:
             InstanceMethod("updateVoiceConnectionState", &NotchDropAddon::UpdateVoiceConnectionState),
             InstanceMethod("updateVoiceMuteState", &NotchDropAddon::UpdateVoiceMuteState),
             InstanceMethod("addVoiceMessage", &NotchDropAddon::AddVoiceMessage),
+            InstanceMethod("addTranscriptionData", &NotchDropAddon::AddTranscriptionData),
+            InstanceMethod("sendLiveIntelligenceData", &NotchDropAddon::SendLiveIntelligenceData),
+  InstanceMethod("replaceTranscriptions", &NotchDropAddon::ReplaceTranscriptions),
+            InstanceMethod("setRecordingPanelMode", &NotchDropAddon::SetRecordingPanelMode),
+            InstanceMethod("clearLiveIntelligenceData", &NotchDropAddon::ClearLiveIntelligenceData),
             InstanceMethod("updateStealthModeState", &NotchDropAddon::UpdateStealthModeState),
             InstanceMethod("handleWakeWordDetected", &NotchDropAddon::HandleWakeWordDetected),
             InstanceMethod("triggerSwiftAction", &NotchDropAddon::TriggerSwiftAction),
@@ -401,6 +406,81 @@ private:
         std::string messageJson = info[0].As<Napi::String>();
         NSString* nsMessageJson = [NSString stringWithUTF8String:messageJson.c_str()];
         [NotchDropBridge addVoiceMessage:nsMessageJson];
+        return env.Undefined();
+    }
+    
+    Napi::Value AddTranscriptionData(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected string argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        std::string messageJson = info[0].As<Napi::String>();
+        NSString* nsMessageJson = [NSString stringWithUTF8String:messageJson.c_str()];
+        
+        // Console log in C++ bridge
+        NSLog(@"📝 C++ Bridge: Received transcription data JSON: %@", nsMessageJson);
+        
+        [NotchDropBridge addTranscriptionData:nsMessageJson];
+        NSLog(@"📝 C++ Bridge: Forwarded to Objective-C bridge");
+        
+        return env.Undefined();
+    }
+
+    Napi::Value SendLiveIntelligenceData(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected string argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        std::string messageJson = info[0].As<Napi::String>();
+        NSString* nsMessageJson = [NSString stringWithUTF8String:messageJson.c_str()];
+        
+        // Console log in C++ bridge
+        NSLog(@"🧠 C++ Bridge: Received live intelligence data JSON: %@", nsMessageJson);
+        
+        [NotchDropBridge sendLiveIntelligenceData:nsMessageJson];
+        NSLog(@"🧠 C++ Bridge: Forwarded to Objective-C bridge");
+        
+        return env.Undefined();
+    }
+    
+    Napi::Value ReplaceTranscriptions(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected JSON string array").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        std::string arrayJson = info[0].As<Napi::String>();
+        NSString* nsArrayJson = [NSString stringWithUTF8String:arrayJson.c_str()];
+        NSLog(@"📝 C++ Bridge: Replace transcriptions JSON count=%lu", (unsigned long)[nsArrayJson length]);
+        [NotchDropBridge replaceTranscriptions:nsArrayJson];
+        return env.Undefined();
+    }
+
+    Napi::Value SetRecordingPanelMode(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected mode string").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        std::string mode = info[0].As<Napi::String>();
+        NSString* nsMode = [NSString stringWithUTF8String:mode.c_str()];
+        [NotchDropBridge setRecordingPanelMode:nsMode];
+        return env.Undefined();
+    }
+
+    Napi::Value ClearLiveIntelligenceData(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        
+        // Console log in C++ bridge
+        NSLog(@"🧠 C++ Bridge: Clearing live intelligence data");
+        
+        [NotchDropBridge clearLiveIntelligenceData];
+        NSLog(@"🧠 C++ Bridge: Forwarded clear request to Objective-C bridge");
+        
         return env.Undefined();
     }
         Napi::Value UpdateStealthModeState(const Napi::CallbackInfo& info) {

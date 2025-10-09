@@ -60,6 +60,12 @@ const MemoryBlock = () => {
 			const response = await deleteAIMemory(memoryId);
 			if (response?.[0]) {
 				message?.success('Memory deleted successfully');
+				// Close the modal on successful deletion
+				setInfo((prev) => ({
+					...prev,
+					deleteModal: false,
+					deleteMemoryId: null,
+				}));
 			} else {
 				message?.error('Failed to delete memory');
 			}

@@ -1,9 +1,8 @@
-import { useContext, useRef, useState, useEffect, useCallback } from 'react';
+import { useContext, useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import Context from '../../../context/context';
 import useRecallStream from '../../../hooks/useRecallStream';
-import useMeetingAudioRecorder from '../../../hooks/useMeetingAudioRecorder';
 import TranscriptionTabs from '../../components/notes/TranscriptionTabs';
 import MeetSummary from '../notesModule/MeetSummary';
 import NoteTakerTranscript from '../notesModule/NoteTakerTranscript';
@@ -27,6 +26,7 @@ import MeetingAnalytics from './MeetingAnalytics';
 import CustomTextArea from '../../components/globalComponents/CustomTextArea';
 import { debounce } from 'lodash';
 import ChatBox from '../../components/chat/ChatBox';
+import { useStore, storeActions } from '../../../store/store';
 
 const initialState = {
 	files: [],
@@ -44,11 +44,10 @@ const initialState = {
 	botJoined: false,
 	botJoinedTime: 0,
 	meetingPlatform: '',
-	hasAudioRecording: false,
-	audioRecordingStarted: false,
 	isDeleteModalOpen: false,
 	isDeleteModalLoading: false,
 	meetingTitle: '',
+	summaryInProgress: false,
 };
 const userToken = localStorage.getItem('usertoken');
 const getSpeakerColor = (speakerName) => {
@@ -104,18 +103,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const navigate = useNavigate();
 
 	// Audio recording hook
-	const {
-		isRecording,
-		startRecording,
-		stopRecording,
-		pauseRecording,
-		resumeRecording,
-		audioBlob,
-		recordingDuration,
-		error: audioError,
-		getAudioInfo,
-		formatDuration,
-	} = useMeetingAudioRecorder(meetingId);
 
 	const {
 		notes: {
@@ -129,6 +116,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			meetSummary,
 			deleteMeeting,
 			updateMeeting,
+			getRevampedPrompt,
+			activeMeetingRevampedPrompt,
 		},
 		templates: {
 			handleTranscriptionSuggestions,
@@ -138,75 +127,40 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		profileInfo: { tennantSettingsData, getTenantSettings },
 	} = useContext(Context);
 
+	const { summaryInProgress } = useStore((state) => state.meeting) || {};
+
 	const [info, setInfo] = useState(initialState);
 	const [transcriptList, setTranscriptList] = useState([]);
 	const [activeTab, setActiveTab] = useState(type === 'in_app_meeting' ? 'summary' : 'summary');
 	const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
-	// Check if audio recording exists for this meeting
-	const checkAudioRecording = useCallback(async () => {
+	useEffect(() => {
+		if (
+			summaryInProgress &&
+			summaryInProgress.length > 0 &&
+			summaryInProgress.includes(meetingId)
+		) {
+			setInfo((prev) => ({ ...prev, summaryInProgress: true }));
+		} else {
+			setInfo((prev) => ({ ...prev, summaryInProgress: false }));
+		}
+	}, [JSON.stringify(summaryInProgress)]);
+	console.log('info', info);
+
+	// Generate meeting analytics (without audio recording)
+	const generateMeetingAnalytics = useCallback(async () => {
 		try {
-			console.log('Checking audio recording for meeting:', meetingId);
-			const hasAudio = await audioStorageService.hasAudio(meetingId);
-			console.log('Audio recording exists:', hasAudio);
-			setInfo((prev) => ({ ...prev, hasAudioRecording: hasAudio }));
+			console.log('Generating meeting analytics for meeting:', meetingId);
+			const result = await audioStorageService.generateMeetingAnalytics(meetingId);
+			if (result.success) {
+				console.log('Successfully generated meeting analytics');
+			} else {
+				console.error('Failed to generate meeting analytics:', result.error);
+			}
 		} catch (error) {
-			console.error('Error checking audio recording:', error);
+			console.error('Error generating meeting analytics:', error);
 		}
 	}, [meetingId]);
-
-	// Save audio when recording stops
-	const saveAudioRecording = useCallback(async () => {
-		if (!audioBlob) {
-			console.log('No audio blob to save');
-			return;
-		}
-
-		try {
-			console.log('Saving audio for meeting:', meetingId, 'Blob size:', audioBlob.size);
-			const result = await audioStorageService.saveAudio(meetingId, audioBlob);
-			if (result.success) {
-				setInfo((prev) => ({ ...prev, hasAudioRecording: true }));
-				console.log('Audio saved successfully:', result.filePath);
-			} else {
-				console.error('Failed to save audio:', result.error);
-			}
-		} catch (error) {
-			console.error('Error saving audio:', error);
-		}
-	}, [audioBlob, meetingId]);
-
-	// Start audio recording when meeting starts (for live meetings)
-	const initializeAudioRecording = useCallback(async () => {
-		console.log(
-			'initializeAudioRecording called - history:',
-			history,
-			'audioRecordingStarted:',
-			info.audioRecordingStarted,
-		);
-		if (!history && !info.audioRecordingStarted) {
-			try {
-				console.log('Starting audio recording for meeting:', meetingId);
-				await startRecording();
-				setInfo((prev) => ({ ...prev, audioRecordingStarted: true }));
-				console.log('Audio recording started successfully');
-			} catch (error) {
-				console.error('Error starting audio recording:', error);
-			}
-		}
-	}, [history, info.audioRecordingStarted, startRecording, meetingId]);
-
-	// Stop audio recording when meeting ends
-	const stopAudioRecording = useCallback(async () => {
-		if (isRecording) {
-			try {
-				await stopRecording();
-				// Audio will be saved automatically when recording stops
-			} catch (error) {
-				console.error('Error stopping audio recording:', error);
-			}
-		}
-	}, [isRecording, stopRecording]);
 	const [isLoadingMeetingDetails, setIsLoadingMeetingDetails] = useState(false);
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
 	const location = useLocation();
@@ -251,7 +205,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		closeWebSocketConnection: closeRecallConnection,
 	} = useRecallStream();
 
-	const handleActionClick = useCallback(
+	const handleSendChatMessage = useCallback(
 		(data) => {
 			const newParams = new URLSearchParams(searchParams);
 			newParams.set('chat', 'true');
@@ -259,6 +213,26 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			updateStateValues({
 				activePayloadForChat: data,
 			});
+		},
+		[sessionId],
+	);
+
+	const handleActionClick = useCallback(
+		(prompt, isAskAi = false) => {
+			if (prompt && sessionId) {
+				const newParams = new URLSearchParams(searchParams);
+				newParams.set('chat', 'true');
+				setSearchParams(newParams);
+				updateStateValues({
+					activePromptForChat: {
+						prompt,
+						sessionId,
+					},
+					...(isAskAi && {
+						isDirectSearchAgent: true,
+					}),
+				});
+			}
 		},
 		[sessionId],
 	);
@@ -409,14 +383,14 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	// Fetch meeting details if not available
 	useEffect(() => {
-		if (meetingId && (!createBotInfo || createBotInfo?._id !== meetingId)) {
+		if (meetingId) {
 			setIsLoadingMeetingDetails(true);
 			setMeetingNotFound(false);
 			getMeetBotById({ meetingId }).finally(() => {
 				setIsLoadingMeetingDetails(false);
 			});
 		}
-	}, [createBotInfo, meetingId]);
+	}, [meetingId]);
 
 	// Check if meeting was not found after loading
 	useEffect(() => {
@@ -426,7 +400,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [isLoadingMeetingDetails, createBotInfo, meetingId]);
 
 	useEffect(() => {
-		if (createBotInfo) {
+		if (createBotInfo && meetingId === createBotInfo?._id) {
 			if (!valuesInitializedRef.current) {
 				valuesInitializedRef.current = true;
 				setInfo((prev) => ({
@@ -545,10 +519,10 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					const transformedData = rawData.map((item) => ({
 						...item,
 						text: item.transcript, // Map transcript to text
-						time: item.createdAt
-							? new Date(parseInt(item.createdAt) * 1000).toLocaleTimeString()
+						recordedAt: item.recordedAt
+							? moment.unix(item.recordedAt).format('HH:mm:ss')
 							: '', // Convert timestamp to readable time
-						speakerName: item.speakerName || 'Note Taker', // Default speaker name
+						speakerName: item.speakerName || 'VE Note Taker', // Default speaker name
 					}));
 
 					setInfo((prev) => ({
@@ -581,39 +555,26 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		}
 	}, [activeTab]);
 
-	// Check for existing audio recording when component mounts
+	// Generate meeting analytics when meeting ends (when history becomes true)
 	useEffect(() => {
-		if (meetingId) {
-			checkAudioRecording();
+		// When history becomes true, it means the meeting has ended and we're viewing history
+		if (history === true && meetingId) {
+			console.log('Meeting ended, generating analytics for meeting:', meetingId);
+			generateMeetingAnalytics();
 		}
-	}, [meetingId, checkAudioRecording]);
+	}, [history, meetingId, generateMeetingAnalytics]);
 
-	// Save audio when recording stops
 	useEffect(() => {
-		if (audioBlob && !isRecording) {
-			saveAudioRecording();
+		if (
+			history === true &&
+			(!activeMeetingRevampedPrompt ||
+				meetingId !== activeMeetingRevampedPrompt?.meetingId) &&
+			!info?.summaryInProgress &&
+			activeTab === 'all'
+		) {
+			getRevampedPrompt({ meetingId });
 		}
-	}, [audioBlob, isRecording, saveAudioRecording]);
-
-	// Start audio recording for live meetings
-	useEffect(() => {
-		if (!history && meetingId && !info.audioRecordingStarted) {
-			// Small delay to ensure meeting is properly initialized
-			const timer = setTimeout(() => {
-				initializeAudioRecording();
-			}, 2000);
-			return () => clearTimeout(timer);
-		}
-	}, [history, meetingId, info.audioRecordingStarted, initializeAudioRecording]);
-
-	// Cleanup audio recording on unmount
-	useEffect(() => {
-		return () => {
-			if (isRecording) {
-				stopAudioRecording();
-			}
-		};
-	}, [isRecording, stopAudioRecording]);
+	}, [history, meetingId, activeMeetingRevampedPrompt, info?.summaryInProgress, activeTab]);
 
 	const handleInfoChange = (data) => {
 		setInfo((prev) => ({ ...prev, ...data }));
@@ -690,6 +651,17 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			debouncedUpdateMeetingTitle.cancel();
 		};
 	}, [debouncedUpdateMeetingTitle]);
+
+	const isRevampedPromptLoading = useMemo(() => {
+		return (
+			history === 'true' &&
+			(!activeMeetingRevampedPrompt || meetingId !== activeMeetingRevampedPrompt?.meetingId)
+		);
+	}, [history, activeMeetingRevampedPrompt]);
+
+	const revampedPrompt = useMemo(() => {
+		return activeMeetingRevampedPrompt?.revampedPrompt;
+	}, [activeMeetingRevampedPrompt]);
 
 	return (
 		<div className="meetbot-container">
@@ -769,8 +741,20 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					</div>
 				) : null}
 			</div>
-			<div className="transcript-tabs-container">
-				{/* {showTranscriptTabs && (
+
+			{info?.summaryInProgress && activeTab !== 'transcript' ? (
+				<div className="transcript-tabs-container">
+					<div className="summary-in-progress-container">
+						<Spinner size={24} />
+						<span className="summary-in-progress-text">
+							Generating analytics, may take up to 30 seconds.
+							<br /> You can close this window, we will email you once it is ready.
+						</span>
+					</div>
+				</div>
+			) : (
+				<div className="transcript-tabs-container">
+					{/* {showTranscriptTabs && (
 					<TranscriptionTabs
 						activeTab={activeTab}
 						setActiveTab={setActiveTab}
@@ -785,131 +769,133 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 					/>
 				)}
 				{/* Debug info */}
-				{(() => {
-					console.log(
-						'TranscriptionTabs props - hasAudioRecording:',
-						info?.hasAudioRecording,
-						'history:',
-						history,
-					);
-					return null;
-				})()}
-				{showTranscriptTabs &&
-					activeTab === 'transcript' &&
-					(type === 'in_app_meeting' || type === 'third_party_meeting') && (
-						// <div style={{ paddingBottom: 80, width: '100%' }}>
-						<div className="transcript-list-container">
-							{info.transcriptionsLoading && info.transcriptions?.length === 0 ? (
-								<div className="meet-transcript-empty">
-									<Spinner size={24} />
-								</div>
-							) : info.transcriptions && info.transcriptions.length === 0 ? (
-								<div className="meet-transcript-empty">No transcript yet.</div>
-							) : (
-								<InfiniteScroll
-									dataLength={info.transcriptions?.length || 0}
-									next={loadMoreTranscriptions}
-									hasMore={!history ? false : info.transcriptionsHasMore}
-									height={'100%'}
-									style={infiniteScrollStyles}
-									loader={
-										<div className="infinite-loader-container">
-											{<Spinner size={24} />}
-										</div>
-									}
-								>
-									<div className="meet-transcript-list">
-										{info.transcriptions?.map((item, idx) => (
-											<div
-												className={`meet-transcript-item`}
-												key={item._id || item.id || idx}
-											>
-												<div className="meet-transcript-meta">
-													{type === 'third_party_meeting' && (
-														<span
-															className="avatar"
-															style={{
-																backgroundColor: getSpeakerColor(
-																	item.source,
-																),
-															}}
-														>
-															{item.source === 'mic' ? 'Y' : 'S'}
-														</span>
-													)}
-
-													<span className="meet-transcript-participant">
-														{item.source === 'mic' ? 'You' : 'Screen'}
-													</span>
-													<DotIcon />
-													<span className="meet-transcript-time">
-														<ClockPersonIcon />
-														{item.time || ''}
-													</span>
-												</div>
-												<div className="meet-transcript-text">
-													{item.text || item.transcript || ''}
-												</div>
-											</div>
-										))}
+					{activeTab === 'transcript' &&
+						(type === 'in_app_meeting' || type === 'third_party_meeting') && (
+							// <div style={{ paddingBottom: 80, width: '100%' }}>
+							<div className="transcript-list-container">
+								{info.transcriptionsLoading && info.transcriptions?.length === 0 ? (
+									<div className="meet-transcript-empty">
+										<Spinner size={24} />
 									</div>
-									<div className="sentinalScrollRef" ref={sentinalScrollRef} />
-								</InfiniteScroll>
-							)}
-						</div>
-					)}
-				{showTranscriptTabs && activeTab === 'summary' && (
-					<MeetSummary activeTab={activeTab} meetingId={meetingId} />
-				)}
-				{showTranscriptTabs && activeTab === 'analytics' && (
-					<MeetingAnalytics meetingId={meetingId} />
-				)}
-
-				{showTranscriptTabs && activeTab === 'audio' && (
-					<div className="audio-tab-container">
-						<AudioPlayback meetingId={meetingId} />
-					</div>
-				)}
-
-				{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
-					(activeTab === 'userQuestions' ||
-						activeTab === 'aiQuestions' ||
-						activeTab === 'actions' ||
-						activeTab === 'files' ||
-						activeTab === 'all') && (
-						<AiTranscriptionSuggestions
-							userQuestions={info?.userQuestions}
-							aiQuestions={info?.aiQuestions}
-							actions={info?.actions}
-							files={info?.files}
+								) : info.transcriptions && info.transcriptions.length === 0 ? (
+									<div className="meet-transcript-empty">No transcript yet.</div>
+								) : (
+									<InfiniteScroll
+										dataLength={info.transcriptions?.length || 0}
+										next={loadMoreTranscriptions}
+										hasMore={!history ? false : info.transcriptionsHasMore}
+										height={'100%'}
+										style={infiniteScrollStyles}
+										loader={
+											<div className="infinite-loader-container">
+												{<Spinner size={24} />}
+											</div>
+										}
+									>
+										<div className="meet-transcript-list">
+											{info.transcriptions?.map((item, idx) => (
+												<div
+													className={`meet-transcript-item`}
+													key={item._id || item.id || idx}
+												>
+													<div className="meet-transcript-meta">
+														{type === 'third_party_meeting' && (
+															<span
+																className="avatar"
+																style={{
+																	backgroundColor:
+																		getSpeakerColor(
+																			item.source,
+																		),
+																}}
+															>
+																{item.source === 'mic' ? 'Y' : 'S'}
+															</span>
+														)}
+														<span className="meet-transcript-participant">
+															{item.speakerName}
+														</span>
+														<DotIcon />
+														<span className="meet-transcript-time">
+															<ClockPersonIcon />
+															{item?.recordedAt}
+														</span>
+													</div>
+													<div className="meet-transcript-text">
+														{item.text || item.transcript || ''}
+													</div>
+												</div>
+											))}
+										</div>
+										<div
+											className="sentinalScrollRef"
+											ref={sentinalScrollRef}
+										/>
+									</InfiniteScroll>
+								)}
+							</div>
+						)}
+					{showTranscriptTabs && activeTab === 'summary' && (
+						<MeetSummary
 							activeTab={activeTab}
-							allSuggestions={info?.allSuggestions}
+							meetingId={meetingId}
+							handleActionClick={handleActionClick}
 						/>
 					)}
-
-				{showTranscriptTabs && type === 'third_party_meeting' && !history && (
-					<TranscriptionWrapper
-						chat={chat}
-						transcription={transcription}
-						transcriptList={transcriptList}
-						botJoined={info?.botJoined}
-						botJoinedTime={info?.botJoinedTime}
-						meetingPlatform={info?.meetingPlatform}
-					/>
-				)}
-				{/* Always render NoteTakerTranscript or AssemblyTranscript at the root level */}
-				{showTranscriptTabs && type === 'in_app_meeting' && !history && !useAssemblyAI && (
-					<NoteTakerTranscript
-						sendMessage={recallSendMessage}
-						tenantId={tennantSettingsData?._id}
-						sessionId={sessionId}
-						pageId={'688b653dde81dd3d71a41584'}
-						visible={activeTab === 'transcript'}
-						onTranscriptionUpdate={handleUpdateTranscription}
-					/>
-				)}
-				{/* Assembly AI Transcription option */}
-				{/* {showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
+					{showTranscriptTabs && activeTab === 'analytics' && (
+						<MeetingAnalytics meetingId={meetingId} />
+					)}
+					{showTranscriptTabs && activeTab === 'audio' && (
+						<div className="audio-tab-container">
+							<AudioPlayback meetingId={meetingId} />
+						</div>
+					)}
+					{(showTranscriptTabs || info?.showAiTranscriptionSuggestions) &&
+						(activeTab === 'userQuestions' ||
+							activeTab === 'aiQuestions' ||
+							activeTab === 'actions' ||
+							activeTab === 'files' ||
+							activeTab === 'all') && (
+							<AiTranscriptionSuggestions
+								userQuestions={info?.userQuestions}
+								aiQuestions={info?.aiQuestions}
+								actions={info?.actions}
+								files={info?.files}
+								activeTab={activeTab}
+								allSuggestions={info?.allSuggestions}
+								revampedPrompt={revampedPrompt}
+								isRevampedPromptLoading={isRevampedPromptLoading}
+								isRevampedPrompt={history === true}
+								sessionId={sessionId}
+								meetingId={meetingId}
+							/>
+						)}
+					{showTranscriptTabs && type === 'third_party_meeting' && !history && (
+						<TranscriptionWrapper
+							chat={chat}
+							transcription={transcription}
+							transcriptList={transcriptList}
+							botJoined={info?.botJoined}
+							botJoinedTime={info?.botJoinedTime}
+							meetingPlatform={info?.meetingPlatform}
+						/>
+					)}
+					{/* Always render NoteTakerTranscript or AssemblyTranscript at the root level */}
+					{showTranscriptTabs &&
+						type === 'in_app_meeting' &&
+						!history &&
+						!useAssemblyAI && (
+							<NoteTakerTranscript
+								sendMessage={recallSendMessage}
+								tenantId={tennantSettingsData?._id}
+								sessionId={sessionId}
+								pageId={'688b653dde81dd3d71a41584'}
+								visible={activeTab === 'transcript'}
+								onTranscriptionUpdate={handleUpdateTranscription}
+							/>
+						)}
+					{/* Assembly AI Transcription option */}
+					{/* {showTranscriptTabs && type === 'desktop' && !history && useAssemblyAI && (
 					<AssemblyTranscriptWrapper
 						handleLiveIntelligenceResponse={handleTranscriptionSuggestions}
 						tenantId={tennantSettingsData?._id}
@@ -920,29 +906,29 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 						isAiIntelligenceEnabled={isAiIntelligenceEnabled}
 					/>
 				)} */}
-
-				{history && (
-					<div className="chatbox-wrapper">
-						{/* <button className="resume-meeting-button" onClick={handleResumeMeeting}>
+					{history && (
+						<div className="chatbox-wrapper">
+							{/* <button className="resume-meeting-button" onClick={handleResumeMeeting}>
 							<StepForward size={18} />
 							Resume
 						</button> */}
-						{!chat && (
-							<div className="chatbox-container">
-								<ChatBox
-									onSend={handleActionClick}
-									customChatActions={true}
-									showUpgradeSubscriptionBtn={false}
-									sessionId={sessionId}
-									animateChatBox={false}
-									placeholder="Ask anything about the meeting"
-									showBottomTools={false}
-								/>
-							</div>
-						)}
-					</div>
-				)}
-			</div>
+							{!chat && (
+								<div className="chatbox-container">
+									<ChatBox
+										onSend={handleSendChatMessage}
+										customChatActions={true}
+										showUpgradeSubscriptionBtn={false}
+										sessionId={sessionId}
+										animateChatBox={false}
+										placeholder="Ask anything about the meeting"
+										showBottomTools={false}
+									/>
+								</div>
+							)}
+						</div>
+					)}
+				</div>
+			)}
 
 			<DeleteModal
 				isOpen={info?.isDeleteModalOpen}
