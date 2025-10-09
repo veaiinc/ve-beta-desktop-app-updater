@@ -18,6 +18,7 @@ const {
 	dialog,
 	shell,
 	powerSaveBlocker,
+	nativeTheme,
 } = require('electron');
 const path = require('node:path');
 const log = require('electron-log');
@@ -2550,6 +2551,9 @@ app.whenReady().then(async () => {
 	log.info('🔍 Working directory:', process.cwd());
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
+
+	// 🎨 Force dark theme - prevents system theme changes from affecting app colors
+	nativeTheme.themeSource = 'dark';
 
 	// ⚡ CRITICAL MEMORY LEAK FIX: Add periodic garbage collection
 	const memoryCleanupInterval = setInterval(() => {
