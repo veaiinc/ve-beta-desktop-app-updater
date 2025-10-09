@@ -523,38 +523,40 @@ struct DynamicIslandContentView: View {
 
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
-                            // VE icon → Open Ve app (Electron main window)
-                            Button(action: {
-                                vm.navigateToMainScreen(path: nil)
-                            }) {
-                                VEIcon(color: .white)
-                                    .frame(width: 16, height: 16)
-                                    .padding(8) // Increased padding for larger clickable area
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
-                                    )
-                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .overlay(alignment: .bottom) {
-                                if isVEIconHovered {
-                                    Text("Open app")
-                                        .font(.system(size: 11, weight: .semibold))
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(Color.black.opacity(0.8))
-                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                                        .offset(y: 28)
-                                        .fixedSize(horizontal: true, vertical: true)
-                                        .zIndex(2000)
-                                        .allowsHitTesting(false)
+                            // VE icon → Open Ve app (Electron main window) - Hide during meeting
+                            if !vm.isRecording {
+                                Button(action: {
+                                    vm.navigateToMainScreen(path: nil)
+                                }) {
+                                    VEIcon(color: .white)
+                                        .frame(width: 16, height: 16)
+                                        .padding(8) // Increased padding for larger clickable area
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
+                                        )
+                                        .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                                 }
-                            }
-                            .onHover { hovering in
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    isVEIconHovered = hovering
+                                .buttonStyle(PlainButtonStyle())
+                                .overlay(alignment: .bottom) {
+                                    if isVEIconHovered {
+                                        Text("Open app")
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.black.opacity(0.8))
+                                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                            .offset(y: 28)
+                                            .fixedSize(horizontal: true, vertical: true)
+                                            .zIndex(2000)
+                                            .allowsHitTesting(false)
+                                    }
+                                }
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isVEIconHovered = hovering
+                                    }
                                 }
                             }
                             
