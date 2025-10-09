@@ -638,7 +638,7 @@ ipcMain.handle('sync-glass-mode-state', async (event, data) => {
 			// Always set BOTH together to prevent fully transparent window
 			if (windowHelper.mainWindow && !windowHelper.mainWindow.isDestroyed()) {
 				const mainWindow = windowHelper.mainWindow;
-				
+
 				if (enabled) {
 					// Glass mode: Enable vibrancy WITH transparent background
 					if (process.platform === 'darwin') {
@@ -1866,7 +1866,9 @@ function createWindow(restoreState = false) {
 			// This PREVENTS fully transparent window - always either glass with blur OR solid color
 			mainWindow.webContents.once('did-finish-load', () => {
 				// Execute script to check localStorage glass mode state and update window background
-				mainWindow.webContents.executeJavaScript(`
+				mainWindow.webContents
+					.executeJavaScript(
+						`
 					(function() {
 						try {
 							const glassModeEnabled = localStorage.getItem('glassModeEnabled') === 'true';
@@ -1875,40 +1877,45 @@ function createWindow(restoreState = false) {
 							return false; // Default to normal mode (solid background)
 						}
 					})();
-				`).then((isGlassEnabled) => {
-					log.info(`🎨 Initial glass mode state from localStorage: ${isGlassEnabled}`);
-					
-					// CRITICAL: Always set BOTH vibrancy AND background color together
-					// This ensures window is NEVER fully transparent without vibrancy
-					if (isGlassEnabled) {
-						// Glass mode: Enable vibrancy WITH transparent background
-						if (process.platform === 'darwin') {
-							mainWindow.setVibrancy('fullscreen-ui');
+				`,
+					)
+					.then((isGlassEnabled) => {
+						log.info(
+							`🎨 Initial glass mode state from localStorage: ${isGlassEnabled}`,
+						);
+
+						// CRITICAL: Always set BOTH vibrancy AND background color together
+						// This ensures window is NEVER fully transparent without vibrancy
+						if (isGlassEnabled) {
+							// Glass mode: Enable vibrancy WITH transparent background
+							if (process.platform === 'darwin') {
+								mainWindow.setVibrancy('fullscreen-ui');
+							}
+							mainWindow.setBackgroundColor('#00000000'); // Transparent for vibrancy to show through
+							log.info('🎨 Glass mode enabled: vibrancy + transparent background');
+						} else {
+							// Normal mode: NO vibrancy WITH solid background
+							if (process.platform === 'darwin') {
+								mainWindow.setVibrancy(null);
+							}
+							mainWindow.setBackgroundColor('#121212'); // Solid dark background
+							log.info('🎨 Normal mode enabled: solid background #121212');
 						}
-						mainWindow.setBackgroundColor('#00000000'); // Transparent for vibrancy to show through
-						log.info('🎨 Glass mode enabled: vibrancy + transparent background');
-					} else {
-						// Normal mode: NO vibrancy WITH solid background
+
+						// Update window helper state
+						if (windowHelper) {
+							windowHelper.isTranslucencyEnabled = isGlassEnabled;
+						}
+					})
+					.catch((error) => {
+						log.error('❌ Error checking initial glass mode state:', error);
+						// CRITICAL FALLBACK: Always use solid background, never fully transparent
 						if (process.platform === 'darwin') {
 							mainWindow.setVibrancy(null);
 						}
-						mainWindow.setBackgroundColor('#121212'); // Solid dark background
-						log.info('🎨 Normal mode enabled: solid background #121212');
-					}
-					
-					// Update window helper state
-					if (windowHelper) {
-						windowHelper.isTranslucencyEnabled = isGlassEnabled;
-					}
-				}).catch((error) => {
-					log.error('❌ Error checking initial glass mode state:', error);
-					// CRITICAL FALLBACK: Always use solid background, never fully transparent
-					if (process.platform === 'darwin') {
-						mainWindow.setVibrancy(null);
-					}
-					mainWindow.setBackgroundColor('#121212');
-					log.info('🎨 Fallback: solid background #121212');
-				});
+						mainWindow.setBackgroundColor('#121212');
+						log.info('🎨 Fallback: solid background #121212');
+					});
 			});
 		} catch (error) {
 			log.error('❌ Critical error loading main window:', error);
@@ -3876,6 +3883,19 @@ app.whenReady().then(async () => {
 	ipcMain.handle('resize-main-window', async (event, data) => {
 		try {
 			const { dimensions, exitFullScreen } = data;
+			const workArea = screen.getPrimaryDisplay().workAreaSize;
+			const screenWidth = workArea.width,
+				screenHeight = workArea.height;
+
+			if (dimensions?.width) {
+				const width = Math.min(screenWidth, dimensions.width);
+				dimensions.width = width;
+			}
+			if (dimensions?.height) {
+				const height = Math.min(screenHeight, dimensions.height);
+				dimensions.height = height;
+			}
+
 			if (mainWindow) {
 				if (exitFullScreen) {
 					if (mainWindow.isFullScreen()) {

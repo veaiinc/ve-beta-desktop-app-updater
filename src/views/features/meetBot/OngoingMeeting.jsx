@@ -92,14 +92,14 @@ const OngoingMeeting = memo(() => {
 		};
 	}, []);
 
-	useEffect(() => {
-		if (sidebarState?.open === true) {
-			toggleSidebar(true);
-		}
-		if (sidebarState?.open === false) {
-			toggleSidebar(false);
-		}
-	}, [sidebarState?.open]);
+	// useEffect(() => {
+	// 	if (sidebarState?.open === true) {
+	// 		toggleSidebar(true);
+	// 	}
+	// 	if (sidebarState?.open === false) {
+	// 		toggleSidebar(false);
+	// 	}
+	// }, [sidebarState?.open]);
 
 	// Use the correct data source for OngoingMeeting: activeMeetingDetails.liveIntelligenceData.allThreads
 	useEffect(() => {
@@ -287,32 +287,32 @@ const OngoingMeeting = memo(() => {
 		});
 	};
 
-	const toggleSidebar = (open) => {
-		if (open === info.sidebarOpen) {
-			return;
-		}
-		let newWidth;
-		if (open) {
-			newWidth = info?.dimentions?.width + SIDEBAR_WIDTH;
-		} else {
-			newWidth = info?.dimentions?.width - SIDEBAR_WIDTH;
-			newWidth = newWidth < 522 ? 522 : newWidth;
-		}
-		window?.electronApi?.resizeMainWindow({
-			dimensions: {
-				width: newWidth,
-				height: info?.dimentions?.height,
-			},
-			exitFullScreen: true,
-		});
-		handleStateChange({
-			sidebarOpen: open,
-			dimentions: {
-				width: newWidth,
-				height: info?.dimentions?.height,
-			},
-		});
-	};
+	// const toggleSidebar = (open) => {
+	// 	if (open === info.sidebarOpen) {
+	// 		return;
+	// 	}
+	// 	let newWidth;
+	// 	if (open) {
+	// 		newWidth = info?.dimentions?.width + SIDEBAR_WIDTH;
+	// 	} else {
+	// 		newWidth = info?.dimentions?.width - SIDEBAR_WIDTH;
+	// 		newWidth = newWidth < 522 ? 522 : newWidth;
+	// 	}
+	// 	window?.electronApi?.resizeMainWindow({
+	// 		dimensions: {
+	// 			width: newWidth,
+	// 			height: info?.dimentions?.height,
+	// 		},
+	// 		exitFullScreen: true,
+	// 	});
+	// 	handleStateChange({
+	// 		sidebarOpen: open,
+	// 		dimentions: {
+	// 			width: newWidth,
+	// 			height: info?.dimentions?.height,
+	// 		},
+	// 	});
+	// };
 
 	const handleActionClick = (prompt, isAskAi = false) => {
 		if (prompt && sessionId) {
