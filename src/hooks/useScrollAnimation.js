@@ -115,11 +115,7 @@ export const useScrollAnimation = () => {
 
 					// Adjust scaling reduction based on screen size
 					if (currentScreenWidth <= 1400) {
-						maxScaleReduction = 0.25;
-					} else if (currentScreenWidth <= 1200) {
-						maxScaleReduction = 0.2;
-					} else if (currentScreenWidth <= 1024) {
-						maxScaleReduction = 0.15;
+						maxScaleReduction = 0.05;
 					}
 
 					const sectionScale =
@@ -139,18 +135,18 @@ export const useScrollAnimation = () => {
 					let stage1End = 1.8;
 					let stage2End = 3.0;
 
-					if (currentScreenWidth <= 1400) {
+					if (currentScreenWidth <= 1024) {
+						maxScale = 2.4;
+						stage1End = 1.2;
+						stage2End = 1.8;
+					} else if (currentScreenWidth <= 1200) {
+						maxScale = 2.8;
+						stage1End = 1.4;
+						stage2End = 2.2;
+					} else if (currentScreenWidth <= 1400) {
 						maxScale = 3.5;
 						stage1End = 1.6;
 						stage2End = 2.5;
-					} else if (currentScreenWidth <= 1200) {
-						maxScale = 3.0;
-						stage1End = 1.4;
-						stage2End = 2.2;
-					} else if (currentScreenWidth <= 1024) {
-						maxScale = 2.5;
-						stage1End = 1.2;
-						stage2End = 1.8;
 					}
 
 					if (progress < stageOneSnapPoint) {
@@ -266,9 +262,6 @@ export const useScrollAnimation = () => {
 
 			// Kill all ScrollTriggers
 			ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-
-			if (iMacFrameRef.current) {
-			}
 
 			if (fullscreenIMacRef.current) {
 				gsap.set(fullscreenIMacRef.current, { scale: 0.3, opacity: 0, zIndex: -1 });
