@@ -57,12 +57,12 @@ const settingsItems = [
 ];
 
 const essentialsItems = [
-	{
-		label: 'Templates',
-		icon: <TemplatesSvg width={18} height={18} />,
-		route: '/playbook',
-		value: 'templates',
-	},
+	// {
+	// 	label: 'Templates',
+	// 	icon: <TemplatesSvg width={18} height={18} />,
+	// 	route: '/playbook',
+	// 	value: 'templates',
+	// },
 	// {
 	// 	label: 'Notifications',
 	// 	icon: <NotificationsSvg width={18} height={18} />,
@@ -96,6 +96,7 @@ const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, 
 
 	const navigate = useNavigate();
 
+	const isLoadingWorkspaces = userWorkSpaceList === undefined || userWorkSpaceList === null;
 	const hasMoreThanOneWorkspace = userWorkSpaceList?.length > 1;
 
 	useEffect(() => {
@@ -182,24 +183,31 @@ const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, 
 				</div>
 			</div>
 
-			<div className={s.footer}>
-				{hasMoreThanOneWorkspace && (
+		<div className={s.footer}>
+			{isLoadingWorkspaces ? (
+				<button className={`${s.workspaceBtn} ${s.loading}`} disabled>
+					<div className={s.skeletonIcon} />
+					<div className={s.skeletonText} />
+				</button>
+			) : (
+				hasMoreThanOneWorkspace && (
 					<button className={s.workspaceBtn} onClick={handleSwitchWorkspace}>
 						<SwitchWorkspaceSvg />
 						Switch Workspace
 					</button>
-				)}
+				)
+			)}
 
-				<button
-					className={`${s.workspaceBtn} ${
-						activeTab === createWorkspace?.value ? s.active : ''
-					}`}
-					onClick={() => handleItemClick(createWorkspace)}
-				>
-					<CreateWorkspaceSvg />
-					Create Workspace
-				</button>
-			</div>
+			<button
+				className={`${s.workspaceBtn} ${
+					activeTab === createWorkspace?.value ? s.active : ''
+				}`}
+				onClick={() => handleItemClick(createWorkspace)}
+			>
+				<CreateWorkspaceSvg />
+				Create Workspace
+			</button>
+		</div>
 			<div
 				className={s.switchWorkspaceContainer}
 				style={{
