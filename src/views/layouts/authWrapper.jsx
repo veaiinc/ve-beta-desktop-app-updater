@@ -161,16 +161,15 @@ const AuthWrapper = ({
 							isSidebarOpen && !isSidebarOverlay && !hideSidebar ? '256px' : '0',
 					}}
 					className="auth-wrapper-container"
-				>
-					{/* {layoutModeComponentMap[layoutMode]} */}
-					{/* {workspaceMode === 'stable' ? (
-						!hideSidebar ? (
-							<NewSidebar />
-						) : null
-					) : (
-						<TopNavbar />
-					)} */}
-					{!hideSidebar ? <NewSidebar /> : null}
+			>
+				{/* {layoutModeComponentMap[layoutMode]} */}
+				{/* {workspaceMode === 'stable' ? ( */}
+					{!hideSidebar ? (
+						<NewSidebar />
+					) : null}
+				{/* ) : (
+					<TopNavbar />
+				)} */}
 
 					<div
 						style={{
