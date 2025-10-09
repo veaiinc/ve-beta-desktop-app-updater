@@ -477,7 +477,21 @@ struct DynamicIslandContentView: View {
                                     .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help("Open Ve App")
+                            .overlay(alignment: .bottom) {
+                                if isVEIconHovered {
+                                    Text("Open app")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(y: 28)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                             .onHover { hovering in
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     isVEIconHovered = hovering
@@ -506,15 +520,29 @@ struct DynamicIslandContentView: View {
                                 .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
+                            .overlay(alignment: .bottom) {
+                                if isStealthIconHovered {
+                                    Text(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(y: 28)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                             .onHover { hovering in
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     isStealthIconHovered = hovering
                                 }
                             }
                             
-                            // Information icon (third icon) with popup menu
-                            // InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            // Tooltips for top-right icons (ve/open app, stealth toggle, lock)
+                            // ve/open app (first icon in this group is not present here; add generic hover tooltip API usage below)
                             
                             // Lock/Unlock button (fourth icon)
                             Button(action: {
@@ -541,7 +569,21 @@ struct DynamicIslandContentView: View {
                                     .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
+                            .overlay(alignment: .bottom) {
+                                if isLockIconHovered {
+                                    Text(vm.isNotchLocked ? "Unlock" : "Lock")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(y: 28)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                             .onAppear {
                                 // Validate state on appearance
                                 vm.forceLockStateRefresh()
