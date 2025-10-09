@@ -75,12 +75,12 @@ const DragHandle = () => {
 	return (
 		<div className="drag-handle-container">
 			{/* Invisible hover zones for each corner */}
-			<div
+			{/* <div
 				className="drag-hover-zone drag-hover-zone--top-left"
 				onMouseEnter={() => handleMouseEnter('top-left')}
 				onMouseLeave={() => handleMouseLeave('top-left')}
-			></div>
-			<div
+			></div> */}
+			{/* <div
 				className="drag-hover-zone drag-hover-zone--top-right"
 				onMouseEnter={() => handleMouseEnter('top-right')}
 				onMouseLeave={() => handleMouseLeave('top-right')}
@@ -94,7 +94,7 @@ const DragHandle = () => {
 				className="drag-hover-zone drag-hover-zone--bottom-right"
 				onMouseEnter={() => handleMouseEnter('bottom-right')}
 				onMouseLeave={() => handleMouseLeave('bottom-right')}
-			></div>
+			></div> */}
 
 			{/* Top Left Handle */}
 			<div
