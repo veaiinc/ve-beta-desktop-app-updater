@@ -73,6 +73,21 @@ const AskAIApp = () => {
 		window?.electronApi.askAI.toggleWindow();
 	};
 
+	// ESC key listener to close the window
+	useEffect(() => {
+		const handleKeyDown = (event) => {
+			if (event.key === 'Escape') {
+				handleClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, []);
+
 	// Drag state and handlers (Glass-style live drag)
 	const [dragState, setDragState] = useState(null);
 

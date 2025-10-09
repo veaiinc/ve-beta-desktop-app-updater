@@ -638,7 +638,7 @@ ipcMain.handle('sync-glass-mode-state', async (event, data) => {
 			// Always set BOTH together to prevent fully transparent window
 			if (windowHelper.mainWindow && !windowHelper.mainWindow.isDestroyed()) {
 				const mainWindow = windowHelper.mainWindow;
-				
+
 				if (enabled) {
 					// Glass mode: Enable vibrancy WITH transparent background
 					if (process.platform === 'darwin') {
@@ -1617,6 +1617,9 @@ function createWindow(restoreState = false) {
 		resizable: true, // Allow resizing for better UX
 		movable: true,
 		transparent: true, // Still need transparent for vibrancy to work, but we control background color
+		// Window size constraints - prevent resizing below minimum dimensions
+		minWidth: 522,
+		minHeight: 433,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			nodeIntegration: false,
@@ -1650,6 +1653,23 @@ function createWindow(restoreState = false) {
 	mainWindow = new BrowserWindow(mainWindowSettings);
 
 	mainWindow.setWindowButtonVisibility(false);
+
+	// Add window resize constraint validation
+	mainWindow.on('resize', () => {
+		const bounds = mainWindow.getBounds();
+		const minWidth = 522;
+		const minHeight = 433;
+
+		// Log current size for debugging
+		log.info(`Window resized to: ${bounds.width}x${bounds.height}`);
+
+		// Additional validation - though Electron should enforce this automatically
+		if (bounds.width < minWidth || bounds.height < minHeight) {
+			log.warn(
+				`Window size below minimum: ${bounds.width}x${bounds.height} (min: ${minWidth}x${minHeight})`,
+			);
+		}
+	});
 
 	if (notchDropService) {
 		notchDropService.setMainWindow(mainWindow);
@@ -1763,9 +1783,21 @@ function createWindow(restoreState = false) {
 			userAuthenticationStatus.isLoggedIn = true;
 			userAuthenticationStatus.shouldShowPermissionOverlay = false;
 
-			// Hide permission overlay if it's currently visible
-			if (windowHelper?.isPermissionVisible) {
-				windowHelper.hidePermissionWindow();
+			// Check if user has completed onboarding (show overlay only once)
+			try {
+				const completed = hasCompletedOnboarding();
+				
+				if (!completed) {
+					log.info('🆕 First time login - showing permission overlay');
+					// Show permission overlay after a short delay
+					setTimeout(() => {
+						windowHelper?.showPermissionWindow();
+					}, 500);
+				} else {
+					log.info('✅ User has completed onboarding - skipping overlay (will never show again)');
+				}
+			} catch (e) {
+				log.error('❌ Error checking onboarding status post-login:', e);
 			}
 		} else if (msg === 'unauthorized') {
 			log.info('🔓 User not authenticated - permission overlay may be needed');
@@ -1866,7 +1898,9 @@ function createWindow(restoreState = false) {
 			// This PREVENTS fully transparent window - always either glass with blur OR solid color
 			mainWindow.webContents.once('did-finish-load', () => {
 				// Execute script to check localStorage glass mode state and update window background
-				mainWindow.webContents.executeJavaScript(`
+				mainWindow.webContents
+					.executeJavaScript(
+						`
 					(function() {
 						try {
 							const glassModeEnabled = localStorage.getItem('glassModeEnabled') === 'true';
@@ -1875,40 +1909,45 @@ function createWindow(restoreState = false) {
 							return false; // Default to normal mode (solid background)
 						}
 					})();
-				`).then((isGlassEnabled) => {
-					log.info(`🎨 Initial glass mode state from localStorage: ${isGlassEnabled}`);
-					
-					// CRITICAL: Always set BOTH vibrancy AND background color together
-					// This ensures window is NEVER fully transparent without vibrancy
-					if (isGlassEnabled) {
-						// Glass mode: Enable vibrancy WITH transparent background
-						if (process.platform === 'darwin') {
-							mainWindow.setVibrancy('fullscreen-ui');
+				`,
+					)
+					.then((isGlassEnabled) => {
+						log.info(
+							`🎨 Initial glass mode state from localStorage: ${isGlassEnabled}`,
+						);
+
+						// CRITICAL: Always set BOTH vibrancy AND background color together
+						// This ensures window is NEVER fully transparent without vibrancy
+						if (isGlassEnabled) {
+							// Glass mode: Enable vibrancy WITH transparent background
+							if (process.platform === 'darwin') {
+								mainWindow.setVibrancy('fullscreen-ui');
+							}
+							mainWindow.setBackgroundColor('#00000000'); // Transparent for vibrancy to show through
+							log.info('🎨 Glass mode enabled: vibrancy + transparent background');
+						} else {
+							// Normal mode: NO vibrancy WITH solid background
+							if (process.platform === 'darwin') {
+								mainWindow.setVibrancy(null);
+							}
+							mainWindow.setBackgroundColor('#121212'); // Solid dark background
+							log.info('🎨 Normal mode enabled: solid background #121212');
 						}
-						mainWindow.setBackgroundColor('#00000000'); // Transparent for vibrancy to show through
-						log.info('🎨 Glass mode enabled: vibrancy + transparent background');
-					} else {
-						// Normal mode: NO vibrancy WITH solid background
+
+						// Update window helper state
+						if (windowHelper) {
+							windowHelper.isTranslucencyEnabled = isGlassEnabled;
+						}
+					})
+					.catch((error) => {
+						log.error('❌ Error checking initial glass mode state:', error);
+						// CRITICAL FALLBACK: Always use solid background, never fully transparent
 						if (process.platform === 'darwin') {
 							mainWindow.setVibrancy(null);
 						}
-						mainWindow.setBackgroundColor('#121212'); // Solid dark background
-						log.info('🎨 Normal mode enabled: solid background #121212');
-					}
-					
-					// Update window helper state
-					if (windowHelper) {
-						windowHelper.isTranslucencyEnabled = isGlassEnabled;
-					}
-				}).catch((error) => {
-					log.error('❌ Error checking initial glass mode state:', error);
-					// CRITICAL FALLBACK: Always use solid background, never fully transparent
-					if (process.platform === 'darwin') {
-						mainWindow.setVibrancy(null);
-					}
-					mainWindow.setBackgroundColor('#121212');
-					log.info('🎨 Fallback: solid background #121212');
-				});
+						mainWindow.setBackgroundColor('#121212');
+						log.info('🎨 Fallback: solid background #121212');
+					});
 			});
 		} catch (error) {
 			log.error('❌ Critical error loading main window:', error);
@@ -2501,6 +2540,79 @@ async function checkUserAuthenticationStatus() {
 	}
 }
 
+// Helper functions for onboarding completion tracking
+function hasCompletedOnboarding() {
+	try {
+		const configPath = path.join(app.getPath('userData'), 'config.json');
+		
+		if (!fs.existsSync(configPath)) {
+			log.info('📋 No config file found - user has not completed onboarding');
+			return false;
+		}
+		
+		const configData = fs.readFileSync(configPath, 'utf8');
+		const config = JSON.parse(configData);
+		const completed = config.onboardingCompleted === true;
+		
+		log.info(`📋 Onboarding status: ${completed ? 'COMPLETED ✅' : 'NOT COMPLETED ❌'}`);
+		return completed;
+	} catch (error) {
+		log.error('❌ Error checking onboarding status:', error);
+		return false; // If error, show overlay (safe default)
+	}
+}
+
+function markOnboardingCompleted() {
+	try {
+		const userDataPath = app.getPath('userData');
+		const configPath = path.join(userDataPath, 'config.json');
+		
+		log.info('💾 Marking onboarding as completed...');
+		log.info('📁 User data path:', userDataPath);
+		log.info('📄 Config file path:', configPath);
+		
+		// Ensure directory exists
+		if (!fs.existsSync(userDataPath)) {
+			fs.mkdirSync(userDataPath, { recursive: true });
+			log.info('✅ Created user data directory');
+		}
+		
+		// Read existing config or create new
+		let config = {};
+		if (fs.existsSync(configPath)) {
+			try {
+				const configData = fs.readFileSync(configPath, 'utf8');
+				config = JSON.parse(configData);
+				log.info('📖 Read existing config:', config);
+			} catch (error) {
+				log.error('❌ Error reading existing config, will create new:', error);
+			}
+		}
+		
+		// Set the flag
+		config.onboardingCompleted = true;
+		
+		// Write to disk
+		fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+		log.info('✅ Onboarding marked as completed!');
+		log.info('💾 Config saved:', config);
+		
+		// Verify it was written
+		if (fs.existsSync(configPath)) {
+			const verification = fs.readFileSync(configPath, 'utf8');
+			log.info('✅ VERIFIED: Config file exists and contains:', verification);
+			return true;
+		} else {
+			log.error('❌ FAILED: Config file was not created!');
+			return false;
+		}
+	} catch (error) {
+		log.error('❌ Error marking onboarding as completed:', error);
+		log.error('❌ Stack trace:', error.stack);
+		return false;
+	}
+}
+
 // Function to check all required permissions
 async function checkAllPermissions() {
 	try {
@@ -3026,7 +3138,15 @@ app.whenReady().then(async () => {
 				// windowHelper.showPermissionWindow();
 				log.info('📋 Permission overlay shown for unauthenticated user');
 			} else {
-				log.info('👤 User is authenticated - skipping permission overlay');
+				// If already authenticated, check if user has completed onboarding
+				const completed = hasCompletedOnboarding();
+				
+				if (!completed) {
+					log.info('🆕 First time user - showing permission overlay');
+					windowHelper?.showPermissionWindow();
+				} else {
+					log.info('✅ User has completed onboarding - skipping overlay (will never show again)');
+				}
 			}
 		} catch (error) {
 			log.error('❌ Error checking authentication or showing permission overlay:', error);
@@ -3196,10 +3316,21 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('hide-permission-window', async () => {
 		try {
+			log.info('🔒 Hide permission window called - marking onboarding as completed');
 			windowHelper?.hidePermissionWindow();
-			return { success: true };
+			
+			// Mark that user has completed onboarding - THIS IS KEY!
+			const marked = markOnboardingCompleted();
+			
+			if (marked) {
+				log.info('✅ Onboarding marked as completed - overlay will NEVER show again');
+			} else {
+				log.error('❌ Failed to mark onboarding as completed - overlay may show again!');
+			}
+			
+			return { success: true, onboardingMarked: marked };
 		} catch (error) {
-			log.error('Error hiding Permission window:', error);
+			log.error('❌ Error hiding Permission window:', error);
 			return { success: false, error: error.message };
 		}
 	});
