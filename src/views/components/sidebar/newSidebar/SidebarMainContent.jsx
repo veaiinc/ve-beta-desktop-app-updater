@@ -32,6 +32,7 @@ const SidebarMainContent = ({
 	const {
 		subscriptionInfo: { getShareAndEarn, referralData },
 		notes: { activeMeetingDetails },
+		aiSetup: { aiChatSessions },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -119,22 +120,24 @@ const SidebarMainContent = ({
 					</button>
 				)}
 
-				<div className={s.chatList}>
-					<div className={s.leftContainer}>
-						<button
-							className={`${s.itemBtn} ${activeType === 'chats' ? s.active : ''}`}
-							onClick={() => handleTypeChange('chats')}
+				{aiChatSessions?.data?.length > 0 && (
+					<div className={s.chatList}>
+						<div className={s.leftContainer}>
+							<button
+								className={`${s.itemBtn} ${activeType === 'chats' ? s.active : ''}`}
+								onClick={() => handleTypeChange('chats')}
+							>
+								Chats
+							</button>
+						</div>
+						<div
+							className={`${s.toggleExpand} ${expanded ? s.expanded : ''}`}
+							onClick={handleToggleChatsExpand}
 						>
-							Chats
-						</button>
+							<ChevronRightThinSvg width={16} height={16} />
+						</div>
 					</div>
-					<div
-						className={`${s.toggleExpand} ${expanded ? s.expanded : ''}`}
-						onClick={handleToggleChatsExpand}
-					>
-						<ChevronRightThinSvg width={16} height={16} />
-					</div>
-				</div>
+				)}
 			</div>
 			<div className={s.sidebarChats}>
 				{expanded && activeType === 'chats' && <ChatHistory showNewChatBtn={false} />}
