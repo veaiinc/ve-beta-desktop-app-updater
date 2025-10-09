@@ -20,6 +20,7 @@ backdrop-filter: blur(8px);
 	&.active {
 		transform: translateX(0);
 	}
+	-webkit-app-region: no-drag !important;
 
 	.sidebarContainer {
 		width: 256px;
@@ -48,9 +49,9 @@ backdrop-filter: blur(8px);
 				:global(svg) path {
 					fill: var(--primary-button);
 				}
-			svg{
-				flex-shrink: 0;
-				width: 37px;
+				svg {
+					flex-shrink: 0;
+					width: 37px;
 				}
 			}
 			.rightContainer {
@@ -294,6 +295,7 @@ backdrop-filter: blur(8px);
 
 	.closeSidebar {
 		transform: rotate(180deg);
+		-webkit-app-region: no-drag;
 		:global(svg) {
 			flex-shrink: 0;
 		}
