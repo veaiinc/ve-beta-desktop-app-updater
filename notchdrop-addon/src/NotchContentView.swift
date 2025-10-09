@@ -320,6 +320,66 @@ struct DynamicIslandContentView: View {
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
                                 .disabled(vm.isConnecting)
                                 .opacity(vm.isConnecting ? 0.8 : 1.0)
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isMeetingButtonHovered = hovering
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Meeting button is now inactive, reset hover state
+                                        isMeetingButtonHovered = false
+                                    }
+                                }
+                                .onChange(of: vm.isTrayMode) { newValue in
+                                    if !newValue {
+                                        // Meeting button is now inactive, reset hover state
+                                        isMeetingButtonHovered = false
+                                    }
+                                }
+
+                                // Share pill (sets Tray mode)
+                                Button(action: {
+                                    vm.isTrayMode = true
+                                    vm.isTeamsView = false
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Text("Share")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundColor(vm.isTrayMode ? .black : .white)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTrayMode ? 
+                                                (isTrayButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                                (isTrayButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .scaleEffect(1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
+                                .disabled(vm.isConnecting)
+                                .opacity(vm.isConnecting ? 0.8 : 1.0)
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isTrayButtonHovered = hovering
+                                    }
+                                }
+                                .onChange(of: vm.isTrayMode) { newValue in
+                                    if !newValue {
+                                        // Tray button is now inactive, reset hover state
+                                        isTrayButtonHovered = false
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Tray button is now inactive, reset hover state
+                                        isTrayButtonHovered = false
+                                    }
+                                }
                             } else if vm.showVoiceInterface {
                                 // Voice controls (mute/unmute and cancel buttons)
                                 HStack(spacing: 12) {
