@@ -7,11 +7,15 @@
 	top: 0;
 	left: 0;
 	height: 100dvh;
-	background: var(--background-color, #0c0c0d);
+	background: rgba(10, 10, 10, 0.4);
+backdrop-filter: blur(8px);
 	z-index: 900;
 	transform: translateX(-256px);
 	transition: transform 0.3s cubic-bezier(0, 0, 0.2, 1),
 		background 0.3s cubic-bezier(0, 0, 0.2, 1);
+		
+
+
 
 	&.active {
 		transform: translateX(0);
@@ -25,6 +29,7 @@
 		flex-direction: column;
 		height: 100%;
 		overflow-y: auto;
+		border-right: 1px solid rgba(255, 255, 255, 0.1);
 
 		.header {
 			display: flex;
