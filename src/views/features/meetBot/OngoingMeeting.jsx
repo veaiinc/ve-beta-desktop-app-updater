@@ -150,7 +150,7 @@ const OngoingMeeting = memo(() => {
 	}, [liveIntelligenceData?.allThreads]);
 
 	useEffect(() => {
-		if (transcriptions.length > 0) {
+		if (transcriptions?.length > 0) {
 			console.log(
 				'📝 OngoingMeeting: Processing transcriptions:',
 				transcriptions.length,
@@ -189,23 +189,6 @@ const OngoingMeeting = memo(() => {
 			}
 		}
 	}, [transcriptions]);
-
-	// Debug effect to monitor state changes
-	useEffect(() => {
-		console.log('🔍 OngoingMeeting State Debug:', {
-			showingTranscripts: info.showingTranscripts,
-			chatOpen: info.chatOpen,
-			transcriptionsCount: transcriptions?.length || 0,
-			liveIntelligenceCount: liveIntelligenceData?.allThreads?.length || 0,
-			meetingId,
-		});
-	}, [
-		info.showingTranscripts,
-		info.chatOpen,
-		transcriptions?.length,
-		liveIntelligenceData?.allThreads?.length,
-		meetingId,
-	]);
 
 	const handleStateChange = (data) => {
 		setInfo((prev) => ({
