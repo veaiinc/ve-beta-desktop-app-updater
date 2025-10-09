@@ -341,6 +341,7 @@ struct DynamicIslandContentView: View {
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set(); withAnimation(.easeInOut(duration: 0.15)) { /* hover style if needed */ } }
                                     
                                     // Cancel/Disconnect button
                                     Button(action: {
@@ -359,6 +360,7 @@ struct DynamicIslandContentView: View {
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set(); withAnimation(.easeInOut(duration: 0.15)) { /* hover style if needed */ } }
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.top, 2) // Move left icons up to align with right icons
@@ -383,6 +385,7 @@ struct DynamicIslandContentView: View {
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set() }
                                     .scaleEffect(1.0)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isPaused)
                                     
@@ -398,6 +401,7 @@ struct DynamicIslandContentView: View {
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set() }
                                     .scaleEffect(1.0)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
                                     
