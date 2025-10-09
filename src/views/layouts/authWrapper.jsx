@@ -79,6 +79,18 @@ const AuthWrapper = ({
 	useEffect(() => {
 		if (typeof sidebarState?.open === 'boolean' && sidebarState?.open !== isSidebarOpen) {
 			setIsSidebarOpen(sidebarState?.open);
+
+			const windowWidth = window.innerWidth;
+			if (windowWidth > 1200) {
+				return;
+			}
+			const width = windowWidth + (sidebarState?.open ? 256 : -256);
+
+			if (window?.electronApi?.resizeMainWindow) {
+				window.electronApi.resizeMainWindow({
+					dimensions: { width, height: window.innerHeight },
+				});
+			}
 		}
 	}, [sidebarState?.open]);
 
@@ -161,13 +173,11 @@ const AuthWrapper = ({
 							isSidebarOpen && !isSidebarOverlay && !hideSidebar ? '256px' : '0',
 					}}
 					className="auth-wrapper-container"
-			>
-				{/* {layoutModeComponentMap[layoutMode]} */}
-				{/* {workspaceMode === 'stable' ? ( */}
-					{!hideSidebar ? (
-						<NewSidebar />
-					) : null}
-				{/* ) : (
+				>
+					{/* {layoutModeComponentMap[layoutMode]} */}
+					{/* {workspaceMode === 'stable' ? ( */}
+					{!hideSidebar ? <NewSidebar /> : null}
+					{/* ) : (
 					<TopNavbar />
 				)} */}
 

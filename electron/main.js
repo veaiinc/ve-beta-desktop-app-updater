@@ -4007,6 +4007,19 @@ app.whenReady().then(async () => {
 	ipcMain.handle('resize-main-window', async (event, data) => {
 		try {
 			const { dimensions, exitFullScreen } = data;
+			const workArea = screen.getPrimaryDisplay().workAreaSize;
+			const screenWidth = workArea.width,
+				screenHeight = workArea.height;
+
+			if (dimensions?.width) {
+				const width = Math.min(screenWidth, dimensions.width);
+				dimensions.width = width;
+			}
+			if (dimensions?.height) {
+				const height = Math.min(screenHeight, dimensions.height);
+				dimensions.height = height;
+			}
+
 			if (mainWindow) {
 				if (exitFullScreen) {
 					if (mainWindow.isFullScreen()) {
