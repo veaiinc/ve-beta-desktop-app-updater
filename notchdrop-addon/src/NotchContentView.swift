@@ -35,6 +35,11 @@ struct NotchContentView: View {
             // }
         }
         .animation(vm.animation, value: vm.contentType)
+        // Pin underline to the true bottom edge of the notch (top-level container)
+        .overlay(alignment: .bottom) {
+            MeetWaveUnderline(isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted)
+                .frame(width: 301, height: 16)
+        }
         // .animation(vm.animation, value: vm.showNotificationOverlay)
         .onAppear {
             // Set up browser permission window monitoring
@@ -545,9 +550,13 @@ struct DynamicIslandContentView: View {
                                                 .padding()
                                         } else {
                                             ForEach(vm.voiceMessages) { message in
-                                                TranscriptionMessageView(message: message)
-                                                    .padding(.horizontal, 4)
-                                                    .id(message.id)
+                                                VoiceMessageBubble(
+                                                    sender: message.sender,
+                                                    text: message.content,
+                                                    isFromAgent: message.isFromAgent
+                                                )
+                                                .padding(.horizontal, 4)
+                                                .id(message.id)
                                             }
                                         }
                                     }
@@ -1477,6 +1486,7 @@ struct VoiceTranscriptionArea: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 12)
             }
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.clear)
@@ -4664,6 +4674,178 @@ struct CompactTemporaryFolderAskAnythingButton: View {
     }
 }
 
+
+// MARK: - Google Meet Style Wave Animation for Voice Assistant
+struct GoogleMeetWaveView: View {
+    @State private var waveShift: CGFloat = 0
+    @State private var fadeOut = false
+    let isActive: Bool
+
+    var body: some View {
+        ZStack {
+            // Background gradient wave
+            WaveShape()
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            DynamicIslandTheme.primaryGreen.opacity(0.5),
+                            Color.blue.opacity(0.5),
+                            Color.purple.opacity(0.5)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(height: 60)
+                .blur(radius: 15)
+                .mask(fadeMask)
+                .offset(x: waveShift)
+                .animation(
+                    Animation.timingCurve(0.2, 0, 0, 1, duration: 2)
+                        .repeatForever(autoreverses: true),
+                    value: waveShift
+                )
+                .opacity(isActive && !fadeOut ? 1 : 0)
+                .animation(
+                    .timingCurve(0.2, 0, 0, 1, duration: 0.3),
+                    value: isActive
+                )
+        }
+        .allowsHitTesting(false)
+        .onChange(of: isActive) { _, active in
+            if active {
+                waveShift = 40
+                fadeOut = false
+            } else {
+                fadeOut = true
+            }
+        }
+        .onAppear {
+            if isActive {
+                waveShift = 40
+            }
+        }
+    }
+
+    // Fade mask simulates Google Meet's edge fading
+    private var fadeMask: some View {
+        LinearGradient(
+            gradient: Gradient(stops: [
+                .init(color: .black.opacity(0), location: 0.0),
+                .init(color: .black, location: 0.13),
+                .init(color: .black, location: 0.87),
+                .init(color: .black.opacity(0), location: 1.0)
+            ]),
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+}
+
+// MARK: - Wave Shape (smooth curve like Google Meet)
+struct WaveShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+
+        // Smooth wave curve
+        path.move(to: CGPoint(x: 0, y: height * 0.4))
+        path.addCurve(
+            to: CGPoint(x: width, y: height * 0.4),
+            control1: CGPoint(x: width * 0.3, y: -height * 0.1),
+            control2: CGPoint(x: width * 0.7, y: -height * 0.1)
+        )
+        path.addLine(to: CGPoint(x: width, y: height))
+        path.addLine(to: CGPoint(x: 0, y: height))
+        path.closeSubpath()
+
+        return path
+    }
+}
+
+// MARK: - Thin Meet-style Underline (ends pinned, center bulges up/down)
+struct MeetWaveUnderline: View {
+    @State private var bulge: CGFloat = 8
+    let isActive: Bool
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            // Glow (Figma spec: soft mint glow)
+            MeetUnderlineBulge(bulge: bulge)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.55), // mint glow
+                            Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.45)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                )
+                .blur(radius: 18)
+                .opacity(isActive ? 0.5 : 0)
+                .animation(.easeInOut(duration: 0.25), value: isActive)
+
+            // Crisp 1–2px line following the same curve (dark ends, light middle)
+            MeetUnderlineBulge(bulge: bulge)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color(red: 0.07, green: 0.53, blue: 0.39), location: 0.0), // dark left
+                            .init(color: Color(red: 0.47, green: 0.93, blue: 0.79), location: 0.5), // light center
+                            .init(color: Color(red: 0.07, green: 0.53, blue: 0.39), location: 1.0)  // dark right
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                )
+                .opacity(isActive ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: isActive)
+        }
+        .allowsHitTesting(false)
+        .onAppear {
+            if isActive {
+                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.8).repeatForever(autoreverses: true)) {
+                    bulge = 26
+                }
+            }
+        }
+        .onChange(of: isActive) { _, active in
+            if active {
+                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.8).repeatForever(autoreverses: true)) {
+                    bulge = 26
+                }
+            } else {
+                withAnimation(.easeOut(duration: 0.2)) { bulge = 0 }
+            }
+        }
+    }
+}
+
+// Shape for pinned-ends underline with animated center bulge
+struct MeetUnderlineBulge: Shape {
+    var bulge: CGFloat
+
+    var animatableData: CGFloat {
+        get { bulge }
+        set { bulge = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        // Render exactly on the bottom edge
+        let baselineY = rect.maxY
+        path.move(to: CGPoint(x: 0, y: baselineY))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.width, y: baselineY),
+            control: CGPoint(x: rect.width / 2, y: baselineY - max(bulge, 0))
+        )
+        return path
+    }
+}
 
 #Preview {
     NotchContentView(vm: .init())
