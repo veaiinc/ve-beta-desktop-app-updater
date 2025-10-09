@@ -2,9 +2,11 @@
 
 /* Base glass mode styles */
 .glass-mode-enabled {
-	/* Override CSS variables for transparency */
+	/* CRITICAL FIX: Override CSS variables for transparency ONLY when glass mode is enabled */
 	--background-color: transparent !important;
 	// --chat-background-color: rgba(18, 18, 18, 0.1) !important;
+	
+	/* CRITICAL FIX: Keep these commented so production uses same defaults as dev mode */
 	// --card: rgba(18, 18, 18, 0.12) !important;
 	// --new-card: rgba(18, 18, 18, 0.12) !important;
 	// --card-hover: rgba(18, 18, 18, 0.18) !important;
@@ -14,7 +16,7 @@
 	// --navbar: rgba(18, 18, 18, 0.05) !important;
 	// --right-bar: rgba(18, 18, 18, 0.12) !important;
 
-	/* Ensure main containers are transparent */
+	/* Ensure main containers are transparent ONLY in glass mode */
 	html,
 	body,
 	#root {
