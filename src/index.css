@@ -14,7 +14,13 @@ body {
 	/* -webkit-app-region: drag; */
 }
 
-/* Only enable full transparency when glass is enabled */
+/* CRITICAL FIX: Only enable transparency when glass-mode-enabled class is present */
+body.glass-mode-enabled,
+html.glass-mode-enabled {
+	background: transparent !important;
+}
+
+/* Legacy support for glass-enabled class (deprecated) */
 body.glass-enabled,
 html.glass-enabled {
 	background: transparent !important;
