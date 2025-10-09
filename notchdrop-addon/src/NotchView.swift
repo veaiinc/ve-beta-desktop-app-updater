@@ -161,6 +161,9 @@ struct NotchView: View {
         }
 		.background(dragDetector)
 		.opacity(isQuitting ? 0 : 1)
+		.onAppear {
+			print("🎯 NotchView appeared, drag detector should be active")
+		}
 		.animation(.easeInOut(duration: 0.2), value: isQuitting)
         .contextMenu {
 			Button(action: {
@@ -558,13 +561,25 @@ var notch: some View {
             .foregroundStyle(.regularMaterial.opacity(0.001)) // Use material background with minimal opacity for hit testing
             .contentShape(Rectangle())
             .frame(width: notchSize.width + vm.dropDetectorRange, height: notchSize.height + vm.dropDetectorRange)
-            .onDrop(of: [.data], isTargeted: $dropTargeting) { _ in true }
+            .onAppear {
+                print("🎯 Drag detector appeared, size: \(notchSize.width + vm.dropDetectorRange)x\(notchSize.height + vm.dropDetectorRange)")
+            }
+            .onDrop(of: [.data], isTargeted: $dropTargeting) { providers in
+                print("🎯 Drop operation detected with \(providers.count) providers")
+                return true
+            }
             .onChange(of: dropTargeting) { oldValue, isTargeted in
-                if isTargeted, vm.status == .closed {
-                    // Open the notch when a file is dragged over it
+                print("🎯 Drag targeting changed: \(oldValue) -> \(isTargeted), status: \(vm.status)")
+                
+                if isTargeted && vm.status == .closed {
+                    print("🎯 Opening notch for drag operation")
+                    // Open the notch when a file is dragged over it and automatically switch to Tray mode
+                    vm.isTrayMode = true
+                    vm.isTeamsView = false
                     vm.notchOpen(.drag)
                     vm.hapticSender.send()
-                } else if !isTargeted {
+                } else if !isTargeted && vm.status == .opened {
+                    print("🎯 Drag left area, checking if should close")
                     // Close the notch when the dragged item leaves the area
                     let mouseLocation: NSPoint = NSEvent.mouseLocation
                     if !vm.notchOpenedRect.insetBy(dx: vm.inset, dy: vm.inset).contains(mouseLocation) {
