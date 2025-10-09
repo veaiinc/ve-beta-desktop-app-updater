@@ -1,25 +1,19 @@
 import { Routes, Route } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import useVoiceIntegration from './hooks/useVoiceIntegration';
 import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
-import PerformanceMonitor from './components/PerformanceMonitor';
+// import PerformanceMonitor from './components/PerformanceMonitor';
 import DragHandle from './components/DragHandle';
 // Removed complex translucency utilities - now using simplified CSS approach
 import { GlassModeProvider, useGlassMode } from './context/GlassModeContext.jsx';
 import { initializeGlassModeSync } from './helpers/glassModeSync';
 
-// ⚡ PERFORMANCE FIX: Lazy load heavy components
-const VoiceAgentParent = lazy(() => import('./views/features/voiceAgent/VoiceAgentParent'));
-const UploadProgressPopup = lazy(() =>
-	import('./views/components/globalComponents/UploadProgressPopup/UploadProgressPopup'),
-);
-const DownloadProgressPopup = lazy(() =>
-	import('./views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup'),
-);
-const UpdateReadyPopup = lazy(() =>
-	import('./views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup'),
-);
+// ✅ REVERTED: Back to regular imports (lazy loading broke production)
+import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
+import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
+import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
+import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
 
 // AppContent component that uses glass mode context
 const AppContent = () => {
@@ -251,7 +245,7 @@ const AppContent = () => {
 	return (
 		<div className="app-content glass-app">
 			{/* ⚡ PERFORMANCE MONITOR - tracks app performance in development */}
-			<PerformanceMonitor />
+			{/* <PerformanceMonitor /> */}
 
 			{/* Drag Handle - provides window dragging functionality */}
 			<DragHandle />
@@ -281,7 +275,7 @@ const AppContent = () => {
 				>
 					Test Permission Overlay
 				</button>
-			)}  */}
+			)}   */}
 			{/* <button
 					onClick={() => window.electronApi?.permission?.showWindow()}
 					style={{
@@ -363,22 +357,14 @@ const AppContent = () => {
 				))}
 			</Routes>
 
-			{/* NotchDrop Voice Agent Integration - DIRECT */}
-			{showVoiceFromNotch && (
-				<Suspense fallback={<div>Loading...</div>}>
-					<VoiceAgentParent />
-				</Suspense>
-			)}
+		{/* NotchDrop Voice Agent Integration - DIRECT */}
+		{showVoiceFromNotch && <VoiceAgentParent />}
 
-			{/* Global Upload Progress Popup - persists across all routes */}
-			<Suspense fallback={null}>
-				<UploadProgressPopup />
-			</Suspense>
+		{/* Global Upload Progress Popup - persists across all routes */}
+		<UploadProgressPopup />
 
-			{/* Global Download Progress Popup - persists across all routes */}
-			<Suspense fallback={null}>
-				<DownloadProgressPopup />
-			</Suspense>
+		{/* Global Download Progress Popup - persists across all routes */}
+		<DownloadProgressPopup />
 
 			{/* Update Progress Indicator */}
 			{updateProgress && (
@@ -427,15 +413,13 @@ const AppContent = () => {
 				</div>
 			)}
 
-			{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
-				<Suspense fallback={null}>
-					<UpdateReadyPopup
-						updateInfo={updateStatus}
-						onRestart={handleRestartApp}
-						onDismiss={() => setIsUpdatePopupVisible(false)}
-					/>
-				</Suspense>
-			)}
+		{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
+			<UpdateReadyPopup
+				updateInfo={updateStatus}
+				onRestart={handleRestartApp}
+				onDismiss={() => setIsUpdatePopupVisible(false)}
+			/>
+		)}
 		</div>
 	);
 };

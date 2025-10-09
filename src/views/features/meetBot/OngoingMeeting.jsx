@@ -2,7 +2,16 @@ import { memo, useCallback, useContext, useEffect, useRef, useState } from 'reac
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../../../store/store';
 import s from './ongoingMeeting.module.scss';
-import { ArrowLeftRight, CircleX, Clock, Maximize2, Plus, X } from 'lucide-react';
+import {
+	ArrowLeftRight,
+	ChevronDown,
+	ChevronUp,
+	CircleX,
+	Clock,
+	Maximize2,
+	Plus,
+	X,
+} from 'lucide-react';
 import moment from 'moment';
 import Context from '../../../context/context';
 import RecentChat from '../chat/RecentChat';
@@ -10,6 +19,29 @@ import ObjectID from 'bson-objectid';
 
 const CHAT_WIDTH = 373;
 const SIDEBAR_WIDTH = 256;
+
+const dropdownOptions = [
+	{
+		label: 'Meeting Mode',
+		value: 'meeting',
+	},
+	{
+		label: 'Sales Mode',
+		value: 'sales',
+	},
+	{
+		label: 'Support',
+		value: 'support',
+	},
+	{
+		label: 'Interview',
+		value: 'interview',
+	},
+	{
+		label: 'Ideas',
+		value: 'ideas',
+	},
+];
 
 const OngoingMeeting = memo(() => {
 	const navigate = useNavigate();
@@ -22,6 +54,11 @@ const OngoingMeeting = memo(() => {
 	const [info, setInfo] = useState({
 		showingTranscripts: false,
 		chatOpen: false,
+		dropdownOpen: false,
+		selectedDropdownOption: {
+			label: 'Meeting Mode',
+			value: 'meeting',
+		},
 		dimentions: {
 			width: 522,
 			height: 436,
@@ -92,6 +129,12 @@ const OngoingMeeting = memo(() => {
 		};
 	}, []);
 
+	useEffect(() => {
+		if (!activeMeetingDetails?.meetingId) {
+			navigate('/home');
+		}
+	}, []);
+
 	// useEffect(() => {
 	// 	if (sidebarState?.open === true) {
 	// 		toggleSidebar(true);
@@ -150,7 +193,7 @@ const OngoingMeeting = memo(() => {
 	}, [liveIntelligenceData?.allThreads]);
 
 	useEffect(() => {
-		if (transcriptions.length > 0) {
+		if (transcriptions?.length > 0) {
 			console.log(
 				'📝 OngoingMeeting: Processing transcriptions:',
 				transcriptions.length,
@@ -189,23 +232,6 @@ const OngoingMeeting = memo(() => {
 			}
 		}
 	}, [transcriptions]);
-
-	// Debug effect to monitor state changes
-	useEffect(() => {
-		console.log('🔍 OngoingMeeting State Debug:', {
-			showingTranscripts: info.showingTranscripts,
-			chatOpen: info.chatOpen,
-			transcriptionsCount: transcriptions?.length || 0,
-			liveIntelligenceCount: liveIntelligenceData?.allThreads?.length || 0,
-			meetingId,
-		});
-	}, [
-		info.showingTranscripts,
-		info.chatOpen,
-		transcriptions?.length,
-		liveIntelligenceData?.allThreads?.length,
-		meetingId,
-	]);
 
 	const handleStateChange = (data) => {
 		setInfo((prev) => ({
@@ -333,9 +359,11 @@ const OngoingMeeting = memo(() => {
 	return (
 		<div className={s.ongoingMeetingWrapper}>
 			<div className={s.ongoingMeetingHeader}>
-				<button className={s.ongoingMeetingHeaderButton}>
+				{!info?.sidebarOpen && <div className={s.sidebarButton} />}
+				<div className={s.dragArea}></div>
+				{/* <button className={s.ongoingMeetingHeaderButton}>
 					<Maximize2 size={16} />
-				</button>
+				</button> */}
 				<button
 					onClick={() => navigate('/home')}
 					className={s.ongoingMeetingHeaderButtonClose}
@@ -349,7 +377,7 @@ const OngoingMeeting = memo(() => {
 						<div className={s.ongoingMeetingNavTitle}>
 							{info.showingTranscripts ? 'LIVE TRANSCRIPT' : 'LIVE INTELLIGENCE'}
 						</div>
-						<button
+						{/* <button
 							className={s.ongoingMeetingNavButton}
 							onClick={() => toggleTranscripts(!info.showingTranscripts)}
 						>
@@ -357,7 +385,56 @@ const OngoingMeeting = memo(() => {
 							{info.showingTranscripts
 								? 'Show Live Intelligence'
 								: 'View Transcriptions'}
-						</button>
+						</button> */}
+
+						{/* <div className={s.dropDownContainer}>
+							<div className={s.dropDownBody}>
+								<div
+									className={s.dropDownSelectedItem}
+									onClick={() =>
+										setInfo((prev) => ({
+											...prev,
+											dropdownOpen: !prev.dropdownOpen,
+										}))
+									}
+								>
+									{info?.selectedDropdownOption?.label}
+									<button>
+										{info?.dropdownOpen ? (
+											<ChevronUp size={16} />
+										) : (
+											<ChevronDown size={16} />
+										)}
+									</button>
+								</div>
+								{info?.dropdownOpen && (
+									<>
+										<div className={s.dropDownDivider} />
+										<div className={s.dropDownOptions}>
+											{dropdownOptions
+												.filter(
+													(option) =>
+														option.value !==
+														info?.selectedDropdownOption?.value,
+												)
+												.map((option) => (
+													<div
+														className={s.dropDownOption}
+														onClick={() =>
+															handleStateChange({
+																selectedDropdownOption: option,
+																dropdownOpen: false,
+															})
+														}
+													>
+														{option.label}
+													</div>
+												))}
+										</div>
+									</>
+								)}
+							</div>
+						</div> */}
 					</div>
 					<div className={s.ongoingMeetingContent}>
 						{info.showingTranscripts ? (
