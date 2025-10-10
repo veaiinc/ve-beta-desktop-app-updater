@@ -53,9 +53,12 @@ struct NotchContentView: View {
                 .opacity(vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted ? 1 : 0)
                 .animation(.easeInOut(duration: 0.25), value: vm.voiceConnectionStatus)
 
-                // Animated underline
-                MeetWaveUnderline(isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted)
-                    .frame(width: 301, height: 16)
+                // Animated underline (reactive to AI responses with real-time audio)
+                MeetWaveUnderline(
+                    isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted,
+                    aiIntensity: vm.effectiveAnimationIntensity
+                )
+                .frame(width: 301, height: 16)
             }
             .compositingGroup()
             .clipped()
@@ -4915,15 +4918,16 @@ struct WaveShape: Shape {
     }
 }
 
-// MARK: - Thin Meet-style Underline (ends pinned, center bulges up/down)
+// MARK: - Thin Meet-style Underline (reactive to AI responses)
 struct MeetWaveUnderline: View {
     @State private var bulge: CGFloat = 12
     let isActive: Bool
+    let aiIntensity: CGFloat // AI activity intensity from ViewModel (0.0 → 1.0)
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Glow (Figma spec: soft mint glow)
-            MeetUnderlineBulge(bulge: bulge)
+            // Glow (Figma spec: soft mint glow with reactive bulge)
+            MeetUnderlineBulge(bulge: effectiveBulgeHeight)
                 .stroke(
                     LinearGradient(
                         gradient: Gradient(colors: [
@@ -4940,7 +4944,7 @@ struct MeetWaveUnderline: View {
                 .animation(.easeInOut(duration: 0.2), value: isActive)
 
             // Crisp 1–2px line following the same curve (dark ends, light middle)
-            MeetUnderlineBulge(bulge: bulge)
+            MeetUnderlineBulge(bulge: effectiveBulgeHeight)
                 .stroke(
                     LinearGradient(
                         gradient: Gradient(stops: [
@@ -4956,21 +4960,150 @@ struct MeetWaveUnderline: View {
                 .opacity(isActive ? 1 : 0)
                 .animation(.easeInOut(duration: 0.25), value: isActive)
         }
-        .allowsHitTesting(false)
-        .onAppear {
+            .allowsHitTesting(false)
+            .onAppear {
+                // Initialize at base position - no jerks
+                bulge = 12
+                if isActive {
+                    // Smooth delayed start to avoid initial jerk
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        startBulgeAnimation()
+                    }
+                }
+            }
+            .onChange(of: isActive) { _, active in
+                if active {
+                    // Start from base with ultra-smooth entry
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.5)) {
+                        bulge = 12
+                    }
+                    // Then begin slow breathing
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        startBulgeAnimation()
+                    }
+                } else {
+                    // Smooth exit
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.4)) { 
+                        bulge = 0 
+                    }
+                }
+            }
+        .onChange(of: aiIntensity) { _, newIntensity in
+            // React to AI intensity changes with professional timing
             if isActive {
-                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
-                    bulge = 30
+                // Real-time audio takes priority - immediate response to actual voice
+                if newIntensity > 0.2 {
+                    // AI is actively speaking - use immediate response to real voice
+                    animateBulgeForRealTimeAudio(intensity: newIntensity)
+                } else {
+                    // AI is in relaxed state (listening/idle) - ultra-smooth transition back to breathing
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 1.0)) {
+                        self.bulge = 12 // Smooth return to base
+                    }
+                    // Then start continuous ultra-smooth breathing animation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.startBulgeAnimation()
+                    }
                 }
             }
         }
-        .onChange(of: isActive) { _, active in
-            if active {
-                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
-                    bulge = 30
+    }
+    
+    // Calculate bulge height based on AI intensity (dramatic scaling)
+    private var effectiveBulgeHeight: CGFloat {
+        guard isActive else { return 0 }
+        
+        // Base height: 12pt (idle state)
+        // AI intensity adds: 0-40pt (max 52pt total) - More dramatic range
+        // Smooth scaling: longer responses = higher bulges
+        let baseHeight: CGFloat = 12
+        let intensityBoost = aiIntensity * 40 // Increased from 28 to 40 for more drama
+        return baseHeight + intensityBoost
+    }
+    
+    private func startBulgeAnimation() {
+        // Ultra-smooth, slow, meditative breathing animation
+        // No jerks - completely smooth and slow like calm meditation
+        
+        // Start from base position
+        bulge = 12
+        
+        // Ultra-slow, buttery smooth breathing with custom easing
+        withAnimation(
+            .timingCurve(0.45, 0.05, 0.55, 0.95, duration: 2.5) // Ultra smooth custom curve
+            .repeatForever(autoreverses: true)
+        ) {
+            bulge = 17 // Very gentle breath up (reduced for smoother motion)
+        }
+    }
+    
+    private func animateBulgeForAIResponse(intensity: CGFloat) {
+        // Dramatic AI speaking animation - strong up-down vibration like real talking
+        let baseHeight: CGFloat = 12
+        let maxHeight = baseHeight + (intensity * 35) // Increased from 28 to 35 for more drama
+        
+        // Cancel any existing animations
+        bulge = baseHeight
+        
+        // Create strong speech rhythm with more dramatic pulses
+        let speechDuration = max(2.5, Double(intensity) * 5.0) // Longer speaking duration
+        let pulseCount = Int(speechDuration * 3.0) // ~3 pulses per second for more activity
+        
+        for i in 0..<pulseCount {
+            let delay = Double(i) * 0.35 // 350ms between pulses (slightly faster rhythm)
+            let pulseIntensity = intensity * (0.6 + 0.4 * sin(Double(i) * 1.2)) // More dramatic variation
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                // Strong dramatic pulse up
+                withAnimation(.easeOut(duration: 0.12)) {
+                    self.bulge = baseHeight + (pulseIntensity * 35) // Strong upward movement
                 }
-            } else {
-                withAnimation(.easeOut(duration: 0.2)) { bulge = 0 }
+                
+                // Quick dramatic pulse down
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                    withAnimation(.easeIn(duration: 0.18)) {
+                        self.bulge = baseHeight + (pulseIntensity * 5) // Strong downward movement
+                    }
+                }
+                
+                // Secondary smaller bounce for more natural feel
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) {
+                    withAnimation(.easeOut(duration: 0.1)) {
+                        self.bulge = baseHeight + (pulseIntensity * 15) // Small bounce back
+                    }
+                }
+            }
+        }
+        
+        // Final dramatic fade to idle after speech completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + speechDuration + 0.3) {
+            withAnimation(.easeInOut(duration: 1.2)) {
+                self.bulge = 15 // Return to gentle idle breathing
+            }
+        }
+    }
+    
+    /// Real-time audio reactive animation - immediate response to actual AI voice
+    private func animateBulgeForRealTimeAudio(intensity: CGFloat) {
+        let baseHeight: CGFloat = 12
+        let targetHeight = baseHeight + (intensity * 50) // Higher multiplier for real-time audio
+        
+        // Immediate response to actual AI voice - no delays
+        withAnimation(.easeOut(duration: 0.06)) {
+            bulge = targetHeight
+        }
+        
+        // Quick recovery for natural feel - mimics real speech rhythm
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+            withAnimation(.easeIn(duration: 0.10)) {
+                self.bulge = baseHeight + (intensity * 6) // Quick partial recovery
+            }
+        }
+        
+        // Secondary bounce for natural speech feel
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
+            withAnimation(.easeOut(duration: 0.08)) {
+                self.bulge = baseHeight + (intensity * 12) // Small bounce back
             }
         }
     }
