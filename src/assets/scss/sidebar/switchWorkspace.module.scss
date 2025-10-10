@@ -1,39 +1,44 @@
-.container {
+// Overlay container for sidebar integration
+.overlayContainer {
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
-	gap: 12px;
-	align-self: stretch;
-	background: var(--popup);
-	border-top: 1px solid var(--stroke);
-	padding: 12px;
-	height: 50vh;
-
-	.title {
-		color: var(--secondary-font, #94989e);
-		font-family: var(--primary-font-family);
-		font-size: 12px;
-		font-style: normal;
-		font-weight: 500;
-		line-height: normal;
-		letter-spacing: -0.24px;
-	}
+	width: 100%;
+	background: transparent;
+	padding: 0;
+	gap: 8px;
 
 	.searchInputContainer {
 		display: flex;
-		padding: 10px;
+		padding: 8px 12px;
 		align-items: center;
-		gap: 14px;
-		align-self: stretch;
-		border-radius: 8px;
-		background: var(--card-over-card-hover, #242628);
-		margin-bottom: -7px;
+		gap: 8px;
+		border-radius: 6px;
+		background: rgba(255, 255, 255, 0.05);
+		margin: 0 8px;
+
+		.searchIcon {
+			width: 16px;
+			height: 16px;
+			flex-shrink: 0;
+
+			:global(svg) path {
+				stroke: var(--primary-font);
+			}
+		}
 
 		.searchInput {
 			flex: 1;
 			font-size: 14px;
 			font-weight: 500;
 			caret-color: var(--primary-font);
+			color: var(--primary-font);
+			background: transparent;
+			border: none;
+			outline: none;
+
+			&::placeholder {
+				color: rgba(255, 255, 255, 0.5);
+			}
 		}
 	}
 
@@ -43,38 +48,43 @@
 		flex-direction: column;
 		gap: 4px;
 		overflow-y: auto;
+		padding: 0 8px;
 
 		.workspaceItem {
 			display: flex;
-			padding: 10px;
+			padding: 10px 12px;
 			align-items: center;
-			gap: 16px;
-			align-self: stretch;
+			gap: 12px;
 			justify-content: space-between;
-			background-color: inherit;
+			background: transparent;
+			border: 1px solid transparent;
 			cursor: pointer;
 			position: relative;
-			border-radius: 8px;
+			border-radius: 6px;
 			width: 100%;
+			transition: all 0.2s ease-in-out;
 
 			&:hover {
-				background: var(--card, #1b1c1d);
+				background: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.1);
 			}
 
 			&.selectedWorkspace {
-				background: var(--card, #1b1c1d);
+				background: rgba(255, 255, 255, 0.15);
+				border: 1px solid rgba(255, 255, 255, 0.15);
 			}
 
 			.leftContainer {
 				display: flex;
 				align-items: center;
-				gap: 14px;
+				gap: 12px;
 				flex-grow: 1;
 
 				.workspaceLogo {
 					width: 18px;
 					height: 18px;
 					border-radius: 100px;
+					flex-shrink: 0;
 				}
 
 				.workspaceName {

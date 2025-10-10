@@ -7,6 +7,7 @@ body {
 	padding: 0;
 	width: 100%;
 	height: 100%;
+	overflow: hidden; 
 	background: #121212; /* default opaque background */
 	/* Native vibrancy handles the blur - no CSS backdrop-filter needed */
 	/* backdrop-filter: none !important;
@@ -32,6 +33,7 @@ html.glass-enabled {
 	padding: 0;
 	width: 100%;
 	height: 100%;
+	overflow: hidden; 
 	background: transparent;
 	/* Ensure proper layering */
 	position: relative;
