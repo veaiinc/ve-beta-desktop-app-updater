@@ -28,7 +28,7 @@
 	&.active {
 		transform: translateX(0);
 	}
-	-webkit-app-region: no-drag !important;
+	// -webkit-app-region: no-drag !important;
 
 	.sidebarContainer {
 		width: 280px;

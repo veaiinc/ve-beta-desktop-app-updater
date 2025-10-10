@@ -79,6 +79,10 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     return [NotchDropCore.shared getNotchVisible];
 }
 
++ (void)setInteractionEnabled:(BOOL)enabled {
+    [NotchDropCore.shared setInteractionEnabled:enabled];
+}
+
 + (NSDictionary*)getWindowPosition {
     return [NotchDropCore.shared getWindowPosition];
 }
@@ -183,6 +187,12 @@ static void (^incomingActionCallback)(NSString*, NSString*);
 
 + (void)updateStealthModeState:(BOOL)isEnabled {
     [NotchDropCore.shared updateStealthModeState:isEnabled];
+}
+
++ (void)handleExternalRecordingStateChange:(BOOL)isRecording isPaused:(BOOL)isPaused {
+    NSLog(@"🔒 Objective-C Bridge: External recording state - isRecording: %@, isPaused: %@", 
+          isRecording ? @"YES" : @"NO", isPaused ? @"YES" : @"NO");
+    [NotchDropCore.shared handleExternalRecordingStateChange:isRecording isPaused:isPaused];
 }
 
 // MARK: - Advanced SwiftUI Components (stub implementations for missing methods)

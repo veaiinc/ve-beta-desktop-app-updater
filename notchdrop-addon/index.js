@@ -63,6 +63,9 @@ if (process.platform !== 'darwin') {
 		getNotchVisible() {
 			return false;
 		}
+		setInteractionEnabled() {
+			return false;
+		}
 		showMenu() {
 			return false;
 		}
@@ -855,6 +858,13 @@ class NotchDropAddonWrapper extends EventEmitter {
 		this.addon.hide();
 	}
 
+	setInteractionEnabled(enabled) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		this.addon.setInteractionEnabled(Boolean(enabled));
+	}
+
 	toggle() {
 		if (!this.isInitialized) {
 			throw new Error('NotchDrop not initialized');
@@ -1248,6 +1258,20 @@ class NotchDropAddonWrapper extends EventEmitter {
 			}
 		} catch (error) {
 			console.error('❌ Error replacing transcriptions:', error);
+			throw error;
+		}
+	}
+
+	// Handle external recording state changes from overlay system
+	handleExternalRecordingStateChange(isRecording, isPaused) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			console.log(`🔒 JavaScript Wrapper: External recording state - isRecording: ${isRecording}, isPaused: ${isPaused}`);
+			this.addon.handleExternalRecordingStateChange(isRecording, isPaused);
+		} catch (error) {
+			console.error('❌ Error handling external recording state change:', error);
 			throw error;
 		}
 	}
