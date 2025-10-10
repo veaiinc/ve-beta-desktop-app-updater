@@ -523,24 +523,40 @@ struct DynamicIslandContentView: View {
 
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
-                            // VE icon → Open Ve app (Electron main window)
-                            Button(action: {
-                                vm.navigateToMainScreen(path: nil)
-                            }) {
-                                VEIcon(color: .white)
-                                    .frame(width: 16, height: 16)
-                                    .padding(8) // Increased padding for larger clickable area
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
-                                    )
-                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .help("Open Ve App")
-                            .onHover { hovering in
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    isVEIconHovered = hovering
+                            // VE icon → Open Ve app (Electron main window) - Hide during meeting
+                            if !vm.isRecording {
+                                Button(action: {
+                                    vm.navigateToMainScreen(path: nil)
+                                }) {
+                                    VEIcon(color: .white)
+                                        .frame(width: 16, height: 16)
+                                        .padding(8) // Increased padding for larger clickable area
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
+                                        )
+                                        .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .overlay(alignment: .bottom) {
+                                    if isVEIconHovered {
+                                        Text("Open app")
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.black.opacity(0.8))
+                                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                            .offset(y: 28)
+                                            .fixedSize(horizontal: true, vertical: true)
+                                            .zIndex(2000)
+                                            .allowsHitTesting(false)
+                                    }
+                                }
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isVEIconHovered = hovering
+                                    }
                                 }
                             }
                             
@@ -566,15 +582,29 @@ struct DynamicIslandContentView: View {
                                 .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
+                            .overlay(alignment: .bottom) {
+                                if isStealthIconHovered {
+                                    Text(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(y: 28)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                             .onHover { hovering in
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     isStealthIconHovered = hovering
                                 }
                             }
                             
-                            // Information icon (third icon) with popup menu
-                            // InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            // Tooltips for top-right icons (ve/open app, stealth toggle, lock)
+                            // ve/open app (first icon in this group is not present here; add generic hover tooltip API usage below)
                             
                             // Lock/Unlock button (fourth icon)
                             Button(action: {
@@ -601,7 +631,21 @@ struct DynamicIslandContentView: View {
                                     .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
+                            .overlay(alignment: .bottom) {
+                                if isLockIconHovered {
+                                    Text(vm.isNotchLocked ? "Unlock" : "Lock")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(y: 28)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                             .onAppear {
                                 // Validate state on appearance
                                 vm.forceLockStateRefresh()
@@ -1255,6 +1299,10 @@ struct DynamicIslandContentView: View {
     }
     
     private func checkBrowserForYouTube() -> Bool {
+        // DISABLED: Browser detection removed to prevent system accessibility permission dialog
+        // The AppleScript-based browser detection was triggering macOS system dialogs
+        // asking for accessibility permissions to control Safari, Chrome, Firefox
+        
         // Only check browsers if we have permission
         guard vm.hasBrowserPermission else {
             // Request permission first time
@@ -1264,6 +1312,13 @@ struct DynamicIslandContentView: View {
             return false
         }
         
+        // DISABLED: Skip browser detection to avoid system permission dialog
+        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
+        print("🌐 Browser detection disabled to prevent system permission dialog")
+        return false
+        
+        // Original code (commented out to prevent system dialog):
+        /*
         // Check only major browsers: Safari, Chrome, Firefox
         let browsers = ["Safari", "Google Chrome", "Firefox"]
         
@@ -1276,9 +1331,18 @@ struct DynamicIslandContentView: View {
             }
         }
         return false
+        */
     }
     
     private func checkBrowserApp(_ appName: String) -> (String, String)? {
+        // DISABLED: This function was causing system accessibility permission dialogs
+        // The AppleScript execution triggers macOS to ask for permission to control other apps
+        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
+        print("🌐 checkBrowserApp disabled to prevent system permission dialog for: \(appName)")
+        return nil
+        
+        // Original AppleScript code (commented out to prevent system dialog):
+        /*
         let script: String
         
         if appName == "Safari" {
@@ -1325,6 +1389,7 @@ struct DynamicIslandContentView: View {
             }
         }
         return nil
+        */
     }
     
     private func checkSystemMediaForYouTube() -> Bool {
