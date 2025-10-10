@@ -53,9 +53,13 @@ struct NotchContentView: View {
                 .opacity(vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted ? 1 : 0)
                 .animation(.easeInOut(duration: 0.25), value: vm.voiceConnectionStatus)
 
-                // Animated underline
-                MeetWaveUnderline(isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted)
-                    .frame(width: 301, height: 16)
+                // Animated underline (reactive to AI responses with real-time audio)
+                MeetWaveUnderline(
+                    isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted,
+                    isMuted: vm.voiceConnectionStatus == .connected && vm.isMicrophoneMuted,
+                    aiIntensity: vm.effectiveAnimationIntensity
+                )
+                .frame(width: 301, height: 16)
             }
             .compositingGroup()
             .clipped()
@@ -198,6 +202,10 @@ struct DynamicIslandContentView: View {
     @State private var isHomeButtonHovered: Bool = false
     @State private var isMeetingButtonHovered: Bool = false
     @State private var isTrayButtonHovered: Bool = false
+    
+    // Hover states for voice control buttons
+    @State private var isMuteButtonHovered: Bool = false
+    @State private var isStopButtonHovered: Bool = false
     
     // Auto-scroll state variables
     @State private var isTranscriptionHovered: Bool = false
@@ -393,7 +401,10 @@ struct DynamicIslandContentView: View {
                                             .font(.system(size: 14))
                                             .foregroundColor(.white)
                                             .frame(width: 24, height: 24)
-                                            .background(Color.clear)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(isMuteButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 6)
                                                     .stroke(Color.white.opacity(0.3), lineWidth: 1)
@@ -401,7 +412,27 @@ struct DynamicIslandContentView: View {
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
-                                    .onHover { hovering in NSCursor.pointingHand.set(); withAnimation(.easeInOut(duration: 0.15)) { /* hover style if needed */ } }
+                                    .overlay(alignment: .bottom) {
+                                        if isMuteButtonHovered {
+                                            Text(vm.isMicrophoneMuted ? "Unmute microphone" : "Mute microphone")
+                                                .font(.system(size: 11, weight: .semibold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color.black.opacity(0.8))
+                                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                                .offset(y: 28)
+                                                .fixedSize(horizontal: true, vertical: true)
+                                                .zIndex(2000)
+                                                .allowsHitTesting(false)
+                                        }
+                                    }
+                                    .onHover { hovering in 
+                                        NSCursor.pointingHand.set()
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isMuteButtonHovered = hovering
+                                        }
+                                    }
                                     
                                     // Cancel/Disconnect button
                                     Button(action: {
@@ -412,7 +443,10 @@ struct DynamicIslandContentView: View {
                                             .fill(Color.red)
                                             .frame(width: 14, height: 14)
                                             .frame(width: 24, height: 24)
-                                            .background(Color.clear)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(isStopButtonHovered ? Color.red.opacity(0.2) : Color.clear)
+                                            )
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 6)
                                                     .stroke(Color.white.opacity(0.3), lineWidth: 1)
@@ -420,7 +454,27 @@ struct DynamicIslandContentView: View {
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
-                                    .onHover { hovering in NSCursor.pointingHand.set(); withAnimation(.easeInOut(duration: 0.15)) { /* hover style if needed */ } }
+                                    .overlay(alignment: .bottom) {
+                                        if isStopButtonHovered {
+                                            Text("Stop & disconnect")
+                                                .font(.system(size: 11, weight: .semibold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color.black.opacity(0.8))
+                                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                                .offset(y: 28)
+                                                .fixedSize(horizontal: true, vertical: true)
+                                                .zIndex(2000)
+                                                .allowsHitTesting(false)
+                                        }
+                                    }
+                                    .onHover { hovering in 
+                                        NSCursor.pointingHand.set()
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isStopButtonHovered = hovering
+                                        }
+                                    }
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.top, 2) // Move left icons up to align with right icons
@@ -4869,15 +4923,17 @@ struct WaveShape: Shape {
     }
 }
 
-// MARK: - Thin Meet-style Underline (ends pinned, center bulges up/down)
+// MARK: - Thin Meet-style Underline (reactive to AI responses)
 struct MeetWaveUnderline: View {
     @State private var bulge: CGFloat = 12
     let isActive: Bool
+    let isMuted: Bool // Microphone muted state
+    let aiIntensity: CGFloat // AI activity intensity from ViewModel (0.0 → 1.0)
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Glow (Figma spec: soft mint glow)
-            MeetUnderlineBulge(bulge: bulge)
+            // Glow (Figma spec: soft mint glow with reactive bulge)
+            MeetUnderlineBulge(bulge: effectiveBulgeHeight)
                 .stroke(
                     LinearGradient(
                         gradient: Gradient(colors: [
@@ -4890,11 +4946,11 @@ struct MeetWaveUnderline: View {
                     style: StrokeStyle(lineWidth: 8, lineCap: .round)
                 )
                 .blur(radius: 18)
-                .opacity(isActive ? 0.5 : 0)
-                .animation(.easeInOut(duration: 0.2), value: isActive)
+                .opacity((isActive || isMuted) ? 0.5 : 0)
+                .animation(.easeInOut(duration: 0.2), value: isActive || isMuted)
 
             // Crisp 1–2px line following the same curve (dark ends, light middle)
-            MeetUnderlineBulge(bulge: bulge)
+            MeetUnderlineBulge(bulge: effectiveBulgeHeight)
                 .stroke(
                     LinearGradient(
                         gradient: Gradient(stops: [
@@ -4907,24 +4963,178 @@ struct MeetWaveUnderline: View {
                     ),
                     style: StrokeStyle(lineWidth: 2, lineCap: .round)
                 )
-                .opacity(isActive ? 1 : 0)
-                .animation(.easeInOut(duration: 0.25), value: isActive)
+                .opacity((isActive || isMuted) ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: isActive || isMuted)
         }
-        .allowsHitTesting(false)
-        .onAppear {
-            if isActive {
-                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
-                    bulge = 30
+            .allowsHitTesting(false)
+            .onAppear {
+                // Initialize at base position - no jerks
+                bulge = 12
+                if isActive && !isMuted {
+                    // Smooth delayed start to avoid initial jerk
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        startBulgeAnimation()
+                    }
+                } else if isMuted {
+                    // When muted, show static 16pt hump
+                    bulge = 16
+                }
+            }
+            .onChange(of: isActive) { _, active in
+                if active && !isMuted {
+                    // Start from base with ultra-smooth entry
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.5)) {
+                        bulge = 12
+                    }
+                    // Then begin slow breathing
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        startBulgeAnimation()
+                    }
+                } else if !active && !isMuted {
+                    // Smooth exit
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.4)) { 
+                        bulge = 0 
+                    }
+                }
+            }
+            .onChange(of: isMuted) { _, muted in
+                if muted {
+                    // When muted: smoothly transition to static 16pt hump
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        bulge = 16
+                    }
+                } else if isActive {
+                    // When unmuted and active: return to breathing animation
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        bulge = 12
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        startBulgeAnimation()
+                    }
+                }
+            }
+        .onChange(of: aiIntensity) { _, newIntensity in
+            // Only react to AI intensity when NOT muted
+            if isActive && !isMuted {
+                // Real-time audio takes priority - immediate response to actual voice
+                if newIntensity > 0.2 {
+                    // AI is actively speaking - use immediate response to real voice
+                    animateBulgeForRealTimeAudio(intensity: newIntensity)
+                } else {
+                    // AI is in relaxed state (listening/idle) - ultra-smooth transition back to breathing
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 1.0)) {
+                        self.bulge = 12 // Smooth return to base
+                    }
+                    // Then start continuous ultra-smooth breathing animation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.startBulgeAnimation()
+                    }
                 }
             }
         }
-        .onChange(of: isActive) { _, active in
-            if active {
-                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
-                    bulge = 30
+    }
+    
+    // Calculate bulge height based on AI intensity (dramatic scaling)
+    private var effectiveBulgeHeight: CGFloat {
+        // When muted: show static 16pt hump
+        if isMuted {
+            return 20
+        }
+        
+        // When not active and not muted: no bulge
+        guard isActive else { return 0 }
+        
+        // Base height: 12pt (idle state)
+        // AI intensity adds: 0-40pt (max 52pt total) - More dramatic range
+        // Smooth scaling: longer responses = higher bulges
+        let baseHeight: CGFloat = 12
+        let intensityBoost = aiIntensity * 40 // Increased from 28 to 40 for more drama
+        return baseHeight + intensityBoost
+    }
+    
+    private func startBulgeAnimation() {
+        // Ultra-smooth, slow, meditative breathing animation
+        // No jerks - completely smooth and slow like calm meditation
+        
+        // Start from base position
+        bulge = 12
+        
+        // Ultra-slow, buttery smooth breathing with custom easing
+        withAnimation(
+            .timingCurve(0.45, 0.05, 0.55, 0.95, duration: 2.5) // Ultra smooth custom curve
+            .repeatForever(autoreverses: true)
+        ) {
+            bulge = 17 // Very gentle breath up (reduced for smoother motion)
+        }
+    }
+    
+    private func animateBulgeForAIResponse(intensity: CGFloat) {
+        // Dramatic AI speaking animation - strong up-down vibration like real talking
+        let baseHeight: CGFloat = 12
+        let maxHeight = baseHeight + (intensity * 35) // Increased from 28 to 35 for more drama
+        
+        // Cancel any existing animations
+        bulge = baseHeight
+        
+        // Create strong speech rhythm with more dramatic pulses
+        let speechDuration = max(2.5, Double(intensity) * 5.0) // Longer speaking duration
+        let pulseCount = Int(speechDuration * 3.0) // ~3 pulses per second for more activity
+        
+        for i in 0..<pulseCount {
+            let delay = Double(i) * 0.35 // 350ms between pulses (slightly faster rhythm)
+            let pulseIntensity = intensity * (0.6 + 0.4 * sin(Double(i) * 1.2)) // More dramatic variation
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                // Strong dramatic pulse up
+                withAnimation(.easeOut(duration: 0.12)) {
+                    self.bulge = baseHeight + (pulseIntensity * 35) // Strong upward movement
                 }
-            } else {
-                withAnimation(.easeOut(duration: 0.2)) { bulge = 0 }
+                
+                // Quick dramatic pulse down
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                    withAnimation(.easeIn(duration: 0.18)) {
+                        self.bulge = baseHeight + (pulseIntensity * 5) // Strong downward movement
+                    }
+                }
+                
+                // Secondary smaller bounce for more natural feel
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) {
+                    withAnimation(.easeOut(duration: 0.1)) {
+                        self.bulge = baseHeight + (pulseIntensity * 15) // Small bounce back
+                    }
+                }
+            }
+        }
+        
+        // Final dramatic fade to idle after speech completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + speechDuration + 0.3) {
+            withAnimation(.easeInOut(duration: 1.2)) {
+                self.bulge = 15 // Return to gentle idle breathing
+            }
+        }
+    }
+    
+    /// Real-time audio reactive animation - immediate response to actual AI voice
+    private func animateBulgeForRealTimeAudio(intensity: CGFloat) {
+        let baseHeight: CGFloat = 12
+        let targetHeight = baseHeight + (intensity * 50) // Higher multiplier for real-time audio
+        
+        // Immediate response to actual AI voice - no delays
+        withAnimation(.easeOut(duration: 0.06)) {
+            bulge = targetHeight
+        }
+        
+        // Quick recovery for natural feel - mimics real speech rhythm
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+            withAnimation(.easeIn(duration: 0.10)) {
+                self.bulge = baseHeight + (intensity * 6) // Quick partial recovery
+            }
+        }
+        
+        // Secondary bounce for natural speech feel
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
+            withAnimation(.easeOut(duration: 0.08)) {
+                self.bulge = baseHeight + (intensity * 12) // Small bounce back
             }
         }
     }
