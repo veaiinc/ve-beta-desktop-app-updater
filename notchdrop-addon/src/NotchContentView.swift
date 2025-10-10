@@ -1049,12 +1049,19 @@ struct DynamicIslandContentView: View {
                 vm.isVideoPlaying = false
             }
         } else {
-            // Nothing running
+            // Nothing running - PERFORMANCE FIX: Clean up video resources
             DispatchQueue.main.async {
+                let wasVideoActive = vm.hasActiveVideo
                 vm.hasActiveMusic = false
                 vm.isMusicPlaying = false
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
+                
+                // Clean up video resources if video was previously active
+                if wasVideoActive {
+                    print("🧹 PERFORMANCE FIX: Video ended, cleaning up resources...")
+                    vm.cleanupVideoResources()
+                }
             }
         }
         
@@ -1103,13 +1110,20 @@ struct DynamicIslandContentView: View {
                 // Debug log removed VM UPDATED: Resolved to system media")
             }
         } else {
-            // Nothing is actually playing
+            // Nothing is actually playing - PERFORMANCE FIX: Clean up video resources
             // Debug log removed RESOLVED: Nothing is actually playing")
             DispatchQueue.main.async {
+                let wasVideoActive = vm.hasActiveVideo
                 vm.hasActiveMusic = false
                 vm.isMusicPlaying = false
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
+                
+                // Clean up video resources if video was previously active
+                if wasVideoActive {
+                    print("🧹 PERFORMANCE FIX: Video ended during conflict resolution, cleaning up resources...")
+                    vm.cleanupVideoResources()
+                }
                 // Debug log removed VM UPDATED: Resolved to no active media")
             }
         }
@@ -3751,6 +3765,7 @@ struct MusicMediaController: View {
 struct YouTubeMediaController: View {
     @ObservedObject var vm: NotchViewModel
     @State private var isHovered: Bool = false
+    @State private var videoPlayer: YouTubeVideoPlayer?
     
     var body: some View {
         Group {
@@ -3770,6 +3785,42 @@ struct YouTubeMediaController: View {
                         // User interaction to enable sound if needed
                         print("📺 User tapped video player - attempting to enable sound")
                     }
+                    .onAppear {
+                        // Store reference for cleanup
+                        videoPlayer = YouTubeVideoPlayer(embedURL: vm.videoEmbedURL)
+                    }
+                    .onDisappear {
+                        // Clean up video resources when player disappears
+                        print("🧹 PERFORMANCE FIX: Video player disappearing, cleaning up resources...")
+                        videoPlayer?.cleanupVideoResources()
+                        videoPlayer = nil
+                    }
+            }
+        }
+        .onChange(of: vm.hasActiveVideo) { hasActiveVideo in
+            // Clean up when video becomes inactive
+            if !hasActiveVideo {
+                print("🧹 PERFORMANCE FIX: Video became inactive, cleaning up resources...")
+                videoPlayer?.cleanupVideoResources()
+                videoPlayer = nil
+                
+                // Reset video state
+                DispatchQueue.main.async {
+                    vm.showVideoPlayer = false
+                    vm.videoURL = ""
+                    vm.videoEmbedURL = ""
+                    vm.videoTitle = ""
+                    vm.videoChannel = ""
+                    vm.videoThumbnail = nil
+                }
+            }
+        }
+        .onChange(of: vm.showVideoPlayer) { showVideoPlayer in
+            // Clean up when video player is hidden
+            if !showVideoPlayer {
+                print("🧹 PERFORMANCE FIX: Video player hidden, cleaning up resources...")
+                videoPlayer?.cleanupVideoResources()
+                videoPlayer = nil
             }
         }
     }
@@ -3778,6 +3829,7 @@ struct YouTubeMediaController: View {
 // MARK: - YouTube Video Player - ULTIMATE SOLUTION
 struct YouTubeVideoPlayer: NSViewRepresentable {
     let embedURL: String
+    @State private var webView: WKWebView?
     
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
@@ -3801,6 +3853,11 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         webView.allowsLinkPreview = false
         webView.customUserAgent = configuration.applicationNameForUserAgent
         
+        // Store reference for cleanup
+        DispatchQueue.main.async {
+            self.webView = webView
+        }
+        
         // Load the YouTube video directly with custom HTML that bypasses restrictions
         let videoId = extractVideoId(from: embedURL)
         let customHTML = createDirectVideoHTML(videoId: videoId)
@@ -3818,6 +3875,53 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
             let customHTML = createDirectVideoHTML(videoId: newVideoId)
             print("📺 ULTIMATE: Updating to new video: \(newVideoId)")
             nsView.loadHTMLString(customHTML, baseURL: URL(string: "https://www.youtube.com"))
+        }
+    }
+    
+    // MARK: - Cleanup Methods
+    
+    func cleanupVideoResources() {
+        print("🧹 PERFORMANCE FIX: Cleaning up YouTube video resources...")
+        
+        // Clean up JavaScript timers and resources
+        if let webView = webView {
+            let cleanupScript = """
+                // Clean up all timers and resources
+                if (typeof cleanupAllTimers === 'function') {
+                    cleanupAllTimers();
+                }
+                
+                // Clear any remaining timeouts
+                for (let i = 1; i < 10000; i++) {
+                    clearTimeout(i);
+                    clearInterval(i);
+                }
+                
+                // Stop any video playback
+                const iframe = document.querySelector('iframe');
+                if (iframe) {
+                    iframe.src = 'about:blank';
+                }
+                
+                // Clear localStorage for this video
+                const videoId = '\(extractVideoId(from: embedURL))';
+                localStorage.removeItem('notchVideoState_' + videoId);
+                
+                console.log('✅ Video resources cleaned up');
+            """
+            
+            webView.evaluateJavaScript(cleanupScript) { result, error in
+                if let error = error {
+                    print("📺 Error during cleanup: \(error)")
+                } else {
+                    print("✅ YouTube video cleanup completed")
+                }
+            }
+            
+            // Clear the webView reference
+            DispatchQueue.main.async {
+                self.webView = nil
+            }
         }
     }
     

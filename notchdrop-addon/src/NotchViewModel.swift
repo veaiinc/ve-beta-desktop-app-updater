@@ -684,6 +684,30 @@ class NotchViewModel: NSObject, ObservableObject {
         savedVideoDuration = 0.0
         savedVideoIsPlaying = false
     }
+    
+    /// PERFORMANCE FIX: Comprehensive video cleanup when YouTube playback ends
+    func cleanupVideoResources() {
+        print("🧹 PERFORMANCE FIX: Cleaning up all video resources...")
+        
+        DispatchQueue.main.async {
+            // Reset all video-related state
+            self.hasActiveVideo = false
+            self.isVideoPlaying = false
+            self.showVideoPlayer = false
+            self.videoTitle = ""
+            self.videoChannel = ""
+            self.videoThumbnail = nil
+            self.videoDuration = ""
+            self.videoCurrentTime = ""
+            self.videoURL = ""
+            self.videoEmbedURL = ""
+            
+            // Clear saved video state
+            self.clearVideoState()
+            
+            print("✅ Video resources cleaned up successfully")
+        }
+    }
 
     func showSettings() {
         // contentType = .settings
