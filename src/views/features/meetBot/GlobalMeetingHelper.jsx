@@ -302,15 +302,17 @@ const GlobalMeetingHelper = () => {
 					'GlobalMeetingHelper: Checking if analytics already exist for ended meeting:',
 					currentMeetingId,
 				);
-				
+
 				// First, check if analytics data already exists
 				const [success, data] = await getMeetingAnalytics(currentMeetingId);
-				
+
 				if (success && data) {
-					console.log('GlobalMeetingHelper: Analytics data already exists, skipping generation');
+					console.log(
+						'GlobalMeetingHelper: Analytics data already exists, skipping generation',
+					);
 					return;
 				}
-				
+
 				console.log(
 					'GlobalMeetingHelper: No analytics data found, generating analytics for ended meeting:',
 					currentMeetingId,

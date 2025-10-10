@@ -64,7 +64,7 @@
     -   `electron/notchDropVoiceIntegration.js` (bridges Swift voice events to Electron)
     -   `electron/wakeWordService.js` + `electron/wakeWord/` (Python wake-word integration)
 -   **HTML Entrypoints (Vite):**
-    -   `index.html`, `overlay.html`, `askAI.html`, `dynamic-island.html`, `areYouThere.html`
+    -   `index.html`, `overlay.html`, `askAI.html`, `dynamic-island.html`, `areYouThere.html`, `micOverlay.html`
 -   **Swift/Native addon (SwiftUI + ObjC + Node‑API):**
     -   `notchdrop-addon/` (see README + docs inside)
         -   Node wrapper: `notchdrop-addon/index.js`

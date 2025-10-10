@@ -120,6 +120,7 @@ export default defineConfig({
 				dynamicIsland: './dynamic-island.html',
 				permission: './permission.html',
 				errorFallback: './error-fallback.html',
+				micOverlay: './micOverlay.html',
 			},
 			// ✅ REVERTED: Removed aggressive code splitting that broke production
 			// Keeping default Vite chunking strategy (safe and proven)
