@@ -193,7 +193,7 @@ export const AiSetupState = () => {
 		try {
 			const token = localStorage.getItem('usertoken');
 			const workspaceId = localStorage.getItem('workspaceId');
-			const type = 'ai_assistant_api';
+			const type = 'tenant';
 
 			const generateParams = (filters) => {
 				const {
@@ -213,7 +213,7 @@ export const AiSetupState = () => {
 			};
 			const paramsString = generateParams(filters);
 
-			const url = '/' + workspaceId + '/ai-chat/list-multiagent-sessions';
+			const url = '/' + workspaceId + '/list-multiagent-sessions';
 			const response = await service?.fetchGet(url + paramsString, token, type, {});
 			if (response?.[0]) {
 				const aiChatSessions = {
@@ -265,9 +265,9 @@ export const AiSetupState = () => {
 
 			let workspaceId = localStorage.getItem('workspaceId');
 			let usertoken = localStorage.getItem('usertoken');
-			const url = '/' + workspaceId + '/ai-chat/list-multiagent-sessions';
+			const url = '/' + workspaceId + '/list-multiagent-sessions';
 			const params = { sessionId, page: 1, limit: 5 };
-			const response = await service?.fetchGet(url, usertoken, 'ai_assistant_api', params);
+			const response = await service?.fetchGet(url, usertoken, 'tenant', params);
 
 			if (response?.[0] === true) {
 				if (response?.[1]?.data?.[0]) {
