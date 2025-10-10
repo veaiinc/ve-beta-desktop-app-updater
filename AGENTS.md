@@ -288,7 +288,6 @@ Note: See the NotchDrop events list above for emitted events from the native lay
     -   trailing commas: always
     -   semicolons: required
     -   quotes: single
-    -   run `npm run format` before any commit
 -   JS/SCSS/Component naming:
     -   Components: PascalCase
     -   Hooks: camelCase (with `use`)
