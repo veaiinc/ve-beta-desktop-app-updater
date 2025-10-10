@@ -213,6 +213,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var screenRect: CGRect = .zero
     @Published var optionKeyPressed: Bool = false
     @Published var notchVisible: Bool = true
+    @Published var isInteractionEnabled: Bool = true
 
     // MARK: - Media State (Grouped for performance)
     @Published var hasActiveMusic: Bool = false
@@ -438,6 +439,7 @@ class NotchViewModel: NSObject, ObservableObject {
 
     func notchOpen(_ reason: OpenReason) {
         // Prevent rapid opening/closing that can cause performance issues
+        guard isInteractionEnabled else { return }
         guard status != .opened else { return }
         
         updateProperties {

@@ -28,6 +28,7 @@
 + (BOOL)getHapticFeedback;
 + (void)setNotchVisible:(BOOL)visible;
 + (BOOL)getNotchVisible;
++ (void)setInteractionEnabled:(BOOL)enabled;
 
 // Callbacks
 + (void)setNotchDropStatusChangedCallback:(void(^)(NSString*))callback;

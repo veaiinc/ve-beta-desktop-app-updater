@@ -79,6 +79,10 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     return [NotchDropCore.shared getNotchVisible];
 }
 
++ (void)setInteractionEnabled:(BOOL)enabled {
+    [NotchDropCore.shared setInteractionEnabled:enabled];
+}
+
 + (NSDictionary*)getWindowPosition {
     return [NotchDropCore.shared getWindowPosition];
 }
