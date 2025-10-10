@@ -53,7 +53,10 @@ extension NotchViewModel {
                     
                     // touch outside, close (unless explicitly locked)
                     if !notchOpenedRect.contains(mouseLocation), !isNotchLocked {
+                        print("🖱️ Click outside detected - closing notch (unlocked)")
                         notchClose()
+                    } else if !notchOpenedRect.contains(mouseLocation), isNotchLocked {
+                        print("🖱️ Click outside detected - NOT closing notch (LOCKED)")
                         // click where user open the panel - but don't auto-close if video is playing or locked
                     } else if notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation), !hasActiveVideo, !isNotchLocked {
                         notchClose()

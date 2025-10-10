@@ -354,7 +354,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var videoURL: String = ""
     @Published var videoEmbedURL: String = ""
     @Published var showVideoPlayer: Bool = false
-    @PublishedPersist(key: "isNotchLocked", defaultValue: true)
+    @PublishedPersist(key: "isNotchLocked", defaultValue: false)
     var isNotchLocked: Bool
     
     // Video state persistence
@@ -627,25 +627,30 @@ class NotchViewModel: NSObject, ObservableObject {
         let currentState = isNotchLocked
         let newValue = !currentState
         
+        print("🔒 Toggling notch lock from \(currentState) to \(newValue)")
         
         // IMMEDIATE synchronous state update to prevent race conditions
         isNotchLocked = newValue
         
         // Verify state was actually updated
+        print("🔒 Lock state after toggle: \(isNotchLocked)")
         
         // Force UI refresh immediately
         objectWillChange.send()
         
         if isNotchLocked {
             // If locking, ensure notch is open
+            print("🔒 Notch LOCKED - click outside will be disabled")
             notchOpen(.click)
         } else {
-            // If unlocking, log the state change
+            // If unlocking, log the state change and ensure proper state
             print("🔒 Notch UNLOCKED - click outside should now work")
             
             // Force another UI update to ensure consistency
             DispatchQueue.main.async { [weak self] in
                 self?.objectWillChange.send()
+                // Double-check the state is actually unlocked
+                print("🔒 Final lock state verification: \(self?.isNotchLocked ?? true)")
             }
         }
     }
