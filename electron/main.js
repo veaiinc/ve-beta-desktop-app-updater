@@ -1752,7 +1752,7 @@ function createWindow(restoreState = false) {
 			// Check if user has completed onboarding (show overlay only once)
 			try {
 				const completed = hasCompletedOnboarding();
-				
+
 				if (!completed) {
 					log.info('🆕 First time login - showing permission overlay');
 					// Show permission overlay after a short delay
@@ -1760,7 +1760,9 @@ function createWindow(restoreState = false) {
 						windowHelper?.showPermissionWindow();
 					}, 500);
 				} else {
-					log.info('✅ User has completed onboarding - skipping overlay (will never show again)');
+					log.info(
+						'✅ User has completed onboarding - skipping overlay (will never show again)',
+					);
 				}
 			} catch (e) {
 				log.error('❌ Error checking onboarding status post-login:', e);
@@ -2510,16 +2512,16 @@ async function checkUserAuthenticationStatus() {
 function hasCompletedOnboarding() {
 	try {
 		const configPath = path.join(app.getPath('userData'), 'config.json');
-		
+
 		if (!fs.existsSync(configPath)) {
 			log.info('📋 No config file found - user has not completed onboarding');
 			return false;
 		}
-		
+
 		const configData = fs.readFileSync(configPath, 'utf8');
 		const config = JSON.parse(configData);
 		const completed = config.onboardingCompleted === true;
-		
+
 		log.info(`📋 Onboarding status: ${completed ? 'COMPLETED ✅' : 'NOT COMPLETED ❌'}`);
 		return completed;
 	} catch (error) {
@@ -2532,17 +2534,17 @@ function markOnboardingCompleted() {
 	try {
 		const userDataPath = app.getPath('userData');
 		const configPath = path.join(userDataPath, 'config.json');
-		
+
 		log.info('💾 Marking onboarding as completed...');
 		log.info('📁 User data path:', userDataPath);
 		log.info('📄 Config file path:', configPath);
-		
+
 		// Ensure directory exists
 		if (!fs.existsSync(userDataPath)) {
 			fs.mkdirSync(userDataPath, { recursive: true });
 			log.info('✅ Created user data directory');
 		}
-		
+
 		// Read existing config or create new
 		let config = {};
 		if (fs.existsSync(configPath)) {
@@ -2554,15 +2556,15 @@ function markOnboardingCompleted() {
 				log.error('❌ Error reading existing config, will create new:', error);
 			}
 		}
-		
+
 		// Set the flag
 		config.onboardingCompleted = true;
-		
+
 		// Write to disk
 		fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 		log.info('✅ Onboarding marked as completed!');
 		log.info('💾 Config saved:', config);
-		
+
 		// Verify it was written
 		if (fs.existsSync(configPath)) {
 			const verification = fs.readFileSync(configPath, 'utf8');
@@ -3106,12 +3108,14 @@ app.whenReady().then(async () => {
 			} else {
 				// If already authenticated, check if user has completed onboarding
 				const completed = hasCompletedOnboarding();
-				
+
 				if (!completed) {
 					log.info('🆕 First time user - showing permission overlay');
 					windowHelper?.showPermissionWindow();
 				} else {
-					log.info('✅ User has completed onboarding - skipping overlay (will never show again)');
+					log.info(
+						'✅ User has completed onboarding - skipping overlay (will never show again)',
+					);
 				}
 			}
 		} catch (error) {
@@ -3284,16 +3288,16 @@ app.whenReady().then(async () => {
 		try {
 			log.info('🔒 Hide permission window called - marking onboarding as completed');
 			windowHelper?.hidePermissionWindow();
-			
+
 			// Mark that user has completed onboarding - THIS IS KEY!
 			const marked = markOnboardingCompleted();
-			
+
 			if (marked) {
 				log.info('✅ Onboarding marked as completed - overlay will NEVER show again');
 			} else {
 				log.error('❌ Failed to mark onboarding as completed - overlay may show again!');
 			}
-			
+
 			return { success: true, onboardingMarked: marked };
 		} catch (error) {
 			log.error('❌ Error hiding Permission window:', error);
@@ -5597,12 +5601,15 @@ app.whenReady().then(async () => {
 						}
 					}
 				}
-				
+
 				// 🔒 SYNC NOTCH LOCK STATE WITH RECORDING STATE
 				// This ensures the notch stays locked during recording for transcription display
 				if (notchDropService && notchDropService.isInitialized) {
 					const isPaused = state.isPaused || false;
-					await notchDropService.handleExternalRecordingStateChange(state.isRecording, isPaused);
+					await notchDropService.handleExternalRecordingStateChange(
+						state.isRecording,
+						isPaused,
+					);
 				}
 			}
 
