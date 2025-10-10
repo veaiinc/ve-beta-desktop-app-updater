@@ -487,6 +487,9 @@
 					.ant-picker-input {
 						input {
 							color: #fff !important;
+							&::placeholder {
+								color: #fff !important;
+							}
 						}
 					}
 				}
