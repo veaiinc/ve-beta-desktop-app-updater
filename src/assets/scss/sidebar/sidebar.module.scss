@@ -7,15 +7,23 @@
 	top: 0;
 	left: 0;
 	height: 100dvh;
-	background: rgba(10, 10, 10, 0.4);
-backdrop-filter: blur(8px);
+	backdrop-filter: blur(20px);
 	z-index: 900;
-	transform: translateX(-256px);
+	transform: translateX(-280px);
 	transition: transform 0.3s cubic-bezier(0, 0, 0.2, 1),
 		background 0.3s cubic-bezier(0, 0, 0.2, 1);
-		
 
-
+	// Reset button styles
+	button {
+		background: none;
+		border: none;
+		outline: none;
+		padding: 0;
+		margin: 0;
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+	}
 
 	&.active {
 		transform: translateX(0);
@@ -23,21 +31,21 @@ backdrop-filter: blur(8px);
 	-webkit-app-region: no-drag !important;
 
 	.sidebarContainer {
-		width: 256px;
-		padding: 8px 8px 0 8px;
+		width: 280px;
+		padding: 12px;
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		overflow-y: auto;
-		border-right: 1px solid rgba(255, 255, 255, 0.1);
+		// border-right: 1px solid rgba(255, 255, 255, 0.1);
 
 		.header {
 			display: flex;
 			align-items: center;
-			justify-content: space-between;
-			gap: 2px;
+			justify-content: flex-end;
 			width: 100%;
-			padding: 2px 8px 2px 8px;
+			align-self: stretch;
+
 			.veLogo {
 				display: flex;
 				height: 32px;
@@ -54,11 +62,34 @@ backdrop-filter: blur(8px);
 					width: 37px;
 				}
 			}
+
 			.rightContainer {
 				display: flex;
+				align-items: center;
+				gap: 6px;
 
-				.notificationsIcon {
-					padding: 12px;
+				.creditsLeftContainer {
+					display: flex;
+					padding: 8px;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+					border-radius: 100px;
+					border: 1px solid transparent;
+					background: transparent;
+					transition: all 0.2s ease-in-out;
+
+					svg {
+						flex-shrink: 0;
+					}
+
+					&:hover {
+						background: rgba(255, 255, 255, 0.1);
+						border: 1px solid rgba(255, 255, 255, 0.1);
+					}
+				}
+
+				.settingsIcon {
 					display: flex;
 					width: 40px;
 					height: 40px;
@@ -66,35 +97,41 @@ backdrop-filter: blur(8px);
 					justify-content: center;
 					align-items: center;
 					cursor: pointer;
+					border-radius: 100px;
+					border: 1px solid transparent;
+					background: transparent;
+					transition: all 0.2s ease-in-out;
 
 					svg {
 						flex-shrink: 0;
 					}
+
+					&:hover {
+						background: rgba(255, 255, 255, 0.1);
+						border: 1px solid rgba(255, 255, 255, 0.1);
+					}
 				}
 
-			.closeIcon {
-				display: flex;
-				width: 40px;
-				height: 40px;
-				padding: 12px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				flex-shrink: 0;
-				border-radius: 100px;
-				cursor: pointer;
-				border: 1px solid transparent;
-				&:hover {
-					background: var(--card, #1b1c1d); /* Use --card instead of --background-color */
-					border: 1px solid var(--stroke);
-				}
+				.notificationsIcon {
+					display: flex;
+					width: 40px;
+					height: 40px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+					border-radius: 100px;
+					border: 1px solid transparent;
+					background: transparent;
+					transition: all 0.2s ease-in-out;
 
-					:global(svg) {
+					svg {
 						flex-shrink: 0;
 					}
 
-					:global(svg) path {
-						stroke: var(--primary-font);
+					&:hover {
+						background: rgba(255, 255, 255, 0.1);
+						border: 1px solid rgba(255, 255, 255, 0.1);
 					}
 				}
 			}
@@ -109,17 +146,44 @@ backdrop-filter: blur(8px);
 
 		.footer {
 			display: flex;
-			padding: 16px 8px;
-			gap: 20px;
+			flex-direction: column;
+			padding: 8px;
+			gap: 8px;
 			align-self: stretch;
-			justify-content: space-between;
 			cursor: pointer;
-			align-items: center;
+			border-radius: 8px;
+			background: transparent;
+			border: 1px solid transparent;
+			transition: all 0.2s ease-in-out;
+			position: relative;
+			min-height: auto;
+
+			&:hover {
+				background: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				.rightContainer .logoutButton {
+					opacity: 1;
+					pointer-events: auto;
+				}
+			}
+
+			&.expanded {
+				background: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				min-height: 140px;
+			}
+
+			.footerContent {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 8px;
+			}
+
 			.leftContainer {
 				display: flex;
 				.userInfo {
 					width: 100%;
-					align-items: flex-start;
 					display: flex;
 					gap: 10px;
 					position: relative;
@@ -132,12 +196,14 @@ backdrop-filter: blur(8px);
 						top: 14px;
 						left: 14px;
 						width: 14px;
-						border: 2px solid var(--popup);
+						height: 14px;
+						border: 2px solid rgba(27, 28, 29, 1);
 						background-color: #b83910;
 					}
 
 					.profileImg {
-						width: 24px;
+						width: 28px;
+						height: 28px;
 						border-radius: 50%;
 						object-fit: cover;
 					}
@@ -154,8 +220,8 @@ backdrop-filter: blur(8px);
 						font-weight: 600;
 						justify-content: center;
 						line-height: normal;
-						width: 36px;
-						height: 36px;
+						width: 28px;
+						height: 28px;
 					}
 
 					.userInfoDetails {
@@ -171,66 +237,223 @@ backdrop-filter: blur(8px);
 
 							.fullName {
 								color: var(--primary-font, #f2f2f3);
-								font-family: var(--primary-font-family);
+								font-family: Inter, sans-serif;
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 500;
-								line-height: normal;
+								line-height: 1.21;
 							}
 
 							.role {
-								color: var(--secondary-font, #94989e);
-								font-family: var(--primary-font-family);
+								color: rgba(255, 255, 255, 0.5);
+								font-family: Inter, sans-serif;
 								font-size: 14px;
 								font-style: normal;
 								font-weight: 500;
-								line-height: normal;
+								line-height: 1.21;
 							}
 						}
 
 						.businessName {
-							color: var(--secondary-font, #94989e);
+							color: rgba(255, 255, 255, 0.5);
 							font-family: var(--primary-font-family);
 							font-size: 11px;
 							font-style: normal;
 							font-weight: 400;
-							line-height: normal;
+							line-height: 1.35;
 						}
 					}
 				}
 			}
 
 			.rightContainer {
-				.creditsLeftContainer {
-					svg {
-						width: 18px;
-						height: 18px;
-					}
-				}
-
+				display: flex;
+				gap: 2px;
 				.logoutButton {
+					opacity: 0;
+					pointer-events: none;
+					transition: opacity 0.2s ease-in-out;
 					width: fit-content;
 					display: flex;
 					justify-content: center;
 					align-items: center;
 					gap: 8px;
-					padding: 8px;
+					padding: 0;
 					border-radius: 8px;
 					background: transparent;
 					transition: background 0.3s ease-in-out;
-					color: var(--error, #c03744);
+
 					font-family: var(--primary-font-family);
 					font-size: 14px;
 					font-style: normal;
 					font-weight: 500;
 					line-height: normal;
 
+					:global(svg) {
+						width: 18px;
+						height: 18px;
+					}
+
 					&:hover {
-						background: rgba(192, 55, 68, 0.2);
+						opacity: 0.8;
+					}
+
+					&:disabled {
+						opacity: 0.5;
+						cursor: not-allowed;
+						pointer-events: none;
 					}
 				}
 			}
 		}
+
+		// Workspace options inside footer
+		.workspaceOptions {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			// padding: 8px 0;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+			margin-bottom: 8px;
+		}
+
+		// Workspace list overlay inside footer - similar to workspace options
+		.workspaceListOverlay {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			// padding: 8px 0;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+			margin-bottom: 8px;
+			max-height: 300px;
+			overflow-y: auto;
+		}
+
+		.workspaceListHeader {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 0px 6px;
+			margin-bottom: 4px;
+		}
+
+		.workspaceListTitle {
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--primary-font);
+			margin: 0;
+		}
+
+		.closeButton {
+			background: transparent;
+			border: none;
+			color: var(--primary-font);
+			font-size: 18px;
+			cursor: pointer;
+			padding: 2px 6px;
+			border-radius: 4px;
+			transition: background 0.2s ease-in-out;
+
+			&:hover {
+				background: rgba(255, 255, 255, 0.1);
+			}
+		}
+
+		.workspaceListContent {
+			flex: 1;
+			overflow-y: auto;
+			// padding: 0 8px;
+		}
+
+		.workspaceOption {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 10px 12px;
+			background: transparent;
+			border: 1px solid transparent;
+			border-radius: 6px;
+			color: var(--primary-font);
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+			width: 100%;
+			text-align: left;
+
+			&:hover {
+				background: rgba(255, 255, 255, 0.15);
+				border: 1px solid rgba(255, 255, 255, 0.15);
+			}
+
+			.icon {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 20px;
+				height: 20px;
+				flex-shrink: 0;
+
+				:global(svg) {
+					flex-shrink: 0;
+				}
+
+				:global(svg) path {
+					stroke: var(--primary-font);
+				}
+			}
+
+			.label {
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 1.35;
+				color: var(--primary-font);
+			}
+		}
+	}
+}
+
+// Animation for internal sidebar overlay
+@keyframes slideUpInternal {
+	from {
+		transform: translateY(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.switchWorkspaceContainer {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100dvw;
+	height: 100dvh;
+	z-index: 1000;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+
+	.overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+	}
+
+	.switchWorkspaceContent {
+		position: relative;
+		background: var(--background-color);
+		border-radius: 12px 12px 0 0;
+		width: 100%;
+		max-width: 400px;
+		max-height: 70vh;
+		overflow-y: auto;
+		z-index: 1001;
 	}
 }
 .sidebarOverlay {
@@ -252,57 +475,37 @@ backdrop-filter: blur(8px);
 	z-index: 899;
 }
 
-.sidebarCloseState {
-	width: fit-content;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	position: relative;
-	opacity: 0;
-	pointer-events: none;
-	transition: opacity 0.1s cubic-bezier(0.25, 0.5, 0.25, 1),
-		transform 0.3s cubic-bezier(0, 0, 0.2, 1);
+// Absolute positioned toggle button - fixed position
+.sidebarToggle {
 	position: fixed;
 	top: 10px;
 	left: 8px;
-	z-index: 900;
-	transform: translateX(256px);
+	z-index: 901;
+	display: flex;
+	width: 40px;
+	height: 40px;
+	padding: 12px;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 100px;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0, 0, 0.2, 1);
+	-webkit-app-region: no-drag;
 
-	&.active {
-		opacity: 1;
-		pointer-events: auto;
-		transform: translateX(0);
+	:global(svg) {
+		flex-shrink: 0;
 	}
 
-	.btn {
-		display: flex;
-		width: 40px;
-		height: 40px;
-		padding: 12px;
-		justify-content: center;
-		align-items: center;
-		gap: 10px;
-		background-color: transparent;
-		border: none;
-		cursor: pointer;
-		border-radius: 100px;
-		border: 1px solid transparent;
-		&:hover {
-			background-color: var(--card, #1b1c1d); /* Use --card instead of --background-color */
-			border: 1px solid var(--stroke);
-		}
+	:global(svg) path {
+		stroke: var(--primary-font);
 	}
 
-	.closeSidebar {
-		transform: rotate(180deg);
-		-webkit-app-region: no-drag;
-		:global(svg) {
-			flex-shrink: 0;
-		}
-
-		:global(svg) path {
-			stroke: var(--primary-font);
-		}
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 }
 
