@@ -185,6 +185,12 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared updateStealthModeState:isEnabled];
 }
 
++ (void)handleExternalRecordingStateChange:(BOOL)isRecording isPaused:(BOOL)isPaused {
+    NSLog(@"🔒 Objective-C Bridge: External recording state - isRecording: %@, isPaused: %@", 
+          isRecording ? @"YES" : @"NO", isPaused ? @"YES" : @"NO");
+    [NotchDropCore.shared handleExternalRecordingStateChange:isRecording isPaused:isPaused];
+}
+
 // MARK: - Advanced SwiftUI Components (stub implementations for missing methods)
 + (void)showAdvancedView {
     // Method not implemented in NotchDropCore - stub implementation

@@ -780,6 +780,15 @@ class NotchDropPanel: NSPanel {
         }
     }
     
+    // Handle external recording state changes from overlay system
+    @objc public func handleExternalRecordingStateChange(_ isRecording: Bool, isPaused: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            viewModel.handleExternalRecordingStateChange(isRecording: isRecording, isPaused: isPaused)
+            print("🔒 Swift Core: External recording state - isRecording: \(isRecording), isPaused: \(isPaused)")
+        }
+    }
+    
     // MARK: - Wake Word Detection Methods
     
     @objc public func handleWakeWordDetected(_ score: Float) {

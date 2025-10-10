@@ -1440,6 +1440,29 @@ action: 'toggle_microphone_mute'
 			return { success: false, error: error.message };
 		}
 	}
+
+	// Handle external recording state changes from overlay system
+	async handleExternalRecordingStateChange(isRecording, isPaused) {
+		try {
+			if (!this.notchDropAddon) {
+				log.warn('NotchDrop addon not initialized, cannot handle recording state change');
+				return { success: false, error: 'NotchDrop addon not initialized' };
+			}
+
+			// Use the new method to sync recording state with notch lock
+			if (this.notchDropAddon.handleExternalRecordingStateChange) {
+				this.notchDropAddon.handleExternalRecordingStateChange(isRecording, isPaused);
+				log.info(`🔒 NotchDrop recording state synced - isRecording: ${isRecording}, isPaused: ${isPaused}`);
+				return { success: true };
+			} else {
+				log.error('❌ handleExternalRecordingStateChange method not available on NotchDrop addon');
+				return { success: false, error: 'handleExternalRecordingStateChange method not available' };
+			}
+		} catch (error) {
+			log.error('❌ Error handling external recording state change:', error);
+			return { success: false, error: error.message };
+		}
+	}
 }
 
 module.exports = NotchDropService;
