@@ -563,6 +563,7 @@ var notch: some View {
             .frame(width: notchSize.width + vm.dropDetectorRange, height: notchSize.height + vm.dropDetectorRange)
             .onAppear {
                 print("🎯 Drag detector appeared, size: \(notchSize.width + vm.dropDetectorRange)x\(notchSize.height + vm.dropDetectorRange)")
+                print("🎯 Drop detector range: \(vm.dropDetectorRange)")
             }
             .onDrop(of: [.data], isTargeted: $dropTargeting) { providers in
                 print("🎯 Drop operation detected with \(providers.count) providers")
@@ -571,12 +572,18 @@ var notch: some View {
             .onChange(of: dropTargeting) { oldValue, isTargeted in
                 print("🎯 Drag targeting changed: \(oldValue) -> \(isTargeted), status: \(vm.status)")
                 
-                if isTargeted && vm.status == .closed {
-                    print("🎯 Opening notch for drag operation")
-                    // Open the notch when a file is dragged over it and automatically switch to Tray mode
+                if isTargeted {
+                    print("🎯 File dragged near notch - switching to Share (Tray) mode")
+                    // Always switch to Tray mode when dragging files near notch, regardless of current tab or notch state
                     vm.isTrayMode = true
                     vm.isTeamsView = false
-                    vm.notchOpen(.drag)
+                    vm.isChatMode = false
+                    vm.showVoiceInterface = false
+                    
+                    // Open notch if it's closed, or keep it open if already open
+                    if vm.status == .closed {
+                        vm.notchOpen(.drag)
+                    }
                     vm.hapticSender.send()
                 } else if !isTargeted && vm.status == .opened {
                     print("🎯 Drag left area, checking if should close")

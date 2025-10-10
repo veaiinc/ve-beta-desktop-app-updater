@@ -62,7 +62,7 @@ const OverlayApp = () => {
 
 	// Context
 	const {
-		notes: { getLiveKitToken, deleteLiveKitRoom, createMeetBot },
+		notes: { getLiveKitToken, deleteLiveKitRoom, createMeetBot, getMeetingAnalytics },
 		profileInfo: { tennantSettingsData, getTenantSettings },
 		templates: {
 			handleTranscriptionSuggestions,
@@ -497,11 +497,24 @@ const OverlayApp = () => {
 
 		stopRecording({ meetingId: info?.meetingData?._id });
 
-		// Generate meeting analytics when meeting ends
+		// Generate meeting analytics when meeting ends (only if not already exists)
 		if (currentMeetingId) {
 			try {
 				console.log(
-					'OverlayApp: Generating meeting analytics for ended meeting:',
+					'OverlayApp: Checking if analytics already exist for ended meeting:',
+					currentMeetingId,
+				);
+				
+				// First, check if analytics data already exists
+				const [success, data] = await getMeetingAnalytics(currentMeetingId);
+				
+				if (success && data) {
+					console.log('OverlayApp: Analytics data already exists, skipping generation');
+					return;
+				}
+				
+				console.log(
+					'OverlayApp: No analytics data found, generating analytics for ended meeting:',
 					currentMeetingId,
 				);
 				const result = await audioStorageService.generateMeetingAnalytics(currentMeetingId);

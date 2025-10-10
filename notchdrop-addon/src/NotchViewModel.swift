@@ -142,7 +142,7 @@ class NotchViewModel: NSObject, ObservableObject {
             )
         }
     }
-    let dropDetectorRange: CGFloat = 64
+    let dropDetectorRange: CGFloat = 80
 
     enum Status: String, Codable, Hashable, Equatable {
         case closed
@@ -572,6 +572,17 @@ class NotchViewModel: NSObject, ObservableObject {
             self.showVoiceInterface = false
         }
         
+        // 🔒 LOCK NOTCH DURING RECORDING - Perfect for showing transcriptions!
+        // This prevents users from accidentally closing the notch while recording
+        // and ensures transcriptions are always visible
+        if !isNotchLocked {
+            isNotchLocked = true
+            print("🔒 Notch LOCKED for recording - transcriptions will be displayed")
+        }
+        
+        // Ensure notch is open to show recording state and transcriptions
+        notchOpen(.click)
+        
         // Clear previous meeting's live intelligence data to start fresh for new meeting
         DispatchQueue.main.async {
             // print("🧠 Starting new meeting - clearing previous live intelligence data")
@@ -598,6 +609,13 @@ class NotchViewModel: NSObject, ObservableObject {
             self.timer = 0
         }
         
+        // 🔓 UNLOCK NOTCH WHEN RECORDING ENDS - Allow normal notch behavior to resume
+        // This allows users to close the notch again after recording is complete
+        if isNotchLocked {
+            isNotchLocked = false
+            print("🔓 Notch UNLOCKED - recording ended, normal behavior restored")
+        }
+        
         stopTimer()
         
         // Emit action for JavaScript
@@ -608,6 +626,10 @@ class NotchViewModel: NSObject, ObservableObject {
         isPaused = true
         stopTimer()
         
+        // Keep notch locked during pause - user might want to see transcriptions
+        // and resume recording, so we maintain the locked state
+        print("⏸️ Recording paused - notch remains locked for transcription viewing")
+        
         // Emit action for JavaScript
         swiftActionSender.send(.pauseRecording)
     }
@@ -616,8 +638,39 @@ class NotchViewModel: NSObject, ObservableObject {
         isPaused = false
         startTimer()
         
+        // Ensure notch remains locked when resuming recording
+        if !isNotchLocked {
+            isNotchLocked = true
+            print("🔒 Notch re-locked - recording resumed")
+        }
+        
         // Emit action for JavaScript
         swiftActionSender.send(.resumeRecording)
+    }
+    
+    // MARK: - External Recording State Management
+    
+    /// Handle recording state changes from overlay system
+    /// This ensures notch lock state stays in sync with actual recording state
+    func handleExternalRecordingStateChange(isRecording: Bool, isPaused: Bool) {
+        DispatchQueue.main.async {
+            if isRecording && !isPaused {
+                // Recording is active - ensure notch is locked
+                if !self.isNotchLocked {
+                    self.isNotchLocked = true
+                    print("🔒 Notch LOCKED - external recording started")
+                }
+                // Ensure notch is open to show recording state
+                self.notchOpen(.click)
+            } else if !isRecording {
+                // Recording stopped - unlock notch
+                if self.isNotchLocked {
+                    self.isNotchLocked = false
+                    print("🔓 Notch UNLOCKED - external recording stopped")
+                }
+            }
+            // If paused, keep locked state (user might resume)
+        }
     }
 
     private var lastToggleTime: Date = Date.distantPast

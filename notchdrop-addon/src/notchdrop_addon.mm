@@ -36,6 +36,7 @@ public:
             InstanceMethod("setRecordingPanelMode", &NotchDropAddon::SetRecordingPanelMode),
             InstanceMethod("clearLiveIntelligenceData", &NotchDropAddon::ClearLiveIntelligenceData),
             InstanceMethod("updateStealthModeState", &NotchDropAddon::UpdateStealthModeState),
+            InstanceMethod("handleExternalRecordingStateChange", &NotchDropAddon::HandleExternalRecordingStateChange),
             InstanceMethod("handleWakeWordDetected", &NotchDropAddon::HandleWakeWordDetected),
             InstanceMethod("triggerSwiftAction", &NotchDropAddon::TriggerSwiftAction),
             InstanceMethod("on", &NotchDropAddon::On)
@@ -447,6 +448,24 @@ private:
         return env.Undefined();
     }
     
+    Napi::Value HandleExternalRecordingStateChange(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 2 || !info[0].IsBoolean() || !info[1].IsBoolean()) {
+            Napi::TypeError::New(env, "Expected two boolean arguments: isRecording, isPaused").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        bool isRecording = info[0].As<Napi::Boolean>();
+        bool isPaused = info[1].As<Napi::Boolean>();
+        
+        NSLog(@"🔒 C++ Bridge: External recording state - isRecording: %@, isPaused: %@", 
+              isRecording ? @"YES" : @"NO", isPaused ? @"YES" : @"NO");
+        
+        [NotchDropBridge handleExternalRecordingStateChange:isRecording isPaused:isPaused];
+        
+        return env.Undefined();
+    }
+
     Napi::Value ReplaceTranscriptions(const Napi::CallbackInfo& info) {
         Napi::Env env = info.Env();
         if (info.Length() < 1 || !info[0].IsString()) {

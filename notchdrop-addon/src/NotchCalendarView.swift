@@ -565,7 +565,6 @@ struct NotchEventListView: View {
                     }) {
                         eventRow(event, isLast: index == filteredEvents.count - 1)
                     }
-                    .padding(.leading, -5)
                     .buttonStyle(PlainButtonStyle())
                 }
             }
