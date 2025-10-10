@@ -46,12 +46,6 @@ class WindowHelper {
 
 		// Simple drag optimization: store Dynamic Island reference
 		this.dynamicIslandHelper = null;
-
-		// Mic Overlay window properties
-		this.micOverlayWindow = null;
-		this.micOverlayWindowSize = { width: 110, height: 110 };
-		this.micOverlayWindowPosition = { x: 0, y: 0 };
-		this.micOverlayWindowVisible = false;
 	}
 
 	// CRITICAL FIX: Pre-create overlay window for immediate response
@@ -545,108 +539,6 @@ class WindowHelper {
 		const bounds = this.areYouThereWindow.getBounds();
 		this.areYouThereWindowPosition = { x: bounds.x, y: bounds.y };
 		this.areYouThereWindowSize = { width: bounds.width, height: bounds.height };
-	}
-
-	createMicOverlayWindow() {
-		if (this.micOverlayWindow !== null) return;
-
-		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;
-		this.screenWidth = workArea.width;
-		this.screenHeight = workArea.height;
-
-		// Center Mic Overlay window
-		const micOverlayX =
-			Math.floor(this.screenWidth / 2) - Math.floor(this.micOverlayWindowSize.width / 2);
-		const micOverlayY =
-			Math.floor(this.screenHeight / 2) - Math.floor(this.micOverlayWindowSize.height / 2);
-
-		const windowSettings = {
-			width: this.micOverlayWindowSize.width,
-			height: this.micOverlayWindowSize.height,
-			x: micOverlayX,
-			y: micOverlayY,
-			webPreferences: {
-				nodeIntegration: false,
-				contextIsolation: true,
-				preload: path.join(__dirname, '..', 'preload.js'),
-				devTools: true,
-				sandbox: false,
-			},
-			show: false,
-			alwaysOnTop: true,
-			frame: false,
-			transparent: true,
-			fullscreenable: false,
-			hasShadow: false,
-			backgroundColor: '#00000000',
-			focusable: true,
-			skipTaskbar: true,
-			visibleOnAllWorkspaces: true,
-			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
-			acceptFirstMouse: true,
-			disableAutoHideCursor: true,
-			resizable: false,
-			devTools: true,
-		};
-
-		// Platform-specific window behavior
-		if (process.platform === 'win32') {
-			windowSettings.type = 'toolbar';
-			windowSettings.alwaysOnTop = true;
-			windowSettings.skipTaskbar = true;
-			windowSettings.focusable = true;
-			windowSettings.transparent = true;
-			windowSettings.hasShadow = false;
-		} else if (process.platform === 'darwin') {
-			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
-		}
-
-		this.micOverlayWindow = new BrowserWindow(windowSettings);
-
-		this.applyContentProtection(this.micOverlayWindow);
-
-		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
-			/\/$/,
-			'',
-		);
-		const isDevelopment =
-			process.env.NODE_ENV === 'development' ||
-			process.env.NODE_ENV?.trim() === 'development';
-
-		const micOverlayUrl = isDevelopment
-			? `${devURL}/micOverlay.html`
-			: `file://${path.join(__dirname, '..', '..', 'build', 'micOverlay.html')}`;
-
-		log.info(`Loading Mic Overlay URL: ${micOverlayUrl}`);
-
-		this.micOverlayWindow.loadURL(micOverlayUrl).catch((err) => {
-			log.error('Failed to load Mic Overlay URL:', err);
-		});
-
-		// Platform behavior adjustments
-		if (process.platform === 'darwin') {
-			this.micOverlayWindow.setAlwaysOnTop(true, 'floating');
-			this.micOverlayWindow.setVisibleOnAllWorkspaces(true, {
-				visibleOnFullScreen: true,
-				skipTransformProcessType: true,
-			});
-			this.micOverlayWindow.setHiddenInMissionControl(true);
-			this.micOverlayWindow.setIgnoreMouseEvents(false);
-			this.micOverlayWindow.setMovable(true);
-		} else if (process.platform === 'win32') {
-			this.micOverlayWindow.setAlwaysOnTop(true, 'floating');
-			this.micOverlayWindow.setIgnoreMouseEvents(false);
-			this.micOverlayWindow.setMovable(true);
-			this.micOverlayWindow.setVisibleOnAllWorkspaces(true);
-		} else {
-			this.micOverlayWindow.setAlwaysOnTop(true, 'floating');
-			this.micOverlayWindow.setIgnoreMouseEvents(false);
-		}
-
-		const bounds = this.micOverlayWindow.getBounds();
-		this.micOverlayWindowPosition = { x: bounds.x, y: bounds.y };
-		this.micOverlayWindowSize = { width: bounds.width, height: bounds.height };
 	}
 
 	createPermissionWindow() {
@@ -1432,103 +1324,6 @@ class WindowHelper {
 		this.isOverlayVisible = true;
 	}
 
-	showMicOverlayWindow() {
-		if (!this.micOverlayWindow || this.micOverlayWindow.isDestroyed()) {
-			log.info('🎯 Mic Overlay window not found, creating...');
-			this.createMicOverlayWindow();
-		} else {
-			log.info('🎯 Mic Overlay window exists, showing...');
-		}
-
-		let micX, micY;
-
-		// Use saved position if valid
-		const hasValidSavedPosition =
-			this.micOverlayWindowPosition &&
-			typeof this.micOverlayWindowPosition.x === 'number' &&
-			typeof this.micOverlayWindowPosition.y === 'number' &&
-			this.micOverlayWindowPosition.x !== 0 &&
-			this.micOverlayWindowPosition.y !== 0;
-
-		if (hasValidSavedPosition) {
-			micX = this.micOverlayWindowPosition.x;
-			micY = this.micOverlayWindowPosition.y;
-			log.info(`🎯 Mic Overlay show: Using saved position (${micX}, ${micY})`);
-		} else {
-			// Default position (centered or relative to overlay)
-			const primaryDisplay = screen.getPrimaryDisplay();
-			const workArea = primaryDisplay.workAreaSize;
-			const gap = 10; // small gap if positioning relative to overlay
-
-			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-				const overlayBounds = this.overlayWindow.getBounds();
-				const overlayX = overlayBounds.x;
-				const overlayY = overlayBounds.y;
-
-				// Position Mic Overlay just above or to the side of overlay
-				micX = overlayX + this.windowSize.width + gap;
-				micY = overlayY;
-
-				// Ensure it doesn't go off-screen
-				if (micX + this.micOverlayWindowSize.width > workArea.width) {
-					micX = overlayX - this.micOverlayWindowSize.width - gap;
-				}
-
-				log.info(
-					`🎯 Mic Overlay positioning: Overlay at (${overlayX}, ${overlayY}), Mic Overlay at (${micX}, ${micY})`,
-				);
-			} else {
-				// Center on screen
-				micX =
-					Math.floor(workArea.width / 2) -
-					Math.floor(this.micOverlayWindowSize.width / 2);
-				micY =
-					Math.floor(workArea.height / 2) -
-					Math.floor(this.micOverlayWindowSize.height / 2);
-			}
-		}
-
-		// Apply bounds
-		this.micOverlayWindow.setBounds({
-			x: micX,
-			y: micY,
-			width: this.micOverlayWindowSize.width,
-			height: this.micOverlayWindowSize.height,
-		});
-
-		// Platform-specific always-on-top behavior
-		if (process.platform === 'darwin') {
-			this.micOverlayWindow.setAlwaysOnTop(true, 'floating');
-			this.micOverlayWindow.setVisibleOnAllWorkspaces(true, {
-				visibleOnFullScreen: true,
-				skipTransformProcessType: true,
-			});
-			this.micOverlayWindow.moveTop();
-		} else if (process.platform === 'win32') {
-			this.micOverlayWindow.setAlwaysOnTop(true, 'floating');
-			this.micOverlayWindow.setVisibleOnAllWorkspaces(true);
-			this.micOverlayWindow.moveTop();
-		} else {
-			this.micOverlayWindow.setAlwaysOnTop(true, 'floating');
-		}
-
-		// Save position for next show
-		this.micOverlayWindowPosition = { x: micX, y: micY };
-
-		// Show window
-		this.micOverlayWindow.show();
-
-		// Ensure it’s focused and on top
-		setTimeout(() => {
-			if (this.micOverlayWindow && !this.micOverlayWindow.isDestroyed()) {
-				this.micOverlayWindow.moveTop();
-				this.micOverlayWindow.focus();
-			}
-		}, 100);
-
-		this.micOverlayWindowVisible = true;
-	}
-
 	showAskAIWindow() {
 		if (!this.askAIWindow || this.askAIWindow.isDestroyed()) {
 			log.info('🎯 Ask AI window not found, creating...');
@@ -1801,27 +1596,6 @@ class WindowHelper {
 			this.hideAreYouThereWindow();
 		} else {
 			this.showAreYouThereWindow();
-		}
-	}
-
-	hideMicOverlayWindow() {
-		if (!this.micOverlayWindow || this.micOverlayWindow.isDestroyed()) return;
-
-		// Save current bounds for future use
-		const bounds = this.micOverlayWindow.getBounds();
-		this.micOverlayWindowPosition = { x: bounds.x, y: bounds.y };
-		this.micOverlayWindowSize = { width: bounds.width, height: bounds.height };
-
-		// Hide the window
-		this.micOverlayWindow.hide();
-		this.micOverlayWindowVisible = false;
-	}
-
-	toggleMicOverlayWindow() {
-		if (this.micOverlayWindowVisible) {
-			this.hideMicOverlayWindow();
-		} else {
-			this.showMicOverlayWindow(); // make sure this function exists and shows the overlay
 		}
 	}
 

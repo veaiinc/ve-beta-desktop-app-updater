@@ -3177,31 +3177,6 @@ app.whenReady().then(async () => {
 		return setContentProtection(enabled);
 	});
 
-	// Register Mic Overlay window IPC handlers
-	ipcMain.handle('show-mic-overlay-window', async () => {
-		try {
-			windowHelper?.showMicOverlayWindow();
-
-			return { success: true };
-		} catch (error) {
-			log.error('Error showing Mic Overlay window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('toggle-mic-overlay-window', async () => {
-		try {
-			if (!windowHelper) {
-				return { success: false, error: 'Window helper not initialized' };
-			}
-			windowHelper.toggleMicOverlayWindow();
-			return { success: true };
-		} catch (error) {
-			log.error('Error toggling mic overlay window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
 	// Register Ask AI window IPC handlers
 	ipcMain.handle('toggle-askAI-window', async () => {
 		try {

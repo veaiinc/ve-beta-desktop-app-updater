@@ -172,11 +172,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 		hideOverlayWindow: () => ipcRenderer.invoke('hide-overlay-window'),
 	},
 
-	micOverlay: {
-		showWindow: () => ipcRenderer.invoke('show-mic-overlay-window'),
-		toggleWindow: () => ipcRenderer.invoke('toggle-mic-overlay-window'),
-	},
-
 	// Ask AI window APIs
 	askAI: {
 		toggleWindow: () => ipcRenderer.invoke('toggle-askAI-window'),
