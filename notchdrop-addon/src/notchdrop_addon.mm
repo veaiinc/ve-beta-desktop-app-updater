@@ -22,6 +22,7 @@ public:
             InstanceMethod("getHapticFeedback", &NotchDropAddon::GetHapticFeedback),
             InstanceMethod("setNotchVisible", &NotchDropAddon::SetNotchVisible),
             InstanceMethod("getNotchVisible", &NotchDropAddon::GetNotchVisible),
+            InstanceMethod("setInteractionEnabled", &NotchDropAddon::SetInteractionEnabled),
             InstanceMethod("getWindowPosition", &NotchDropAddon::GetWindowPosition),
             InstanceMethod("configureVoice", &NotchDropAddon::ConfigureVoice),
             InstanceMethod("connectVoiceAssistant", &NotchDropAddon::ConnectVoiceAssistant),
@@ -292,6 +293,20 @@ private:
         Napi::Env env = info.Env();
         BOOL visible = [NotchDropBridge getNotchVisible];
         return Napi::Boolean::New(env, visible);
+    }
+
+    Napi::Value SetInteractionEnabled(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        bool enabled = false;
+        if (info.Length() > 0) {
+            if (info[0].IsBoolean()) {
+                enabled = info[0].As<Napi::Boolean>();
+            } else {
+                enabled = info[0].ToBoolean();
+            }
+        }
+        [NotchDropBridge setInteractionEnabled:enabled];
+        return env.Undefined();
     }
 
     Napi::Value GetWindowPosition(const Napi::CallbackInfo& info) {

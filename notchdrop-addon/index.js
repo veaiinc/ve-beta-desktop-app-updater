@@ -63,6 +63,9 @@ if (process.platform !== 'darwin') {
 		getNotchVisible() {
 			return false;
 		}
+		setInteractionEnabled() {
+			return false;
+		}
 		showMenu() {
 			return false;
 		}
@@ -853,6 +856,13 @@ class NotchDropAddonWrapper extends EventEmitter {
 			throw new Error('NotchDrop not initialized');
 		}
 		this.addon.hide();
+	}
+
+	setInteractionEnabled(enabled) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		this.addon.setInteractionEnabled(Boolean(enabled));
 	}
 
 	toggle() {

@@ -333,6 +333,9 @@ class NotchDropService {
 		}
 
 		try {
+			if (typeof this.notchDropAddon.setInteractionEnabled === 'function') {
+				this.notchDropAddon.setInteractionEnabled(true);
+			}
 			this.notchDropAddon.show();
 			this.isEnabled = true;
 			return true;
@@ -349,6 +352,9 @@ class NotchDropService {
 		}
 
 		try {
+			if (typeof this.notchDropAddon.setInteractionEnabled === 'function') {
+				this.notchDropAddon.setInteractionEnabled(false);
+			}
 			this.notchDropAddon.hide();
 			this.isEnabled = false;
 			return true;
@@ -364,14 +370,7 @@ class NotchDropService {
 			return false;
 		}
 
-		try {
-			this.notchDropAddon.toggle();
-			this.isEnabled = !this.isEnabled;
-			return true;
-		} catch (error) {
-			log.error('❌ Failed to toggle NotchDrop:', error);
-			return false;
-		}
+		return this.isEnabled ? this.disable() : this.enable();
 	}
 
 	isVisible() {

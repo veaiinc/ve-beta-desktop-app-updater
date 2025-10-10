@@ -6,6 +6,7 @@ import Context from '../../../context/context';
 import { REFERRAL_BASE_URL } from '../../../helpers/ConstantUrls';
 import './shareAndEarnModal.scss';
 import Skeleton from 'react-loading-skeleton';
+import { copyToClipboard } from '../../../helpers/clipboardHelper';
 
 const ShareAndEarnModal = ({ isOpen, closeModal }) => {
 	const {
@@ -46,15 +47,36 @@ const ShareAndEarnModal = ({ isOpen, closeModal }) => {
 		}
 	};
 
-	const handleCopyLink = () => {
-		navigator.clipboard.writeText(referralLink);
-		message.success('Copied to clipboard');
-		setInfo((prev) => ({ ...prev, copyText: 'Copied!' }));
+	const handleCopyLink = async () => {
+		if (!referralLink) {
+			message.error('No referral link available to copy');
+			return;
+		}
 
-		// Reset the text back to "Copy" after 2 seconds
-		setTimeout(() => {
-			setInfo((prev) => ({ ...prev, copyText: 'Copy' }));
-		}, 2000);
+		try {
+			const success = await copyToClipboard(referralLink, {
+				onSuccess: () => {
+					message.success('Copied to clipboard');
+					setInfo((prev) => ({ ...prev, copyText: 'Copied!' }));
+
+					// Reset the text back to "Copy" after 2 seconds
+					setTimeout(() => {
+						setInfo((prev) => ({ ...prev, copyText: 'Copy' }));
+					}, 2000);
+				},
+				onError: (error) => {
+					console.error('Copy failed:', error);
+					message.error('Failed to copy to clipboard. Please try again.');
+				},
+			});
+
+			if (!success) {
+				message.error('Failed to copy to clipboard. Please try again.');
+			}
+		} catch (error) {
+			console.error('Copy error:', error);
+			message.error('Failed to copy to clipboard. Please try again.');
+		}
 	};
 
 	const customStyles = {

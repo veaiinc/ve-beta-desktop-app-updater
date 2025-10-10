@@ -377,18 +377,31 @@ struct NotchWheelPicker: View {
         
         return Button(action: onClick) {
             VStack(spacing: 0) {
-                // Date number (larger, on top)
-                Text("\(date.day)")
-                    .font(.system(size: isToday ? 14 : 12, weight: isToday ? .bold : .semibold))
-                    .foregroundColor(isSelected ? Color(hex: "79ecc9") ?? Color.blue : Color.white)
+                // Date number with teal circular background for today
+                if isToday {
+                    ZStack {
+                        // Teal circular background for today's date
+                        Circle()
+                            .fill(Color(hex: "79ecc9") ?? Color.blue)
+                            .frame(width: 17, height: 17)
+                        
+                        Text("\(date.day)")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.black)
+                    }
+                } else {
+                    Text("\(date.day)")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(isSelected ? Color(hex: "79ecc9") ?? Color.blue : Color.white)
+                }
                 
                 // Day of week (smaller, below)
                 Text(dateToString(for: date))
                     .font(.system(size: isToday ? 7 : 6, weight: isToday ? .semibold : .medium))
                     .foregroundColor(isSelected ? Color(hex: "79ecc9") ?? Color.blue : Color.white.opacity(0.6))
                 
-                // Teal dot for selected
-                if isSelected {
+                // Teal dot for selected (but not for today since it has red background)
+                if isSelected && !isToday {
                     Circle()
                         .fill(Color(hex: "79ecc9") ?? Color.blue)
                         .frame(width: 4, height: 4)

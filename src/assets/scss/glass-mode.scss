@@ -5,7 +5,7 @@
 	/* CRITICAL FIX: Override CSS variables for transparency ONLY when glass mode is enabled */
 	--background-color: transparent !important;
 	// --chat-background-color: rgba(18, 18, 18, 0.1) !important;
-	
+
 	/* CRITICAL FIX: Keep these commented so production uses same defaults as dev mode */
 	// --card: rgba(18, 18, 18, 0.12) !important;
 	// --new-card: rgba(18, 18, 18, 0.12) !important;
@@ -44,10 +44,11 @@
 	.app-content,
 	.glass-app {
 		background: transparent;
-		backdrop-filter: blur(20px) saturate(180%) !important;
-		-webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-		border-radius: 16px !important;
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+		backdrop-filter: blur(20px) saturate(180%);
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+		border-radius: 16px;
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+		height: 100%;
 	}
 
 	/* Cards and panels - enhanced glass effect */
