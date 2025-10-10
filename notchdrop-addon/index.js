@@ -1252,6 +1252,20 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 	}
 
+	// Handle external recording state changes from overlay system
+	handleExternalRecordingStateChange(isRecording, isPaused) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			console.log(`🔒 JavaScript Wrapper: External recording state - isRecording: ${isRecording}, isPaused: ${isPaused}`);
+			this.addon.handleExternalRecordingStateChange(isRecording, isPaused);
+		} catch (error) {
+			console.error('❌ Error handling external recording state change:', error);
+			throw error;
+		}
+	}
+
 	// Set which panel to show during recording: 'transcription' or 'live-intel'
 	setRecordingPanelMode(mode) {
 		if (!this.isInitialized) {

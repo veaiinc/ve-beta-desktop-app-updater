@@ -5631,6 +5631,13 @@ app.whenReady().then(async () => {
 						}
 					}
 				}
+				
+				// 🔒 SYNC NOTCH LOCK STATE WITH RECORDING STATE
+				// This ensures the notch stays locked during recording for transcription display
+				if (notchDropService && notchDropService.isInitialized) {
+					const isPaused = state.isPaused || false;
+					await notchDropService.handleExternalRecordingStateChange(state.isRecording, isPaused);
+				}
 			}
 
 			return { success: true };
