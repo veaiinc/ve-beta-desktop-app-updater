@@ -5401,40 +5401,42 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('overlay-start-recording', async (event, data = {}) => {
 		try {
-			let overlayWindow = windowHelper?.getOverlayWindow();
-			if (!overlayWindow) {
-				// Create overlay window if it doesn't exist
-				windowHelper?.createOverlayWindow();
-				// REDUCED DELAY: Wait only 200ms for window creation
-				await new Promise((resolve) => setTimeout(resolve, 200));
-				// Get the window reference again after creating it
-				overlayWindow = windowHelper?.getOverlayWindow();
-			}
+			// let overlayWindow = windowHelper?.getOverlayWindow();
+			// if (!overlayWindow) {
+			// 	// Create overlay window if it doesn't exist
+			// 	windowHelper?.createOverlayWindow();
+			// 	// REDUCED DELAY: Wait only 200ms for window creation
+			// 	await new Promise((resolve) => setTimeout(resolve, 200));
+			// 	// Get the window reference again after creating it
+			// 	overlayWindow = windowHelper?.getOverlayWindow();
+			// }
 
-			if (overlayWindow) {
-				// Show the window if it's not visible
-				if (!overlayWindow.isVisible()) {
-					windowHelper?.showOverlayWindow();
-					// REDUCED DELAY: Wait only 100ms for window display
-					await new Promise((resolve) => setTimeout(resolve, 100));
-				}
+			// if (overlayWindow) {
+			// 	// Show the window if it's not visible
+			// 	if (!overlayWindow.isVisible()) {
+			// 		windowHelper?.showOverlayWindow();
+			// 		// REDUCED DELAY: Wait only 100ms for window display
+			// 		await new Promise((resolve) => setTimeout(resolve, 100));
+			// 	}
 
-				// CRITICAL FIX: Use windowHelper's queuing system
-				const commandSent = windowHelper?.sendOverlayCommand({
-					action: 'startRecording',
-					data: data,
-				});
+			// 	// CRITICAL FIX: Use windowHelper's queuing system
+			// 	const commandSent = windowHelper?.sendOverlayCommand({
+			// 		action: 'startRecording',
+			// 		data: data,
+			// 	});
 
-				// Also trigger focus and bring to front
-				overlayWindow.focus();
-				overlayWindow.moveTop();
+			// 	// Also trigger focus and bring to front
+			// 	overlayWindow.focus();
+			// 	overlayWindow.moveTop();
 
-				// Start the Are You There timer for 30-minute intervals
-				startAreYouThereTimer();
-			} else {
-				log.error('❌ Overlay window not available after creating');
-				return { success: false, error: 'Overlay window not available' };
-			}
+			// 	// Start the Are You There timer for 30-minute intervals
+			// 	startAreYouThereTimer();
+			// } else {
+			// 	log.error('❌ Overlay window not available after creating');
+			// 	return { success: false, error: 'Overlay window not available' };
+			// }
+
+			await handleNotchToMainWindowEvents({ action: 'startRecording', data: data });
 			return { success: true };
 		} catch (error) {
 			log.error('❌ Error starting recording from dynamic island:', error);
