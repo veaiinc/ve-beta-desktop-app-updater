@@ -3874,6 +3874,28 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	if (isAppleSiliconMac) {
+		// Register global shortcut to toggle NotchDrop visibility (Cmd+Shift+M)
+		const toggleNotchDropShortcutRegistered = globalShortcut.register(
+			'CommandOrControl+Shift+M',
+			() => {
+				if (!notchDropService || !notchDropService.isInitialized) {
+					log.warn('⚠️ Cmd+Shift+M pressed but NotchDrop service is unavailable');
+					return;
+				}
+
+				const success = notchDropService.toggle();
+				if (!success) {
+					log.warn('⚠️ Failed to toggle NotchDrop via Cmd+Shift+M global shortcut');
+				}
+			},
+		);
+
+		if (!toggleNotchDropShortcutRegistered) {
+			log.warn('⚠️ Unable to register Cmd+Shift+M global shortcut for NotchDrop');
+		}
+	}
+
 	// Check if global shortcuts are working (especially important on macOS)
 	if (isMacRuntime) {
 		// Check if the app has accessibility permissions
