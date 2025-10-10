@@ -48,6 +48,7 @@ class NotchDropPanel: NSPanel {
     private var contentType: String = "normal"
     private var hapticFeedback: Bool = true
     private var notchViewModel: NotchViewModel?
+    private var isInteractionEnabled: Bool = true
     // Prevent App Nap / idle sleep to keep hover responsiveness after inactivity
     private var appNapActivity: NSObjectProtocol?
     // Use high window level but allow drag/drop
@@ -319,6 +320,8 @@ class NotchDropPanel: NSPanel {
             
             // Don't immediately set first responder - let SwiftUI handle TextField focus
             
+            self?.isInteractionEnabled = true
+            self?.notchViewModel?.isInteractionEnabled = true
             self?.isVisible = true
             self?.notchViewModel?.notchOpen(.click)
         }
@@ -417,6 +420,21 @@ class NotchDropPanel: NSPanel {
 
     @objc public func getNotchVisible() -> Bool {
         return isVisible
+    }
+
+    @objc public func setInteractionEnabled(_ enabled: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.isInteractionEnabled = enabled
+            self.notchViewModel?.isInteractionEnabled = enabled
+
+            if !enabled {
+                self.notchViewModel?.isNotchLocked = false
+                self.notchViewModel?.notchClose()
+                self.notchWindow?.orderOut(nil)
+                self.isVisible = false
+            }
+        }
     }
 
     @objc public func getWindowPosition() -> [String: CGFloat] {

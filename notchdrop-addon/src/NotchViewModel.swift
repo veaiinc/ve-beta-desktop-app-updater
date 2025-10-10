@@ -4,6 +4,94 @@ import Foundation
 import SwiftUI
 import AVFoundation
 
+// MARK: - Real-time Audio Monitor for AI Speech
+class AudioMonitor: ObservableObject {
+    @Published var amplitude: CGFloat = 0.0
+    @Published var isMonitoring: Bool = false
+    
+    private let engine = AVAudioEngine()
+    private let player = AVAudioPlayerNode()
+    
+    init() {
+        setupAudioEngine()
+    }
+    
+    deinit {
+        stopMonitoring()
+    }
+    
+    private func setupAudioEngine() {
+        // Setup input node to monitor system audio (AI voice output)
+        let inputNode = engine.inputNode
+        let inputFormat = inputNode.outputFormat(forBus: 0)
+        
+        // Create a mixer node for processing
+        let mixerNode = AVAudioMixerNode()
+        engine.attach(mixerNode)
+        
+        // Connect input to mixer
+        engine.connect(inputNode, to: mixerNode, format: inputFormat)
+        
+        // Install tap on the mixer to monitor audio input
+        mixerNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buffer, _ in
+            self?.updateAmplitude(buffer: buffer)
+        }
+    }
+    
+    private func updateAmplitude(buffer: AVAudioPCMBuffer) {
+        guard let channelData = buffer.floatChannelData?[0] else { return }
+        let frameCount = Int(buffer.frameLength)
+        
+        // Calculate RMS (Root Mean Square) for smooth amplitude
+        let sum = (0..<frameCount).reduce(0.0) { sum, i in
+            sum + Double(channelData[i] * channelData[i])
+        }
+        let rms = sqrt(sum / Double(frameCount))
+        
+        // Enhanced scaling for AI voice detection (more sensitive)
+        let scaledAmplitude = min(max(CGFloat(rms * 25), 0), 1) // Increased sensitivity
+        
+        DispatchQueue.main.async { [weak self] in
+            // Smooth amplitude changes for natural animation
+            withAnimation(.easeInOut(duration: 0.08)) {
+                self?.amplitude = scaledAmplitude
+            }
+        }
+    }
+    
+    func startMonitoring() {
+        guard !isMonitoring else { return }
+        
+        do {
+            try engine.start()
+            isMonitoring = true
+            print("🎤 Audio monitoring started")
+        } catch {
+            print("❌ Failed to start audio monitoring: \(error)")
+        }
+    }
+    
+    func stopMonitoring() {
+        guard isMonitoring else { return }
+        
+        engine.stop()
+        engine.mainMixerNode.removeTap(onBus: 0)
+        isMonitoring = false
+        amplitude = 0.0
+        print("🔇 Audio monitoring stopped")
+    }
+    
+    func playAudio(url: URL) {
+        do {
+            let file = try AVAudioFile(forReading: url)
+            player.scheduleFile(file, at: nil, completionHandler: nil)
+            player.play()
+        } catch {
+            print("❌ Failed to play audio file: \(error)")
+        }
+    }
+}
+
 class NotchViewModel: NSObject, ObservableObject {
     var cancellables: Set<AnyCancellable> = []
     let inset: CGFloat
@@ -12,6 +100,7 @@ class NotchViewModel: NSObject, ObservableObject {
         self.inset = inset
         super.init()
         setupCancellables()
+        setupAudioIntegration()
         
         // CRITICAL: Validate lock state on initialization
         DispatchQueue.main.async { [weak self] in
@@ -27,7 +116,44 @@ class NotchViewModel: NSObject, ObservableObject {
             window.orderOut(nil)
             browserPermissionWindow = nil
         }
+        // Stop audio monitoring
+        audioMonitor.stopMonitoring()
         destroy()
+    }
+    
+    // MARK: - Audio Integration Setup
+    
+    /// Setup real-time audio monitoring integration
+    private func setupAudioIntegration() {
+        // Smart audio integration: Real-time audio vs Idle breathing state
+        Publishers.CombineLatest($aiResponseIntensity, audioMonitor.$amplitude)
+            .map { aiIntensity, audioAmplitude in
+                // Real-time audio takes priority - this is the actual AI voice
+                if audioAmplitude > 0.08 {
+                    // Strong audio detected - AI is actively speaking
+                    return min(1.0, audioAmplitude * 2.5) // Amplify AI voice signal
+                } else if aiIntensity > 0.15 {
+                    // Fallback to simulated AI response when no clear audio
+                    return aiIntensity * 0.7 // Moderate simulated intensity
+                } else {
+                    // Relaxed idle state - AI is listening/breathing
+                    // Return low value to trigger gentle breathing animation
+                    return 0.05
+                }
+            }
+            .assign(to: &$effectiveAnimationIntensity)
+        
+        // Start audio monitoring when voice connection is established
+        $voiceConnectionStatus
+            .sink { [weak self] status in
+                switch status {
+                case .connected:
+                    self?.audioMonitor.startMonitoring()
+                case .disconnected, .connecting, .error:
+                    self?.audioMonitor.stopMonitoring()
+                }
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Performance Optimization Methods
@@ -213,6 +339,7 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var screenRect: CGRect = .zero
     @Published var optionKeyPressed: Bool = false
     @Published var notchVisible: Bool = true
+    @Published var isInteractionEnabled: Bool = true
 
     // MARK: - Media State (Grouped for performance)
     @Published var hasActiveMusic: Bool = false
@@ -342,8 +469,13 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var liveIntelligenceMessages: [VoiceMessage] = []
     @Published var isVoiceActive: Bool = false
     @Published var audioLevel: Float = 0.0
+    @Published var aiResponseIntensity: CGFloat = 0.0 // Wave animation intensity (0.0 → 1.0)
+    @Published var effectiveAnimationIntensity: CGFloat = 0.0 // Combined AI + real-time audio intensity
     // When recording: true -> show transcription panel; false -> show live intelligence (voice UI)
     @Published var showTranscriptionDuringRecording: Bool = true
+    
+    // Real-time audio monitoring for AI speech
+    private let audioMonitor = AudioMonitor()
     
     // MARK: - Wake Word Detection Properties (Grouped)
     @Published var isWakeWordEnabled: Bool = false
@@ -438,6 +570,7 @@ class NotchViewModel: NSObject, ObservableObject {
 
     func notchOpen(_ reason: OpenReason) {
         // Prevent rapid opening/closing that can cause performance issues
+        guard isInteractionEnabled else { return }
         guard status != .opened else { return }
         
         updateProperties {
@@ -550,6 +683,30 @@ class NotchViewModel: NSObject, ObservableObject {
         savedVideoCurrentTime = 0.0
         savedVideoDuration = 0.0
         savedVideoIsPlaying = false
+    }
+    
+    /// PERFORMANCE FIX: Comprehensive video cleanup when YouTube playback ends
+    func cleanupVideoResources() {
+        print("🧹 PERFORMANCE FIX: Cleaning up all video resources...")
+        
+        DispatchQueue.main.async {
+            // Reset all video-related state
+            self.hasActiveVideo = false
+            self.isVideoPlaying = false
+            self.showVideoPlayer = false
+            self.videoTitle = ""
+            self.videoChannel = ""
+            self.videoThumbnail = nil
+            self.videoDuration = ""
+            self.videoCurrentTime = ""
+            self.videoURL = ""
+            self.videoEmbedURL = ""
+            
+            // Clear saved video state
+            self.clearVideoState()
+            
+            print("✅ Video resources cleaned up successfully")
+        }
     }
 
     func showSettings() {
@@ -860,6 +1017,11 @@ class NotchViewModel: NSObject, ObservableObject {
                 let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
                 self.voiceMessages.append(message)
                 print("💬 Added voice message: \(sender): \(content.prefix(50))...")
+                
+                // Pulse wave intensity when AI responds
+                if isFromAgent {
+                    self.pulseAIResponseIntensity(basedOnContent: content)
+                }
             } else {
                 print("⚠️ Skipped duplicate voice message: \(sender): \(content.prefix(50))...")
             }
@@ -924,6 +1086,9 @@ class NotchViewModel: NSObject, ObservableObject {
                 let message = VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
                 self.liveIntelligenceMessages.append(message)
                 
+                // Pulse wave intensity when AI provides live intelligence
+                self.pulseAIResponseIntensity(basedOnContent: content)
+                
                 // If we're currently recording and showing transcription panel,
                 // immediately switch to live intelligence view in the notch
                 if self.isRecording && self.showTranscriptionDuringRecording {
@@ -974,6 +1139,37 @@ class NotchViewModel: NSObject, ObservableObject {
             // print("🧠 Replacing live intelligence array with \(messages.count) messages")
             self.liveIntelligenceMessages = messages
             // print("🧠 Live intelligence array replaced successfully")
+        }
+    }
+    
+    /// Pulse wave animation intensity based on AI response activity
+    private func pulseAIResponseIntensity(basedOnContent content: String) {
+        // Professional AI speaking intensity calculation
+        let wordCount = content.split(separator: " ").count
+        let charCount = content.count
+        
+        // Multi-factor intensity calculation for realistic speech patterns:
+        // 1. Word count factor (0.3-0.8 weight)
+        // 2. Character density factor (0.2-0.6 weight)  
+        // 3. Response complexity indicators (questions, exclamations)
+        let wordFactor = min(0.8, CGFloat(wordCount) / 60.0 + 0.2)
+        let charFactor = min(0.6, CGFloat(charCount) / 400.0 + 0.1)
+        let complexityBonus = content.contains("?") || content.contains("!") ? 0.1 : 0.0
+        
+        let targetIntensity = min(1.0, wordFactor + charFactor + complexityBonus)
+        
+        // Smooth professional animation timing
+        withAnimation(.easeOut(duration: 0.4)) {
+            self.aiResponseIntensity = targetIntensity
+        }
+        
+        // Intelligent fade-back timing based on response length
+        let fadeDelay = min(3.0, max(1.5, Double(wordCount) * 0.08)) // Longer responses = longer fade
+        DispatchQueue.main.asyncAfter(deadline: .now() + fadeDelay) {
+            withAnimation(.easeInOut(duration: 1.0)) {
+                // Gradual decay to baseline, maintaining some activity
+                self.aiResponseIntensity = max(0.15, self.aiResponseIntensity * 0.6)
+            }
         }
     }
     

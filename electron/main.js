@@ -1739,40 +1739,6 @@ function createWindow(restoreState = false) {
 			menu.popup();
 		}
 	});
-	// Add context menu support for copy/paste functionality
-	mainWindow.webContents.on('context-menu', (event, params) => {
-		const menu = Menu.buildFromTemplate([
-			{
-				label: 'Cut',
-				role: 'cut',
-				enabled:
-					params.isEditable && params.selectionText && params.selectionText.length > 0,
-			},
-			{
-				label: 'Copy',
-				role: 'copy',
-				enabled: params.selectionText && params.selectionText.length > 0,
-			},
-			{
-				label: 'Paste',
-				role: 'paste',
-				enabled: params.isEditable,
-			},
-			{
-				type: 'separator',
-			},
-			{
-				label: 'Select All',
-				role: 'selectAll',
-				enabled: params.isEditable,
-			},
-		]);
-
-		// Only show context menu if there's text selected or if it's an editable element
-		if (params.selectionText || params.isEditable) {
-			menu.popup();
-		}
-	});
 
 	ipcMain.on('veAppMsg', async (event, msg) => {
 		// log.info('🔄 Received message from veApp:', msg); // logs: btn clicked from react
@@ -6589,40 +6555,6 @@ app.whenReady().then(async () => {
 			};
 		} catch (error) {
 			log.error('Error starting screen capture:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	// Clipboard IPC handlers
-	ipcMain.handle('clipboard-write-text', async (event, text) => {
-		try {
-			// Verify clipboard module is available
-			if (!clipboard) {
-				log.error('Clipboard module not available');
-				return { success: false, error: 'Clipboard module not available' };
-			}
-
-			clipboard.writeText(text);
-			log.info('Text copied to clipboard successfully');
-			return { success: true };
-		} catch (error) {
-			log.error('Clipboard write error:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('clipboard-read-text', async () => {
-		try {
-			// Verify clipboard module is available
-			if (!clipboard) {
-				log.error('Clipboard module not available');
-				return { success: false, error: 'Clipboard module not available' };
-			}
-
-			const text = clipboard.readText();
-			return { success: true, text };
-		} catch (error) {
-			log.error('Clipboard read error:', error);
 			return { success: false, error: error.message };
 		}
 	});

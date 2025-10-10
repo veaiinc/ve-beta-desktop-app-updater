@@ -17,6 +17,7 @@ extension NotchViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
+                guard self.isInteractionEnabled else { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
                 switch status {
                 case .opened:
@@ -94,6 +95,7 @@ extension NotchViewModel {
             .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true)
             .sink { [weak self] _ in
                 guard let self else { return }
+                guard self.isInteractionEnabled else { return }
                 // Skip hover processing while opened by click to reduce churn
                 if status == .opened, openReason == .click { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
