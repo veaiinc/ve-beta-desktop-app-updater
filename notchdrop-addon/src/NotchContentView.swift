@@ -35,6 +35,33 @@ struct NotchContentView: View {
             // }
         }
         .animation(vm.animation, value: vm.contentType)
+        // Underline + upward glow clipped to notch
+        .overlay(alignment: .bottom) {
+            VStack(spacing: 0) {
+                // Upward glow that fades as it rises
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.35), location: 0.0),
+                        .init(color: Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.18), location: 0.25),
+                        .init(color: .clear, location: 0.55)
+                    ]),
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+                .frame(height: vm.notchOpenedSize.height * 0.45)
+                .blur(radius: 22)
+                .opacity(vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: vm.voiceConnectionStatus)
+
+                // Animated underline
+                MeetWaveUnderline(isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted)
+                    .frame(width: 301, height: 16)
+            }
+            .compositingGroup()
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .allowsHitTesting(false)
+        }
         // .animation(vm.animation, value: vm.showNotificationOverlay)
         .onAppear {
             // Set up browser permission window monitoring
@@ -289,31 +316,38 @@ struct DynamicIslandContentView: View {
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .scaleEffect(1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
+                                .disabled(vm.isConnecting)
+                                .opacity(vm.isConnecting ? 0.8 : 1.0)
                                 .onHover { hovering in
                                     withAnimation(.easeInOut(duration: 0.2)) {
-                                        isMeetingButtonHovered = hovering && !vm.isTeamsView
+                                        isMeetingButtonHovered = hovering
                                     }
                                 }
                                 .onChange(of: vm.isTeamsView) { newValue in
-                                    if newValue {
-                                        // Meeting AI button is now active, reset hover state
+                                    if !newValue {
+                                        // Meeting button is now inactive, reset hover state
                                         isMeetingButtonHovered = false
                                     }
                                 }
-                                // Removed desktop and VE icons per request
-                                
-                                // Tray button beside Start
+                                .onChange(of: vm.isTrayMode) { newValue in
+                                    if !newValue {
+                                        // Meeting button is now inactive, reset hover state
+                                        isMeetingButtonHovered = false
+                                    }
+                                }
+
+                                // Share pill (sets Tray mode)
                                 Button(action: {
                                     vm.isTrayMode = true
                                     vm.isTeamsView = false
                                 }) {
-                                    HStack(spacing: 6.0) {
-                                      
-                                        Text("Tray")
+                                    HStack(spacing: 6) {
+                                        Text("Share")
                                             .font(.system(size: 15, weight: .semibold))
                                             .foregroundColor(vm.isTrayMode ? .black : .white)
                                     }
-                                    
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
                                     .background(
@@ -323,40 +357,55 @@ struct DynamicIslandContentView: View {
                                                 (isTrayButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
                                             )
                                     )
-                                   
-                                   
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .scaleEffect(1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
+                                .disabled(vm.isConnecting)
+                                .opacity(vm.isConnecting ? 0.8 : 1.0)
                                 .onHover { hovering in
                                     withAnimation(.easeInOut(duration: 0.2)) {
-                                        isTrayButtonHovered = hovering && !vm.isTrayMode
+                                        isTrayButtonHovered = hovering
                                     }
                                 }
                                 .onChange(of: vm.isTrayMode) { newValue in
-                                    if newValue {
-                                        // Tray button is now active, reset hover state
+                                    if !newValue {
+                                        // Tray button is now inactive, reset hover state
                                         isTrayButtonHovered = false
                                     }
                                 }
-                              
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Tray button is now inactive, reset hover state
+                                        isTrayButtonHovered = false
+                                    }
+                                }
                             } else if vm.showVoiceInterface {
                                 // Voice controls (mute/unmute and cancel buttons)
                                 HStack(spacing: 12) {
                                     // Mute/Unmute toggle
                                     Button(action: {
+                                        print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
                                         vm.toggleVoiceMute()
+                                        print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
                                     }) {
                                         Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
                                             .font(.system(size: 14))
                                             .foregroundColor(.white)
                                             .frame(width: 24, height: 24)
                                             .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set(); withAnimation(.easeInOut(duration: 0.15)) { /* hover style if needed */ } }
                                     
                                     // Cancel/Disconnect button
                                     Button(action: {
+                                        print("❌ Cancel button clicked")
                                         vm.disconnectVoiceAssistant()
                                     }) {
                                         RoundedRectangle(cornerRadius: 2)
@@ -364,9 +413,14 @@ struct DynamicIslandContentView: View {
                                             .frame(width: 14, height: 14)
                                             .frame(width: 24, height: 24)
                                             .background(Color.clear)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set(); withAnimation(.easeInOut(duration: 0.15)) { /* hover style if needed */ } }
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.top, 2) // Move left icons up to align with right icons
@@ -391,6 +445,7 @@ struct DynamicIslandContentView: View {
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set() }
                                     .scaleEffect(1.0)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isPaused)
                                     
@@ -406,6 +461,7 @@ struct DynamicIslandContentView: View {
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set() }
                                     .scaleEffect(1.0)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
                                     
@@ -467,24 +523,40 @@ struct DynamicIslandContentView: View {
 
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
-                            // VE icon → Open Ve app (Electron main window)
-                            Button(action: {
-                                vm.navigateToMainScreen(path: nil)
-                            }) {
-                                VEIcon(color: .white)
-                                    .frame(width: 16, height: 16)
-                                    .padding(8) // Increased padding for larger clickable area
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
-                                    )
-                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .help("Open Ve App")
-                            .onHover { hovering in
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    isVEIconHovered = hovering
+                            // VE icon → Open Ve app (Electron main window) - Hide during meeting
+                            if !vm.isRecording {
+                                Button(action: {
+                                    vm.navigateToMainScreen(path: nil)
+                                }) {
+                                    VEIcon(color: .white)
+                                        .frame(width: 16, height: 16)
+                                        .padding(8) // Increased padding for larger clickable area
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
+                                        )
+                                        .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .overlay(alignment: .bottom) {
+                                    if isVEIconHovered {
+                                        Text("Open app")
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.black.opacity(0.8))
+                                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                            .offset(y: 28)
+                                            .fixedSize(horizontal: true, vertical: true)
+                                            .zIndex(2000)
+                                            .allowsHitTesting(false)
+                                    }
+                                }
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isVEIconHovered = hovering
+                                    }
                                 }
                             }
                             
@@ -510,15 +582,29 @@ struct DynamicIslandContentView: View {
                                 .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
+                            .overlay(alignment: .bottom) {
+                                if isStealthIconHovered {
+                                    Text(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(y: 28)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                             .onHover { hovering in
                                 withAnimation(.easeInOut(duration: 0.2)) {
                                     isStealthIconHovered = hovering
                                 }
                             }
                             
-                            // Information icon (third icon) with popup menu
-                            // InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            // Tooltips for top-right icons (ve/open app, stealth toggle, lock)
+                            // ve/open app (first icon in this group is not present here; add generic hover tooltip API usage below)
                             
                             // Lock/Unlock button (fourth icon)
                             Button(action: {
@@ -545,7 +631,21 @@ struct DynamicIslandContentView: View {
                                     .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
+                            .overlay(alignment: .bottom) {
+                                if isLockIconHovered {
+                                    Text(vm.isNotchLocked ? "Unlock" : "Lock")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(y: 28)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                             .onAppear {
                                 // Validate state on appearance
                                 vm.forceLockStateRefresh()
@@ -580,9 +680,13 @@ struct DynamicIslandContentView: View {
                                                 .padding()
                                         } else {
                                             ForEach(vm.voiceMessages) { message in
-                                                TranscriptionMessageView(message: message)
-                                                    .padding(.horizontal, 4)
-                                                    .id(message.id)
+                                                VoiceMessageBubble(
+                                                    sender: message.sender,
+                                                    text: message.content,
+                                                    isFromAgent: message.isFromAgent
+                                                )
+                                                .padding(.horizontal, 4)
+                                                .id(message.id)
                                             }
                                         }
                                     }
@@ -1195,6 +1299,10 @@ struct DynamicIslandContentView: View {
     }
     
     private func checkBrowserForYouTube() -> Bool {
+        // DISABLED: Browser detection removed to prevent system accessibility permission dialog
+        // The AppleScript-based browser detection was triggering macOS system dialogs
+        // asking for accessibility permissions to control Safari, Chrome, Firefox
+        
         // Only check browsers if we have permission
         guard vm.hasBrowserPermission else {
             // Request permission first time
@@ -1204,6 +1312,13 @@ struct DynamicIslandContentView: View {
             return false
         }
         
+        // DISABLED: Skip browser detection to avoid system permission dialog
+        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
+        print("🌐 Browser detection disabled to prevent system permission dialog")
+        return false
+        
+        // Original code (commented out to prevent system dialog):
+        /*
         // Check only major browsers: Safari, Chrome, Firefox
         let browsers = ["Safari", "Google Chrome", "Firefox"]
         
@@ -1216,9 +1331,18 @@ struct DynamicIslandContentView: View {
             }
         }
         return false
+        */
     }
     
     private func checkBrowserApp(_ appName: String) -> (String, String)? {
+        // DISABLED: This function was causing system accessibility permission dialogs
+        // The AppleScript execution triggers macOS to ask for permission to control other apps
+        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
+        print("🌐 checkBrowserApp disabled to prevent system permission dialog for: \(appName)")
+        return nil
+        
+        // Original AppleScript code (commented out to prevent system dialog):
+        /*
         let script: String
         
         if appName == "Safari" {
@@ -1265,6 +1389,7 @@ struct DynamicIslandContentView: View {
             }
         }
         return nil
+        */
     }
     
     private func checkSystemMediaForYouTube() -> Bool {
@@ -1415,6 +1540,7 @@ struct DynamicIslandContentView: View {
 }
 
 // MARK: - Voice Split Layout (New Design)
+// MARK: - Voice Split Layout (New Design)
 struct VoiceSplitLayout: View {
     @ObservedObject var vm: NotchViewModel
 
@@ -1437,7 +1563,9 @@ struct VoiceTopControls: View {
         HStack(spacing: 16) {
             // Left side: Mute/Unmute toggle
             Button(action: {
+                print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
                 vm.toggleVoiceMute()
+                print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
             }) {
                 Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
                     .font(.system(size: 16))
@@ -1448,6 +1576,7 @@ struct VoiceTopControls: View {
             
             // Cancel/Disconnect button
             Button(action: {
+                print("❌ Cancel button clicked")
                 vm.disconnectVoiceAssistant()
             }) {
                 Image(systemName: "xmark")
@@ -1495,21 +1624,12 @@ struct VoiceTranscriptionArea: View {
                         .padding(.top, 8)
                         .padding(.bottom, 20)
                         .id(lastMessage.id)
-                        // .onAppear {
-                        //     // Console log transcription data display in SwiftUI
-                        //     print("📝 NotchContentView: Displaying transcription data:")
-                        //     print("📝 Sender: \(lastMessage.sender)")
-                        //     print("📝 Content: \(lastMessage.content)")
-                        //     print("📝 Is from agent: \(lastMessage.isFromAgent)")
-                        //     print("📝 Message ID: \(lastMessage.id)")
-                        //     print("📝 Total voice messages: \(vm.voiceMessages.count)")
-                        // }
                 }
             }
             
             // Show current status only when there are no voice messages
             if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
-                Text(vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...")
+                Text(vm.isMicrophoneMuted ? "🔇 Muted" : " Listening...")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -1517,44 +1637,10 @@ struct VoiceTranscriptionArea: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 12)
             }
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.clear)
-        .onChange(of: vm.voiceMessages.count) { newCount in
-            // Console log when voice messages count changes (new transcription data added)
-            print("📝 NotchContentView: Voice messages count changed to: \(newCount)")
-            if let lastMessage = vm.voiceMessages.last {
-                print("📝 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
-            }
-        }
-    }
-}
-
-
-// MARK: - Transcription Message View Component
-struct TranscriptionMessageView: View {
-    let message: NotchViewModel.VoiceMessage
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            // Sender on first line
-            Text(message.sender )
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(.white.opacity(0.8))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            // Content on second line, full width
-            Text(message.content)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.white)
-                .multilineTextAlignment(.leading)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(.vertical, 6)
-        .padding(.horizontal, 10)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -1572,16 +1658,40 @@ struct VoiceMessageBubble: View {
                 //           isStatus ? Color.yellow :
                 //           Color(red: 0.173, green: 0.176, blue: 0.180))
                 //     .frame(width: 6, height: 6)
+                // Circle()
+                //     .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
+                //           isStatus ? Color.yellow :
+                //           Color(red: 0.173, green: 0.176, blue: 0.180))
+                //     .frame(width: 6, height: 6)
                 Text(sender)
                     .font(.system(size: 9, weight: .medium))
+                    // .foregroundColor(DynamicIslandTheme.textMuted)
                     // .foregroundColor(DynamicIslandTheme.textMuted)
                 Spacer()
             }
             Text(text)
                 .font(.system(size: 20, weight: .medium))
                 // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
+                .font(.system(size: 20, weight: .medium))
+                // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
                 .multilineTextAlignment(.leading)
         }
+        // .padding(8)
+        // .background(
+        //     isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
+        //     isStatus ? Color.clear :
+        //     Color.clear
+        // )
+        // .overlay(
+        //     RoundedRectangle(cornerRadius: 8)
+        //         .stroke(
+        //             isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
+        //             isStatus ? Color.clear :
+        //             DynamicIslandTheme.stroke.opacity(0.3),
+        //             lineWidth: 0.5
+        //         )
+        // )
+        // .clipShape(RoundedRectangle(cornerRadius: 8))
         // .padding(8)
         // .background(
         //     isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
@@ -4715,6 +4825,178 @@ struct CompactTemporaryFolderAskAnythingButton: View {
     }
 }
 
+
+// MARK: - Google Meet Style Wave Animation for Voice Assistant
+struct GoogleMeetWaveView: View {
+    @State private var waveShift: CGFloat = 0
+    @State private var fadeOut = false
+    let isActive: Bool
+
+    var body: some View {
+        ZStack {
+            // Background gradient wave
+            WaveShape()
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            DynamicIslandTheme.primaryGreen.opacity(0.5),
+                            Color.blue.opacity(0.5),
+                            Color.purple.opacity(0.5)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(height: 60)
+                .blur(radius: 15)
+                .mask(fadeMask)
+                .offset(x: waveShift)
+                .animation(
+                    Animation.timingCurve(0.2, 0, 0, 1, duration: 2)
+                        .repeatForever(autoreverses: true),
+                    value: waveShift
+                )
+                .opacity(isActive && !fadeOut ? 1 : 0)
+                .animation(
+                    .timingCurve(0.2, 0, 0, 1, duration: 0.3),
+                    value: isActive
+                )
+        }
+        .allowsHitTesting(false)
+        .onChange(of: isActive) { _, active in
+            if active {
+                waveShift = 40
+                fadeOut = false
+            } else {
+                fadeOut = true
+            }
+        }
+        .onAppear {
+            if isActive {
+                waveShift = 40
+            }
+        }
+    }
+
+    // Fade mask simulates Google Meet's edge fading
+    private var fadeMask: some View {
+        LinearGradient(
+            gradient: Gradient(stops: [
+                .init(color: .black.opacity(0), location: 0.0),
+                .init(color: .black, location: 0.13),
+                .init(color: .black, location: 0.87),
+                .init(color: .black.opacity(0), location: 1.0)
+            ]),
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+}
+
+// MARK: - Wave Shape (smooth curve like Google Meet)
+struct WaveShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+
+        // Smooth wave curve
+        path.move(to: CGPoint(x: 0, y: height * 0.4))
+        path.addCurve(
+            to: CGPoint(x: width, y: height * 0.4),
+            control1: CGPoint(x: width * 0.3, y: -height * 0.1),
+            control2: CGPoint(x: width * 0.7, y: -height * 0.1)
+        )
+        path.addLine(to: CGPoint(x: width, y: height))
+        path.addLine(to: CGPoint(x: 0, y: height))
+        path.closeSubpath()
+
+        return path
+    }
+}
+
+// MARK: - Thin Meet-style Underline (ends pinned, center bulges up/down)
+struct MeetWaveUnderline: View {
+    @State private var bulge: CGFloat = 12
+    let isActive: Bool
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            // Glow (Figma spec: soft mint glow)
+            MeetUnderlineBulge(bulge: bulge)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.55), // mint glow
+                            Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.45)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                )
+                .blur(radius: 18)
+                .opacity(isActive ? 0.5 : 0)
+                .animation(.easeInOut(duration: 0.2), value: isActive)
+
+            // Crisp 1–2px line following the same curve (dark ends, light middle)
+            MeetUnderlineBulge(bulge: bulge)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color(red: 0.07, green: 0.53, blue: 0.39), location: 0.0), // dark left
+                            .init(color: Color(red: 0.47, green: 0.93, blue: 0.79), location: 0.5), // light center
+                            .init(color: Color(red: 0.07, green: 0.53, blue: 0.39), location: 1.0)  // dark right
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                )
+                .opacity(isActive ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: isActive)
+        }
+        .allowsHitTesting(false)
+        .onAppear {
+            if isActive {
+                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
+                    bulge = 30
+                }
+            }
+        }
+        .onChange(of: isActive) { _, active in
+            if active {
+                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
+                    bulge = 30
+                }
+            } else {
+                withAnimation(.easeOut(duration: 0.2)) { bulge = 0 }
+            }
+        }
+    }
+}
+
+// Shape for pinned-ends underline with animated center bulge
+struct MeetUnderlineBulge: Shape {
+    var bulge: CGFloat
+
+    var animatableData: CGFloat {
+        get { bulge }
+        set { bulge = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        // Render exactly on the bottom edge
+        let baselineY = rect.maxY
+        path.move(to: CGPoint(x: 0, y: baselineY))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.width, y: baselineY),
+            control: CGPoint(x: rect.width / 2, y: baselineY - max(bulge, 0))
+        )
+        return path
+    }
+}
 
 #Preview {
     NotchContentView(vm: .init())
