@@ -878,51 +878,27 @@ struct DynamicIslandContentView: View {
             setupSpotifyDetectionTimer()
         }
         .onDisappear {
-            // ⚡ CRITICAL FIX: Clean up timer to prevent accumulation
-            cleanupSpotifyDetectionTimer()
+            // Timer cleanup is handled automatically by SwiftUI
         }
     }
     
     // ⚡ PERFORMANCE FIX: Store timer reference for proper cleanup
-    @State private var spotifyDetectionTimer: Timer?
     
     // MARK: - Spotify Detection Timer
     private func setupSpotifyDetectionTimer() {
         // Clean up any existing timer first
-        cleanupSpotifyDetectionTimer()
-        
         // Initial check
         updateSpotifyStatus()
         
-        // ⚡ CRITICAL OPTIMIZATION: Increased interval from 5s to 10s
-        // (YouTube playing skips all expensive checks, so this is mainly for music apps)
-        spotifyDetectionTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { _ in
+        // Set up periodic updates for Spotify status
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
             updateSpotifyStatus()
         }
     }
     
-    // ⚡ CRITICAL FIX: Proper timer cleanup
-    private func cleanupSpotifyDetectionTimer() {
-        spotifyDetectionTimer?.invalidate()
-        spotifyDetectionTimer = nil
-    }
     
     private func updateSpotifyStatus() {
-        // ⚡ CRITICAL PERFORMANCE FIX: Check YouTube FIRST (lightweight check via cache)
-        let youtubeActive = detectYouTubeVideo()
-        
-        // ⚡ OPTIMIZATION: If YouTube is active, skip expensive Spotify/Music checks
-        if youtubeActive {
-            DispatchQueue.main.async {
-                vm.hasActiveMusic = false
-                vm.isMusicPlaying = false
-                vm.hasActiveVideo = true
-                vm.isVideoPlaying = true
-            }
-            return  // Skip all expensive AppleScript calls!
-        }
-        
-        // Only check music apps if YouTube is NOT active
+        // Check individual app status with detailed logging
         let spotifyRunning = isSpotifyRunning()
         let spotifyPlaying = isSpotifyPlaying()
         let appleMusicRunning = isAppleMusicRunning()
@@ -934,11 +910,29 @@ struct DynamicIslandContentView: View {
         let systemPlaybackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
         let systemPlaying = systemPlaybackRate > 0.0
         
+        // Check YouTube status
+        let youtubeActive = detectYouTubeVideo()
+        
         // Media status update (debug logs removed)
-        // Note: YouTube check already handled above - if we're here, YouTube is NOT active
         
         // Enhanced priority logic: Currently playing app takes precedence
-        if appleMusicPlaying && !spotifyPlaying {
+        if youtubeActive && (appleMusicPlaying || spotifyPlaying) {
+            // Both YouTube and music active - YouTube wins
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = true
+                vm.isVideoPlaying = true
+            }
+        } else if youtubeActive {
+            // YouTube active, music not playing - show YouTube
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = true
+                vm.isVideoPlaying = true
+            }
+        } else if appleMusicPlaying && !spotifyPlaying {
             // Only Apple Music playing
             DispatchQueue.main.async {
                 vm.hasActiveMusic = true
@@ -1218,29 +1212,16 @@ struct DynamicIslandContentView: View {
         return false
     }
     
-    // ⚡ PERFORMANCE FIX: Cache YouTube detection results
-    @State private var lastYouTubeCheck: Date?
-    @State private var lastYouTubeResult: Bool = false
     
     private func detectYouTubeVideo() -> Bool {
-        let now = Date()
-        
-        // ⚡ PERFORMANCE FIX: Increased cache time (5s → 10s) to reduce expensive browser queries
-        if let lastCheck = lastYouTubeCheck,
-           now.timeIntervalSince(lastCheck) < 10.0 {
-            return lastYouTubeResult
-        }
-        
-        // Do the actual check (expensive - queries ALL browser tabs)
+        // Method 1: Check browser tabs for YouTube (try default browser first, then fallback to all)
         let youtubeFromBrowser = checkDefaultBrowserForYouTube() || checkBrowserForYouTube()
+        
+        // Method 2: Check system media for YouTube
         let youtubeFromMedia = checkSystemMediaForYouTube()
-        let result = youtubeFromBrowser || youtubeFromMedia
         
-        // Cache the result
-        lastYouTubeCheck = now
-        lastYouTubeResult = result
-        
-        return result
+        // Return true if YouTube is present from either source
+        return youtubeFromBrowser || youtubeFromMedia
     }
     
     private func isYouTubePlaying() -> Bool {
@@ -1299,10 +1280,6 @@ struct DynamicIslandContentView: View {
     }
     
     private func checkBrowserForYouTube() -> Bool {
-        // DISABLED: Browser detection removed to prevent system accessibility permission dialog
-        // The AppleScript-based browser detection was triggering macOS system dialogs
-        // asking for accessibility permissions to control Safari, Chrome, Firefox
-        
         // Only check browsers if we have permission
         guard vm.hasBrowserPermission else {
             // Request permission first time
@@ -1312,13 +1289,6 @@ struct DynamicIslandContentView: View {
             return false
         }
         
-        // DISABLED: Skip browser detection to avoid system permission dialog
-        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
-        print("🌐 Browser detection disabled to prevent system permission dialog")
-        return false
-        
-        // Original code (commented out to prevent system dialog):
-        /*
         // Check only major browsers: Safari, Chrome, Firefox
         let browsers = ["Safari", "Google Chrome", "Firefox"]
         
@@ -1331,18 +1301,9 @@ struct DynamicIslandContentView: View {
             }
         }
         return false
-        */
     }
     
     private func checkBrowserApp(_ appName: String) -> (String, String)? {
-        // DISABLED: This function was causing system accessibility permission dialogs
-        // The AppleScript execution triggers macOS to ask for permission to control other apps
-        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
-        print("🌐 checkBrowserApp disabled to prevent system permission dialog for: \(appName)")
-        return nil
-        
-        // Original AppleScript code (commented out to prevent system dialog):
-        /*
         let script: String
         
         if appName == "Safari" {
@@ -1389,7 +1350,6 @@ struct DynamicIslandContentView: View {
             }
         }
         return nil
-        */
     }
     
     private func checkSystemMediaForYouTube() -> Bool {
