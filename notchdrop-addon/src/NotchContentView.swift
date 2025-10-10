@@ -1664,15 +1664,15 @@ struct VoiceMessageBubble: View {
                 //           Color(red: 0.173, green: 0.176, blue: 0.180))
                 //     .frame(width: 6, height: 6)
                 Text(sender)
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.system(size: 12, weight: .medium))
                     // .foregroundColor(DynamicIslandTheme.textMuted)
                     // .foregroundColor(DynamicIslandTheme.textMuted)
                 Spacer()
             }
             Text(text)
-                .font(.system(size: 20, weight: .medium))
+                .font(.system(size: 14, weight: .medium))
                 // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
-                .font(.system(size: 20, weight: .medium))
+                .font(.system(size: 14, weight: .medium))
                 // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
                 .multilineTextAlignment(.leading)
         }
