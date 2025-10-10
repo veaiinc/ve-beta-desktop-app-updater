@@ -17,6 +17,7 @@ extension NotchViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
+                guard self.isInteractionEnabled else { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
                 switch status {
                 case .opened:
@@ -52,7 +53,10 @@ extension NotchViewModel {
                     
                     // touch outside, close (unless explicitly locked)
                     if !notchOpenedRect.contains(mouseLocation), !isNotchLocked {
+                        print("🖱️ Click outside detected - closing notch (unlocked)")
                         notchClose()
+                    } else if !notchOpenedRect.contains(mouseLocation), isNotchLocked {
+                        print("🖱️ Click outside detected - NOT closing notch (LOCKED)")
                         // click where user open the panel - but don't auto-close if video is playing or locked
                     } else if notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation), !hasActiveVideo, !isNotchLocked {
                         notchClose()
@@ -94,6 +98,7 @@ extension NotchViewModel {
             .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true)
             .sink { [weak self] _ in
                 guard let self else { return }
+                guard self.isInteractionEnabled else { return }
                 // Skip hover processing while opened by click to reduce churn
                 if status == .opened, openReason == .click { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation

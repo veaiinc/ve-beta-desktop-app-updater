@@ -53,9 +53,13 @@ struct NotchContentView: View {
                 .opacity(vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted ? 1 : 0)
                 .animation(.easeInOut(duration: 0.25), value: vm.voiceConnectionStatus)
 
-                // Animated underline
-                MeetWaveUnderline(isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted)
-                    .frame(width: 301, height: 16)
+                // Animated underline (reactive to AI responses with real-time audio)
+                MeetWaveUnderline(
+                    isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted,
+                    isMuted: vm.voiceConnectionStatus == .connected && vm.isMicrophoneMuted,
+                    aiIntensity: vm.effectiveAnimationIntensity
+                )
+                .frame(width: 301, height: 16)
             }
             .compositingGroup()
             .clipped()
@@ -198,6 +202,10 @@ struct DynamicIslandContentView: View {
     @State private var isHomeButtonHovered: Bool = false
     @State private var isMeetingButtonHovered: Bool = false
     @State private var isTrayButtonHovered: Bool = false
+    
+    // Hover states for voice control buttons
+    @State private var isMuteButtonHovered: Bool = false
+    @State private var isStopButtonHovered: Bool = false
     
     // Auto-scroll state variables
     @State private var isTranscriptionHovered: Bool = false
@@ -393,7 +401,10 @@ struct DynamicIslandContentView: View {
                                             .font(.system(size: 14))
                                             .foregroundColor(.white)
                                             .frame(width: 24, height: 24)
-                                            .background(Color.clear)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(isMuteButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 6)
                                                     .stroke(Color.white.opacity(0.3), lineWidth: 1)
@@ -401,7 +412,27 @@ struct DynamicIslandContentView: View {
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
-                                    .onHover { hovering in NSCursor.pointingHand.set(); withAnimation(.easeInOut(duration: 0.15)) { /* hover style if needed */ } }
+                                    .overlay(alignment: .bottom) {
+                                        if isMuteButtonHovered {
+                                            Text(vm.isMicrophoneMuted ? "Unmute microphone" : "Mute microphone")
+                                                .font(.system(size: 11, weight: .semibold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color.black.opacity(0.8))
+                                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                                .offset(y: 28)
+                                                .fixedSize(horizontal: true, vertical: true)
+                                                .zIndex(2000)
+                                                .allowsHitTesting(false)
+                                        }
+                                    }
+                                    .onHover { hovering in 
+                                        NSCursor.pointingHand.set()
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isMuteButtonHovered = hovering
+                                        }
+                                    }
                                     
                                     // Cancel/Disconnect button
                                     Button(action: {
@@ -412,7 +443,10 @@ struct DynamicIslandContentView: View {
                                             .fill(Color.red)
                                             .frame(width: 14, height: 14)
                                             .frame(width: 24, height: 24)
-                                            .background(Color.clear)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(isStopButtonHovered ? Color.red.opacity(0.2) : Color.clear)
+                                            )
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 6)
                                                     .stroke(Color.white.opacity(0.3), lineWidth: 1)
@@ -420,7 +454,27 @@ struct DynamicIslandContentView: View {
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
-                                    .onHover { hovering in NSCursor.pointingHand.set(); withAnimation(.easeInOut(duration: 0.15)) { /* hover style if needed */ } }
+                                    .overlay(alignment: .bottom) {
+                                        if isStopButtonHovered {
+                                            Text("Stop & disconnect")
+                                                .font(.system(size: 11, weight: .semibold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color.black.opacity(0.8))
+                                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                                .offset(y: 28)
+                                                .fixedSize(horizontal: true, vertical: true)
+                                                .zIndex(2000)
+                                                .allowsHitTesting(false)
+                                        }
+                                    }
+                                    .onHover { hovering in 
+                                        NSCursor.pointingHand.set()
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isStopButtonHovered = hovering
+                                        }
+                                    }
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.top, 2) // Move left icons up to align with right icons
@@ -878,51 +932,27 @@ struct DynamicIslandContentView: View {
             setupSpotifyDetectionTimer()
         }
         .onDisappear {
-            // ⚡ CRITICAL FIX: Clean up timer to prevent accumulation
-            cleanupSpotifyDetectionTimer()
+            // Timer cleanup is handled automatically by SwiftUI
         }
     }
     
     // ⚡ PERFORMANCE FIX: Store timer reference for proper cleanup
-    @State private var spotifyDetectionTimer: Timer?
     
     // MARK: - Spotify Detection Timer
     private func setupSpotifyDetectionTimer() {
         // Clean up any existing timer first
-        cleanupSpotifyDetectionTimer()
-        
         // Initial check
         updateSpotifyStatus()
         
-        // ⚡ CRITICAL OPTIMIZATION: Increased interval from 5s to 10s
-        // (YouTube playing skips all expensive checks, so this is mainly for music apps)
-        spotifyDetectionTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { _ in
+        // Set up periodic updates for Spotify status
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
             updateSpotifyStatus()
         }
     }
     
-    // ⚡ CRITICAL FIX: Proper timer cleanup
-    private func cleanupSpotifyDetectionTimer() {
-        spotifyDetectionTimer?.invalidate()
-        spotifyDetectionTimer = nil
-    }
     
     private func updateSpotifyStatus() {
-        // ⚡ CRITICAL PERFORMANCE FIX: Check YouTube FIRST (lightweight check via cache)
-        let youtubeActive = detectYouTubeVideo()
-        
-        // ⚡ OPTIMIZATION: If YouTube is active, skip expensive Spotify/Music checks
-        if youtubeActive {
-            DispatchQueue.main.async {
-                vm.hasActiveMusic = false
-                vm.isMusicPlaying = false
-                vm.hasActiveVideo = true
-                vm.isVideoPlaying = true
-            }
-            return  // Skip all expensive AppleScript calls!
-        }
-        
-        // Only check music apps if YouTube is NOT active
+        // Check individual app status with detailed logging
         let spotifyRunning = isSpotifyRunning()
         let spotifyPlaying = isSpotifyPlaying()
         let appleMusicRunning = isAppleMusicRunning()
@@ -934,11 +964,29 @@ struct DynamicIslandContentView: View {
         let systemPlaybackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
         let systemPlaying = systemPlaybackRate > 0.0
         
+        // Check YouTube status
+        let youtubeActive = detectYouTubeVideo()
+        
         // Media status update (debug logs removed)
-        // Note: YouTube check already handled above - if we're here, YouTube is NOT active
         
         // Enhanced priority logic: Currently playing app takes precedence
-        if appleMusicPlaying && !spotifyPlaying {
+        if youtubeActive && (appleMusicPlaying || spotifyPlaying) {
+            // Both YouTube and music active - YouTube wins
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = true
+                vm.isVideoPlaying = true
+            }
+        } else if youtubeActive {
+            // YouTube active, music not playing - show YouTube
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = true
+                vm.isVideoPlaying = true
+            }
+        } else if appleMusicPlaying && !spotifyPlaying {
             // Only Apple Music playing
             DispatchQueue.main.async {
                 vm.hasActiveMusic = true
@@ -1001,12 +1049,19 @@ struct DynamicIslandContentView: View {
                 vm.isVideoPlaying = false
             }
         } else {
-            // Nothing running
+            // Nothing running - PERFORMANCE FIX: Clean up video resources
             DispatchQueue.main.async {
+                let wasVideoActive = vm.hasActiveVideo
                 vm.hasActiveMusic = false
                 vm.isMusicPlaying = false
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
+                
+                // Clean up video resources if video was previously active
+                if wasVideoActive {
+                    print("🧹 PERFORMANCE FIX: Video ended, cleaning up resources...")
+                    vm.cleanupVideoResources()
+                }
             }
         }
         
@@ -1055,13 +1110,20 @@ struct DynamicIslandContentView: View {
                 // Debug log removed VM UPDATED: Resolved to system media")
             }
         } else {
-            // Nothing is actually playing
+            // Nothing is actually playing - PERFORMANCE FIX: Clean up video resources
             // Debug log removed RESOLVED: Nothing is actually playing")
             DispatchQueue.main.async {
+                let wasVideoActive = vm.hasActiveVideo
                 vm.hasActiveMusic = false
                 vm.isMusicPlaying = false
                 vm.hasActiveVideo = false
                 vm.isVideoPlaying = false
+                
+                // Clean up video resources if video was previously active
+                if wasVideoActive {
+                    print("🧹 PERFORMANCE FIX: Video ended during conflict resolution, cleaning up resources...")
+                    vm.cleanupVideoResources()
+                }
                 // Debug log removed VM UPDATED: Resolved to no active media")
             }
         }
@@ -1218,29 +1280,16 @@ struct DynamicIslandContentView: View {
         return false
     }
     
-    // ⚡ PERFORMANCE FIX: Cache YouTube detection results
-    @State private var lastYouTubeCheck: Date?
-    @State private var lastYouTubeResult: Bool = false
     
     private func detectYouTubeVideo() -> Bool {
-        let now = Date()
-        
-        // ⚡ PERFORMANCE FIX: Increased cache time (5s → 10s) to reduce expensive browser queries
-        if let lastCheck = lastYouTubeCheck,
-           now.timeIntervalSince(lastCheck) < 10.0 {
-            return lastYouTubeResult
-        }
-        
-        // Do the actual check (expensive - queries ALL browser tabs)
+        // Method 1: Check browser tabs for YouTube (try default browser first, then fallback to all)
         let youtubeFromBrowser = checkDefaultBrowserForYouTube() || checkBrowserForYouTube()
+        
+        // Method 2: Check system media for YouTube
         let youtubeFromMedia = checkSystemMediaForYouTube()
-        let result = youtubeFromBrowser || youtubeFromMedia
         
-        // Cache the result
-        lastYouTubeCheck = now
-        lastYouTubeResult = result
-        
-        return result
+        // Return true if YouTube is present from either source
+        return youtubeFromBrowser || youtubeFromMedia
     }
     
     private func isYouTubePlaying() -> Bool {
@@ -1251,11 +1300,11 @@ struct DynamicIslandContentView: View {
     }
     
     private func getSystemDefaultBrowser() -> String? {
-        // Use NSWorkspace to get the default browser for HTTP URLs
-        if let httpURL = URL(string: "http://example.com"),
-           let defaultAppURL = NSWorkspace.shared.urlForApplication(toOpen: httpURL),
-           let bundle = Bundle(url: defaultAppURL),
-           let bundleId = bundle.bundleIdentifier {
+        // Check for browsers without triggering system dialogs
+        // Use LSCopyDefaultHandlerForURLScheme to get default browser without dialog
+        let httpScheme = "http" as CFString
+        if let defaultHandler = LSCopyDefaultHandlerForURLScheme(httpScheme) {
+            let bundleId = defaultHandler.takeRetainedValue() as String
             
             // Map bundle IDs to app names we can check
             switch bundleId {
@@ -1272,12 +1321,6 @@ struct DynamicIslandContentView: View {
             case "com.brave.Browser":
                 return "Brave Browser"
             default:
-                // Try to get the display name
-                if let appName = bundle.infoDictionary?["CFBundleDisplayName"] as? String {
-                    return appName
-                } else if let appName = bundle.infoDictionary?["CFBundleName"] as? String {
-                    return appName
-                }
                 return "Safari" // Fallback to Safari
             }
         }
@@ -1299,10 +1342,6 @@ struct DynamicIslandContentView: View {
     }
     
     private func checkBrowserForYouTube() -> Bool {
-        // DISABLED: Browser detection removed to prevent system accessibility permission dialog
-        // The AppleScript-based browser detection was triggering macOS system dialogs
-        // asking for accessibility permissions to control Safari, Chrome, Firefox
-        
         // Only check browsers if we have permission
         guard vm.hasBrowserPermission else {
             // Request permission first time
@@ -1312,13 +1351,6 @@ struct DynamicIslandContentView: View {
             return false
         }
         
-        // DISABLED: Skip browser detection to avoid system permission dialog
-        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
-        print("🌐 Browser detection disabled to prevent system permission dialog")
-        return false
-        
-        // Original code (commented out to prevent system dialog):
-        /*
         // Check only major browsers: Safari, Chrome, Firefox
         let browsers = ["Safari", "Google Chrome", "Firefox"]
         
@@ -1331,18 +1363,9 @@ struct DynamicIslandContentView: View {
             }
         }
         return false
-        */
     }
     
     private func checkBrowserApp(_ appName: String) -> (String, String)? {
-        // DISABLED: This function was causing system accessibility permission dialogs
-        // The AppleScript execution triggers macOS to ask for permission to control other apps
-        // This prevents the big system dialog asking "Where is Safari? Where is Chrome? Where is Firefox?"
-        print("🌐 checkBrowserApp disabled to prevent system permission dialog for: \(appName)")
-        return nil
-        
-        // Original AppleScript code (commented out to prevent system dialog):
-        /*
         let script: String
         
         if appName == "Safari" {
@@ -1389,7 +1412,6 @@ struct DynamicIslandContentView: View {
             }
         }
         return nil
-        */
     }
     
     private func checkSystemMediaForYouTube() -> Bool {
@@ -3743,6 +3765,7 @@ struct MusicMediaController: View {
 struct YouTubeMediaController: View {
     @ObservedObject var vm: NotchViewModel
     @State private var isHovered: Bool = false
+    @State private var videoPlayer: YouTubeVideoPlayer?
     
     var body: some View {
         Group {
@@ -3762,6 +3785,42 @@ struct YouTubeMediaController: View {
                         // User interaction to enable sound if needed
                         print("📺 User tapped video player - attempting to enable sound")
                     }
+                    .onAppear {
+                        // Store reference for cleanup
+                        videoPlayer = YouTubeVideoPlayer(embedURL: vm.videoEmbedURL)
+                    }
+                    .onDisappear {
+                        // Clean up video resources when player disappears
+                        print("🧹 PERFORMANCE FIX: Video player disappearing, cleaning up resources...")
+                        videoPlayer?.cleanupVideoResources()
+                        videoPlayer = nil
+                    }
+            }
+        }
+        .onChange(of: vm.hasActiveVideo) { hasActiveVideo in
+            // Clean up when video becomes inactive
+            if !hasActiveVideo {
+                print("🧹 PERFORMANCE FIX: Video became inactive, cleaning up resources...")
+                videoPlayer?.cleanupVideoResources()
+                videoPlayer = nil
+                
+                // Reset video state
+                DispatchQueue.main.async {
+                    vm.showVideoPlayer = false
+                    vm.videoURL = ""
+                    vm.videoEmbedURL = ""
+                    vm.videoTitle = ""
+                    vm.videoChannel = ""
+                    vm.videoThumbnail = nil
+                }
+            }
+        }
+        .onChange(of: vm.showVideoPlayer) { showVideoPlayer in
+            // Clean up when video player is hidden
+            if !showVideoPlayer {
+                print("🧹 PERFORMANCE FIX: Video player hidden, cleaning up resources...")
+                videoPlayer?.cleanupVideoResources()
+                videoPlayer = nil
             }
         }
     }
@@ -3770,6 +3829,7 @@ struct YouTubeMediaController: View {
 // MARK: - YouTube Video Player - ULTIMATE SOLUTION
 struct YouTubeVideoPlayer: NSViewRepresentable {
     let embedURL: String
+    @State private var webView: WKWebView?
     
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
@@ -3793,6 +3853,11 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         webView.allowsLinkPreview = false
         webView.customUserAgent = configuration.applicationNameForUserAgent
         
+        // Store reference for cleanup
+        DispatchQueue.main.async {
+            self.webView = webView
+        }
+        
         // Load the YouTube video directly with custom HTML that bypasses restrictions
         let videoId = extractVideoId(from: embedURL)
         let customHTML = createDirectVideoHTML(videoId: videoId)
@@ -3810,6 +3875,53 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
             let customHTML = createDirectVideoHTML(videoId: newVideoId)
             print("📺 ULTIMATE: Updating to new video: \(newVideoId)")
             nsView.loadHTMLString(customHTML, baseURL: URL(string: "https://www.youtube.com"))
+        }
+    }
+    
+    // MARK: - Cleanup Methods
+    
+    func cleanupVideoResources() {
+        print("🧹 PERFORMANCE FIX: Cleaning up YouTube video resources...")
+        
+        // Clean up JavaScript timers and resources
+        if let webView = webView {
+            let cleanupScript = """
+                // Clean up all timers and resources
+                if (typeof cleanupAllTimers === 'function') {
+                    cleanupAllTimers();
+                }
+                
+                // Clear any remaining timeouts
+                for (let i = 1; i < 10000; i++) {
+                    clearTimeout(i);
+                    clearInterval(i);
+                }
+                
+                // Stop any video playback
+                const iframe = document.querySelector('iframe');
+                if (iframe) {
+                    iframe.src = 'about:blank';
+                }
+                
+                // Clear localStorage for this video
+                const videoId = '\(extractVideoId(from: embedURL))';
+                localStorage.removeItem('notchVideoState_' + videoId);
+                
+                console.log('✅ Video resources cleaned up');
+            """
+            
+            webView.evaluateJavaScript(cleanupScript) { result, error in
+                if let error = error {
+                    print("📺 Error during cleanup: \(error)")
+                } else {
+                    print("✅ YouTube video cleanup completed")
+                }
+            }
+            
+            // Clear the webView reference
+            DispatchQueue.main.async {
+                self.webView = nil
+            }
         }
     }
     
@@ -4915,15 +5027,17 @@ struct WaveShape: Shape {
     }
 }
 
-// MARK: - Thin Meet-style Underline (ends pinned, center bulges up/down)
+// MARK: - Thin Meet-style Underline (reactive to AI responses)
 struct MeetWaveUnderline: View {
     @State private var bulge: CGFloat = 12
     let isActive: Bool
+    let isMuted: Bool // Microphone muted state
+    let aiIntensity: CGFloat // AI activity intensity from ViewModel (0.0 → 1.0)
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Glow (Figma spec: soft mint glow)
-            MeetUnderlineBulge(bulge: bulge)
+            // Glow (Figma spec: soft mint glow with reactive bulge)
+            MeetUnderlineBulge(bulge: effectiveBulgeHeight)
                 .stroke(
                     LinearGradient(
                         gradient: Gradient(colors: [
@@ -4936,11 +5050,11 @@ struct MeetWaveUnderline: View {
                     style: StrokeStyle(lineWidth: 8, lineCap: .round)
                 )
                 .blur(radius: 18)
-                .opacity(isActive ? 0.5 : 0)
-                .animation(.easeInOut(duration: 0.2), value: isActive)
+                .opacity((isActive || isMuted) ? 0.5 : 0)
+                .animation(.easeInOut(duration: 0.2), value: isActive || isMuted)
 
             // Crisp 1–2px line following the same curve (dark ends, light middle)
-            MeetUnderlineBulge(bulge: bulge)
+            MeetUnderlineBulge(bulge: effectiveBulgeHeight)
                 .stroke(
                     LinearGradient(
                         gradient: Gradient(stops: [
@@ -4953,24 +5067,178 @@ struct MeetWaveUnderline: View {
                     ),
                     style: StrokeStyle(lineWidth: 2, lineCap: .round)
                 )
-                .opacity(isActive ? 1 : 0)
-                .animation(.easeInOut(duration: 0.25), value: isActive)
+                .opacity((isActive || isMuted) ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: isActive || isMuted)
         }
-        .allowsHitTesting(false)
-        .onAppear {
-            if isActive {
-                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
-                    bulge = 30
+            .allowsHitTesting(false)
+            .onAppear {
+                // Initialize at base position - no jerks
+                bulge = 12
+                if isActive && !isMuted {
+                    // Smooth delayed start to avoid initial jerk
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        startBulgeAnimation()
+                    }
+                } else if isMuted {
+                    // When muted, show static 16pt hump
+                    bulge = 16
+                }
+            }
+            .onChange(of: isActive) { _, active in
+                if active && !isMuted {
+                    // Start from base with ultra-smooth entry
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.5)) {
+                        bulge = 12
+                    }
+                    // Then begin slow breathing
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        startBulgeAnimation()
+                    }
+                } else if !active && !isMuted {
+                    // Smooth exit
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.4)) { 
+                        bulge = 0 
+                    }
+                }
+            }
+            .onChange(of: isMuted) { _, muted in
+                if muted {
+                    // When muted: smoothly transition to static 16pt hump
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        bulge = 16
+                    }
+                } else if isActive {
+                    // When unmuted and active: return to breathing animation
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        bulge = 12
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        startBulgeAnimation()
+                    }
+                }
+            }
+        .onChange(of: aiIntensity) { _, newIntensity in
+            // Only react to AI intensity when NOT muted
+            if isActive && !isMuted {
+                // Real-time audio takes priority - immediate response to actual voice
+                if newIntensity > 0.2 {
+                    // AI is actively speaking - use immediate response to real voice
+                    animateBulgeForRealTimeAudio(intensity: newIntensity)
+                } else {
+                    // AI is in relaxed state (listening/idle) - ultra-smooth transition back to breathing
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 1.0)) {
+                        self.bulge = 12 // Smooth return to base
+                    }
+                    // Then start continuous ultra-smooth breathing animation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.startBulgeAnimation()
+                    }
                 }
             }
         }
-        .onChange(of: isActive) { _, active in
-            if active {
-                withAnimation(.timingCurve(0.2, 0, 0, 1, duration: 1.1).repeatForever(autoreverses: true)) {
-                    bulge = 30
+    }
+    
+    // Calculate bulge height based on AI intensity (dramatic scaling)
+    private var effectiveBulgeHeight: CGFloat {
+        // When muted: show static 16pt hump
+        if isMuted {
+            return 20
+        }
+        
+        // When not active and not muted: no bulge
+        guard isActive else { return 0 }
+        
+        // Base height: 12pt (idle state)
+        // AI intensity adds: 0-40pt (max 52pt total) - More dramatic range
+        // Smooth scaling: longer responses = higher bulges
+        let baseHeight: CGFloat = 12
+        let intensityBoost = aiIntensity * 40 // Increased from 28 to 40 for more drama
+        return baseHeight + intensityBoost
+    }
+    
+    private func startBulgeAnimation() {
+        // Ultra-smooth, slow, meditative breathing animation
+        // No jerks - completely smooth and slow like calm meditation
+        
+        // Start from base position
+        bulge = 12
+        
+        // Ultra-slow, buttery smooth breathing with custom easing
+        withAnimation(
+            .timingCurve(0.45, 0.05, 0.55, 0.95, duration: 2.5) // Ultra smooth custom curve
+            .repeatForever(autoreverses: true)
+        ) {
+            bulge = 17 // Very gentle breath up (reduced for smoother motion)
+        }
+    }
+    
+    private func animateBulgeForAIResponse(intensity: CGFloat) {
+        // Dramatic AI speaking animation - strong up-down vibration like real talking
+        let baseHeight: CGFloat = 12
+        let maxHeight = baseHeight + (intensity * 35) // Increased from 28 to 35 for more drama
+        
+        // Cancel any existing animations
+        bulge = baseHeight
+        
+        // Create strong speech rhythm with more dramatic pulses
+        let speechDuration = max(2.5, Double(intensity) * 5.0) // Longer speaking duration
+        let pulseCount = Int(speechDuration * 3.0) // ~3 pulses per second for more activity
+        
+        for i in 0..<pulseCount {
+            let delay = Double(i) * 0.35 // 350ms between pulses (slightly faster rhythm)
+            let pulseIntensity = intensity * (0.6 + 0.4 * sin(Double(i) * 1.2)) // More dramatic variation
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                // Strong dramatic pulse up
+                withAnimation(.easeOut(duration: 0.12)) {
+                    self.bulge = baseHeight + (pulseIntensity * 35) // Strong upward movement
                 }
-            } else {
-                withAnimation(.easeOut(duration: 0.2)) { bulge = 0 }
+                
+                // Quick dramatic pulse down
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                    withAnimation(.easeIn(duration: 0.18)) {
+                        self.bulge = baseHeight + (pulseIntensity * 5) // Strong downward movement
+                    }
+                }
+                
+                // Secondary smaller bounce for more natural feel
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) {
+                    withAnimation(.easeOut(duration: 0.1)) {
+                        self.bulge = baseHeight + (pulseIntensity * 15) // Small bounce back
+                    }
+                }
+            }
+        }
+        
+        // Final dramatic fade to idle after speech completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + speechDuration + 0.3) {
+            withAnimation(.easeInOut(duration: 1.2)) {
+                self.bulge = 15 // Return to gentle idle breathing
+            }
+        }
+    }
+    
+    /// Real-time audio reactive animation - immediate response to actual AI voice
+    private func animateBulgeForRealTimeAudio(intensity: CGFloat) {
+        let baseHeight: CGFloat = 12
+        let targetHeight = baseHeight + (intensity * 50) // Higher multiplier for real-time audio
+        
+        // Immediate response to actual AI voice - no delays
+        withAnimation(.easeOut(duration: 0.06)) {
+            bulge = targetHeight
+        }
+        
+        // Quick recovery for natural feel - mimics real speech rhythm
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+            withAnimation(.easeIn(duration: 0.10)) {
+                self.bulge = baseHeight + (intensity * 6) // Quick partial recovery
+            }
+        }
+        
+        // Secondary bounce for natural speech feel
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
+            withAnimation(.easeOut(duration: 0.08)) {
+                self.bulge = baseHeight + (intensity * 12) // Small bounce back
             }
         }
     }

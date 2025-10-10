@@ -113,6 +113,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			createBotInfo,
 			getMeetBotById,
 			getMeetSummary,
+			getMeetingAnalytics,
 			meetSummary,
 			deleteMeeting,
 			updateMeeting,
@@ -140,11 +141,32 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			summaryInProgress.length > 0 &&
 			summaryInProgress.includes(meetingId)
 		) {
-			setInfo((prev) => ({ ...prev, summaryInProgress: true }));
+			// Only show loading if we don't already have analytics data
+			checkIfShouldShowLoading();
 		} else {
 			setInfo((prev) => ({ ...prev, summaryInProgress: false }));
 		}
-	}, [JSON.stringify(summaryInProgress)]);
+	}, [JSON.stringify(summaryInProgress), meetingId]);
+
+	// Check if we should show loading state based on existing analytics data
+	const checkIfShouldShowLoading = useCallback(async () => {
+		try {
+			// Check if analytics data already exists
+			const [success, data] = await getMeetingAnalytics(meetingId);
+			
+			if (success && data) {
+				console.log('Analytics data already exists, not showing loading state');
+				setInfo((prev) => ({ ...prev, summaryInProgress: false }));
+			} else {
+				console.log('No analytics data found, showing loading state');
+				setInfo((prev) => ({ ...prev, summaryInProgress: true }));
+			}
+		} catch (error) {
+			console.error('Error checking analytics data for loading state:', error);
+			// If there's an error, show loading state as fallback
+			setInfo((prev) => ({ ...prev, summaryInProgress: true }));
+		}
+	}, [meetingId, getMeetingAnalytics]);
 	console.log('info', info);
 
 	// Generate meeting analytics (without audio recording)
@@ -556,13 +578,38 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [activeTab]);
 
 	// Generate meeting analytics when meeting ends (when history becomes true)
+	// Only generate if analytics data doesn't already exist
 	useEffect(() => {
 		// When history becomes true, it means the meeting has ended and we're viewing history
 		if (history === true && meetingId) {
-			console.log('Meeting ended, generating analytics for meeting:', meetingId);
+			// Check if analytics data already exists before generating
+			checkAndGenerateAnalytics();
+		}
+	}, [history, meetingId]);
+
+	// Check if analytics data exists and only generate if needed
+	const checkAndGenerateAnalytics = useCallback(async () => {
+		try {
+			console.log('Checking if analytics already exist for meeting:', meetingId);
+			
+			// First, try to fetch existing analytics data
+			const [success, data] = await getMeetingAnalytics(meetingId);
+			
+			if (success && data) {
+				console.log('Analytics data already exists for meeting:', meetingId);
+				// Analytics already exist, no need to generate
+				return;
+			}
+			
+			// If no analytics data exists, then generate it
+			console.log('No analytics data found, generating analytics for meeting:', meetingId);
+			generateMeetingAnalytics();
+		} catch (error) {
+			console.error('Error checking analytics data:', error);
+			// If there's an error checking, proceed with generation as fallback
 			generateMeetingAnalytics();
 		}
-	}, [history, meetingId, generateMeetingAnalytics]);
+	}, [meetingId, getMeetingAnalytics, generateMeetingAnalytics]);
 
 	useEffect(() => {
 		if (

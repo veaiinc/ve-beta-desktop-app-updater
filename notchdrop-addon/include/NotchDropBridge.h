@@ -28,6 +28,7 @@
 + (BOOL)getHapticFeedback;
 + (void)setNotchVisible:(BOOL)visible;
 + (BOOL)getNotchVisible;
++ (void)setInteractionEnabled:(BOOL)enabled;
 
 // Callbacks
 + (void)setNotchDropStatusChangedCallback:(void(^)(NSString*))callback;
@@ -82,6 +83,9 @@
  + (void)setRecordingPanelMode:(NSString*)mode;
 + (void)clearLiveIntelligenceData;
 + (void)updateStealthModeState:(BOOL)isEnabled;
+
+// External Recording State Management
++ (void)handleExternalRecordingStateChange:(BOOL)isRecording isPaused:(BOOL)isPaused;
 
 // Wake Word Detection Integration
 + (void)handleWakeWordDetected:(float)score;

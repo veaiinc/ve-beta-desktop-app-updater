@@ -59,6 +59,7 @@ const GlobalMeetingHelper = () => {
 			activeMeetingDetails,
 			updateActiveMeetingDetails,
 			handleLiveIntelligenceData,
+			getMeetingAnalytics,
 		},
 		profileInfo: { tennantSettingsData, getTenantSettings },
 		templates: {
@@ -306,11 +307,24 @@ const GlobalMeetingHelper = () => {
 
 		stopRecording({ meetingId: info?.meetingData?._id });
 
-		// Generate meeting analytics when meeting ends
+		// Generate meeting analytics when meeting ends (only if not already exists)
 		if (currentMeetingId) {
 			try {
 				console.log(
-					'GlobalMeetingHelper: Generating meeting analytics for ended meeting:',
+					'GlobalMeetingHelper: Checking if analytics already exist for ended meeting:',
+					currentMeetingId,
+				);
+				
+				// First, check if analytics data already exists
+				const [success, data] = await getMeetingAnalytics(currentMeetingId);
+				
+				if (success && data) {
+					console.log('GlobalMeetingHelper: Analytics data already exists, skipping generation');
+					return;
+				}
+				
+				console.log(
+					'GlobalMeetingHelper: No analytics data found, generating analytics for ended meeting:',
 					currentMeetingId,
 				);
 				const result = await audioStorageService.generateMeetingAnalytics(currentMeetingId);
