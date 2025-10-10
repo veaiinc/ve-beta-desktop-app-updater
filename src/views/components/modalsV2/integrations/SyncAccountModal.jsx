@@ -113,7 +113,7 @@ const SyncAccountModal = ({ closeSyncModal, connectedIntegration, closeModal }) 
 						onChange={(date) => handleDateChange(date, 'startDate')}
 						className="date-picker"
 						format="DD/MM/YYYY"
-						placeholder="Select start date"
+						placeholder="Select Date"
 					/>
 				</div>
 
@@ -124,7 +124,7 @@ const SyncAccountModal = ({ closeSyncModal, connectedIntegration, closeModal }) 
 						onChange={(date) => handleDateChange(date, 'endDate')}
 						className="date-picker"
 						format="DD/MM/YYYY"
-						placeholder="Select end date"
+						placeholder="Select Date"
 					/>
 				</div>
 
