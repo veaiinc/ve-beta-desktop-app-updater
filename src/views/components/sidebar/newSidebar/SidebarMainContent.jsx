@@ -32,6 +32,7 @@ const SidebarMainContent = ({
 	const {
 		subscriptionInfo: { getShareAndEarn, referralData },
 		notes: { activeMeetingDetails },
+		aiSetup: { aiChatSessions },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -96,15 +97,17 @@ const SidebarMainContent = ({
 					<span>Invite Friends, Earn Credits</span>
 				</button>
 
-				{options?.map((option, index) => (
-					<button
-						className={`${s.btn} ${activeTab === option?.value ? s.active : ''}`}
-						onClick={() => handleTabClick(option)}
-						key={index}
-					>
-						{option?.label}
-					</button>
-				))}
+				<div className={s.navButtons}>
+					{options?.map((option, index) => (
+						<button
+							className={`${s.btn} ${activeTab === option?.value ? s.active : ''}`}
+							onClick={() => handleTabClick(option)}
+							key={index}
+						>
+							{option?.label}
+						</button>
+					))}
+				</div>
 				{activeMeetingDetails?.meetingId && (
 					<button
 						className={`${s.btn} ${activeTab === 'ongoingMeeting' ? s.active : ''}`}
@@ -119,22 +122,23 @@ const SidebarMainContent = ({
 					</button>
 				)}
 
-				<div className={s.chatList}>
-					<div className={s.leftContainer}>
+				{aiChatSessions?.data?.length > 0 && (
+					<div className={s.chatList}>
 						<button
 							className={`${s.itemBtn} ${activeType === 'chats' ? s.active : ''}`}
 							onClick={() => handleTypeChange('chats')}
 						>
 							Chats
 						</button>
+						<button
+							className={`${s.toggleExpand} ${expanded ? s.expanded : ''}`}
+							onClick={handleToggleChatsExpand}
+							aria-label={expanded ? 'Collapse chats' : 'Expand chats'}
+						>
+							<ChevronRightThinSvg width={16} height={16} />
+						</button>
 					</div>
-					<div
-						className={`${s.toggleExpand} ${expanded ? s.expanded : ''}`}
-						onClick={handleToggleChatsExpand}
-					>
-						<ChevronRightThinSvg width={16} height={16} />
-					</div>
-				</div>
+				)}
 			</div>
 			<div className={s.sidebarChats}>
 				{expanded && activeType === 'chats' && <ChatHistory showNewChatBtn={false} />}

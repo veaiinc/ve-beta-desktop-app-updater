@@ -172,13 +172,13 @@ export const settingsItems = [
 		value: 'integrations-shared',
 		category: 'workspace',
 	},
-	{
-		id: 8,
-		label: 'Templates',
-		icon: <TemplatesSvg />,
-		route: '/playbook',
-		category: 'workspace',
-	},
+	// {
+	// 	id: 8,
+	// 	label: 'Templates',
+	// 	icon: <TemplatesSvg />,
+	// 	route: '/playbook',
+	// 	category: 'workspace',
+	// },
 	{
 		id: 9,
 		label: 'Help',
@@ -186,14 +186,14 @@ export const settingsItems = [
 		route: null,
 		category: 'workspace',
 	},
-	{
-		id: 10,
-		label: 'Keyboard Shortcuts',
-		icon: <HelpSvg />,
-		route: '/settings/keyboard-shortcuts',
-		value: 'keyboard-shortcuts',
-		category: 'workspace',
-	},
+	// {
+	// 	id: 10,
+	// 	label: 'Keyboard Shortcuts',
+	// 	icon: <HelpSvg />,
+	// 	route: '/settings/keyboard-shortcuts',
+	// 	value: 'keyboard-shortcuts',
+	// 	category: 'workspace',
+	// },
 ];
 
 const Settings = memo(

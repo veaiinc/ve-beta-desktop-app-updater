@@ -95,9 +95,7 @@ const SwitchWorkspace = ({ workspaceList = [], switchWorkspaceEnabled = false })
 	};
 
 	return (
-		<div className={s.container} onKeyDown={handleKeyboardNavigation}>
-			<div className={s.title}>Switch Workspace</div>
-
+		<div className={s.overlayContainer} onKeyDown={handleKeyboardNavigation}>
 			{workspaceList?.length > 3 && (
 				<div className={s.searchInputContainer}>
 					<SearchSvg className={s.searchIcon} />
