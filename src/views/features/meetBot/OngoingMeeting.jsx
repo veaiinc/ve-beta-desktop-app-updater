@@ -48,7 +48,7 @@ const OngoingMeeting = memo(() => {
 
 	const {
 		notes: { activeMeetingDetails },
-		templates: { updateStateValues, sidebarState },
+		templates: { updateStateValues },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
@@ -132,6 +132,10 @@ const OngoingMeeting = memo(() => {
 	useEffect(() => {
 		if (!activeMeetingDetails?.meetingId) {
 			navigate('/home');
+		}
+
+		if (activeMeetingDetails?.meetingId) {
+			updateStateValues({ sidebarState: { open: false, overlay: false } });
 		}
 	}, []);
 

@@ -15,7 +15,14 @@ import CreditsUpgradeTooltip from './CreditsUpgradeTooltip';
 import Notifications from '../../topNavbar/components/notifications/Notifications';
 import { Tooltip } from 'antd';
 
-const mediaQuery = window.matchMedia('(max-width: 768px)');
+const routeNameMapper = {
+	chat: 'removeActiveTab',
+	'new-chat': 'newChat',
+	'ongoing-meeting': 'ongoingMeeting',
+	home: 'meet',
+};
+
+// const mediaQuery = window.matchMedia('(max-width: 768px)');
 
 const NewSidebar = () => {
 	const [info, setInfo] = useState({
@@ -27,7 +34,7 @@ const NewSidebar = () => {
 		sidebarHoverState: false,
 		showSettings: false,
 		logoutLoading: false,
-		isMobileView: mediaQuery.matches,
+		// isMobileView: mediaQuery.matches,
 	});
 	const location = useLocation();
 	const channel = useBroadcastChannel();
@@ -70,31 +77,37 @@ const NewSidebar = () => {
 			});
 		}
 
-		mediaQuery.addEventListener('change', handleResize);
-		return () => mediaQuery.removeEventListener('change', handleResize);
+		// mediaQuery.addEventListener('change', handleResize);
+		// return () => mediaQuery.removeEventListener('change', handleResize);
 	}, []);
 
-	useEffect(() => {
-		if (isSidebarMobileView !== info?.isMobileView) {
-			updateStateValues({
-				isSidebarMobileView: info?.isMobileView,
-			});
-		}
-	}, [info?.isMobileView]);
+	// useEffect(() => {
+	// 	if (isSidebarMobileView !== info?.isMobileView) {
+	// 		updateStateValues({
+	// 			isSidebarMobileView: info?.isMobileView,
+	// 		});
+	// 	}
+	// }, [info?.isMobileView]);
 
 	useEffect(() => {
 		if (location.pathname) {
 			const routeName = location.pathname.split('/')[1];
 
-			if (routeName === 'chat') {
-				setInfo((prev) => ({ ...prev, activeTab: null }));
+			if (routeNameMapper?.[routeName]) {
+				let updatedActiveTab = routeNameMapper?.[routeName];
+				updatedActiveTab = updatedActiveTab === 'removeActiveTab' ? null : updatedActiveTab;
+
+				if (info?.activeTab === updatedActiveTab) return;
+				setInfo((prev) => {
+					return { ...prev, activeTab: routeNameMapper?.[routeName] };
+				});
 			}
 		}
 	}, [location.pathname]);
 
-	const handleResize = useCallback((e) => {
-		setInfo((prev) => ({ ...prev, isMobileView: e.matches }));
-	}, []);
+	// const handleResize = useCallback((e) => {
+	// 	setInfo((prev) => ({ ...prev, isMobileView: e.matches }));
+	// }, []);
 
 	const handleTabChange = useCallback(
 		(tab) => {
@@ -155,6 +168,7 @@ const NewSidebar = () => {
 		if (info?.activeTab !== 'newChat') {
 			navigate('/new-chat');
 			handleTabChange('newChat');
+			setInfo((prev) => ({ ...prev, showSettings: false }));
 		}
 	}, [info?.activeTab]);
 
