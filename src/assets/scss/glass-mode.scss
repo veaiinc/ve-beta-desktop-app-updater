@@ -241,4 +241,5 @@
 .glass-mode-enabled .panel {
 	will-change: backdrop-filter;
 	transform: translateZ(0);
+	height: 100%;
 }
