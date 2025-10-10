@@ -648,7 +648,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		await deleteMeeting({ meetingId });
 		toggleDeleteModal(false);
 		setInfo((prev) => ({ ...prev, isDeleteModalLoading: false }));
-		navigate('/meet');
+		navigate('/home');
 	};
 
 	const debouncedUpdateMeetingTitle = useCallback(

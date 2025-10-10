@@ -284,7 +284,7 @@ var notch: some View {
                         Gradient.Stop(color: .white.opacity(0.06), location: 1.0),
                     ],
                     startPoint: .leading,
-                    endPoint: .trailing,
+                    endPoint: .trailing
                 ))
                 .cornerRadius(100)
 
@@ -323,7 +323,7 @@ var notch: some View {
                             Gradient.Stop(color: .white.opacity(0.06), location: 1.0),
                         ],
                         startPoint: .leading,
-                        endPoint: .trailing,
+                        endPoint: .trailing
                     )
                 )
                 .cornerRadius(5)

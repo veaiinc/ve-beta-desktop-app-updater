@@ -293,6 +293,18 @@ const GlobalMeetingHelper = () => {
 
 		sessionIdRef.current = null;
 
+		updateActiveMeetingDetails({
+			transcriptions: [],
+			meetingId: null,
+			liveIntelligenceData: {
+				askUser: [],
+				needHelp: [],
+				actions: [],
+				files: [],
+				allThreads: [],
+			},
+		});
+
 		stopRecording({ meetingId: info?.meetingData?._id });
 
 		// Generate meeting analytics when meeting ends (only if not already exists)
@@ -349,7 +361,6 @@ const GlobalMeetingHelper = () => {
 
 		// Reset local transcription ref and context
 		localTranscriptionsRef.current = [];
-		updateActiveMeetingDetails({ transcriptions: [] });
 
 		setInfo((prev) => ({
 			...prev,
