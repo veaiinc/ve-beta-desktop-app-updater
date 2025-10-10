@@ -118,7 +118,6 @@ const AuthWrapper = ({
 					});
 				}
 			}
-			console.log('navigate', updateObject, path);
 			navigate(path); // client-side navigation
 		});
 	}, [navigate]);
