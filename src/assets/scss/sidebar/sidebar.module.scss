@@ -8,19 +8,16 @@
 	left: 0;
 	height: 100dvh;
 	background: rgba(10, 10, 10, 0.4);
-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
 	z-index: 900;
 	transform: translateX(-256px);
 	transition: transform 0.3s cubic-bezier(0, 0, 0.2, 1),
 		background 0.3s cubic-bezier(0, 0, 0.2, 1);
-		
-
-
 
 	&.active {
 		transform: translateX(0);
 	}
-	-webkit-app-region: no-drag !important;
+	// -webkit-app-region: no-drag !important;
 
 	.sidebarContainer {
 		width: 256px;
@@ -72,22 +69,25 @@ backdrop-filter: blur(8px);
 					}
 				}
 
-			.closeIcon {
-				display: flex;
-				width: 40px;
-				height: 40px;
-				padding: 12px;
-				justify-content: center;
-				align-items: center;
-				gap: 10px;
-				flex-shrink: 0;
-				border-radius: 100px;
-				cursor: pointer;
-				border: 1px solid transparent;
-				&:hover {
-					background: var(--card, #1b1c1d); /* Use --card instead of --background-color */
-					border: 1px solid var(--stroke);
-				}
+				.closeIcon {
+					display: flex;
+					width: 40px;
+					height: 40px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					flex-shrink: 0;
+					border-radius: 100px;
+					cursor: pointer;
+					border: 1px solid transparent;
+					&:hover {
+						background: var(
+							--card,
+							#1b1c1d
+						); /* Use --card instead of --background-color */
+						border: 1px solid var(--stroke);
+					}
 
 					:global(svg) {
 						flex-shrink: 0;
@@ -295,7 +295,7 @@ backdrop-filter: blur(8px);
 
 	.closeSidebar {
 		transform: rotate(180deg);
-		-webkit-app-region: no-drag;
+		// -webkit-app-region: no-drag;
 		:global(svg) {
 			flex-shrink: 0;
 		}
