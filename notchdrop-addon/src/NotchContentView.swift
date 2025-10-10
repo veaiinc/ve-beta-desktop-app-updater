@@ -1232,11 +1232,11 @@ struct DynamicIslandContentView: View {
     }
     
     private func getSystemDefaultBrowser() -> String? {
-        // Use NSWorkspace to get the default browser for HTTP URLs
-        if let httpURL = URL(string: "http://example.com"),
-           let defaultAppURL = NSWorkspace.shared.urlForApplication(toOpen: httpURL),
-           let bundle = Bundle(url: defaultAppURL),
-           let bundleId = bundle.bundleIdentifier {
+        // Check for browsers without triggering system dialogs
+        // Use LSCopyDefaultHandlerForURLScheme to get default browser without dialog
+        let httpScheme = "http" as CFString
+        if let defaultHandler = LSCopyDefaultHandlerForURLScheme(httpScheme) {
+            let bundleId = defaultHandler.takeRetainedValue() as String
             
             // Map bundle IDs to app names we can check
             switch bundleId {
@@ -1253,12 +1253,6 @@ struct DynamicIslandContentView: View {
             case "com.brave.Browser":
                 return "Brave Browser"
             default:
-                // Try to get the display name
-                if let appName = bundle.infoDictionary?["CFBundleDisplayName"] as? String {
-                    return appName
-                } else if let appName = bundle.infoDictionary?["CFBundleName"] as? String {
-                    return appName
-                }
                 return "Safari" // Fallback to Safari
             }
         }
