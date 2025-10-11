@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import s from '../../../../assets/scss/sidebar/sidebar.module.scss';
 import { ReactComponent as SidebarClosingSvg } from '../../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as LogoutSvg } from '../../../../assets/svg/sidebar/logout.svg';
@@ -6,6 +6,7 @@ import { ReactComponent as NotificationsSvg } from '../../../../assets/svg/sideb
 import { ReactComponent as SettingSvg } from '../../../../assets/svg/sidebar/setting.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../../assets/svg/sidebar/switchWorkspace.svg';
 import { ReactComponent as CreateWorkspaceSvg } from '../../../../assets/svg/sidebar/createWorkspace.svg';
+import { ReactComponent as ShortcutBarSvg } from '../../../../assets/svg/sidebar/shortcutBar.svg';
 import Context from '../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SidebarMainContent from './SidebarMainContent';
@@ -15,6 +16,7 @@ import useBroadcastChannel from '../../../../hooks/useBroadcastChannel';
 import CreditsUpgradeTooltip from './CreditsUpgradeTooltip';
 import SwitchWorkspace from './SwitchWorkspace';
 import Notifications from '../../topNavbar/components/notifications/Notifications';
+import Shortcuts from '../../topNavbar/components/shortcuts/Shortcuts';
 import { Tooltip } from 'antd';
 
 const routeNameMapper = {
@@ -39,6 +41,11 @@ const NewSidebar = () => {
 		workspaceModalOpen: false,
 		workspaceListOpen: false,
 	});
+
+	const notificationsRef = useRef(null);
+	const shortcutsRef = useRef(null);
+	const notificationsButtonRef = useRef(null);
+	const shortcutsButtonRef = useRef(null);
 
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -193,6 +200,8 @@ const NewSidebar = () => {
 			...prev,
 			workspaceModalOpen: false,
 			workspaceListOpen: false,
+			notificationsOpen: false,
+			shortcutsOpen: false,
 		}));
 	}, []);
 
@@ -208,7 +217,35 @@ const NewSidebar = () => {
 				workspaceListOpen: false,
 			}));
 		}
-	}, [localState?.workspaceModalOpen, localState?.workspaceListOpen, handleCloseAllOverlays]);
+	}, [
+		localState?.workspaceModalOpen,
+		localState?.workspaceListOpen,
+		localState?.notificationsOpen,
+		localState?.shortcutsOpen,
+		handleCloseAllOverlays,
+	]);
+
+	const handleNotificationsToggle = useCallback((e) => {
+		e?.stopPropagation();
+		setLocalState((prev) => ({
+			...prev,
+			notificationsOpen: !prev?.notificationsOpen,
+			workspaceModalOpen: false,
+			workspaceListOpen: false,
+			shortcutsOpen: false,
+		}));
+	}, []);
+
+	const handleShortcutsToggle = useCallback((e) => {
+		e?.stopPropagation();
+		setLocalState((prev) => ({
+			...prev,
+			shortcutsOpen: !prev?.shortcutsOpen,
+			workspaceModalOpen: false,
+			workspaceListOpen: false,
+			notificationsOpen: false,
+		}));
+	}, []);
 
 	// Derived state for cleaner logic
 	const isSidebarOpen = sidebarState?.open ?? false;
@@ -242,21 +279,29 @@ const NewSidebar = () => {
 								<SettingSvg width={20} height={20} />
 							</button>
 
-							<Tooltip
-								title={<Notifications />}
-								placement="bottom"
-								arrow={false}
-								color={'transparent'}
-								rootClassName={s.notificationsTooltip}
+							<button
+								ref={notificationsButtonRef}
+								className={`${s.notificationsIcon} ${
+									localState?.notificationsOpen ? s.active : ''
+								}`}
+								type="button"
+								aria-label="Notifications"
+								onClick={handleNotificationsToggle}
 							>
-								<button
-									className={s.notificationsIcon}
-									type="button"
-									aria-label="Notifications"
-								>
-									<NotificationsSvg width={20} height={20} />
-								</button>
-							</Tooltip>
+								<NotificationsSvg width={20} height={20} />
+							</button>
+
+							<button
+								ref={shortcutsButtonRef}
+								className={`${s.gridIcon} ${
+									localState?.shortcutsOpen ? s.active : ''
+								}`}
+								type="button"
+								aria-label="Shortcuts"
+								onClick={handleShortcutsToggle}
+							>
+								<ShortcutBarSvg width={20} height={20} />
+							</button>
 							<CreditsUpgradeTooltip>
 								<div className={s.creditsLeftContainer}>
 									<CreditsLeftSvg
@@ -267,6 +312,24 @@ const NewSidebar = () => {
 							</CreditsUpgradeTooltip>
 						</div>
 					</div>
+
+					{/* Notifications Top Overlay - Show when notifications is clicked */}
+					{localState?.notificationsOpen && (
+						<div ref={notificationsRef} className={s.notificationsTopOverlay}>
+							<div className={s.notificationsTopOverlayContent}>
+								<Notifications onClose={handleCloseAllOverlays} />
+							</div>
+						</div>
+					)}
+
+					{/* Shortcuts Top Overlay - Show when shortcuts is clicked */}
+					{localState?.shortcutsOpen && (
+						<div ref={shortcutsRef} className={s.shortcutsTopOverlay}>
+							<div className={s.shortcutsTopOverlayContent}>
+								<Shortcuts onClose={handleCloseAllOverlays} />
+							</div>
+						</div>
+					)}
 
 					{/* Main Content */}
 					<div className={s.mainContent}>
@@ -319,16 +382,6 @@ const NewSidebar = () => {
 							<div className={s.workspaceListOverlay}>
 								<div className={s.workspaceListHeader}>
 									<h3 className={s.workspaceListTitle}>Switch Workspace</h3>
-									<button
-										className={s.closeButton}
-										onClick={(e) => {
-											e.stopPropagation();
-											handleCloseAllOverlays();
-										}}
-										aria-label="Close workspace list"
-									>
-										×
-									</button>
 								</div>
 								<div className={s.workspaceListContent}>
 									<SwitchWorkspace
