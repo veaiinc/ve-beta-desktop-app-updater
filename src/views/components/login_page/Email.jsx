@@ -312,7 +312,7 @@ const Email = ({
 			</div>
 			{/* {info?.isHostnameVeDotAi && (
 				<> */}
-			<div className="service-container">
+			{/* <div className="service-container">
 				<button
 					disabled={info?.googleLoading || !info?.isHostnameVeDotAi}
 					className="google-login-button"
@@ -336,7 +336,7 @@ const Email = ({
 			<div className="or-divider">
 				<div className="line"></div>
 				<span className="or-text">OR</span>
-			</div>
+			</div> */}
 			{/* </>
 			)} */}
 			<div className="login-content-wrapper">

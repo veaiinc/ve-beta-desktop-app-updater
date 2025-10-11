@@ -118,8 +118,23 @@ const useSpeechTranscription = ({ tenantId, socketClosingTime = 3 * 60 }) => {
 			return;
 		}
 
-		return new Promise((resolve, reject) => {
+		return new Promise(async (resolve, reject) => {
 			let attempts = 0;
+
+			let permissionGranted = false;
+
+			try {
+				const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+				permissionGranted = true;
+				console.log('Microphone access granted', stream);
+			} catch (err) {
+				console.log('Microphone permission denied or unavailable.', err);
+			}
+
+			if (!permissionGranted) {
+				reject(new Error('Please give mic permission'));
+				return;
+			}
 
 			const attemptConnection = () => {
 				// If max retries exceeded, reject the promise
