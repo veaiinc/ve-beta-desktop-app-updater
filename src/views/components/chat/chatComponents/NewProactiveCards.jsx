@@ -858,7 +858,6 @@ const ProactiveCards = () => {
 										openFilter: false,
 									}))
 								}
-								placement="top"
 								title={
 									<div className={styles.filterContainer}>
 										<div className={styles.filterItems}>
@@ -957,6 +956,7 @@ const ProactiveCards = () => {
 									cursor: 'pointer',
 									userSelect: 'none',
 								}}
+								arrow={false}
 							>
 								<button
 									className={`${styles.filterBtn} ${

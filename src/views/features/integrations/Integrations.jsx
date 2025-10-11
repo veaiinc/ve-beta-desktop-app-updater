@@ -294,6 +294,10 @@ const Integrations = () => {
 		}, 1000);
 	}, [fetchConnectedPlatforms]);
 
+	const handleModalClose = useCallback(() => {
+		setConnectLoader({ loader: false, title: '' });
+	}, []);
+
 	const handleConnect = useCallback((integration) => {
 		setSelectedIntegration(integration);
 		setConnectLoader({ loader: true, title: integration.title });
@@ -476,6 +480,7 @@ const Integrations = () => {
 				closeModal={() => setIsModalOpen(false)}
 				integration={selectedIntegration}
 				onConnectionSuccess={handleConnectionSuccess}
+				onModalClose={handleModalClose}
 				activeTab={activeTab}
 			/>
 		</div>

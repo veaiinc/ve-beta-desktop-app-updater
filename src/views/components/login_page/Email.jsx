@@ -29,7 +29,7 @@ const Email = ({
 		authInfo: {
 			checkAccountExistsUsingEmail,
 			createAccountUsingEmail,
-			continueWithGoogle,
+			// continueWithGoogle,
 			getUsernameDetailsViaReferralCode,
 			getLocationDetails,
 		},
@@ -160,26 +160,26 @@ const Email = ({
 		return response;
 	};
 
-	const handleContinueWithGoogle = async () => {
-		if (info?.googleLoading) {
-			return;
-		}
-		if (!locationDetails || locationDetails === null || locationDetails === 'undefined') {
-			const response = await getLocationDetails();
-			if (response?.[0] === true) {
-				locationDetails = response?.[1];
-			} else {
-				message?.error(response?.[1]?.message);
-			}
-		}
+	// const handleContinueWithGoogle = async () => {
+	// 	if (info?.googleLoading) {
+	// 		return;
+	// 	}
+	// 	if (!locationDetails || locationDetails === null || locationDetails === 'undefined') {
+	// 		const response = await getLocationDetails();
+	// 		if (response?.[0] === true) {
+	// 			locationDetails = response?.[1];
+	// 		} else {
+	// 			message?.error(response?.[1]?.message);
+	// 		}
+	// 	}
 
-		setInfo((prev) => ({ ...prev, googleLoading: true }));
-		if (info?.referrerUserDetails?.isValidReferralCode) {
-			continueWithGoogle(locationDetails, referralCode);
-		} else {
-			continueWithGoogle(locationDetails);
-		}
-	};
+	// 	setInfo((prev) => ({ ...prev, googleLoading: true }));
+	// 	if (info?.referrerUserDetails?.isValidReferralCode) {
+	// 		continueWithGoogle(locationDetails, referralCode);
+	// 	} else {
+	// 		continueWithGoogle(locationDetails);
+	// 	}
+	// };
 
 	const handleSetEmail = (e, invitedUserEmail = false) => {
 		const email = e?.target?.value ?? invitedUserEmail;
@@ -379,7 +379,7 @@ const Email = ({
 						</button>
 					</div>
 				</div>
-				{info?.isHostnameVeDotAi && (
+				{/* {info?.isHostnameVeDotAi && (
 					<>
 						<div className="or-divider">
 							<div className="line"></div>
@@ -407,7 +407,7 @@ const Email = ({
 							</div>
 						</div>
 					</>
-				)}
+				)} */}
 			</div>
 			<div className="acknowledge-container">
 				<p className="acknowledge-text">
