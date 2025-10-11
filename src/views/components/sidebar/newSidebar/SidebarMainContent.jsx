@@ -59,7 +59,6 @@ const SidebarMainContent = ({
 
 		if (!referralData?.referralDetails) {
 			try {
-				message.success('Fetching referral link...');
 				setInfo((prev) => ({ ...prev, referralLoading: true }));
 				const response = await getShareAndEarn();
 
@@ -71,7 +70,8 @@ const SidebarMainContent = ({
 				const referralCode = response?.referralDetails?.referralCode;
 				const referralLink = referralCode ? `${REFERRAL_BASE_URL}/${referralCode}` : '';
 
-				navigator.clipboard.writeText(referralLink);
+				// navigator.clipboard.writeText(referralLink);
+				window?.electronApi.clipboard.writeText(referralLink);
 				message.success('Referral link copied to clipboard');
 				setInfo((prev) => ({ ...prev, referralLoading: false }));
 			} catch (error) {
@@ -81,7 +81,8 @@ const SidebarMainContent = ({
 		} else {
 			const referralCode = referralData?.referralDetails?.referralCode;
 			const referralLink = referralCode ? `${REFERRAL_BASE_URL}/${referralCode}` : '';
-			navigator.clipboard.writeText(referralLink);
+			// navigator.clipboard.writeText(referralLink);
+			window?.electronApi.clipboard.writeText(referralLink);
 			message.success('Referral link copied to clipboard');
 		}
 	}, [info?.referralLoading, referralData]);
