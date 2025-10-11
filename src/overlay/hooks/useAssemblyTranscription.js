@@ -1137,10 +1137,8 @@ const useAssemblyTranscription = ({
 
 				if (!permissionGranted) {
 					if (window.electronApi) {
-						window.electronApi.sendMessageFrmVeApp('meetingstopped');
-						// window?.electronApi?.overlay?.hideOverlayWindow();
+						window.electronApi?.sendMessageFrmVeApp('meetingstopped');
 					}
-					notification?.error('Please give microphone permission');
 					return;
 				}
 

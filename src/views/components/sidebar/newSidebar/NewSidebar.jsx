@@ -18,7 +18,15 @@ import Notifications from '../../topNavbar/components/notifications/Notification
 import { Tooltip } from 'antd';
 import WindowChromeButtons from '../../../../components/WindowChromeButtons';
 
-const mediaQuery = window.matchMedia('(max-width: 768px)');
+const routeNameMapper = {
+	chat: 'removeActiveTab',
+	'new-chat': 'newChat',
+	'ongoing-meeting': 'ongoingMeeting',
+	home: 'meet',
+	settings: 'removeActiveTab',
+};
+
+// const mediaQuery = window.matchMedia('(max-width: 768px)');
 
 const NewSidebar = () => {
 	const [localState, setLocalState] = useState({
@@ -27,7 +35,7 @@ const NewSidebar = () => {
 		expanded: true,
 		sidebarHoverState: false,
 		logoutLoading: false,
-		isMobileView: mediaQuery.matches,
+		// isMobileView: mediaQuery.matches,
 		switchWorkspaceEnabled: false,
 		workspaceModalOpen: false,
 		workspaceListOpen: false,
@@ -72,25 +80,31 @@ const NewSidebar = () => {
 			});
 		}
 
-		mediaQuery.addEventListener('change', handleResize);
-		return () => mediaQuery.removeEventListener('change', handleResize);
+		// mediaQuery.addEventListener('change', handleResize);
+		// return () => mediaQuery.removeEventListener('change', handleResize);
 	}, []);
 
-	// Update mobile view state in context
-	useEffect(() => {
-		if (isSidebarMobileView !== localState?.isMobileView) {
-			updateStateValues({
-				isSidebarMobileView: localState?.isMobileView,
-			});
-		}
-	}, [localState?.isMobileView]);
+	// useEffect(() => {
+	// 	if (isSidebarMobileView !== info?.isMobileView) {
+	// 		updateStateValues({
+	// 			isSidebarMobileView: info?.isMobileView,
+	// 		});
+	// 	}
+	// }, [info?.isMobileView]);
 
 	// Reset active tab when navigating to chat
 	useEffect(() => {
 		if (location.pathname) {
 			const routeName = location.pathname.split('/')[1];
-			if (routeName === 'chat') {
-				setLocalState((prev) => ({ ...prev, activeTab: null }));
+
+			if (routeNameMapper?.[routeName]) {
+				let updatedActiveTab = routeNameMapper?.[routeName];
+				updatedActiveTab = updatedActiveTab === 'removeActiveTab' ? null : updatedActiveTab;
+
+				if (localState?.activeTab === updatedActiveTab) return;
+				setLocalState((prev) => {
+					return { ...prev, activeTab: routeNameMapper?.[routeName] };
+				});
 			}
 		}
 	}, [location.pathname]);
@@ -102,9 +116,9 @@ const NewSidebar = () => {
 		}
 	}, [userWorkSpaceList, getUserWorkSpaceList]);
 
-	const handleResize = useCallback((e) => {
-		setLocalState((prev) => ({ ...prev, isMobileView: e.matches }));
-	}, []);
+	// const handleResize = useCallback((e) => {
+	// 	setInfo((prev) => ({ ...prev, isMobileView: e.matches }));
+	// }, []);
 
 	const handleTabChange = useCallback(
 		(tab) => {
