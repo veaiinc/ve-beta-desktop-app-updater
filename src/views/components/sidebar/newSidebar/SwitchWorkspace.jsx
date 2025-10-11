@@ -94,6 +94,19 @@ const SwitchWorkspace = ({ workspaceList = [], switchWorkspaceEnabled = false })
 		}
 	};
 
+	const isLoading = switchWorkspaceEnabled && (!workspaceList || workspaceList.length === 0);
+
+	if (isLoading) {
+		return (
+			<div className={s.overlayContainer}>
+				<div className={s.loadingContainer}>
+					<div className={s.spinner} />
+					<p className={s.loadingText}>Loading workspaces...</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className={s.overlayContainer} onKeyDown={handleKeyboardNavigation}>
 			{workspaceList?.length > 3 && (
