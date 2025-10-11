@@ -377,12 +377,12 @@ const OngoingMeeting = memo(() => {
 				{/* <button className={s.ongoingMeetingHeaderButton}>
 					<Maximize2 size={16} />
 				</button> */}
-				<button
+				{/* <button
 					onClick={() => navigate('/home')}
 					className={s.ongoingMeetingHeaderButtonClose}
 				>
 					<X size={16} />
-				</button>
+				</button> */}
 			</div>
 			<div className={s.ongoingMeetingContentWrapper}>
 				<div className={s.ongoingMeetingContainer}>
