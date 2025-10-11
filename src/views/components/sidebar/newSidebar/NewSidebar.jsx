@@ -16,6 +16,7 @@ import CreditsUpgradeTooltip from './CreditsUpgradeTooltip';
 import SwitchWorkspace from './SwitchWorkspace';
 import Notifications from '../../topNavbar/components/notifications/Notifications';
 import { Tooltip } from 'antd';
+import WindowChromeButtons from '../../../../components/WindowChromeButtons';
 
 const mediaQuery = window.matchMedia('(max-width: 768px)');
 
@@ -31,14 +32,20 @@ const NewSidebar = () => {
 		workspaceModalOpen: false,
 		workspaceListOpen: false,
 	});
-	
+
 	const location = useLocation();
 	const navigate = useNavigate();
 	const channel = useBroadcastChannel();
 
 	const {
 		templates: { sidebarState, updateStateValues, isSidebarMobileView },
-		profileInfo: { userDetailsData, tennantSettingsData, tenantUserAccessControls, userWorkSpaceList, getUserWorkSpaceList },
+		profileInfo: {
+			userDetailsData,
+			tennantSettingsData,
+			tenantUserAccessControls,
+			userWorkSpaceList,
+			getUserWorkSpaceList,
+		},
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 
@@ -64,7 +71,7 @@ const NewSidebar = () => {
 				},
 			});
 		}
-		
+
 		mediaQuery.addEventListener('change', handleResize);
 		return () => mediaQuery.removeEventListener('change', handleResize);
 	}, []);
@@ -157,10 +164,10 @@ const NewSidebar = () => {
 
 	const handleSwitchWorkspace = useCallback((e) => {
 		e?.stopPropagation();
-		setLocalState((prev) => ({ 
-			...prev, 
+		setLocalState((prev) => ({
+			...prev,
 			workspaceListOpen: !prev?.workspaceListOpen,
-			workspaceModalOpen: false // Close workspace modal if open
+			workspaceModalOpen: false, // Close workspace modal if open
 		}));
 	}, []);
 
@@ -169,10 +176,10 @@ const NewSidebar = () => {
 	}, [navigate]);
 
 	const handleCloseAllOverlays = useCallback(() => {
-		setLocalState((prev) => ({ 
-			...prev, 
+		setLocalState((prev) => ({
+			...prev,
 			workspaceModalOpen: false,
-			workspaceListOpen: false
+			workspaceListOpen: false,
 		}));
 	}, []);
 
@@ -182,14 +189,13 @@ const NewSidebar = () => {
 			handleCloseAllOverlays();
 		} else {
 			// If nothing is open, open workspace modal
-			setLocalState((prev) => ({ 
-				...prev, 
+			setLocalState((prev) => ({
+				...prev,
 				workspaceModalOpen: true,
-				workspaceListOpen: false
+				workspaceListOpen: false,
 			}));
 		}
 	}, [localState?.workspaceModalOpen, localState?.workspaceListOpen, handleCloseAllOverlays]);
-
 
 	// Derived state for cleaner logic
 	const isSidebarOpen = sidebarState?.open ?? false;
@@ -214,8 +220,6 @@ const NewSidebar = () => {
 					{/* Header */}
 					<div className={s.header}>
 						<div className={s.rightContainer}>
-							
-							
 							<button
 								className={s.settingsIcon}
 								onClick={handleSettingsClick}
@@ -224,7 +228,7 @@ const NewSidebar = () => {
 							>
 								<SettingSvg width={20} height={20} />
 							</button>
-							
+
 							<Tooltip
 								title={<Notifications />}
 								placement="bottom"
@@ -232,7 +236,11 @@ const NewSidebar = () => {
 								color={'transparent'}
 								rootClassName={s.notificationsTooltip}
 							>
-								<button className={s.notificationsIcon} type="button" aria-label="Notifications">
+								<button
+									className={s.notificationsIcon}
+									type="button"
+									aria-label="Notifications"
+								>
 									<NotificationsSvg width={20} height={20} />
 								</button>
 							</Tooltip>
@@ -260,11 +268,18 @@ const NewSidebar = () => {
 					</div>
 
 					{/* Footer - Click to toggle workspace options */}
-					<div className={`${s.footer} ${(localState?.workspaceModalOpen || localState?.workspaceListOpen) ? s.expanded : ''}`} onClick={handleWorkspaceOverlayToggle}>
+					<div
+						className={`${s.footer} ${
+							localState?.workspaceModalOpen || localState?.workspaceListOpen
+								? s.expanded
+								: ''
+						}`}
+						onClick={handleWorkspaceOverlayToggle}
+					>
 						{/* Workspace Options - Show when expanded */}
 						{localState?.workspaceModalOpen && (
 							<div className={s.workspaceOptions}>
-								<button 
+								<button
 									className={s.workspaceOption}
 									onClick={handleSwitchWorkspace}
 								>
@@ -274,7 +289,7 @@ const NewSidebar = () => {
 									<div className={s.label}>Switch Workspace</div>
 								</button>
 
-								<button 
+								<button
 									className={s.workspaceOption}
 									onClick={handleCreateWorkspace}
 								>
@@ -291,7 +306,7 @@ const NewSidebar = () => {
 							<div className={s.workspaceListOverlay}>
 								<div className={s.workspaceListHeader}>
 									<h3 className={s.workspaceListTitle}>Switch Workspace</h3>
-									<button 
+									<button
 										className={s.closeButton}
 										onClick={(e) => {
 											e.stopPropagation();
@@ -315,9 +330,16 @@ const NewSidebar = () => {
 							<div className={s.leftContainer}>
 								<div className={s.userInfo}>
 									{profilePicExists ? (
-										<img className={s.profileImg} src={profilePic} alt="Profile" />
+										<img
+											className={s.profileImg}
+											src={profilePic}
+											alt="Profile"
+										/>
 									) : (
-										<div className={s.nameInitials} aria-label={`${fullName} initials`}>
+										<div
+											className={s.nameInitials}
+											aria-label={`${fullName} initials`}
+										>
 											{nameInitials}
 										</div>
 									)}
@@ -361,16 +383,18 @@ const NewSidebar = () => {
 			<button
 				className={`${s.sidebarToggle} ${isSidebarOpen ? s.open : s.closed}`}
 				onClick={isSidebarOpen ? handleSidebarClose : handleSidebarOpen}
-				aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+				aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
 				type="button"
 			>
 				<SidebarClosingSvg width={20} height={20} />
 			</button>
-
+			<div className={`${s.windowChromeButtonsContainer} ${shouldShowSidebar ? s.active : ''}`}>
+				<WindowChromeButtons />
+			</div>
 			{/* Hover Trigger - Only show when sidebar is closed */}
 			{!isSidebarOpen && (
-				<div 
-					className={s.sidebarHoverElement} 
+				<div
+					className={s.sidebarHoverElement}
 					onMouseEnter={handleSidebarHoverEnter}
 					aria-hidden="true"
 				/>
@@ -378,14 +402,8 @@ const NewSidebar = () => {
 
 			{/* Overlay - Only show when sidebar is open and overlay is needed */}
 			{shouldShowOverlay && (
-				<div 
-					className={s.sidebarOverlay} 
-					onClick={handleSidebarClose}
-					aria-hidden="true"
-				/>
+				<div className={s.sidebarOverlay} onClick={handleSidebarClose} aria-hidden="true" />
 			)}
-
-
 		</>
 	);
 };
