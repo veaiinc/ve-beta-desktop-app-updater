@@ -8,6 +8,7 @@ import DragHandle from './components/DragHandle';
 // Removed complex translucency utilities - now using simplified CSS approach
 import { GlassModeProvider, useGlassMode } from './context/GlassModeContext.jsx';
 import { initializeGlassModeSync } from './helpers/glassModeSync';
+import { useNotchDropSync } from './hooks/useNotchDropSync';
 
 // ✅ REVERTED: Back to regular imports (lazy loading broke production)
 import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
@@ -30,6 +31,9 @@ const UPDATE_CHECK_INTERVAL_MS = UPDATE_CHECK_INTERVAL_MINUTES * 60 * 1000;
 const AppContent = () => {
 	const { routes } = useWorkspaceMode();
 	const location = useLocation();
+
+	// Global NotchDrop sync - keeps NotchDrop updated with meeting data across all routes
+	useNotchDropSync();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	const [updateProgress, setUpdateProgress] = useState(null);
