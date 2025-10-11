@@ -28,7 +28,7 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 		});
 
 		sortedMeetings.forEach(meeting => {
-			const meetingTime = meeting?.googleCalendarMeta?.start?.dateTime || meeting.startDateTime;
+			const meetingTime = meeting?.startDateTime || meeting?.googleCalendarMeta?.start?.dateTime;
 			if (!meetingTime) return;
 
 			const date = moment.utc(meetingTime).format('DD MMM YYYY');

@@ -16,6 +16,7 @@ import moment from 'moment';
 import Context from '../../../context/context';
 import RecentChat from '../chat/RecentChat';
 import ObjectID from 'bson-objectid';
+import { useNotchDropSync } from '../../../hooks/useNotchDropSync';
 
 const CHAT_WIDTH = 373;
 const SIDEBAR_WIDTH = 256;
@@ -51,6 +52,9 @@ const OngoingMeeting = memo(() => {
 		templates: { updateStateValues },
 	} = useContext(Context);
 
+	// Use global NotchDrop sync hook
+	const { hasActiveMeeting } = useNotchDropSync();
+
 	const [info, setInfo] = useState({
 		showingTranscripts: false,
 		chatOpen: false,
@@ -78,8 +82,26 @@ const OngoingMeeting = memo(() => {
 			});
 		}
 
+		// Initialize NotchDrop panel mode - show transcription initially (main app shows live intelligence)
 		if (window?.electronApi?.overlay?.setPanelMode) {
 			window.electronApi.overlay.setPanelMode('live-intel');
+			console.log('🧭 OngoingMeeting: Initialized NotchDrop to show transcription (main shows live-intel)');
+		}
+
+		// Send initial transcription data to NotchDrop if available
+		if (transcriptions?.length > 0 && window?.electronApi?.notchdrop?.replaceTranscriptions) {
+			console.log('📝 OngoingMeeting: Sending initial transcription data to NotchDrop:', transcriptions.length, 'transcriptions');
+			const messages = transcriptions.map((t) => ({
+				sender: t.source || 'overlay',
+				content: t.text || '',
+				isFromAgent: false,
+				timestamp: t.timestamp || new Date().toISOString(),
+				confidence: t.confidence,
+				words: t.words,
+				type: 'transcription',
+			}));
+			window.electronApi.notchdrop.replaceTranscriptions(messages);
+			console.log('✅ OngoingMeeting: Initial transcription data sent to NotchDrop');
 		}
 
 		const newState = { overlay: false, open: false };
@@ -99,39 +121,46 @@ const OngoingMeeting = memo(() => {
 				}));
 			}
 
-			// Send empty arrays to notch to clear data when component unmounts
-			try {
+			// Only clear NotchDrop data if there's no active meeting
+			// This prevents clearing data when just navigating away from OngoingMeeting
+			if (!hasActiveMeeting) {
+				try {
+					console.log(
+						'🧹 OngoingMeeting: No active meeting - clearing data in NotchDrop on component unmount',
+					);
+
+					// Clear transcriptions in notch
+					if (window.electronApi?.notchdrop?.replaceTranscriptions) {
+						window.electronApi.notchdrop.replaceTranscriptions([]);
+						console.log(
+							'✅ OngoingMeeting: Sent empty transcription array to NotchDrop for cleanup',
+						);
+					} else {
+						console.warn(
+							'⚠️ OngoingMeeting: replaceTranscriptions method not available for cleanup',
+						);
+					}
+
+					// Clear live intelligence data in notch
+					if (window.electronApi?.notchdrop?.clearLiveIntelligenceData) {
+						window.electronApi.notchdrop.clearLiveIntelligenceData();
+						console.log(
+							'✅ OngoingMeeting: Cleared live intelligence data in NotchDrop for cleanup',
+						);
+					} else {
+						console.warn(
+							'⚠️ OngoingMeeting: clearLiveIntelligenceData method not available for cleanup',
+						);
+					}
+				} catch (e) {
+					console.error(
+						'❌ OngoingMeeting: Failed to clear data in NotchDrop during component cleanup:',
+						e,
+					);
+				}
+			} else {
 				console.log(
-					'🧹 OngoingMeeting: Cleaning up data in NotchDrop on component unmount',
-				);
-
-				// Clear transcriptions in notch
-				if (window.electronApi?.notchdrop?.replaceTranscriptions) {
-					window.electronApi.notchdrop.replaceTranscriptions([]);
-					console.log(
-						'✅ OngoingMeeting: Sent empty transcription array to NotchDrop for cleanup',
-					);
-				} else {
-					console.warn(
-						'⚠️ OngoingMeeting: replaceTranscriptions method not available for cleanup',
-					);
-				}
-
-				// Clear live intelligence data in notch
-				if (window.electronApi?.notchdrop?.clearLiveIntelligenceData) {
-					window.electronApi.notchdrop.clearLiveIntelligenceData();
-					console.log(
-						'✅ OngoingMeeting: Cleared live intelligence data in NotchDrop for cleanup',
-					);
-				} else {
-					console.warn(
-						'⚠️ OngoingMeeting: clearLiveIntelligenceData method not available for cleanup',
-					);
-				}
-			} catch (e) {
-				console.error(
-					'❌ OngoingMeeting: Failed to clear data in NotchDrop during component cleanup:',
-					e,
+					'🔄 OngoingMeeting: Active meeting detected - preserving NotchDrop data during navigation',
 				);
 			}
 		};
@@ -156,94 +185,8 @@ const OngoingMeeting = memo(() => {
 	// 	}
 	// }, [sidebarState?.open]);
 
-	// Use the correct data source for OngoingMeeting: activeMeetingDetails.liveIntelligenceData.allThreads
-	useEffect(() => {
-		const allThreads = liveIntelligenceData?.allThreads || [];
-
-		if (allThreads.length > 0) {
-			console.log(
-				'🧠 OngoingMeeting: Processing live intelligence data:',
-				allThreads.length,
-				'threads',
-			);
-
-			// Send live intelligence data to notch immediately when it arrives
-			try {
-				if (window?.electronApi?.overlay?.sendLiveIntelligenceData) {
-					console.log(
-						'🧠 OngoingMeeting: Sending live intelligence data to NotchDrop:',
-						allThreads.length,
-						'threads',
-					);
-					allThreads.forEach((thread) => {
-						const message = {
-							source: 'ai-agent',
-							text: thread.prompt || thread.name || thread.description || '',
-							timestamp:
-								thread.timestamp || thread.created_at || new Date().toISOString(),
-							type: 'live-intelligence',
-							confidence: thread.confidence,
-							metadata: thread,
-						};
-						window.electronApi.overlay.sendLiveIntelligenceData(message);
-					});
-					console.log(
-						'✅ OngoingMeeting: Live intelligence data sent to NotchDrop successfully',
-					);
-				} else {
-					console.warn(
-						'⚠️ OngoingMeeting: sendLiveIntelligenceData method not available',
-					);
-				}
-			} catch (e) {
-				console.error(
-					'❌ OngoingMeeting: Failed to send live intelligence data to Notch:',
-					e,
-				);
-			}
-		}
-	}, [liveIntelligenceData?.allThreads]);
-
-	useEffect(() => {
-		if (transcriptions?.length > 0) {
-			console.log(
-				'📝 OngoingMeeting: Processing transcriptions:',
-				transcriptions.length,
-				'transcriptions',
-			);
-
-			try {
-				if (!window?.electronApi?.notchdrop?.replaceTranscriptions) {
-					console.warn('⚠️ OngoingMeeting: replaceTranscriptions method not available');
-					return;
-				}
-
-				console.log(
-					'📝 OngoingMeeting: Sending transcriptions to NotchDrop:',
-					transcriptions.length,
-					'transcriptions',
-				);
-
-				const messages = (transcriptions || []).map((t) => ({
-					sender: t.source || 'overlay',
-					content: t.text || '',
-					isFromAgent: false,
-					timestamp: t.timestamp || new Date().toISOString(),
-					confidence: t.confidence,
-					words: t.words,
-					type: 'transcription',
-				}));
-
-				window.electronApi.notchdrop.replaceTranscriptions(messages);
-				console.log('✅ OngoingMeeting: Transcriptions sent to NotchDrop successfully');
-			} catch (e) {
-				console.error(
-					'❌ OngoingMeeting: Failed to send full transcriptions to NotchDrop:',
-					e,
-				);
-			}
-		}
-	}, [transcriptions]);
+	// Data sending is now handled by the global useNotchDropSync hook
+	// This ensures data flows to NotchDrop regardless of which component is active
 
 	const handleStateChange = (data) => {
 		setInfo((prev) => ({
@@ -259,10 +202,27 @@ const OngoingMeeting = memo(() => {
 			if (open === true) {
 				// Showing transcripts in main app → Notch should show live intelligence
 				if (window?.electronApi?.overlay?.setPanelMode) {
-					window.electronApi.overlay.setPanelMode('live-intel');
+					window.electronApi.overlay.setPanelMode('transcription');
 					console.log(
 						'🧭 OngoingMeeting: Set panel mode to transcription (Notch will show live intelligence)',
 					);
+
+					// Ensure live intelligence data is sent to NotchDrop when switching to transcript view
+					const allThreads = liveIntelligenceData?.allThreads || [];
+					if (allThreads.length > 0 && window?.electronApi?.overlay?.sendLiveIntelligenceData) {
+						console.log('🧠 OngoingMeeting: Sending live intelligence data to NotchDrop on toggle:', allThreads.length, 'threads');
+						allThreads.forEach((thread) => {
+							const message = {
+								source: 'ai-agent',
+								text: thread.prompt || thread.name || thread.description || '',
+								timestamp: thread.timestamp || thread.created_at || new Date().toISOString(),
+								confidence: thread.confidence,
+								metadata: thread,
+							};
+							window.electronApi.overlay.sendLiveIntelligenceData(message);
+						});
+						console.log('✅ OngoingMeeting: Live intelligence data sent to NotchDrop on toggle');
+					}
 				} else {
 					console.warn('⚠️ OngoingMeeting: setPanelMode method not available');
 				}
@@ -270,10 +230,25 @@ const OngoingMeeting = memo(() => {
 				// Showing live intelligence in main app → Notch should show transcription
 				if (window?.electronApi?.overlay?.setPanelMode) {
 					window.electronApi.overlay.setPanelMode('live-intel');
-					// window.electronApi.overlay.setPanelMode('transcription');
 					console.log(
 						'🧭 OngoingMeeting: Set panel mode to live-intel (Notch will show transcription)',
 					);
+
+					// Ensure transcription data is sent to NotchDrop when switching to live intelligence view
+					if (transcriptions?.length > 0 && window?.electronApi?.notchdrop?.replaceTranscriptions) {
+						console.log('📝 OngoingMeeting: Sending transcription data to NotchDrop on toggle:', transcriptions.length, 'transcriptions');
+						const messages = transcriptions.map((t) => ({
+							sender: t.source || 'overlay',
+							content: t.text || '',
+							isFromAgent: false,
+							timestamp: t.timestamp || new Date().toISOString(),
+							confidence: t.confidence,
+							words: t.words,
+							type: 'transcription',
+						}));
+						window.electronApi.notchdrop.replaceTranscriptions(messages);
+						console.log('✅ OngoingMeeting: Transcription data sent to NotchDrop on toggle');
+					}
 				} else {
 					console.warn('⚠️ OngoingMeeting: setPanelMode method not available');
 				}
