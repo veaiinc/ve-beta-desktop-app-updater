@@ -71,6 +71,7 @@
         -   Swift–JS bridge: `notchdrop-addon/swift-js-bridge.js`
         -   Native sources: `notchdrop-addon/src/` (e.g., `NotchContentView.swift`, `NotchDropCore.swift`, `notchdrop_addon.mm`, `NotchDropBridge.m`)
         -   Obj-C header: `notchdrop-addon/include/NotchDropBridge.h`
+        -   Selection assistant: `SelectionAssistantManager.swift`, `SelectionAssistantViews.swift`, `SelectionMonitor.swift`, `SelectionHistoryStore.swift`
 -   **React Dynamic Island (UI):**
     -   `src/notch/components/DynamicIslandUI.jsx`
 -   **Are You There window (React):**
@@ -94,6 +95,7 @@
     -   Dynamic Island: `dynamic-island-expand`, `dynamic-island-collapse`, `dynamic-island-toggle`, `dynamic-island-show|hide|focus`, `dynamic-island-chat-mode`, `dynamic-island-set-mouse-events`, `dynamic-island-state`, `overlay-state-changed`
     -   Ask AI window: `toggle-askAI-window`, `show-askAI-window`, `is-askAI-window-visible`, `update-askAI-dimensions`, `set-askAI-ignore-mouse-events`, `set-askAI-input-focus`, `get-askAI-input-focus`, `send-chat-message-to-askai`, `force-open-askai-window`
     -   NotchDrop: `notchdrop-enable|disable|toggle`, `notchdrop-is-visible`, `notchdrop-set-status`, `notchdrop-get-status`, `notchdrop-handle-files`, `notchdrop-set-auto-open|get-auto-open`, `notchdrop-set-haptic-feedback|get-haptic-feedback`, `update-notchdrop-menu`, `notchdrop-open-airdrop|open-share|open-file|delete-file`, `notchdrop:triggerOverlay*`
+    -   Selection Assistant: `selection-assistant:get-history`, `selection-assistant:clear-history`, `selection-assistant:show-history`, `selection-assistant:request-permission`, `selection-assistant:is-permission-granted`; events `selection-assistant:captured`, `selection-assistant:permission`
     -   Swift bridge: `swift:action`, `swift:triggerOverlayRecording`, `swift:triggerOverlayToggleLiveIntelligence`, process events `swift-ui-trigger-overlay-recording*`, `pre-create-overlay-window`
     -   Are You There: `are-you-there-continue-meeting|auto-continue-meeting|stop-meeting|pause-meeting-intelligence|end-session|are-you-there-get-recording-time|are-you-there-check-recording-state`, window events `are-you-there-show-command|are-you-there-close-command`, plus transcription detection `update-transcription-activity`, `are-you-there-continue-transcription|stop-transcription-monitoring|pause-transcription-monitoring|end-transcription-session`, `get-transcription-detection-state`
     -   System/permissions/utilities: `check-microphone-permission`, `request-microphone-permission`, `check-camera-permission`, `request-camera-permission`, `show-camera-permission-help`, `check-screen-recording-permission`, `request-screen-recording-permission`, `clipboard-write-text|read-text`, `open-dev-tools`
@@ -121,6 +123,8 @@ Emitted from native layer, handled by `electron/services/notchDropService.js`:
 -   `startVoiceAgent` / `disconnectVoice` / `toggleVoiceMute`
 -   `messageReceived` (Electron → Swift UI acknowledgement channel)
 -   `navigateToMainScreen` (requests renderer navigation)
+-   `selectionCaptured` (encrypted text capture payload; forwarded to renderer)
+-   `selectionPermissionChanged` (reflects Accessibility permission state)
 
 ---
 
@@ -391,6 +395,7 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
 
 -   [ ] Native module loads only on macOS, code guarded
 -   [ ] All native (SwiftUI) events mapped to JS and documented
+-   [ ] Selection assistant (`selectionCaptured`, `selectionPermissionChanged`) wired through Electron/renderer and documented
 -   [ ] No CI/build breakage on Windows/Linux
 -   [ ] TypeScript interfaces exist for all APIs
 -   [ ] Pull Requests: note architecture/test status before review

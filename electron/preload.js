@@ -508,6 +508,32 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 	},
 
+	selectionAssistant: {
+		getHistory: () => ipcRenderer.invoke('selection-assistant:get-history'),
+		clearHistory: () => ipcRenderer.invoke('selection-assistant:clear-history'),
+		showHistory: () => ipcRenderer.invoke('selection-assistant:show-history'),
+		requestPermission: () =>
+			ipcRenderer.invoke('selection-assistant:request-permission'),
+		isPermissionGranted: () =>
+			ipcRenderer.invoke('selection-assistant:is-permission-granted'),
+		onSelectionCaptured: (callback) => {
+			ipcRenderer.on('selection-assistant:captured', (event, data) => {
+				callback(data);
+			});
+		},
+		removeSelectionCapturedListener: () => {
+			ipcRenderer.removeAllListeners('selection-assistant:captured');
+		},
+		onPermissionChanged: (callback) => {
+			ipcRenderer.on('selection-assistant:permission', (event, data) => {
+				callback(data);
+			});
+		},
+		removePermissionListener: () => {
+			ipcRenderer.removeAllListeners('selection-assistant:permission');
+		},
+	},
+
 	navigateMainWindow: (data) => ipcRenderer.invoke('navigate-main-window', data),
 	onNavigate: (callback) => ipcRenderer.on('navigate-to', (_, data) => callback(data)),
 

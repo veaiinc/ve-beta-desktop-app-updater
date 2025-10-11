@@ -3,12 +3,12 @@
 // TODO: PERFORMANCE - Break into modular services: WindowService, IPCService, NotificationService, etc.
 require('dotenv').config();
 const {
-	app,
+	app: electronApp,
 	BrowserWindow,
 	Menu,
 	session,
 	systemPreferences,
-	ipcMain,
+	ipcMain: electronIpcMain,
 	desktopCapturer,
 	Notification,
 	Tray,
@@ -18,11 +18,92 @@ const {
 	dialog,
 	shell,
 	powerSaveBlocker,
-	nativeTheme,
+	nativeTheme: electronNativeTheme,
 } = require('electron');
+const { EventEmitter } = require('events');
+const app = electronApp ?? createAppStub();
+const nativeTheme = electronNativeTheme ?? createNativeThemeStub();
+const ipcMain = electronIpcMain ?? createIpcMainStub();
 const path = require('node:path');
 const log = require('electron-log');
-const { autoUpdater } = require('electron-updater');
+let autoUpdater;
+if (process?.type === 'browser') {
+	({ autoUpdater } = require('electron-updater'));
+} else {
+	const noop = () => {};
+	autoUpdater = {
+		on: noop,
+		once: noop,
+		removeAllListeners: noop,
+		setFeedURL: noop,
+		downloadUpdate: async () => {},
+		checkForUpdates: async () => ({ updateInfo: null }),
+		checkForUpdatesAndNotify: async () => ({ updateInfo: null }),
+		quitAndInstall: noop,
+		autoDownload: false,
+		autoInstallOnAppQuit: false,
+		allowDowngrade: false,
+	};
+	autoUpdater.logger = {
+		info: noop,
+		warn: noop,
+		error: noop,
+		debug: noop,
+		transports: {
+			file: { level: 'info' },
+		},
+	};
+}
+
+function createIpcMainStub() {
+	const noop = () => {};
+	return {
+		handle: noop,
+		on: noop,
+		once: noop,
+		removeHandler: noop,
+		removeAllListeners: noop,
+		emit: noop,
+	};
+}
+
+function createAppStub() {
+	const emitter = new EventEmitter();
+	const noop = () => {};
+	return {
+		commandLine: {
+			appendSwitch: noop,
+		},
+		getAppPath: () => process.cwd(),
+		getPath: () => process.cwd(),
+		quit: noop,
+		exit: noop,
+		relaunch: noop,
+		requestSingleInstanceLock: () => true,
+		releaseSingleInstanceLock: noop,
+		whenReady: () => Promise.resolve(),
+		on: emitter.on.bind(emitter),
+		once: emitter.once.bind(emitter),
+		removeListener: emitter.removeListener.bind(emitter),
+		setAppUserModelId: noop,
+		isPackaged: false,
+		dock: {
+			hide: noop,
+			show: noop,
+			isVisible: () => false,
+		},
+	};
+}
+
+function createNativeThemeStub() {
+	return {
+		themeSource: 'light',
+		on: () => {},
+		removeListener: () => {},
+		shouldUseDarkColors: false,
+	};
+}
+
 const WindowHelper = require('./helpers/windowHelper');
 const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
 const fs = require('fs');
@@ -1140,6 +1221,94 @@ function createMenuBar() {
 									} catch (error) {
 										log.error(
 											'❌ Failed to set auto-open setting from menu:',
+											error,
+										);
+									}
+								},
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Show Selection History',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result = notchDropService.showSelectionHistoryInterface();
+											if (!result) {
+												await dialog.showMessageBox({
+													type: 'info',
+													title: 'Selection History',
+													message:
+														'Selection history is only available when the Selection Assistant is running.',
+												});
+											}
+										}
+									} catch (error) {
+										log.error('❌ Failed to show selection history:', error);
+									}
+								},
+							},
+							{
+								label: 'Clear Selection History…',
+								click: async () => {
+									try {
+										if (!notchDropService) {
+											return;
+										}
+
+										const confirmation = await dialog.showMessageBox({
+											type: 'warning',
+											title: 'Clear Selection History',
+											message:
+												'This will permanently delete all captured selections.',
+											detail:
+												'Selections are stored locally and encrypted. Clearing history cannot be undone.',
+											buttons: ['Clear History', 'Cancel'],
+											defaultId: 1,
+											cancelId: 1,
+										});
+
+										if (confirmation.response !== 0) {
+											return;
+										}
+
+										const result = notchDropService.clearSelectionHistory();
+										if (!result) {
+											await dialog.showMessageBox({
+												type: 'info',
+												title: 'Selection History',
+												message:
+													'No selection history was cleared. The Selection Assistant may not be running.',
+											});
+										}
+									} catch (error) {
+										log.error('❌ Failed to clear selection history:', error);
+									}
+								},
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Open Accessibility Settings…',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result =
+												notchDropService.requestSelectionPermissionPrompt();
+											if (!result) {
+												await dialog.showMessageBox({
+													type: 'info',
+													title: 'Accessibility Permissions',
+													message:
+														'Please open System Settings → Privacy & Security → Accessibility and enable Ve AI.',
+												});
+											}
+										}
+									} catch (error) {
+										log.error(
+											'❌ Failed to request selection assistant permission:',
 											error,
 										);
 									}
@@ -2395,7 +2564,12 @@ function createTray() {
 // Single instance lock to prevent multiple app instances
 // This ensures only one instance of the app can run at a time
 // When a second instance is attempted, it will focus the existing window instead
-const gotTheLock = app.requestSingleInstanceLock();
+const canRequestSingleInstanceLock = typeof app?.requestSingleInstanceLock === 'function';
+const gotTheLock = canRequestSingleInstanceLock ? app.requestSingleInstanceLock() : true;
+
+if (!canRequestSingleInstanceLock) {
+	log.warn('Single instance lock API unavailable; continuing without enforcement.');
+}
 
 if (!gotTheLock) {
 	// Another instance is already running, focus it and quit
@@ -4725,6 +4899,76 @@ app.whenReady().then(async () => {
 		} catch (error) {
 			log.error('Error getting auto-open setting:', error);
 			return { success: false, enabled: true, error: error.message };
+		}
+	});
+
+	// Selection Assistant IPC handlers
+	ipcMain.handle('selection-assistant:get-history', async () => {
+		try {
+			if (!notchDropService || !notchDropService.isInitialized) {
+				return {
+					success: false,
+					history: [],
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const history = notchDropService.getSelectionHistory();
+			return { success: true, history };
+		} catch (error) {
+			log.error('Error getting selection history:', error);
+			return { success: false, history: [], error: error.message };
+		}
+	});
+
+	ipcMain.handle('selection-assistant:clear-history', async () => {
+		try {
+			if (!notchDropService || !notchDropService.isInitialized) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.clearSelectionHistory();
+			return { success: result };
+		} catch (error) {
+			log.error('Error clearing selection history:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('selection-assistant:show-history', async () => {
+		try {
+			if (!notchDropService || !notchDropService.isInitialized) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.showSelectionHistoryInterface();
+			return { success: result };
+		} catch (error) {
+			log.error('Error showing selection history interface:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('selection-assistant:request-permission', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.requestSelectionPermissionPrompt();
+			return { success: result };
+		} catch (error) {
+			log.error('Error requesting selection assistant permission:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('selection-assistant:is-permission-granted', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, granted: false, error: 'NotchDrop service not initialized' };
+			}
+			const granted = notchDropService.isSelectionPermissionGranted();
+			return { success: true, granted };
+		} catch (error) {
+			log.error('Error getting selection assistant permission state:', error);
+			return { success: false, granted: false, error: error.message };
 		}
 	});
 

@@ -36,7 +36,12 @@
                   "src/Ext+NSAlert.swift",
                   "src/Ext+FileProvider.swift",
                   "src/NotchViewController.swift",
-                  "src/NotchCalendarView.swift"
+                  "src/NotchCalendarView.swift",
+                  "src/SelectionHistoryStore.swift",
+                  "src/SelectionMonitor.swift",
+                  "src/SelectionAssistantManager.swift",
+                  "src/SelectionAssistantViews.swift",
+                  "src/SelectionPreviewController.swift"
                 ],
         "include_dirs": [
           "<!@(node -p \"require('node-addon-api').include\")",
@@ -64,7 +69,11 @@
           ],
           "OTHER_LDFLAGS": [
             "-Wl,-rpath,@loader_path",
-            "-Wl,-install_name,@rpath/libNotchDropCore.a"
+            "-Wl,-install_name,@rpath/libNotchDropCore.a",
+            "-framework",
+            "CryptoKit",
+            "-framework",
+            "Security"
           ],
           "HEADER_SEARCH_PATHS": [
             "$(SRCROOT)/include",
@@ -106,7 +115,11 @@
               "src/Ext+NSAlert.swift",
               "src/Ext+FileProvider.swift",
               "src/NotchViewController.swift",
-              "src/NotchCalendarView.swift"
+              "src/NotchCalendarView.swift",
+              "src/SelectionHistoryStore.swift",
+              "src/SelectionMonitor.swift",
+              "src/SelectionAssistantManager.swift",
+              "src/SelectionAssistantViews.swift"
             ],
             "outputs": [
               "build_swift/libNotchDropCore.a",
@@ -145,10 +158,17 @@
               "src/Ext+FileProvider.swift",
               "src/NotchViewController.swift",
               "src/NotchCalendarView.swift",
+              "src/SelectionHistoryStore.swift",
+              "src/SelectionMonitor.swift",
+              "src/SelectionAssistantManager.swift",
+              "src/SelectionAssistantViews.swift",
+              "src/SelectionPreviewController.swift",
               "-emit-objc-header-path", "./build_swift/notchdrop_addon-Swift.h",
               "-emit-library", "-o", "./build_swift/libNotchDropCore.a",
               "-emit-module", "-module-name", "notchdrop_addon",
-              "-module-link-name", "NotchDropCore"
+              "-module-link-name", "NotchDropCore",
+              "-framework", "CryptoKit",
+              "-framework", "Security"
             ]
           },
           {

@@ -288,6 +288,7 @@
 				"NSScreenCaptureUsageDescription": "We need permission to capture your screen so you can ask AI questions about what you see.",
 				"NSCalendarsUsageDescription": "Ve AI needs access to your calendar to show upcoming events in the notch area, helping you stay organized while you work.",
 				"NSAppleEventsUsageDescription": "Ve AI needs to control other apps (Spotify/Safari) to read now playing info for media controls.",
+				"NSAccessibilityUsageDescription": "Ve AI uses Accessibility permissions to detect selected text and display the Selection Assistant popup. Your selections stay encrypted on this device.",
 				"com.apple.security.device.audio-input": true,
 				"com.apple.security.device.camera": true
 			}
