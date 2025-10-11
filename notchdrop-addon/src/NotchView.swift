@@ -87,40 +87,33 @@ struct NotchView: View {
                 .disabled(true)
                 .opacity(vm.notchVisible ? 1 : 1)
             
-            // Collapsed state content - always present but with smooth transitions
-            HStack(spacing: 6) {
-                if vm.isRecording {
-                    Text(vm.isPaused ? "Paused \(vm.formatTime(vm.timer))" : "Recording \(vm.formatTime(vm.timer))")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundColor(DynamicIslandTheme.primaryGreen)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                    if !vm.isPaused {
-                        CollapsedAudioViz()
-                    }
-                } else if vm.showVoiceInterface {
-                    Text("Voice Agent")
-                        .font(.system(size: 9, weight: .regular))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                } else if vm.hasActiveMusic || vm.hasActiveVideo {
-                    // Media is playing - show appropriate indicator
-                    if vm.hasActiveMusic && vm.hasActiveVideo {
-                        // Both music and video - show combined indicator
+            // ULTIMATE FIX: Optimized collapsed state content with lazy loading
+            LazyVStack {
+                HStack(spacing: 6) {
+                    if vm.isRecording {
+                        Text(vm.isPaused ? "Paused \(vm.formatTime(vm.timer))" : "Recording \(vm.formatTime(vm.timer))")
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundColor(DynamicIslandTheme.primaryGreen)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                        if !vm.isPaused {
+                            CollapsedAudioViz()
+                        }
+                    } else if vm.showVoiceInterface {
+                        Text("Voice Agent")
+                            .font(.system(size: 9, weight: .regular))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    } else if vm.hasActiveMusic || vm.hasActiveVideo {
+                        // ULTIMATE FIX: Lazy-loaded media indicator
                         MediaCollapsedIndicator(vm: vm, showMusic: vm.hasActiveMusic, showVideo: vm.hasActiveVideo)
-                    } else if vm.hasActiveMusic {
-                        // Music only - show music indicator
-                        MediaCollapsedIndicator(vm: vm, showMusic: vm.hasActiveMusic, showVideo: false)
-                    } else {
-                        // Video only - show video indicator
-                        MediaCollapsedIndicator(vm: vm, showMusic: false, showVideo: vm.hasActiveVideo)
+                    } else if vm.isAuthenticated {
+                        // Show TemporaryFolder compact UI after login (matches Swift TemporaryFolder components)
+                        ClosedNotchTemporaryFolderUI()
                     }
-                } else if vm.isAuthenticated {
-                    // Show TemporaryFolder compact UI after login (matches Swift TemporaryFolder components)
-                    ClosedNotchTemporaryFolderUI()
+                    // When not authenticated, show nothing in collapsed state
                 }
-                // When not authenticated, show nothing in collapsed state
             }
             .frame(maxWidth: collapsedNotchSize.width - 16, maxHeight: collapsedNotchSize.height - 6)
             .clipped()
@@ -129,9 +122,10 @@ struct NotchView: View {
             .scaleEffect(1)
             .zIndex(1)
             
+            // ULTIMATE FIX: Lazy-loaded opened state to prevent initial stuttering
             Group {
                 if vm.status == .opened {
-                    VStack(spacing: vm.spacing) {
+                    LazyVStack(spacing: vm.spacing) {
                         // Header is not part of the JS Dynamic Island design; keep for non-normal modes
                         if vm.contentType != .normal {
                             NotchHeaderView(vm: vm)
@@ -146,16 +140,14 @@ struct NotchView: View {
             }
             .transition(
                 .asymmetric(
-                    // NotchNook-style open: quick scale up then settle
-                    insertion: .scale(scale: 0.88, anchor: .center)
+                    // ULTIMATE FIX: Optimized transition animations for smoothness
+                    insertion: .scale(scale: 0.95, anchor: .center)
                         .combined(with: .opacity)
-                        .combined(with: .offset(y: -12))
                         .animation(DynamicIslandTheme.bounceAnimation),
-                    // Smooth close: slight down and fade
-                    removal: .scale(scale: 0.92, anchor: .center)
+                    // ULTIMATE FIX: Instant close for better responsiveness
+                    removal: .scale(scale: 0.98, anchor: .center)
                         .combined(with: .opacity)
-                        .combined(with: .offset(y: 8))
-                        .animation(DynamicIslandTheme.expansionAnimation)
+                        .animation(DynamicIslandTheme.instantAnimation)
                 )
             )
         }
@@ -163,25 +155,29 @@ struct NotchView: View {
 		.opacity(isQuitting ? 0 : 1)
 		.onAppear {
 			print("🎯 NotchView appeared, drag detector should be active")
+			// ULTIMATE FIX: Pre-warm animations to prevent stuttering
+			DispatchQueue.main.async {
+				let _ = DynamicIslandTheme.expansionAnimation
+				let _ = DynamicIslandTheme.hoverAnimation
+			}
 		}
-		.animation(.easeInOut(duration: 0.2), value: isQuitting)
+		.animation(.easeInOut(duration: 0.1), value: isQuitting) // ULTIMATE FIX: Faster animation
         .contextMenu {
 			Button(action: {
-				withAnimation(.easeInOut(duration: 0.2)) {
+				withAnimation(.easeInOut(duration: 0.1)) { // ULTIMATE FIX: Faster animation
 					isQuitting = true
 				}
 				vm.notchClose()
-				DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { // ULTIMATE FIX: Faster termination
 					NSApp.terminate(nil)
 				}
 			}) {
                 Label("Quit Notch", systemImage: "xmark.circle.fill")
             }
         }
+        // ULTIMATE FIX: Optimized animation complexity
         .animation(DynamicIslandTheme.expansionAnimation, value: vm.status)
-        .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isChatExpanded)
         .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isRecording) // Smooth recording state transition
-        .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isPaused) // Smooth pause state transition
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -337,9 +333,11 @@ var notch: some View {
         }
     }
 
-    // Mini collapsed audio visualizer (5 bars) - matches CSS animation
+    // PERFORMANCE FIX: Optimized collapsed audio visualizer with reduced animation complexity
     struct CollapsedAudioViz: View {
         @State private var phase: CGFloat = 0
+        @State private var animationTimer: Timer?
+        
         var body: some View {
             HStack(spacing: 0.5) {
                 ForEach(0..<5, id: \.self) { i in
@@ -351,19 +349,30 @@ var notch: some View {
                         .fill(DynamicIslandTheme.primaryGreen)
                         .frame(width: 1.5, height: h)
                         .opacity(0.7 + (0.3 * progress)) // Match CSS opacity animation
-                        .animation(
-                            .easeInOut(duration: 1.5)
-                            .repeatForever(autoreverses: true)
-                            .delay(Double(i) * 0.2), // Match CSS animation delays
-                            value: phase
-                        )
+                        // PERFORMANCE FIX: Remove individual animations, use single timer
                 }
             }
             .onAppear {
-                withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-                    phase = .pi
-                }
+                // PERFORMANCE FIX: Use single timer instead of multiple animations
+                startAnimation()
             }
+            .onDisappear {
+                // PERFORMANCE FIX: Clean up timer to prevent memory leaks
+                stopAnimation()
+            }
+        }
+        
+        private func startAnimation() {
+            stopAnimation() // Clean up any existing timer
+            animationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+                phase += 0.1
+                if phase > .pi * 2 { phase = 0 }
+            }
+        }
+        
+        private func stopAnimation() {
+            animationTimer?.invalidate()
+            animationTimer = nil
         }
     }
     
@@ -487,9 +496,9 @@ var notch: some View {
         
         private func startWave() {
             stopWave()
-            // Drive phase manually for reliable animation
-            waveTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30.0, repeats: true) { _ in
-                phase += 0.2
+            // PERFORMANCE FIX: Reduced timer frequency for better performance
+            waveTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 20.0, repeats: true) { _ in // 20fps instead of 30fps
+                phase += 0.15 // Reduced phase increment for smoother animation
                 if phase > .pi * 2 { phase = 0 }
             }
         }

@@ -717,6 +717,7 @@ struct DynamicIslandContentView: View {
                             }
                         }
                     }
+                    .zIndex(1000)
                     
                     
                     // Main content area
