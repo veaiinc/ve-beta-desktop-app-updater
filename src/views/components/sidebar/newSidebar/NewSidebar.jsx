@@ -18,6 +18,7 @@ import SwitchWorkspace from './SwitchWorkspace';
 import Notifications from '../../topNavbar/components/notifications/Notifications';
 import Shortcuts from '../../topNavbar/components/shortcuts/Shortcuts';
 import { Tooltip } from 'antd';
+import WindowChromeButtons from '../../../../components/WindowChromeButtons';
 
 const routeNameMapper = {
 	chat: 'removeActiveTab',
@@ -125,7 +126,7 @@ const NewSidebar = () => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
-	}, [userWorkSpaceList, getUserWorkSpaceList]);
+	}, [userWorkSpaceList]);
 
 	// Handle click outside to close overlays
 	useEffect(() => {
@@ -529,7 +530,9 @@ const NewSidebar = () => {
 			>
 				<SidebarClosingSvg width={20} height={20} />
 			</button>
-
+			<div className={`${s.windowChromeButtonsContainer} ${shouldShowSidebar ? s.active : ''}`}>
+				<WindowChromeButtons />
+			</div>
 			{/* Hover Trigger - Only show when sidebar is closed */}
 			{!isSidebarOpen && (
 				<div

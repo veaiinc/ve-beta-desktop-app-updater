@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
 import useVoiceIntegration from './hooks/useVoiceIntegration';
@@ -14,6 +14,7 @@ import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
 import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
+import WindowChrome from './components/WindowChrome.jsx';
 
 const parseIntervalMinutes = (value, fallback = 60) => {
 	const parsed = Number.parseInt(value, 10);
@@ -28,6 +29,7 @@ const UPDATE_CHECK_INTERVAL_MS = UPDATE_CHECK_INTERVAL_MINUTES * 60 * 1000;
 // AppContent component that uses glass mode context
 const AppContent = () => {
 	const { routes } = useWorkspaceMode();
+	const location = useLocation();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	const [updateProgress, setUpdateProgress] = useState(null);
@@ -35,6 +37,28 @@ const AppContent = () => {
 
 	// NotchDrop Voice Integration - DIRECT APPROACH
 	const [showVoiceFromNotch, setShowVoiceFromNotch] = useState(false);
+
+	// Determine if user is authenticated based on route and token
+	const isAuthenticated = () => {
+		const token = localStorage.getItem('usertoken');
+		const isPublicRoute = [
+			'/',
+			'/verify-user',
+			'/onboarding',
+			'/download-app',
+			'/privacy-policy',
+			'/terms-of-service',
+			'/cookie-policy',
+			'/changelog',
+			'/user/verify-oauth-user',
+		].includes(location.pathname);
+		const isReferralRoute = location.pathname.startsWith('/referral/');
+
+		// User is authenticated if they have a token and are not on public routes
+		return token && token.trim() !== '' && !isPublicRoute && !isReferralRoute;
+	};
+
+	const [showWindowChrome, setShowWindowChrome] = useState(!isAuthenticated());
 
 	// Use glass mode context instead of local state
 	const { isGlassModeEnabled } = useGlassMode();
@@ -288,6 +312,11 @@ const AppContent = () => {
 		};
 	}, []);
 
+	// Update window chrome visibility when route or authentication state changes
+	useEffect(() => {
+		setShowWindowChrome(!isAuthenticated());
+	}, [location.pathname]);
+
 	// Glass mode is now handled by CSS classes - no complex initialization needed
 
 	return (
@@ -300,6 +329,8 @@ const AppContent = () => {
 
 			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
 			<NotchDropVoiceActivator />
+
+			{showWindowChrome && <WindowChrome />}
 
 			{/* Test Permission Overlay Button - Remove in production */}
 			{/* {process.env.NODE_ENV === 'development' && (
@@ -405,14 +436,14 @@ const AppContent = () => {
 				))}
 			</Routes>
 
-		{/* NotchDrop Voice Agent Integration - DIRECT */}
-		{showVoiceFromNotch && <VoiceAgentParent />}
+			{/* NotchDrop Voice Agent Integration - DIRECT */}
+			{showVoiceFromNotch && <VoiceAgentParent />}
 
-		{/* Global Upload Progress Popup - persists across all routes */}
-		<UploadProgressPopup />
+			{/* Global Upload Progress Popup - persists across all routes */}
+			<UploadProgressPopup />
 
-		{/* Global Download Progress Popup - persists across all routes */}
-		<DownloadProgressPopup />
+			{/* Global Download Progress Popup - persists across all routes */}
+			<DownloadProgressPopup />
 
 			{/* Update Progress Indicator */}
 			{updateProgress && (
@@ -461,13 +492,13 @@ const AppContent = () => {
 				</div>
 			)}
 
-		{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
-			<UpdateReadyPopup
-				updateInfo={updateStatus}
-				onRestart={handleRestartApp}
-				onDismiss={() => setIsUpdatePopupVisible(false)}
-			/>
-		)}
+			{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
+				<UpdateReadyPopup
+					updateInfo={updateStatus}
+					onRestart={handleRestartApp}
+					onDismiss={() => setIsUpdatePopupVisible(false)}
+				/>
+			)}
 		</div>
 	);
 };

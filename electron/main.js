@@ -4415,6 +4415,80 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Window chrome controls
+	ipcMain.handle('toggle-fullscreen', async () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				const isCurrentlyFullscreen = mainWindow.isFullScreen();
+
+				if (isCurrentlyFullscreen) {
+					// Exit fullscreen and restore previous window state
+					mainWindow.setFullScreen(false);
+
+					// Restore the saved window bounds after leaving fullscreen
+					mainWindow.once('leave-full-screen', () => {
+						if (lastWindowState && lastWindowState.windowBounds) {
+							mainWindow.setBounds(lastWindowState.windowBounds);
+						}
+					});
+
+					log.info('🖥️ Exited fullscreen mode');
+					return { success: true, isFullscreen: false };
+				} else {
+					// Save current window state before entering fullscreen
+					saveWindowState();
+
+					// Enter fullscreen
+					mainWindow.setFullScreen(true);
+
+					log.info('🖥️ Entered fullscreen mode');
+					return { success: true, isFullscreen: true };
+				}
+			}
+			return { success: false, error: 'Main window not available' };
+		} catch (error) {
+			log.error('❌ Error toggling fullscreen:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('close-window', async () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				// Save window state before closing
+				saveWindowState();
+
+				if (mainWindow.isFullScreen()) {
+					mainWindow.setFullScreen(false);
+					mainWindow.once('leave-full-screen', () => {
+						mainWindow.hide();
+					});
+				} else {
+					mainWindow.hide();
+				}
+
+				log.info('🪟 Window hidden via chrome close button');
+				return { success: true };
+			}
+			return { success: false, error: 'Main window not available' };
+		} catch (error) {
+			log.error('❌ Error closing window:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('get-fullscreen-state', async () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				return { success: true, isFullscreen: mainWindow.isFullScreen() };
+			}
+			return { success: false, error: 'Main window not available' };
+		} catch (error) {
+			log.error('❌ Error getting fullscreen state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	// This will handle main window navigation
 	ipcMain.handle('navigate-main-window', async (event, data) => {
 		try {

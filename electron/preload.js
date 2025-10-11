@@ -572,6 +572,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 		ipcRenderer.removeAllListeners('translucency-changed');
 	},
 
+	toggleFullscreen: () => ipcRenderer.invoke('toggle-fullscreen'),
+	closeWindow: () => ipcRenderer.invoke('close-window'),
+	getFullscreenState: () => ipcRenderer.invoke('get-fullscreen-state'),
+
 	// Glass mode sync API
 	syncGlassModeState: (isEnabled) => {
 		ipcRenderer.invoke('sync-glass-mode-state', { enabled: isEnabled });

@@ -1368,7 +1368,7 @@ const ChatBox = ({
 						setIsTranscribing(true);
 					} catch (error) {
 						console.log(error?.message);
-						message.error('Connection not established');
+						message.error(`Connection not established - ${error?.message}`);
 					} finally {
 						setIsMicConnecting(false);
 					}
