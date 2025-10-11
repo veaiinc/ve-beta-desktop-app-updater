@@ -11,6 +11,7 @@ import Context from '../../../context/context';
 import { message } from '../../../../src/views/components/globalComponents/CustomToast';
 import moment from 'moment';
 import TaskCard from './taskCard/TaskCard';
+import Spinner from '../loaders/Spinner';
 // import { EventTask } from './taskCard/EventTask';
 import EventCreation from './taskCard/EventCreation';
 
@@ -77,6 +78,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 		activeTaskKey: null,
 		activeEventKeys: [],
 		calendarCategories: [],
+		isLoading: false,
 	});
 
 	// Add new state for editing
@@ -310,6 +312,7 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 	};
 
 	const handleAccept = async () => {
+		setInfo((prev) => ({ ...prev, isLoading: true }));
 		// Check for tenant user signature before proceeding
 		const contractTable = (workflowInfoDetails?.summary?.tables || []).find(
 			(t) => t.type === 'contract-with-signature',
@@ -454,8 +457,10 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 			allSuccess = false;
 		}
 		if (allSuccess) {
+			setInfo((prev) => ({ ...prev, isLoading: false }));
 			message.success('Accepted and created successfully!');
 		} else {
+			setInfo((prev) => ({ ...prev, isLoading: false }));
 			message.error('Some items failed to process.');
 		}
 		closeModal();
@@ -759,9 +764,20 @@ const AcceptDocumentModel = ({ open, closeModal }) => {
 					<button className="acceptDocumentModalBackBtn" onClick={closeModal}>
 						Go Back
 					</button>
-					<button className="acceptDocumentModalAcceptBtn" onClick={handleAccept}>
-						Accept & Create <span className="arrow">→</span>
-					</button>
+					{info.isLoading ? (
+						<button className="acceptDocumentModalAcceptBtn">
+							<Spinner
+								width="20px"
+								height="20px"
+								borderTopColor="transparent"
+								color="var(--background-color)"
+							/>
+						</button>
+					) : (
+						<button className="acceptDocumentModalAcceptBtn" onClick={handleAccept}>
+							Accept & Create <span className="arrow">→</span>
+						</button>
+					)}
 				</div>
 			</div>
 		</ReactModal>
