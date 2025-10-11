@@ -4,6 +4,8 @@ import svgr from '@svgr/rollup';
 import electron from 'vite-plugin-electron/simple';
 import { copyFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import autoprefixer from 'autoprefixer';
+import cssnano from 'cssnano';
 
 export default defineConfig({
 	base: './',
@@ -13,7 +15,7 @@ export default defineConfig({
 		// Custom plugin to copy assets directory
 		{
 			name: 'copy-assets',
-			buildStart() {
+			async buildStart() {
 				const srcDir = 'electron/assets';
 				const destDir = 'dist-electron/assets';
 
@@ -23,12 +25,12 @@ export default defineConfig({
 					}
 
 					// Copy all files from assets directory
-					const fs = require('fs');
-					const files = fs.readdirSync(srcDir);
+					const { readdirSync, statSync } = await import('fs');
+					const files = readdirSync(srcDir);
 					files.forEach((file) => {
 						const srcFile = join(srcDir, file);
 						const destFile = join(destDir, file);
-						if (fs.statSync(srcFile).isFile()) {
+						if (statSync(srcFile).isFile()) {
 							copyFileSync(srcFile, destFile);
 							console.log(`✅ Copied ${file} to dist-electron/assets/`);
 						}
@@ -48,21 +50,21 @@ export default defineConfig({
 							external: [],
 							input: {
 								main: 'electron/main',
-								bridge: 'electron/bridge.js',
-								store: 'electron/store.js',
-								featuresIndex: 'electron/features/index.js',
-								featuresMeetingIndex: 'electron/features/meeting/index.js',
+								// bridge: 'electron/bridge.js',
+								// store: 'electron/store.js',
+								// featuresIndex: 'electron/features/index.js',
+								// featuresMeetingIndex: 'electron/features/meeting/index.js',
 								windowHelper: 'electron/helpers/windowHelper.js',
 								galleryHelper: 'electron/galleryHelper.js',
-								overlayWindowHelper: 'electron/overlayWindowHelper.js',
+								// overlayWindowHelper: 'electron/overlayWindowHelper.js',
 								windowsCompatibility: 'electron/windowsCompatibility.js',
-								notchDropService: 'electron/services/notchDropService.js',
-								ipcThrottleService: 'electron/services/ipcThrottleService.js',
-								idleTracker: 'electron/services/idleTracker.js',
-								meetingState: 'electron/services/meetingState.js',
-								notificationHelper: 'electron/notificationHelper.js',
-								dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
-								desktopUtilHelper: 'electron/desktopUtilHelper.js',
+								// notchDropService: 'electron/services/notchDropService.js',
+								// ipcThrottleService: 'electron/services/ipcThrottleService.js',
+								// idleTracker: 'electron/services/idleTracker.js',
+								// meetingState: 'electron/services/meetingState.js',
+								// notificationHelper: 'electron/notificationHelper.js',
+								// dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
+								// desktopUtilHelper: 'electron/desktopUtilHelper.js',
 								autoUpdateHelper: 'electron/helpers/autoUpdateHelper.js',
 								envHelper: 'electron/helpers/envHelper.js',
 							},
@@ -120,11 +122,11 @@ export default defineConfig({
 		rollupOptions: {
 			input: {
 				main: './index.html',
-				overlay: './overlay.html',
-				askAI: './askAI.html',
-				areYouThere: './areYouThere.html',
-				dynamicIsland: './dynamic-island.html',
-				permission: './permission.html',
+				// overlay: './overlay.html',
+				// askAI: './askAI.html',
+				// areYouThere: './areYouThere.html',
+				// dynamicIsland: './dynamic-island.html',
+				// permission: './permission.html',
 				errorFallback: './error-fallback.html',
 			},
 			// ✅ REVERTED: Removed aggressive code splitting that broke production
@@ -135,8 +137,8 @@ export default defineConfig({
 		devSourcemap: true,
 		postcss: {
 			plugins: [
-				require('autoprefixer'),
-				require('cssnano')({
+				autoprefixer,
+				cssnano({
 					preset: [
 						'default',
 						{

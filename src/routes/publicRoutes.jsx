@@ -21,7 +21,7 @@ const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/Downl
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
-import LiveIntelligence from '../views/features/onboarding/LiveIntelligence';
+// import LiveIntelligence from '../views/features/onboarding/LiveIntelligence';
 
 const publicRoutes = [
 	{

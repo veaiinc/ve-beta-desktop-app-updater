@@ -128,201 +128,201 @@ contextBridge.exposeInMainWorld('electronApi', {
 
 	minimizeMainWindow: () => ipcRenderer.invoke('minimize-main-window'),
 	// Overlay window APIs
-	overlay: {
-		toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
-		showOverlayWindow: () => ipcRenderer.invoke('show-overlay-window'),
-		updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
-		hideAllWindows: () => ipcRenderer.invoke('hide-all-windows'),
-		sendTabContentToAskAI: (tabContent) =>
-			ipcRenderer.invoke('send-tab-content-to-askai', tabContent),
-		// Send chat message from Dynamic Island to Ask AI
-		sendChatMessageToAskAI: (chatMessage) =>
-			ipcRenderer.invoke('send-chat-message-to-askai', chatMessage),
-		// New methods for Dynamic Island integration
-		startRecording: (data) => ipcRenderer.invoke('overlay-start-recording', data),
-		stopRecording: () => ipcRenderer.invoke('overlay-stop-recording'),
-		pauseRecording: () => ipcRenderer.invoke('overlay-pause-recording'),
-		resumeRecording: () => ipcRenderer.invoke('overlay-resume-recording'),
-		toggleLiveIntelligence: () => ipcRenderer.invoke('overlay-toggle-live-intelligence'),
-		getRecordingState: () => ipcRenderer.invoke('overlay-get-recording-state'),
-		onRecordingStateChange: (callback) => {
-			ipcRenderer.on('overlay-recording-state-changed', (event, data) => {
-				callback(data);
-			});
-		},
-		removeRecordingStateListener: () => {
-			ipcRenderer.removeAllListeners('overlay-recording-state-changed');
-		},
-		// Command listener for Dynamic Island integration
-		onCommand: (callback) => {
-			ipcRenderer.on('overlay-command', (event, data) => {
-				callback(event, data);
-			});
-		},
-		removeCommandListener: () => {
-			ipcRenderer.removeAllListeners('overlay-command');
-		},
-		// Send state updates to Dynamic Island
-		sendStateUpdate: (state) => ipcRenderer.invoke('overlay-state-update', state),
-		// Send transcription data to main process
-		sendTranscriptionData: (transcriptionData) =>
-			ipcRenderer.invoke('overlay-send-transcription-data', transcriptionData),
-		// Set current panel mode for recording (affects NotchDrop via main)
-		setPanelMode: (mode) => ipcRenderer.invoke('overlay-set-panel-mode', mode),
-		// Send live intelligence data to main process
-		sendLiveIntelligenceData: (liveIntelligenceData) =>
-			ipcRenderer.invoke('overlay-send-live-intelligence-data', liveIntelligenceData),
-		// Test connection
-		testConnection: () => ipcRenderer.invoke('test-overlay-connection'),
-		// Test command sending
-		testCommand: (command) => ipcRenderer.invoke('test-overlay-command', command),
-		// Test overlay window creation
-		testWindow: () => ipcRenderer.invoke('test-overlay-window'),
-		// Hide overlay window only (without stopping recording)
-		hideOverlayWindow: () => ipcRenderer.invoke('hide-overlay-window'),
-	},
+	// overlay: {
+	// 	toggleWindow: () => ipcRenderer.invoke('toggle-overlay-window'),
+	// 	showOverlayWindow: () => ipcRenderer.invoke('show-overlay-window'),
+	// 	updateDimensions: (dims) => ipcRenderer.invoke('update-overlay-dimensions', dims),
+	// 	hideAllWindows: () => ipcRenderer.invoke('hide-all-windows'),
+	// 	sendTabContentToAskAI: (tabContent) =>
+	// 		ipcRenderer.invoke('send-tab-content-to-askai', tabContent),
+	// 	// Send chat message from Dynamic Island to Ask AI
+	// 	sendChatMessageToAskAI: (chatMessage) =>
+	// 		ipcRenderer.invoke('send-chat-message-to-askai', chatMessage),
+	// 	// New methods for Dynamic Island integration
+	// 	startRecording: (data) => ipcRenderer.invoke('overlay-start-recording', data),
+	// 	stopRecording: () => ipcRenderer.invoke('overlay-stop-recording'),
+	// 	pauseRecording: () => ipcRenderer.invoke('overlay-pause-recording'),
+	// 	resumeRecording: () => ipcRenderer.invoke('overlay-resume-recording'),
+	// 	toggleLiveIntelligence: () => ipcRenderer.invoke('overlay-toggle-live-intelligence'),
+	// 	getRecordingState: () => ipcRenderer.invoke('overlay-get-recording-state'),
+	// 	onRecordingStateChange: (callback) => {
+	// 		ipcRenderer.on('overlay-recording-state-changed', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
+	// 	removeRecordingStateListener: () => {
+	// 		ipcRenderer.removeAllListeners('overlay-recording-state-changed');
+	// 	},
+	// 	// Command listener for Dynamic Island integration
+	// 	onCommand: (callback) => {
+	// 		ipcRenderer.on('overlay-command', (event, data) => {
+	// 			callback(event, data);
+	// 		});
+	// 	},
+	// 	removeCommandListener: () => {
+	// 		ipcRenderer.removeAllListeners('overlay-command');
+	// 	},
+	// 	// Send state updates to Dynamic Island
+	// 	sendStateUpdate: (state) => ipcRenderer.invoke('overlay-state-update', state),
+	// 	// Send transcription data to main process
+	// 	sendTranscriptionData: (transcriptionData) =>
+	// 		ipcRenderer.invoke('overlay-send-transcription-data', transcriptionData),
+	// 	// Set current panel mode for recording (affects NotchDrop via main)
+	// 	setPanelMode: (mode) => ipcRenderer.invoke('overlay-set-panel-mode', mode),
+	// 	// Send live intelligence data to main process
+	// 	sendLiveIntelligenceData: (liveIntelligenceData) =>
+	// 		ipcRenderer.invoke('overlay-send-live-intelligence-data', liveIntelligenceData),
+	// 	// Test connection
+	// 	testConnection: () => ipcRenderer.invoke('test-overlay-connection'),
+	// 	// Test command sending
+	// 	testCommand: (command) => ipcRenderer.invoke('test-overlay-command', command),
+	// 	// Test overlay window creation
+	// 	testWindow: () => ipcRenderer.invoke('test-overlay-window'),
+	// 	// Hide overlay window only (without stopping recording)
+	// 	hideOverlayWindow: () => ipcRenderer.invoke('hide-overlay-window'),
+	// },
 
-	// Ask AI window APIs
-	askAI: {
-		toggleWindow: () => ipcRenderer.invoke('toggle-askAI-window'),
-		showWindow: () => ipcRenderer.invoke('show-askAI-window'),
-		isWindowVisible: () => ipcRenderer.invoke('is-askAI-window-visible'),
-		updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
-		// Drag/move helpers
-		getPosition: () => ipcRenderer.invoke('askAI-get-position'),
-		moveTo: (x, y) => ipcRenderer.invoke('askAI-move-to', { x, y }),
-		setIgnoreMouseEvents: (ignore) =>
-			ipcRenderer.invoke('set-askAI-ignore-mouse-events', ignore),
-		setInputFocus: (isFocused) => ipcRenderer.invoke('set-askAI-input-focus', isFocused),
-		getInputFocus: () => ipcRenderer.invoke('get-askAI-input-focus'),
-		onReceiveTabContent: (callback) => {
-			ipcRenderer.on('receive-tab-content', (event, data) => {
-				callback(data);
-			});
-		},
-		getWorkArea: () => {
-			return ipcRenderer.invoke('get-workarea');
-		},
+	// // Ask AI window APIs
+	// askAI: {
+	// 	toggleWindow: () => ipcRenderer.invoke('toggle-askAI-window'),
+	// 	showWindow: () => ipcRenderer.invoke('show-askAI-window'),
+	// 	isWindowVisible: () => ipcRenderer.invoke('is-askAI-window-visible'),
+	// 	updateDimensions: (dims) => ipcRenderer.invoke('update-askAI-dimensions', dims),
+	// 	// Drag/move helpers
+	// 	getPosition: () => ipcRenderer.invoke('askAI-get-position'),
+	// 	moveTo: (x, y) => ipcRenderer.invoke('askAI-move-to', { x, y }),
+	// 	setIgnoreMouseEvents: (ignore) =>
+	// 		ipcRenderer.invoke('set-askAI-ignore-mouse-events', ignore),
+	// 	setInputFocus: (isFocused) => ipcRenderer.invoke('set-askAI-input-focus', isFocused),
+	// 	getInputFocus: () => ipcRenderer.invoke('get-askAI-input-focus'),
+	// 	onReceiveTabContent: (callback) => {
+	// 		ipcRenderer.on('receive-tab-content', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
+	// 	getWorkArea: () => {
+	// 		return ipcRenderer.invoke('get-workarea');
+	// 	},
 
-		// Listen for chat messages from Dynamic Island
-		onReceiveChatMessage: (callback) => {
-			ipcRenderer.on('receive-chat-message', (event, data) => {
-				callback(data);
-			});
-		},
+	// 	// Listen for chat messages from Dynamic Island
+	// 	onReceiveChatMessage: (callback) => {
+	// 		ipcRenderer.on('receive-chat-message', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
 
-		// Show chatbox mode
-		showChatbox: () => ipcRenderer.invoke('show-askAI-chatbox'),
+	// 	// Show chatbox mode
+	// 	showChatbox: () => ipcRenderer.invoke('show-askAI-chatbox'),
 
-		// Show response window mode
-		showResponse: () => ipcRenderer.invoke('show-askAI-response'),
+	// 	// Show response window mode
+	// 	showResponse: () => ipcRenderer.invoke('show-askAI-response'),
 
-		// Listen for show chatbox command
-		onShowChatbox: (callback) => {
-			ipcRenderer.on('askAI-show-chatbox', (event, data) => {
-				callback(data);
-			});
-		},
+	// 	// Listen for show chatbox command
+	// 	onShowChatbox: (callback) => {
+	// 		ipcRenderer.on('askAI-show-chatbox', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
 
-		// Listen for show response command
-		onShowResponse: (callback) => {
-			ipcRenderer.on('askAI-show-response', (event, data) => {
-				callback(data);
-			});
-		},
+	// 	// Listen for show response command
+	// 	onShowResponse: (callback) => {
+	// 		ipcRenderer.on('askAI-show-response', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
 
-		// Remove listeners
-		removeShowChatboxListener: () => {
-			ipcRenderer.removeAllListeners('askAI-show-chatbox');
-		},
+	// 	// Remove listeners
+	// 	removeShowChatboxListener: () => {
+	// 		ipcRenderer.removeAllListeners('askAI-show-chatbox');
+	// 	},
 
-		removeShowResponseListener: () => {
-			ipcRenderer.removeAllListeners('askAI-show-response');
-		},
+	// 	removeShowResponseListener: () => {
+	// 		ipcRenderer.removeAllListeners('askAI-show-response');
+	// 	},
 
-		// Camera permission API
-		camera: {
-			checkPermission: () => ipcRenderer.invoke('check-camera-permission'),
-			requestPermission: () => ipcRenderer.invoke('request-camera-permission'),
-			showPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
-		},
-		removeTabContentListener: () => {
-			ipcRenderer.removeAllListeners('receive-tab-content');
-		},
-		removeChatMessageListener: () => {
-			ipcRenderer.removeAllListeners('receive-chat-message');
-		},
-	},
+	// 	// Camera permission API
+	// 	camera: {
+	// 		checkPermission: () => ipcRenderer.invoke('check-camera-permission'),
+	// 		requestPermission: () => ipcRenderer.invoke('request-camera-permission'),
+	// 		showPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
+	// 	},
+	// 	removeTabContentListener: () => {
+	// 		ipcRenderer.removeAllListeners('receive-tab-content');
+	// 	},
+	// 	removeChatMessageListener: () => {
+	// 		ipcRenderer.removeAllListeners('receive-chat-message');
+	// 	},
+	// },
 
 	// Are You There window APIs
-	areYouThere: {
-		continueMeeting: () => ipcRenderer.invoke('are-you-there-continue-meeting'),
-		autoContinueMeeting: () => ipcRenderer.invoke('are-you-there-auto-continue-meeting'),
-		stopMeeting: () => ipcRenderer.invoke('are-you-there-stop-meeting'),
-		pauseMeetingIntelligence: () =>
-			ipcRenderer.invoke('are-you-there-pause-meeting-intelligence'),
-		endSession: () => ipcRenderer.invoke('are-you-there-end-session'),
-		getCurrentRecordingTime: () => ipcRenderer.invoke('are-you-there-get-recording-time'),
-		checkRecordingState: () => ipcRenderer.invoke('are-you-there-check-recording-state'),
-		onShowCommand: (callback) => {
-			ipcRenderer.on('are-you-there-show-command', (event, data) => {
-				callback(data);
-			});
-		},
-		removeShowCommandListener: () => {
-			ipcRenderer.removeAllListeners('are-you-there-show-command');
-		},
-		onCloseCommand: (callback) => {
-			ipcRenderer.on('are-you-there-close-command', (event, data) => {
-				callback(data);
-			});
-		},
-		removeCloseCommandListener: () => {
-			ipcRenderer.removeAllListeners('are-you-there-close-command');
-		},
-		// New transcription-based Are You There APIs
-		updateTranscriptionActivity: () => ipcRenderer.invoke('update-transcription-activity'),
-		continueTranscription: () => ipcRenderer.invoke('are-you-there-continue-transcription'),
-		stopTranscriptionMonitoring: () =>
-			ipcRenderer.invoke('are-you-there-stop-transcription-monitoring'),
-		pauseTranscriptionMonitoring: () =>
-			ipcRenderer.invoke('are-you-there-pause-transcription-monitoring'),
-		endTranscriptionSession: () =>
-			ipcRenderer.invoke('are-you-there-end-transcription-session'),
-		getTranscriptionDetectionState: () =>
-			ipcRenderer.invoke('get-transcription-detection-state'),
-	},
+	// areYouThere: {
+	// 	continueMeeting: () => ipcRenderer.invoke('are-you-there-continue-meeting'),
+	// 	autoContinueMeeting: () => ipcRenderer.invoke('are-you-there-auto-continue-meeting'),
+	// 	stopMeeting: () => ipcRenderer.invoke('are-you-there-stop-meeting'),
+	// 	pauseMeetingIntelligence: () =>
+	// 		ipcRenderer.invoke('are-you-there-pause-meeting-intelligence'),
+	// 	endSession: () => ipcRenderer.invoke('are-you-there-end-session'),
+	// 	getCurrentRecordingTime: () => ipcRenderer.invoke('are-you-there-get-recording-time'),
+	// 	checkRecordingState: () => ipcRenderer.invoke('are-you-there-check-recording-state'),
+	// 	onShowCommand: (callback) => {
+	// 		ipcRenderer.on('are-you-there-show-command', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
+	// 	removeShowCommandListener: () => {
+	// 		ipcRenderer.removeAllListeners('are-you-there-show-command');
+	// 	},
+	// 	onCloseCommand: (callback) => {
+	// 		ipcRenderer.on('are-you-there-close-command', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
+	// 	removeCloseCommandListener: () => {
+	// 		ipcRenderer.removeAllListeners('are-you-there-close-command');
+	// 	},
+	// 	// New transcription-based Are You There APIs
+	// 	updateTranscriptionActivity: () => ipcRenderer.invoke('update-transcription-activity'),
+	// 	continueTranscription: () => ipcRenderer.invoke('are-you-there-continue-transcription'),
+	// 	stopTranscriptionMonitoring: () =>
+	// 		ipcRenderer.invoke('are-you-there-stop-transcription-monitoring'),
+	// 	pauseTranscriptionMonitoring: () =>
+	// 		ipcRenderer.invoke('are-you-there-pause-transcription-monitoring'),
+	// 	endTranscriptionSession: () =>
+	// 		ipcRenderer.invoke('are-you-there-end-transcription-session'),
+	// 	getTranscriptionDetectionState: () =>
+	// 		ipcRenderer.invoke('get-transcription-detection-state'),
+	// },
 
 	// Permission window APIs
-	permission: {
-		toggleWindow: () => ipcRenderer.invoke('toggle-permission-window'),
-		showWindow: () => ipcRenderer.invoke('show-permission-window'),
-		hideWindow: () => ipcRenderer.invoke('hide-permission-window'),
-		isWindowVisible: () => ipcRenderer.invoke('is-permission-window-visible'),
-		closeWindow: () => ipcRenderer.invoke('hide-permission-window'),
-		checkAuthAndShowOverlay: () => ipcRenderer.invoke('check-auth-and-show-permission-overlay'),
-		// Permission checking and requesting
-		checkMicrophonePermission: () => ipcRenderer.invoke('check-microphone-permission'),
-		requestMicrophonePermission: () => ipcRenderer.invoke('request-microphone-permission'),
-		showMicrophonePermissionHelp: () => ipcRenderer.invoke('show-microphone-permission-help'),
-		checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
-		requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
-		showScreenPermissionHelp: () => ipcRenderer.invoke('show-screen-recording-permission-help'),
-		// Camera permission APIs
-		checkCameraPermission: () => ipcRenderer.invoke('check-camera-permission'),
-		requestCameraPermission: () => ipcRenderer.invoke('request-camera-permission'),
-		showCameraPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
-		// Media permission APIs
-		checkMediaPermission: () => ipcRenderer.invoke('check-media-permission'),
-		requestMediaPermission: () => ipcRenderer.invoke('request-media-permission'),
-		// Calendar permission APIs
-		checkCalendarPermission: () => ipcRenderer.invoke('check-calendar-permission'),
-		requestCalendarPermission: () => ipcRenderer.invoke('request-calendar-permission'),
-		// System settings opener
-		openSystemSettings: (section) => ipcRenderer.invoke('open-system-settings', section),
-		// Debug permissions
-		debugPermissions: () => ipcRenderer.invoke('debug-permissions'),
-	},
+	// permission: {
+	// 	toggleWindow: () => ipcRenderer.invoke('toggle-permission-window'),
+	// 	showWindow: () => ipcRenderer.invoke('show-permission-window'),
+	// 	hideWindow: () => ipcRenderer.invoke('hide-permission-window'),
+	// 	isWindowVisible: () => ipcRenderer.invoke('is-permission-window-visible'),
+	// 	closeWindow: () => ipcRenderer.invoke('hide-permission-window'),
+	// 	checkAuthAndShowOverlay: () => ipcRenderer.invoke('check-auth-and-show-permission-overlay'),
+	// 	// Permission checking and requesting
+	// 	checkMicrophonePermission: () => ipcRenderer.invoke('check-microphone-permission'),
+	// 	requestMicrophonePermission: () => ipcRenderer.invoke('request-microphone-permission'),
+	// 	showMicrophonePermissionHelp: () => ipcRenderer.invoke('show-microphone-permission-help'),
+	// 	checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
+	// 	requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
+	// 	showScreenPermissionHelp: () => ipcRenderer.invoke('show-screen-recording-permission-help'),
+	// 	// Camera permission APIs
+	// 	checkCameraPermission: () => ipcRenderer.invoke('check-camera-permission'),
+	// 	requestCameraPermission: () => ipcRenderer.invoke('request-camera-permission'),
+	// 	showCameraPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
+	// 	// Media permission APIs
+	// 	checkMediaPermission: () => ipcRenderer.invoke('check-media-permission'),
+	// 	requestMediaPermission: () => ipcRenderer.invoke('request-media-permission'),
+	// 	// Calendar permission APIs
+	// 	checkCalendarPermission: () => ipcRenderer.invoke('check-calendar-permission'),
+	// 	requestCalendarPermission: () => ipcRenderer.invoke('request-calendar-permission'),
+	// 	// System settings opener
+	// 	openSystemSettings: (section) => ipcRenderer.invoke('open-system-settings', section),
+	// 	// Debug permissions
+	// 	debugPermissions: () => ipcRenderer.invoke('debug-permissions'),
+	// },
 
 	// Home icon click handler (cross-platform)
 	home: {
@@ -339,13 +339,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 	},
 
 	// Mouse event handling for click-through behavior
-	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
+	// setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
 
-	// Microphone permission APIs
-	microphone: {
-		checkPermission: () => ipcRenderer.invoke('check-microphone-permission'),
-		requestPermission: () => ipcRenderer.invoke('request-microphone-permission'),
-	},
+	// // Microphone permission APIs
+	// microphone: {
+	// 	checkPermission: () => ipcRenderer.invoke('check-microphone-permission'),
+	// 	requestPermission: () => ipcRenderer.invoke('request-microphone-permission'),
+	// },
 
 	// Wake word APIs
 	// wakeWord: {
@@ -382,174 +382,174 @@ contextBridge.exposeInMainWorld('electronApi', {
 	removeDownloadProgressListener: () => {
 		ipcRenderer.removeAllListeners('download-progress');
 	},
-	checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
-	requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
-	showScreenPermissionHelp: () => ipcRenderer.invoke('show-screen-recording-permission-help'),
-	desktop: {
-		// ✅ This is the key addition
-		captureScreen: () => ipcRenderer.invoke('desktop:capture-screen'),
-	},
+	// checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
+	// requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
+	// showScreenPermissionHelp: () => ipcRenderer.invoke('show-screen-recording-permission-help'),
+	// desktop: {
+	// 	// ✅ This is the key addition
+	// 	captureScreen: () => ipcRenderer.invoke('desktop:capture-screen'),
+	// },
 
 	// Dynamic Island APIs
-	dynamicIsland: {
-		expand: () => ipcRenderer.invoke('dynamic-island-expand'),
-		collapse: () => ipcRenderer.invoke('dynamic-island-collapse'),
-		toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
-		show: () => ipcRenderer.invoke('dynamic-island-show'),
-		hide: () => ipcRenderer.invoke('dynamic-island-hide'),
-		focus: () => ipcRenderer.invoke('dynamic-island-focus'),
-		forceShow: () => ipcRenderer.invoke('dynamic-island-force-show'),
-		setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
-		setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
+	// dynamicIsland: {
+	// 	expand: () => ipcRenderer.invoke('dynamic-island-expand'),
+	// 	collapse: () => ipcRenderer.invoke('dynamic-island-collapse'),
+	// 	toggle: () => ipcRenderer.invoke('dynamic-island-toggle'),
+	// 	show: () => ipcRenderer.invoke('dynamic-island-show'),
+	// 	hide: () => ipcRenderer.invoke('dynamic-island-hide'),
+	// 	focus: () => ipcRenderer.invoke('dynamic-island-focus'),
+	// 	forceShow: () => ipcRenderer.invoke('dynamic-island-force-show'),
+	// 	setMouseEvents: (ignore) => ipcRenderer.invoke('dynamic-island-set-mouse-events', ignore),
+	// 	setChatMode: (isChatMode) => ipcRenderer.invoke('dynamic-island-chat-mode', isChatMode),
 
-		// Send chat message directly to AskAI
-		sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
+	// 	// Send chat message directly to AskAI
+	// 	sendChatMessage: (message) => ipcRenderer.invoke('send-chat-message-to-askai', message),
 
-		// Voice integration APIs for Dynamic Island
-		connectVoice: () => ipcRenderer.invoke('dynamic-island-voice-connect'),
-		disconnectVoice: () => ipcRenderer.invoke('dynamic-island-voice-disconnect'),
-		getVoiceStatus: () => ipcRenderer.invoke('dynamic-island-voice-status'),
-		setMicrophoneAccess: (enabled) =>
-			ipcRenderer.invoke('dynamic-island-set-microphone-access', enabled),
+	// 	// Voice integration APIs for Dynamic Island
+	// 	connectVoice: () => ipcRenderer.invoke('dynamic-island-voice-connect'),
+	// 	disconnectVoice: () => ipcRenderer.invoke('dynamic-island-voice-disconnect'),
+	// 	getVoiceStatus: () => ipcRenderer.invoke('dynamic-island-voice-status'),
+	// 	setMicrophoneAccess: (enabled) =>
+	// 		ipcRenderer.invoke('dynamic-island-set-microphone-access', enabled),
 
-		// Combined recording trigger for Windows (show/expand Dynamic Island + start recording)
-		startRecordingFromModal: () =>
-			ipcRenderer.invoke('dynamic-island-start-recording-from-modal'),
+	// 	// Combined recording trigger for Windows (show/expand Dynamic Island + start recording)
+	// 	startRecordingFromModal: () =>
+	// 		ipcRenderer.invoke('dynamic-island-start-recording-from-modal'),
 
-		onStateChange: (callback) => {
-			ipcRenderer.on('dynamic-island-state', (event, data) => {
-				callback(data);
-			});
-		},
-		removeStateChangeListener: () => {
-			ipcRenderer.removeAllListeners('dynamic-island-state');
-		},
-		onVoiceModeTrigger: (callback) => {
-			ipcRenderer.on('trigger-voice-mode', (event) => {
-				callback();
-			});
-		},
-		removeVoiceModeTriggerListener: () => {
-			ipcRenderer.removeAllListeners('trigger-voice-mode');
-		},
-		// Listen for overlay state changes
-		onOverlayStateChange: (callback) => {
-			ipcRenderer.on('overlay-state-changed', (event, data) => {
-				callback(data);
-			});
-		},
-		removeOverlayStateListener: () => {
-			ipcRenderer.removeAllListeners('overlay-state-changed');
-		},
-		// Listen for voice status changes
-		onVoiceStatusChange: (callback) => {
-			ipcRenderer.on('voice-status-changed', (event, data) => {
-				callback(data);
-			});
-		},
-		removeVoiceStatusListener: () => {
-			ipcRenderer.removeAllListeners('voice-status-changed');
-		},
-		onForceFocus: (callback) => {
-			ipcRenderer.on('force-focus', (event) => {
-				callback();
-			});
-		},
-		removeForceFocusListener: () => {
-			ipcRenderer.removeAllListeners('force-focus');
-		},
+	// 	onStateChange: (callback) => {
+	// 		ipcRenderer.on('dynamic-island-state', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
+	// 	removeStateChangeListener: () => {
+	// 		ipcRenderer.removeAllListeners('dynamic-island-state');
+	// 	},
+	// 	onVoiceModeTrigger: (callback) => {
+	// 		ipcRenderer.on('trigger-voice-mode', (event) => {
+	// 			callback();
+	// 		});
+	// 	},
+	// 	removeVoiceModeTriggerListener: () => {
+	// 		ipcRenderer.removeAllListeners('trigger-voice-mode');
+	// 	},
+	// 	// Listen for overlay state changes
+	// 	onOverlayStateChange: (callback) => {
+	// 		ipcRenderer.on('overlay-state-changed', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
+	// 	removeOverlayStateListener: () => {
+	// 		ipcRenderer.removeAllListeners('overlay-state-changed');
+	// 	},
+	// 	// Listen for voice status changes
+	// 	onVoiceStatusChange: (callback) => {
+	// 		ipcRenderer.on('voice-status-changed', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
+	// 	removeVoiceStatusListener: () => {
+	// 		ipcRenderer.removeAllListeners('voice-status-changed');
+	// 	},
+	// 	onForceFocus: (callback) => {
+	// 		ipcRenderer.on('force-focus', (event) => {
+	// 			callback();
+	// 		});
+	// 	},
+	// 	removeForceFocusListener: () => {
+	// 		ipcRenderer.removeAllListeners('force-focus');
+	// 	},
 
-		// Notification APIs
-		showNotification: (notification) =>
-			ipcRenderer.invoke('dynamic-island-show-notification', notification),
-		onNotification: (callback) => {
-			ipcRenderer.on('dynamic-island-notification', (event, data) => {
-				callback(data);
-			});
-		},
-		removeNotificationListener: () => {
-			ipcRenderer.removeAllListeners('dynamic-island-notification');
-		},
-	},
+	// 	// Notification APIs
+	// 	showNotification: (notification) =>
+	// 		ipcRenderer.invoke('dynamic-island-show-notification', notification),
+	// 	onNotification: (callback) => {
+	// 		ipcRenderer.on('dynamic-island-notification', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
+	// 	removeNotificationListener: () => {
+	// 		ipcRenderer.removeAllListeners('dynamic-island-notification');
+	// 	},
+	// },
 
 	// NotchDrop APIs
-	notchdrop: {
-		enable: () => ipcRenderer.invoke('notchdrop-enable'),
-		disable: () => ipcRenderer.invoke('notchdrop-disable'),
-		toggle: () => ipcRenderer.invoke('notchdrop-toggle'),
-		isVisible: () => ipcRenderer.invoke('notchdrop-is-visible'),
-		setStatus: (status) => ipcRenderer.invoke('notchdrop-set-status', status),
-		getStatus: () => ipcRenderer.invoke('notchdrop-get-status'),
-		handleFiles: (filePaths) => ipcRenderer.invoke('notchdrop-handle-files', filePaths),
-		setAutoOpen: (enabled) => ipcRenderer.invoke('notchdrop-set-auto-open', enabled),
-		getAutoOpen: () => ipcRenderer.invoke('notchdrop-get-auto-open'),
-		setHapticFeedback: (enabled) =>
-			ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
-		getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
-		updateMenu: () => ipcRenderer.invoke('update-notchdrop-menu'),
-		// Voice integration
-		updateVoiceStatus: (status) => ipcRenderer.invoke('notchdrop-update-voice-status', status),
-		updateVoiceConnectionState: (status) =>
-			ipcRenderer.invoke('notchdrop-update-voice-connection-state', status),
-		updateVoiceMuteState: (isMuted) =>
-			ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
-		addVoiceMessage: (messageData) =>
-			ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
-		// GENERAL PURPOSE MESSAGE SYSTEM
-		sendMessage: (messageData) => ipcRenderer.invoke('notchdrop-send-message', messageData),
-		// New NotchDropLatest APIs
-		openAirDrop: () => ipcRenderer.invoke('notchdrop-open-airdrop'),
-		openShare: () => ipcRenderer.invoke('notchdrop-open-share'),
-		openFile: (filePath) => ipcRenderer.invoke('notchdrop-open-file', filePath),
-		deleteFile: (fileId) => ipcRenderer.invoke('notchdrop-delete-file', fileId),
-		// Replace entire transcription list in NotchDrop
-		replaceTranscriptions: (messages) =>
-			ipcRenderer.invoke('notchdrop-replace-transcriptions', messages),
-		// Clear live intelligence data in NotchDrop
-		clearLiveIntelligenceData: () =>
-			ipcRenderer.invoke('notchdrop-clear-live-intelligence-data'),
-		onFileDropped: (callback) => {
-			ipcRenderer.on('notchdrop-file-dropped', (event, data) => {
-				callback(data);
-			});
-		},
-		removeFileDroppedListener: () => {
-			ipcRenderer.removeAllListeners('notchdrop-file-dropped');
-		},
-	},
+	// notchdrop: {
+	// 	enable: () => ipcRenderer.invoke('notchdrop-enable'),
+	// 	disable: () => ipcRenderer.invoke('notchdrop-disable'),
+	// 	toggle: () => ipcRenderer.invoke('notchdrop-toggle'),
+	// 	isVisible: () => ipcRenderer.invoke('notchdrop-is-visible'),
+	// 	setStatus: (status) => ipcRenderer.invoke('notchdrop-set-status', status),
+	// 	getStatus: () => ipcRenderer.invoke('notchdrop-get-status'),
+	// 	handleFiles: (filePaths) => ipcRenderer.invoke('notchdrop-handle-files', filePaths),
+	// 	setAutoOpen: (enabled) => ipcRenderer.invoke('notchdrop-set-auto-open', enabled),
+	// 	getAutoOpen: () => ipcRenderer.invoke('notchdrop-get-auto-open'),
+	// 	setHapticFeedback: (enabled) =>
+	// 		ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
+	// 	getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
+	// 	updateMenu: () => ipcRenderer.invoke('update-notchdrop-menu'),
+	// 	// Voice integration
+	// 	updateVoiceStatus: (status) => ipcRenderer.invoke('notchdrop-update-voice-status', status),
+	// 	updateVoiceConnectionState: (status) =>
+	// 		ipcRenderer.invoke('notchdrop-update-voice-connection-state', status),
+	// 	updateVoiceMuteState: (isMuted) =>
+	// 		ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
+	// 	addVoiceMessage: (messageData) =>
+	// 		ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
+	// 	// GENERAL PURPOSE MESSAGE SYSTEM
+	// 	sendMessage: (messageData) => ipcRenderer.invoke('notchdrop-send-message', messageData),
+	// 	// New NotchDropLatest APIs
+	// 	openAirDrop: () => ipcRenderer.invoke('notchdrop-open-airdrop'),
+	// 	openShare: () => ipcRenderer.invoke('notchdrop-open-share'),
+	// 	openFile: (filePath) => ipcRenderer.invoke('notchdrop-open-file', filePath),
+	// 	deleteFile: (fileId) => ipcRenderer.invoke('notchdrop-delete-file', fileId),
+	// 	// Replace entire transcription list in NotchDrop
+	// 	replaceTranscriptions: (messages) =>
+	// 		ipcRenderer.invoke('notchdrop-replace-transcriptions', messages),
+	// 	// Clear live intelligence data in NotchDrop
+	// 	clearLiveIntelligenceData: () =>
+	// 		ipcRenderer.invoke('notchdrop-clear-live-intelligence-data'),
+	// 	onFileDropped: (callback) => {
+	// 		ipcRenderer.on('notchdrop-file-dropped', (event, data) => {
+	// 			callback(data);
+	// 		});
+	// 	},
+	// 	removeFileDroppedListener: () => {
+	// 		ipcRenderer.removeAllListeners('notchdrop-file-dropped');
+	// 	},
+	// },
 
 	navigateMainWindow: (data) => ipcRenderer.invoke('navigate-main-window', data),
 	onNavigate: (callback) => ipcRenderer.on('navigate-to', (_, data) => callback(data)),
 
 	// Simple Content Protection APIs
-	toggleContentProtection: () => ipcRenderer.invoke('toggle-content-protection'),
-	getContentProtectionStatus: () => ipcRenderer.invoke('get-content-protection-status'),
-	setContentProtection: (enabled) => ipcRenderer.invoke('set-content-protection', enabled),
+	// toggleContentProtection: () => ipcRenderer.invoke('toggle-content-protection'),
+	// getContentProtectionStatus: () => ipcRenderer.invoke('get-content-protection-status'),
+	// setContentProtection: (enabled) => ipcRenderer.invoke('set-content-protection', enabled),
 
-	// Listen for content protection changes
-	onContentProtectionChanged: (callback) => {
-		ipcRenderer.on('content-protection-changed', callback);
-	},
-	removeContentProtectionListener: (callback) => {
-		ipcRenderer.removeListener('content-protection-changed', callback);
-	},
+	// // Listen for content protection changes
+	// onContentProtectionChanged: (callback) => {
+	// 	ipcRenderer.on('content-protection-changed', callback);
+	// },
+	// removeContentProtectionListener: (callback) => {
+	// 	ipcRenderer.removeListener('content-protection-changed', callback);
+	// },
 
-	startScreenCapture: () => ipcRenderer.invoke('start-screen-capture'),
+	// startScreenCapture: () => ipcRenderer.invoke('start-screen-capture'),
 
-	onScreenAudio: (callback) => {
-		ipcRenderer.on('screen-audio', (_event, data) => {
-			callback(data);
-		});
-	},
+	// onScreenAudio: (callback) => {
+	// 	ipcRenderer.on('screen-audio', (_event, data) => {
+	// 		callback(data);
+	// 	});
+	// },
 
-	getStoreActions: () => ipcRenderer.sendSync('get-store-actions-sync'),
+	// getStoreActions: () => ipcRenderer.sendSync('get-store-actions-sync'),
 
-	onNotchdropToMainWindowEvent: (callback) =>
-		ipcRenderer.on('notchdrop-to-main-window-event', (_, data) => callback(data)),
+	// onNotchdropToMainWindowEvent: (callback) =>
+	// 	ipcRenderer.on('notchdrop-to-main-window-event', (_, data) => callback(data)),
 
-	removeNotchdropToMainWindowEventListener: () => {
-		ipcRenderer.removeAllListeners('notchdrop-to-main-window-event');
-	},
+	// removeNotchdropToMainWindowEventListener: () => {
+	// 	ipcRenderer.removeAllListeners('notchdrop-to-main-window-event');
+	// },
 
 	resizeMainWindow: (data) => ipcRenderer.invoke('resize-main-window', data),
 

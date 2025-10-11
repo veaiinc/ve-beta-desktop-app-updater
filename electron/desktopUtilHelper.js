@@ -20,14 +20,14 @@ export function cleanupAndQuit({
 
 	try {
 		// Clean up dynamic island helper
-		if (dynamicIslandHelper) {
-			try {
-				dynamicIslandHelper.destroy();
-			} catch (error) {
-				log.error('Error destroying dynamicIslandHelper:', error);
-			}
-			dynamicIslandHelper = null;
-		}
+		// if (dynamicIslandHelper) {
+		// 	try {
+		// 		dynamicIslandHelper.destroy();
+		// 	} catch (error) {
+		// 		log.error('Error destroying dynamicIslandHelper:', error);
+		// 	}
+		// 	dynamicIslandHelper = null;
+		// }
 
 		// Clean up window helper
 		if (windowHelper) {
@@ -64,24 +64,24 @@ export function cleanupAndQuit({
 		}
 
 		// Clean up Are You There timer
-		if (areYouThereTimer) {
-			try {
-				clearInterval(areYouThereTimer);
-			} catch (error) {
-				log.error('Error clearing areYouThereTimer:', error);
-			}
-			areYouThereTimer = null;
-		}
+		// if (areYouThereTimer) {
+		// 	try {
+		// 		clearInterval(areYouThereTimer);
+		// 	} catch (error) {
+		// 		log.error('Error clearing areYouThereTimer:', error);
+		// 	}
+		// 	areYouThereTimer = null;
+		// }
 
-		// Clean up transcription detection timer
-		if (transcriptionDetectionTimer) {
-			try {
-				clearInterval(transcriptionDetectionTimer);
-			} catch (error) {
-				log.error('Error clearing transcriptionDetectionTimer:', error);
-			}
-			transcriptionDetectionTimer = null;
-		}
+		// // Clean up transcription detection timer
+		// if (transcriptionDetectionTimer) {
+		// 	try {
+		// 		clearInterval(transcriptionDetectionTimer);
+		// 	} catch (error) {
+		// 		log.error('Error clearing transcriptionDetectionTimer:', error);
+		// 	}
+		// 	transcriptionDetectionTimer = null;
+		// }
 
 		// Unregister all global shortcuts
 		try {

@@ -1,0 +1,22 @@
+
+> VE AI Gallery@0.1.0 dev
+> cross-env NODE_ENV=development npm run clean:build:dev && vite -- --js-flags="--expose-gc"
+
+
+> VE AI Gallery@0.1.0 clean:build:dev
+> rimraf dist-electron build
+
+[32m✔[0m [33mConsole Ninja[0m extension is connected to [33mVite[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+failed to load config from /Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/vite.config.js
+error when starting dev server:
+Error: Dynamic require of "file:///Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/node_modules/autoprefixer/lib/autoprefixer.js" is not supported
+    at file:///Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/node_modules/.vite-temp/vite.config.js.timestamp-1760203053964-fd9de2513333a.mjs:5:9
+    at file:///Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/node_modules/.vite-temp/vite.config.js.timestamp-1760203053964-fd9de2513333a.mjs:133:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async loadConfigFromBundledFile (file:///Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:49435:15)
+    at async bundleAndLoadConfigFile (file:///Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:49278:22)
+    at async loadConfigFromFile (file:///Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:49241:44)
+    at async resolveConfig (file:///Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:48737:24)
+    at async _createServer (file:///Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:38347:18)
+    at async CAC.<anonymous> (file:///Users/gowtham/Desktop/workspace/github/ve-desktop-app-another/ve-desktop-app/node_modules/vite/dist/node/cli.js:753:20)
