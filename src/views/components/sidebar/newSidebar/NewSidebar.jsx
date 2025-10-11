@@ -22,6 +22,7 @@ const routeNameMapper = {
 	'new-chat': 'newChat',
 	'ongoing-meeting': 'ongoingMeeting',
 	home: 'meet',
+	settings: 'removeActiveTab',
 };
 
 // const mediaQuery = window.matchMedia('(max-width: 768px)');
@@ -99,8 +100,8 @@ const NewSidebar = () => {
 				let updatedActiveTab = routeNameMapper?.[routeName];
 				updatedActiveTab = updatedActiveTab === 'removeActiveTab' ? null : updatedActiveTab;
 
-				if (info?.activeTab === updatedActiveTab) return;
-				setInfo((prev) => {
+				if (localState?.activeTab === updatedActiveTab) return;
+				setLocalState((prev) => {
 					return { ...prev, activeTab: routeNameMapper?.[routeName] };
 				});
 			}
