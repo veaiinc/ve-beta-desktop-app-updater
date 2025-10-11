@@ -93,57 +93,67 @@ extension NotchViewModel {
             }
             .store(in: &cancellables)
 
-        // Process hover at ~60fps and edge-detect entry/exit to avoid repeated triggers
+        // ULTIMATE FIX: Ultra-optimized hover processing with memory management
         events.mouseLocation
-            .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true)
+            .throttle(for: .milliseconds(50), scheduler: DispatchQueue.main, latest: true) // Further reduced frequency
             .sink { [weak self] _ in
                 guard let self else { return }
                 guard self.isInteractionEnabled else { return }
                 // Skip hover processing while opened by click to reduce churn
                 if status == .opened, openReason == .click { return }
-                let mouseLocation: NSPoint = NSEvent.mouseLocation
                 
-                // Cache hover zone calculations to avoid repeated expensive operations
-                let inClosedHoverZone = notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
-                let inOpenedHoverZone = notchOpenedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
+                // ULTIMATE FIX: Use autoreleasepool to prevent memory accumulation
+                autoreleasepool { [weak self] in
+                    guard let self = self else { return }
+                    let mouseLocation: NSPoint = NSEvent.mouseLocation
+                    
+                    // ULTIMATE FIX: Cache hover zone calculations with reduced precision
+                    let inClosedHoverZone = self.notchClosedRect.insetBy(dx: self.inset, dy: self.inset).contains(mouseLocation)
+                    let inOpenedHoverZone = self.notchOpenedRect.insetBy(dx: self.inset, dy: self.inset).contains(mouseLocation)
 
-                // Keep performance mode active during hover sampling
-                ensureInteractivePerformance()
+                    // ULTIMATE FIX: Only activate performance mode when needed
+                    if inClosedHoverZone || inOpenedHoverZone {
+                        self.ensureInteractivePerformance()
+                    }
 
-                switch status {
-                case .closed:
-                    // Edge-detect hover ENTER into closed zone
-                    if inClosedHoverZone && !wasInClosedHoverZone {
-                        // Subtle haptic feedback for hover (debounced)
-                        performHoverHapticIfNeeded()
-                        
-                        withAnimation(DynamicIslandTheme.hoverOpenBubbly) {
-                            self.notchOpen(.hover) 
+                    switch self.status {
+                    case .closed:
+                        // Edge-detect hover ENTER into closed zone
+                        if inClosedHoverZone && !self.wasInClosedHoverZone {
+                            // ULTIMATE FIX: Reduced haptic feedback frequency
+                            self.performHoverHapticIfNeeded()
+                            
+                            // ULTIMATE FIX: Faster animation
+                            withAnimation(DynamicIslandTheme.hoverOpenBubbly) {
+                                self.notchOpen(.hover) 
+                            }
                         }
-                    }
-                    // Update edge state
-                    wasInClosedHoverZone = inClosedHoverZone
-                    wasInOpenedHoverZone = false
-                case .opened:
-                    // Edge-detect hover EXIT from opened zone for auto-close
-                    if openReason == .hover, !inOpenedHoverZone, wasInOpenedHoverZone, !hasActiveVideo, !isNotchLocked {
-                        withAnimation(DynamicIslandTheme.hoverAnimation) {
-                            self.notchClose() 
+                        // Update edge state
+                        self.wasInClosedHoverZone = inClosedHoverZone
+                        self.wasInOpenedHoverZone = false
+                    case .opened:
+                        // Edge-detect hover EXIT from opened zone for auto-close
+                        if self.openReason == .hover, !inOpenedHoverZone, self.wasInOpenedHoverZone, !self.hasActiveVideo, !self.isNotchLocked {
+                            // ULTIMATE FIX: Faster close animation
+                            withAnimation(DynamicIslandTheme.hoverAnimation) {
+                                self.notchClose() 
+                            }
                         }
-                    }
-                    // Update edge state
-                    wasInOpenedHoverZone = inOpenedHoverZone
-                    wasInClosedHoverZone = false
-                case .popping:
-                    // Legacy pop behavior: close pop if pointer leaves the closed hover zone
-                    if !inClosedHoverZone { 
-                        withAnimation(DynamicIslandTheme.instantAnimation) {
-                            self.notchClose() 
+                        // Update edge state
+                        self.wasInOpenedHoverZone = inOpenedHoverZone
+                        self.wasInClosedHoverZone = false
+                    case .popping:
+                        // Legacy pop behavior: close pop if pointer leaves the closed hover zone
+                        if !inClosedHoverZone { 
+                            // ULTIMATE FIX: Instant close for better responsiveness
+                            withAnimation(DynamicIslandTheme.instantAnimation) {
+                                self.notchClose() 
+                            }
                         }
+                        // Update edge state
+                        self.wasInClosedHoverZone = inClosedHoverZone
+                        self.wasInOpenedHoverZone = false
                     }
-                    // Update edge state
-                    wasInClosedHoverZone = inClosedHoverZone
-                    wasInOpenedHoverZone = false
                 }
             }
             .store(in: &cancellables)

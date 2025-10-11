@@ -22,6 +22,7 @@ const routeNameMapper = {
 	'new-chat': 'newChat',
 	'ongoing-meeting': 'ongoingMeeting',
 	home: 'meet',
+	settings: 'removeActiveTab',
 };
 
 // const mediaQuery = window.matchMedia('(max-width: 768px)');
@@ -34,6 +35,9 @@ const NewSidebar = () => {
 		sidebarHoverState: false,
 		logoutLoading: false,
 		// isMobileView: mediaQuery.matches,
+		switchWorkspaceEnabled: false,
+		workspaceModalOpen: false,
+		workspaceListOpen: false,
 	});
 
 	const location = useLocation();
@@ -103,6 +107,13 @@ const NewSidebar = () => {
 			}
 		}
 	}, [location.pathname]);
+
+	// Load workspace list
+	useEffect(() => {
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList, getUserWorkSpaceList]);
 
 	// const handleResize = useCallback((e) => {
 	// 	setInfo((prev) => ({ ...prev, isMobileView: e.matches }));
@@ -185,11 +196,17 @@ const NewSidebar = () => {
 		}));
 	}, []);
 
-	const handleVeLogoClick = useCallback(() => {
-		if (info?.activeTab !== 'newChat') {
-			navigate('/new-chat');
-			handleTabChange('newChat');
-			setInfo((prev) => ({ ...prev, showSettings: false }));
+	const handleWorkspaceOverlayToggle = useCallback(() => {
+		// If any overlay is open, close all
+		if (localState?.workspaceModalOpen || localState?.workspaceListOpen) {
+			handleCloseAllOverlays();
+		} else {
+			// If nothing is open, open workspace modal
+			setLocalState((prev) => ({
+				...prev,
+				workspaceModalOpen: true,
+				workspaceListOpen: false,
+			}));
 		}
 	}, [localState?.workspaceModalOpen, localState?.workspaceListOpen, handleCloseAllOverlays]);
 
