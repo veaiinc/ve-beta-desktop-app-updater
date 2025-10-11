@@ -148,12 +148,13 @@
 			gap: 6px;
 			width: 100%;
 			.chat-group-header {
-				color: var(--secondary-font, #93989f);
+				color: rgba(255, 255, 255, 0.5);
 				font-family: var(--chat-primary-font-family);
-				font-size: 12px;
+				font-size: 13px;
 				font-style: normal;
-				font-weight: 600;
+				font-weight: 400;
 				line-height: normal;
+				letter-spacing: 1.3px;
 				padding-left: 10px;
 			}
 			.chat-containers {

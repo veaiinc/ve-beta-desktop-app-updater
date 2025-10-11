@@ -1,17 +1,19 @@
 import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import s from '../../../../assets/scss/sidebar/sidebar.module.scss';
-import { ReactComponent as VeLogoSvg } from '../../../../assets/svg/veLogo.svg';
 import { ReactComponent as SidebarClosingSvg } from '../../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as LogoutSvg } from '../../../../assets/svg/sidebar/logout.svg';
 import { ReactComponent as NotificationsSvg } from '../../../../assets/svg/sidebar/notifications.svg';
+import { ReactComponent as SettingSvg } from '../../../../assets/svg/sidebar/setting.svg';
+import { ReactComponent as SwitchWorkspaceSvg } from '../../../../assets/svg/sidebar/switchWorkspace.svg';
+import { ReactComponent as CreateWorkspaceSvg } from '../../../../assets/svg/sidebar/createWorkspace.svg';
 import Context from '../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SidebarMainContent from './SidebarMainContent';
 import CreditsLeftSvg from '../chatHistory/CreditsLeftSvg';
 import logout from '../../../../helpers/logout';
 import useBroadcastChannel from '../../../../hooks/useBroadcastChannel';
-import SidebarSettings from './SidebarSettings';
 import CreditsUpgradeTooltip from './CreditsUpgradeTooltip';
+import SwitchWorkspace from './SwitchWorkspace';
 import Notifications from '../../topNavbar/components/notifications/Notifications';
 import { Tooltip } from 'antd';
 
@@ -25,24 +27,31 @@ const routeNameMapper = {
 // const mediaQuery = window.matchMedia('(max-width: 768px)');
 
 const NewSidebar = () => {
-	const [info, setInfo] = useState({
+	const [localState, setLocalState] = useState({
 		activeTab: null,
 		activeType: 'chats',
 		expanded: true,
-		sidebarOpen: JSON.parse(localStorage.getItem('isSidebarOpen')) ?? false,
-		overlay: false,
 		sidebarHoverState: false,
-		showSettings: false,
 		logoutLoading: false,
 		// isMobileView: mediaQuery.matches,
+		switchWorkspaceEnabled: false,
+		workspaceModalOpen: false,
+		workspaceListOpen: false,
 	});
+
 	const location = useLocation();
-	const channel = useBroadcastChannel();
 	const navigate = useNavigate();
+	const channel = useBroadcastChannel();
 
 	const {
 		templates: { sidebarState, updateStateValues, isSidebarMobileView },
-		profileInfo: { userDetailsData, tennantSettingsData, tenantUserAccessControls },
+		profileInfo: {
+			userDetailsData,
+			tennantSettingsData,
+			tenantUserAccessControls,
+			userWorkSpaceList,
+			getUserWorkSpaceList,
+		},
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 
@@ -57,21 +66,13 @@ const NewSidebar = () => {
 	const fullName = `${firstName ?? ''} ${lastName ?? ''}`;
 	const isAdmin = tenantUserAccessControls?.role === 'admin';
 
-	useEffect(() => {
-		if (sidebarState) {
-			const { open, overlay } = sidebarState;
-			if (info?.sidebarOpen === open && info?.overlay === overlay) return;
-			setInfo((prev) => ({ ...prev, sidebarOpen: open ?? false, overlay: overlay ?? false }));
-			localStorage.setItem('isSidebarOpen', JSON.stringify(open));
-		}
-	}, [sidebarState]);
-
+	// Initialize sidebar state from localStorage
 	useEffect(() => {
 		const isSidebarOpen = JSON.parse(localStorage.getItem('isSidebarOpen')) ?? false;
-		if (sidebarState?.open !== isSidebarOpen) {
+		if (!sidebarState) {
 			updateStateValues({
 				sidebarState: {
-					overlay: sidebarState?.overlay ?? false,
+					overlay: false,
 					open: isSidebarOpen,
 				},
 			});
@@ -89,6 +90,7 @@ const NewSidebar = () => {
 	// 	}
 	// }, [info?.isMobileView]);
 
+	// Reset active tab when navigating to chat
 	useEffect(() => {
 		if (location.pathname) {
 			const routeName = location.pathname.split('/')[1];
@@ -105,102 +107,140 @@ const NewSidebar = () => {
 		}
 	}, [location.pathname]);
 
+	// Load workspace list
+	useEffect(() => {
+		if (!userWorkSpaceList) {
+			getUserWorkSpaceList();
+		}
+	}, [userWorkSpaceList, getUserWorkSpaceList]);
+
 	// const handleResize = useCallback((e) => {
 	// 	setInfo((prev) => ({ ...prev, isMobileView: e.matches }));
 	// }, []);
 
 	const handleTabChange = useCallback(
 		(tab) => {
-			if (info?.activeTab === tab) return;
-			setInfo((prev) => ({ ...prev, activeTab: tab }));
+			if (localState?.activeTab === tab) return;
+			setLocalState((prev) => ({ ...prev, activeTab: tab }));
 		},
-		[info?.activeTab],
+		[localState?.activeTab],
 	);
 
 	const handleTypeChange = useCallback(
 		(type) => {
-			if (info?.activeType === type) return;
-			setInfo((prev) => ({ ...prev, activeType: type }));
+			if (localState?.activeType === type) return;
+			setLocalState((prev) => ({ ...prev, activeType: type }));
 		},
-		[info?.activeType],
+		[localState?.activeType],
 	);
 
 	const handleToggleChatsExpand = useCallback(() => {
-		setInfo((prev) => ({ ...prev, expanded: !prev?.expanded }));
+		setLocalState((prev) => ({ ...prev, expanded: !prev?.expanded }));
 	}, []);
 
-	const handleSidebarStateChange = useCallback(
-		(open = false) => {
-			updateStateValues({
-				sidebarState: {
-					overlay: sidebarState?.overlay ?? false,
-					open,
-				},
-			});
-		},
-		[sidebarState, updateStateValues],
-	);
+	// Sidebar state management
+	const handleSidebarOpen = useCallback(() => {
+		const newState = { overlay: sidebarState?.overlay ?? false, open: true };
+		updateStateValues({ sidebarState: newState });
+		localStorage.setItem('isSidebarOpen', 'true');
+	}, [sidebarState, updateStateValues]);
+
+	const handleSidebarClose = useCallback(() => {
+		const newState = { overlay: sidebarState?.overlay ?? false, open: false };
+		updateStateValues({ sidebarState: newState });
+		localStorage.setItem('isSidebarOpen', 'false');
+		setLocalState((prev) => ({ ...prev, sidebarHoverState: false }));
+	}, [sidebarState, updateStateValues]);
 
 	const handleSidebarHoverEnter = useCallback(() => {
-		setInfo((prev) => ({ ...prev, sidebarHoverState: true }));
-	}, []);
+		if (!sidebarState?.open) {
+			setLocalState((prev) => ({ ...prev, sidebarHoverState: true }));
+		}
+	}, [sidebarState?.open]);
 
 	const handleSidebarHoverLeave = useCallback(() => {
-		setInfo((prev) => {
-			if (prev?.sidebarOpen) return prev;
-			return { ...prev, sidebarHoverState: false };
-		});
+		setLocalState((prev) => ({ ...prev, sidebarHoverState: false }));
 	}, []);
 
 	const handleLogout = async (e) => {
 		e?.stopPropagation();
-		setInfo((prev) => ({ ...prev, logoutLoading: true }));
+		setLocalState((prev) => ({ ...prev, logoutLoading: true }));
 		await logout();
 		channel.postMessage('logout');
-		setInfo((prev) => ({ ...prev, logoutLoading: false }));
+		setLocalState((prev) => ({ ...prev, logoutLoading: false }));
 	};
 
 	const handleSettingsClick = useCallback(() => {
-		setInfo((prev) => ({ ...prev, showSettings: !prev?.showSettings }));
+		navigate('/settings/my-profile');
+	}, [navigate]);
+
+	const handleSwitchWorkspace = useCallback((e) => {
+		e?.stopPropagation();
+		setLocalState((prev) => ({
+			...prev,
+			workspaceListOpen: !prev?.workspaceListOpen,
+			workspaceModalOpen: false, // Close workspace modal if open
+		}));
 	}, []);
 
-	const handleVeLogoClick = useCallback(() => {
-		if (info?.activeTab !== 'newChat') {
-			navigate('/new-chat');
-			handleTabChange('newChat');
-			setInfo((prev) => ({ ...prev, showSettings: false }));
+	const handleCreateWorkspace = useCallback(() => {
+		navigate('/create-workspace');
+	}, [navigate]);
+
+	const handleCloseAllOverlays = useCallback(() => {
+		setLocalState((prev) => ({
+			...prev,
+			workspaceModalOpen: false,
+			workspaceListOpen: false,
+		}));
+	}, []);
+
+	const handleWorkspaceOverlayToggle = useCallback(() => {
+		// If any overlay is open, close all
+		if (localState?.workspaceModalOpen || localState?.workspaceListOpen) {
+			handleCloseAllOverlays();
+		} else {
+			// If nothing is open, open workspace modal
+			setLocalState((prev) => ({
+				...prev,
+				workspaceModalOpen: true,
+				workspaceListOpen: false,
+			}));
 		}
-	}, [info?.activeTab]);
+	}, [localState?.workspaceModalOpen, localState?.workspaceListOpen, handleCloseAllOverlays]);
+
+	// Derived state for cleaner logic
+	const isSidebarOpen = sidebarState?.open ?? false;
+	const isSidebarHovered = localState?.sidebarHoverState && !isSidebarOpen;
+	const shouldShowOverlay = isSidebarOpen && (sidebarState?.overlay || localState?.isMobileView);
+	const shouldShowSidebar = isSidebarOpen || isSidebarHovered;
 
 	return (
 		<>
+			{/* Main Sidebar */}
 			<div
-				className={`${s.sidebarLayout} ${info?.sidebarOpen ? s.active : ''}`}
+				className={`${s.sidebarLayout} ${shouldShowSidebar ? s.active : ''}`}
 				style={{
-					...(!info?.sidebarOpen && {
-						transform: info?.sidebarHoverState ? 'translateX(0)' : 'translateX(-256px)',
-					}),
-					...((info?.overlay || info?.isMobileView) &&
-						info?.sidebarOpen && {
-							backgroundColor: 'var(--card)',
-						}),
+					transform: shouldShowSidebar ? 'translateX(0)' : 'translateX(-280px)',
+					...(shouldShowOverlay && { backgroundColor: 'rgba(46, 83, 107, 0.7)' }),
 				}}
 				onMouseLeave={handleSidebarHoverLeave}
+				role="navigation"
+				aria-label="Main navigation"
 			>
 				<div className={s.sidebarContainer}>
-					<div
-						className={s.header}
-						style={{
-							...(!info?.sidebarOpen && {
-								opacity: 0,
-								pointerEvents: 'none',
-							}),
-						}}
-					>
-						<div className={s.veLogo} onClick={handleVeLogoClick}>
-							<VeLogoSvg width={34} height={20} />
-						</div>
+					{/* Header */}
+					<div className={s.header}>
 						<div className={s.rightContainer}>
+							<button
+								className={s.settingsIcon}
+								onClick={handleSettingsClick}
+								aria-label="Open settings"
+								type="button"
+							>
+								<SettingSvg width={20} height={20} />
+							</button>
+
 							<Tooltip
 								title={<Notifications />}
 								placement="bottom"
@@ -208,109 +248,171 @@ const NewSidebar = () => {
 								color={'transparent'}
 								rootClassName={s.notificationsTooltip}
 							>
-								<div className={s.notificationsIcon}>
-									<NotificationsSvg width={21} height={21} />
-								</div>
+								<button
+									className={s.notificationsIcon}
+									type="button"
+									aria-label="Notifications"
+								>
+									<NotificationsSvg width={20} height={20} />
+								</button>
 							</Tooltip>
-
-							<div
-								className={s.closeIcon}
-								onClick={() => handleSidebarStateChange(false)}
-							>
-								<SidebarClosingSvg width={24} height={24} />
-							</div>
+							<CreditsUpgradeTooltip>
+								<div className={s.creditsLeftContainer}>
+									<CreditsLeftSvg
+										totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+										totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+									/>
+								</div>
+							</CreditsUpgradeTooltip>
 						</div>
 					</div>
+
+					{/* Main Content */}
 					<div className={s.mainContent}>
-						{info?.showSettings ? (
-							<SidebarSettings
-								handleTabChange={handleTabChange}
-								activeTab={info?.activeTab}
-								handleSidebarHoverLeave={handleSidebarHoverLeave}
-								sidebarOpen={info?.sidebarOpen}
-							/>
-						) : (
-							<SidebarMainContent
-								activeTab={info?.activeTab}
-								handleTabChange={handleTabChange}
-								activeType={info?.activeType}
-								handleTypeChange={handleTypeChange}
-								expanded={info?.expanded}
-								handleToggleChatsExpand={handleToggleChatsExpand}
-							/>
-						)}
+						<SidebarMainContent
+							activeTab={localState?.activeTab}
+							handleTabChange={handleTabChange}
+							activeType={localState?.activeType}
+							handleTypeChange={handleTypeChange}
+							expanded={localState?.expanded}
+							handleToggleChatsExpand={handleToggleChatsExpand}
+						/>
 					</div>
 
-					<div className={s.footer} onClick={handleSettingsClick}>
-						<div className={s.leftContainer}>
-							<div className={s.userInfo}>
-								{profilePicExists ? (
-									<img className={s.profileImg} src={profilePic} alt="profile" />
-								) : (
-									<p className={s.nameInitials}>{nameInitials}</p>
-								)}
-								{workspaceImage && (
-									<img
-										className={s.workspaceImage}
-										src={workspaceImage}
-										alt="workspaceImage"
-									/>
-								)}
+					{/* Footer - Click to toggle workspace options */}
+					<div
+						className={`${s.footer} ${
+							localState?.workspaceModalOpen || localState?.workspaceListOpen
+								? s.expanded
+								: ''
+						}`}
+						onClick={handleWorkspaceOverlayToggle}
+					>
+						{/* Workspace Options - Show when expanded */}
+						{localState?.workspaceModalOpen && (
+							<div className={s.workspaceOptions}>
+								<button
+									className={s.workspaceOption}
+									onClick={handleSwitchWorkspace}
+								>
+									<div className={s.icon}>
+										<SwitchWorkspaceSvg width={18} height={18} />
+									</div>
+									<div className={s.label}>Switch Workspace</div>
+								</button>
 
-								<div className={s.userInfoDetails}>
-									<p className={s.nameAndRole}>
-										<span className={s.fullName}>{fullName}</span>{' '}
-										<span className={s.role}>
-											{isAdmin ? '(Admin)' : '(Member)'}
-										</span>
-									</p>
-									<p className={s.businessName}>{businessName}</p>
+								<button
+									className={s.workspaceOption}
+									onClick={handleCreateWorkspace}
+								>
+									<div className={s.icon}>
+										<CreateWorkspaceSvg width={18} height={18} />
+									</div>
+									<div className={s.label}>Create Workspace</div>
+								</button>
+							</div>
+						)}
+
+						{/* Workspace List - Show when switch workspace is clicked */}
+						{localState?.workspaceListOpen && (
+							<div className={s.workspaceListOverlay}>
+								<div className={s.workspaceListHeader}>
+									<h3 className={s.workspaceListTitle}>Switch Workspace</h3>
+									<button
+										className={s.closeButton}
+										onClick={(e) => {
+											e.stopPropagation();
+											handleCloseAllOverlays();
+										}}
+										aria-label="Close workspace list"
+									>
+										×
+									</button>
+								</div>
+								<div className={s.workspaceListContent}>
+									<SwitchWorkspace
+										workspaceList={userWorkSpaceList}
+										switchWorkspaceEnabled={localState?.workspaceListOpen}
+									/>
 								</div>
 							</div>
-						</div>
+						)}
 
-						<div className={s.rightContainer} onClick={(e) => e.stopPropagation()}>
-							{info?.showSettings ? (
+						<div className={s.footerContent}>
+							<div className={s.leftContainer}>
+								<div className={s.userInfo}>
+									{profilePicExists ? (
+										<img
+											className={s.profileImg}
+											src={profilePic}
+											alt="Profile"
+										/>
+									) : (
+										<div
+											className={s.nameInitials}
+											aria-label={`${fullName} initials`}
+										>
+											{nameInitials}
+										</div>
+									)}
+									{workspaceImage && (
+										<img
+											className={s.workspaceImage}
+											src={workspaceImage}
+											alt="Workspace logo"
+										/>
+									)}
+
+									<div className={s.userInfoDetails}>
+										<div className={s.nameAndRole}>
+											<span className={s.fullName}>{fullName}</span>
+											<span className={s.role} aria-label="User role">
+												{isAdmin ? '(Admin)' : '(Member)'}
+											</span>
+										</div>
+										<div className={s.businessName}>{businessName}</div>
+									</div>
+								</div>
+							</div>
+
+							<div className={s.rightContainer}>
 								<button
 									className={s.logoutButton}
 									onClick={handleLogout}
-									style={{
-										opacity: info?.logoutLoading ? 0.5 : 1,
-										cursor: info?.logoutLoading ? 'not-allowed' : 'pointer',
-									}}
-									disabled={info?.logoutLoading}
+									disabled={localState?.logoutLoading}
+									aria-label="Logout"
+									type="button"
 								>
 									<LogoutSvg />
 								</button>
-							) : (
-								<CreditsUpgradeTooltip>
-									<div className={s.creditsLeftContainer}>
-										<CreditsLeftSvg
-											totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
-											totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
-										/>
-									</div>
-								</CreditsUpgradeTooltip>
-							)}
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div className={`${s.sidebarCloseState} ${!info?.sidebarOpen ? s.active : ''}`}>
-				<button
-					className={`${s.closeSidebar} ${s.btn}`}
-					onClick={() => handleSidebarStateChange(true)}
-				>
-					<SidebarClosingSvg width={24} height={24} />
-				</button>
-			</div>
 
-			{!info?.sidebarOpen && (
-				<div className={s.sidebarHoverElement} onMouseEnter={handleSidebarHoverEnter}></div>
+			{/* Toggle Button - Always visible, absolute positioned */}
+			<button
+				className={`${s.sidebarToggle} ${isSidebarOpen ? s.open : s.closed}`}
+				onClick={isSidebarOpen ? handleSidebarClose : handleSidebarOpen}
+				aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+				type="button"
+			>
+				<SidebarClosingSvg width={20} height={20} />
+			</button>
+
+			{/* Hover Trigger - Only show when sidebar is closed */}
+			{!isSidebarOpen && (
+				<div
+					className={s.sidebarHoverElement}
+					onMouseEnter={handleSidebarHoverEnter}
+					aria-hidden="true"
+				/>
 			)}
 
-			{info?.sidebarOpen && (info?.overlay || info?.isMobileView) && (
-				<div className={s.sidebarOverlay} onClick={() => handleSidebarStateChange(false)} />
+			{/* Overlay - Only show when sidebar is open and overlay is needed */}
+			{shouldShowOverlay && (
+				<div className={s.sidebarOverlay} onClick={handleSidebarClose} aria-hidden="true" />
 			)}
 		</>
 	);

@@ -252,8 +252,12 @@
 				font-weight: 500;
 				line-height: normal;
 				transition: all 0.3s ease;
-				&:hover {
+				&:hover:not(:disabled) {
 					background: var(--primary-button-hover, #34a0901a);
+				}
+				&:disabled {
+					opacity: 0.5;
+					cursor: not-allowed;
 				}
 
 				.google-logo-container {

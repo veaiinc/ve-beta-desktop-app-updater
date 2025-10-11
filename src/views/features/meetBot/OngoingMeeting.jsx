@@ -77,6 +77,11 @@ const OngoingMeeting = memo(() => {
 				exitFullScreen: true,
 			});
 		}
+
+		if (window?.electronApi?.overlay?.setPanelMode) {
+			window.electronApi.overlay.setPanelMode('live-intel');
+		}
+
 		return () => {
 			if (window?.electronApi?.resizeMainWindow) {
 				window?.electronApi?.resizeMainWindow({
@@ -251,7 +256,7 @@ const OngoingMeeting = memo(() => {
 			if (open === true) {
 				// Showing transcripts in main app → Notch should show live intelligence
 				if (window?.electronApi?.overlay?.setPanelMode) {
-					window.electronApi.overlay.setPanelMode('transcription');
+					window.electronApi.overlay.setPanelMode('live-intel');
 					console.log(
 						'🧭 OngoingMeeting: Set panel mode to transcription (Notch will show live intelligence)',
 					);
@@ -262,6 +267,7 @@ const OngoingMeeting = memo(() => {
 				// Showing live intelligence in main app → Notch should show transcription
 				if (window?.electronApi?.overlay?.setPanelMode) {
 					window.electronApi.overlay.setPanelMode('live-intel');
+					// window.electronApi.overlay.setPanelMode('transcription');
 					console.log(
 						'🧭 OngoingMeeting: Set panel mode to live-intel (Notch will show transcription)',
 					);
@@ -381,7 +387,7 @@ const OngoingMeeting = memo(() => {
 						<div className={s.ongoingMeetingNavTitle}>
 							{info.showingTranscripts ? 'LIVE TRANSCRIPT' : 'LIVE INTELLIGENCE'}
 						</div>
-						{/* <button
+						<button
 							className={s.ongoingMeetingNavButton}
 							onClick={() => toggleTranscripts(!info.showingTranscripts)}
 						>
@@ -389,7 +395,7 @@ const OngoingMeeting = memo(() => {
 							{info.showingTranscripts
 								? 'Show Live Intelligence'
 								: 'View Transcriptions'}
-						</button> */}
+						</button>
 
 						{/* <div className={s.dropDownContainer}>
 							<div className={s.dropDownBody}>

@@ -162,6 +162,9 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 	const hasNextPage = aiChatSessions?.hasMore || false;
 	const currentPage = aiChatSessions?.currentPage || 1;
 
+	// Don't show skeleton if we already know there are no chats
+	const shouldShowSkeleton = loadingState && !emptyChatsState;
+
 	return (
 		<div className={`chats-drawer-container${isClosed ? ' closed' : ''}`}>
 			<div className="chats-container">
@@ -177,7 +180,7 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 						/>
 					</div>
 				)} */}
-				{loadingState ? (
+				{shouldShowSkeleton ? (
 					<div className="skeleton-loader-container">
 						{skeletonLoaders?.map((skeletonId) => (
 							<div key={skeletonId} className="skeleton-loader-item">
@@ -197,7 +200,7 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 					// 		Create New Chat
 					// 	</button>
 					// </div>
-					''
+					null
 				) : (
 					<InfiniteScroll
 						dataLength={chats?.length || 0}

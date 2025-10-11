@@ -19,10 +19,19 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 	const groupMeetingsByDate = (meetings) => {
 		const grouped = {};
 
-		meetings.forEach(meeting => {
-			if (!meeting.startDateTime) return;
+		// Sort meetings by start time (earliest first - most recent upcoming first)
+		const sortedMeetings = [...meetings].sort((a, b) => {
+			const aTime = a?.googleCalendarMeta?.start?.dateTime || a.startDateTime;
+			const bTime = b?.googleCalendarMeta?.start?.dateTime || b.startDateTime;
+			if (!aTime || !bTime) return 0;
+			return moment.utc(aTime).valueOf() - moment.utc(bTime).valueOf();
+		});
 
-			const date = moment.utc(meeting.startDateTime).format('DD MMM YYYY');
+		sortedMeetings.forEach(meeting => {
+			const meetingTime = meeting?.googleCalendarMeta?.start?.dateTime || meeting.startDateTime;
+			if (!meetingTime) return;
+
+			const date = moment.utc(meetingTime).format('DD MMM YYYY');
 
 			if (!grouped[date]) {
 				grouped[date] = [];
@@ -34,39 +43,77 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 	};
 
 	const formatTime = (dateTime) => {
-		return moment.utc(dateTime).format('h:mm A');
+		const localTime = new Date(dateTime).toLocaleString();
+		return moment.utc(localTime).format('h:mm A');
+		// return moment.utc(dateTime).format('h:mm A');
 	};
 
-	const getParticipantsText = (meeting) => {
+	const getParticipantsDisplay = (meeting) => {
+		let participants = [];
+
+		// Collect all participants
 		if (meeting.participants && meeting.participants.length > 0) {
-			return meeting.participants.join(', ');
+			participants = meeting.participants;
+		} else if (meeting.attendees && meeting.attendees.length > 0) {
+			participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
+		} else if (meeting.organizer?.name) {
+			participants = [meeting.organizer.name];
 		}
-		if (meeting.attendees && meeting.attendees.length > 0) {
-			return meeting.attendees.map(attendee => attendee.email || attendee.name).join(', ');
+
+		if (participants.length === 0) {
+			return <span className="no-participants">No participants</span>;
 		}
-		if (meeting.organizer?.email) {
-			return meeting.organizer.email;
-		}
-		return 'No participants';
+
+		// Show first participant name, then +count for others
+		const firstParticipant = participants[0];
+		const remainingCount = participants.length - 1;
+
+		return (
+			<div className="participants-display">
+				<span className="first-participant">{firstParticipant}</span>
+				{remainingCount > 0 && (
+					<div className="participant-count-container">
+						<span className="participant-count">+{remainingCount}</span>
+						<div className="participants-popup">
+							<div className="popup-header">Attendees</div>
+							<div className="popup-separator"></div>
+							<div className="popup-list">
+								{participants.map((participant, index) => (
+									<div key={index} className="popup-participant">
+										<span className="participant-email">{participant}</span>
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+		);
 	};
 
 	const groupedMeetings = groupMeetingsByDate(meetings);
 
+	// Sort date groups by date (earliest first)
+	const sortedDateKeys = Object.keys(groupedMeetings).sort((a, b) => {
+		return moment(a, 'DD MMM YYYY').valueOf() - moment(b, 'DD MMM YYYY').valueOf();
+	});
+
 	return (
 		<div className='upcoming-meetings-list'>
-			{Object.keys(groupedMeetings).map((date) => (
+			{sortedDateKeys.map((date) => (
 				<div key={date} className='meetings-group'>
 					<div className='meetings-group-title'>{date}</div>
 					{groupedMeetings[date].map((meeting) => {
 						const status = getMeetingStatus(meeting);
 						const isCreating = creatingMeetingId === meeting._id;
+						const isClickable = status === 'Now' || status === 'Starting soon';
 
 						return (
 							<div
 								key={meeting._id}
-								className={`card-meet-bot-list-item upcoming ${isCreating ? 'creating' : ''}`}
+								className={`card-meet-bot-list-item upcoming ${isCreating ? 'creating' : ''} ${!isClickable ? 'non-clickable' : ''}`}
 								onClick={() => {
-									if (isCreating) return;
+									if (isCreating || !isClickable) return;
 									onMeetingClick(meeting);
 								}}
 							>
@@ -75,7 +122,7 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 									<div className='card-meet-bot-list-item-time'>{formatTime(meeting.startDateTime)}</div>
 								</div>
 								<div className='card-meet-bot-list-item-description'>
-									{getParticipantsText(meeting)}
+									{getParticipantsDisplay(meeting)}
 								</div>
 								{status && (
 									<div className='card-meet-bot-list-item-status'>
@@ -131,14 +178,47 @@ const PastMeetingsList = ({ meetings, onMeetingClick }) => {
 		return moment.unix(timestamp).format('h:mm A');
 	};
 
-	const getParticipantsText = (meeting) => {
+	const getParticipantsDisplay = (meeting) => {
+		let participants = [];
+
+		// Collect all participants
 		if (meeting.participants && meeting.participants.length > 0) {
-			return meeting.participants.join(', ');
+			participants = meeting.participants;
+		} else if (meeting.attendees && meeting.attendees.length > 0) {
+			participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
+		} else if (meeting.createdBy?.name) {
+			participants = [meeting.createdBy.name];
 		}
-		if (meeting.createdBy?.name) {
-			return meeting.createdBy.name;
+
+		if (participants.length === 0) {
+			return <span className="no-participants">No participants</span>;
 		}
-		return 'No participants';
+
+		// Show first participant name, then +count for others
+		const firstParticipant = participants[0];
+		const remainingCount = participants.length - 1;
+
+		return (
+			<div className="participants-display">
+				<span className="first-participant">{firstParticipant}</span>
+				{remainingCount > 0 && (
+					<div className="participant-count-container">
+						<span className="participant-count">+{remainingCount}</span>
+						<div className="participants-popup">
+							<div className="popup-header">Attendees</div>
+							<div className="popup-separator"></div>
+							<div className="popup-list">
+								{participants.map((participant, index) => (
+									<div key={index} className="popup-participant">
+										<span className="participant-email">{participant}</span>
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+		);
 	};
 
 	const groupedMeetings = groupMeetingsByDate(meetings);
@@ -159,7 +239,7 @@ const PastMeetingsList = ({ meetings, onMeetingClick }) => {
 								<div className='card-meet-bot-list-item-time'>{formatTime(meeting.createdAt)}</div>
 							</div>
 							<div className='card-meet-bot-list-item-description'>
-								{getParticipantsText(meeting)}
+								{getParticipantsDisplay(meeting)}
 							</div>
 						</div>
 					))}
@@ -194,6 +274,7 @@ const CardMeetBot = () => {
 		apiFetching: false,
 		activeTab: 'upcoming',
 		creatingMeetingId: null,
+		userSwitchedTab: false, // Track if user manually switched tabs
 	});
 	const [currentTime, setCurrentTime] = useState(moment.utc());
 
@@ -230,12 +311,13 @@ const CardMeetBot = () => {
 
 					// Compare start times (within 30 minutes window)
 					let timeMatch = false;
-					if (pastMeeting.createdAt && meeting.startDateTime) {
+					const upcomingMeetingTime = meeting?.googleCalendarMeta?.start?.dateTime || meeting.startDateTime;
+					if (pastMeeting.createdAt && upcomingMeetingTime) {
 						const pastMeetingTime = moment.unix(pastMeeting.createdAt);
-						const upcomingMeetingTime = moment.utc(meeting.startDateTime);
+						const upcomingTime = moment.utc(upcomingMeetingTime);
 						timeMatch = pastMeetingTime.isBetween(
-							upcomingMeetingTime.clone().subtract(30, 'minutes'),
-							upcomingMeetingTime.clone().add(30, 'minutes'),
+							upcomingTime.clone().subtract(30, 'minutes'),
+							upcomingTime.clone().add(30, 'minutes'),
 						);
 					}
 
@@ -277,7 +359,7 @@ const CardMeetBot = () => {
 	}, [info.activeTab, pastMeetings?.totalDocs, upcomingMeetings?.totalDocs]);
 
 	const handleTabChange = (tab) => {
-		setInfo((prev) => ({ ...prev, activeTab: tab }));
+		setInfo((prev) => ({ ...prev, activeTab: tab, userSwitchedTab: true }));
 	};
 
 	// Modified API call handler to dispatch to store
@@ -422,6 +504,31 @@ const CardMeetBot = () => {
 		return () => clearInterval(timer);
 	}, []);
 
+	// Auto-switch to past tab only on initial load when no upcoming meetings exist
+	useEffect(() => {
+		if (
+			info.activeTab === 'upcoming' &&
+			meetings.length === 0 &&
+			!loadingMeetings &&
+			!info.userSwitchedTab && // Don't auto-switch if user has manually switched
+			upcomingMeetings?.data !== undefined // Only auto-switch if data has been loaded
+		) {
+			// Small delay to prevent flickering
+			const timer = setTimeout(() => {
+				setInfo((prev) => ({ ...prev, activeTab: 'past' }));
+			}, 100);
+
+			return () => clearTimeout(timer);
+		}
+	}, [meetings.length, info.activeTab, loadingMeetings, info.userSwitchedTab, upcomingMeetings?.data]);
+
+	// Reset userSwitchedTab flag when upcoming meetings are added
+	useEffect(() => {
+		if (meetings.length > 0 && info.userSwitchedTab) {
+			setInfo((prev) => ({ ...prev, userSwitchedTab: false }));
+		}
+	}, [meetings.length, info.userSwitchedTab]);
+
 
 
 
@@ -532,12 +639,13 @@ const CardMeetBot = () => {
 					...(response?.[1]?.data?.startMeeting || {}),
 				});
 
-				window.electronApi.minimizeMainWindow();
+				// window.electronApi.minimizeMainWindow();
 
 				// Trigger Dynamic Island recording
 				try {
 					console.log('🏝️ Triggering Dynamic Island recording from upcoming meeting');
 					const result = await window.electronApi.dynamicIsland.startRecordingFromModal();
+
 					if (result.success) {
 						console.log('✅ Successfully started Dynamic Island recording');
 					} else {
@@ -575,8 +683,10 @@ const CardMeetBot = () => {
 
 		// Convert current local time to UTC for comparison with meeting times
 		const nowUTC = moment.utc();
-		const start = toMoment(meeting.startDateTime);
-		const end = toMoment(meeting.endDateTime);
+		const startTime = meeting?.googleCalendarMeta?.start?.dateTime || meeting.startDateTime;
+		const endTime = meeting?.googleCalendarMeta?.end?.dateTime || meeting.endDateTime;
+		const start = toMoment(startTime);
+		const end = toMoment(endTime);
 
 		if (!start || !start.isValid() || !end || !end.isValid()) {
 			return '';
@@ -610,7 +720,7 @@ const CardMeetBot = () => {
 									</>
 								)}
 							</div>
-							{/* Always show tabs */}
+							{/* Always show both tabs */}
 							<div className='card-meet-tab-container'>
 								<div
 									className={`card-meet-tab-item ${info.activeTab === 'upcoming' ? 'active' : ''}`}
@@ -637,8 +747,8 @@ const CardMeetBot = () => {
 										<span>Loading meetings...</span>
 									</div>
 								) : info.activeTab === 'upcoming' ? (
-									// Show upcoming meetings or no upcoming message
-									upcomingMeetings?.data && upcomingMeetings.data.length > 0 ? (
+									// Show upcoming meetings or empty state
+									meetings.length > 0 ? (
 										<UpcomingMeetingsList
 											meetings={meetings}
 											onMeetingClick={handleCreateMeetingFromUpcoming}
@@ -654,17 +764,32 @@ const CardMeetBot = () => {
 										</div>
 									)
 								) : (
-									// Show past meetings
-									<PastMeetingsList
-										meetings={meetings}
-										onMeetingClick={(meeting) => {
-											if (activeMeetingId && activeMeetingId === meeting?._id && window.electronApi) {
-												navigate('/ongoing-meeting');
-											} else {
-												navigate(`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`);
-											}
-										}}
-									/>
+									// Show past meetings or create new meeting option
+									pastMeetings?.data && pastMeetings.data.length > 0 ? (
+										<PastMeetingsList
+											meetings={meetings}
+											onMeetingClick={(meeting) => {
+												if (activeMeetingId && activeMeetingId === meeting?._id && window.electronApi) {
+													navigate('/ongoing-meeting');
+												} else {
+													navigate(`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`);
+												}
+											}}
+										/>
+									) : (
+										<div className='card-meet-empty-state'>
+											<div className='card-meet-empty-title'>No past meetings</div>
+											<div className='card-meet-empty-description'>
+												Start your first meeting to see it here
+											</div>
+											<button
+												className='create-meeting-btn'
+												onClick={() => setInfo((prev) => ({ ...prev, modalOpen: true }))}
+											>
+												Create New Meeting
+											</button>
+										</div>
+									)
 								)}
 							</div>
 
