@@ -58,10 +58,13 @@ export default defineConfig({
 								windowsCompatibility: 'electron/windowsCompatibility.js',
 								notchDropService: 'electron/services/notchDropService.js',
 								ipcThrottleService: 'electron/services/ipcThrottleService.js',
+								idleTracker: 'electron/services/idleTracker.js',
+								meetingState: 'electron/services/meetingState.js',
 								notificationHelper: 'electron/notificationHelper.js',
 								dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
 								desktopUtilHelper: 'electron/desktopUtilHelper.js',
 								autoUpdateHelper: 'electron/helpers/autoUpdateHelper.js',
+								envHelper: 'electron/helpers/envHelper.js',
 							},
 							output: {
 								format: 'cjs',
@@ -69,13 +72,16 @@ export default defineConfig({
 									if (
 										chunkInfo.name === 'windowHelper' ||
 										chunkInfo.name === 'dynamicIslandHelper' ||
+										chunkInfo.name === 'envHelper' ||
 										chunkInfo.name === 'autoUpdateHelper'
 									) {
 										return 'helpers/[name].js';
 									}
 									if (
 										chunkInfo.name === 'notchDropService' ||
-										chunkInfo.name === 'ipcThrottleService'
+										chunkInfo.name === 'ipcThrottleService' ||
+										chunkInfo.name === 'idleTracker' ||
+										chunkInfo.name === 'meetingState'
 									) {
 										return 'services/[name].js';
 									}
