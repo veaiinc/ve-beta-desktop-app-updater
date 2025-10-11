@@ -293,7 +293,6 @@ $primary-font-family: 'GeneralSans';
 				background: transparent;
 				cursor: move;
 				-webkit-app-region: drag;
-				app-region: drag;
 				flex-shrink: 0;
 				transition: background 0.2s ease-in-out;
 				svg {
@@ -320,7 +319,6 @@ $primary-font-family: 'GeneralSans';
 				flex-grow: 1;
 				align-self: center;
 				-webkit-app-region: no-drag; /* ensure typing area is not draggable */
-				app-region: no-drag;
 
 				.suggestion-container {
 					position: absolute;
