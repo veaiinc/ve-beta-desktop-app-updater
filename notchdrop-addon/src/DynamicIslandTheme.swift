@@ -18,50 +18,50 @@ enum DynamicIslandTheme {
     static let recordingExpandedHeight: CGFloat = 160
     static let recordingBottomRadius: CGFloat = 8
     
-    // Animation timings - ultra-smooth and professional
-    static let expansionDuration: Double = 0.25    // Faster, more responsive
-    static let hoverDuration: Double = 0.12        // Snappier hover response
-    static let springDuration: Double = 0.36       // Open/close spring duration
+    // PERFORMANCE OPTIMIZED: Ultra-smooth and professional animations
+    static let expansionDuration: Double = 0.2     // Faster, more responsive
+    static let hoverDuration: Double = 0.08        // Snappier hover response
+    static let springDuration: Double = 0.28       // Open/close spring duration
     
-    // Professional animation curves
+    // PERFORMANCE OPTIMIZED: Professional animation curves with reduced complexity
     static let expansionAnimation: Animation = .spring(
         response: springDuration,
-        dampingFraction: 0.76,  // slightly more bounce
-        blendDuration: 0.08
+        dampingFraction: 0.8,   // Less bounce for smoother performance
+        blendDuration: 0.06     // Reduced blend duration
     )
     
     static let hoverAnimation: Animation = .spring(
         response: hoverDuration,
-        dampingFraction: 0.9,
-        blendDuration: 0.05
+        dampingFraction: 0.95,  // Higher damping for stability
+        blendDuration: 0.03     // Minimal blend duration
     )
     
     static let bounceAnimation: Animation = .spring(
-        response: 0.26,       // quick engage
-        dampingFraction: 0.62, // NotchNook-like overshoot
-        blendDuration: 0.06
+        response: 0.2,          // Faster engage
+        dampingFraction: 0.7,   // Balanced bounce
+        blendDuration: 0.04     // Reduced blend duration
     )
     
-    static let smoothEaseInOut: Animation = .easeInOut(duration: 0.2)
-    static let instantAnimation: Animation = .easeInOut(duration: 0.1)
+    static let smoothEaseInOut: Animation = .easeInOut(duration: 0.15)  // Faster
+    static let instantAnimation: Animation = .easeInOut(duration: 0.05) // Much faster
     
-    // NotchNook-style slow, bubbly hover-open
+    // PERFORMANCE OPTIMIZED: Faster hover-open animation
     static let hoverOpenBubbly: Animation = .spring(
-        response: 0.5,        // slower approach
-        dampingFraction: 0.72, // gentle overshoot
-        blendDuration: 0.08
+        response: 0.3,          // Faster approach
+        dampingFraction: 0.8,   // Less overshoot for stability
+        blendDuration: 0.05     // Reduced blend duration
     )
 
-    // Side bounce sequence (width wobble)
+    // PERFORMANCE OPTIMIZED: Simplified side bounce
     static let sideBounceKick: Animation = .spring(
-        response: 0.18,
-        dampingFraction: 0.55,
-        blendDuration: 0.04
+        response: 0.12,         // Faster
+        dampingFraction: 0.7,   // More stable
+        blendDuration: 0.03     // Minimal blend
     )
     static let sideBounceReturn: Animation = .spring(
-        response: 0.22,
-        dampingFraction: 0.75,
-        blendDuration: 0.05
+        response: 0.15,         // Faster
+        dampingFraction: 0.8,   // More stable
+        blendDuration: 0.03     // Minimal blend
     )
 
     // Colors

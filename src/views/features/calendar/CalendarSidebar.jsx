@@ -48,8 +48,9 @@ const CalendarSidebar = ({
 	}, []);
 
 	const connectedEmailWithGoogleCalendar =
-		connectedThirdParties?.data?.find((appInfo) => appInfo.app === 'google-calendar')?.email ??
-		null;
+		connectedThirdParties?.data?.find(
+			(appInfo) => appInfo.app === 'google-calendar' && appInfo.isActive === true,
+		)?.email ?? null;
 
 	return (
 		<>
