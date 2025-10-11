@@ -125,7 +125,7 @@ const NewSidebar = () => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
-	}, [userWorkSpaceList, getUserWorkSpaceList]);
+	}, [userWorkSpaceList]);
 
 	// Handle click outside to close overlays
 	useEffect(() => {

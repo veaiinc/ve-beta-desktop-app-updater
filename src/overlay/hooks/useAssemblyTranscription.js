@@ -1138,6 +1138,7 @@ const useAssemblyTranscription = ({
 				if (!permissionGranted) {
 					if (window.electronApi) {
 						window.electronApi?.sendMessageFrmVeApp('meetingstopped');
+						window.electronApi?.openMicrophoneSettings();
 					}
 					return;
 				}
