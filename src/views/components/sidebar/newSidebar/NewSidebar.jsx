@@ -1,4 +1,4 @@
-import { memo, useCallback, useContext, useEffect, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import s from '../../../../assets/scss/sidebar/sidebar.module.scss';
 import { ReactComponent as SidebarClosingSvg } from '../../../../assets/svg/sidebar/SidebarClosing.svg';
 import { ReactComponent as LogoutSvg } from '../../../../assets/svg/sidebar/logout.svg';
@@ -6,6 +6,7 @@ import { ReactComponent as NotificationsSvg } from '../../../../assets/svg/sideb
 import { ReactComponent as SettingSvg } from '../../../../assets/svg/sidebar/setting.svg';
 import { ReactComponent as SwitchWorkspaceSvg } from '../../../../assets/svg/sidebar/switchWorkspace.svg';
 import { ReactComponent as CreateWorkspaceSvg } from '../../../../assets/svg/sidebar/createWorkspace.svg';
+import { ReactComponent as ShortcutBarSvg } from '../../../../assets/svg/sidebar/shortcutBar.svg';
 import Context from '../../../../context/context';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SidebarMainContent from './SidebarMainContent';
@@ -15,6 +16,7 @@ import useBroadcastChannel from '../../../../hooks/useBroadcastChannel';
 import CreditsUpgradeTooltip from './CreditsUpgradeTooltip';
 import SwitchWorkspace from './SwitchWorkspace';
 import Notifications from '../../topNavbar/components/notifications/Notifications';
+import Shortcuts from '../../topNavbar/components/shortcuts/Shortcuts';
 import { Tooltip } from 'antd';
 
 const routeNameMapper = {
@@ -38,7 +40,17 @@ const NewSidebar = () => {
 		switchWorkspaceEnabled: false,
 		workspaceModalOpen: false,
 		workspaceListOpen: false,
+		notificationsOpen: false,
+		shortcutsOpen: false,
 	});
+
+	const notificationsRef = useRef(null);
+	const shortcutsRef = useRef(null);
+	const notificationsButtonRef = useRef(null);
+	const shortcutsButtonRef = useRef(null);
+	const workspaceModalRef = useRef(null);
+	const workspaceListRef = useRef(null);
+	const footerRef = useRef(null);
 
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -114,6 +126,68 @@ const NewSidebar = () => {
 			getUserWorkSpaceList();
 		}
 	}, [userWorkSpaceList, getUserWorkSpaceList]);
+
+	// Handle click outside to close overlays
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			// Check if notifications overlay is open
+			if (localState?.notificationsOpen) {
+				const clickedInsideNotifications = notificationsRef.current?.contains(event.target);
+				const clickedNotificationsButton = notificationsButtonRef.current?.contains(
+					event.target,
+				);
+
+				if (!clickedInsideNotifications && !clickedNotificationsButton) {
+					setLocalState((prev) => ({ ...prev, notificationsOpen: false }));
+				}
+			}
+
+			// Check if shortcuts overlay is open
+			if (localState?.shortcutsOpen) {
+				const clickedInsideShortcuts = shortcutsRef.current?.contains(event.target);
+				const clickedShortcutsButton = shortcutsButtonRef.current?.contains(event.target);
+
+				if (!clickedInsideShortcuts && !clickedShortcutsButton) {
+					setLocalState((prev) => ({ ...prev, shortcutsOpen: false }));
+				}
+			}
+
+			// Check if workspace modal is open
+			if (localState?.workspaceModalOpen) {
+				const clickedInsideWorkspaceModal = workspaceModalRef.current?.contains(
+					event.target,
+				);
+				const clickedFooter = footerRef.current?.contains(event.target);
+
+				if (!clickedInsideWorkspaceModal && !clickedFooter) {
+					setLocalState((prev) => ({ ...prev, workspaceModalOpen: false }));
+				}
+			}
+
+			// Check if workspace list is open
+			if (localState?.workspaceListOpen) {
+				const clickedInsideWorkspaceList = workspaceListRef.current?.contains(event.target);
+				const clickedFooter = footerRef.current?.contains(event.target);
+
+				if (!clickedInsideWorkspaceList && !clickedFooter) {
+					setLocalState((prev) => ({ ...prev, workspaceListOpen: false }));
+				}
+			}
+		};
+
+		// Add event listener
+		document.addEventListener('mousedown', handleClickOutside);
+
+		// Cleanup
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [
+		localState?.notificationsOpen,
+		localState?.shortcutsOpen,
+		localState?.workspaceModalOpen,
+		localState?.workspaceListOpen,
+	]);
 
 	// const handleResize = useCallback((e) => {
 	// 	setInfo((prev) => ({ ...prev, isMobileView: e.matches }));
@@ -193,12 +267,19 @@ const NewSidebar = () => {
 			...prev,
 			workspaceModalOpen: false,
 			workspaceListOpen: false,
+			notificationsOpen: false,
+			shortcutsOpen: false,
 		}));
 	}, []);
 
 	const handleWorkspaceOverlayToggle = useCallback(() => {
 		// If any overlay is open, close all
-		if (localState?.workspaceModalOpen || localState?.workspaceListOpen) {
+		if (
+			localState?.workspaceModalOpen ||
+			localState?.workspaceListOpen ||
+			localState?.notificationsOpen ||
+			localState?.shortcutsOpen
+		) {
 			handleCloseAllOverlays();
 		} else {
 			// If nothing is open, open workspace modal
@@ -206,9 +287,39 @@ const NewSidebar = () => {
 				...prev,
 				workspaceModalOpen: true,
 				workspaceListOpen: false,
+				notificationsOpen: false,
+				shortcutsOpen: false,
 			}));
 		}
-	}, [localState?.workspaceModalOpen, localState?.workspaceListOpen, handleCloseAllOverlays]);
+	}, [
+		localState?.workspaceModalOpen,
+		localState?.workspaceListOpen,
+		localState?.notificationsOpen,
+		localState?.shortcutsOpen,
+		handleCloseAllOverlays,
+	]);
+
+	const handleNotificationsToggle = useCallback((e) => {
+		e?.stopPropagation();
+		setLocalState((prev) => ({
+			...prev,
+			notificationsOpen: !prev?.notificationsOpen,
+			workspaceModalOpen: false,
+			workspaceListOpen: false,
+			shortcutsOpen: false,
+		}));
+	}, []);
+
+	const handleShortcutsToggle = useCallback((e) => {
+		e?.stopPropagation();
+		setLocalState((prev) => ({
+			...prev,
+			shortcutsOpen: !prev?.shortcutsOpen,
+			workspaceModalOpen: false,
+			workspaceListOpen: false,
+			notificationsOpen: false,
+		}));
+	}, []);
 
 	// Derived state for cleaner logic
 	const isSidebarOpen = sidebarState?.open ?? false;
@@ -242,21 +353,29 @@ const NewSidebar = () => {
 								<SettingSvg width={20} height={20} />
 							</button>
 
-							<Tooltip
-								title={<Notifications />}
-								placement="bottom"
-								arrow={false}
-								color={'transparent'}
-								rootClassName={s.notificationsTooltip}
+							<button
+								ref={notificationsButtonRef}
+								className={`${s.notificationsIcon} ${
+									localState?.notificationsOpen ? s.active : ''
+								}`}
+								type="button"
+								aria-label="Notifications"
+								onClick={handleNotificationsToggle}
 							>
-								<button
-									className={s.notificationsIcon}
-									type="button"
-									aria-label="Notifications"
-								>
-									<NotificationsSvg width={20} height={20} />
-								</button>
-							</Tooltip>
+								<NotificationsSvg width={20} height={20} />
+							</button>
+
+							<button
+								ref={shortcutsButtonRef}
+								className={`${s.gridIcon} ${
+									localState?.shortcutsOpen ? s.active : ''
+								}`}
+								type="button"
+								aria-label="Shortcuts"
+								onClick={handleShortcutsToggle}
+							>
+								<ShortcutBarSvg width={20} height={20} />
+							</button>
 							<CreditsUpgradeTooltip>
 								<div className={s.creditsLeftContainer}>
 									<CreditsLeftSvg
@@ -267,6 +386,24 @@ const NewSidebar = () => {
 							</CreditsUpgradeTooltip>
 						</div>
 					</div>
+
+					{/* Notifications Top Overlay - Show when notifications is clicked */}
+					{localState?.notificationsOpen && (
+						<div ref={notificationsRef} className={s.notificationsTopOverlay}>
+							<div className={s.notificationsTopOverlayContent}>
+								<Notifications onClose={handleCloseAllOverlays} />
+							</div>
+						</div>
+					)}
+
+					{/* Shortcuts Top Overlay - Show when shortcuts is clicked */}
+					{localState?.shortcutsOpen && (
+						<div ref={shortcutsRef} className={s.shortcutsTopOverlay}>
+							<div className={s.shortcutsTopOverlayContent}>
+								<Shortcuts onClose={handleCloseAllOverlays} />
+							</div>
+						</div>
+					)}
 
 					{/* Main Content */}
 					<div className={s.mainContent}>
@@ -282,6 +419,7 @@ const NewSidebar = () => {
 
 					{/* Footer - Click to toggle workspace options */}
 					<div
+						ref={footerRef}
 						className={`${s.footer} ${
 							localState?.workspaceModalOpen || localState?.workspaceListOpen
 								? s.expanded
@@ -291,7 +429,7 @@ const NewSidebar = () => {
 					>
 						{/* Workspace Options - Show when expanded */}
 						{localState?.workspaceModalOpen && (
-							<div className={s.workspaceOptions}>
+							<div ref={workspaceModalRef} className={s.workspaceOptions}>
 								<button
 									className={s.workspaceOption}
 									onClick={handleSwitchWorkspace}
@@ -316,19 +454,9 @@ const NewSidebar = () => {
 
 						{/* Workspace List - Show when switch workspace is clicked */}
 						{localState?.workspaceListOpen && (
-							<div className={s.workspaceListOverlay}>
+							<div ref={workspaceListRef} className={s.workspaceListOverlay}>
 								<div className={s.workspaceListHeader}>
 									<h3 className={s.workspaceListTitle}>Switch Workspace</h3>
-									<button
-										className={s.closeButton}
-										onClick={(e) => {
-											e.stopPropagation();
-											handleCloseAllOverlays();
-										}}
-										aria-label="Close workspace list"
-									>
-										×
-									</button>
 								</div>
 								<div className={s.workspaceListContent}>
 									<SwitchWorkspace
