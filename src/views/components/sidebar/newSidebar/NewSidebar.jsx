@@ -113,7 +113,7 @@ const NewSidebar = () => {
 		if (!userWorkSpaceList) {
 			getUserWorkSpaceList();
 		}
-	}, [userWorkSpaceList, getUserWorkSpaceList]);
+	}, [userWorkSpaceList]);
 
 	// const handleResize = useCallback((e) => {
 	// 	setInfo((prev) => ({ ...prev, isMobileView: e.matches }));
