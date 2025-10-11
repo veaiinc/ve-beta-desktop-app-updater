@@ -82,6 +82,9 @@ const OngoingMeeting = memo(() => {
 			window.electronApi.overlay.setPanelMode('live-intel');
 		}
 
+		const newState = { overlay: false, open: false };
+		updateStateValues({ sidebarState: newState });
+
 		return () => {
 			if (window?.electronApi?.resizeMainWindow) {
 				window?.electronApi?.resizeMainWindow({
