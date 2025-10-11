@@ -146,28 +146,22 @@ class WindowHelper {
 
 	createOverlayWindow() {
 		// if (this.overlayWindow !== null) return;
-
 		// // CRITICAL FIX: Reset readiness state when creating new window
 		// this.overlayWindowReady = false;
 		// this.pendingOverlayActions = [];
-
 		// const primaryDisplay = screen.getPrimaryDisplay();
 		// const workArea = primaryDisplay.workAreaSize;
 		// this.screenWidth = workArea.width;
 		// this.screenHeight = workArea.height;
-
 		// this.step = Math.floor(this.screenWidth / 10);
 		// // Position at center, below Dynamic Island with proper spacing
 		// this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
-
 		// // Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
 		// const dynamicIslandHeight = 180; // Height of expanded Dynamic Island
 		// const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
 		// this.currentY = 0 + dynamicIslandHeight + gapFromDynamicIsland;
-
 		// // Initialize window position for future position persistence
 		// this.windowPosition = { x: this.currentX, y: this.currentY };
-
 		// const windowSettings = {
 		// 	width: this.windowSize.width,
 		// 	height: this.windowSize.height,
@@ -198,7 +192,6 @@ class WindowHelper {
 		// 	resizable: false, // Disable resizing
 		// 	movable: true, // Explicitly enable window movement
 		// };
-
 		// // Platform-specific window settings
 		// if (process.platform === 'win32') {
 		// 	// Windows-specific settings
@@ -209,12 +202,9 @@ class WindowHelper {
 		// 	windowSettings.transparent = true;
 		// 	windowSettings.hasShadow = false;
 		// }
-
 		// this.overlayWindow = new BrowserWindow(windowSettings);
-
 		// // Apply content protection to overlay window
 		// this.applyContentProtection(this.overlayWindow);
-
 		// const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
 		// 	/\/$/,
 		// 	'',
@@ -222,28 +212,22 @@ class WindowHelper {
 		// const isDevelopment =
 		// 	process.env.NODE_ENV === 'development' ||
 		// 	process.env.NODE_ENV?.trim() === 'development';
-
 		// const overlayUrl = isDevelopment
 		// 	? `${devURL}/overlay.html`
 		// 	: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
-
 		// this.overlayWindow.loadURL(overlayUrl).catch((err) => {
 		// 	log.error('Failed to load overlay URL:', err);
 		// });
-
 		// if (process.platform === 'darwin') {
 		// 	// Use the highest window level for maximum visibility during desktop switching
 		// 	this.overlayWindow.setAlwaysOnTop(true, 'floating');
-
 		// 	// Configure for all workspaces/desktops with fullscreen support
 		// 	this.overlayWindow.setVisibleOnAllWorkspaces(true, {
 		// 		visibleOnFullScreen: true,
 		// 		skipTransformProcessType: true,
 		// 	});
-
 		// 	// Hide from Mission Control but keep visible during transitions
 		// 	this.overlayWindow.setHiddenInMissionControl(true);
-
 		// 	// Disable click-through - overlay should be interactive
 		// 	this.overlayWindow.setIgnoreMouseEvents(false);
 		// 	this.overlayWindow.setMovable(true);
@@ -260,9 +244,7 @@ class WindowHelper {
 		// 	// Disable click-through - overlay should be interactive
 		// 	this.overlayWindow.setIgnoreMouseEvents(false);
 		// }
-
 		// this.setupWindowListeners();
-
 		// const bounds = this.overlayWindow.getBounds();
 		// this.windowPosition = { x: bounds.x, y: bounds.y };
 		// this.windowSize = { width: bounds.width, height: bounds.height };
@@ -1993,7 +1975,7 @@ class WindowHelper {
 								this.mainWindow.setBackgroundColor('#121212'); // Solid background
 								log.info('🎨 Glass mode DISABLED via Ctrl+Alt+G: solid background');
 							}
-							
+
 							this.mainWindow.webContents.send('translucency-changed', {
 								enabled: this.isTranslucencyEnabled,
 								platform: process.platform,

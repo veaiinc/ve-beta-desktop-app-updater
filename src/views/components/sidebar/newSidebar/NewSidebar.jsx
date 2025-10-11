@@ -17,7 +17,15 @@ import SwitchWorkspace from './SwitchWorkspace';
 import Notifications from '../../topNavbar/components/notifications/Notifications';
 import { Tooltip } from 'antd';
 
-const mediaQuery = window.matchMedia('(max-width: 768px)');
+const routeNameMapper = {
+	chat: 'removeActiveTab',
+	'new-chat': 'newChat',
+	'ongoing-meeting': 'ongoingMeeting',
+	home: 'meet',
+	settings: 'removeActiveTab',
+};
+
+// const mediaQuery = window.matchMedia('(max-width: 768px)');
 
 const NewSidebar = () => {
 	const [localState, setLocalState] = useState({
@@ -26,19 +34,25 @@ const NewSidebar = () => {
 		expanded: true,
 		sidebarHoverState: false,
 		logoutLoading: false,
-		isMobileView: mediaQuery.matches,
+		// isMobileView: mediaQuery.matches,
 		switchWorkspaceEnabled: false,
 		workspaceModalOpen: false,
 		workspaceListOpen: false,
 	});
-	
+
 	const location = useLocation();
 	const navigate = useNavigate();
 	const channel = useBroadcastChannel();
 
 	const {
 		templates: { sidebarState, updateStateValues, isSidebarMobileView },
-		profileInfo: { userDetailsData, tennantSettingsData, tenantUserAccessControls, userWorkSpaceList, getUserWorkSpaceList },
+		profileInfo: {
+			userDetailsData,
+			tennantSettingsData,
+			tenantUserAccessControls,
+			userWorkSpaceList,
+			getUserWorkSpaceList,
+		},
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 
@@ -64,26 +78,32 @@ const NewSidebar = () => {
 				},
 			});
 		}
-		
-		mediaQuery.addEventListener('change', handleResize);
-		return () => mediaQuery.removeEventListener('change', handleResize);
+
+		// mediaQuery.addEventListener('change', handleResize);
+		// return () => mediaQuery.removeEventListener('change', handleResize);
 	}, []);
 
-	// Update mobile view state in context
-	useEffect(() => {
-		if (isSidebarMobileView !== localState?.isMobileView) {
-			updateStateValues({
-				isSidebarMobileView: localState?.isMobileView,
-			});
-		}
-	}, [localState?.isMobileView]);
+	// useEffect(() => {
+	// 	if (isSidebarMobileView !== info?.isMobileView) {
+	// 		updateStateValues({
+	// 			isSidebarMobileView: info?.isMobileView,
+	// 		});
+	// 	}
+	// }, [info?.isMobileView]);
 
 	// Reset active tab when navigating to chat
 	useEffect(() => {
 		if (location.pathname) {
 			const routeName = location.pathname.split('/')[1];
-			if (routeName === 'chat') {
-				setLocalState((prev) => ({ ...prev, activeTab: null }));
+
+			if (routeNameMapper?.[routeName]) {
+				let updatedActiveTab = routeNameMapper?.[routeName];
+				updatedActiveTab = updatedActiveTab === 'removeActiveTab' ? null : updatedActiveTab;
+
+				if (localState?.activeTab === updatedActiveTab) return;
+				setLocalState((prev) => {
+					return { ...prev, activeTab: routeNameMapper?.[routeName] };
+				});
 			}
 		}
 	}, [location.pathname]);
@@ -95,9 +115,9 @@ const NewSidebar = () => {
 		}
 	}, [userWorkSpaceList, getUserWorkSpaceList]);
 
-	const handleResize = useCallback((e) => {
-		setLocalState((prev) => ({ ...prev, isMobileView: e.matches }));
-	}, []);
+	// const handleResize = useCallback((e) => {
+	// 	setInfo((prev) => ({ ...prev, isMobileView: e.matches }));
+	// }, []);
 
 	const handleTabChange = useCallback(
 		(tab) => {
@@ -157,10 +177,10 @@ const NewSidebar = () => {
 
 	const handleSwitchWorkspace = useCallback((e) => {
 		e?.stopPropagation();
-		setLocalState((prev) => ({ 
-			...prev, 
+		setLocalState((prev) => ({
+			...prev,
 			workspaceListOpen: !prev?.workspaceListOpen,
-			workspaceModalOpen: false // Close workspace modal if open
+			workspaceModalOpen: false, // Close workspace modal if open
 		}));
 	}, []);
 
@@ -169,10 +189,10 @@ const NewSidebar = () => {
 	}, [navigate]);
 
 	const handleCloseAllOverlays = useCallback(() => {
-		setLocalState((prev) => ({ 
-			...prev, 
+		setLocalState((prev) => ({
+			...prev,
 			workspaceModalOpen: false,
-			workspaceListOpen: false
+			workspaceListOpen: false,
 		}));
 	}, []);
 
@@ -182,14 +202,13 @@ const NewSidebar = () => {
 			handleCloseAllOverlays();
 		} else {
 			// If nothing is open, open workspace modal
-			setLocalState((prev) => ({ 
-				...prev, 
+			setLocalState((prev) => ({
+				...prev,
 				workspaceModalOpen: true,
-				workspaceListOpen: false
+				workspaceListOpen: false,
 			}));
 		}
 	}, [localState?.workspaceModalOpen, localState?.workspaceListOpen, handleCloseAllOverlays]);
-
 
 	// Derived state for cleaner logic
 	const isSidebarOpen = sidebarState?.open ?? false;
@@ -214,8 +233,6 @@ const NewSidebar = () => {
 					{/* Header */}
 					<div className={s.header}>
 						<div className={s.rightContainer}>
-							
-							
 							<button
 								className={s.settingsIcon}
 								onClick={handleSettingsClick}
@@ -224,7 +241,7 @@ const NewSidebar = () => {
 							>
 								<SettingSvg width={20} height={20} />
 							</button>
-							
+
 							<Tooltip
 								title={<Notifications />}
 								placement="bottom"
@@ -232,7 +249,11 @@ const NewSidebar = () => {
 								color={'transparent'}
 								rootClassName={s.notificationsTooltip}
 							>
-								<button className={s.notificationsIcon} type="button" aria-label="Notifications">
+								<button
+									className={s.notificationsIcon}
+									type="button"
+									aria-label="Notifications"
+								>
 									<NotificationsSvg width={20} height={20} />
 								</button>
 							</Tooltip>
@@ -260,11 +281,18 @@ const NewSidebar = () => {
 					</div>
 
 					{/* Footer - Click to toggle workspace options */}
-					<div className={`${s.footer} ${(localState?.workspaceModalOpen || localState?.workspaceListOpen) ? s.expanded : ''}`} onClick={handleWorkspaceOverlayToggle}>
+					<div
+						className={`${s.footer} ${
+							localState?.workspaceModalOpen || localState?.workspaceListOpen
+								? s.expanded
+								: ''
+						}`}
+						onClick={handleWorkspaceOverlayToggle}
+					>
 						{/* Workspace Options - Show when expanded */}
 						{localState?.workspaceModalOpen && (
 							<div className={s.workspaceOptions}>
-								<button 
+								<button
 									className={s.workspaceOption}
 									onClick={handleSwitchWorkspace}
 								>
@@ -274,7 +302,7 @@ const NewSidebar = () => {
 									<div className={s.label}>Switch Workspace</div>
 								</button>
 
-								<button 
+								<button
 									className={s.workspaceOption}
 									onClick={handleCreateWorkspace}
 								>
@@ -291,7 +319,7 @@ const NewSidebar = () => {
 							<div className={s.workspaceListOverlay}>
 								<div className={s.workspaceListHeader}>
 									<h3 className={s.workspaceListTitle}>Switch Workspace</h3>
-									<button 
+									<button
 										className={s.closeButton}
 										onClick={(e) => {
 											e.stopPropagation();
@@ -315,9 +343,16 @@ const NewSidebar = () => {
 							<div className={s.leftContainer}>
 								<div className={s.userInfo}>
 									{profilePicExists ? (
-										<img className={s.profileImg} src={profilePic} alt="Profile" />
+										<img
+											className={s.profileImg}
+											src={profilePic}
+											alt="Profile"
+										/>
 									) : (
-										<div className={s.nameInitials} aria-label={`${fullName} initials`}>
+										<div
+											className={s.nameInitials}
+											aria-label={`${fullName} initials`}
+										>
 											{nameInitials}
 										</div>
 									)}
@@ -361,7 +396,7 @@ const NewSidebar = () => {
 			<button
 				className={`${s.sidebarToggle} ${isSidebarOpen ? s.open : s.closed}`}
 				onClick={isSidebarOpen ? handleSidebarClose : handleSidebarOpen}
-				aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+				aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
 				type="button"
 			>
 				<SidebarClosingSvg width={20} height={20} />
@@ -369,8 +404,8 @@ const NewSidebar = () => {
 
 			{/* Hover Trigger - Only show when sidebar is closed */}
 			{!isSidebarOpen && (
-				<div 
-					className={s.sidebarHoverElement} 
+				<div
+					className={s.sidebarHoverElement}
 					onMouseEnter={handleSidebarHoverEnter}
 					aria-hidden="true"
 				/>
@@ -378,14 +413,8 @@ const NewSidebar = () => {
 
 			{/* Overlay - Only show when sidebar is open and overlay is needed */}
 			{shouldShowOverlay && (
-				<div 
-					className={s.sidebarOverlay} 
-					onClick={handleSidebarClose}
-					aria-hidden="true"
-				/>
+				<div className={s.sidebarOverlay} onClick={handleSidebarClose} aria-hidden="true" />
 			)}
-
-
 		</>
 	);
 };

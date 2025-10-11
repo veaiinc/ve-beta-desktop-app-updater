@@ -73,8 +73,7 @@ const AuthWrapper = ({
 		pathname.includes('create-workspace') ||
 		pathname.includes('agent/') ||
 		pathname.includes('note/') ||
-		pathname.includes('meet/') ||
-		pathname.includes('chat/');
+		pathname.includes('meet/');
 
 	useEffect(() => {
 		if (typeof sidebarState?.open === 'boolean' && sidebarState?.open !== isSidebarOpen) {
@@ -119,7 +118,6 @@ const AuthWrapper = ({
 					});
 				}
 			}
-			console.log('navigate', updateObject, path);
 			navigate(path); // client-side navigation
 		});
 	}, [navigate]);
