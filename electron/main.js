@@ -29,6 +29,8 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
 const os = require('os');
+const idleTracker = require('./services/idleTracker');
+const meetingState = require('./services/meetingState');
 
 // Import electron-mac-permissions for proper Calendar and Media Library access
 let permissions;
@@ -53,6 +55,10 @@ const {
 	ipcMainHandleCheckForUpdates,
 	ipcMainHandleDownloadUpdates,
 	ipcMainHandleRestartApp,
+	getAutoUpdateIdleThresholdMinutes,
+	getAutoUpdateIdleThresholdMilliseconds,
+	getAutoUpdateCheckIntervalMinutes,
+	getAutoUpdateCheckIntervalMilliseconds,
 } = require('./helpers/autoUpdateHelper');
 
 // Add these after your existing requires
@@ -252,6 +258,270 @@ const setIsUpdateInProgress = (value) => {
 	isUpdateInProgress = value;
 };
 
+const AUTO_RESTART_INITIAL_DELAY_MS = 30 * 1000; // 30 seconds
+const AUTO_RESTART_RETRY_INTERVAL_MS = 60 * 1000; // 1 minute
+const UpdateTriggerContext = {
+	UNKNOWN: 'unknown',
+	MANUAL: 'manual',
+	BACKGROUND: 'background',
+};
+
+let currentUpdateContext = UpdateTriggerContext.UNKNOWN;
+let pendingBackgroundCheck = false;
+let backgroundUpdateIntervalId = null;
+let autoRestartTimeoutId = null;
+let autoRestartPending = false;
+let cleanupMeetingSubscription = null;
+let shouldAutoRestartAfterDownload = false;
+
+const setUpdateContext = (context) => {
+	currentUpdateContext = context;
+};
+
+const resetUpdateContext = () => {
+	currentUpdateContext = UpdateTriggerContext.UNKNOWN;
+};
+
+const clearAutoRestartTimer = () => {
+	if (autoRestartTimeoutId) {
+		clearTimeout(autoRestartTimeoutId);
+		autoRestartTimeoutId = null;
+	}
+};
+
+const emitAutoUpdateLog = (payload) => {
+	try {
+		if (mainWindow && !mainWindow.isDestroyed()) {
+			mainWindow.webContents.send('auto-update-log', payload);
+		}
+	} catch (error) {
+		log.warn('⚠️ Failed to forward auto-update log to renderer:', error);
+	}
+};
+
+const logAutoUpdateEvent = (message, level = 'info') => {
+	const formatted = `🕒 Auto-update: ${message}`;
+	const logger = typeof log[level] === 'function' ? log[level].bind(log) : log.info.bind(log);
+	logger(formatted);
+
+	const timestamp = new Date().toISOString();
+	const payload = {
+		level,
+		message,
+		formatted,
+		timestamp,
+	};
+	emitAutoUpdateLog(payload);
+
+	const consoleLogger =
+		level === 'error' ? console.error : level === 'warn' ? console.warn : console.log;
+	consoleLogger(`${timestamp} ${formatted}`);
+};
+
+const parseEnvBool = (value) => {
+	if (typeof value !== 'string') {
+		return false;
+	}
+	const normalized = value.trim().toLowerCase();
+	return ['1', 'true', 'yes', 'on'].includes(normalized);
+};
+
+const getAutoUpdateIdleThresholdMs = () => getAutoUpdateIdleThresholdMilliseconds();
+const getAutoUpdateCheckIntervalMs = () => getAutoUpdateCheckIntervalMilliseconds();
+const getAutoUpdateCheckIntervalMins = () => getAutoUpdateCheckIntervalMinutes();
+
+const isAutoUpdateSchedulerEnabled = () => {
+	if (process.env.NODE_ENV === 'production') {
+		return true;
+	}
+	if (parseEnvBool(process.env.VE_ENABLE_AUTO_UPDATE_SCHEDULER_IN_DEV)) {
+		return true;
+	}
+	return false;
+};
+
+const isIdleForAutoUpdate = () => {
+	try {
+		return idleTracker.isIdle(getAutoUpdateIdleThresholdMs());
+	} catch (error) {
+		log.warn('⚠️ Unable to determine idle state for auto-update:', error);
+		return false;
+	}
+};
+
+const canPerformBackgroundUpdate = () => {
+	const thresholdMs = getAutoUpdateIdleThresholdMs();
+	const idleDurationMs = idleTracker.getIdleDurationMs();
+	const isIdleEnough = idleDurationMs >= thresholdMs;
+	const inMeeting = meetingState.isInMeeting();
+
+	return {
+		isAllowed: isIdleEnough && !inMeeting,
+		idleDurationMs,
+		inMeeting,
+		thresholdMs,
+	};
+};
+
+const attemptBackgroundUpdateCheck = (reason = 'scheduled') => {
+	const { isAllowed, idleDurationMs, thresholdMs, inMeeting } = canPerformBackgroundUpdate();
+
+	if (getIsUpdateInProgress()) {
+		log.info(`⏳ Skipping background update check (${reason}) - update already in progress`);
+		logAutoUpdateEvent(
+			`Skipped background check (${reason}) because an update is already running`,
+		);
+		return;
+	}
+
+	if (!isAllowed) {
+		log.info(
+			`⏳ Deferring background update check (${reason}) - idle ${idleDurationMs}ms / threshold ${thresholdMs}ms, inMeeting=${inMeeting}`,
+		);
+		pendingBackgroundCheck = true;
+		logAutoUpdateEvent(
+			`Deferred background check (${reason}); idle ${idleDurationMs}ms / threshold ${thresholdMs}ms, inMeeting=${inMeeting}`,
+		);
+		return;
+	}
+
+	pendingBackgroundCheck = false;
+	setUpdateContext(UpdateTriggerContext.BACKGROUND);
+	shouldAutoRestartAfterDownload = true;
+	log.info(
+		`🔍 Starting background update check (${reason}) - idle ${idleDurationMs}ms / threshold ${thresholdMs}ms`,
+	);
+	logAutoUpdateEvent(
+		`Starting background update check (${reason}); idle ${idleDurationMs}ms / threshold ${thresholdMs}ms`,
+	);
+
+	try {
+		const maybePromise = autoUpdater.checkForUpdatesAndNotify();
+		if (maybePromise && typeof maybePromise.catch === 'function') {
+			maybePromise.catch((error) => {
+				log.error('❌ Background update check promise rejected:', error);
+				resetUpdateContext();
+				shouldAutoRestartAfterDownload = false;
+				logAutoUpdateEvent('Background check promise rejected', 'warn');
+			});
+		}
+	} catch (error) {
+		log.error('❌ Background update check failed:', error);
+		resetUpdateContext();
+		shouldAutoRestartAfterDownload = false;
+		logAutoUpdateEvent('Background check failed due to exception', 'warn');
+	}
+};
+
+const startAutoUpdateScheduler = () => {
+	if (backgroundUpdateIntervalId) {
+		clearInterval(backgroundUpdateIntervalId);
+	}
+
+	const intervalMs = getAutoUpdateCheckIntervalMs();
+	const intervalMinutes = getAutoUpdateCheckIntervalMins();
+
+	backgroundUpdateIntervalId = setInterval(
+		() => attemptBackgroundUpdateCheck('scheduled-interval'),
+		intervalMs,
+	);
+	logAutoUpdateEvent(
+		`Background update scheduler armed (every ${intervalMinutes} minute(s))`,
+	);
+};
+
+const disposeAutoUpdateScheduler = () => {
+	if (backgroundUpdateIntervalId) {
+		clearInterval(backgroundUpdateIntervalId);
+		backgroundUpdateIntervalId = null;
+		logAutoUpdateEvent('Background update scheduler disposed');
+	}
+};
+
+const attemptAutoRestart = (reason = 'retry') => {
+	if (!autoRestartPending) {
+		return;
+	}
+
+	const { isAllowed, idleDurationMs, thresholdMs, inMeeting } = canPerformBackgroundUpdate();
+
+	if (!isAllowed) {
+		log.info(
+			`⏳ Auto-restart deferred (${reason}) - idle ${idleDurationMs}ms / threshold ${thresholdMs}ms, inMeeting=${inMeeting}`,
+		);
+		clearAutoRestartTimer();
+		autoRestartTimeoutId = setTimeout(
+			() => attemptAutoRestart('activity-check'),
+			AUTO_RESTART_RETRY_INTERVAL_MS,
+		);
+		logAutoUpdateEvent(
+			`Auto-restart deferred (${reason}); idle ${idleDurationMs}ms / threshold ${thresholdMs}ms, inMeeting=${inMeeting}`,
+		);
+		return;
+	}
+
+	autoRestartPending = false;
+	clearAutoRestartTimer();
+
+	log.info('🚀 Proceeding with automatic restart to apply downloaded update');
+
+	try {
+		autoUpdater.quitAndInstall(true, true);
+	} catch (error) {
+		log.error('❌ Failed to auto-restart after update:', error);
+		logAutoUpdateEvent(`Auto-restart failed: ${error.message}`, 'warn');
+	}
+};
+
+const scheduleAutoRestart = () => {
+	autoRestartPending = true;
+	clearAutoRestartTimer();
+	autoRestartTimeoutId = setTimeout(
+		() => attemptAutoRestart('initial'),
+		AUTO_RESTART_INITIAL_DELAY_MS,
+	);
+	logAutoUpdateEvent('Auto-restart scheduled');
+};
+
+const handleIdleStateChangeForUpdates = ({ isIdle, idleDurationMs, thresholdMs }) => {
+	const effectiveThresholdMs =
+		typeof thresholdMs === 'number' ? thresholdMs : getAutoUpdateIdleThresholdMs();
+
+	if (isIdle && pendingBackgroundCheck) {
+		log.info(
+			`🕒 Idle threshold met (${idleDurationMs}ms >= ${effectiveThresholdMs}ms) - attempting deferred update check`,
+		);
+		logAutoUpdateEvent(
+			`Idle threshold met (${idleDurationMs}ms >= ${effectiveThresholdMs}ms); attempting deferred background check`,
+		);
+		attemptBackgroundUpdateCheck('idle-state-change');
+	}
+
+	if (isIdle && autoRestartPending) {
+		log.info('🕒 Idle threshold met - attempting deferred auto-restart');
+		logAutoUpdateEvent('Idle threshold met; attempting deferred auto-restart');
+		attemptAutoRestart('idle-state-change');
+	}
+};
+
+const handleMeetingStateChangeForUpdates = ({ isInMeeting }) => {
+	if (!isInMeeting && pendingBackgroundCheck) {
+		log.info('📝 Meeting ended - attempting deferred update check');
+		logAutoUpdateEvent('Meeting ended; attempting deferred background check');
+		attemptBackgroundUpdateCheck('meeting-ended');
+	}
+
+	if (!isInMeeting && autoRestartPending) {
+		log.info('📝 Meeting ended - attempting deferred auto-restart');
+		logAutoUpdateEvent('Meeting ended; attempting deferred auto-restart');
+		attemptAutoRestart('meeting-ended');
+	}
+
+	if (isInMeeting) {
+		logAutoUpdateEvent('Meeting detected; background checks will defer until meeting ends');
+	}
+};
+
 const toggleContentProtection = () => {
 	isContentProtectionEnabled = !isContentProtectionEnabled;
 
@@ -359,17 +629,52 @@ process.on('unhandledRejection', (reason, promise) => {
 
 autoUpdater.on('checking-for-update', () => {
 	log.info('🔍 Checking for updates...');
+	if (currentUpdateContext === UpdateTriggerContext.BACKGROUND) {
+		logAutoUpdateEvent('Background update check requested (autoUpdater event)');
+	} else if (currentUpdateContext === UpdateTriggerContext.MANUAL) {
+		logAutoUpdateEvent('Manual update check requested (autoUpdater event)');
+	} else {
+		logAutoUpdateEvent('Update check requested (autoUpdater event)');
+	}
 	checkForUpdates(mainWindow);
 });
 
 autoUpdater.on('update-available', (info) => {
 	log.info('🆕 Update available:', info);
 	updateAvailable({ info, mainWindow, setIsUpdateInProgress });
+	pendingBackgroundCheck = false;
+	if (currentUpdateContext === UpdateTriggerContext.BACKGROUND) {
+		logAutoUpdateEvent(
+			`Update available detected from background check (version ${
+				info?.version || 'unknown'
+			})`,
+		);
+	} else if (currentUpdateContext === UpdateTriggerContext.MANUAL) {
+		logAutoUpdateEvent(
+			`Update available detected from manual check (version ${info?.version || 'unknown'})`,
+		);
+	} else {
+		logAutoUpdateEvent(
+			`Update available detected from unspecified context (version ${
+				info?.version || 'unknown'
+			})`,
+		);
+	}
 });
 
 autoUpdater.on('update-not-available', (info) => {
 	log.info('✅ No updates available');
 	updateNotAvailable({ mainWindow, info, setIsUpdateInProgress });
+	resetUpdateContext();
+	shouldAutoRestartAfterDownload = false;
+	pendingBackgroundCheck = false;
+	if (currentUpdateContext === UpdateTriggerContext.BACKGROUND) {
+		logAutoUpdateEvent('Background update check completed with no updates');
+	} else if (currentUpdateContext === UpdateTriggerContext.MANUAL) {
+		logAutoUpdateEvent('Manual update check completed with no updates');
+	} else {
+		logAutoUpdateEvent('Update check completed with no updates (context unknown)');
+	}
 });
 
 // Add download progress tracking
@@ -381,15 +686,51 @@ autoUpdater.on('download-progress', (progressObj) => {
 autoUpdater.on('error', (err) => {
 	log.error('❌ Auto-updater error:', err);
 	handleError({ err, setIsUpdateInProgress, mainWindow });
+	resetUpdateContext();
+	shouldAutoRestartAfterDownload = false;
+	autoRestartPending = false;
+	clearAutoRestartTimer();
+	pendingBackgroundCheck = false;
+	if (currentUpdateContext === UpdateTriggerContext.BACKGROUND) {
+		logAutoUpdateEvent('Error occurred during background update flow', 'warn');
+	} else if (currentUpdateContext === UpdateTriggerContext.MANUAL) {
+		logAutoUpdateEvent('Error occurred during manual update flow', 'warn');
+	} else {
+		logAutoUpdateEvent('Error occurred during update flow (context unknown)', 'warn');
+	}
 });
 
 autoUpdater.on('update-downloaded', (info) => {
 	log.info('✅ Update downloaded successfully:', info);
+	const updateContext = currentUpdateContext;
+	const shouldAutoRestart =
+		shouldAutoRestartAfterDownload && updateContext === UpdateTriggerContext.BACKGROUND;
+	const backgroundEligibility = canPerformBackgroundUpdate();
+
+	resetUpdateContext();
+	shouldAutoRestartAfterDownload = false;
 	handleUpdateDownloaded({
 		info,
 		mainWindow,
 		setIsUpdateInProgress,
 	});
+	pendingBackgroundCheck = false;
+
+	autoRestartPending = true;
+	clearAutoRestartTimer();
+
+	if (shouldAutoRestart || backgroundEligibility.isAllowed) {
+		log.info('✅ Auto-update conditions satisfied - attempting automatic restart');
+		logAutoUpdateEvent(
+			`Update downloaded; idle ${backgroundEligibility.idleDurationMs}ms / threshold ${backgroundEligibility.thresholdMs}ms, inMeeting=${backgroundEligibility.inMeeting} — attempting automatic restart`,
+		);
+		attemptAutoRestart('post-download');
+	} else {
+		logAutoUpdateEvent(
+			`Update downloaded; waiting for idle before automatic restart (idle ${backgroundEligibility.idleDurationMs}ms / threshold ${backgroundEligibility.thresholdMs}ms, inMeeting=${backgroundEligibility.inMeeting})`,
+		);
+		scheduleAutoRestart();
+	}
 });
 
 async function showNotification(title, body) {
@@ -548,6 +889,10 @@ ipcMain.handle('check-for-updates', async () => {
 		// Prevent concurrent update checks
 		if (getIsUpdateInProgress()) {
 			log.warn('⚠️ Update check already in progress, skipping...');
+			logAutoUpdateEvent(
+				'Manual IPC update check skipped because another check is running',
+				'warn',
+			);
 			return { success: false, error: 'Update check already in progress' };
 		}
 
@@ -560,10 +905,15 @@ ipcMain.handle('check-for-updates', async () => {
 			getIsUpdateInProgress,
 			setIsUpdateInProgress,
 		});
+		shouldAutoRestartAfterDownload = false;
+		pendingBackgroundCheck = false;
+		setUpdateContext(UpdateTriggerContext.MANUAL);
+		logAutoUpdateEvent('Manual IPC update check invoked');
 
 		return await Promise.race([updatePromise, timeoutPromise]);
 	} catch (error) {
 		log.error('❌ Update check failed:', error);
+		logAutoUpdateEvent(`Manual IPC update check failed: ${error.message}`, 'warn');
 		setIsUpdateInProgress(false); // Reset flag on error
 		return { success: false, error: error.message };
 	}
@@ -574,6 +924,10 @@ ipcMain.handle('download-update', async () => {
 		// Prevent concurrent downloads
 		if (getIsUpdateInProgress()) {
 			log.warn('⚠️ Update download already in progress, skipping...');
+			logAutoUpdateEvent(
+				'Manual IPC download request skipped because another download/check is running',
+				'warn',
+			);
 			return { success: false, error: 'Update download already in progress' };
 		}
 
@@ -586,10 +940,14 @@ ipcMain.handle('download-update', async () => {
 			getIsUpdateInProgress,
 			setIsUpdateInProgress,
 		});
+		shouldAutoRestartAfterDownload = false;
+		pendingBackgroundCheck = false;
+		logAutoUpdateEvent('Manual IPC download request invoked');
 
 		return await Promise.race([downloadPromise, timeoutPromise]);
 	} catch (error) {
 		log.error('❌ Download update failed:', error);
+		logAutoUpdateEvent(`Manual IPC download request failed: ${error.message}`, 'warn');
 		setIsUpdateInProgress(false); // Reset flag on error
 		return { success: false, error: error.message };
 	}
@@ -2299,27 +2657,27 @@ function createWindow(restoreState = false) {
 		}
 	});
 
-	// Check for updates only in production
-	if (process.env.NODE_ENV === 'production') {
-		log.info('🔍 Starting automatic update check...');
-		// Delay update check to ensure app is fully loaded
-		setTimeout(() => {
-			log.info('🔍 Checking for updates...');
-			autoUpdater.checkForUpdatesAndNotify();
-		}, 5000); // Wait 5 seconds after app loads
+	// Configure background update scheduler (with dev override)
+	if (isAutoUpdateSchedulerEnabled()) {
+	const intervalMinutes = getAutoUpdateCheckIntervalMins();
+	log.info(
+		`🔍 Starting background auto-update scheduler (interval: ${intervalMinutes} minute(s))`,
+	);
+	logAutoUpdateEvent(
+		`Scheduler enabled (env=${process.env.NODE_ENV}, devOverride=${parseEnvBool(
+			process.env.VE_ENABLE_AUTO_UPDATE_SCHEDULER_IN_DEV,
+		)}, interval=${intervalMinutes} minute(s))`,
+	);
+	startAutoUpdateScheduler();
 
-		// Set up periodic update checks (every 4 hours)
-		setInterval(() => {
-			if (!getIsUpdateInProgress()) {
-				log.info('🔍 Periodic update check...');
-				autoUpdater.checkForUpdatesAndNotify();
-			} else {
-				log.info('⏳ Skipping periodic update check - update in progress');
-			}
-		}, 4 * 60 * 60 * 1000); // 4 hours in milliseconds
-	} else {
-		log.info('🔧 Skipping update check in development mode');
-	}
+	setTimeout(() => {
+		logAutoUpdateEvent('Attempting initial startup check (post-launch)');
+		attemptBackgroundUpdateCheck('startup');
+	}, 5000);
+} else {
+	log.info('🔧 Skipping automatic update scheduler in current environment');
+	logAutoUpdateEvent('Scheduler disabled (non-production and no override)');
+}
 
 	return mainWindow;
 }
@@ -2631,6 +2989,30 @@ app.whenReady().then(async () => {
 	log.info('🔍 Working directory:', process.cwd());
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
+	const autoUpdateIdleThresholdMinutes = getAutoUpdateIdleThresholdMinutes();
+	const autoUpdateIdleThresholdMs = getAutoUpdateIdleThresholdMs();
+	log.info(
+		`🕒 Auto-update idle threshold: ${autoUpdateIdleThresholdMinutes} minutes (${autoUpdateIdleThresholdMs} ms)`,
+	);
+
+	// Initialize idle tracker and meeting state listeners for background updates
+	try {
+		idleTracker.start({ idleThresholdMs: autoUpdateIdleThresholdMs });
+		idleTracker.on('idle-state-changed', handleIdleStateChangeForUpdates);
+		log.info('🕒 Idle tracker initialized for auto-update coordination');
+		logAutoUpdateEvent(
+			`Idle tracker started with threshold ${autoUpdateIdleThresholdMinutes} minutes (${autoUpdateIdleThresholdMs} ms)`,
+		);
+	} catch (error) {
+		log.error('❌ Failed to initialize idle tracker:', error);
+		logAutoUpdateEvent(`Failed to start idle tracker: ${error.message}`, 'warn');
+	}
+
+	if (typeof cleanupMeetingSubscription === 'function') {
+		cleanupMeetingSubscription();
+	}
+	cleanupMeetingSubscription = meetingState.subscribe(handleMeetingStateChangeForUpdates);
+	logAutoUpdateEvent('Meeting state subscription initialized for auto-update coordination');
 
 	// 🎨 Force dark theme - prevents system theme changes from affecting app colors
 	nativeTheme.themeSource = 'dark';
@@ -2689,11 +3071,11 @@ app.whenReady().then(async () => {
 		// Log memory usage every 60 seconds (reduced from 30s)
 		if (now - lastMemoryLog > 60000) {
 			const memUsage = process.memoryUsage();
-			log.info('📊 Process stats:', {
-				heap: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
-				external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
-				rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB',
-			});
+			// log.info('📊 Process stats:', {
+			// 	heap: Math.round(memUsage.heapUsed / 1024 / 1024) + 'MB',
+			// 	external: Math.round(memUsage.external / 1024 / 1024) + 'MB',
+			// 	rss: Math.round(memUsage.rss / 1024 / 1024) + 'MB',
+			// });
 			lastMemoryLog = now;
 		}
 	}, 30000); // Check every 30 seconds (reduced from 5s)
@@ -2709,6 +3091,7 @@ app.whenReady().then(async () => {
 
 	// Initialize store and bridge (ADD THIS SECTION)
 	store = createStore();
+	meetingState.setStore(store);
 	bridge = createBridge(store);
 
 	// Apply initial desktop settings - hide dock by default for background operation
@@ -6626,6 +7009,22 @@ app.on('will-quit', (event) => {
 		// Clear process monitor
 		if (typeof processMonitor !== 'undefined') {
 			clearInterval(processMonitor);
+		}
+
+		disposeAutoUpdateScheduler();
+		clearAutoRestartTimer();
+		autoRestartPending = false;
+
+		try {
+			idleTracker.removeListener('idle-state-changed', handleIdleStateChangeForUpdates);
+			idleTracker.stop();
+		} catch (idleError) {
+			log.warn('⚠️ Error stopping idle tracker during quit:', idleError);
+		}
+
+		if (typeof cleanupMeetingSubscription === 'function') {
+			cleanupMeetingSubscription();
+			cleanupMeetingSubscription = null;
 		}
 
 		// Clean up NotchDrop service

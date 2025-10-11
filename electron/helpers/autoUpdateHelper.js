@@ -1,6 +1,12 @@
 const { app, BrowserWindow } = require('electron');
 const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
+const {
+	getAutoUpdateIdleThresholdMinutes,
+	getAutoUpdateIdleThresholdMilliseconds,
+	getAutoUpdateCheckIntervalMinutes,
+	getAutoUpdateCheckIntervalMilliseconds,
+} = require('./envHelper');
 
 const checkForUpdates = (mainWindow) => {
 	mainWindow?.webContents.send('update-status', { status: 'checking' });
@@ -241,4 +247,8 @@ module.exports = {
 	ipcMainHandleCheckForUpdates,
 	ipcMainHandleDownloadUpdates,
 	ipcMainHandleRestartApp,
+	getAutoUpdateIdleThresholdMinutes,
+	getAutoUpdateIdleThresholdMilliseconds,
+	getAutoUpdateCheckIntervalMinutes,
+	getAutoUpdateCheckIntervalMilliseconds,
 };
