@@ -175,6 +175,7 @@ const UploadProgressPopup = () => {
 					albumId: session.albumId,
 					uploadBatchID: session.uploadBatchID,
 					tenantId: session.tenantId,
+					lightGallery: session.lightGallery, // ✅ Include lightGallery information
 					status: 'preparing',
 					overallProgress: 0,
 					processedCount: 0,
@@ -277,7 +278,9 @@ const UploadProgressPopup = () => {
 			const processedBuffer = Uint8Array.from(atob(resultOptimized.processedImage), (c) =>
 				c.charCodeAt(0),
 			);
-			processedFile = new File([processedBuffer], originalFile.name, { type: 'image/jpeg' });
+			// Ensure processed file has .jpg extension since it's converted to JPEG
+			const processedFileName = originalFile.name.replace(/\.[^/.]+$/, '.jpg');
+			processedFile = new File([processedBuffer], processedFileName, { type: 'image/jpeg' });
 
 			// Process thumbnail 300w
 			const resultThumbnail = await window.electronApi.processImageWithSharp({
@@ -352,8 +355,12 @@ const UploadProgressPopup = () => {
 		versionId,
 		uploadBatchID,
 		settings,
+		isLiteGallery = false,
 	) => {
-		const givenFileName = uploadResultOriginal.fileKey.split('/').pop();
+		// ✅ For lite galleries, use optimized file name instead of original
+		const givenFileName = isLiteGallery
+			? uploadResultOptimized.fileKey.split('/').pop()
+			: uploadResultOriginal.fileKey.split('/').pop();
 		const updatedVersionId = versionId.toString();
 
 		const {
@@ -363,7 +370,7 @@ const UploadProgressPopup = () => {
 			originalDateTime,
 		} = extractedMetadata;
 
-		return {
+		const payload = {
 			tag_ids: settings.selectedGalleryTags?.map((tag) => tag._id || '') || [],
 			image_id: imageId.toHexString(),
 			activeVersion: {
@@ -372,10 +379,6 @@ const UploadProgressPopup = () => {
 				isAIFacesEnabled: settings.isAiEnabled || false,
 				originalFileName: image.file.name,
 				givenFileName,
-				s3_original: {
-					key: uploadResultOriginal.fileKey,
-					size: image.file.size,
-				},
 				s3_optimized: {
 					key: uploadResultOptimized.fileKey,
 					size: processedFile.size,
@@ -397,6 +400,16 @@ const UploadProgressPopup = () => {
 				originalDateTime,
 			},
 		};
+
+		// ✅ Only include original S3 data for classic galleries
+		if (!isLiteGallery) {
+			payload.activeVersion.s3_original = {
+				key: uploadResultOriginal.fileKey,
+				size: image.file.size,
+			};
+		}
+
+		return payload;
 	};
 
 	// Helper function to run promises with a concurrency limit
@@ -582,84 +595,182 @@ const UploadProgressPopup = () => {
 							const imageId = ObjectID();
 							const versionId = Date.now();
 
-							// Upload all four versions
-							const [
-								uploadResultOriginal,
-								uploadResultOptimized,
+							// ✅ For lite galleries, skip original upload and only upload optimized + thumbnails
+							const isLiteGallery = initialState.lightGallery === 'true';
+
+							let uploadPromises = [];
+							let uploadResultOriginal = null;
+
+							if (isLiteGallery) {
+								// For lite galleries, skip original upload
+								uploadResultOriginal = {
+									success: true,
+									fileKey: 'lite-gallery-no-original', // Placeholder
+								};
+
+								uploadPromises = [
+									uploadImage(
+										processResult.processedFile,
+										'optimized',
+										null,
+										policyData, // Use the FRESH policy for this batch
+										imageId,
+										(percent) => {
+											const currentState =
+												sessionStatesRef.current.get(sessionId);
+											updateUploadState(sessionId, {
+												files: (currentState?.files || uniqueFiles).map(
+													(f, i) =>
+														i === globalFileIndex
+															? { ...f, progress: percent }
+															: f,
+												),
+											});
+
+											// Update overall progress during upload
+											updateOverallProgress(sessionId);
+										},
+										initialState.galleryId,
+										versionId,
+										initialState.tenantId,
+										initialState.uploadBatchID,
+									),
+									uploadImage(
+										processResult.thumbnailFile,
+										'thumbnails_300w',
+										null,
+										fakePolicyData, // Use the FRESH policy for this batch
+										imageId,
+										null,
+										initialState.galleryId,
+										versionId,
+										initialState.tenantId,
+										initialState.uploadBatchID,
+									),
+									uploadImage(
+										processResult.thumbnail100hFile,
+										'thumbnails_100h',
+										null,
+										fakePolicyData, // Use the FRESH policy for this batch
+										imageId,
+										null,
+										initialState.galleryId,
+										versionId,
+										initialState.tenantId,
+										initialState.uploadBatchID,
+									),
+								];
+							} else {
+								// For classic galleries, upload all four versions including original
+								uploadPromises = [
+									uploadImage(
+										fileData.file,
+										'originals',
+										null,
+										policyData, // Use the FRESH policy for this batch
+										imageId,
+										(percent) => {
+											const currentState =
+												sessionStatesRef.current.get(sessionId);
+											updateUploadState(sessionId, {
+												files: (currentState?.files || uniqueFiles).map(
+													(f, i) =>
+														i === globalFileIndex
+															? { ...f, progress: percent }
+															: f,
+												),
+											});
+
+											// Update overall progress during upload
+											updateOverallProgress(sessionId);
+										},
+										initialState.galleryId,
+										versionId,
+										initialState.tenantId,
+										initialState.uploadBatchID,
+									),
+									uploadImage(
+										processResult.processedFile,
+										'optimized',
+										null,
+										policyData, // Use the FRESH policy for this batch
+										imageId,
+										null,
+										initialState.galleryId,
+										versionId,
+										initialState.tenantId,
+										initialState.uploadBatchID,
+									),
+									uploadImage(
+										processResult.thumbnailFile,
+										'thumbnails_300w',
+										null,
+										fakePolicyData, // Use the FRESH policy for this batch
+										imageId,
+										null,
+										initialState.galleryId,
+										versionId,
+										initialState.tenantId,
+										initialState.uploadBatchID,
+									),
+									uploadImage(
+										processResult.thumbnail100hFile,
+										'thumbnails_100h',
+										null,
+										fakePolicyData, // Use the FRESH policy for this batch
+										imageId,
+										null,
+										initialState.galleryId,
+										versionId,
+										initialState.tenantId,
+										initialState.uploadBatchID,
+									),
+								];
+							}
+
+							// Execute all uploads
+							const uploadResults = await Promise.all(uploadPromises);
+
+							// Extract results based on gallery type
+							let uploadResultOptimized,
 								uploadResultThumbnail300w,
-								uploadResultThumbnail100h,
-							] = await Promise.all([
-								uploadImage(
-									fileData.file,
-									'originals',
-									null,
-									policyData, // Use the FRESH policy for this batch
-									imageId,
-									(percent) => {
-										const currentState =
-											sessionStatesRef.current.get(sessionId);
-										updateUploadState(sessionId, {
-											files: (currentState?.files || uniqueFiles).map(
-												(f, i) =>
-													i === globalFileIndex
-														? { ...f, progress: percent }
-														: f,
-											),
-										});
+								uploadResultThumbnail100h;
 
-										// Update overall progress during upload
-										updateOverallProgress(sessionId);
-									},
-									initialState.galleryId,
-									versionId,
-									initialState.tenantId,
-									initialState.uploadBatchID,
-								),
-								uploadImage(
-									processResult.processedFile,
-									'optimized',
-									null,
-									policyData, // Use the FRESH policy for this batch
-									imageId,
-									null,
-									initialState.galleryId,
-									versionId,
-									initialState.tenantId,
-									initialState.uploadBatchID,
-								),
-								uploadImage(
-									processResult.thumbnailFile,
-									'thumbnails_300w',
-									null,
-									fakePolicyData, // Use the FRESH policy for this batch
-									imageId,
-									null,
-									initialState.galleryId,
-									versionId,
-									initialState.tenantId,
-									initialState.uploadBatchID,
-								),
-								uploadImage(
-									processResult.thumbnail100hFile,
-									'thumbnails_100h',
-									null,
-									fakePolicyData, // Use the FRESH policy for this batch
-									imageId,
-									null,
-									initialState.galleryId,
-									versionId,
-									initialState.tenantId,
-									initialState.uploadBatchID,
-								),
-							]);
+							if (isLiteGallery) {
+								[
+									uploadResultOptimized,
+									uploadResultThumbnail300w,
+									uploadResultThumbnail100h,
+								] = uploadResults;
+							} else {
+								[
+									uploadResultOriginal,
+									uploadResultOptimized,
+									uploadResultThumbnail300w,
+									uploadResultThumbnail100h,
+								] = uploadResults;
+							}
 
-							if (
-								!uploadResultOriginal.success ||
-								!uploadResultOptimized.success ||
-								!uploadResultThumbnail300w.success ||
-								!uploadResultThumbnail100h.success
-							) {
-								throw new Error('One or more uploads failed');
+							// ✅ Validate uploads based on gallery type
+							if (isLiteGallery) {
+								// For lite galleries, only check optimized and thumbnails
+								if (
+									!uploadResultOptimized.success ||
+									!uploadResultThumbnail300w.success ||
+									!uploadResultThumbnail100h.success
+								) {
+									throw new Error('One or more uploads failed');
+								}
+							} else {
+								// For classic galleries, check all uploads including original
+								if (
+									!uploadResultOriginal.success ||
+									!uploadResultOptimized.success ||
+									!uploadResultThumbnail300w.success ||
+									!uploadResultThumbnail100h.success
+								) {
+									throw new Error('One or more uploads failed');
+								}
 							}
 
 							const payload = generateUploadPayload(
@@ -680,6 +791,7 @@ const UploadProgressPopup = () => {
 								versionId,
 								initialState.uploadBatchID,
 								initialState.settings,
+								isLiteGallery, // ✅ Pass lite gallery flag
 							);
 
 							const [success] = await uploadDesktopImages(
