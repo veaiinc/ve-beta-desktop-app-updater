@@ -50,11 +50,11 @@ class BoringNotchService {
 	getBoringNotchPath() {
 		// Try to find the boring.notch app in the project directory
 		const possiblePaths = [
-			// Development path - built app
-			path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.xcodeproj'),
-			// Production path - if the app is built and placed in a specific location
+			// Development path - built app (correct nested path)
+			path.join(__dirname, '..', '..', 'boring.notch', 'boring.notch', 'build', 'boringNotch.app'),
+			// Alternative development path
 			path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app'),
-			// Alternative production path
+			// Production path - if the app is built and placed in a specific location
 			path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.app'),
 		];
 

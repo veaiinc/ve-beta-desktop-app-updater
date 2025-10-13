@@ -17,7 +17,7 @@ struct TabModel: Identifiable {
 let tabs = [
     TabModel(label: "Home", icon: "house.fill", view: .home),
     TabModel(label: "Shelf", icon: "tray.fill", view: .shelf),
-    TabModel(label: "Meeting", icon: "video.fill", view: .meeting)
+    TabModel(label: "Listen", icon: "", view: .meeting)
 ]
 
 struct TabSelectionView: View {
@@ -26,7 +26,7 @@ struct TabSelectionView: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(tabs) { tab in
-                    TabButton(label: tab.label, icon: tab.icon, selected: coordinator.currentView == tab.view) {
+                    TabButton(selected: coordinator.currentView == tab.view) {
                         withAnimation(.smooth) {
                             coordinator.currentView = tab.view
                             
@@ -38,6 +38,13 @@ struct TabSelectionView: View {
                                     }
                                 }
                             }
+                        }
+                    } content: {
+                        // Render icon-only when an icon is provided; otherwise render text-only
+                        if tab.icon.isEmpty {
+                            Text(tab.label)
+                        } else {
+                            Image(systemName: tab.icon)
                         }
                     }
                     .frame(height: 26)
@@ -63,3 +70,4 @@ struct TabSelectionView: View {
 #Preview {
     BoringHeader().environmentObject(BoringViewModel())
 }
+
