@@ -1,5 +1,5 @@
 {
-	"name": "VE AI Gallery",
+	"name": "ve-ai-gallery",
 	"description": "Ve AI Gallery",
 	"version": "0.1.0",
 	"private": true,
@@ -179,7 +179,7 @@
 		"publish": {
 			"provider": "github",
 			"owner": "veaiinc",
-			"repo": "ve-desktop-app-updater",
+			"repo": "ve-beta-desktop-app-updater",
 			"private": false,
 			"releaseType": "release",
 			"publishAutoUpdate": true
