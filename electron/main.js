@@ -92,6 +92,9 @@ try {
 const BoringNotchService = require('./services/boringNotchService');
 const { handleError } = require('@apollo/client/link/http/parseAndCheckHttpResponse');
 
+// Import WebSocket service
+const websocketService = require('./services/websocketService');
+
 const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
 
 // Gallery processing functions will be loaded lazily when needed
@@ -425,9 +428,7 @@ const startAutoUpdateScheduler = () => {
 		() => attemptBackgroundUpdateCheck('scheduled-interval'),
 		intervalMs,
 	);
-	logAutoUpdateEvent(
-		`Background update scheduler armed (every ${intervalMinutes} minute(s))`,
-	);
+	logAutoUpdateEvent(`Background update scheduler armed (every ${intervalMinutes} minute(s))`);
 };
 
 const disposeAutoUpdateScheduler = () => {
@@ -971,6 +972,49 @@ ipcMain.handle('restart-app', async () => {
 		return await Promise.race([restartPromise, timeoutPromise]);
 	} catch (error) {
 		log.error('❌ Restart app failed:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// WebSocket IPC Handlers
+ipcMain.handle('websocket-get-status', async () => {
+	try {
+		if (!websocketService.isServerRunning()) {
+			return { success: false, error: 'WebSocket service not running' };
+		}
+
+		const status = websocketService.getStatus();
+		return { success: true, data: status };
+	} catch (error) {
+		log.error('❌ Failed to get WebSocket status:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+ipcMain.handle('websocket-send-message', async (event, data) => {
+	try {
+		if (!websocketService.isServerRunning()) {
+			return { success: false, error: 'WebSocket service not running' };
+		}
+
+		websocketService.broadcast(data);
+		return { success: true };
+	} catch (error) {
+		log.error('❌ Failed to send WebSocket message:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+ipcMain.handle('websocket-get-client-count', async () => {
+	try {
+		if (!websocketService.isServerRunning()) {
+			return { success: false, error: 'WebSocket service not running' };
+		}
+
+		const clientCount = websocketService.getClientCount();
+		return { success: true, data: { clientCount } };
+	} catch (error) {
+		log.error('❌ Failed to get WebSocket client count:', error);
 		return { success: false, error: error.message };
 	}
 });
@@ -2659,25 +2703,25 @@ function createWindow(restoreState = false) {
 
 	// Configure background update scheduler (with dev override)
 	if (isAutoUpdateSchedulerEnabled()) {
-	const intervalMinutes = getAutoUpdateCheckIntervalMins();
-	log.info(
-		`🔍 Starting background auto-update scheduler (interval: ${intervalMinutes} minute(s))`,
-	);
-	logAutoUpdateEvent(
-		`Scheduler enabled (env=${process.env.NODE_ENV}, devOverride=${parseEnvBool(
-			process.env.VE_ENABLE_AUTO_UPDATE_SCHEDULER_IN_DEV,
-		)}, interval=${intervalMinutes} minute(s))`,
-	);
-	startAutoUpdateScheduler();
+		const intervalMinutes = getAutoUpdateCheckIntervalMins();
+		log.info(
+			`🔍 Starting background auto-update scheduler (interval: ${intervalMinutes} minute(s))`,
+		);
+		logAutoUpdateEvent(
+			`Scheduler enabled (env=${process.env.NODE_ENV}, devOverride=${parseEnvBool(
+				process.env.VE_ENABLE_AUTO_UPDATE_SCHEDULER_IN_DEV,
+			)}, interval=${intervalMinutes} minute(s))`,
+		);
+		startAutoUpdateScheduler();
 
-	setTimeout(() => {
-		logAutoUpdateEvent('Attempting initial startup check (post-launch)');
-		attemptBackgroundUpdateCheck('startup');
-	}, 5000);
-} else {
-	log.info('🔧 Skipping automatic update scheduler in current environment');
-	logAutoUpdateEvent('Scheduler disabled (non-production and no override)');
-}
+		setTimeout(() => {
+			logAutoUpdateEvent('Attempting initial startup check (post-launch)');
+			attemptBackgroundUpdateCheck('startup');
+		}, 5000);
+	} else {
+		log.info('🔧 Skipping automatic update scheduler in current environment');
+		logAutoUpdateEvent('Scheduler disabled (non-production and no override)');
+	}
 
 	return mainWindow;
 }
@@ -3051,21 +3095,23 @@ app.whenReady().then(async () => {
 		const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
 
 		// 🚨 CRITICAL FIX: More aggressive memory management
-		if (heapUsedMB > 200) { // Lowered threshold for earlier intervention
+		if (heapUsedMB > 200) {
+			// Lowered threshold for earlier intervention
 			log.warn(`⚠️ High memory usage: ${heapUsedMB}MB - forcing cleanup...`);
-			
+
 			// 🚨 CRITICAL FIX: Clean up unused IPC handlers
 			try {
 				// Remove unused IPC handlers to prevent accumulation
 				const allHandlers = ipcMain.listenerCount('*');
-				if (allHandlers > 50) { // If too many handlers
+				if (allHandlers > 50) {
+					// If too many handlers
 					log.warn(`⚠️ Too many IPC handlers: ${allHandlers} - cleaning up...`);
 					// Note: We can't easily remove specific handlers, but we can log this
 				}
 			} catch (error) {
 				log.warn('Error checking IPC handlers:', error);
 			}
-			
+
 			// Force garbage collection
 			if (global.gc) {
 				global.gc();
@@ -3294,6 +3340,43 @@ app.whenReady().then(async () => {
 	try {
 		createWindow();
 		log.info('✅ Main window created successfully');
+
+		// Initialize WebSocket service
+		log.info('🌐 Initializing WebSocket service...');
+		try {
+			// Set up event listeners for WebSocket service
+			websocketService.on('serverStarted', (data) => {
+				log.info(`✅ WebSocket server started on port ${data.port}`);
+			});
+
+			websocketService.on('serverError', (error) => {
+				log.error('❌ WebSocket server error:', error);
+			});
+
+			websocketService.on('clientConnected', (data) => {
+				log.info(`🔗 WebSocket client connected: ${data.clientId}`);
+			});
+
+			websocketService.on('clientDisconnected', (data) => {
+				log.info(`🔌 WebSocket client disconnected: ${data.clientId}`);
+			});
+
+			websocketService.on('message', (data) => {
+				log.info(`📨 WebSocket message received from ${data.clientId}:`, data.data);
+				// Emit the message event for other parts of the app to handle
+				// This is where you can add your custom logic to process incoming messages
+			});
+
+			websocketService.on('messageError', (data) => {
+				log.error(`❌ WebSocket message error from ${data.clientId}:`, data.error);
+			});
+
+			// Start the WebSocket server on port 8080
+			websocketService.start(8080);
+			log.info('✅ WebSocket service initialized successfully');
+		} catch (error) {
+			log.error('❌ Failed to initialize WebSocket service:', error);
+		}
 
 		// Keep system from aggressively throttling while UI is active
 		let psbId = -1;
@@ -3855,7 +3938,10 @@ app.whenReady().then(async () => {
 			try {
 				// Add timeout to prevent hanging during Boring Notch initialization
 				const boringNotchInitTimeout = new Promise((_, reject) =>
-					setTimeout(() => reject(new Error('Boring Notch initialization timeout')), 20000),
+					setTimeout(
+						() => reject(new Error('Boring Notch initialization timeout')),
+						20000,
+					),
 				);
 
 				await Promise.race([boringNotchService.initialize(), boringNotchInitTimeout]);
@@ -6570,7 +6656,7 @@ app.whenReady().then(async () => {
 	// 🚨 CRITICAL FIX: Enhanced image processing with proper worker cleanup
 	ipcMain.handle('process-image-batch', async (event, { files, settings }) => {
 		const activeWorkers = new Set(); // Track active workers for cleanup
-		
+
 		try {
 			const results = [];
 			const batchSize = 2; // Process 2 images at a time to prevent overwhelming
@@ -6654,7 +6740,7 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		} finally {
 			// 🚨 CRITICAL FIX: Clean up any remaining workers
-			activeWorkers.forEach(worker => {
+			activeWorkers.forEach((worker) => {
 				try {
 					worker.terminate();
 				} catch (err) {
@@ -7225,6 +7311,23 @@ const handleCleanupAndQuit = () => {
 		} catch (error) {
 			log.error('Error cleaning up bridge:', error);
 		}
+	}
+
+	// Cleanup WebSocket service
+	try {
+		if (websocketService.isServerRunning()) {
+			log.info('🔄 Stopping WebSocket service...');
+			websocketService
+				.stop()
+				.then(() => {
+					log.info('✅ WebSocket service stopped successfully');
+				})
+				.catch((error) => {
+					log.error('❌ Error stopping WebSocket service:', error);
+				});
+		}
+	} catch (error) {
+		log.error('Error cleaning up WebSocket service:', error);
 	}
 
 	cleanupAndQuit({
