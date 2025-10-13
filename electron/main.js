@@ -7206,12 +7206,23 @@ ipcMain.handle('overlay-send-live-intelligence-data', async (event, liveIntellig
 
 // Handle app quit properly - but allow updates to proceed
 
-app.on('before-quit', (event) => {
+app.on('before-quit', async (event) => {
 	isQuitting = true;
 	// Only prevent quit if update is not in progress
 	if (!isUpdateInProgress) {
 		// Prevent default quit behavior to allow cleanup
 		event.preventDefault();
+		
+		// Terminate boring.notch app before cleanup
+		if (boringNotchService) {
+			try {
+				log.info('🛑 Terminating boring.notch app before Electron quit...');
+				await boringNotchService.terminate();
+			} catch (error) {
+				log.error('❌ Error terminating boring.notch app:', error);
+			}
+		}
+		
 		// Clean up all windows and processes
 		handleCleanupAndQuit();
 	} else {
@@ -7221,7 +7232,7 @@ app.on('before-quit', (event) => {
 });
 
 // CRITICAL: Add cleanup for watchdog and process monitor
-app.on('will-quit', (event) => {
+app.on('will-quit', async (event) => {
 	try {
 		// Clear watchdog interval
 		if (typeof watchdogInterval !== 'undefined') {
@@ -7249,9 +7260,16 @@ app.on('will-quit', (event) => {
 			cleanupMeetingSubscription = null;
 		}
 
-		// Clean up NotchDrop service
+		// Clean up Boring Notch service
 		if (boringNotchService) {
-			boringNotchService.cleanup();
+			try {
+				// Terminate the boring.notch app first, then cleanup
+				await boringNotchService.terminate();
+			} catch (error) {
+				log.error('❌ Error terminating Boring Notch service:', error);
+				// Still try to cleanup even if termination fails
+				boringNotchService.cleanup();
+			}
 		}
 
 		log.info('🧹 App cleanup completed');
