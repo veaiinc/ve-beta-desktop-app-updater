@@ -122,6 +122,7 @@ const RecentChat = ({
 			rightBarOpen: false,
 			activeRightBar: null,
 			rightBarWidth: 0,
+			isCompactMode: false, // Track if we're in compact chat mode from AskAI
 		};
 	});
 
@@ -139,6 +140,42 @@ const RecentChat = ({
 	sessionId = isPreview ? sId : sessionId;
 
 	const browserData = globalChatMessages?.[sessionId]?.browserData;
+
+	// Handle compact mode from AskAI overlay
+	useEffect(() => {
+		// Check if we're in desktop app and might be in compact mode
+		if (isDesktopApp && window?.electronApi?.resizeMainWindow) {
+			// Get current window size to detect if we're in compact mode (571x626)
+			const checkCompactMode = async () => {
+				try {
+					const bounds = await window?.electronApi?.getWindowBounds?.();
+					if (bounds && bounds.width <= 571 && bounds.height <= 626) {
+						console.log(
+							'📐 RecentChat: Detected compact mode from AskAI overlay (571x626)',
+						);
+						setInfo((prev) => ({ ...prev, isCompactMode: true }));
+					}
+				} catch (e) {
+					console.log('RecentChat: Could not check window bounds:', e);
+				}
+			};
+			checkCompactMode();
+		}
+
+		return () => {
+			// Restore normal window size when leaving chat if we were in compact mode
+			if (window?.electronApi?.resizeMainWindow) {
+				window.electronApi.resizeMainWindow({
+					dimensions: {
+						width: 1366,
+						height: 768,
+					},
+					exitFullScreen: false,
+				});
+				console.log('📐 RecentChat: Restored normal window size on unmount (1366x768)');
+			}
+		};
+	}, []);
 
 	// Save whenever it changes
 	useEffect(() => {

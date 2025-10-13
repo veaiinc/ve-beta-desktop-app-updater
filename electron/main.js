@@ -425,9 +425,7 @@ const startAutoUpdateScheduler = () => {
 		() => attemptBackgroundUpdateCheck('scheduled-interval'),
 		intervalMs,
 	);
-	logAutoUpdateEvent(
-		`Background update scheduler armed (every ${intervalMinutes} minute(s))`,
-	);
+	logAutoUpdateEvent(`Background update scheduler armed (every ${intervalMinutes} minute(s))`);
 };
 
 const disposeAutoUpdateScheduler = () => {
@@ -2659,25 +2657,25 @@ function createWindow(restoreState = false) {
 
 	// Configure background update scheduler (with dev override)
 	if (isAutoUpdateSchedulerEnabled()) {
-	const intervalMinutes = getAutoUpdateCheckIntervalMins();
-	log.info(
-		`🔍 Starting background auto-update scheduler (interval: ${intervalMinutes} minute(s))`,
-	);
-	logAutoUpdateEvent(
-		`Scheduler enabled (env=${process.env.NODE_ENV}, devOverride=${parseEnvBool(
-			process.env.VE_ENABLE_AUTO_UPDATE_SCHEDULER_IN_DEV,
-		)}, interval=${intervalMinutes} minute(s))`,
-	);
-	startAutoUpdateScheduler();
+		const intervalMinutes = getAutoUpdateCheckIntervalMins();
+		log.info(
+			`🔍 Starting background auto-update scheduler (interval: ${intervalMinutes} minute(s))`,
+		);
+		logAutoUpdateEvent(
+			`Scheduler enabled (env=${process.env.NODE_ENV}, devOverride=${parseEnvBool(
+				process.env.VE_ENABLE_AUTO_UPDATE_SCHEDULER_IN_DEV,
+			)}, interval=${intervalMinutes} minute(s))`,
+		);
+		startAutoUpdateScheduler();
 
-	setTimeout(() => {
-		logAutoUpdateEvent('Attempting initial startup check (post-launch)');
-		attemptBackgroundUpdateCheck('startup');
-	}, 5000);
-} else {
-	log.info('🔧 Skipping automatic update scheduler in current environment');
-	logAutoUpdateEvent('Scheduler disabled (non-production and no override)');
-}
+		setTimeout(() => {
+			logAutoUpdateEvent('Attempting initial startup check (post-launch)');
+			attemptBackgroundUpdateCheck('startup');
+		}, 5000);
+	} else {
+		log.info('🔧 Skipping automatic update scheduler in current environment');
+		logAutoUpdateEvent('Scheduler disabled (non-production and no override)');
+	}
 
 	return mainWindow;
 }
@@ -4440,6 +4438,20 @@ app.whenReady().then(async () => {
 		} catch (error) {
 			log.error('❌ Error resizing main window:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	// Get main window bounds (for detecting compact mode)
+	ipcMain.handle('get-window-bounds', async () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				const bounds = mainWindow.getBounds();
+				return bounds;
+			}
+			return null;
+		} catch (error) {
+			log.error('❌ Error getting window bounds:', error);
+			return null;
 		}
 	});
 

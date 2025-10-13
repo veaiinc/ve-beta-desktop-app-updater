@@ -552,6 +552,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	},
 
 	resizeMainWindow: (data) => ipcRenderer.invoke('resize-main-window', data),
+	getWindowBounds: () => ipcRenderer.invoke('get-window-bounds'),
 
 	// File system APIs for audio storage
 	fs: {

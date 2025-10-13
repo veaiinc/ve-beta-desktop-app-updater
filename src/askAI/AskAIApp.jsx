@@ -148,6 +148,18 @@ const AskAIApp = () => {
 			// Ask main process to open/focus main window and navigate
 			await window?.electronApi?.navigateMainWindow(navData);
 
+			// Resize main window to compact chat view (similar to OngoingMeeting)
+			if (window?.electronApi?.resizeMainWindow) {
+				window.electronApi.resizeMainWindow({
+					dimensions: {
+						width: 571,
+						height: 626,
+					},
+					exitFullScreen: true,
+				});
+				console.log('📐 AskAI: Resized main window to compact chat view (571x626)');
+			}
+
 			// Reset to a fresh session so input isn't blocked by prior stream state
 			setInfo((prev) => ({ ...prev, sessionId: ObjectID()?.toString() }));
 		} catch (error) {
