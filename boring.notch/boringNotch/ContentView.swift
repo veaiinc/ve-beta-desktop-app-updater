@@ -283,6 +283,8 @@ struct ContentView: View {
                         NotchHomeView(albumArtNamespace: albumArtNamespace)
                     case .shelf:
                         NotchShelfView()
+                    case .meeting:
+                        MeetingView()
                     }
                 }
             }
@@ -576,6 +578,300 @@ struct FullScreenDropDelegate: DropDelegate {
         isTargeted = false
         onDrop()
         return true
+    }
+}
+
+// MARK: - WebSocket Manager
+
+class WebSocketManager: ObservableObject {
+    static let shared = WebSocketManager()
+    
+    @Published var isConnected = false
+    @Published var connectionStatus: String = "Disconnected"
+    @Published var lastMessage: String = ""
+    @Published var messages: [WebSocketMessage] = []
+    
+    private var webSocketTask: URLSessionWebSocketTask?
+    private var urlSession: URLSession?
+    private var cancellables = Set<AnyCancellable>()
+    
+    private let serverURL = "ws://localhost:8080"
+    
+    private init() {
+        setupURLSession()
+    }
+    
+    private func setupURLSession() {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 10
+        config.timeoutIntervalForResource = 30
+        urlSession = URLSession(configuration: config)
+    }
+    
+    func connect() {
+        guard let url = URL(string: serverURL) else {
+            updateConnectionStatus("Invalid URL", isConnected: false)
+            return
+        }
+        
+        webSocketTask = urlSession?.webSocketTask(with: url)
+        webSocketTask?.resume()
+        
+        updateConnectionStatus("Connecting...", isConnected: false)
+        
+        // Start listening for messages
+        receiveMessage()
+        
+        // Send ping to test connection
+        sendPing()
+    }
+    
+    func disconnect() {
+        webSocketTask?.cancel(with: .goingAway, reason: nil)
+        webSocketTask = nil
+        updateConnectionStatus("Disconnected", isConnected: false)
+    }
+    
+    func sendMessage(_ message: String) {
+        guard isConnected else {
+            print("WebSocket not connected")
+            return
+        }
+        
+        let messageData = WebSocketMessage(
+            id: UUID(),
+            content: message,
+            timestamp: Date(),
+            type: .sent
+        )
+        
+        messages.append(messageData)
+        
+        let message = URLSessionWebSocketTask.Message.string(message)
+        webSocketTask?.send(message) { [weak self] error in
+            if let error = error {
+                print("Failed to send message: \(error)")
+                DispatchQueue.main.async {
+                    self?.updateConnectionStatus("Send Error: \(error.localizedDescription)", isConnected: false)
+                }
+            }
+        }
+    }
+    
+    private func receiveMessage() {
+        webSocketTask?.receive { [weak self] result in
+            switch result {
+            case .success(let message):
+                self?.handleMessage(message)
+                // Continue listening for more messages
+                self?.receiveMessage()
+            case .failure(let error):
+                print("WebSocket receive error: \(error)")
+                DispatchQueue.main.async {
+                    self?.updateConnectionStatus("Receive Error: \(error.localizedDescription)", isConnected: false)
+                }
+            }
+        }
+    }
+    
+    private func handleMessage(_ message: URLSessionWebSocketTask.Message) {
+        switch message {
+        case .string(let text):
+            DispatchQueue.main.async {
+                let receivedMessage = WebSocketMessage(
+                    id: UUID(),
+                    content: text,
+                    timestamp: Date(),
+                    type: .received
+                )
+                self.messages.append(receivedMessage)
+                self.lastMessage = text
+            }
+        case .data(let data):
+            if let text = String(data: data, encoding: .utf8) {
+                DispatchQueue.main.async {
+                    let receivedMessage = WebSocketMessage(
+                        id: UUID(),
+                        content: text,
+                        timestamp: Date(),
+                        type: .received
+                    )
+                    self.messages.append(receivedMessage)
+                    self.lastMessage = text
+                }
+            }
+        @unknown default:
+            print("Unknown message type received")
+        }
+    }
+    
+    private func sendPing() {
+        webSocketTask?.sendPing { [weak self] error in
+            if let error = error {
+                print("Ping failed: \(error)")
+                DispatchQueue.main.async {
+                    self?.updateConnectionStatus("Connection Lost", isConnected: false)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self?.updateConnectionStatus("Connected", isConnected: true)
+                }
+            }
+        }
+    }
+    
+    private func updateConnectionStatus(_ status: String, isConnected: Bool) {
+        self.connectionStatus = status
+        self.isConnected = isConnected
+    }
+    
+    func clearMessages() {
+        messages.removeAll()
+        lastMessage = ""
+    }
+}
+
+struct WebSocketMessage: Identifiable {
+    let id: UUID
+    let content: String
+    let timestamp: Date
+    let type: MessageType
+    
+    enum MessageType {
+        case sent
+        case received
+    }
+}
+
+// MARK: - Meeting View
+
+struct MeetingView: View {
+    @StateObject private var webSocketManager = WebSocketManager.shared
+    @State private var messageText = ""
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            // Connection Status
+            HStack {
+                Circle()
+                    .fill(webSocketManager.isConnected ? Color.green : Color.red)
+                    .frame(width: 8, height: 8)
+                
+                Text(webSocketManager.connectionStatus)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                Button(action: {
+                    if webSocketManager.isConnected {
+                        webSocketManager.disconnect()
+                    } else {
+                        webSocketManager.connect()
+                    }
+                }) {
+                    Text(webSocketManager.isConnected ? "Disconnect" : "Connect")
+                        .font(.caption)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.blue.opacity(0.2))
+                        .foregroundColor(.blue)
+                        .cornerRadius(4)
+                }
+            }
+            .padding(.horizontal, 16)
+            
+            // Messages List
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 8) {
+                    ForEach(webSocketManager.messages) { message in
+                        MessageBubble(message: message)
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+            .frame(maxHeight: 200)
+            
+            // Input Area
+            HStack(spacing: 8) {
+                TextField("Type your message...", text: $messageText)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .onSubmit {
+                        sendMessage()
+                    }
+                    .onTapGesture {
+                        // Ensure window can receive focus when text field is tapped
+                        DispatchQueue.main.async {
+                            if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
+                                window.makeKeyAndOrderFront(nil)
+                            }
+                        }
+                    }
+                
+                Button(action: sendMessage) {
+                    Image(systemName: "paperplane.fill")
+                        .foregroundColor(.white)
+                        .frame(width: 32, height: 32)
+                        .background(Color.blue)
+                        .cornerRadius(16)
+                }
+                .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !webSocketManager.isConnected)
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 8)
+        }
+        .onAppear {
+            // Auto-connect when view appears
+            if !webSocketManager.isConnected {
+                webSocketManager.connect()
+            }
+        }
+    }
+    
+    private func sendMessage() {
+        let trimmedMessage = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedMessage.isEmpty else { return }
+        
+        webSocketManager.sendMessage(trimmedMessage)
+        messageText = ""
+    }
+}
+
+struct MessageBubble: View {
+    let message: WebSocketMessage
+    
+    var body: some View {
+        HStack {
+            if message.type == .sent {
+                Spacer()
+            }
+            
+            VStack(alignment: message.type == .sent ? .trailing : .leading, spacing: 4) {
+                Text(message.content)
+                    .font(.system(size: 14))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        message.type == .sent ? Color.blue : Color.gray.opacity(0.2)
+                    )
+                    .foregroundColor(message.type == .sent ? .white : .primary)
+                    .cornerRadius(16)
+                
+                Text(formatTimestamp(message.timestamp))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            
+            if message.type == .received {
+                Spacer()
+            }
+        }
+    }
+    
+    private func formatTimestamp(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }
 

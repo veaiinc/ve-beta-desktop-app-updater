@@ -16,7 +16,8 @@ struct TabModel: Identifiable {
 
 let tabs = [
     TabModel(label: "Home", icon: "house.fill", view: .home),
-    TabModel(label: "Shelf", icon: "tray.fill", view: .shelf)
+    TabModel(label: "Shelf", icon: "tray.fill", view: .shelf),
+    TabModel(label: "Meeting", icon: "video.fill", view: .meeting)
 ]
 
 struct TabSelectionView: View {
@@ -28,6 +29,15 @@ struct TabSelectionView: View {
                     TabButton(label: tab.label, icon: tab.icon, selected: coordinator.currentView == tab.view) {
                         withAnimation(.smooth) {
                             coordinator.currentView = tab.view
+                            
+                            // Make window key when switching to meeting view
+                            if tab.view == .meeting {
+                                DispatchQueue.main.async {
+                                    if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
+                                        window.makeKeyAndOrderFront(nil)
+                                    }
+                                }
+                            }
                         }
                     }
                     .frame(height: 26)
