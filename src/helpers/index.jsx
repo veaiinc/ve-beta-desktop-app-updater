@@ -49,7 +49,7 @@ const isMac =
 	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
 const galleryDesktopAppDownloadUrl =
 	import.meta.env.VITE_APP_DESKTOP_GALLERY_APP_DOWNLOAD_URL || null;
-export const deepLinkUrlGallery = 've-ai-gallery://open';
+export const deepLinkUrlGallery = 'veaigallery://open';
 
 export const nameShortner = (name) => {
 	let newName = name?.split(' ');
