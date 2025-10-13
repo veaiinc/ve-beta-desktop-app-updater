@@ -3,19 +3,19 @@
 //  boringNotch
 //
 //  Created by Hugo Persson on 2024-08-24.
+//  Updated to support arbitrary content rendering.
 //
 
 import SwiftUI
 
-struct TabButton: View {
-    let label: String
-    let icon: String
+struct TabButton<Content: View>: View {
     let selected: Bool
     let onClick: () -> Void
+    @ViewBuilder var content: () -> Content
     
     var body: some View {
         Button(action: onClick) {
-            Image(systemName: icon)
+            content()
                 .padding(.horizontal, 15)
                 .contentShape(Capsule())
         }
@@ -24,7 +24,10 @@ struct TabButton: View {
 }
 
 #Preview {
-    TabButton(label: "Home", icon: "tray.fill", selected: true) {
-        print("Tapped")
+    TabButton(selected: true, onClick: {}) {
+        HStack(spacing: 6) {
+            Image(systemName: "tray.fill")
+            Text("Home")
+        }
     }
 }

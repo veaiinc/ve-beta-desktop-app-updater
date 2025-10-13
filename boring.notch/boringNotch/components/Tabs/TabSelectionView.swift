@@ -17,49 +17,81 @@ struct TabModel: Identifiable {
 let tabs = [
     TabModel(label: "Home", icon: "house.fill", view: .home),
     TabModel(label: "Shelf", icon: "tray.fill", view: .shelf),
-    TabModel(label: "Meeting", icon: "video.fill", view: .meeting)
+    TabModel(label: "Listen", icon: "", view: .meeting),
+    TabModel(label: "Ask", icon: "", view: .ask)
 ]
+
+private struct TabItem: View {
+    let tab: TabModel
+    let selected: Bool
+    let animation: Namespace.ID
+    let onTap: () -> Void
+
+    var body: some View {
+        TabButton(selected: selected, onClick: onTap) {
+            HStack(spacing: 6) {
+                if tab.icon.isEmpty {
+                    Text(tab.label)
+                        .font(.footnote)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .layoutPriority(10)
+                        .allowsTightening(false)
+                } else {
+                    Image(systemName: tab.icon)
+                }
+            }
+            .padding(.horizontal, 0)
+        }
+        .frame(height: 26)
+        .foregroundStyle(selected ? .white : .gray)
+        .background {
+            if selected {
+                Capsule()
+                    .fill(Color(nsColor: .secondarySystemFill))
+                    .matchedGeometryEffect(id: "capsule", in: animation)
+            } else {
+                Capsule()
+                    .fill(Color.clear)
+                    .matchedGeometryEffect(id: "capsule", in: animation)
+                    .hidden()
+            }
+        }
+    }
+}
 
 struct TabSelectionView: View {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @Namespace var animation
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(tabs) { tab in
-                    TabButton(label: tab.label, icon: tab.icon, selected: coordinator.currentView == tab.view) {
-                        withAnimation(.smooth) {
-                            coordinator.currentView = tab.view
-                            
-                            // Make window key when switching to meeting view
-                            if tab.view == .meeting {
-                                DispatchQueue.main.async {
-                                    if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
-                                        window.makeKeyAndOrderFront(nil)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 0) {
+                ForEach(tabs) { tab in
+                    TabItem(
+                        tab: tab,
+                        selected: coordinator.currentView == tab.view,
+                        animation: animation,
+                        onTap: {
+                            withAnimation(.smooth) {
+                                coordinator.currentView = tab.view
+                                if tab.view == .meeting || tab.view == .ask {
+                                    DispatchQueue.main.async {
+                                        if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
+                                            window.makeKeyAndOrderFront(nil)
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    .frame(height: 26)
-                    .foregroundStyle(tab.view == coordinator.currentView ? .white : .gray)
-                    .background {
-                        if tab.view == coordinator.currentView {
-                            Capsule()
-                                .fill(coordinator.currentView == tab.view ? Color(nsColor: .secondarySystemFill) : Color.clear)
-                                .matchedGeometryEffect(id: "capsule", in: animation)
-                        } else {
-                            Capsule()
-                                .fill(coordinator.currentView == tab.view ? Color(nsColor: .secondarySystemFill) : Color.clear)
-                                .matchedGeometryEffect(id: "capsule", in: animation)
-                                .hidden()
-                        }
-                    }
+                    )
+                }
             }
         }
-        .clipShape(Capsule())
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 #Preview {
     BoringHeader().environmentObject(BoringViewModel())
 }
+
