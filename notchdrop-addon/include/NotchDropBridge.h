@@ -90,6 +90,13 @@
 // Wake Word Detection Integration
 + (void)handleWakeWordDetected:(float)score;
 
+// Selection Assistant
++ (NSString*)getSelectionHistoryJSON;
++ (BOOL)clearSelectionHistory;
++ (BOOL)presentSelectionHistoryInterface;
++ (BOOL)requestSelectionAssistantPermissionPrompt;
++ (BOOL)isSelectionAssistantPermissionGranted;
+
 @end
 
 #endif /* NotchDropBridge_h */

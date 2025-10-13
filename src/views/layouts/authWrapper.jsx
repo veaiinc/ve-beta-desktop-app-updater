@@ -88,6 +88,9 @@ const AuthWrapper = ({
 			if (window?.electronApi?.resizeMainWindow) {
 				window.electronApi.resizeMainWindow({
 					dimensions: { width, height: window.innerHeight },
+					animate: true,
+					duration: 250,
+					easing: 'easeInOutCubic',
 				});
 			}
 		}
@@ -110,10 +113,12 @@ const AuthWrapper = ({
 			if (updateObject) {
 				if (updateObject.type === 'chat') {
 					const sessionId = path.split('/')[2];
+					const imagesArray = updateObject.payload?.imagesArray;
 					updateStateValues({
 						activePromptForChat: {
 							sessionId: sessionId,
 							prompt: updateObject.payload?.query,
+							...(imagesArray?.length ? { imagesArray } : {}),
 						},
 					});
 				}

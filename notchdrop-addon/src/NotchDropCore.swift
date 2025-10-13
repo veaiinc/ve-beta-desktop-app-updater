@@ -4,6 +4,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import Combine
 import AVFoundation
+import ApplicationServices
 
 // MARK: - Custom Panel for NotchDrop
 class NotchDropPanel: NSPanel {
@@ -50,6 +51,7 @@ class NotchDropPanel: NSPanel {
     private var hapticFeedback: Bool = true
     private var notchViewModel: NotchViewModel?
     private var isInteractionEnabled: Bool = true
+    private var selectionAssistant: SelectionAssistantManager?
     // PERFORMANCE FIX: Optimized App Nap prevention for better performance
     private var appNapActivity: NSObjectProtocol?
     // PERFORMANCE FIX: Use optimized window level for better performance
@@ -57,6 +59,11 @@ class NotchDropPanel: NSPanel {
         let statusBar = NSWindow.Level.statusBar
         // Use statusBar for optimal performance while maintaining functionality
         return statusBar
+    }()
+    private let iso8601Formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
     }()
 
     // MARK: - Callbacks
@@ -82,6 +89,7 @@ class NotchDropPanel: NSPanel {
             // Pre-warm the system for smooth performance
             self?.preWarmSystem()
             self?.createNotchWindow()
+            self?.initializeSelectionAssistant()
         }
 
         // Start App Nap prevention early to keep process responsive
@@ -467,6 +475,43 @@ class NotchDropPanel: NSPanel {
             "width": frame.size.width,
             "height": frame.size.height
         ]
+    }
+
+    @objc public func getSelectionHistoryJSON() -> String {
+        initializeSelectionAssistant()
+        let entries = selectionAssistant?.fetchHistoryEntries() ?? SelectionHistoryStore.shared.entriesSync()
+        let payload = entries.map { entryDictionary(from: $0) }
+        if let data = try? JSONSerialization.data(withJSONObject: payload, options: []),
+           let json = String(data: data, encoding: .utf8) {
+            return json
+        }
+        return "[]"
+    }
+
+    @objc public func clearSelectionHistory() -> Bool {
+        initializeSelectionAssistant()
+        guard let assistant = selectionAssistant else { return false }
+        assistant.clearAllHistoryEntries()
+        return true
+    }
+
+    @objc public func presentSelectionHistoryInterface() -> Bool {
+        initializeSelectionAssistant()
+        guard let assistant = selectionAssistant else { return false }
+        assistant.presentHistoryInterface()
+        return true
+    }
+
+    @objc public func requestSelectionAssistantPermissionPrompt() -> Bool {
+        initializeSelectionAssistant()
+        guard let assistant = selectionAssistant else { return false }
+        assistant.requestAccessibilityPrompt()
+        return true
+    }
+
+    @objc public func isSelectionAssistantPermissionGranted() -> Bool {
+        initializeSelectionAssistant()
+        return selectionAssistant?.isAccessibilityPermissionGranted() ?? AXIsProcessTrusted()
     }
 
     // MARK: - Advanced NotchDropLatest methods
@@ -908,6 +953,106 @@ class NotchDropPanel: NSPanel {
         case .restoreVideoState:
             swiftActionCallback?("restoreVideoState", "")
         }
+    }
+    
+    // MARK: - Selection Assistant Integration
+    private func initializeSelectionAssistant() {
+        if selectionAssistant != nil {
+            return
+        }
+
+        let initializeBlock = { [weak self] in
+            guard let self else { return }
+            let manager = SelectionAssistantManager.shared
+            manager.onSelectionCaptured = { [weak self] entry in
+                self?.emitSelectionCaptured(entry)
+            }
+            manager.onPermissionStateChanged = { [weak self] granted in
+                self?.emitSelectionPermissionChange(granted: granted)
+            }
+            manager.onSelectionAskAI = { [weak self] text in
+                self?.emitSelectionAskAI(text)
+            }
+            manager.start()
+            self.selectionAssistant = manager
+        }
+
+        if Thread.isMainThread {
+            initializeBlock()
+        } else {
+            DispatchQueue.main.async(execute: initializeBlock)
+        }
+    }
+
+    private func emitSelectionCaptured(_ entry: SelectionHistoryEntry) {
+        guard let swiftActionCallback else { return }
+        let payload = entryDictionary(from: entry)
+        if let data = try? JSONSerialization.data(withJSONObject: payload, options: []),
+           let json = String(data: data, encoding: .utf8) {
+            swiftActionCallback("selectionCaptured", json)
+        }
+    }
+
+    private func emitSelectionPermissionChange(granted: Bool) {
+        guard let swiftActionCallback else { return }
+        let payload: [String: Any] = ["granted": granted]
+        if let data = try? JSONSerialization.data(withJSONObject: payload, options: []),
+           let json = String(data: data, encoding: .utf8) {
+            swiftActionCallback("selectionPermissionChanged", json)
+        }
+    }
+
+    private func emitSelectionAskAI(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            print("⚠️ Selection Assistant Ask AI skipped for empty text")
+            return
+        }
+
+        guard let swiftActionCallback else {
+            print("⚠️ Selection Assistant Ask AI skipped - no Swift action callback")
+            return
+        }
+
+        print("💬 Selection Assistant sending chat to AskAI: '\(trimmed)'")
+        swiftActionCallback("submitChat", trimmed)
+
+        let chatMessage: [String: Any] = [
+            "type": "dynamic-island-chat",
+            "message": trimmed,
+            "timestamp": iso8601Formatter.string(from: Date()),
+            "source": "notchdrop-swift",
+            "context": "selection-assistant"
+        ]
+
+        guard
+            let data = try? JSONSerialization.data(withJSONObject: chatMessage, options: []),
+            let json = String(data: data, encoding: .utf8)
+        else {
+            print("⚠️ Selection Assistant Ask AI failed to encode payload")
+            return
+        }
+
+        swiftActionCallback("sendChatMessageToAskAI", json)
+        print("✅ Selection Assistant chat payload emitted")
+    }
+
+    private func entryDictionary(from entry: SelectionHistoryEntry) -> [String: Any] {
+        var dict: [String: Any] = [
+            "id": entry.id.uuidString,
+            "text": entry.text,
+            "createdAt": iso8601Formatter.string(from: entry.createdAt),
+            "isPinned": entry.isPinned,
+        ]
+
+        if let sourceName = entry.sourceAppName {
+            dict["sourceAppName"] = sourceName
+        }
+        if let bundleId = entry.sourceBundleIdentifier {
+            dict["bundleIdentifier"] = bundleId
+        }
+
+        return dict
     }
     // MARK: - Stealth Mode
     @objc public func updateStealthModeState(_ isEnabled: Bool) {
