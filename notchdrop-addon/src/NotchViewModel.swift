@@ -864,11 +864,15 @@ class NotchViewModel: NSObject, ObservableObject {
         // Ensure notch is open to show recording state and transcriptions
         notchOpen(.click)
         
-        // Clear previous meeting's live intelligence data to start fresh for new meeting
+        // Clear previous meeting's data to start fresh for new meeting
         DispatchQueue.main.async {
             // print("🧠 Starting new meeting - clearing previous live intelligence data")
             self.liveIntelligenceMessages.removeAll()
             // print("🧠 Live intelligence data cleared for new meeting")
+            
+            // Clear previous meeting's transcription data to start fresh
+            self.voiceMessages.removeAll()
+            print("📝 Transcription data cleared for new meeting")
         }
         
         startTimer()
@@ -1248,12 +1252,16 @@ class NotchViewModel: NSObject, ObservableObject {
         }
     }
     
-    /// Clear all live intelligence data to start fresh for new meeting
+    /// Clear all live intelligence and transcription data to start fresh for new meeting
     func clearLiveIntelligenceData() {
         DispatchQueue.main.async {
             // print("🧠 Clearing all live intelligence data for new meeting")
             self.liveIntelligenceMessages.removeAll()
             // print("🧠 Live intelligence data cleared successfully")
+            
+            // Also clear transcription data for new meeting
+            self.voiceMessages.removeAll()
+            print("📝 Transcription data cleared for new meeting")
         }
     }
     
