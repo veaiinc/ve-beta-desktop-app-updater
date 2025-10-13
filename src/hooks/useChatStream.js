@@ -1,6 +1,8 @@
 import { useCallback, useRef, useEffect } from 'react';
 import useWorkspaceMode from './useWorkspaceMode';
 import { getConfig } from '../services/index.js';
+// 🚨 CRITICAL FIX: Import memory manager
+import memoryManager from '../utils/memoryManager';
 
 const agentTypeMap = {
 	search_agent: 'search_agent_streaming',
@@ -14,18 +16,36 @@ const useChatStream = () => {
 	const messageHandlerRef = useRef(null);
 	const isPublicChatRef = useRef(false);
 	const agentTypeRef = useRef(null);
+	const isMountedRef = useRef(true);
 	const MAX_RETRY_ATTEMPTS = 3;
 	const RETRY_DELAY = 1000; // 1 second
 
-	// Cleanup on unmount
+	// 🚨 CRITICAL FIX: Comprehensive cleanup on unmount
 	useEffect(() => {
 		return () => {
+			isMountedRef.current = false;
+			
+			// Close WebSocket connection
+			if (socketRef.current) {
+				try {
+					socketRef.current.close();
+				} catch (error) {
+					console.warn('Error closing WebSocket:', error);
+				}
+				socketRef.current = null;
+			}
+			
+			// Clear timeout
 			if (inactivityTimeoutRef.current) {
 				clearTimeout(inactivityTimeoutRef.current);
+				inactivityTimeoutRef.current = null;
 			}
-			if (socketRef.current) {
-				socketRef.current.close();
-			}
+			
+			// Clear all refs
+			currentSessionIdRef.current = null;
+			messageHandlerRef.current = null;
+			isPublicChatRef.current = false;
+			agentTypeRef.current = null;
 		};
 	}, []);
 
@@ -41,6 +61,9 @@ const useChatStream = () => {
 				socketRef.current.close();
 			}
 		}, 5 * 60 * 1000); // 5 minutes in milliseconds
+		
+		// 🚨 CRITICAL FIX: Track timeout in memory manager
+		memoryManager.trackTimer(inactivityTimeoutRef.current, 'inactivity-timeout');
 	}, []);
 
 	const sendMessage = useCallback(
@@ -100,6 +123,12 @@ const useChatStream = () => {
 			if (!sessionId && !isPublicChat) {
 				return;
 			}
+			
+			// 🚨 CRITICAL FIX: Check if component is still mounted
+			if (!isMountedRef.current) {
+				return;
+			}
+			
 			currentSessionIdRef.current = sessionId;
 			messageHandlerRef.current = onMessageFunc;
 			isPublicChatRef.current = isPublicChat;
@@ -124,29 +153,55 @@ const useChatStream = () => {
 				}/${sessionId}/guest_chat`;
 			}
 
+			// 🚨 CRITICAL FIX: Properly close existing connection
 			if (socketRef.current) {
-				socketRef.current.close();
+				try {
+					socketRef.current.close();
+				} catch (error) {
+					console.warn('Error closing existing WebSocket:', error);
+				}
+				socketRef.current = null;
+			}
+
+			// 🚨 CRITICAL FIX: Check if still mounted before creating new connection
+			if (!isMountedRef.current) {
+				return;
 			}
 
 			socketRef.current = new WebSocket(baseUrl);
+			
+			// 🚨 CRITICAL FIX: Track WebSocket connection in memory manager
+			memoryManager.trackConnection(socketRef.current, 'chat-websocket');
 
 			socketRef.current.onopen = () => {
+				if (!isMountedRef.current) {
+					socketRef.current?.close();
+					return;
+				}
 				console.log('Connected to WebSocket server');
 				resetInactivityTimeout();
 			};
 
 			socketRef.current.onclose = () => {
+				if (!isMountedRef.current) return;
 				console.log('Disconnected from WebSocket server');
 				if (inactivityTimeoutRef.current) {
 					clearTimeout(inactivityTimeoutRef.current);
+					inactivityTimeoutRef.current = null;
 				}
 			};
 
 			socketRef.current.onmessage = (event) => {
+				if (!isMountedRef.current) return;
 				resetInactivityTimeout();
 				if (onMessageFunc) {
 					onMessageFunc(event);
 				}
+			};
+			
+			socketRef.current.onerror = (error) => {
+				if (!isMountedRef.current) return;
+				console.error('WebSocket error:', error);
 			};
 		},
 		[resetInactivityTimeout],

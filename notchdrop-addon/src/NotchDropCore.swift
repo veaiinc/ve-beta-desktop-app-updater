@@ -299,15 +299,16 @@ class NotchDropPanel: NSPanel {
         window.orderFrontRegardless()
     }
 
-    // MARK: - App Nap / Idle Throttling Prevention
+    // 🚨 CRITICAL FIX: App Nap / Idle Throttling Prevention with proper cleanup
     private func startAppNapPrevention() {
+        // 🚨 CRITICAL FIX: Always stop existing activity first
+        stopAppNapPrevention()
+        
         // Use NSProcessInfo activity to prevent App Nap when idle for a long time
-        if appNapActivity == nil {
-            appNapActivity = ProcessInfo.processInfo.beginActivity(options: [
-                .userInitiatedAllowingIdleSystemSleep,
-                .latencyCritical
-            ], reason: "Keep NotchDrop responsive for hover after inactivity") as NSObjectProtocol
-        }
+        appNapActivity = ProcessInfo.processInfo.beginActivity(options: [
+            .userInitiatedAllowingIdleSystemSleep,
+            .latencyCritical
+        ], reason: "Keep NotchDrop responsive for hover after inactivity") as NSObjectProtocol
     }
     
     private func stopAppNapPrevention() {
@@ -667,130 +668,155 @@ class NotchDropPanel: NSPanel {
         }
     }
     
-    // ⚡ ULTRA OPTIMIZATION: Parse JSON on background queue, then dispatch to main
+    // 🚨 CRITICAL FIX: Ultra-optimized JSON processing with memory management
     @objc public func addTranscriptionData(_ messageJson: String) {
-        print("📝 Swift Core: Received transcription data JSON: \(messageJson)")
+        // 🚨 CRITICAL FIX: Skip processing if viewModel is nil
+        guard let viewModel = notchViewModel else {
+            print("📝 Swift Core: No viewModel available, skipping transcription data")
+            return
+        }
         
-        // ⚡ CRITICAL: Parse JSON on background queue to avoid blocking UI
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            
-            print("📝 Swift Core: Parsing JSON data on background queue...")
-            
-            // Parse JSON message on background thread
-            guard let messageData = messageJson.data(using: .utf8),
-                  let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
-                  let sender = json["sender"] as? String,
-                  let content = json["content"] as? String else {
-                print("📝 Swift Core: Failed to parse JSON data")
-                return
-            }
-            
-            let isFromAgent = json["isFromAgent"] as? Bool ?? false
-            let timestamp = json["timestamp"] as? String
-            let confidence = json["confidence"] as? Double
-            let words = json["words"] as? [Any]
-            
-            print("📝 Swift Core: Parsed data - Sender: \(sender), Content: \(content.prefix(50))..., IsFromAgent: \(isFromAgent)")
-            
-            // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self, let viewModel = self.notchViewModel else { 
-                    print("📝 Swift Core: No viewModel available")
-                    return 
+        // 🚨 CRITICAL FIX: Use autoreleasepool to prevent memory accumulation
+        autoreleasepool {
+            // ⚡ CRITICAL: Parse JSON on background queue to avoid blocking UI
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                guard let self = self else { return }
+                
+                // 🚨 CRITICAL FIX: Use autoreleasepool for JSON parsing
+                autoreleasepool {
+                    // Parse JSON message on background thread
+                    guard let messageData = messageJson.data(using: .utf8),
+                          let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
+                          let sender = json["sender"] as? String,
+                          let content = json["content"] as? String else {
+                        print("📝 Swift Core: Failed to parse JSON data")
+                        return
+                    }
+                    
+                    let isFromAgent = json["isFromAgent"] as? Bool ?? false
+                    let timestamp = json["timestamp"] as? String
+                    let confidence = json["confidence"] as? Double
+                    let words = json["words"] as? [Any]
+                    
+                    // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self, let viewModel = self.notchViewModel else { 
+                            print("📝 Swift Core: No viewModel available")
+                            return 
+                        }
+                        
+                        // Add transcription data to viewModel
+                        viewModel.addTranscriptionData(
+                            sender: sender, 
+                            content: content, 
+                            isFromAgent: isFromAgent,
+                            timestamp: timestamp,
+                            confidence: confidence,
+                            words: words
+                        )
+                    }
                 }
-                
-                // Add transcription data to viewModel
-                viewModel.addTranscriptionData(
-                    sender: sender, 
-                    content: content, 
-                    isFromAgent: isFromAgent,
-                    timestamp: timestamp,
-                    confidence: confidence,
-                    words: words
-                )
-                
-                print("📝 Swift Core: Called viewModel.addTranscriptionData")
             }
         }
     }
 
-    // ⚡ ULTRA OPTIMIZATION: Parse JSON on background queue, then dispatch to main
+    // 🚨 CRITICAL FIX: Ultra-optimized live intelligence processing with memory management
     @objc public func sendLiveIntelligenceData(_ messageJson: String) {
-        print("🧠 Swift Core: Received live intelligence data JSON: \(messageJson)")
+        // 🚨 CRITICAL FIX: Skip processing if viewModel is nil
+        guard let viewModel = notchViewModel else {
+            print("🧠 Swift Core: No viewModel available, skipping live intelligence data")
+            return
+        }
         
-        // ⚡ CRITICAL: Parse JSON on background queue to avoid blocking UI
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            
-            print("🧠 Swift Core: Parsing JSON data on background queue...")
-            
-            // Parse JSON message on background thread
-            guard let messageData = messageJson.data(using: .utf8),
-                  let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
-                  let sender = json["sender"] as? String,
-                  let content = json["content"] as? String else {
-                print("🧠 Swift Core: Failed to parse JSON data")
-                return
-            }
-            
-            let isFromAgent = json["isFromAgent"] as? Bool ?? true // Live intelligence is from AI agent
-            let timestamp = json["timestamp"] as? String
-            let confidence = json["confidence"] as? Double
-            let metadata = json["metadata"] as? [String: Any]
-            
-            print("🧠 Swift Core: Parsed data - Sender: \(sender), Content: \(content.prefix(50))..., IsFromAgent: \(isFromAgent)")
-            
-            // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self, let viewModel = self.notchViewModel else { 
-                    print("🧠 Swift Core: No viewModel available")
-                    return 
+        // 🚨 CRITICAL FIX: Use autoreleasepool to prevent memory accumulation
+        autoreleasepool {
+            // ⚡ CRITICAL: Parse JSON on background queue to avoid blocking UI
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                guard let self = self else { return }
+                
+                // 🚨 CRITICAL FIX: Use autoreleasepool for JSON parsing
+                autoreleasepool {
+                    // Parse JSON message on background thread
+                    guard let messageData = messageJson.data(using: .utf8),
+                          let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
+                          let sender = json["sender"] as? String,
+                          let content = json["content"] as? String else {
+                        print("🧠 Swift Core: Failed to parse JSON data")
+                        return
+                    }
+                    
+                    let isFromAgent = json["isFromAgent"] as? Bool ?? true // Live intelligence is from AI agent
+                    let timestamp = json["timestamp"] as? String
+                    let confidence = json["confidence"] as? Double
+                    let metadata = json["metadata"] as? [String: Any]
+                    
+                    // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self, let viewModel = self.notchViewModel else { 
+                            print("🧠 Swift Core: No viewModel available")
+                            return 
+                        }
+                        
+                        // Add live intelligence data to viewModel
+                        viewModel.addLiveIntelligenceData(
+                            sender: sender, 
+                            content: content, 
+                            isFromAgent: isFromAgent,
+                            timestamp: timestamp,
+                            confidence: confidence,
+                            metadata: metadata
+                        )
+                    }
                 }
-                
-                // Add live intelligence data to viewModel
-                viewModel.addLiveIntelligenceData(
-                    sender: sender, 
-                    content: content, 
-                    isFromAgent: isFromAgent,
-                    timestamp: timestamp,
-                    confidence: confidence,
-                    metadata: metadata
-                )
-                
-                print("🧠 Swift Core: Called viewModel.addLiveIntelligenceData")
             }
         }
     }
 
-    // ⚡ ULTRA OPTIMIZATION: Parse JSON on background queue for bulk replace operations
-    // Replace the entire transcription/voiceMessages array from JSON array
+    // 🚨 CRITICAL FIX: Ultra-optimized bulk transcription replacement with memory management
     @objc public func replaceTranscriptions(_ messagesJson: String) {
-        // ⚡ CRITICAL: Parse JSON on background queue for large arrays
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
+        // 🚨 CRITICAL FIX: Skip processing if viewModel is nil
+        guard let viewModel = notchViewModel else {
+            print("📝 Swift Core: No viewModel available, skipping bulk transcription replacement")
+            return
+        }
+        
+        // 🚨 CRITICAL FIX: Use autoreleasepool to prevent memory accumulation
+        autoreleasepool {
+            // ⚡ CRITICAL: Parse JSON on background queue for large arrays
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                guard let self = self else { return }
 
-            guard let data = messagesJson.data(using: .utf8),
-                  let jsonArray = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-                print("📝 Swift Core: Failed to parse messages JSON array")
-                return
-            }
+                // 🚨 CRITICAL FIX: Use autoreleasepool for JSON parsing
+                autoreleasepool {
+                    guard let data = messagesJson.data(using: .utf8),
+                          let jsonArray = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+                        print("📝 Swift Core: Failed to parse messages JSON array")
+                        return
+                    }
 
-            // Map to VoiceMessage on background thread
-            var newMessages: [NotchViewModel.VoiceMessage] = []
-            for obj in jsonArray {
-                let sender = (obj["sender"] as? String) ?? "overlay"
-                let content = (obj["content"] as? String) ?? (obj["text"] as? String) ?? ""
-                let isFromAgent = (obj["isFromAgent"] as? Bool) ?? false
-                let message = NotchViewModel.VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
-                newMessages.append(message)
-            }
+                    // 🚨 CRITICAL FIX: Limit array size to prevent memory issues
+                    let maxMessages = 100
+                    let limitedArray = Array(jsonArray.prefix(maxMessages))
 
-            // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self, let viewModel = self.notchViewModel else { return }
-                viewModel.replaceTranscriptions(messages: newMessages)
-                print("📝 Swift Core: Replaced voiceMessages (count=\(newMessages.count))")
+                    // Map to VoiceMessage on background thread
+                    var newMessages: [NotchViewModel.VoiceMessage] = []
+                    newMessages.reserveCapacity(limitedArray.count) // Pre-allocate capacity
+                    
+                    for obj in limitedArray {
+                        let sender = (obj["sender"] as? String) ?? "overlay"
+                        let content = (obj["content"] as? String) ?? (obj["text"] as? String) ?? ""
+                        let isFromAgent = (obj["isFromAgent"] as? Bool) ?? false
+                        let message = NotchViewModel.VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+                        newMessages.append(message)
+                    }
+
+                    // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self, let viewModel = self.notchViewModel else { return }
+                        viewModel.replaceTranscriptions(messages: newMessages)
+                        print("📝 Swift Core: Replaced voiceMessages (count=\(newMessages.count))")
+                    }
+                }
             }
         }
     }
@@ -955,6 +981,33 @@ class NotchDropPanel: NSPanel {
             print(":pirate_flag: NotchDropCore: Stealth mode \(isEnabled ? "ENABLED" : "DISABLED")")
         }
     }
-
+    
+    // 🚨 CRITICAL FIX: Proper cleanup on deinit
+    deinit {
+        print("🧹 NotchDropCore: Starting cleanup...")
+        
+        // Stop App Nap prevention
+        stopAppNapPrevention()
+        
+        // Clean up window
+        if let window = notchWindow {
+            window.orderOut(nil)
+            window.close()
+            notchWindow = nil
+        }
+        
+        // Clean up view model
+        notchViewModel = nil
+        
+        // Clear all callbacks
+        statusChangedCallback = nil
+        fileDroppedCallback = nil
+        itemAddedCallback = nil
+        itemRemovedCallback = nil
+        swiftActionCallback = nil
+        incomingActionCallback = nil
+        
+        print("🧹 NotchDropCore: Cleanup completed")
+    }
 
 }

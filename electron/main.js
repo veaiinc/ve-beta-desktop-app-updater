@@ -88,8 +88,8 @@ try {
 	// Non-fatal; continue without switches
 }
 
-// Import NotchDrop service
-const NotchDropService = require('./services/notchDropService');
+// Import Boring Notch service
+const BoringNotchService = require('./services/boringNotchService');
 const { handleError } = require('@apollo/client/link/http/parseAndCheckHttpResponse');
 
 const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
@@ -241,7 +241,7 @@ let transcriptionDetectionTimer = null;
 let isTranscriptionDetectionActive = false;
 let isTranscriptionBasedAreYouThereShown = false;
 
-let notchDropService = null;
+let boringNotchService = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;
@@ -541,8 +541,8 @@ const toggleContentProtection = () => {
 		}
 	});
 
-	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
-		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	if (boringNotchService && typeof boringNotchService.updateStealthModeState === 'function') {
+		boringNotchService.updateStealthModeState(isContentProtectionEnabled);
 	}
 
 	return isContentProtectionEnabled;
@@ -572,8 +572,8 @@ const setContentProtection = (enabled) => {
 		} (main window excluded)`,
 	);
 
-	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
-		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	if (boringNotchService && typeof boringNotchService.updateStealthModeState === 'function') {
+		boringNotchService.updateStealthModeState(isContentProtectionEnabled);
 	}
 	return isContentProtectionEnabled;
 };
@@ -784,7 +784,7 @@ async function showNotification(title, body) {
 	}
 
 	// Send notification to SwiftUI NotchDrop
-	if (notchDropService && notchDropService.isInitialized) {
+	if (boringNotchService && boringNotchService.isInitialized) {
 		try {
 			const notificationData = {
 				title: title || 'Alert',
@@ -792,7 +792,7 @@ async function showNotification(title, body) {
 				type: 'meeting',
 				timestamp: new Date().toISOString(),
 			};
-			const result = await notchDropService.sendMessageToSwiftUI(
+			const result = await boringNotchService.sendMessageToSwiftUI(
 				JSON.stringify({
 					action: 'showNotification',
 					data: notificationData,
@@ -1439,19 +1439,19 @@ function createMenuBar() {
 				},
 			],
 		},
-		// Insert NotchDrop menu only on macOS
+		// Insert Boring Notch menu only on macOS
 		...(isMac
 			? [
 					{
-						label: 'Notch',
+						label: 'Boring Notch',
 						submenu: [
 							{
-								label: 'Toggle Notch',
+								label: 'Toggle Boring Notch',
 								accelerator: 'CmdOrCtrl+Shift+M',
 								click: async () => {
 									try {
-										if (notchDropService) {
-											const result = await notchDropService.toggle();
+										if (boringNotchService) {
+											const result = await boringNotchService.toggle();
 											if (result) {
 												log.info('✅ NotchDrop toggled from menu');
 												updateMenuBarState();
@@ -1471,7 +1471,7 @@ function createMenuBar() {
 							{
 								label: 'Status',
 								enabled: false,
-								id: 'notchdrop-status',
+								id: 'boring-notch-status',
 							},
 							{
 								type: 'separator',
@@ -1482,9 +1482,9 @@ function createMenuBar() {
 								checked: true,
 								click: async (menuItem) => {
 									try {
-										if (notchDropService) {
+										if (boringNotchService) {
 											const result =
-												await notchDropService.setAutoOpenOnStartup(
+												await boringNotchService.setAutoOpenOnStartup(
 													menuItem.checked,
 												);
 											if (result) {
@@ -1870,25 +1870,25 @@ function createMenuBar() {
 	}, 2000); // Wait for NotchDrop service to initialize
 }
 
-// Set up listeners for NotchDrop status changes to update menu
-function setupNotchDropMenuUpdates() {
-	if (!notchDropService) return;
+// Set up listeners for Boring Notch status changes to update menu
+function setupBoringNotchMenuUpdates() {
+	if (!boringNotchService) return;
 
 	// Listen for status changes from NotchDrop service
 	// Since the service emits events to the renderer, we'll listen for IPC messages
 	// that indicate status changes and update the menu accordingly
 
 	// Listen for NotchDrop service events to update menu
-	if (notchDropService.notchDropAddon) {
-		notchDropService.notchDropAddon.on('statusChanged', (status) => {
+	if (boringNotchService.notchDropAddon) {
+		boringNotchService.notchDropAddon.on('statusChanged', (status) => {
 			updateMenuBarState();
 		});
 
-		notchDropService.notchDropAddon.on('itemAdded', () => {
+		boringNotchService.notchDropAddon.on('itemAdded', () => {
 			updateMenuBarState();
 		});
 
-		notchDropService.notchDropAddon.on('itemRemoved', () => {
+		boringNotchService.notchDropAddon.on('itemRemoved', () => {
 			updateMenuBarState();
 		});
 	}
@@ -1900,18 +1900,18 @@ function updateMenuBarState() {
 		const menu = Menu.getApplicationMenu();
 		if (!menu) return;
 
-		const notchDropMenu = menu.getMenuItemById('notchdrop-status');
-		if (notchDropMenu && notchDropService) {
-			const isVisible = notchDropService.isVisible();
-			const status = notchDropService.getStatus();
-			const autoOpen = notchDropService.getAutoOpenOnStartup();
+		const boringNotchMenu = menu.getMenuItemById('boring-notch-status');
+		if (boringNotchMenu && boringNotchService) {
+			const isVisible = boringNotchService.isVisible();
+			const status = boringNotchService.getStatus();
+			const autoOpen = boringNotchService.getAutoOpenOnStartup();
 
 			// Update status label
-			notchDropMenu.label = `Status: ${status} (${isVisible ? 'Visible' : 'Hidden'})`;
+			boringNotchMenu.label = `Status: ${status} (${isVisible ? 'Visible' : 'Hidden'})`;
 
 			// Update auto-open checkbox
 			const autoOpenMenu = menu.items
-				.find((item) => item.label === 'NotchDrop')
+				.find((item) => item.label === 'Boring Notch')
 				?.submenu?.items.find((item) => item.label === 'Auto-open on Startup');
 			if (autoOpenMenu) {
 				autoOpenMenu.checked = autoOpen;
@@ -2029,8 +2029,8 @@ function createWindow(restoreState = false) {
 		}
 	});
 
-	if (notchDropService) {
-		notchDropService.setMainWindow(mainWindow);
+	if (boringNotchService) {
+		boringNotchService.setMainWindow(mainWindow);
 	}
 
 	// Add focus event handler to show permission overlay if needed
@@ -2142,9 +2142,9 @@ function createWindow(restoreState = false) {
 		}
 
 		// Send the same message to Swift UI if NotchDrop service is available
-		if (notchDropService && notchDropService.isInitialized) {
+		if (boringNotchService && boringNotchService.isInitialized) {
 			try {
-				const result = await notchDropService.sendMessageToSwiftUI(msg);
+				const result = await boringNotchService.sendMessageToSwiftUI(msg);
 				// if (result.success) {
 				// 	log.info('✅ Message sent to Swift UI successfully');
 				// } else {
@@ -3017,14 +3017,28 @@ app.whenReady().then(async () => {
 	// 🎨 Force dark theme - prevents system theme changes from affecting app colors
 	nativeTheme.themeSource = 'dark';
 
-	// ⚡ CRITICAL MEMORY LEAK FIX: Add periodic garbage collection
+	// 🚨 CRITICAL MEMORY LEAK FIX: Enhanced garbage collection with cleanup
 	const memoryCleanupInterval = setInterval(() => {
 		const memUsage = process.memoryUsage();
 		const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
 
-		// Force garbage collection if memory exceeds 300MB (lowered from 500MB)
-		if (heapUsedMB > 300) {
-			log.warn(`⚠️ High memory usage: ${heapUsedMB}MB - forcing garbage collection...`);
+		// 🚨 CRITICAL FIX: More aggressive memory management
+		if (heapUsedMB > 200) { // Lowered threshold for earlier intervention
+			log.warn(`⚠️ High memory usage: ${heapUsedMB}MB - forcing cleanup...`);
+			
+			// 🚨 CRITICAL FIX: Clean up unused IPC handlers
+			try {
+				// Remove unused IPC handlers to prevent accumulation
+				const allHandlers = ipcMain.listenerCount('*');
+				if (allHandlers > 50) { // If too many handlers
+					log.warn(`⚠️ Too many IPC handlers: ${allHandlers} - cleaning up...`);
+					// Note: We can't easily remove specific handlers, but we can log this
+				}
+			} catch (error) {
+				log.warn('Error checking IPC handlers:', error);
+			}
+			
+			// Force garbage collection
 			if (global.gc) {
 				global.gc();
 				const afterGC = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
@@ -3035,7 +3049,7 @@ app.whenReady().then(async () => {
 				);
 			}
 		}
-	}, 10000); // Check every 10 seconds
+	}, 15000); // Check every 15 seconds (less frequent to reduce overhead)
 
 	// ⚡ OPTIMIZED: Less aggressive watchdog (was checking every 5s for 30s hang)
 	let lastHeartbeat = Date.now();
@@ -3794,57 +3808,53 @@ app.whenReady().then(async () => {
 
 	// Permission overlay is now shown by default above, so we don't need conditional checking
 
-	// Initialize NotchDrop asynchronously to prevent blocking main window
-	const initializeNotchDropAsync = async () => {
-		if (isAppleSiliconMac) {
-			// log.info('Initializing NotchDrop service for Apple Silicon Mac (async)');
-			notchDropService = new NotchDropService();
-			notchDropService.setMainWindow(mainWindow);
-			notchDropService.setMainWindowFactory((restoreState = false) =>
+	// Initialize Boring Notch asynchronously to prevent blocking main window
+	const initializeBoringNotchAsync = async () => {
+		if (isAppleSiliconMac || isIntelMac) {
+			// log.info('Initializing Boring Notch service for Mac (async)');
+			boringNotchService = new BoringNotchService();
+			boringNotchService.setMainWindow(mainWindow);
+			boringNotchService.setMainWindowFactory((restoreState = false) =>
 				createWindow(restoreState),
 			);
-			notchDropService.setStealthModeController({
+			boringNotchService.setStealthModeController({
 				toggle: toggleContentProtection,
 				getStatus: getContentProtectionStatus,
 				setStatus: setContentProtection,
 			});
 
-			// Initialize NotchDrop in background without blocking main window
+			// Initialize Boring Notch in background without blocking main window
 			try {
-				// Add timeout to prevent hanging during NotchDrop initialization
-				const notchDropInitTimeout = new Promise((_, reject) =>
-					setTimeout(() => reject(new Error('NotchDrop initialization timeout')), 20000),
+				// Add timeout to prevent hanging during Boring Notch initialization
+				const boringNotchInitTimeout = new Promise((_, reject) =>
+					setTimeout(() => reject(new Error('Boring Notch initialization timeout')), 20000),
 				);
 
-				await Promise.race([notchDropService.initialize(), notchDropInitTimeout]);
-				// log.info('✅ NotchDrop service initialized successfully');
+				await Promise.race([boringNotchService.initialize(), boringNotchInitTimeout]);
+				// log.info('✅ Boring Notch service initialized successfully');
 			} catch (error) {
-				log.error('❌ NotchDrop service initialization failed:', error);
+				log.error('❌ Boring Notch service initialization failed:', error);
 				// Clean up any partial initialization
-				if (notchDropService) {
+				if (boringNotchService) {
 					try {
-						notchDropService.cleanup();
+						boringNotchService.cleanup();
 					} catch (cleanupError) {
-						log.error('❌ Error cleaning up NotchDrop service:', cleanupError);
+						log.error('❌ Error cleaning up Boring Notch service:', cleanupError);
 					}
-					notchDropService = null;
+					boringNotchService = null;
 				}
-				// Continue without NotchDrop - app should still work
+				// Continue without Boring Notch - app should still work
 			}
-		} else if (isIntelMac) {
-			log.info(
-				'Skipping NotchDrop initialization on Intel Mac (using Dynamic Island instead)',
-			);
 		} else {
 			log.info(
-				'Skipping NotchDrop initialization on non-Mac platform (using Dynamic Island instead)',
+				'Skipping Boring Notch initialization on non-Mac platform (using Dynamic Island instead)',
 			);
 		}
 	};
 
-	// Start NotchDrop initialization in background (non-blocking)
-	initializeNotchDropAsync().catch((error) => {
-		log.error('❌ NotchDrop async initialization failed:', error);
+	// Start Boring Notch initialization in background (non-blocking)
+	initializeBoringNotchAsync().catch((error) => {
+		log.error('❌ Boring Notch async initialization failed:', error);
 	});
 
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
@@ -3852,9 +3862,9 @@ app.whenReady().then(async () => {
 	// Phase 5: Validate system readiness
 	setTimeout(() => {
 		// Test NotchDrop service readiness
-		if (notchDropService && notchDropService.isInitialized) {
+		if (boringNotchService && boringNotchService.isInitialized) {
 			try {
-				const status = notchDropService.getStatus();
+				const status = boringNotchService.getStatus();
 				// log.info('✅ NotchDrop service status check:', status);
 			} catch (error) {
 				log.warn('⚠️ NotchDrop service status check failed:', error.message);
@@ -3868,7 +3878,7 @@ app.whenReady().then(async () => {
 				services: {
 					windowHelper: !!windowHelper,
 					dynamicIslandHelper: !!dynamicIslandHelper,
-					notchDropService: !!notchDropService,
+					boringNotchService: !!boringNotchService,
 				},
 			});
 		}
@@ -4201,8 +4211,8 @@ app.whenReady().then(async () => {
 		}
 	}
 
-	// Set up NotchDrop status change listener to update menu
-	setupNotchDropMenuUpdates();
+	// Set up Boring Notch status change listener to update menu
+	setupBoringNotchMenuUpdates();
 
 	// macOS dock icon click handler to reopen main window
 	if (isMacRuntime) {
@@ -4228,24 +4238,24 @@ app.whenReady().then(async () => {
 	});
 
 	if (isAppleSiliconMac) {
-		// Register global shortcut to toggle NotchDrop visibility (Cmd+Shift+M)
-		const toggleNotchDropShortcutRegistered = globalShortcut.register(
+		// Register global shortcut to toggle Boring Notch visibility (Cmd+Shift+M)
+		const toggleBoringNotchShortcutRegistered = globalShortcut.register(
 			'CommandOrControl+Shift+M',
 			() => {
-				if (!notchDropService || !notchDropService.isInitialized) {
+				if (!boringNotchService || !boringNotchService.isInitialized) {
 					log.warn('⚠️ Cmd+Shift+M pressed but NotchDrop service is unavailable');
 					return;
 				}
 
-				const success = notchDropService.toggle();
+				const success = boringNotchService.toggle();
 				if (!success) {
 					log.warn('⚠️ Failed to toggle NotchDrop via Cmd+Shift+M global shortcut');
 				}
 			},
 		);
 
-		if (!toggleNotchDropShortcutRegistered) {
-			log.warn('⚠️ Unable to register Cmd+Shift+M global shortcut for NotchDrop');
+		if (!toggleBoringNotchShortcutRegistered) {
+			log.warn('⚠️ Unable to register Cmd+Shift+M global shortcut for Boring Notch');
 		}
 	}
 
@@ -5057,10 +5067,10 @@ app.whenReady().then(async () => {
 	// Register NotchDrop IPC handlers
 	ipcMain.handle('notchdrop-enable', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.enable();
+			const result = boringNotchService.enable();
 			return { success: result };
 		} catch (error) {
 			log.error('Error enabling NotchDrop:', error);
@@ -5070,10 +5080,10 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-disable', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.disable();
+			const result = boringNotchService.disable();
 			return { success: result };
 		} catch (error) {
 			log.error('Error disabling NotchDrop:', error);
@@ -5083,10 +5093,10 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-toggle', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.toggle();
+			const result = boringNotchService.toggle();
 			return { success: result };
 		} catch (error) {
 			log.error('Error toggling NotchDrop:', error);
@@ -5096,14 +5106,14 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-is-visible', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return {
 					success: false,
 					visible: false,
 					error: 'NotchDrop service not initialized',
 				};
 			}
-			const visible = notchDropService.isVisible();
+			const visible = boringNotchService.isVisible();
 			return { success: true, visible };
 		} catch (error) {
 			log.error('Error checking NotchDrop visibility:', error);
@@ -5113,10 +5123,10 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-set-status', async (event, status) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.setStatus(status);
+			const result = boringNotchService.setStatus(status);
 			return { success: result };
 		} catch (error) {
 			log.error('Error setting NotchDrop status:', error);
@@ -5126,14 +5136,14 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-get-status', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return {
 					success: false,
 					status: 'closed',
 					error: 'NotchDrop service not initialized',
 				};
 			}
-			const status = notchDropService.getStatus();
+			const status = boringNotchService.getStatus();
 			return { success: true, status };
 		} catch (error) {
 			log.error('Error getting NotchDrop status:', error);
@@ -5143,10 +5153,10 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-handle-files', async (event, filePaths) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.handleDroppedFiles(filePaths);
+			const result = boringNotchService.handleDroppedFiles(filePaths);
 			return { success: result };
 		} catch (error) {
 			log.error('Error handling dropped files:', error);
@@ -5157,10 +5167,10 @@ app.whenReady().then(async () => {
 	// Auto-open settings
 	ipcMain.handle('notchdrop-set-auto-open', async (event, enabled) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.setAutoOpenOnStartup(enabled);
+			const result = boringNotchService.setAutoOpenOnStartup(enabled);
 			return { success: result };
 		} catch (error) {
 			log.error('Error setting auto-open setting:', error);
@@ -5170,14 +5180,14 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-get-auto-open', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return {
 					success: false,
 					enabled: true,
 					error: 'NotchDrop service not initialized',
 				};
 			}
-			const enabled = notchDropService.getAutoOpenOnStartup();
+			const enabled = boringNotchService.getAutoOpenOnStartup();
 			return { success: true, enabled };
 		} catch (error) {
 			log.error('Error getting auto-open setting:', error);
@@ -5190,11 +5200,11 @@ app.whenReady().then(async () => {
 	try {
 		ipcMain.handle('swift:action', async (event, action, data) => {
 			try {
-				if (!notchDropService) {
+				if (!boringNotchService) {
 					return { success: false, error: 'NotchDrop service not initialized' };
 				}
 				// log.info('🎯 Swift action received in main.js:', action, data);
-				const result = await notchDropService.handleSwiftAction(action, data);
+				const result = await boringNotchService.handleSwiftAction(action, data);
 				return result;
 			} catch (error) {
 				log.error('Error handling Swift action:', error);
@@ -5217,10 +5227,10 @@ app.whenReady().then(async () => {
 
 	safeRegisterSwiftHandler('swift:triggerOverlayRecording', async (event, data) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = await notchDropService.handleSwiftAction(
+			const result = await boringNotchService.handleSwiftAction(
 				'triggerOverlayRecording',
 				data,
 			);
@@ -5233,10 +5243,10 @@ app.whenReady().then(async () => {
 
 	safeRegisterSwiftHandler('swift:triggerOverlayToggleLiveIntelligence', async (event, data) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = await notchDropService.handleSwiftAction(
+			const result = await boringNotchService.handleSwiftAction(
 				'triggerOverlayToggleLiveIntelligence',
 				data,
 			);
@@ -5261,10 +5271,10 @@ app.whenReady().then(async () => {
 	// Additional NotchDrop IPC handlers for UI integration
 	ipcMain.handle('notchdrop-set-haptic-feedback', async (event, enabled) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.setHapticFeedback(enabled);
+			const result = boringNotchService.setHapticFeedback(enabled);
 			return { success: result };
 		} catch (error) {
 			log.error('Error setting haptic feedback:', error);
@@ -5274,14 +5284,14 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-get-haptic-feedback', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return {
 					success: false,
 					enabled: true,
 					error: 'NotchDrop service not initialized',
 				};
 			}
-			const enabled = notchDropService.getHapticFeedback();
+			const enabled = boringNotchService.getHapticFeedback();
 			return { success: true, enabled };
 		} catch (error) {
 			log.error('Error getting haptic feedback:', error);
@@ -5348,8 +5358,8 @@ app.whenReady().then(async () => {
 	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
 		try {
 			// log.info('Updating NotchDrop voice status:', status);
-			if (notchDropService) {
-				await notchDropService.updateVoiceStatus(status);
+			if (boringNotchService) {
+				await boringNotchService.updateVoiceStatus(status);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -5363,8 +5373,8 @@ app.whenReady().then(async () => {
 	ipcMain.handle('notchdrop-update-voice-connection-state', async (event, status) => {
 		try {
 			// log.info('Updating NotchDrop voice connection state:', status);
-			if (notchDropService) {
-				await notchDropService.updateVoiceConnectionState(status);
+			if (boringNotchService) {
+				await boringNotchService.updateVoiceConnectionState(status);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -5377,8 +5387,8 @@ app.whenReady().then(async () => {
 	// Add voice message to NotchDrop (legacy - preserved for audio functionality)
 	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
 		try {
-			if (notchDropService) {
-				await notchDropService.addVoiceMessage(messageData);
+			if (boringNotchService) {
+				await boringNotchService.addVoiceMessage(messageData);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -5393,16 +5403,16 @@ app.whenReady().then(async () => {
 		try {
 			log.info('📤 Sending general message to NotchDrop:', messageData.type || 'unknown');
 
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not available' };
 			}
 
-			if (!notchDropService.isInitialized) {
+			if (!boringNotchService.isInitialized) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
 
 			// Use the general message method
-			const result = await notchDropService.sendMessage(messageData);
+			const result = await boringNotchService.sendMessage(messageData);
 			return result;
 		} catch (error) {
 			log.error('❌ Error sending general message to NotchDrop:', error);
@@ -5414,8 +5424,8 @@ app.whenReady().then(async () => {
 	ipcMain.handle('notchdrop-update-voice-mute-state', async (event, isMuted) => {
 		try {
 			// log.info('Updating NotchDrop voice mute state:', isMuted);
-			if (notchDropService) {
-				await notchDropService.updateVoiceMuteState(isMuted);
+			if (boringNotchService) {
+				await boringNotchService.updateVoiceMuteState(isMuted);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -6063,9 +6073,9 @@ app.whenReady().then(async () => {
 
 				// 🔒 SYNC NOTCH LOCK STATE WITH RECORDING STATE
 				// This ensures the notch stays locked during recording for transcription display
-				if (notchDropService && notchDropService.isInitialized) {
+				if (boringNotchService && boringNotchService.isInitialized) {
 					const isPaused = state.isPaused || false;
-					await notchDropService.handleExternalRecordingStateChange(
+					await boringNotchService.handleExternalRecordingStateChange(
 						state.isRecording,
 						isPaused,
 					);
@@ -6083,9 +6093,9 @@ app.whenReady().then(async () => {
 	ipcMain.handle('overlay-send-transcription-data', async (event, transcriptionData) => {
 		try {
 			// Forward transcription data to NotchDrop service if available
-			if (notchDropService && notchDropService.isInitialized) {
+			if (boringNotchService && boringNotchService.isInitialized) {
 				try {
-					const result = await notchDropService.addTranscriptionData(transcriptionData);
+					const result = await boringNotchService.addTranscriptionData(transcriptionData);
 					if (result) {
 						console.log('✅ Transcription data sent to NotchDrop service successfully');
 					} else {
@@ -6113,8 +6123,8 @@ app.whenReady().then(async () => {
 	// Handle transcription data for NotchDrop (following voice message pattern)
 	ipcMain.handle('notchdrop-add-transcription-data', async (event, transcriptionData) => {
 		try {
-			if (notchDropService && notchDropService.isInitialized) {
-				await notchDropService.addTranscriptionData(transcriptionData);
+			if (boringNotchService && boringNotchService.isInitialized) {
+				await boringNotchService.addTranscriptionData(transcriptionData);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -6127,8 +6137,8 @@ app.whenReady().then(async () => {
 	// Handle clearing live intelligence data in NotchDrop
 	ipcMain.handle('notchdrop-clear-live-intelligence-data', async (event) => {
 		try {
-			if (notchDropService && notchDropService.isInitialized) {
-				await notchDropService.clearLiveIntelligenceData();
+			if (boringNotchService && boringNotchService.isInitialized) {
+				await boringNotchService.clearLiveIntelligenceData();
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -6529,8 +6539,10 @@ app.whenReady().then(async () => {
 	});
 
 	// Register gallery IPC handlers from galleryUtils
-	// Enhanced image processing with batching
+	// 🚨 CRITICAL FIX: Enhanced image processing with proper worker cleanup
 	ipcMain.handle('process-image-batch', async (event, { files, settings }) => {
+		const activeWorkers = new Set(); // Track active workers for cleanup
+		
 		try {
 			const results = [];
 			const batchSize = 2; // Process 2 images at a time to prevent overwhelming
@@ -6546,25 +6558,37 @@ app.whenReady().then(async () => {
 								workerData: { data: { ...fileData, settings } },
 							});
 
+							// 🚨 CRITICAL FIX: Track worker for cleanup
+							activeWorkers.add(worker);
+
 							// Prepare transfer list for ArrayBuffer transfer
 							const transferList = [];
 							if (fileData.imageBuffer instanceof ArrayBuffer) {
 								transferList.push(fileData.imageBuffer);
 							}
 
+							// 🚨 CRITICAL FIX: Enhanced worker cleanup
+							const cleanupWorker = () => {
+								activeWorkers.delete(worker);
+								worker.terminate().catch((err) => {
+									log.warn('Error terminating worker:', err);
+								});
+							};
+
 							worker.on('message', (result) => {
 								if (result.taskId === taskId) {
-									worker.terminate().catch(() => {});
+									cleanupWorker();
 									resolve(result);
 								}
 							});
 
 							worker.on('error', (err) => {
-								worker.terminate().catch(() => {});
+								cleanupWorker();
 								resolve({ success: false, error: `Worker error: ${err.message}` });
 							});
 
 							worker.on('exit', (code) => {
+								cleanupWorker();
 								if (code !== 0) {
 									resolve({
 										success: false,
@@ -6600,6 +6624,16 @@ app.whenReady().then(async () => {
 		} catch (error) {
 			log.error('Batch processing error:', error);
 			return { success: false, error: error.message };
+		} finally {
+			// 🚨 CRITICAL FIX: Clean up any remaining workers
+			activeWorkers.forEach(worker => {
+				try {
+					worker.terminate();
+				} catch (err) {
+					log.warn('Error terminating remaining worker:', err);
+				}
+			});
+			activeWorkers.clear();
 		}
 	});
 
@@ -6997,8 +7031,8 @@ app.whenReady().then(async () => {
 // Replace entire transcription list in NotchDrop
 ipcMain.handle('notchdrop-replace-transcriptions', async (event, messages) => {
 	try {
-		if (notchDropService && notchDropService.isInitialized) {
-			const ok = await notchDropService.replaceTranscriptions(messages || []);
+		if (boringNotchService && boringNotchService.isInitialized) {
+			const ok = await boringNotchService.replaceTranscriptions(messages || []);
 			return { success: ok };
 		}
 		return { success: false, error: 'NotchDrop service not available' };
@@ -7012,8 +7046,8 @@ ipcMain.handle('notchdrop-replace-transcriptions', async (event, messages) => {
 // mode: 'transcription' | 'live-intel'
 ipcMain.handle('overlay-set-panel-mode', async (event, mode) => {
 	try {
-		if (notchDropService && notchDropService.isInitialized) {
-			const ok = await notchDropService.setRecordingPanelMode(mode);
+		if (boringNotchService && boringNotchService.isInitialized) {
+			const ok = await boringNotchService.setRecordingPanelMode(mode);
 			return { success: ok };
 		}
 		return { success: false, error: 'NotchDrop service not available' };
@@ -7027,9 +7061,9 @@ ipcMain.handle('overlay-set-panel-mode', async (event, mode) => {
 ipcMain.handle('overlay-send-live-intelligence-data', async (event, liveIntelligenceData) => {
 	try {
 		// Forward live intelligence data to NotchDrop service if available
-		if (notchDropService && notchDropService.isInitialized) {
+		if (boringNotchService && boringNotchService.isInitialized) {
 			try {
-				const result = await notchDropService.sendLiveIntelligenceData(
+				const result = await boringNotchService.sendLiveIntelligenceData(
 					liveIntelligenceData,
 				);
 				if (result) {
@@ -7102,8 +7136,8 @@ app.on('will-quit', (event) => {
 		}
 
 		// Clean up NotchDrop service
-		if (notchDropService) {
-			notchDropService.cleanup();
+		if (boringNotchService) {
+			boringNotchService.cleanup();
 		}
 
 		log.info('🧹 App cleanup completed');

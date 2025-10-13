@@ -9,6 +9,11 @@ import DragHandle from './components/DragHandle';
 import { GlassModeProvider, useGlassMode } from './context/GlassModeContext.jsx';
 import { initializeGlassModeSync } from './helpers/glassModeSync';
 import { useNotchDropSync } from './hooks/useNotchDropSync';
+// 🚨 CRITICAL FIX: Import memory manager and monitor
+import memoryManager from './utils/memoryManager';
+import MemoryMonitor from './components/MemoryMonitor';
+// 🧪 Import performance test utility
+import './utils/performanceTest';
 
 // ✅ REVERTED: Back to regular imports (lazy loading broke production)
 import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
@@ -31,6 +36,21 @@ const UPDATE_CHECK_INTERVAL_MS = UPDATE_CHECK_INTERVAL_MINUTES * 60 * 1000;
 const AppContent = () => {
 	const { routes } = useWorkspaceMode();
 	const location = useLocation();
+
+	// 🚨 CRITICAL FIX: Initialize memory manager
+	useEffect(() => {
+		console.log('🚀 App initialized - Memory manager active');
+		console.log('Initial memory stats:', memoryManager.getStats());
+		
+		// Register cleanup for this component
+		memoryManager.registerCleanup(() => {
+			console.log('🧹 AppContent cleanup completed');
+		}, 'AppContent');
+		
+		return () => {
+			console.log('🧹 AppContent unmounting...');
+		};
+	}, []);
 
 	// Global NotchDrop sync - keeps NotchDrop updated with meeting data across all routes
 	useNotchDropSync();
@@ -503,6 +523,9 @@ const AppContent = () => {
 					onDismiss={() => setIsUpdatePopupVisible(false)}
 				/>
 			)}
+			
+			{/* 🚨 CRITICAL FIX: Memory Monitor for debugging */}
+			<MemoryMonitor enabled={import.meta.env.DEV} />
 		</div>
 	);
 };

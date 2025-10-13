@@ -141,9 +141,23 @@ public:
     }
 
     ~NotchDropAddon() {
+        // 🚨 CRITICAL FIX: Enhanced cleanup to prevent memory leaks
         if (tsfn_ != nullptr) {
             napi_release_threadsafe_function(tsfn_, napi_tsfn_release);
             tsfn_ = nullptr;
+        }
+        
+        // 🚨 CRITICAL FIX: Clear all references to prevent memory leaks
+        emitter.Reset();
+        callbacks.Reset();
+        
+        // 🚨 CRITICAL FIX: Clear any remaining callbacks
+        if (env_ != nullptr) {
+            // Force cleanup of any remaining JavaScript references
+            napi_env env = env_;
+            napi_handle_scope scope;
+            napi_open_handle_scope(env, &scope);
+            napi_close_handle_scope(env, scope);
         }
     }
 

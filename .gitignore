@@ -68,3 +68,6 @@ Package.resolved
 CLAUDE.md
 
 .vscode
+
+# Embedded git repositories
+boring.notch/
