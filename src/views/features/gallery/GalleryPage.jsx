@@ -74,7 +74,7 @@ import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevron
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
 import DesktopAppIntimation from '../../components/gallery/galleryPage/DesktopAppIntimation';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 
 // const workspaceId = localStorage.getItem('workspaceId');
 
@@ -673,6 +673,7 @@ const GalleryPage = () => {
 				clientSelectionImages: null,
 				aiFace: null,
 				aiFaceImages: null,
+				preRegisteredUsers: null,
 			});
 		};
 	}, []);
