@@ -53,6 +53,7 @@ export default defineConfig({
 								featuresIndex: 'electron/features/index.js',
 								featuresMeetingIndex: 'electron/features/meeting/index.js',
 								windowHelper: 'electron/helpers/windowHelper.js',
+								windowAnimationHelper: 'electron/helpers/windowAnimationHelper.js',
 								galleryHelper: 'electron/galleryHelper.js',
 								overlayWindowHelper: 'electron/overlayWindowHelper.js',
 								windowsCompatibility: 'electron/windowsCompatibility.js',
@@ -71,6 +72,7 @@ export default defineConfig({
 								entryFileNames: (chunkInfo) => {
 									if (
 										chunkInfo.name === 'windowHelper' ||
+										chunkInfo.name === 'windowAnimationHelper' ||
 										chunkInfo.name === 'dynamicIslandHelper' ||
 										chunkInfo.name === 'envHelper' ||
 										chunkInfo.name === 'autoUpdateHelper'

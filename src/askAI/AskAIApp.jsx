@@ -156,8 +156,11 @@ const AskAIApp = () => {
 						height: 626,
 					},
 					exitFullScreen: true,
+					animate: true,
+					duration: 300,
+					easing: 'easeInOutCubic',
 				});
-				console.log('📐 AskAI: Resized main window to compact chat view (571x626)');
+				console.log('📐 AskAI: Resized main window to compact chat view (571x626) with smooth animation');
 			}
 
 			// Reset to a fresh session so input isn't blocked by prior stream state

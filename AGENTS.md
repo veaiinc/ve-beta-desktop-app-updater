@@ -53,6 +53,7 @@
     -   `electron/main.js`
     -   `electron/preload.js`
     -   `electron/helpers/windowHelper.js`
+    -   `electron/helpers/windowAnimationHelper.js` (smooth window resize animations)
     -   `electron/notificationHelper.js`
     -   `electron/windowsCompatibility.js`
     -   `electron/services/notchDropService.js`
@@ -101,6 +102,7 @@
     -   Media & gallery tools: `process-image-with-sharp`, `process-image-batch` (sends `image-processing-progress`), `download-album-zip`, `create-zip-from-urls`
     -   Screen capture & desktop: `desktop:capture-screen`, `start-screen-capture`, event `screen-audio`
     -   Content protection & navigation: `toggle-content-protection`, `get-content-protection-status`, `set-content-protection`, `restore-main-window`, `save-current-route`, `navigate-main-window`
+    -   Window management: `resize-main-window` (supports smooth animations with `animate`, `duration`, `easing` params), `get-window-bounds`, `toggle-fullscreen`, `close-window`, `minimize-main-window`
     -   Filesystem bridge: `fs-ensure-dir`, `fs-write-file`, `fs-read-file`, `fs-read-file-binary`, `fs-exists`, `fs-remove`, `fs-readdir`
     -   Voice & Dynamic Island: `dynamic-island-force-show`, `dynamic-island-start-recording-from-modal`, `dynamic-island-voice-connect|disconnect|status`, `dynamic-island-show-notification`, events `dynamic-island-notification`, `voice-status-changed`, `trigger-voice-mode`, `force-focus`
     -   NotchDrop voice sync: `notchdrop-update-voice-status`, `notchdrop-update-voice-connection-state`, `notchdrop-update-voice-mute-state`, `notchdrop-add-voice-message`, `notchdrop:activateVoiceAgent|deactivateVoiceAgent|getVoiceAgentStatus`
@@ -219,7 +221,15 @@ Note: See the NotchDrop events list above for emitted events from the native lay
     - Add handlers in `DynamicIslandUI.jsx`, use `electronApi.overlay.*`
     - Add/modify IPC in preload/main if needed
 
-5. **Update auto-updater or UI**
+5. **Add smooth window resize animation**
+
+    - Use `window.electronApi.resizeMainWindow()` with animation params
+    - Standard resize: `{ dimensions: { width, height }, animate: true, duration: 250, easing: 'easeInOutCubic' }`
+    - Quick toggle: `{ dimensions: { width }, animate: true, duration: 200 }`
+    - Cleanup/close: `{ dimensions: { width, height }, animate: true, duration: 300, easing: 'easeOutCubic' }`
+    - See `/docs/WINDOW_ANIMATION_GUIDE.md` for full API reference
+
+6. **Update auto-updater or UI**
     - Use core update channels in `main.js`
     - Listen in frontend via `electronApi.onUpdateStatus`
 

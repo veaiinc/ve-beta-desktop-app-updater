@@ -88,6 +88,9 @@ const AuthWrapper = ({
 			if (window?.electronApi?.resizeMainWindow) {
 				window.electronApi.resizeMainWindow({
 					dimensions: { width, height: window.innerHeight },
+					animate: true,
+					duration: 250,
+					easing: 'easeInOutCubic',
 				});
 			}
 		}

@@ -551,6 +551,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		ipcRenderer.removeAllListeners('notchdrop-to-main-window-event');
 	},
 
+	/**
+	 * Resize the main window with smooth animation
+	 * @param {Object} data - Resize configuration
+	 * @param {Object} data.dimensions - Target dimensions
+	 * @param {number} [data.dimensions.width] - Target width in pixels
+	 * @param {number} [data.dimensions.height] - Target height in pixels
+	 * @param {boolean} [data.exitFullScreen=false] - Exit fullscreen before resizing
+	 * @param {boolean} [data.animate=true] - Enable smooth animation
+	 * @param {number} [data.duration=250] - Animation duration in milliseconds
+	 * @param {string} [data.easing='easeInOutCubic'] - Easing function ('easeInOutCubic', 'easeOutCubic', 'easeInCubic', 'easeInOutQuad', 'linear')
+	 * @returns {Promise<{success: boolean, bounds?: Object, error?: string}>}
+	 */
 	resizeMainWindow: (data) => ipcRenderer.invoke('resize-main-window', data),
 	getWindowBounds: () => ipcRenderer.invoke('get-window-bounds'),
 

@@ -25,6 +25,7 @@ const log = require('electron-log');
 const { autoUpdater } = require('electron-updater');
 const WindowHelper = require('./helpers/windowHelper');
 const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
+const { resizeWindowAnimated } = require('./helpers/windowAnimationHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
@@ -4436,34 +4437,65 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('resize-main-window', async (event, data) => {
 		try {
-			const { dimensions, exitFullScreen } = data;
+			const {
+				dimensions,
+				exitFullScreen,
+				animate = true,
+				duration = 250,
+				easing = 'easeInOutCubic',
+			} = data;
 			const workArea = screen.getPrimaryDisplay().workAreaSize;
 			const screenWidth = workArea.width,
 				screenHeight = workArea.height;
 
+			// Create sanitized dimensions object
+			const targetDimensions = {};
+
 			if (dimensions?.width) {
 				const width = Math.min(screenWidth, dimensions.width);
-				dimensions.width = width;
+				targetDimensions.width = width;
 			}
 			if (dimensions?.height) {
 				const height = Math.min(screenHeight, dimensions.height);
-				dimensions.height = height;
+				targetDimensions.height = height;
 			}
 
-			if (mainWindow) {
-				if (exitFullScreen) {
-					if (mainWindow.isFullScreen()) {
-						mainWindow.setFullScreen(false);
-						mainWindow.once('leave-full-screen', () => {
-							mainWindow.setBounds(dimensions);
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				// Handle fullscreen exit
+				if (exitFullScreen && mainWindow.isFullScreen()) {
+					mainWindow.setFullScreen(false);
+
+					// Wait for fullscreen exit, then animate resize
+					mainWindow.once('leave-full-screen', async () => {
+						if (animate) {
+							await resizeWindowAnimated(mainWindow, targetDimensions, {
+								duration,
+								easing,
+							});
+						} else {
+							mainWindow.setBounds(targetDimensions);
+						}
+					});
+				} else {
+					// Animate resize (or instant if animate: false)
+					if (animate) {
+						await resizeWindowAnimated(mainWindow, targetDimensions, {
+							duration,
+							easing,
 						});
 					} else {
-						mainWindow.setBounds(dimensions);
+						mainWindow.setBounds(targetDimensions);
 					}
-				} else {
-					mainWindow.setBounds(dimensions);
 				}
+
+				log.info(
+					`✅ Window resized ${animate ? 'with animation' : 'instantly'}:`,
+					targetDimensions,
+				);
+				return { success: true, bounds: mainWindow.getBounds() };
 			}
+
+			return { success: false, error: 'Main window not available' };
 		} catch (error) {
 			log.error('❌ Error resizing main window:', error);
 			return { success: false, error: error.message };

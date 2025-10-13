@@ -171,8 +171,11 @@ const RecentChat = ({
 						height: 768,
 					},
 					exitFullScreen: false,
+					animate: true,
+					duration: 300,
+					easing: 'easeOutCubic',
 				});
-				console.log('📐 RecentChat: Restored normal window size on unmount (1366x768)');
+				console.log('📐 RecentChat: Restored normal window size on unmount (1366x768) with smooth animation');
 			}
 		};
 	}, []);
