@@ -74,7 +74,7 @@ import { ReactComponent as ChevronLeft } from '../../../assets/svg/tasks/chevron
 import { ReactComponent as MoveToIcon } from '../../../assets/svg/gallery/moveToIcon.svg';
 import Spinner from '../../components/loaders/Spinner';
 import DesktopAppIntimation from '../../components/gallery/galleryPage/DesktopAppIntimation';
-import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 // const workspaceId = localStorage.getItem('workspaceId');
 
@@ -1601,37 +1601,43 @@ const GalleryPage = () => {
 		}
 	};
 
-	const handleClickAlbum = (album, name) => {
-		const value =
-			name === 'albumName'
-				? album?.title !== info?.albumName
-				: album?.displayName !== info?.albumContains;
-		if (value) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				albumLoading: true,
-				showGalleryOptions: false,
-				showOptions: false,
-			}));
+	const handleClickAlbum = async (album, name) => {
+		const isAlbumNameChange = name === 'albumName' && album?.title !== info?.albumName;
+		const isContainNameChange =
+			name === 'containName' && album?.displayName !== info?.albumContains;
+		const isClientSelectionChange = name === 'clientSelection';
+
+		if (!isAlbumNameChange && !isContainNameChange && !isClientSelectionChange) {
+			// No meaningful change — do nothing
+			return;
 		}
-		if (name === 'albumName' && album?.title !== info?.albumName) {
+
+		// Immediately reset UI state to avoid showing stale images
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			albumLoading: true,
+			showGalleryOptions: false,
+			showOptions: false,
+			selectedImages: [],
+			showAlbumOptionsMenu: false,
+			imagesList: { docs: [], hasNextPage: true, totalDocs: 0 },
+			page: 1,
+			hasMore: true,
+			resetInfinityScroll: !prevInfo.resetInfinityScroll,
+			isRearranging: false,
+		}));
+
+		// Handle Album Name Switch (main album navigation)
+		if (isAlbumNameChange) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				imagesList: {
-					...prevInfo.imagesList,
-					docs: [],
-				},
-				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
 				albumName: album?.title,
 				activeAlbumId: album?._id,
 				activeAlbum: album,
 				isPublished: album?.isPublished,
 				isEnabled: album?.isEnabled,
 				albumSlug: album?.slug,
-				resetInfinityScroll: !prevInfo.resetInfinityScroll,
 				activeTab: 'Albums',
-				isRearranging: false,
-				showMainPopup: false,
 				tenantAlbums: Array.isArray(prevInfo?.tenantAlbums)
 					? prevInfo.tenantAlbums.map((existingAlbum) =>
 							existingAlbum._id === album._id
@@ -1640,40 +1646,59 @@ const GalleryPage = () => {
 					  )
 					: [],
 			}));
+
+			// Fetch album image count (triggers tag list update)
 			getAlbumImagesCount(galleryId);
-			// if (info?.albumName !== album?.title) {
-			// 	getAlbumCount(galleryId, album?.title);
-			// }
-		} else if (name === 'containName' && album?.displayName !== info?.albumContains) {
+
+			// Fetch images for the new album immediately
+			// await getGalleryImages(
+			// 	galleryId,
+			// 	album?._id,
+			// 	album?.tags?.[0]?._id || '',
+			// 	1,
+			// 	info.limit,
+			// 	'',
+			// 	true,
+			// );
+		}
+		// Handle "All", "Favorites", etc. (tag/contain switch within same album)
+		else if (isContainNameChange) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				imagesList: {
-					...prevInfo.imagesList,
-					docs: [],
-				},
-				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
 				albumContains: album?.displayName,
 				albumTagId: album?._id,
 				sortType: album?.sortType,
-
-				selectedImages: [],
-				isRearranging: false,
 			}));
-		} else if (name === 'clientSelection') {
+
+			// Fetch images for the new tag immediately
+			await getGalleryImages(
+				galleryId,
+				info.activeAlbumId,
+				album?._id,
+				1,
+				info.limit,
+				'',
+				true,
+			);
+		}
+		// Handle Client Selection Switch
+		else if (isClientSelectionChange) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				activeClientSelection: album?.slug,
 				clientSelectionID: album?._id,
 				clientSelectionName: album?.title,
-				isRearranging: false,
 			}));
+
+			// Fetch client selection images
+			await getClientSelectionImages(album?._id, 1);
 		}
-		setTimeout(() => {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				albumLoading: false,
-			}));
-		}, 1000);
+
+		// Finally, turn off loading state
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			albumLoading: false,
+		}));
 	};
 
 	const handleAlbumSettings = (sectionId) => {
