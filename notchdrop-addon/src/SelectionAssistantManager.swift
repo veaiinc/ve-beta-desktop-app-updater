@@ -344,8 +344,14 @@ final class SelectionAssistantState: ObservableObject {
 
 // MARK: - Popup Controller
 final class SelectionPopupController {
-    private let statusItem: NSStatusItem
-    private let popover: NSPopover
+    private enum Layout {
+        static let size = NSSize(width: 360, height: 320)
+        static let horizontalMargin: CGFloat = 24
+        static let verticalMargin: CGFloat = 64
+    }
+
+    private let state: SelectionAssistantState
+    private var window: NSPanel?
     private lazy var hostingController: NSHostingController<SelectionAssistantRootView> = {
         let rootView = SelectionAssistantRootView(
             state: state,
@@ -354,50 +360,79 @@ final class SelectionPopupController {
         )
         return NSHostingController(rootView: rootView)
     }()
-    private let state: SelectionAssistantState
 
     var onToggleHistory: (() -> Void)?
     var onCloseRequested: (() -> Void)?
 
     init(state: SelectionAssistantState) {
         self.state = state
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        popover = NSPopover()
-        popover.behavior = .semitransient
-        popover.contentViewController = hostingController
-
-        if let button = statusItem.button {
-            button.title = ""
-            if #available(macOS 11.0, *) {
-                button.image = NSImage(systemSymbolName: "text.quote", accessibilityDescription: "Selection Assistant")
-            } else {
-                button.image = NSImage(named: NSImage.infoName)
-            }
-            button.action = #selector(togglePopover(_:))
-            button.target = self
-        }
     }
 
     func showPopover() {
-        guard let button = statusItem.button else { return }
-        if !popover.isShown {
-            popover.contentSize = NSSize(width: 360, height: 320)
-            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-        } else {
-            popover.contentViewController = hostingController
-            popover.contentViewController?.view.needsDisplay = true
+        DispatchQueue.main.async {
+            let panel = self.ensureWindow()
+            panel.contentViewController = self.hostingController
+            self.hostingController.view.needsDisplay = true
+
+            if !panel.isVisible {
+                self.positionWindow(panel)
+                panel.alphaValue = 0
+                panel.makeKeyAndOrderFront(nil)
+                NSApp.activate(ignoringOtherApps: true)
+                NSAnimationContext.runAnimationGroup { context in
+                    context.duration = 0.18
+                    panel.animator().alphaValue = 1
+                }
+            } else {
+                panel.makeKeyAndOrderFront(nil)
+                NSApp.activate(ignoringOtherApps: true)
+            }
         }
     }
 
     func closePopover() {
-        popover.performClose(nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.window?.orderOut(nil)
+        }
     }
 
-    @objc private func togglePopover(_ sender: Any?) {
-        if popover.isShown {
-            closePopover()
-        } else {
-            showPopover()
+    private func ensureWindow() -> NSPanel {
+        if let window {
+            return window
         }
+
+        let panel = NSPanel(
+            contentRect: NSRect(origin: .zero, size: Layout.size),
+            styleMask: [.titled, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+
+        panel.isReleasedWhenClosed = false
+        panel.level = .floating
+        panel.hasShadow = true
+        panel.isOpaque = false
+        panel.backgroundColor = NSColor.clear
+        panel.collectionBehavior = [.fullScreenAuxiliary, .canJoinAllSpaces]
+        panel.titleVisibility = .hidden
+        panel.titlebarAppearsTransparent = true
+        panel.standardWindowButton(.closeButton)?.isHidden = true
+        panel.standardWindowButton(.miniaturizeButton)?.isHidden = true
+        panel.standardWindowButton(.zoomButton)?.isHidden = true
+        panel.isMovableByWindowBackground = true
+        panel.animationBehavior = .utilityWindow
+
+        panel.contentViewController = hostingController
+        window = panel
+        return panel
+    }
+
+    private func positionWindow(_ panel: NSPanel) {
+        let screenFrame = NSScreen.main?.visibleFrame ?? NSScreen.main?.frame ?? NSRect(origin: .zero, size: Layout.size)
+        let origin = CGPoint(
+            x: screenFrame.maxX - Layout.size.width - Layout.horizontalMargin,
+            y: screenFrame.maxY - Layout.size.height - Layout.verticalMargin
+        )
+        panel.setFrame(NSRect(origin: origin, size: Layout.size), display: false)
     }
 }
