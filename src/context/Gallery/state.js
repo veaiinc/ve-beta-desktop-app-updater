@@ -719,11 +719,12 @@ export const Galleries = () => {
 		reset = false,
 	) => {
 		try {
-			// if (reset) {
-			// 	dispatch({
-			// 		type: Actions.RESET_IMAGES_LIST,
-			// 	});
-			// }
+			// Reset images list when switching albums or tags
+			if (reset) {
+				dispatch({
+					type: Actions.RESET_IMAGES_LIST,
+				});
+			}
 
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -733,17 +734,20 @@ export const Galleries = () => {
 				'galleries',
 			);
 
-			const payload = state.imagesList
-				? {
-						...state.imagesList,
-						...response?.[1],
-						docs: [...state.imagesList.docs, ...(response?.[1]?.docs || [])],
-				  }
-				: response?.[1];
+			// When reset is true, use the response directly; otherwise append to existing docs
+			const payload =
+				reset || !state.imagesList
+					? response?.[1]
+					: {
+							...state.imagesList,
+							...response?.[1],
+							docs: [...state.imagesList.docs, ...(response?.[1]?.docs || [])],
+					  };
+
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGES_LIST,
-					payload: reset ? response?.[1] : payload,
+					payload: payload,
 				});
 				return [true, response?.[1]];
 			}

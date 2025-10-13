@@ -1651,15 +1651,15 @@ const GalleryPage = () => {
 			getAlbumImagesCount(galleryId);
 
 			// Fetch images for the new album immediately
-			// await getGalleryImages(
-			// 	galleryId,
-			// 	album?._id,
-			// 	album?.tags?.[0]?._id || '',
-			// 	1,
-			// 	info.limit,
-			// 	'',
-			// 	true,
-			// );
+			await getGalleryImages(
+				galleryId,
+				album?._id,
+				album?.tags?.[0]?._id || '',
+				1,
+				info.limit,
+				'',
+				true,
+			);
 		}
 		// Handle "All", "Favorites", etc. (tag/contain switch within same album)
 		else if (isContainNameChange) {
