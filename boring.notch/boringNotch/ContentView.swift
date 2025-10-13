@@ -729,6 +729,10 @@ class WebSocketManager: ObservableObject {
         messages.removeAll()
         lastMessage = ""
     }
+    
+    func cleanup() {
+        disconnect()
+    }
 }
 
 struct WebSocketMessage: Identifiable {
@@ -821,10 +825,8 @@ struct MeetingView: View {
             .padding(.bottom, 8)
         }
         .onAppear {
-            // Auto-connect when view appears
-            if !webSocketManager.isConnected {
-                webSocketManager.connect()
-            }
+            // WebSocket auto-connection is now handled by WebSocketManager on startup
+            // No need to manually connect here
         }
     }
     

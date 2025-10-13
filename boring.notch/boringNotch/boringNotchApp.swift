@@ -80,6 +80,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         NotificationCenter.default.removeObserver(self)
         MusicManager.shared.destroy()
+        // Cleanup WebSocket connection
+        WebSocketManager.shared.cleanup()
         cleanupWindows()
     }
 
@@ -274,6 +276,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         previousScreens = NSScreen.screens
+        
+        // Auto-connect websocket on app startup
+        autoConnectWebSocketOnStartup()
+    }
+    
+    private func autoConnectWebSocketOnStartup() {
+        print("🔌 AppDelegate: Setting up websocket auto-connection on app startup...")
+        
+        // Wait 5 seconds after app launch to allow everything to initialize
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            print("🔌 AppDelegate: Auto-connecting to websocket...")
+            WebSocketManager.shared.connect()
+        }
     }
 
     func playWelcomeSound() {
