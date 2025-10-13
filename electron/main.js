@@ -549,6 +549,16 @@ const toggleContentProtection = () => {
 	return isContentProtectionEnabled;
 };
 
+
+const handleWebSocketMessage = (prop) => {
+	const { data, ws } = prop;
+	if (data.type === 'START_MEETING') {
+		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+		// Send response back to the client that sent the START_MEETING message
+		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+	}
+};
+
 const getContentProtectionStatus = () => {
 	return isContentProtectionEnabled;
 };
@@ -3367,24 +3377,27 @@ app.whenReady().then(async () => {
 				// Handle START_MEETING message from notch
 				if (
 					data.data &&
-					typeof data.data === 'object' &&
-					data.data.type === 'START_MEETING'
+					typeof data.data === 'object'
 				) {
-					log.info(
-						'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
-					);
 
-					// Wait 3 seconds then send MEETING_STARTED response
-					setTimeout(() => {
-						const responseMessage = {
-							type: 'MEETING_STARTED',
-							data: {},
-						};
+					handleWebSocketMessage(data);
 
-						// Send response back to the client that sent the START_MEETING message
-						websocketService.sendToClient(data.ws, responseMessage);
-						log.info('✅ MEETING_STARTED response sent to notch');
-					}, 3000);
+				
+					// log.info(
+					// 	'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
+					// );
+
+					// // Wait 3 seconds then send MEETING_STARTED response
+					// setTimeout(() => {
+					// 	const responseMessage = {
+					// 		type: 'MEETING_STARTED',
+					// 		data: {},
+					// 	};
+
+					// 	// Send response back to the client that sent the START_MEETING message
+					// 	websocketService.sendToClient(data.ws, responseMessage);
+					// 	log.info('✅ MEETING_STARTED response sent to notch');
+					// }, 3000);
 				}
 
 				// Emit the message event for other parts of the app to handle
