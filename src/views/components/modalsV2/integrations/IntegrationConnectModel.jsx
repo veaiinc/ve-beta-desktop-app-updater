@@ -30,6 +30,7 @@ const IntegrationConnectModel = ({
 	closeModal,
 	integration,
 	onConnectionSuccess,
+	onModalClose,
 	// activeTab = 'private',
 }) => {
 	const [connectionStep, setConnectionStep] = useState(1);
@@ -299,6 +300,11 @@ const IntegrationConnectModel = ({
 
 		// Reset connection status when closing
 		setConnectionStatus('idle');
+
+		if (onModalClose) {
+			onModalClose();
+		}
+
 		closeModal();
 	};
 

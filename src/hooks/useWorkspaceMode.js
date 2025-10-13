@@ -5,6 +5,7 @@ import fallbackRoute from '../routes/fallbackRoute';
 import Context from '../context/context';
 import { fetchDomainName } from '../helpers';
 import useBroadcastChannel from './useBroadcastChannel';
+import logout from '../helpers/logout';
 
 export const publicRoutesList = [
 	'/',
@@ -74,10 +75,14 @@ const useWorkspaceMode = () => {
 	const routes = routesInfo[routeType] ?? routesInfo['fallbackRoute'];
 	const workspaceModeLoading =
 		isPublicRoute || workspaceNotFound ? false : workspaceMode === null;
+	const workspaceId = localStorage.getItem('workspaceId');
 
 	const fetchMode = async () => {
 		try {
-			if (workspaceMode === null) {
+			if (workspaceId === null || workspaceId === undefined) {
+				logout();
+			}
+			if (workspaceMode === null || workspaceMode === undefined) {
 				const response = await getTenantSettings();
 				const success = response[0] === true;
 				if (!success) {

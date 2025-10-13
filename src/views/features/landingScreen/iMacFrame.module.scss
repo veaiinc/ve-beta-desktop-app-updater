@@ -33,6 +33,11 @@
 	@media (min-width: 1025px) {
 		display: block;
 	}
+
+	// Ensure it's visible at 1280px width
+	@media (min-width: 1280px) {
+		display: block !important;
+	}
 }
 
 .screen {

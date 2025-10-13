@@ -104,6 +104,12 @@ html {
 	background-color: #121212;
 }
 
+// Landing / marketing pages that need a light rubber-band background
+html.light-page,
+body.light-page {
+	background-color: #f5f5f5 !important;
+}
+
 // .w-100p {
 // 	width: 100% !important;
 // }
