@@ -625,6 +625,9 @@ class NotchViewModel: NSObject, ObservableObject {
     @Published var isCameraStarting: Bool = false
     @Published var cameraStatus: String = "idle" // 'idle', 'starting', 'active', 'error'
     
+    // MARK: - Microphone State (Grouped for performance)
+    @Published var microphonePermission: String = "not-determined" // 'not-determined', 'granted', 'denied', 'restricted'
+    
     // Event emitters for JavaScript integration
     let swiftActionSender = PassthroughSubject<SwiftAction, Never>()
     
@@ -844,46 +847,63 @@ class NotchViewModel: NSObject, ObservableObject {
     
     // Dynamic Island UI functions
     func startRecording() {
-        updateProperties {
-            self.isConnecting = false // Set to false immediately to show recording state
-            self.isRecording = true
-            self.isPaused = false
-            self.timer = 0
-            // Ensure voice interface is not shown when recording
-            self.showVoiceInterface = false
-        }
+        print("🎤 RECORDING: Starting recording - checking microphone permission first")
         
-        // 🔒 LOCK NOTCH DURING RECORDING - Perfect for showing transcriptions!
-        // This prevents users from accidentally closing the notch while recording
-        // and ensures transcriptions are always visible
-        if !isNotchLocked {
-            isNotchLocked = true
-            print("🔒 Notch LOCKED for recording - transcriptions will be displayed")
-        }
-        
-        // Ensure notch is open to show recording state and transcriptions
-        notchOpen(.click)
-        
-        // Clear previous meeting's data to start fresh for new meeting
-        DispatchQueue.main.async {
-            // print("🧠 Starting new meeting - clearing previous live intelligence data")
-            self.liveIntelligenceMessages.removeAll()
-            // print("🧠 Live intelligence data cleared for new meeting")
+        // Check microphone permission before starting recording
+        checkAndRequestMicrophonePermission { [weak self] granted in
+            guard let self = self else { return }
             
+            if granted {
+                print("🎤 RECORDING: Microphone permission granted - starting recording")
+                DispatchQueue.main.async {
+                    self.updateProperties {
+                        self.isConnecting = false // Set to false immediately to show recording state
+                        self.isRecording = true
+                        self.isPaused = false
+                        self.timer = 0
+                        // Ensure voice interface is not shown when recording
+                        self.showVoiceInterface = false
+                    }
+                    
+                    // 🔒 LOCK NOTCH DURING RECORDING - Perfect for showing transcriptions!
+                    // This prevents users from accidentally closing the notch while recording
+                    // and ensures transcriptions are always visible
+                    if !self.isNotchLocked {
+                        self.isNotchLocked = true
+                        print("🔒 Notch LOCKED for recording - transcriptions will be displayed")
+                    }
+                    
+                    // Ensure notch is open to show recording state and transcriptions
+                    self.notchOpen(.click)
+                    
+                    // Clear previous meeting's data to start fresh for new meeting
+                    DispatchQueue.main.async {
+                        // print("🧠 Starting new meeting - clearing previous live intelligence data")
+                        self.liveIntelligenceMessages.removeAll()
+                        // print("🧠 Live intelligence data cleared for new meeting")
+                        
             // Clear previous meeting's transcription data to start fresh
             self.voiceMessages.removeAll()
             print("📝 Transcription data cleared for new meeting")
         }
-        
-        startTimer()
-        
-        // Emit action for JavaScript
-        swiftActionSender.send(.startRecording)
-        
-        // Trigger overlay integration - this is the key addition
-        // This will communicate with the overlay system to actually start recording
-        // and show the Live Intelligence panel, just like the JavaScript version
-        // swiftActionSender.send(.triggerOverlayToggleLiveIntelligence)
+                    
+                    self.startTimer()
+                    
+                    // Emit action for JavaScript
+                    self.swiftActionSender.send(.startRecording)
+                    
+                    // Trigger overlay integration - this is the key addition
+                    // This will communicate with the overlay system to actually start recording
+                    // and show the Live Intelligence panel, just like the JavaScript version
+                    // swiftActionSender.send(.triggerOverlayToggleLiveIntelligence)
+                }
+            } else {
+                print("❌ RECORDING: Microphone permission denied - cannot start recording")
+                DispatchQueue.main.async {
+                    self.isConnecting = false
+                }
+            }
+        }
     }
     
     func stopRecording() {
@@ -1061,16 +1081,32 @@ class NotchViewModel: NSObject, ObservableObject {
     
     /// Connect to voice assistant - DIRECT APPROACH
     func connectVoiceAssistant() {
-        print("🎤 VOICE: Button clicked - connecting directly to voice agent")
+        print("🎤 VOICE: Button clicked - checking microphone permission first")
         
-        showVoiceInterface = true
-        voiceConnectionStatus = .connecting
-        isVoiceActive = true
-        
-        // DIRECT: Trigger voice agent via specific action
-        swiftActionSender.send(.startVoiceAgent)
-        
-        print("🚀 VOICE: Voice agent start command sent")
+        // Check microphone permission before connecting
+        checkAndRequestMicrophonePermission { [weak self] granted in
+            guard let self = self else { return }
+            
+            if granted {
+                print("🎤 VOICE: Microphone permission granted - connecting to voice agent")
+                DispatchQueue.main.async {
+                    self.showVoiceInterface = true
+                    self.voiceConnectionStatus = .connecting
+                    self.isVoiceActive = true
+                    
+                    // DIRECT: Trigger voice agent via specific action
+                    self.swiftActionSender.send(.startVoiceAgent)
+                    
+                    print("🚀 VOICE: Voice agent start command sent")
+                }
+            } else {
+                print("❌ VOICE: Microphone permission denied - cannot connect")
+                DispatchQueue.main.async {
+                    self.voiceConnectionStatus = .error
+                    self.showVoiceInterface = false
+                }
+            }
+        }
     }
     
     /// Disconnect from voice assistant
@@ -1668,6 +1704,78 @@ class NotchViewModel: NSObject, ObservableObject {
             completion(false)
         @unknown default:
             completion(false)
+        }
+    }
+    
+    // MARK: - Microphone Permission Methods
+    
+    /// Check and request microphone permission - triggers macOS system permission popup
+    private func checkAndRequestMicrophonePermission(completion: @escaping (Bool) -> Void) {
+        let status = AVCaptureDevice.authorizationStatus(for: .audio)
+        
+        print("🎤 Current microphone permission status: \(status.rawValue)")
+        
+        switch status {
+        case .authorized:
+            // Microphone access already granted
+            print("🎤 Microphone permission: Already authorized")
+            DispatchQueue.main.async {
+                self.microphonePermission = "granted"
+            }
+            completion(true)
+            
+        case .notDetermined:
+            // Request permission - this will trigger the macOS system popup
+            print("🎤 Microphone permission: Not determined - requesting access (macOS popup will appear)")
+            AVCaptureDevice.requestAccess(for: .audio) { [weak self] granted in
+                print("🎤 Microphone permission request result: \(granted)")
+                DispatchQueue.main.async {
+                    self?.microphonePermission = granted ? "granted" : "denied"
+                }
+                completion(granted)
+            }
+            
+        case .denied:
+            // Permission denied - guide user to System Preferences
+            print("❌ Microphone permission: Denied - user needs to enable in System Preferences")
+            DispatchQueue.main.async {
+                self.microphonePermission = "denied"
+            }
+            // Show alert to guide user to System Preferences
+            self.showMicrophonePermissionAlert()
+            completion(false)
+            
+        case .restricted:
+            // Permission restricted (parental controls, etc.)
+            print("❌ Microphone permission: Restricted by system")
+            DispatchQueue.main.async {
+                self.microphonePermission = "restricted"
+            }
+            completion(false)
+            
+        @unknown default:
+            print("❌ Microphone permission: Unknown status")
+            completion(false)
+        }
+    }
+    
+    /// Show alert to guide user to System Preferences for microphone permission
+    private func showMicrophonePermissionAlert() {
+        DispatchQueue.main.async {
+            let alert = NSAlert()
+            alert.messageText = "Microphone Access Required"
+            alert.informativeText = "Please enable microphone access in System Preferences > Security & Privacy > Privacy > Microphone to use voice features and recording."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "Open System Preferences")
+            alert.addButton(withTitle: "Cancel")
+            
+            let response = alert.runModal()
+            if response == .alertFirstButtonReturn {
+                // Open System Preferences to Microphone privacy settings
+                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") {
+                    NSWorkspace.shared.open(url)
+                }
+            }
         }
     }
     

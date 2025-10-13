@@ -223,6 +223,39 @@ class NotchDropService {
 		};
 		this.notchDropAddon.on('swiftLog', this.eventHandlers.swiftLog);
 
+		// Listen for selection assistant events
+		this.eventHandlers.selectionCaptured = (payload) => {
+			try {
+				const data =
+					payload && typeof payload === 'string' ? JSON.parse(payload) : payload;
+				if (data && typeof data === 'object') {
+					this.emitToRenderer('selection-assistant:captured', data);
+				}
+			} catch (error) {
+				log.warn('⚠️ Failed to parse selection captured payload:', error);
+			}
+		};
+		this.notchDropAddon.on(
+			'selectionCaptured',
+			this.eventHandlers.selectionCaptured,
+		);
+
+		this.eventHandlers.selectionPermissionChanged = (payload) => {
+			try {
+				const data =
+					payload && typeof payload === 'string' ? JSON.parse(payload) : payload;
+				if (data && typeof data === 'object') {
+					this.emitToRenderer('selection-assistant:permission', data);
+				}
+			} catch (error) {
+				log.warn('⚠️ Failed to parse selection permission payload:', error);
+			}
+		};
+		this.notchDropAddon.on(
+			'selectionPermissionChanged',
+			this.eventHandlers.selectionPermissionChanged,
+		);
+
 		// Listen for overlay recording requests from Swift UI
 		this.eventHandlers.requestOverlayRecording = () => {
 			log.info('🎤 Swift UI requested overlay recording');
@@ -449,6 +482,92 @@ class NotchDropService {
 			return true;
 		} catch (error) {
 			log.error('❌ Failed to clear NotchDrop items:', error);
+			return false;
+		}
+	}
+
+	getSelectionHistory() {
+		if (
+			!this.isInitialized ||
+			!this.notchDropAddon ||
+			typeof this.notchDropAddon.getSelectionHistory !== 'function'
+		) {
+			return [];
+		}
+
+		try {
+			return this.notchDropAddon.getSelectionHistory();
+		} catch (error) {
+			log.error('⚠️ Failed to retrieve selection history:', error);
+			return [];
+		}
+	}
+
+	clearSelectionHistory() {
+		if (
+			!this.isInitialized ||
+			!this.notchDropAddon ||
+			typeof this.notchDropAddon.clearSelectionHistory !== 'function'
+		) {
+			return false;
+		}
+
+		try {
+			const result = this.notchDropAddon.clearSelectionHistory();
+			return Boolean(result);
+		} catch (error) {
+			log.error('⚠️ Failed to clear selection history:', error);
+			return false;
+		}
+	}
+
+	showSelectionHistoryInterface() {
+		if (
+			!this.isInitialized ||
+			!this.notchDropAddon ||
+			typeof this.notchDropAddon.showSelectionHistoryInterface !== 'function'
+		) {
+			return false;
+		}
+
+		try {
+			const result = this.notchDropAddon.showSelectionHistoryInterface();
+			return Boolean(result);
+		} catch (error) {
+			log.error('⚠️ Failed to present selection history interface:', error);
+			return false;
+		}
+	}
+
+	requestSelectionPermissionPrompt() {
+		if (
+			!this.notchDropAddon ||
+			typeof this.notchDropAddon.requestSelectionPermissionPrompt !== 'function'
+		) {
+			return false;
+		}
+
+		try {
+			const result = this.notchDropAddon.requestSelectionPermissionPrompt();
+			return Boolean(result);
+		} catch (error) {
+			log.error('⚠️ Failed to request selection assistant permission prompt:', error);
+			return false;
+		}
+	}
+
+	isSelectionPermissionGranted() {
+		if (
+			!this.notchDropAddon ||
+			typeof this.notchDropAddon.isSelectionPermissionGranted !== 'function'
+		) {
+			return false;
+		}
+
+		try {
+			return Boolean(this.notchDropAddon.isSelectionPermissionGranted());
+		} catch (error) {
+			log.error('⚠️ Failed to read selection assistant permission state:', error);
 			return false;
 		}
 	}

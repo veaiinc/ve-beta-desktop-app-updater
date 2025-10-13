@@ -15,7 +15,9 @@
 ## Quick Start
 
 -   **Install dependencies**:  
-    `npm install`
+    `npm install` (runs postinstall helpers including `setup:hey-ve` for wake-word support)
+-   **Wake word dependencies**:  
+    `npm run setup:hey-ve` (rerun after failures) or fallback to `npm run install-python-deps`
 -   **Build native addon (macOS)**:  
     `cd notchdrop-addon && npm run build`  
     Alt: `cd notchdrop-addon && sh build.sh`
@@ -33,6 +35,8 @@
     `npm run clean:build`
 -   **Build NotchDrop only**:  
     `cd notchdrop-addon && sh build.sh`
+-   **Bundle Hey Ve Python runtime (packaging safety net)**:  
+    `npm run bundle:python-runtime` (runs automatically inside build/package scripts; run manually if bundling fails)
 -   **Reset Sharp folders (cross-platform image builds)**:  
     `npm run clean:sharp`
 -   **Smoke test native bridge wiring**:  
@@ -49,37 +53,56 @@
 
 ## Repo Map (Change source code only in these)
 
--   **Electron Main & Preload**
+-   **Electron Main, Preload & State Bridge**
     -   `electron/main.js`
     -   `electron/preload.js`
+    -   `electron/bridge.js` (`@zubridge` main-process bridge wiring)
+    -   `electron/store.js` (Zustand store + exported actions for zubridge)
     -   `electron/helpers/windowHelper.js`
+    -   `electron/helpers/windowAnimationHelper.js` (smooth window resize animations)
+    -   `electron/helpers/dynamicIslandHelper.js`
+    -   `electron/helpers/autoUpdateHelper.js` + `electron/helpers/envHelper.js`
+    -   `electron/helpers/utils.js`
     -   `electron/notificationHelper.js`
     -   `electron/windowsCompatibility.js`
     -   `electron/services/notchDropService.js`
+    -   `electron/services/ipcThrottleService.js`
+    -   `electron/services/idleTracker.js`
+    -   `electron/services/meetingState.js`
     -   `electron/overlayWindowHelper.js`
     -   `electron/galleryHelper.js` (Sharp/watermark pipeline + ZIP download helper)
     -   `electron/imageProcessWorker.js` (worker thread for Sharp processing)
     -   `electron/desktopUtilHelper.js`
     -   `electron/updateHelper.js`
     -   `electron/notchDropVoiceIntegration.js` (bridges Swift voice events to Electron)
+    -   `electron/features/` (Zustand slices; currently `meeting/index.js`)
     -   `electron/wakeWordService.js` + `electron/wakeWord/` (Python wake-word integration)
 -   **HTML Entrypoints (Vite):**
-    -   `index.html`, `overlay.html`, `askAI.html`, `dynamic-island.html`, `areYouThere.html`
+    -   `index.html`, `overlay.html`, `askAI.html`, `dynamic-island.html`, `areYouThere.html`, `permission.html`, `error-fallback.html`
 -   **Swift/Native addon (SwiftUI + ObjC + Node‑API):**
     -   `notchdrop-addon/` (see README + docs inside)
         -   Node wrapper: `notchdrop-addon/index.js`
         -   Swift–JS bridge: `notchdrop-addon/swift-js-bridge.js`
         -   Native sources: `notchdrop-addon/src/` (e.g., `NotchContentView.swift`, `NotchDropCore.swift`, `notchdrop_addon.mm`, `NotchDropBridge.m`)
         -   Obj-C header: `notchdrop-addon/include/NotchDropBridge.h`
--   **React Dynamic Island (UI):**
+        -   Selection assistant: `SelectionAssistantManager.swift`, `SelectionAssistantViews.swift`, `SelectionMonitor.swift`, `SelectionHistoryStore.swift`
+-   **React Windows & Feature Modules**
     -   `src/notch/components/DynamicIslandUI.jsx`
--   **Are You There window (React):**
-    -   `src/areYouThere/` (React UI + styles)
-    -   `areYouThere.html`
+    -   `src/overlay/` (recording overlay React app)
+    -   `src/askAI/` (Ask AI floating window UI)
+    -   `src/permission/` (Permission overlay React app)
+    -   `src/areYouThere/` (React UI + styles) + `areYouThere.html`
+    -   `src/store/store.js` (`@zubridge` hooks, grabs `electronApi.getStoreActions`)
+    -   `src/views/features/meetBot/` + related feature folders (renderer uses zubridge dispatch)
+    -   Shared support: `src/components/`, `src/context/`, `src/services/`, `src/utils/`
 -   **Reference docs:**
-    -   `CLAUDE.md`, `cursor.md`, `swift-watcher.config.js`
+    -   `CLAUDE.md`, `cursor.md`, `QWEN.md`, `anywhere_cursor_selection.md`, `docs/*.md`, `swift-watcher.config.js`
 -   **Automation scripts:**
-    -   `scripts/dev-with-swift-watch.js`, `scripts/swift-watcher.js`, `scripts/build-notchdrop-native.js`, `scripts/validate-notchdrop.js`
+    -   `scripts/build-notchdrop-native.js` (native build helper)
+    -   `scripts/bundle-python-runtime.js` (packages Hey Ve runtime helpers)
+    -   `scripts/setup-hey-ve.js` (postinstall wake-word setup)
+    -   `scripts/validate-notchdrop.js` (native bridge smoke test)
+    -   `scripts/performance-test.js`, `scripts/test-app-responsiveness.js` (diagnostics)
 
 ---
 
@@ -88,21 +111,24 @@
 ### Electron ↔ Renderer
 
 -   **Preload**: exposes `window.electronApi` for secure IPC to renderer (`electron/preload.js`)
+-   **State bridge**: `window.zubridge` comes from `@zubridge/electron`, and `electronApi.getStoreActions()` exposes synced Zustand actions from `electron/store.js`
 -   **Main process**: registers handlers (`electron/main.js`)
 -   **IPC Channels (non-exhaustive):**
-    -   Overlay controls: `overlay-start-recording`, `overlay-stop-recording`, `overlay-pause-recording`, `overlay-resume-recording`, `overlay-toggle-live-intelligence`, `overlay-get-recording-state`, `overlay-state-update`, `overlay-command`, `overlay-send-transcription-data`, `notchdrop-add-transcription-data`, `hide-overlay-window`
-    -   Dynamic Island: `dynamic-island-expand`, `dynamic-island-collapse`, `dynamic-island-toggle`, `dynamic-island-show|hide|focus`, `dynamic-island-chat-mode`, `dynamic-island-set-mouse-events`, `dynamic-island-state`, `overlay-state-changed`
-    -   Ask AI window: `toggle-askAI-window`, `show-askAI-window`, `is-askAI-window-visible`, `update-askAI-dimensions`, `set-askAI-ignore-mouse-events`, `set-askAI-input-focus`, `get-askAI-input-focus`, `send-chat-message-to-askai`, `force-open-askai-window`
-    -   NotchDrop: `notchdrop-enable|disable|toggle`, `notchdrop-is-visible`, `notchdrop-set-status`, `notchdrop-get-status`, `notchdrop-handle-files`, `notchdrop-set-auto-open|get-auto-open`, `notchdrop-set-haptic-feedback|get-haptic-feedback`, `update-notchdrop-menu`, `notchdrop-open-airdrop|open-share|open-file|delete-file`, `notchdrop:triggerOverlay*`
+    -   Overlay controls: `overlay-start-recording`, `overlay-stop-recording`, `overlay-pause-recording`, `overlay-resume-recording`, `overlay-toggle-live-intelligence`, `overlay-get-recording-state`, `overlay-recording-state-changed`, `overlay-state-update`, `overlay-set-panel-mode`, `overlay-send-transcription-data`, `overlay-send-live-intelligence-data`, `overlay-command`, `notchdrop-add-transcription-data`, `hide-overlay-window`
+    -   Dynamic Island & voice: `dynamic-island-expand|collapse|toggle|show|hide|focus|force-show`, `dynamic-island-chat-mode`, `dynamic-island-set-mouse-events`, `dynamic-island-state`, `dynamic-island-start-recording-from-modal`, chat relay via `send-chat-message-to-askai`, `dynamic-island-voice-connect|disconnect|status`, `dynamic-island-set-microphone-access`, notifications via `dynamic-island-show-notification`/`dynamic-island-notification`, events `overlay-state-changed`, `voice-status-changed`, `trigger-voice-mode`, `force-focus`
+    -   Ask AI window: `toggle-askAI-window`, `show-askAI-window`, `is-askAI-window-visible`, `update-askAI-dimensions`, `askAI-get-position`, `askAI-move-to`, `set-askAI-ignore-mouse-events`, `set-askAI-input-focus`, `get-askAI-input-focus`, `show-askAI-chatbox`, `show-askAI-response`, events `askAI-show-chatbox`, `askAI-show-response`, `receive-tab-content`, renderer messaging via `send-chat-message-to-askai`
+    -   Permission window: `toggle-permission-window`, `show-permission-window`, `hide-permission-window`, `is-permission-window-visible`, `check-auth-and-show-permission-overlay`, granular `check/request` helpers for microphone, screen, camera, media, and calendar, plus `open-system-settings`, `debug-permissions`
+    -   NotchDrop: `notchdrop-enable|disable|toggle`, `notchdrop-is-visible`, `notchdrop-set-status`, `notchdrop-get-status`, `notchdrop-handle-files`, `notchdrop-set-auto-open|get-auto-open`, `notchdrop-set-haptic-feedback|get-haptic-feedback`, `update-notchdrop-menu`, `notchdrop-open-airdrop|open-share|open-file|delete-file`, `notchdrop-send-message`, `notchdrop-replace-transcriptions`, `notchdrop-clear-live-intelligence-data`, `notchdrop:triggerOverlay*`
+    -   Selection Assistant: `selection-assistant:get-history`, `selection-assistant:clear-history`, `selection-assistant:show-history`, `selection-assistant:request-permission`, `selection-assistant:is-permission-granted`; events `selection-assistant:captured`, `selection-assistant:permission`
     -   Swift bridge: `swift:action`, `swift:triggerOverlayRecording`, `swift:triggerOverlayToggleLiveIntelligence`, process events `swift-ui-trigger-overlay-recording*`, `pre-create-overlay-window`
     -   Are You There: `are-you-there-continue-meeting|auto-continue-meeting|stop-meeting|pause-meeting-intelligence|end-session|are-you-there-get-recording-time|are-you-there-check-recording-state`, window events `are-you-there-show-command|are-you-there-close-command`, plus transcription detection `update-transcription-activity`, `are-you-there-continue-transcription|stop-transcription-monitoring|pause-transcription-monitoring|end-transcription-session`, `get-transcription-detection-state`
-    -   System/permissions/utilities: `check-microphone-permission`, `request-microphone-permission`, `check-camera-permission`, `request-camera-permission`, `show-camera-permission-help`, `check-screen-recording-permission`, `request-screen-recording-permission`, `clipboard-write-text|read-text`, `open-dev-tools`
-    -   Auto-updater: `check-for-updates`, `download-update`, `force-download-update` with event `update-status`
+    -   System & window utilities: `restore-main-window`, `save-current-route`, `navigate-main-window`, `restore-window-state`, `resize-main-window`, `toggle-fullscreen`, `close-window`, `sync-glass-mode-state`, event `translucency-changed`, `set-ignore-mouse-events`, `clipboard-write-text|read-text`, `open-dev-tools`, `reposition-dynamic-island`, direct helpers to open camera/microphone/screen/media/calendar settings, `minimize-main-window`
+    -   Auto-update & diagnostics: `check-for-updates` (exposed as `checkForUpdates`/`checkForUpdatesManual`), `download-update`, `restart-app`, events `update-status`, `auto-update-log`, `download-progress`, `get-diagnostic-info`
     -   Media & gallery tools: `process-image-with-sharp`, `process-image-batch` (sends `image-processing-progress`), `download-album-zip`, `create-zip-from-urls`
     -   Screen capture & desktop: `desktop:capture-screen`, `start-screen-capture`, event `screen-audio`
-    -   Content protection & navigation: `toggle-content-protection`, `get-content-protection-status`, `set-content-protection`, `restore-main-window`, `save-current-route`, `navigate-main-window`
-    -   Filesystem bridge: `fs-ensure-dir`, `fs-write-file`, `fs-read-file`, `fs-read-file-binary`, `fs-exists`, `fs-remove`, `fs-readdir`
-    -   Voice & Dynamic Island: `dynamic-island-force-show`, `dynamic-island-start-recording-from-modal`, `dynamic-island-voice-connect|disconnect|status`, `dynamic-island-show-notification`, events `dynamic-island-notification`, `voice-status-changed`, `trigger-voice-mode`, `force-focus`
+    -   Content protection: `toggle-content-protection`, `get-content-protection-status`, `set-content-protection`
+    -   Window management: `resize-main-window` (supports smooth animations with `animate`, `duration`, `easing` params), `get-window-bounds`, `toggle-fullscreen`, `close-window`, `minimize-main-window`
+    -   Filesystem & store bridge: `fs-ensure-dir`, `fs-write-file`, `fs-read-file`, `fs-read-file-binary`, `fs-exists`, `fs-remove`, `fs-readdir`, sync helper `get-store-actions-sync`
     -   NotchDrop voice sync: `notchdrop-update-voice-status`, `notchdrop-update-voice-connection-state`, `notchdrop-update-voice-mute-state`, `notchdrop-add-voice-message`, `notchdrop:activateVoiceAgent|deactivateVoiceAgent|getVoiceAgentStatus`
     -   Dev/test hooks: `test-overlay-connection`, `test-overlay-command`, `test-overlay-window`, `shortcut-activated`
 
@@ -119,8 +145,11 @@ Emitted from native layer, handled by `electron/services/notchDropService.js`:
 -   `requestOverlayRecording` (triggers overlay recording)
 -   `submitChat` (Ask AI chat payload)
 -   `startVoiceAgent` / `disconnectVoice` / `toggleVoiceMute`
+-   `toggleStealthMode` (sync NotchDrop stealth view with Electron)
 -   `messageReceived` (Electron → Swift UI acknowledgement channel)
 -   `navigateToMainScreen` (requests renderer navigation)
+-   `selectionCaptured` (encrypted text capture payload; forwarded to renderer)
+-   `selectionPermissionChanged` (reflects Accessibility permission state)
 
 ---
 
@@ -155,7 +184,7 @@ notchdrop-addon/
     -   `build:all`: `npm run build && npm run build:ui`
     -   `dev:ui`: `vite`
 -   **Dev script**:  
-    `npm run dev:swift` (Vite + Swift watcher) or root: `npm run build:notchdrop:all`
+    `npm run build:notchdrop:all` (rebuild native + UI) or inside `notchdrop-addon/` run `npm run dev:ui` for the SwiftUI/Vite shell
 -   **Root helpers**: `npm run build:notchdrop:native`, `npm run build:notchdrop:ui`, `npm run validate:notchdrop`
 -   Always guard NotchDrop requires in code so CI never fails on Windows/Linux.
 
@@ -219,9 +248,21 @@ Note: See the NotchDrop events list above for emitted events from the native lay
     - Add handlers in `DynamicIslandUI.jsx`, use `electronApi.overlay.*`
     - Add/modify IPC in preload/main if needed
 
-5. **Update auto-updater or UI**
+5. **Add smooth window resize animation**
+
+    - Use `window.electronApi.resizeMainWindow()` with animation params
+    - Standard resize: `{ dimensions: { width, height }, animate: true, duration: 250, easing: 'easeInOutCubic' }`
+    - Quick toggle: `{ dimensions: { width }, animate: true, duration: 200 }`
+    - Cleanup/close: `{ dimensions: { width, height }, animate: true, duration: 300, easing: 'easeOutCubic' }`
+    - See `/docs/WINDOW_ANIMATION_GUIDE.md` for full API reference
+
+6. **Update auto-updater or UI**
     - Use core update channels in `main.js`
     - Listen in frontend via `electronApi.onUpdateStatus`
+7. **Extend shared zubridge store**
+    - Add/modify slices in `electron/features/` and register via `electron/store.js`
+    - Expose additional actions through `storeActions` and consume with `window.zubridge` / `electronApi.getStoreActions()`
+    - Update renderer hooks in `src/store/store.js` or feature-specific hooks/selectors
 
 ---
 
@@ -233,7 +274,7 @@ Note: See the NotchDrop events list above for emitted events from the native lay
     `cd notchdrop-addon && sh build.sh`  
     If needed, then: `npx electron-rebuild -f -w notchdrop-addon`
 -   Ensure add-on is unpacked in Electron ASAR. See `package.json > build.mac.asarUnpack` and `extraResources` entries for `notchdrop-addon/**`.
--   Exposed events: `statusChanged`, `fileDropped`, `itemAdded`, `itemRemoved`, `swiftAction`, `swiftLog`, `requestOverlayRecording`, `submitChat`, `startVoiceAgent`, `disconnectVoice`, `toggleVoiceMute`, `messageReceived`, `navigateToMainScreen`
+-   Exposed events: `statusChanged`, `fileDropped`, `itemAdded`, `itemRemoved`, `swiftAction`, `swiftLog`, `requestOverlayRecording`, `submitChat`, `startVoiceAgent`, `disconnectVoice`, `toggleVoiceMute`, `toggleStealthMode`, `messageReceived`, `navigateToMainScreen`, `selectionCaptured`, `selectionPermissionChanged`
 -   Methods: `sendTranscriptionData(transcriptionData)`, `addTranscriptionData(transcriptionData)` - sends transcription data from overlay to NotchDrop service with console logging
 -   Extend Swift actions: add in bridge, wire through Electron, update docs here.
 
@@ -391,6 +432,7 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
 
 -   [ ] Native module loads only on macOS, code guarded
 -   [ ] All native (SwiftUI) events mapped to JS and documented
+-   [ ] Selection assistant (`selectionCaptured`, `selectionPermissionChanged`) wired through Electron/renderer and documented
 -   [ ] No CI/build breakage on Windows/Linux
 -   [ ] TypeScript interfaces exist for all APIs
 -   [ ] Pull Requests: note architecture/test status before review
@@ -423,6 +465,8 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
     Confirm `asarUnpack` includes native binary; verify it’s bundled.
 -   **Sharp/image processing errors:**  
     Run `npm run clean:sharp` then reinstall (`npm install`) so all platform-specific Sharp folders exist.
+-   **Hey Ve wake word setup issues:**  
+    Rerun `npm run setup:hey-ve` (installs Python deps, checks ONNX models) or fallback to `npm run install-python-deps`; confirm `electron/wakeWord/` models are bundled.
 -   **Global shortcuts not working (macOS):**  
     Grant Accessibility permissions, check main logs.
 -   **Update errors/checksum mismatch (Windows):**  
@@ -432,8 +476,9 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
 
 ## Further Reading (in-repo)
 
--   `CLAUDE.md`
--   `cursor.md`
+-   `CLAUDE.md`, `cursor.md`, `QWEN.md`
+-   `anywhere_cursor_selection.md`
+-   `docs/*.md` (implementation postmortems: idle auto-update, packaging fixes, etc.)
 -   `swift-watcher.config.js`
 -   `builderSrc/` scripts
 
