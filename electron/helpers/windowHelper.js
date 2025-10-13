@@ -1171,6 +1171,55 @@ class WindowHelper {
 		);
 	}
 
+	// Helper methods for window management
+	getOverlayWindow() {
+		return this.overlayWindow;
+	}
+
+	createOverlayWindow() {
+		// Implementation for creating overlay window
+		// This is a placeholder - the actual implementation would be in the commented code above
+		log.info('Creating overlay window...');
+	}
+
+	showOverlayWindow() {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+		this.overlayWindow.show();
+		this.isOverlayVisible = true;
+	}
+
+	hideOverlayWindow() {
+		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) return;
+		this.overlayWindow.hide();
+		this.isOverlayVisible = false;
+	}
+
+	// Ask AI window methods
+	getAskAIWindow() {
+		return this.askAIWindow;
+	}
+
+	isAskAIWindowVisible() {
+		return this.isAskAIVisible && this.askAIWindow && !this.askAIWindow.isDestroyed();
+	}
+
+	createAskAIWindow() {
+		// Implementation for creating Ask AI window
+		log.info('Creating Ask AI window...');
+	}
+
+	showAskAIWindow() {
+		if (!this.askAIWindow || this.askAIWindow.isDestroyed()) return;
+		this.askAIWindow.show();
+		this.isAskAIVisible = true;
+	}
+
+	hideAskAIWindow() {
+		if (!this.askAIWindow || this.askAIWindow.isDestroyed()) return;
+		this.askAIWindow.hide();
+		this.isAskAIVisible = false;
+	}
+
 	// isAskAIWindowVisible() {
 	// 	return this.isAskAIVisible && this.askAIWindow && !this.askAIWindow.isDestroyed();
 	// }
@@ -1996,68 +2045,334 @@ class WindowHelper {
 	// 	}
 	// }
 
+	registerGlobalShortcuts(mainWindow) {
+		this.mainWindow = mainWindow;
+
+		// Set up main window drag detection
+		this.setupMainWindowListeners();
+
+		// Check if globalShortcut is available
+		if (!globalShortcut) {
+			log.error('❌ globalShortcut module not available!');
+			return;
+		}
+
+		// Initialize translucency state
+		this.isTranslucencyEnabled = this.isTranslucencyEnabled ?? false;
+
+		// Register Cmd+\ to toggle overlay window only (independent of main window)
+		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
+			// Check if overlay window is visible
+			const isOverlayVisible = this.isVisible();
+
+			if (isOverlayVisible) {
+				// Hide overlay window only (keep ask AI visible if it's open)
+				this.hideOverlayWindow();
+			} else {
+				// Show overlay window only
+				// Create overlay window if it doesn't exist
+				if (!this.getOverlayWindow()) {
+					this.createOverlayWindow();
+				}
+				this.showOverlayWindow();
+			}
+		});
+
+		if (cmdBackslashRegistered) {
+			log.info('✅ Cmd+\\ shortcut registered successfully');
+		} else {
+			log.error('❌ Failed to register Cmd+\\ shortcut');
+			// On Windows, try alternative shortcuts if the main one fails
+			if (process.platform === 'win32') {
+				// Try Ctrl+Alt+O as alternative for overlay
+				const altOverlayRegistered = globalShortcut.register('Ctrl+Alt+O', () => {
+					const isOverlayVisible = this.isVisible();
+					if (isOverlayVisible) {
+						this.hideOverlayWindow();
+					} else {
+						if (!this.getOverlayWindow()) {
+							this.createOverlayWindow();
+						}
+						this.showOverlayWindow();
+					}
+				});
+				if (altOverlayRegistered) {
+					log.info('✅ Ctrl+Alt+O shortcut registered as fallback');
+				}
+			}
+		}
+
+		// Register Cmd+Shift+P to toggle content protection (invisibility mode)
+		const cmdShiftPRegistered = globalShortcut.register('CommandOrControl+Shift+P', () => {
+			// Call the toggle function directly through IPC invoke
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				this.mainWindow.webContents.executeJavaScript(`
+					if (window.electronApi && window.electronApi.toggleContentProtection) {
+						window.electronApi.toggleContentProtection().then(status => {
+						}).catch(err => {
+							console.error('Error toggling content protection:', err);
+						});
+					}
+				`);
+			}
+		});
+
+		if (cmdShiftPRegistered) {
+			log.info('✅ Cmd+Shift+P shortcut registered successfully');
+		} else {
+			// Try alternative shortcut on Windows
+			if (process.platform === 'win32') {
+				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
+					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+						this.mainWindow.webContents.executeJavaScript(`
+							if (window.electronApi && window.electronApi.toggleContentProtection) {
+								window.electronApi.toggleContentProtection().then(status => {
+								}).catch(err => {
+									console.error('Error toggling content protection:', err);
+								});
+							}
+						`);
+					}
+				});
+				if (altProtectionRegistered) {
+					log.info('✅ Ctrl+Alt+P shortcut registered as fallback');
+				}
+			}
+		}
+
+		// Register Cmd+Enter to show ask AI chatbox mode
+		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
+			// Create ask AI window if it doesn't exist
+			this.createAskAIWindow?.();
+
+			// Always show chatbox mode when Command+Enter is pressed
+			const isAskAIVisible = this.isAskAIWindowVisible();
+
+			if (isAskAIVisible) {
+				// Hide ask AI window only
+				this.hideAskAIWindow?.();
+			} else {
+				// Show ask AI window only
+				this.showAskAIWindow?.();
+
+				// Send message to show chatbox mode
+				const askAIWindow = this.getAskAIWindow();
+				if (askAIWindow && !askAIWindow.isDestroyed()) {
+					askAIWindow.webContents.send('askAI-show-chatbox');
+				}
+			}
+		});
+
+		if (cmdEnterRegistered) {
+			log.info('✅ Cmd+Enter shortcut registered successfully');
+		} else {
+			// On Windows, try alternative shortcuts if the main one fails
+			if (process.platform === 'win32') {
+				// Try Ctrl+Alt+A as alternative for Ask AI
+				const altAskAIRegistered = globalShortcut.register('Ctrl+Alt+A', () => {
+					if (!this.getAskAIWindow()) {
+						this.createAskAIWindow();
+					}
+					const isAskAIVisible = this.isAskAIWindowVisible();
+					if (isAskAIVisible) {
+						this.hideAskAIWindow();
+					} else {
+						this.showAskAIWindow();
+					}
+				});
+				if (altAskAIRegistered) {
+					log.info('✅ Ctrl+Alt+A shortcut registered as fallback');
+				}
+			}
+		}
+
+		// Register Cmd+. (period) to toggle main window visibility
+		const cmdPeriodRegistered = globalShortcut.register('CommandOrControl+.', () => {
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				if (this.mainWindow.isVisible()) {
+					// Hide main window
+					this.mainWindow.hide();
+				} else {
+					// Show main window
+					this.mainWindow.show();
+					this.mainWindow.focus();
+				}
+			} else {
+				// Main window doesn't exist, recreate it
+				// This will be handled by the main process
+				process.emit('recreate-main-window');
+			}
+		});
+
+		if (cmdPeriodRegistered) {
+			log.info('✅ Cmd+. shortcut registered successfully');
+		} else {
+			// On Windows, try alternative shortcuts if the main one fails
+			if (process.platform === 'win32') {
+				// Try Ctrl+Alt+M as alternative for main window toggle
+				const altMainRegistered = globalShortcut.register('Ctrl+Alt+M', () => {
+					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+						if (this.mainWindow.isVisible()) {
+							this.mainWindow.hide();
+						} else {
+							this.mainWindow.show();
+							this.mainWindow.focus();
+						}
+					} else {
+						process.emit('recreate-main-window');
+					}
+				});
+				if (altMainRegistered) {
+					log.info('✅ Ctrl+Alt+M shortcut registered as fallback');
+				}
+			}
+		}
+
+		// Register Cmd+G to toggle glass mode (Cross-platform)
+		const cmdGRegistered = globalShortcut.register('CommandOrControl+G', () => {
+			try {
+				log.info('🎨 Command+G pressed: Toggling glass mode');
+
+				// Toggle glass mode state
+				this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+
+				// CRITICAL FIX: Always set BOTH vibrancy AND background TOGETHER
+				// This PREVENTS fully transparent window with no background
+				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+					if (this.isTranslucencyEnabled) {
+						// Glass mode: Enable vibrancy WITH transparent background
+						if (process.platform === 'darwin') {
+							this.mainWindow.setVibrancy('fullscreen-ui');
+						}
+						this.mainWindow.setBackgroundColor('#00000000'); // Transparent for vibrancy
+						log.info('🎨 Glass mode ENABLED: vibrancy + transparent background');
+					} else {
+						// Normal mode: NO vibrancy WITH solid background
+						if (process.platform === 'darwin') {
+							this.mainWindow.setVibrancy(null);
+						}
+						this.mainWindow.setBackgroundColor('#121212'); // Solid background
+						log.info('🎨 Glass mode DISABLED: solid background #121212');
+					}
+
+					// Notify renderer to toggle glass mode CSS classes
+					this.mainWindow.webContents.send('translucency-changed', {
+						enabled: this.isTranslucencyEnabled,
+						platform: process.platform,
+						source: 'keyboard-shortcut',
+					});
+				} else {
+					log.warn('⚠️ Main window not available for glass mode toggle');
+				}
+			} catch (error) {
+				log.error('❌ Glass mode toggle failed:', error);
+			}
+		});
+
+		if (cmdGRegistered) {
+			log.info('✅ Command+G glass mode shortcut registered successfully');
+		} else {
+			log.error('❌ Failed to register Command+G glass mode shortcut');
+
+			// Try alternative shortcuts on Windows if the main one fails
+			if (process.platform === 'win32') {
+				const altGlassRegistered = globalShortcut.register('Ctrl+Alt+G', () => {
+					try {
+						log.info('🎨 Ctrl+Alt+G pressed: Toggling glass mode');
+						this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+
+						if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+							// CRITICAL FIX: Always set background color - never fully transparent
+							if (this.isTranslucencyEnabled) {
+								this.mainWindow.setBackgroundColor('#00000000'); // Transparent for glass
+								log.info('🎨 Glass mode ENABLED via Ctrl+Alt+G');
+							} else {
+								this.mainWindow.setBackgroundColor('#121212'); // Solid background
+								log.info('🎨 Glass mode DISABLED via Ctrl+Alt+G: solid background');
+							}
+
+							this.mainWindow.webContents.send('translucency-changed', {
+								enabled: this.isTranslucencyEnabled,
+								platform: process.platform,
+								source: 'keyboard-shortcut',
+							});
+						}
+					} catch (error) {
+						log.error('❌ Alternative glass mode toggle failed:', error);
+					}
+				});
+
+				if (altGlassRegistered) {
+					log.info('✅ Ctrl+Alt+G glass mode shortcut registered as fallback');
+				} else {
+					log.error('❌ Failed to register alternative glass mode shortcut');
+				}
+			}
+		}
+	}
+
 	// Flag to prevent multiple cleanup calls
-	// _isCleaningUp = false;
+	_isCleaningUp = false;
 
 	// Cleanup method to properly close all windows and resources
-	// 	cleanup() {
-	// 		// Prevent multiple cleanup calls
-	// 		if (this._isCleaningUp) {
-	// 			return;
-	// 		}
-	// 		this._isCleaningUp = true;
+	cleanup() {
+		// Prevent multiple cleanup calls
+		if (this._isCleaningUp) {
+			return;
+		}
+		this._isCleaningUp = true;
 
-	// 		try {
-	// 			// Clean up overlay window
-	// 			if (this.overlayWindow) {
-	// 				try {
-	// 					if (!this.overlayWindow.isDestroyed()) {
-	// 						this.overlayWindow.destroy();
-	// 					}
-	// 				} catch (error) {
-	// 					log.error('Error destroying overlay window:', error);
-	// 				}
-	// 				this.overlayWindow = null;
-	// 				this.isOverlayVisible = false;
-	// 			}
+		try {
+			// Clean up overlay window
+			if (this.overlayWindow) {
+				try {
+					if (!this.overlayWindow.isDestroyed()) {
+						this.overlayWindow.destroy();
+					}
+				} catch (error) {
+					log.error('Error destroying overlay window:', error);
+				}
+				this.overlayWindow = null;
+				this.isOverlayVisible = false;
+			}
 
-	// 			// Clean up Ask AI window
-	// 			if (this.askAIWindow) {
-	// 				try {
-	// 					if (!this.askAIWindow.isDestroyed()) {
-	// 						this.askAIWindow.destroy();
-	// 					}
-	// 				} catch (error) {
-	// 					log.error('Error destroying Ask AI window:', error);
-	// 				}
-	// 				this.askAIWindow = null;
-	// 				this.isAskAIVisible = false;
-	// 				this.askAIWindowReady = false;
-	// 			}
+			// Clean up Ask AI window
+			if (this.askAIWindow) {
+				try {
+					if (!this.askAIWindow.isDestroyed()) {
+						this.askAIWindow.destroy();
+					}
+				} catch (error) {
+					log.error('Error destroying Ask AI window:', error);
+				}
+				this.askAIWindow = null;
+				this.isAskAIVisible = false;
+				this.askAIWindowReady = false;
+			}
 
-	// 			// Clean up Are You There window
-	// 			if (this.areYouThereWindow) {
-	// 				try {
-	// 					if (!this.areYouThereWindow.isDestroyed()) {
-	// 						this.areYouThereWindow.destroy();
-	// 					}
-	// 				} catch (error) {
-	// 					log.error('Error destroying Are You There window:', error);
-	// 				}
-	// 				this.areYouThereWindow = null;
-	// 				this.isAreYouThereVisible = false;
-	// 			}
+			// Clean up Are You There window
+			if (this.areYouThereWindow) {
+				try {
+					if (!this.areYouThereWindow.isDestroyed()) {
+						this.areYouThereWindow.destroy();
+					}
+				} catch (error) {
+					log.error('Error destroying Are You There window:', error);
+				}
+				this.areYouThereWindow = null;
+				this.isAreYouThereVisible = false;
+			}
 
-	// 			// Unregister all global shortcuts
-	// 			try {
-	// 				globalShortcut.unregisterAll();
-	// 			} catch (error) {
-	// 				log.error('Error unregistering WindowHelper global shortcuts:', error);
-	// 			}
-	// 		} catch (error) {
-	// 			log.error('Error during WindowHelper cleanup:', error);
-	// 		}
-	// 	}
+			// Unregister all global shortcuts
+			try {
+				globalShortcut.unregisterAll();
+			} catch (error) {
+				log.error('Error unregistering WindowHelper global shortcuts:', error);
+			}
+		} catch (error) {
+			log.error('Error during WindowHelper cleanup:', error);
+		}
+	}
 }
 
 module.exports = WindowHelper;

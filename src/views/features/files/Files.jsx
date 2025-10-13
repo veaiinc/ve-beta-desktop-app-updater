@@ -3,39 +3,39 @@ import { memo, useCallback, useContext, useEffect, useRef, useState } from 'reac
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../../../assets/scss/files/files.scss';
 import '../../../assets/scss/files/index.scss';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
-import { ReactComponent as CommandIcon } from '../../../assets/svg/files/command.svg';
+// import { ReactComponent as SearchSvg } from '../../../assets/svg/elastic_search/search-icon.svg';
+// import { ReactComponent as CommandIcon } from '../../../assets/svg/files/command.svg';
 import Context from '../../../context/context';
-import ProposalsPopup from '../../components/docs/ProposalsPopup';
-import DocsGrid from '../../components/files/DocsGrid';
-import FormsGrid from '../../components/files/FormsGrid';
+// import ProposalsPopup from '../../components/docs/ProposalsPopup';
+// import DocsGrid from '../../components/files/DocsGrid';
+// import FormsGrid from '../../components/files/FormsGrid';
 import GalleryGrid from '../../components/files/GalleryGrid';
-import MostUsedEntries from '../../components/files/MostUsedEntries';
-import TemplatesGrid from '../../components/files/TemplatesGrid';
+// import MostUsedEntries from '../../components/files/MostUsedEntries';
+// import TemplatesGrid from '../../components/files/TemplatesGrid';
 import { message } from '../../components/globalComponents/CustomToast';
 // import QuickActions from '../../components/globalComponents/QuickActions';
 import Spinner from '../../components/loaders/Spinner';
 import CreateGallery from '../../components/modalsV2/gallery/CreateGallery';
 import getFileTypeInfo from './getFiletypeInfo';
-import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
-import { ReactComponent as AddIcon } from '../../../assets/svg/files/add.svg';
-import NotesPage from '../notesPage/NotesPage';
-import NotesGrid from '../../components/files/NotesGrid';
+// import { triggerCmdK } from '../../components/commandKSearch/CommandKSearch';
+// import { ReactComponent as AddIcon } from '../../../assets/svg/files/add.svg';
+// import NotesPage from '../notesPage/NotesPage';
+// import NotesGrid from '../../components/files/NotesGrid';
 import { accessControlCheck } from '../../../helpers/accessControlCheck';
 
 const options = [
-	{
-		label: 'Documents',
-		value: 'workflow',
-	},
-	{
-		label: 'Forms',
-		value: 'form',
-	},
-	{
-		label: 'My Templates',
-		value: 'template',
-	},
+	// {
+	// 	label: 'Documents',
+	// 	value: 'workflow',
+	// },
+	// {
+	// 	label: 'Forms',
+	// 	value: 'form',
+	// },
+	// {
+	// 	label: 'My Templates',
+	// 	value: 'template',
+	// },
 	{
 		label: 'Gallery',
 		value: 'classicGallery',
@@ -44,10 +44,10 @@ const options = [
 		label: 'Lite Gallery',
 		value: 'liteGallery',
 	},
-	{
-		label: 'Notes',
-		value: 'notes',
-	},
+	// {
+	// 	label: 'Notes',
+	// 	value: 'notes',
+	// },
 ];
 
 // Mapping from option values to their corresponding app names for access control
@@ -241,7 +241,7 @@ export const statusTextmapper = {
 
 const Files = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const activeTab = searchParams.get('active-tab') || 'Documents';
+	const activeTab = searchParams.get('active-tab') || 'Gallery';
 	const cardItems = useRef(null);
 	const elasticSearchTimeoutRef = useRef(null);
 	const navigate = useNavigate();
@@ -251,13 +251,13 @@ const Files = () => {
 
 	const {
 		galleryInfo: { tenantGalleries },
-		elasticSearch: { elasticSearchResults, performElasticSearch, resetElasticSearchState },
-		templates: { formsTemplatesList, updateStateValues: updateTemplateStateValues },
+		// elasticSearch: { elasticSearchResults, performElasticSearch, resetElasticSearchState },
+		// templates: { formsTemplatesList, updateStateValues: updateTemplateStateValues },
 		profileInfo: { tenantUserAccessControls, getTenantUserAccessControls },
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
 
-	const [mostUsedEntities, setMostUsedEntities] = useState(null);
+	// const [mostUsedEntities, setMostUsedEntities] = useState(null);
 	const [loadingView, setLoadingView] = useState(null);
 	const [info, setInfo] = useState({
 		createNewGalleryModal: false,
@@ -269,7 +269,7 @@ const Files = () => {
 		timeout: null,
 		cardHover: false,
 		isLoading: false,
-		selectedView: 'Documents',
+		selectedView: 'Gallery',
 		viewMode: searchParams?.get('viewMode') || 'card',
 		openProposalPopup: false,
 		initialDataFetched: false,
@@ -466,48 +466,48 @@ const Files = () => {
 		setInfo((prev) => ({ ...prev, viewMode }));
 	}, []);
 
-	const handleSearch = async (e) => {
-		clearTimeout(elasticSearchTimeoutRef?.current);
-		const searchInput = e?.target?.value;
+	// const handleSearch = async (e) => {
+	// 	// clearTimeout(elasticSearchTimeoutRef?.current);
+	// 	const searchInput = e?.target?.value;
 
-		// Update searchQuery state first
-		setInfo((prev) => ({
-			...prev,
-			searchQuery: searchInput,
-			// Always show elastic search results container
-			showElasticSearchResults: true,
-			// Only set loading if there's text to search
-			isLoading: searchInput.trim() !== '',
-		}));
+	// 	// Update searchQuery state first
+	// 	setInfo((prev) => ({
+	// 		...prev,
+	// 		searchQuery: searchInput,
+	// 		// Always show elastic search results container
+	// 		showElasticSearchResults: true,
+	// 		// Only set loading if there's text to search
+	// 		isLoading: searchInput.trim() !== '',
+	// 	}));
 
-		// Skip searching if input is empty - just show "No results found"
-		if (!searchInput.trim()) {
-			return;
-		}
+	// 	// Skip searching if input is empty - just show "No results found"
+	// 	if (!searchInput.trim()) {
+	// 		return;
+	// 	}
 
-		// Only perform search if we have actual text
-		elasticSearchTimeoutRef.current = setTimeout(async () => {
-			// Start the search
-			setInfo((prev) => ({
-				...prev,
-				isLoading: true,
-			}));
+	// 	// Only perform search if we have actual text
+	// 	elasticSearchTimeoutRef.current = setTimeout(async () => {
+	// 		// Start the search
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			isLoading: true,
+	// 		}));
 
-			const response = await performElasticSearch(searchInput);
-			const apiSuccess = response[0];
+	// 		const response = await performElasticSearch(searchInput);
+	// 		const apiSuccess = response[0];
 
-			if (!apiSuccess) {
-				const errMsg = response[1];
-				message.error(errMsg);
-			}
+	// 		if (!apiSuccess) {
+	// 			const errMsg = response[1];
+	// 			message.error(errMsg);
+	// 		}
 
-			// Update loading state
-			setInfo((prev) => ({
-				...prev,
-				isLoading: false,
-			}));
-		}, 500);
-	};
+	// 		// Update loading state
+	// 		setInfo((prev) => ({
+	// 			...prev,
+	// 			isLoading: false,
+	// 		}));
+	// 	}, 500);
+	// };
 
 	const handleCloseSearch = (e) => {
 		setInfo((prev) => ({
@@ -691,29 +691,29 @@ const Files = () => {
 	};
 
 	const tabsMapper = {
-		Documents: (
-			<DocsGrid
-				statusTextmapper={statusTextmapper}
-				handleTotalChange={(value) => handleTotalChange({ workflow: value })}
-				viewMode={info?.viewMode}
-				setViewMode={setViewMode}
-			/>
-		),
-		Forms: (
-			<FormsGrid
-				statusTextmapper={statusTextmapper}
-				handleNavigateForm={handleNavigateForm}
-				handleCreateForm={() => {
-					if (!accessControlCheck('form')) return;
-					const sessionId = ObjectID().toHexString();
-					updateTemplateStateValues({ activeInputForChat: 'Create a form for ' });
-					navigate(`/chat/${sessionId}`);
-				}}
-				handleTotalChange={(value) => handleTotalChange({ form: value })}
-				viewMode={info?.viewMode}
-				setViewMode={setViewMode}
-			/>
-		),
+		// Documents: (
+		// 	<DocsGrid
+		// 		statusTextmapper={statusTextmapper}
+		// 		handleTotalChange={(value) => handleTotalChange({ workflow: value })}
+		// 		viewMode={info?.viewMode}
+		// 		setViewMode={setViewMode}
+		// 	/>
+		// ),
+		// Forms: (
+		// 	<FormsGrid
+		// 		statusTextmapper={statusTextmapper}
+		// 		handleNavigateForm={handleNavigateForm}
+		// 		handleCreateForm={() => {
+		// 			if (!accessControlCheck('form')) return;
+		// 			const sessionId = ObjectID().toHexString();
+		// 			updateTemplateStateValues({ activeInputForChat: 'Create a form for ' });
+		// 			navigate(`/chat/${sessionId}`);
+		// 		}}
+		// 		handleTotalChange={(value) => handleTotalChange({ form: value })}
+		// 		viewMode={info?.viewMode}
+		// 		setViewMode={setViewMode}
+		// 	/>
+		// ),
 		Gallery: (
 			<GalleryGrid
 				handleCreateNewGallery={() => handleCreateNewGallery('classicGallery')}
@@ -735,24 +735,24 @@ const Files = () => {
 				setViewMode={setViewMode}
 			/>
 		),
-		MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
-		'My Templates': (
-			<TemplatesGrid
-				handleCreateTemplate={() =>
-					setInfo((prev) => ({ ...prev, openProposalPopup: true }))
-				}
-				handleTotalChange={(value) => handleTotalChange({ template: value })}
-				viewMode={info?.viewMode}
-				setViewMode={setViewMode}
-			/>
-		),
-		// Notes: <NotesGrid handleTotalChange={(value) => handleTotalChange({ notes: value })} />,
-		Notes: (
-			<NotesGrid
-				handleTotalChange={(value) => handleTotalChange({ notes: value })}
-				isDatabase={true}
-			/>
-		),
+		// MostUsedEntries: <MostUsedEntries mostUsedEntities={mostUsedEntities} />,
+		// 'My Templates': (
+		// 	<TemplatesGrid
+		// 		handleCreateTemplate={() =>
+		// 			setInfo((prev) => ({ ...prev, openProposalPopup: true }))
+		// 		}
+		// 		handleTotalChange={(value) => handleTotalChange({ template: value })}
+		// 		viewMode={info?.viewMode}
+		// 		setViewMode={setViewMode}
+		// 	/>
+		// ),
+		// // Notes: <NotesGrid handleTotalChange={(value) => handleTotalChange({ notes: value })} />,
+		// Notes: (
+		// 	<NotesGrid
+		// 		handleTotalChange={(value) => handleTotalChange({ notes: value })}
+		// 		isDatabase={true}
+		// 	/>
+		// ),
 	};
 
 	const triggerCmdH = () => {
@@ -860,7 +860,7 @@ const Files = () => {
 				message={message}
 				isLightGallery={info?.selectedView === 'Lite Gallery'}
 			/>
-			<ProposalsPopup
+			{/* <ProposalsPopup
 				open={info?.openProposalPopup}
 				closeModal={() =>
 					setInfo((prev) => ({
@@ -871,7 +871,7 @@ const Files = () => {
 				}
 				clientDetails={formsTemplatesList}
 				commonState={info?.selectedView === 'Forms' ? 'form-submission' : 'All'}
-			/>
+			/> */}
 		</div>
 	);
 };

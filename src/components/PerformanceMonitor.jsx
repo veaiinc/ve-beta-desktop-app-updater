@@ -104,8 +104,8 @@ const PerformanceMonitor = ({ enabled = process.env.NODE_ENV === 'development' }
 				console.log(`💾 Memory: ${used}MB / ${total}MB (Limit: ${limit}MB)`);
 			};
 
-			// Log memory every 30 seconds
-			const memoryInterval = setInterval(logMemory, 30000);
+			// Log memory every 60 seconds (reduced frequency)
+			const memoryInterval = setInterval(logMemory, 60000);
 			logMemory(); // Log immediately
 
 			return () => clearInterval(memoryInterval);
@@ -117,7 +117,10 @@ const PerformanceMonitor = ({ enabled = process.env.NODE_ENV === 'development' }
 		if (!enabled) return;
 
 		const logRouteChange = () => {
-			console.log(`🔄 Route Changed: ${window.location.pathname}`);
+			// Only log route changes in development mode
+			if (process.env.NODE_ENV === 'development') {
+				console.log(`🔄 Route Changed: ${window.location.pathname}`);
+			}
 			if (window.performance && window.performance.mark) {
 				window.performance.mark(`route-${window.location.pathname}`);
 			}

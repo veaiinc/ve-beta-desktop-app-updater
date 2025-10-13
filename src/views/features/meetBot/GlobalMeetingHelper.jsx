@@ -4,7 +4,7 @@ import audioStorageService from '../../../services/audioStorageService';
 import ObjectID from 'bson-objectid';
 import { useOverlayNotification } from '../../../overlay/components/OverlayNotification';
 import useAssemblyTranscription from '../../../overlay/hooks/useAssemblyTranscription';
-import { useDispatch } from '@zubridge/electron';
+// import { useDispatch } from '@zubridge/electron';
 import { useStore, storeActions } from '../../../store/store';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,8 +22,9 @@ const GlobalMeetingHelper = () => {
 
 	// Custom notification system
 	const notification = useOverlayNotification();
-	const dispatch = useDispatch();
-	const { pastMeetings } = useStore((state) => state.meeting) || {};
+	// const dispatch = useDispatch();
+	// const { pastMeetings } = useStore((state) => state.meeting) || {};
+	const pastMeetings = null; // Temporarily set to null
 
 	const [info, setInfo] = useState({
 		isMeetIsOngoing: false,
@@ -212,19 +213,19 @@ const GlobalMeetingHelper = () => {
 					totalDocs: (pastMeetings?.totalDocs ?? 0) + 1,
 				};
 
-				dispatch({
-					type: storeActions.meeting.SET_PAST_MEETINGS,
-					payload,
-				});
+				// dispatch({
+				// 	type: storeActions.meeting.SET_PAST_MEETINGS,
+				// 	payload,
+				// });
 			}
 		}
 
 		if (meetingData) {
 			// Store meeting data and ID for later use
-			dispatch({
-				type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
-				payload: meetingData._id,
-			});
+			// dispatch({
+			// 	type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
+			// 	payload: meetingData._id,
+			// });
 
 			updateActiveMeetingDetails({
 				meetingId: meetingData._id,
@@ -343,10 +344,10 @@ const GlobalMeetingHelper = () => {
 			}
 		}
 
-		dispatch({
-			type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
-			payload: null,
-		});
+		// dispatch({
+		// 	type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
+		// 	payload: null,
+		// });
 
 		// Stop audio recording for local storage
 		try {

@@ -708,7 +708,7 @@ const GalleryPage = () => {
 		if (!tenantAlbums || tenantAlbums?._id !== galleryId) {
 			getAlbums(galleryId).then((response) => {
 				if (response?.[0] === 404 && response?.[1]?.message === 'gallery not found') {
-					navigate('/galleries');
+					navigate('/files?active-tab=Gallery');
 				}
 			});
 		}
@@ -3730,17 +3730,17 @@ const GalleryPage = () => {
 		}));
 	};
 	const handleBackNavigation = () => {
-		navigate(location.pathname, { replace: true, state: {} });
 		setInfo((prev) => ({
 			...prev,
 			activeAlbumId: null,
 			albumContains: '',
 		}));
-		if (!info?.isLightGallery) {
-			navigate('/files?active-tab=Gallery');
-		} else {
-			navigate(`/files?active-tab=Lite+Gallery`);
-		}
+		// Preserve the lite-gallery parameter in navigation
+		// if (info?.isLightGallery) {
+		// 	navigate('/files?active-tab=Lite+Gallery&lite-gallery=true');
+		// } else {
+		navigate('/files?active-tab=Gallery');
+		// }
 	};
 	const selectedFaceChange = (face) => {
 		setInfo((prev) => ({

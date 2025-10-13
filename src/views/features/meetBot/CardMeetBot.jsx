@@ -7,14 +7,17 @@ import GuideMePopup from './guideMePopup';
 import CreateMeetingModal from './CreateMeetingModal';
 import moment from 'moment';
 import { useStore, storeActions } from '../../../store/store';
-import { useDispatch } from '@zubridge/electron';
+// import { useDispatch } from '@zubridge/electron';
 import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
 
-
-
 // Upcoming Meetings List Component
-const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, getMeetingStatus }) => {
+const UpcomingMeetingsList = ({
+	meetings,
+	onMeetingClick,
+	creatingMeetingId,
+	getMeetingStatus,
+}) => {
 	// Group meetings by date (same as past meetings)
 	const groupMeetingsByDate = (meetings) => {
 		const grouped = {};
@@ -27,8 +30,9 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 			return moment.utc(aTime).valueOf() - moment.utc(bTime).valueOf();
 		});
 
-		sortedMeetings.forEach(meeting => {
-			const meetingTime = meeting?.startDateTime || meeting?.googleCalendarMeta?.start?.dateTime;
+		sortedMeetings.forEach((meeting) => {
+			const meetingTime =
+				meeting?.startDateTime || meeting?.googleCalendarMeta?.start?.dateTime;
 			if (!meetingTime) return;
 
 			const date = moment.utc(meetingTime).format('DD MMM YYYY');
@@ -55,7 +59,7 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 		if (meeting.participants && meeting.participants.length > 0) {
 			participants = meeting.participants;
 		} else if (meeting.attendees && meeting.attendees.length > 0) {
-			participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
+			participants = meeting.attendees.map((attendee) => attendee.email || attendee.name);
 		} else if (meeting.organizer?.name) {
 			participants = [meeting.organizer.name];
 		}
@@ -99,10 +103,10 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 	});
 
 	return (
-		<div className='upcoming-meetings-list'>
+		<div className="upcoming-meetings-list">
 			{sortedDateKeys.map((date) => (
-				<div key={date} className='meetings-group'>
-					<div className='meetings-group-title'>{date}</div>
+				<div key={date} className="meetings-group">
+					<div className="meetings-group-title">{date}</div>
 					{groupedMeetings[date].map((meeting) => {
 						const status = getMeetingStatus(meeting);
 						const isCreating = creatingMeetingId === meeting._id;
@@ -111,24 +115,36 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 						return (
 							<div
 								key={meeting._id}
-								className={`card-meet-bot-list-item upcoming ${isCreating ? 'creating' : ''} ${!isClickable ? 'non-clickable' : ''}`}
+								className={`card-meet-bot-list-item upcoming ${
+									isCreating ? 'creating' : ''
+								} ${!isClickable ? 'non-clickable' : ''}`}
 								onClick={() => {
 									if (isCreating || !isClickable) return;
 									onMeetingClick(meeting);
 								}}
 							>
-								<div className='card-meet-bot-list-item-header'>
-									<div className='card-meet-bot-list-item-title'>{meeting.title}</div>
-									<div className='card-meet-bot-list-item-time'>{formatTime(meeting.startDateTime)}</div>
+								<div className="card-meet-bot-list-item-header">
+									<div className="card-meet-bot-list-item-title">
+										{meeting.title}
+									</div>
+									<div className="card-meet-bot-list-item-time">
+										{formatTime(meeting.startDateTime)}
+									</div>
 								</div>
-								<div className='card-meet-bot-list-item-description'>
+								<div className="card-meet-bot-list-item-description">
 									{getParticipantsDisplay(meeting)}
 								</div>
 								{status && (
-									<div className='card-meet-bot-list-item-status'>
+									<div className="card-meet-bot-list-item-status">
 										{isCreating ? (
 											<>
-												<Spinner width="12px" height="12px" color="white" borderTopColor="transparent" borderWidth={2} />
+												<Spinner
+													width="12px"
+													height="12px"
+													color="white"
+													borderTopColor="transparent"
+													borderWidth={2}
+												/>
 												Creating...
 											</>
 										) : (
@@ -143,9 +159,9 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 			))}
 
 			{meetings.length === 0 && (
-				<div className='card-meet-empty-state'>
-					<div className='card-meet-empty-title'>No upcoming meetings</div>
-					<div className='card-meet-empty-description'>
+				<div className="card-meet-empty-state">
+					<div className="card-meet-empty-title">No upcoming meetings</div>
+					<div className="card-meet-empty-description">
 						Your upcoming meetings will appear here
 					</div>
 				</div>
@@ -160,7 +176,7 @@ const PastMeetingsList = ({ meetings, onMeetingClick }) => {
 	const groupMeetingsByDate = (meetings) => {
 		const grouped = {};
 
-		meetings.forEach(meeting => {
+		meetings.forEach((meeting) => {
 			if (!meeting.createdAt) return;
 
 			const date = moment.unix(meeting.createdAt).format('DD MMM YYYY');
@@ -185,7 +201,7 @@ const PastMeetingsList = ({ meetings, onMeetingClick }) => {
 		if (meeting.participants && meeting.participants.length > 0) {
 			participants = meeting.participants;
 		} else if (meeting.attendees && meeting.attendees.length > 0) {
-			participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
+			participants = meeting.attendees.map((attendee) => attendee.email || attendee.name);
 		} else if (meeting.createdBy?.name) {
 			participants = [meeting.createdBy.name];
 		}
@@ -224,21 +240,23 @@ const PastMeetingsList = ({ meetings, onMeetingClick }) => {
 	const groupedMeetings = groupMeetingsByDate(meetings);
 
 	return (
-		<div className='past-meetings-list'>
+		<div className="past-meetings-list">
 			{Object.keys(groupedMeetings).map((date) => (
-				<div key={date} className='meetings-group'>
-					<div className='meetings-group-title'>{date}</div>
+				<div key={date} className="meetings-group">
+					<div className="meetings-group-title">{date}</div>
 					{groupedMeetings[date].map((meeting) => (
 						<div
 							key={meeting._id}
-							className='card-meet-bot-list-item past'
+							className="card-meet-bot-list-item past"
 							onClick={() => onMeetingClick(meeting)}
 						>
-							<div className='card-meet-bot-list-item-header'>
-								<div className='card-meet-bot-list-item-title'>{meeting.title}</div>
-								<div className='card-meet-bot-list-item-time'>{formatTime(meeting.createdAt)}</div>
+							<div className="card-meet-bot-list-item-header">
+								<div className="card-meet-bot-list-item-title">{meeting.title}</div>
+								<div className="card-meet-bot-list-item-time">
+									{formatTime(meeting.createdAt)}
+								</div>
 							</div>
-							<div className='card-meet-bot-list-item-description'>
+							<div className="card-meet-bot-list-item-description">
 								{getParticipantsDisplay(meeting)}
 							</div>
 						</div>
@@ -247,9 +265,9 @@ const PastMeetingsList = ({ meetings, onMeetingClick }) => {
 			))}
 
 			{meetings.length === 0 && (
-				<div className='card-meet-empty-state'>
-					<div className='card-meet-empty-title'>No past meetings</div>
-					<div className='card-meet-empty-description'>
+				<div className="card-meet-empty-state">
+					<div className="card-meet-empty-title">No past meetings</div>
+					<div className="card-meet-empty-description">
 						Your completed meetings will appear here
 					</div>
 				</div>
@@ -257,8 +275,6 @@ const PastMeetingsList = ({ meetings, onMeetingClick }) => {
 		</div>
 	);
 };
-
-
 
 const CardMeetBot = () => {
 	const {
@@ -278,9 +294,12 @@ const CardMeetBot = () => {
 	});
 	const [currentTime, setCurrentTime] = useState(moment.utc());
 
-	const dispatch = useDispatch();
-	const { pastMeetings, activeMeetingId, upcomingMeetings } =
-		useStore((state) => state.meeting) || {};
+	// const dispatch = useDispatch();
+	// const { pastMeetings, activeMeetingId, upcomingMeetings } =
+	// 	useStore((state) => state.meeting) || {};
+	const pastMeetings = null; // Temporarily set to null
+	const activeMeetingId = null; // Temporarily set to null
+	const upcomingMeetings = null; // Temporarily set to null
 
 	// Get meetings based on active tab
 	const meetings = useMemo(() => {
@@ -307,11 +326,12 @@ const CardMeetBot = () => {
 						pastMeeting.title &&
 						meeting.title &&
 						pastMeeting.title.toLowerCase().trim() ===
-						meeting.title.toLowerCase().trim();
+							meeting.title.toLowerCase().trim();
 
 					// Compare start times (within 30 minutes window)
 					let timeMatch = false;
-					const upcomingMeetingTime = meeting?.googleCalendarMeta?.start?.dateTime || meeting.startDateTime;
+					const upcomingMeetingTime =
+						meeting?.googleCalendarMeta?.start?.dateTime || meeting.startDateTime;
 					if (pastMeeting.createdAt && upcomingMeetingTime) {
 						const pastMeetingTime = moment.unix(pastMeeting.createdAt);
 						const upcomingTime = moment.utc(upcomingMeetingTime);
@@ -410,10 +430,10 @@ const CardMeetBot = () => {
 					};
 				}
 
-				dispatch({
-					type: storeActions.meeting.SET_PAST_MEETINGS,
-					payload,
-				});
+				// dispatch({
+				// 	type: storeActions.meeting.SET_PAST_MEETINGS,
+				// 	payload,
+				// });
 			} catch (error) {
 				console.error('Error fetching meetings:', error);
 			} finally {
@@ -474,10 +494,10 @@ const CardMeetBot = () => {
 					};
 				}
 
-				dispatch({
-					type: storeActions.meeting.SET_UPCOMING_MEETINGS,
-					payload,
-				});
+				// dispatch({
+				// 	type: storeActions.meeting.SET_UPCOMING_MEETINGS,
+				// 	payload,
+				// });
 			} catch (error) {
 				console.error('Error fetching meetings:', error);
 			} finally {
@@ -520,7 +540,13 @@ const CardMeetBot = () => {
 
 			return () => clearTimeout(timer);
 		}
-	}, [meetings.length, info.activeTab, loadingMeetings, info.userSwitchedTab, upcomingMeetings?.data]);
+	}, [
+		meetings.length,
+		info.activeTab,
+		loadingMeetings,
+		info.userSwitchedTab,
+		upcomingMeetings?.data,
+	]);
 
 	// Reset userSwitchedTab flag when upcoming meetings are added
 	useEffect(() => {
@@ -528,11 +554,6 @@ const CardMeetBot = () => {
 			setInfo((prev) => ({ ...prev, userSwitchedTab: false }));
 		}
 	}, [meetings.length, info.userSwitchedTab]);
-
-
-
-
-
 
 	const closeModal = () => {
 		setInfo((prev) => ({
@@ -613,10 +634,10 @@ const CardMeetBot = () => {
 				totalDocs: (pastMeetings?.totalDocs ?? 0) + 1,
 			};
 
-			dispatch({
-				type: storeActions.meeting.SET_PAST_MEETINGS,
-				payload,
-			});
+			// dispatch({
+			// 	type: storeActions.meeting.SET_PAST_MEETINGS,
+			// 	payload,
+			// });
 
 			// Remove the upcoming meeting from the upcoming meetings list since it's now created
 			if (upcomingMeetings?.data) {
@@ -624,14 +645,14 @@ const CardMeetBot = () => {
 					(upcomingMeeting) => upcomingMeeting._id !== meeting._id,
 				);
 
-				dispatch({
-					type: storeActions.meeting.SET_UPCOMING_MEETINGS,
-					payload: {
-						...upcomingMeetings,
-						data: updatedUpcomingData,
-						totalDocs: Math.max(0, (upcomingMeetings.totalDocs || 0) - 1),
-					},
-				});
+				// dispatch({
+				// 	type: storeActions.meeting.SET_UPCOMING_MEETINGS,
+				// 	payload: {
+				// 		...upcomingMeetings,
+				// 		data: updatedUpcomingData,
+				// 		totalDocs: Math.max(0, (upcomingMeetings.totalDocs || 0) - 1),
+				// 	},
+				// });
 			}
 
 			if (meetingId && window.electronApi) {
@@ -721,29 +742,41 @@ const CardMeetBot = () => {
 								)}
 							</div>
 							{/* Always show both tabs */}
-							<div className='card-meet-tab-container'>
+							<div className="card-meet-tab-container">
 								<div
-									className={`card-meet-tab-item ${info.activeTab === 'upcoming' ? 'active' : ''}`}
+									className={`card-meet-tab-item ${
+										info.activeTab === 'upcoming' ? 'active' : ''
+									}`}
 									onClick={() => handleTabChange('upcoming')}
 								>
-									<div className='card-meet-tab-indicator'></div>
-									<div className='card-meet-tab-item-title'>Upcoming</div>
-									<div className='card-meet-tab-item-count'>{upcomingMeetings?.data?.length || 0}</div>
+									<div className="card-meet-tab-indicator"></div>
+									<div className="card-meet-tab-item-title">Upcoming</div>
+									<div className="card-meet-tab-item-count">
+										{upcomingMeetings?.data?.length || 0}
+									</div>
 								</div>
 								<div
-									className={`card-meet-tab-item ${info.activeTab === 'past' ? 'active' : ''}`}
+									className={`card-meet-tab-item ${
+										info.activeTab === 'past' ? 'active' : ''
+									}`}
 									onClick={() => handleTabChange('past')}
 								>
-									<div className='card-meet-tab-indicator'></div>
-									<div className='card-meet-tab-item-title'>Past</div>
-									<div className='card-meet-tab-item-count'>{pastMeetings?.data?.length || 0}</div>
+									<div className="card-meet-tab-indicator"></div>
+									<div className="card-meet-tab-item-title">Past</div>
+									<div className="card-meet-tab-item-count">
+										{pastMeetings?.data?.length || 0}
+									</div>
 								</div>
 							</div>
 
-							<div className='card-meet-bot-list'>
+							<div className="card-meet-bot-list">
 								{loadingMeetings ? (
-									<div className='card-meet-loading'>
-										<Spinner width="20px" height="20px" color="var(--primary-button)" />
+									<div className="card-meet-loading">
+										<Spinner
+											width="20px"
+											height="20px"
+											color="var(--primary-button)"
+										/>
 										<span>Loading meetings...</span>
 									</div>
 								) : info.activeTab === 'upcoming' ? (
@@ -756,43 +789,52 @@ const CardMeetBot = () => {
 											getMeetingStatus={getMeetingStatus}
 										/>
 									) : (
-										<div className='card-meet-empty-state'>
-											<div className='card-meet-empty-title'>No upcoming meetings</div>
-											<div className='card-meet-empty-description'>
+										<div className="card-meet-empty-state">
+											<div className="card-meet-empty-title">
+												No upcoming meetings
+											</div>
+											<div className="card-meet-empty-description">
 												Your upcoming meetings will appear here
 											</div>
 										</div>
 									)
+								) : // Show past meetings or create new meeting option
+								pastMeetings?.data && pastMeetings.data.length > 0 ? (
+									<PastMeetingsList
+										meetings={meetings}
+										onMeetingClick={(meeting) => {
+											if (
+												activeMeetingId &&
+												activeMeetingId === meeting?._id &&
+												window.electronApi
+											) {
+												navigate('/ongoing-meeting');
+											} else {
+												navigate(
+													`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
+												);
+											}
+										}}
+									/>
 								) : (
-									// Show past meetings or create new meeting option
-									pastMeetings?.data && pastMeetings.data.length > 0 ? (
-										<PastMeetingsList
-											meetings={meetings}
-											onMeetingClick={(meeting) => {
-												if (activeMeetingId && activeMeetingId === meeting?._id && window.electronApi) {
-													navigate('/ongoing-meeting');
-												} else {
-													navigate(`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`);
-												}
-											}}
-										/>
-									) : (
-										<div className='card-meet-empty-state'>
-											<div className='card-meet-empty-title'>No past meetings</div>
-											<div className='card-meet-empty-description'>
-												Start your first meeting to see it here
-											</div>
-											<button
-												className='create-meeting-btn'
-												onClick={() => setInfo((prev) => ({ ...prev, modalOpen: true }))}
-											>
-												Create New Meeting
-											</button>
+									<div className="card-meet-empty-state">
+										<div className="card-meet-empty-title">
+											No past meetings
 										</div>
-									)
+										<div className="card-meet-empty-description">
+											Start your first meeting to see it here
+										</div>
+										<button
+											className="create-meeting-btn"
+											onClick={() =>
+												setInfo((prev) => ({ ...prev, modalOpen: true }))
+											}
+										>
+											Create New Meeting
+										</button>
+									</div>
 								)}
 							</div>
-
 						</div>
 					</div>
 				</div>

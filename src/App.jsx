@@ -1,17 +1,17 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
-import useVoiceIntegration from './hooks/useVoiceIntegration';
-import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
+// import useVoiceIntegration from './hooks/useVoiceIntegration';
+// import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
 // import PerformanceMonitor from './components/PerformanceMonitor';
 import DragHandle from './components/DragHandle';
 // Removed complex translucency utilities - now using simplified CSS approach
 import { GlassModeProvider, useGlassMode } from './context/GlassModeContext.jsx';
 import { initializeGlassModeSync } from './helpers/glassModeSync';
-import { useNotchDropSync } from './hooks/useNotchDropSync';
+// import { useNotchDropSync } from './hooks/useNotchDropSync';
 
 // ✅ REVERTED: Back to regular imports (lazy loading broke production)
-import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
+// import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
 import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
@@ -33,7 +33,7 @@ const AppContent = () => {
 	const location = useLocation();
 
 	// Global NotchDrop sync - keeps NotchDrop updated with meeting data across all routes
-	useNotchDropSync();
+	// useNotchDropSync();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	const [updateProgress, setUpdateProgress] = useState(null);
@@ -73,134 +73,134 @@ const AppContent = () => {
 	}, []);
 
 	// Voice integration for NotchDrop (disabled when LiveKit is active)
-	const [disableOldVoiceIntegration, setDisableOldVoiceIntegration] = useState(false);
-	const voiceIntegration = useVoiceIntegration();
+	// const [disableOldVoiceIntegration, setDisableOldVoiceIntegration] = useState(false);
+	// const voiceIntegration = useVoiceIntegration();
 
 	// ⚡ PERFORMANCE FIX: Consolidated voice activation listeners
-	useEffect(() => {
-		// Single handler for all voice activation events
-		const handleVoiceActivation = (event, data) => {
-			// Check if this is a valid voice activation
-			const isValidActivation =
-				!data ||
-				data.type === 'ACTIVATE_VOICE_AGENT' ||
-				data.source === 'notchdrop_voice_button';
+	// useEffect(() => {
+	// 	// Single handler for all voice activation events
+	// 	const handleVoiceActivation = (event, data) => {
+	// 		// Check if this is a valid voice activation
+	// 		const isValidActivation =
+	// 			!data ||
+	// 			data.type === 'ACTIVATE_VOICE_AGENT' ||
+	// 			data.source === 'notchdrop_voice_button';
 
-			if (isValidActivation) {
-				setShowVoiceFromNotch(true);
+	// 		if (isValidActivation) {
+	// 			setShowVoiceFromNotch(true);
 
-				// Use requestAnimationFrame for better performance than setTimeout
-				requestAnimationFrame(() => {
-					// Find and click the voice agent start button
-					const actionButtons = document.querySelectorAll('.action-button');
-					if (actionButtons.length > 0) {
-						actionButtons[0].click();
-					}
-				});
-			}
-		};
+	// 			// Use requestAnimationFrame for better performance than setTimeout
+	// 			requestAnimationFrame(() => {
+	// 				// Find and click the voice agent start button
+	// 				const actionButtons = document.querySelectorAll('.action-button');
+	// 				if (actionButtons.length > 0) {
+	// 					actionButtons[0].click();
+	// 				}
+	// 			});
+	// 		}
+	// 	};
 
-		// ⚡ OPTIMIZATION: Single consolidated listener instead of 6 separate ones
-		if (window.electronApi?.ipcRenderer) {
-			window.electronApi.ipcRenderer.on('send-chat-message-to-askai', handleVoiceActivation);
-			window.electronApi.ipcRenderer.on('notchdrop:showVoiceAgent', handleVoiceActivation);
-			window.electronApi.ipcRenderer.on(
-				'notchdrop:activate-voice-agent',
-				handleVoiceActivation,
-			);
-		}
+	// 	// ⚡ OPTIMIZATION: Single consolidated listener instead of 6 separate ones
+	// 	if (window.electronApi?.ipcRenderer) {
+	// 		window.electronApi.ipcRenderer.on('send-chat-message-to-askai', handleVoiceActivation);
+	// 		window.electronApi.ipcRenderer.on('notchdrop:showVoiceAgent', handleVoiceActivation);
+	// 		window.electronApi.ipcRenderer.on(
+	// 			'notchdrop:activate-voice-agent',
+	// 			handleVoiceActivation,
+	// 		);
+	// 	}
 
-		// Single custom event handler for DOM events
-		const handleCustomVoiceEvent = () => setShowVoiceFromNotch(true);
-		window.addEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
-		window.addEventListener('show-voice-agent', handleCustomVoiceEvent);
-		window.addEventListener('start-voice-agent', handleCustomVoiceEvent);
+	// 	// Single custom event handler for DOM events
+	// 	const handleCustomVoiceEvent = () => setShowVoiceFromNotch(true);
+	// 	window.addEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
+	// 	window.addEventListener('show-voice-agent', handleCustomVoiceEvent);
+	// 	window.addEventListener('start-voice-agent', handleCustomVoiceEvent);
 
-		return () => {
-			if (window.electronApi?.ipcRenderer) {
-				window.electronApi.ipcRenderer.removeListener(
-					'send-chat-message-to-askai',
-					handleVoiceActivation,
-				);
-				window.electronApi.ipcRenderer.removeListener(
-					'notchdrop:showVoiceAgent',
-					handleVoiceActivation,
-				);
-				window.electronApi.ipcRenderer.removeListener(
-					'notchdrop:activate-voice-agent',
-					handleVoiceActivation,
-				);
-			}
-			window.removeEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
-			window.removeEventListener('show-voice-agent', handleCustomVoiceEvent);
-			window.removeEventListener('start-voice-agent', handleCustomVoiceEvent);
-		};
-	}, []);
+	// 	return () => {
+	// 		if (window.electronApi?.ipcRenderer) {
+	// 			window.electronApi.ipcRenderer.removeListener(
+	// 				'send-chat-message-to-askai',
+	// 				handleVoiceActivation,
+	// 			);
+	// 			window.electronApi.ipcRenderer.removeListener(
+	// 				'notchdrop:showVoiceAgent',
+	// 				handleVoiceActivation,
+	// 			);
+	// 			window.electronApi.ipcRenderer.removeListener(
+	// 				'notchdrop:activate-voice-agent',
+	// 				handleVoiceActivation,
+	// 			);
+	// 		}
+	// 		window.removeEventListener('notchdrop-voice-activate', handleCustomVoiceEvent);
+	// 		window.removeEventListener('show-voice-agent', handleCustomVoiceEvent);
+	// 		window.removeEventListener('start-voice-agent', handleCustomVoiceEvent);
+	// 	};
+	// }, []);
 
 	// ⚡ PERFORMANCE FIX: Combined voice integration setup
-	useEffect(() => {
-		// Expose voiceIntegration to window for NotchDrop access
-		if (voiceIntegration && !disableOldVoiceIntegration && !window.voiceIntegration) {
-			window.voiceIntegration = voiceIntegration;
-		} else if (disableOldVoiceIntegration && window.voiceIntegration) {
-			delete window.voiceIntegration;
-		}
+	// useEffect(() => {
+	// 	// Expose voiceIntegration to window for NotchDrop access
+	// 	if (voiceIntegration && !disableOldVoiceIntegration && !window.voiceIntegration) {
+	// 		window.voiceIntegration = voiceIntegration;
+	// 	} else if (disableOldVoiceIntegration && window.voiceIntegration) {
+	// 		delete window.voiceIntegration;
+	// 	}
 
-		// Monitor voice connection state and update NotchDrop
-		if (voiceIntegration?.isConnected && window.electronApi?.notchdrop) {
-			window.electronApi.notchdrop.updateVoiceConnectionState(
-				voiceIntegration.isConnected ? 'connected' : 'disconnected',
-			);
-		}
+	// 	// Monitor voice connection state and update NotchDrop
+	// 	if (voiceIntegration?.isConnected && window.electronApi?.notchdrop) {
+	// 		window.electronApi.notchdrop.updateVoiceConnectionState(
+	// 			voiceIntegration.isConnected ? 'connected' : 'disconnected',
+	// 		);
+	// 	}
 
-		return () => {
-			if (window.voiceIntegration) {
-				delete window.voiceIntegration;
-			}
-		};
-	}, [voiceIntegration, disableOldVoiceIntegration, voiceIntegration?.isConnected]);
+	// 	return () => {
+	// 		if (window.voiceIntegration) {
+	// 			delete window.voiceIntegration;
+	// 		}
+	// 	};
+	// }, [voiceIntegration, disableOldVoiceIntegration, voiceIntegration?.isConnected]);
 
 	// Handle NotchDrop voice disconnect
-	useEffect(() => {
-		const handleNotchDropVoiceDisconnect = async (event) => {
-			// console.log(`🔌 NotchDrop voice disconnect: ${event.type}`);
-			if (voiceIntegration && voiceIntegration.disconnect) {
-				try {
-					// console.log('🔌 Disconnecting voice agent from NotchDrop X button...');
-					await voiceIntegration.disconnect();
-					console.log('✅ Voice agent disconnected successfully from NotchDrop!');
-				} catch (error) {
-					console.error(`❌ NotchDrop voice disconnect failed: ${error.message}`);
-				}
-			}
-		};
+	// useEffect(() => {
+	// 	const handleNotchDropVoiceDisconnect = async (event) => {
+	// 		// console.log(`🔌 NotchDrop voice disconnect: ${event.type}`);
+	// 		if (voiceIntegration && voiceIntegration.disconnect) {
+	// 			try {
+	// 				// console.log('🔌 Disconnecting voice agent from NotchDrop X button...');
+	// 				await voiceIntegration.disconnect();
+	// 				console.log('✅ Voice agent disconnected successfully from NotchDrop!');
+	// 			} catch (error) {
+	// 				console.error(`❌ NotchDrop voice disconnect failed: ${error.message}`);
+	// 			}
+	// 		}
+	// 	};
 
-		window.addEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
+	// 	window.addEventListener('notchdrop-voice-disconnect', handleNotchDropVoiceDisconnect);
 
-		return () => {
-			window.removeEventListener(
-				'notchdrop-voice-disconnect',
-				handleNotchDropVoiceDisconnect,
-			);
-		};
-	}, [voiceIntegration]);
+	// 	return () => {
+	// 		window.removeEventListener(
+	// 			'notchdrop-voice-disconnect',
+	// 			handleNotchDropVoiceDisconnect,
+	// 		);
+	// 	};
+	// }, [voiceIntegration]);
 
 	// Listen for old voice integration disable/enable events
-	useEffect(() => {
-		const handleDisableOldVoiceIntegration = (event) => {
-			// console.log('🚫 Received disable old voice integration event:', event.detail);
-			setDisableOldVoiceIntegration(event.detail.disable);
-		};
+	// useEffect(() => {
+	// 	const handleDisableOldVoiceIntegration = (event) => {
+	// 		// console.log('🚫 Received disable old voice integration event:', event.detail);
+	// 		setDisableOldVoiceIntegration(event.detail.disable);
+	// 	};
 
-		window.addEventListener('disable-old-voice-integration', handleDisableOldVoiceIntegration);
+	// 	window.addEventListener('disable-old-voice-integration', handleDisableOldVoiceIntegration);
 
-		return () => {
-			window.removeEventListener(
-				'disable-old-voice-integration',
-				handleDisableOldVoiceIntegration,
-			);
-		};
-	}, []);
+	// 	return () => {
+	// 		window.removeEventListener(
+	// 			'disable-old-voice-integration',
+	// 			handleDisableOldVoiceIntegration,
+	// 		);
+	// 	};
+	// }, []);
 
 	const handleCheckForUpdates = async () => {
 		try {
@@ -327,15 +327,12 @@ const AppContent = () => {
 		<div className="app-content glass-app">
 			{/* ⚡ PERFORMANCE MONITOR - tracks app performance in development */}
 			{/* <PerformanceMonitor /> */}
-
 			{/* Drag Handle - provides window dragging functionality */}
 			<DragHandle />
-
 			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
-			<NotchDropVoiceActivator />
-
-			{showWindowChrome && <WindowChrome />}
-
+			{/* <NotchDropVoiceActivator /> */}
+			{/* {showWindowChrome && <WindowChrome />} */}{' '}
+			{/* Use default system window controls */}
 			{/* Test Permission Overlay Button - Remove in production */}
 			{/* {process.env.NODE_ENV === 'development' && (
 				<button
@@ -379,7 +376,6 @@ const AppContent = () => {
 				>
 					Test Permission Overlay
 				</button> */}
-
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
 				<div
@@ -433,22 +429,17 @@ const AppContent = () => {
 					</div>
 				</div>
 			)} */}
-
 			<Routes>
 				{routes?.map((route) => (
 					<Route key={route.path} path={route.path} element={route.element} />
 				))}
 			</Routes>
-
 			{/* NotchDrop Voice Agent Integration - DIRECT */}
-			{showVoiceFromNotch && <VoiceAgentParent />}
-
+			{/* {showVoiceFromNotch && <VoiceAgentParent />} */}
 			{/* Global Upload Progress Popup - persists across all routes */}
 			<UploadProgressPopup />
-
 			{/* Global Download Progress Popup - persists across all routes */}
 			<DownloadProgressPopup />
-
 			{/* Update Progress Indicator */}
 			{updateProgress && (
 				<div
@@ -495,7 +486,6 @@ const AppContent = () => {
 					)}
 				</div>
 			)}
-
 			{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
 				<UpdateReadyPopup
 					updateInfo={updateStatus}

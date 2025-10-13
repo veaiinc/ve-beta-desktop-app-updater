@@ -1,5 +1,16 @@
-import { createUseStore } from '@zubridge/electron';
+import { create } from 'zustand';
 
-export const useStore = createUseStore();
+// Create a simple Zustand store to replace Zubridge
+const useAppStore = create((set, get) => ({
+	// Add your state properties here as needed
+	// Example: someValue: null,
+	
+	// Add your actions here
+	// Example: setSomeValue: (value) => set({ someValue: value }),
+}));
 
-export const storeActions = window?.electronApi?.getStoreActions() || {};
+// Export the store hook
+export const useStore = useAppStore;
+
+// Export empty actions object for compatibility
+export const storeActions = {};

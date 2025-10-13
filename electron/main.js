@@ -1559,6 +1559,82 @@ function createMenuBar() {
 			],
 		},
 		{
+			label: 'View',
+			submenu: [
+				{
+					label: 'Reload',
+					accelerator: 'CmdOrCtrl+R',
+					click: () => {
+						if (mainWindow && !mainWindow.isDestroyed()) {
+							mainWindow.webContents.reload();
+						}
+					},
+				},
+				{
+					label: 'Force Reload',
+					accelerator: 'CmdOrCtrl+Shift+R',
+					click: () => {
+						if (mainWindow && !mainWindow.isDestroyed()) {
+							mainWindow.webContents.reloadIgnoringCache();
+						}
+					},
+				},
+				{
+					label: 'Toggle Developer Tools',
+					accelerator: process.platform === 'darwin' ? 'Alt+Cmd+I' : 'Ctrl+Shift+I',
+					click: () => {
+						if (mainWindow && !mainWindow.isDestroyed()) {
+							mainWindow.webContents.toggleDevTools();
+						}
+					},
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Actual Size',
+					accelerator: 'CmdOrCtrl+0',
+					click: () => {
+						if (mainWindow && !mainWindow.isDestroyed()) {
+							mainWindow.webContents.setZoomLevel(0);
+						}
+					},
+				},
+				{
+					label: 'Zoom In',
+					accelerator: 'CmdOrCtrl+Plus',
+					click: () => {
+						if (mainWindow && !mainWindow.isDestroyed()) {
+							const currentZoom = mainWindow.webContents.getZoomLevel();
+							mainWindow.webContents.setZoomLevel(currentZoom + 0.5);
+						}
+					},
+				},
+				{
+					label: 'Zoom Out',
+					accelerator: 'CmdOrCtrl+-',
+					click: () => {
+						if (mainWindow && !mainWindow.isDestroyed()) {
+							const currentZoom = mainWindow.webContents.getZoomLevel();
+							mainWindow.webContents.setZoomLevel(currentZoom - 0.5);
+						}
+					},
+				},
+				{
+					type: 'separator',
+				},
+				{
+					label: 'Toggle Fullscreen',
+					accelerator: process.platform === 'darwin' ? 'Ctrl+Cmd+F' : 'F11',
+					click: () => {
+						if (mainWindow && !mainWindow.isDestroyed()) {
+							mainWindow.setFullScreen(!mainWindow.isFullScreen());
+						}
+					},
+				},
+			],
+		},
+		{
 			label: 'Window',
 			submenu: [
 				{
@@ -1680,7 +1756,7 @@ function createWindow(restoreState = false) {
 			: defaultBounds;
 
 	const mainWindowSettings = {
-		title: 'Ve AI - Priority',
+		title: 'Ve AI Gallery',
 		width: windowBounds.width,
 		height: windowBounds.height,
 		x: windowBounds.x,
@@ -1691,7 +1767,6 @@ function createWindow(restoreState = false) {
 		backgroundColor: '#121212', // Solid background (not fully transparent)
 		resizable: true, // Allow resizing for better UX
 		movable: true,
-		transparent: true, // Still need transparent for vibrancy to work, but we control background color
 		// Window size constraints - prevent resizing below minimum dimensions
 		minWidth: 522,
 		minHeight: 433,
@@ -1718,7 +1793,8 @@ function createWindow(restoreState = false) {
 
 	// CRITICAL FIX: Don't set vibrancy initially, will be set based on glass mode state after load
 	if (isMacOS) {
-		mainWindowSettings.titleBarStyle = 'hiddenInset'; // Keep window controls
+		// Use default title bar style to show system controls
+		// mainWindowSettings.titleBarStyle = 'hiddenInset'; // Keep window controls
 		// vibrancy will be set dynamically based on glass mode state
 	} else if (isWindows) {
 		mainWindowSettings.backgroundMaterial = 'none'; // Don't force acrylic initially
@@ -1734,7 +1810,7 @@ function createWindow(restoreState = false) {
 		log.info('🍎 Forcing dock icon to show after window creation');
 	}
 
-	mainWindow.setWindowButtonVisibility(false);
+	// mainWindow.setWindowButtonVisibility(false); // Use default system window controls
 
 	// Add window resize constraint validation
 	mainWindow.on('resize', () => {
@@ -1752,6 +1828,12 @@ function createWindow(restoreState = false) {
 			);
 		}
 	});
+
+	// Register global shortcuts after main window is created
+	if (windowHelper) {
+		windowHelper.registerGlobalShortcuts(mainWindow);
+		log.info('⌨️ Global shortcuts registered');
+	}
 
 	// NotchDrop disabled
 	// if (notchDropService) {
@@ -1784,9 +1866,9 @@ function createWindow(restoreState = false) {
 		// }
 	});
 
-	if (bridge) {
-		bridge.subscribe([mainWindow]);
-	}
+	// if (bridge) {
+	// 	bridge.subscribe([mainWindow]);
+	// }
 
 	// Add context menu support for copy/paste functionality
 	mainWindow.webContents.on('context-menu', (event, params) => {
@@ -3108,22 +3190,6 @@ app.whenReady().then(async () => {
 		return diagnosticInfo;
 	});
 
-	// DevTools IPC handler
-	ipcMain.handle('open-dev-tools', () => {
-		try {
-			if (mainWindow && !mainWindow.isDestroyed()) {
-				mainWindow.webContents.openDevTools();
-				log.info('🔧 DevTools opened');
-				return { success: true };
-			} else {
-				log.warn('⚠️ Cannot open DevTools - main window not available');
-				return { success: false, error: 'Main window not available' };
-			}
-		} catch (error) {
-			log.error('❌ Failed to open DevTools:', error);
-			return { success: false, error: error.message };
-		}
-	});
 
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {
@@ -3211,7 +3277,6 @@ createTray(); // Create system tray for Windows
 createMenuBar();
 
 windowHelper = new WindowHelper(applyContentProtectionToWindow);
-windowHelper.registerGlobalShortcuts(mainWindow);
 // windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
 
 // Check authentication status and show permission overlay only for unauthenticated users
@@ -3480,9 +3545,9 @@ ipcMain.handle('minimize-main-window', async () => {
 	}
 });
 
-ipcMain.on('get-store-actions-sync', (event) => {
-	event.returnValue = storeActions; // synchronous return
-});
+// ipcMain.on('get-store-actions-sync', (event) => {
+// 	event.returnValue = storeActions; // synchronous return
+// });
 
 ipcMain.handle('get-window-info', (event) => {
 	try {
@@ -6313,71 +6378,11 @@ ipcMain.handle('process-image-batch', async (event, { files, settings }) => {
 	}
 });
 
-ipcMain.handle('process-image-with-sharp', (event, data) => {
-	return imageProcessingLimit(async () => {
-		return new Promise((resolve) => {
-			const taskId = Date.now() + Math.random();
-			const workerPath = path.join(__dirname, 'imageProcessWorker.js');
-			const worker = new Worker(workerPath, {
-				workerData: { data },
-			});
+// Duplicate handler removed - using the one defined earlier
 
-			// Prepare transfer list for ArrayBuffer transfer
-			const transferList = [];
-			if (data.imageBuffer instanceof ArrayBuffer) {
-				transferList.push(data.imageBuffer);
-			}
+// Duplicate handler removed - using the one defined earlier
 
-			worker.on('message', (result) => {
-				if (result.taskId === taskId) {
-					worker.terminate().catch(() => {});
-					resolve(result);
-				}
-			});
-
-			worker.on('error', (err) => {
-				worker.terminate().catch(() => {});
-				resolve({ success: false, error: `Worker error: ${err.message}` });
-			});
-
-			worker.on('exit', (code) => {
-				if (code !== 0) {
-					resolve({
-						success: false,
-						error: `Worker stopped with exit code ${code}`,
-					});
-				}
-			});
-
-			// Send with transfer list for zero-copy transfer
-			worker.postMessage({ taskId, data }, transferList);
-		});
-	});
-});
-
-ipcMain.handle('extract-image-metadata', (event, data) => {
-	const helper = loadGalleryHelper();
-	if (!helper) {
-		return { success: false, error: 'Gallery helper not available' };
-	}
-	return safeExtractImageMetadata(data, helper.extractImageMetadata);
-});
-
-ipcMain.handle('download-album-zip', (event, data) => {
-	const helper = loadGalleryHelper();
-	if (!helper) {
-		return { success: false, error: 'Gallery helper not available' };
-	}
-	return helper.downloadAlbumZip(event, data);
-});
-
-ipcMain.handle('create-zip-from-urls', (event, data) => {
-	const helper = loadGalleryHelper();
-	if (!helper) {
-		return { success: false, error: 'Gallery helper not available' };
-	}
-	return helper.createZipFromUrls(event, data);
-});
+// Duplicate handlers removed - using the ones defined earlier
 
 // Request camera permission handler
 // ipcMain.handle('request-camera-permission', async () => {
@@ -6869,13 +6874,13 @@ const handleCleanupAndQuit = () => {
 	isQuitting = true;
 
 	// Cleanup bridge (ADD THIS)
-	if (bridge) {
-		try {
-			bridge.cleanup?.(); // If your bridge has a cleanup method
-		} catch (error) {
-			log.error('Error cleaning up bridge:', error);
-		}
-	}
+	// if (bridge) {
+	// 	try {
+	// 		bridge.cleanup?.(); // If your bridge has a cleanup method
+	// 	} catch (error) {
+	// 		log.error('Error cleaning up bridge:', error);
+	// 	}
+	// }
 
 	// cleanupAndQuit({
 	// 	dynamicIslandHelper,

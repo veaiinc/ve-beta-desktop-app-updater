@@ -8,16 +8,16 @@ import { useNavigate } from 'react-router-dom';
 import Spinner from '../../components/loaders/Spinner';
 import ReactModal from '../../components/modalsV2';
 import './createMeetingModal.scss';
-import { ReactComponent as GoogleIcon } from './google.svg';
-import { ReactComponent as ZoomIcon } from './zoom.svg';
-import { ReactComponent as SlackIcon } from './slack.svg';
-import { ReactComponent as MeetIcon } from './micromeet.svg';
+// import { ReactComponent as GoogleIcon } from './google.svg';
+// import { ReactComponent as ZoomIcon } from './zoom.svg';
+// import { ReactComponent as SlackIcon } from './slack.svg';
+// import { ReactComponent as MeetIcon } from './micromeet.svg';
 import { ReactComponent as CameraIcon } from './cameraIcon.svg';
 import GuideMePopup from './guideMePopup';
 import CreateModalPreferences from './CreateModalPreferences';
 import { message } from '../../components/globalComponents/CustomToast';
 import { useStore, storeActions } from '../../../store/store.js';
-import { useDispatch } from '@zubridge/electron';
+// import { useDispatch } from '@zubridge/electron';
 
 const meetingModeOptions = [
 	{ value: 'sales', label: 'Sales Mode' },
@@ -41,8 +41,9 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 		notes: { createMeetBot },
 	} = useContext(Context);
 	const navigate = useNavigate();
-	const dispatch = useDispatch();
-	const { pastMeetings } = useStore((state) => state.meeting) || {};
+	// const dispatch = useDispatch();
+	// const { pastMeetings } = useStore((state) => state.meeting) || {};
+	const pastMeetings = null; // Temporarily set to null since store is not implemented yet
 
 	const [formData, setFormData] = useState({
 		selectedMode: 'desktop',
@@ -104,10 +105,10 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 				totalDocs: (pastMeetings?.totalDocs ?? 0) + 1,
 			};
 
-			dispatch({
-				type: storeActions.meeting.SET_PAST_MEETINGS,
-				payload,
-			});
+			// dispatch({
+			// 	type: storeActions.meeting.SET_PAST_MEETINGS,
+			// 	payload,
+			// });
 
 			if (meetingId) {
 				// navigate(

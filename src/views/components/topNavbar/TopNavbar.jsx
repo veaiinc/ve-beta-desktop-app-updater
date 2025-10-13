@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useState, useRef } from 'react';
+import { Fragment, useContext, useEffect, useState, useRef, memo } from 'react';
 import s from './topNavbar.module.scss';
 import useWorkspaceMode from '../../../hooks/useWorkspaceMode';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -19,8 +19,8 @@ import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
 import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
 import { ReactComponent as MenuSvg } from '../../../assets/svg/mobile/menu.svg';
 import { ReactComponent as CloseSvg } from '../../../assets/svg/mobile/close.svg';
-import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
-import CreditsLeft from './components/creditsLeft/CreditsLeft';
+// import CreditsLeftSvg from '../sidebar/chatHistory/CreditsLeftSvg';
+// import CreditsLeft from './components/creditsLeft/CreditsLeft';
 import AddOnCards from '../settings/planbilling/addOnCards';
 
 const tooltipStyle = {
@@ -38,23 +38,23 @@ const baseLeftContainerItems = [
 	// 	route: '/home',
 	// 	showBetaBadge: true,
 	// },
-	{
-		id: 2,
-		label: 'Meetings',
-		route: '/meet',
-		showBetaBadge: false,
-	},
-	{
-		id: 3,
-		label: (
-			<>
-				Ask&nbsp;<span style={{ color: 'var(--primary-button)' }}>Ve</span>
-			</>
-		),
-		route: '/chats',
-		type: 'chat',
-		showBetaBadge: false,
-	},
+	// {
+	// 	id: 2,
+	// 	label: 'Meetings',
+	// 	route: '/meet',
+	// 	showBetaBadge: false,
+	// },
+	// {
+	// 	id: 3,
+	// 	label: (
+	// 		<>
+	// 			Ask&nbsp;<span style={{ color: 'var(--primary-button)' }}>Ve</span>
+	// 		</>
+	// 	),
+	// 	route: '/chats',
+	// 	type: 'chat',
+	// 	showBetaBadge: false,
+	// },
 	// {
 	// 	id: 4,
 	// 	label: 'Agents',
@@ -72,6 +72,18 @@ const baseLeftContainerItems = [
 	// 	label: 'Tools',
 	// 	route: '/tools',
 	// 	showBetaBadge: true,
+	// },
+	{
+		id: 5,
+		label: 'Gallery',
+		route: '/files',
+		showBetaBadge: false,
+	},
+	// {
+	// 	id: 2,
+	// 	label: 'Gallery',
+	// 	route: '/files?active-tab=Gallery&viewMode=card',
+	// 	showBetaBadge: false,
 	// },
 ];
 
@@ -138,22 +150,22 @@ const TopNavbar = () => {
 	const leftContainerItems = (() => {
 		let items = [...baseLeftContainerItems];
 
-		if (workspaceMode === 'stable') {
-			items = items.filter(
-				(item) =>
-					item.label !== 'Vault' &&
-					item.label !== 'Tools' &&
-					item.label !== 'Proactive AI' &&
-					item.label !== 'Agents',
-			);
-		}
+		// if (workspaceMode === 'stable') {
+		// 	items = items.filter(
+		// 		(item) =>
+		// 			item.label !== 'Vault' &&
+		// 			item.label !== 'Tools' &&
+		// 			item.label !== 'Proactive AI' &&
+		// 			item.label !== 'Agents',
+		// 	);
+		// }
 
-		if (region === 'ap-south-1') {
-			items = items.filter(
-				(item) =>
-					item.label !== 'Insights' && item.label !== 'Chats' && item.label !== 'Agents',
-			);
-		}
+		// if (region === 'ap-south-1') {
+		// 	items = items.filter(
+		// 		(item) =>
+		// 			item.label !== 'Insights' && item.label !== 'Chats' && item.label !== 'Agents',
+		// 	);
+		// }
 
 		return items;
 	})();
@@ -194,11 +206,11 @@ const TopNavbar = () => {
 	}, []);
 
 	const handleNavigation = ({ navItemId, route }) => {
-		setInfo((prev) => ({
-			...prev,
+		// Batch all state updates into a single update
+		const updates = {
 			activeNavItem: navItemId,
 			mobileMenuOpen: false,
-		}));
+		};
 
 		// reset chat data when navigating to chat
 		if (navItemId === 3) {
@@ -206,17 +218,19 @@ const TopNavbar = () => {
 		}
 
 		if (navItemId === 5) {
-			setInfo((prev) => ({
-				...prev,
+			Object.assign(updates, {
 				filesTooltipOpen: true,
 				toolsTooltipOpen: false,
 				settingsTooltipOpen: false,
 				mobileMenuOpen: false,
-			}));
-			navigate(`/files?active-tab=Documents&viewMode=card`);
-			return;
+			});
+			console.log('navItemId', navItemId);
+			navigate(`/files?active-tab=Gallery&viewMode=card`);
 		}
-		navigate(route);
+
+		// Single state update
+		setInfo((prev) => ({ ...prev, ...updates }));
+		return;
 	};
 
 	const handleAction = ({ id }) => {
@@ -246,48 +260,48 @@ const TopNavbar = () => {
 	};
 
 	const baseRightContainerItems = [
-		{
-			id: 1,
-			label: 'Credits Left',
-			icon: (
-				<Tooltip
-					open={info.creditsLeftTooltipOpen}
-					onOpenChange={() =>
-						setInfo((prev) => ({
-							...prev,
-							creditsLeftTooltipOpen: !prev.creditsLeftTooltipOpen,
-						}))
-					}
-					title={
-						<CreditsLeft
-							totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
-							totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
-							openAddOnCardsModal={() =>
-								setInfo((prev) => ({
-									...prev,
-									addOnCardsModalOpen: true,
-									creditsLeftTooltipOpen: false,
-								}))
-							}
-						/>
-					}
-					placement="bottom"
-					arrow={false}
-					color={'transparent'}
-					rootClassName={s.topNavbarSettings}
-					style={{
-						backdropFilter: 'blur(20px)',
-					}}
-				>
-					<div className={s.creditsLeftContainer}>
-						<CreditsLeftSvg
-							totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
-							totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
-						/>
-					</div>
-				</Tooltip>
-			),
-		},
+		// {
+		// 	id: 1,
+		// 	label: 'Credits Left',
+		// 	icon: (
+		// 		<Tooltip
+		// 			open={info.creditsLeftTooltipOpen}
+		// 			onOpenChange={() =>
+		// 				setInfo((prev) => ({
+		// 					...prev,
+		// 					creditsLeftTooltipOpen: !prev.creditsLeftTooltipOpen,
+		// 				}))
+		// 			}
+		// 			title={
+		// 				<CreditsLeft
+		// 					totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+		// 					totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+		// 					openAddOnCardsModal={() =>
+		// 						setInfo((prev) => ({
+		// 							...prev,
+		// 							addOnCardsModalOpen: true,
+		// 							creditsLeftTooltipOpen: false,
+		// 						}))
+		// 					}
+		// 				/>
+		// 			}
+		// 			placement="bottom"
+		// 			arrow={false}
+		// 			color={'transparent'}
+		// 			rootClassName={s.topNavbarSettings}
+		// 			style={{
+		// 				backdropFilter: 'blur(20px)',
+		// 			}}
+		// 		>
+		// 			<div className={s.creditsLeftContainer}>
+		// 				<CreditsLeftSvg
+		// 					totalAiCreditLimit={currentPlan?.totalAiCreditLimit}
+		// 					totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
+		// 				/>
+		// 			</div>
+		// 		</Tooltip>
+		// 	),
+		// },
 		// {
 		// 	id: 2,
 		// 	label: `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`,
@@ -358,10 +372,13 @@ const TopNavbar = () => {
 		},
 	];
 
-	const rightContainerItems =
-		region === 'ap-south-1'
-			? baseRightContainerItems.filter((item) => item.label !== 'Credits Left')
-			: baseRightContainerItems;
+	// const rightContainerItems =
+	// 	region === 'ap-south-1'
+	// 		? baseRightContainerItems.filter((item) => item.label !== 'Credits Left')
+	// 		: baseRightContainerItems;
+
+	// Define empty array for rightContainerItems since the original is commented out
+	const rightContainerItems = [...baseRightContainerItems];
 
 	const navItems = [
 		{
@@ -502,7 +519,7 @@ const TopNavbar = () => {
 					))}
 
 					<Tooltip
-						open={true || info.settingsTooltipOpen}
+						open={info.settingsTooltipOpen}
 						onOpenChange={() =>
 							setInfo((prev) => ({
 								...prev,
@@ -659,4 +676,4 @@ const TopNavbar = () => {
 	);
 };
 
-export default TopNavbar;
+export default memo(TopNavbar);

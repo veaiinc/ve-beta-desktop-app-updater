@@ -9,7 +9,7 @@ import TranscriptPanel from './components/TranscriptPanel';
 import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
 import useAssemblyTranscription from './hooks/useAssemblyTranscription';
-import { useDispatch } from '@zubridge/electron';
+// import { useDispatch } from '@zubridge/electron';
 import { useStore, storeActions } from '../store/store';
 
 const OverlayApp = () => {
@@ -26,7 +26,7 @@ const OverlayApp = () => {
 
 	// Custom notification system
 	const notification = useOverlayNotification();
-	const dispatch = useDispatch();
+	// const dispatch = useDispatch();
 	const { pastMeetings } = useStore((state) => state.meeting) || {};
 
 	const [info, setInfo] = useState({
@@ -418,10 +418,10 @@ const OverlayApp = () => {
 					totalDocs: (pastMeetings?.totalDocs ?? 0) + 1,
 				};
 
-				dispatch({
-					type: storeActions.meeting.SET_PAST_MEETINGS,
-					payload,
-				});
+				// dispatch({
+				// 	type: storeActions.meeting.SET_PAST_MEETINGS,
+				// 	payload,
+				// });
 			}
 		}
 
@@ -429,10 +429,10 @@ const OverlayApp = () => {
 			// console.log('Meeting created successfully:', meetingData);
 
 			// Store meeting data and ID for later use
-			dispatch({
-				type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
-				payload: meetingData._id,
-			});
+			// dispatch({
+			// 	type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
+			// 	payload: meetingData._id,
+			// });
 
 			meetingIdRef.current = meetingData._id;
 			// console.log('OverlayApp: Stored meeting ID in ref:', meetingData._id);
@@ -504,15 +504,15 @@ const OverlayApp = () => {
 					'OverlayApp: Checking if analytics already exist for ended meeting:',
 					currentMeetingId,
 				);
-				
+
 				// First, check if analytics data already exists
 				const [success, data] = await getMeetingAnalytics(currentMeetingId);
-				
+
 				if (success && data) {
 					console.log('OverlayApp: Analytics data already exists, skipping generation');
 					return;
 				}
-				
+
 				console.log(
 					'OverlayApp: No analytics data found, generating analytics for ended meeting:',
 					currentMeetingId,
@@ -531,10 +531,10 @@ const OverlayApp = () => {
 			}
 		}
 
-		dispatch({
-			type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
-			payload: null,
-		});
+		// dispatch({
+		// 	type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
+		// 	payload: null,
+		// });
 		// closeLiveIntelligenceConnection();
 		// closeRecallConnection();
 

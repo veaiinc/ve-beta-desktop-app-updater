@@ -1,7 +1,8 @@
 import { memo, useContext, useEffect, useState, useCallback } from 'react';
+import { useNavigationCache } from '../../hooks/useNavigationCache';
 import { Helmet } from 'react-helmet';
 // import Sidebar from '../components/sidebar/Sidebar';
-// import TopNavbar from '../components/topNavbar/TopNavbar';
+import TopNavbar from '../components/topNavbar/TopNavbar';
 import '../../assets/scss/authWrapper.scss';
 import ExpiredSubscriptionModal from '../components/modalsV2/subscription/ExpiredSubscriptionModal';
 import ExpiredTokenModal from '../components/modalsV2/subscription/ExpiredTokenModal';
@@ -19,10 +20,10 @@ import Offline from '../features/offline/Offline';
 // const UnderMaintainence = lazy(() => import('../features/underMaintainence/underMaintainence'));
 import { internalServerEmitter } from '../../services';
 import InternalServer from '../components/globalComponents/InternalServer';
-import NewSidebar from '../components/sidebar/newSidebar/NewSidebar';
+// import NewSidebar from '../components/sidebar/newSidebar/NewSidebar';
 // import useWorkspaceMode from '../../hooks/useWorkspaceMode';
 import { useLocation, useNavigate } from 'react-router-dom';
-import GlobalMeetingHelper from '../features/meetBot/GlobalMeetingHelper';
+// import GlobalMeetingHelper from '../features/meetBot/GlobalMeetingHelper';
 
 const AuthWrapper = ({
 	title,
@@ -40,6 +41,7 @@ const AuthWrapper = ({
 	// const { workspaceMode } = useWorkspaceMode();
 	const location = useLocation();
 	const { pathname } = location;
+	const { isRecentNavigation, setCachedRoute, getCachedRoute } = useNavigationCache();
 
 	const showPushNotification = useCallback((payload) => {
 		const { title, body } = payload.notification || {};
@@ -107,6 +109,15 @@ const AuthWrapper = ({
 		window.electronApi.onNavigate((data) => {
 			const { path, updateObject = null } = data;
 
+			// Check for recent navigation to prevent duplicate navigations
+			if (isRecentNavigation(path)) {
+				console.log('🚫 Skipping duplicate navigation:', path);
+				return;
+			}
+
+			// Cache navigation data
+			setCachedRoute(path, { updateObject, timestamp: Date.now() });
+
 			if (updateObject) {
 				if (updateObject.type === 'chat') {
 					const sessionId = path.split('/')[2];
@@ -120,7 +131,7 @@ const AuthWrapper = ({
 			}
 			navigate(path); // client-side navigation
 		});
-	}, [navigate]);
+	}, [navigate, isRecentNavigation, setCachedRoute]);
 
 	// const layoutMode = showSidebar && workspaceMode !== 'stable' ? 'sidebar' : 'topNavbar';
 	// const layoutModeComponentMap = {
@@ -173,11 +184,12 @@ const AuthWrapper = ({
 					className="auth-wrapper-container"
 				>
 					{/* {layoutModeComponentMap[layoutMode]} */}
-					{/* {workspaceMode === 'stable' ? ( */}
-					{!hideSidebar ? <NewSidebar /> : null}
-					{/* ) : (
+					{/* {workspaceMode === 'stable' ? ( 
+						{!hideSidebar ? <NewSidebar /> : null}
+					) : (
+						<TopNavbar />
+					)} */}
 					<TopNavbar />
-				)} */}
 
 					<div
 						style={{
@@ -202,7 +214,7 @@ const AuthWrapper = ({
 			<ExpiredTokenModal />
 			<AccessDeniedPopup />
 			<CustomToast />
-			<GlobalMeetingHelper />
+			{/* <GlobalMeetingHelper /> */}
 
 			{showVoiceWidget && <VoiceWrapper />}
 		</main>
