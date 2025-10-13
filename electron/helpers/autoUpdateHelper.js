@@ -1,33 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const log = require('electron-log');
-let autoUpdater;
-if (process?.type === 'browser') {
-	({ autoUpdater } = require('electron-updater'));
-} else {
-	const noop = () => {};
-	autoUpdater = {
-		on: noop,
-		once: noop,
-		removeAllListeners: noop,
-		setFeedURL: noop,
-		downloadUpdate: async () => {},
-		checkForUpdates: async () => ({ updateInfo: null }),
-		checkForUpdatesAndNotify: async () => ({ updateInfo: null }),
-		quitAndInstall: noop,
-		autoDownload: false,
-		autoInstallOnAppQuit: false,
-		allowDowngrade: false,
-	};
-	autoUpdater.logger = {
-		info: noop,
-		warn: noop,
-		error: noop,
-		debug: noop,
-		transports: {
-			file: { level: 'info' },
-		},
-	};
-}
+const { autoUpdater } = require('electron-updater');
 const {
 	getAutoUpdateIdleThresholdMinutes,
 	getAutoUpdateIdleThresholdMilliseconds,
