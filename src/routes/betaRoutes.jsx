@@ -687,16 +687,16 @@ const betaRoutes = [
 	// ========================================
 	// FILES
 	// ========================================
-	// {
-	// 	path: '/files',
-	// 	element: (
-	// 		<Suspense fallback={<SuspenseFallback />}>
-	// 			<AuthWrapper title="Files" maxWidth={'100%'}>
-	// 				<Files />
-	// 			</AuthWrapper>
-	// 		</Suspense>
-	// 	),
-	// },
+	{
+		path: '/files',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title="Files" maxWidth={'100%'}>
+					<Files />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
 	// ========================================
 	// INTEGRATIONS
 	// ========================================

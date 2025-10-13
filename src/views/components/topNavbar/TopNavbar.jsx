@@ -80,7 +80,7 @@ const baseLeftContainerItems = [
 		showBetaBadge: false,
 	},
 	// {
-	// 	id: 2,
+	// 	id: 5,
 	// 	label: 'Gallery',
 	// 	route: '/files?active-tab=Gallery&viewMode=card',
 	// 	showBetaBadge: false,

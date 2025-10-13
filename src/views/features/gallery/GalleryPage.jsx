@@ -3739,7 +3739,7 @@ const GalleryPage = () => {
 		// if (info?.isLightGallery) {
 		// 	navigate('/files?active-tab=Lite+Gallery&lite-gallery=true');
 		// } else {
-		navigate('/files?active-tab=Gallery');
+		navigate('/files');
 		// }
 	};
 	const selectedFaceChange = (face) => {
