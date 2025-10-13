@@ -970,6 +970,9 @@ class NotchDropPanel: NSPanel {
             manager.onPermissionStateChanged = { [weak self] granted in
                 self?.emitSelectionPermissionChange(granted: granted)
             }
+            manager.onSelectionAskAI = { [weak self] text in
+                self?.emitSelectionAskAI(text)
+            }
             manager.start()
             self.selectionAssistant = manager
         }
@@ -997,6 +1000,41 @@ class NotchDropPanel: NSPanel {
            let json = String(data: data, encoding: .utf8) {
             swiftActionCallback("selectionPermissionChanged", json)
         }
+    }
+
+    private func emitSelectionAskAI(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            print("⚠️ Selection Assistant Ask AI skipped for empty text")
+            return
+        }
+
+        guard let swiftActionCallback else {
+            print("⚠️ Selection Assistant Ask AI skipped - no Swift action callback")
+            return
+        }
+
+        print("💬 Selection Assistant sending chat to AskAI: '\(trimmed)'")
+        swiftActionCallback("submitChat", trimmed)
+
+        let chatMessage: [String: Any] = [
+            "type": "dynamic-island-chat",
+            "message": trimmed,
+            "timestamp": iso8601Formatter.string(from: Date()),
+            "source": "notchdrop-swift",
+            "context": "selection-assistant"
+        ]
+
+        guard
+            let data = try? JSONSerialization.data(withJSONObject: chatMessage, options: []),
+            let json = String(data: data, encoding: .utf8)
+        else {
+            print("⚠️ Selection Assistant Ask AI failed to encode payload")
+            return
+        }
+
+        swiftActionCallback("sendChatMessageToAskAI", json)
+        print("✅ Selection Assistant chat payload emitted")
     }
 
     private func entryDictionary(from entry: SelectionHistoryEntry) -> [String: Any] {

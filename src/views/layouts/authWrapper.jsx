@@ -110,10 +110,12 @@ const AuthWrapper = ({
 			if (updateObject) {
 				if (updateObject.type === 'chat') {
 					const sessionId = path.split('/')[2];
+					const imagesArray = updateObject.payload?.imagesArray;
 					updateStateValues({
 						activePromptForChat: {
 							sessionId: sessionId,
 							prompt: updateObject.payload?.query,
+							...(imagesArray?.length ? { imagesArray } : {}),
 						},
 					});
 				}

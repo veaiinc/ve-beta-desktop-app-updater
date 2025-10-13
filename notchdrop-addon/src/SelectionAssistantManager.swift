@@ -34,17 +34,33 @@ final class SelectionAssistantManager: NSObject {
     private var permissionPollTimer: Timer?
     private var onboardingShown = false
     private var lastSelectionTimestamp: Date?
+    private var pendingHideWorkItem: DispatchWorkItem?
+    private let selectionPersistDuration: TimeInterval = 1.8
 
     var onSelectionCaptured: ((SelectionHistoryEntry) -> Void)?
     var onPermissionStateChanged: ((Bool) -> Void)?
+    var onSelectionAskAI: ((String) -> Void)?
 
     override private init() {
         assert(Thread.isMainThread, "SelectionAssistantManager must be initialized on the main thread.")
         popupController = SelectionPopupController(state: state)
+        var askAIForwarder: ((String) -> Void)?
         selectionPreviewController = SelectionPreviewController { selectedText in
-            print("the prompt is sent to ask ai", selectedText)
+            askAIForwarder?(selectedText)
         }
         super.init()
+
+        askAIForwarder = { [weak self] selectedText in
+            guard let self else { return }
+            print("the prompt is sent to ask ai", selectedText)
+            self.selectionPreviewController.hide()
+            self.onSelectionAskAI?(selectedText)
+        }
+
+        selectionPreviewController.onDismiss = { [weak self] in
+            self?.pendingHideWorkItem?.cancel()
+            self?.pendingHideWorkItem = nil
+        }
 
         selectionMonitor.delegate = self
         state.permissionGranted = AXIsProcessTrusted()
@@ -96,6 +112,8 @@ final class SelectionAssistantManager: NSObject {
     }
 
     func dismiss() {
+        pendingHideWorkItem?.cancel()
+        pendingHideWorkItem = nil
         popupController.closePopover()
         selectionPreviewController.hide()
         state.mode = state.permissionGranted ? .idle : .onboarding
@@ -193,6 +211,8 @@ final class SelectionAssistantManager: NSObject {
             state.mode = state.permissionGranted ? .idle : .onboarding
             popupController.closePopover()
         } else {
+            pendingHideWorkItem?.cancel()
+            pendingHideWorkItem = nil
             refreshHistory()
             state.mode = .history
             popupController.showPopover()
@@ -233,6 +253,9 @@ final class SelectionAssistantManager: NSObject {
             return
         }
 
+        pendingHideWorkItem?.cancel()
+        pendingHideWorkItem = nil
+
         if let lastTimestamp = lastSelectionTimestamp {
             if Date().timeIntervalSince(lastTimestamp) < 0.25 {
                 return
@@ -269,6 +292,8 @@ extension SelectionAssistantManager: SelectionMonitorDelegate {
     func selectionMonitorRequiresAccessibilityPermission(_ monitor: SelectionMonitor) {
         state.permissionGranted = AXIsProcessTrusted()
         if !state.permissionGranted {
+            pendingHideWorkItem?.cancel()
+            pendingHideWorkItem = nil
             selectionPreviewController.hide()
             onPermissionStateChanged?(false)
             schedulePermissionPoll()
@@ -280,7 +305,16 @@ extension SelectionAssistantManager: SelectionMonitorDelegate {
     }
 
     func selectionMonitorDidClearSelection(_ monitor: SelectionMonitor) {
-        selectionPreviewController.hide()
+        pendingHideWorkItem?.cancel()
+
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.selectionPreviewController.hide()
+            self.pendingHideWorkItem = nil
+        }
+
+        pendingHideWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + selectionPersistDuration, execute: workItem)
     }
 }
 

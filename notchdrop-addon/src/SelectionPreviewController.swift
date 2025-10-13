@@ -24,6 +24,7 @@ final class SelectionPreviewController {
     private var globalKeyMonitor: Any?
     private var currentText: String = ""
     private let askAIHandler: (String) -> Void
+    var onDismiss: (() -> Void)?
 
     deinit {
         removeKeyMonitors()
@@ -41,6 +42,9 @@ final class SelectionPreviewController {
                 onAskAI: { [weak self] in
                     guard let self else { return }
                     self.askAIHandler(text)
+                },
+                onClose: { [weak self] in
+                    self?.hide()
                 }
             )
 
@@ -66,7 +70,7 @@ final class SelectionPreviewController {
             window.setFrame(NSRect(origin: window.frame.origin, size: fittingSize), display: true)
             self.positionWindow(window, contentSize: fittingSize, relativeTo: bounds)
             self.activateKeyMonitors()
-            window.orderFront(nil)
+            window.orderFrontRegardless()
         }
     }
 
@@ -75,6 +79,7 @@ final class SelectionPreviewController {
             guard let self else { return }
             self.window?.orderOut(nil)
             self.removeKeyMonitors()
+            self.onDismiss?()
         }
     }
 
@@ -87,12 +92,12 @@ final class SelectionPreviewController {
                 defer: false
             )
 
-            panel.level = .floating
+            panel.level = .statusBar
             panel.hasShadow = true
             panel.isOpaque = false
             panel.backgroundColor = .clear
             panel.ignoresMouseEvents = false
-            panel.collectionBehavior = [.fullScreenAuxiliary, .transient, .ignoresCycle]
+            panel.collectionBehavior = [.fullScreenAuxiliary, .transient, .ignoresCycle, .canJoinAllSpaces]
             panel.isMovable = false
             panel.isReleasedWhenClosed = false
             panel.hidesOnDeactivate = false
@@ -197,6 +202,7 @@ final class SelectionPreviewController {
 private struct SelectionPreviewView: View {
     let text: String
     let onAskAI: () -> Void
+    let onClose: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -227,6 +233,16 @@ private struct SelectionPreviewView: View {
                 .shadow(color: Color.black.opacity(0.15), radius: 12, x: 0, y: 6)
         )
         .frame(minWidth: 220, alignment: .leading)
+        .overlay(alignment: .topTrailing) {
+            Button(action: onClose) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.borderless)
+            .padding(8)
+            .help("Close")
+        }
     }
 }
 

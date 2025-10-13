@@ -1325,7 +1325,7 @@ ipcMain.handle('open-system-settings', async () => {
 	}
 });
 
-ipcMain.handle('desktop:capture-screen', async () => {
+async function capturePrimaryScreenDataURL() {
 	try {
 		const sources = await desktopCapturer.getSources({
 			types: ['screen'],
@@ -1338,13 +1338,19 @@ ipcMain.handle('desktop:capture-screen', async () => {
 		}
 
 		const thumbnail = sources[0].thumbnail?.resize({ width: 1000, height: 700 });
-		if (!thumbnail) return null;
+		if (!thumbnail) {
+			return null;
+		}
 
-		return thumbnail.toDataURL(); // "image/png;base64,..."
-	} catch (err) {
-		console.error('❌ Error in desktop:capture-screen:', err);
+		return thumbnail.toDataURL();
+	} catch (error) {
+		console.error('❌ Failed to capture desktop screenshot:', error);
 		return null;
 	}
+}
+
+ipcMain.handle('desktop:capture-screen', async () => {
+	return capturePrimaryScreenDataURL();
 });
 
 ipcMain.handle('check-screen-recording-permission', async () => {
@@ -4132,12 +4138,27 @@ app.whenReady().then(async () => {
 		}
 	}
 
-	process.on('swift-ui-submit-chat', async (data = {}) => {
-		// try {
-		// 	// if (!windowHelper) {
-		// 	// 	log.error('windowHelper not available for AskAI forwarding');
-		// 	// 	return;
-		// 	// }
+process.on('swift-ui-submit-chat', async (data = {}) => {
+	const shouldCaptureScreenshot =
+		data?.source === 'notchdrop-swift-ui' && data?.updateObject?.type === 'chat';
+
+	if (shouldCaptureScreenshot) {
+		const screenshot = await capturePrimaryScreenDataURL();
+		if (screenshot) {
+			data.imagesArray = [screenshot];
+			const existingPayload = data.updateObject.payload || {};
+			data.updateObject.payload = {
+				...existingPayload,
+				imagesArray: [screenshot],
+			};
+		}
+	}
+
+	// try {
+	// 	// if (!windowHelper) {
+	// 	// 	log.error('windowHelper not available for AskAI forwarding');
+	// 	// 	return;
+	// 	// }
 
 		// 	// let askAIWindow = windowHelper?.getAskAIWindow();
 		// 	// if (!askAIWindow || askAIWindow.isDestroyed()) {
