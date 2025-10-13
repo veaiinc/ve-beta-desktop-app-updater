@@ -549,16 +549,6 @@ const toggleContentProtection = () => {
 	return isContentProtectionEnabled;
 };
 
-
-const handleWebSocketMessage = (prop) => {
-	const { data, ws } = prop;
-	if (data.type === 'START_MEETING') {
-		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-		// Send response back to the client that sent the START_MEETING message
-		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-	}
-};
-
 const getContentProtectionStatus = () => {
 	return isContentProtectionEnabled;
 };
@@ -3375,14 +3365,9 @@ app.whenReady().then(async () => {
 				log.info(`📨 WebSocket message received from ${data.clientId}:`, data.data);
 
 				// Handle START_MEETING message from notch
-				if (
-					data.data &&
-					typeof data.data === 'object'
-				) {
-
+				if (data.data && typeof data.data === 'object') {
 					handleWebSocketMessage(data);
 
-				
 					// log.info(
 					// 	'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
 					// );
@@ -4221,6 +4206,25 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
+
+	async function handleWebSocketMessage(prop) {
+		const { data, ws } = prop;
+		if (data.type === 'START_MEETING') {
+			log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+			// Send response back to the client that sent the START_MEETING message
+			await handleNotchToMainWindowEvents({ action: 'startRecording' });
+			websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		}
+		// switch(data.type) {
+		// 	case 'START_MEETING':
+		// 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+		// 		// Send response back to the client that sent the START_MEETING message
+		// 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		// 		break;
+
+		// 	case 'PAUSE_'
+		// }
+	}
 
 	async function handleNotchToMainWindowEvents(data) {
 		try {
@@ -7249,7 +7253,7 @@ app.on('before-quit', async (event) => {
 	if (!isUpdateInProgress) {
 		// Prevent default quit behavior to allow cleanup
 		event.preventDefault();
-		
+
 		// Terminate boring.notch app before cleanup
 		if (boringNotchService) {
 			try {
@@ -7259,7 +7263,7 @@ app.on('before-quit', async (event) => {
 				log.error('❌ Error terminating boring.notch app:', error);
 			}
 		}
-		
+
 		// Clean up all windows and processes
 		handleCleanupAndQuit();
 	} else {
