@@ -56,8 +56,18 @@ contextBridge.exposeInMainWorld('electronApi', {
 		});
 	},
 
+	onAutoUpdateLog: (callback) => {
+		ipcRenderer.on('auto-update-log', (event, data) => {
+			callback(data);
+		});
+	},
+
 	removeUpdateStatusListener: () => {
 		ipcRenderer.removeAllListeners('update-status');
+	},
+
+	removeAutoUpdateLogListener: () => {
+		ipcRenderer.removeAllListeners('auto-update-log');
 	},
 
 	// Image processing function
@@ -587,6 +597,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 	removeTranslucencyChangedListener: () => {
 		ipcRenderer.removeAllListeners('translucency-changed');
 	},
+
+	toggleFullscreen: () => ipcRenderer.invoke('toggle-fullscreen'),
+	closeWindow: () => ipcRenderer.invoke('close-window'),
+	getFullscreenState: () => ipcRenderer.invoke('get-fullscreen-state'),
 
 	// Glass mode sync API
 	syncGlassModeState: (isEnabled) => {

@@ -774,60 +774,64 @@ struct DynamicIslandContentView: View {
                                 }
                             }
                         }
-                        //  else if vm.isRecording && !vm.showTranscriptionDuringRecording {
-                        //     // Show live intelligence data in chat-like format
-                        //     ScrollViewReader { proxy in
-                        //         ScrollView(.vertical, showsIndicators: true) {
-                        //             LazyVStack(spacing: 12) {
-                        //                 if vm.liveIntelligenceMessages.isEmpty {
-                        //                     Text("No live intelligence data yet...")
-                        //                         .font(.system(size: 14))
-                        //                         .foregroundColor(.white.opacity(0.6))
-                        //                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        //                         .padding()
-                        //                 } else {
-                        //                     ForEach(vm.liveIntelligenceMessages) { message in
-                        //                         TranscriptionMessageView(message: message)
-                        //                             .padding(.horizontal, 4)
-                        //                             .id(message.id)
-                        //                     }
-                        //                 }
-                        //             }
-                        //             .padding(.vertical, 8)
-                        //             // .padding(.horizontal, 12)
-                        //         }
-                        //         .frame(width: vm.notchOpenedSize.width - 140, height: 100)
-                        //         .cornerRadius(10)
-                        //         .onHover { hovering in
-                        //             isLiveIntelligenceHovered = hovering
-                        //         }
-                        //         .onAppear {
-                        //             // Initial scroll to latest message when container appears
-                        //             if !hasInitialScrolledLiveIntelligence && !vm.liveIntelligenceMessages.isEmpty {
-                        //                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        //                     withAnimation(.easeInOut(duration: 0.5)) {
-                        //                         proxy.scrollTo(vm.liveIntelligenceMessages.last?.id, anchor: .bottom)
-                        //                     }
-                        //                     hasInitialScrolledLiveIntelligence = true
-                        //                 }
-                        //             }
-                        //         }
-                        //         .onChange(of: vm.liveIntelligenceMessages.count) { newCount in
-                        //             // Auto-scroll to latest message if not hovering
-                        //             if !isLiveIntelligenceHovered && newCount > 0 {
-                        //                 withAnimation(.easeInOut(duration: 0.3)) {
-                        //                     proxy.scrollTo(vm.liveIntelligenceMessages.last?.id, anchor: .bottom)
-                        //                 }
-                        //             }
-                                    
-                        //             // Console log when live intelligence messages count changes
-                        //             print("🧠 NotchContentView: Live intelligence messages count changed to: \(newCount)")
-                        //             if let lastMessage = vm.liveIntelligenceMessages.last {
-                        //                 print("🧠 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
-                        //             }
-                        //         }
-                        //     }
-                        // }
+                        else if vm.isRecording && !vm.showTranscriptionDuringRecording {
+                            // Show live intelligence data in chat-like format
+                            ScrollViewReader { proxy in
+                                ScrollView(.vertical, showsIndicators: true) {
+                                    LazyVStack(spacing: 12) {
+                                        if vm.liveIntelligenceMessages.isEmpty {
+                                            Text("No live intelligence data yet...")
+                                                .font(.system(size: 14))
+                                                .foregroundColor(.white.opacity(0.6))
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                .padding()
+                                        } else {
+                                            ForEach(vm.liveIntelligenceMessages) { message in
+                                                VoiceMessageBubble(
+                                                    sender: message.sender,
+                                                    text: message.content,
+                                                    isFromAgent: message.isFromAgent
+                                                )
+                                                .padding(.horizontal, 4)
+                                                .id(message.id)
+                                            }
+                                        }
+                                    }
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                }
+                                .frame(width: vm.notchOpenedSize.width - 140, height: 100)
+                                .cornerRadius(10)
+                                .onHover { hovering in
+                                    isLiveIntelligenceHovered = hovering
+                                }
+                                .onAppear {
+                                    // Initial scroll to latest message when container appears
+                                    if !hasInitialScrolledLiveIntelligence && !vm.liveIntelligenceMessages.isEmpty {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                proxy.scrollTo(vm.liveIntelligenceMessages.last?.id, anchor: .bottom)
+                                            }
+                                            hasInitialScrolledLiveIntelligence = true
+                                        }
+                                    }
+                                }
+                                .onChange(of: vm.liveIntelligenceMessages.count) { newCount in
+                                    // Auto-scroll to latest message if not hovering
+                                    if !isLiveIntelligenceHovered && newCount > 0 {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            proxy.scrollTo(vm.liveIntelligenceMessages.last?.id, anchor: .bottom)
+                                        }
+                                    }
+                                            
+                                    // Console log when live intelligence messages count changes
+                                    print("🧠 NotchContentView: Live intelligence messages count changed to: \(newCount)")
+                                    if let lastMessage = vm.liveIntelligenceMessages.last {
+                                        print("🧠 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
+                                    }
+                                }
+                            }
+                        }
 
                         if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls) - PRIORITY: Always show voice interface when active

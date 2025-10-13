@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
 import { useEffect, useState } from 'react';
 import useVoiceIntegration from './hooks/useVoiceIntegration';
@@ -8,16 +8,32 @@ import DragHandle from './components/DragHandle';
 // Removed complex translucency utilities - now using simplified CSS approach
 import { GlassModeProvider, useGlassMode } from './context/GlassModeContext.jsx';
 import { initializeGlassModeSync } from './helpers/glassModeSync';
+import { useNotchDropSync } from './hooks/useNotchDropSync';
 
 // ✅ REVERTED: Back to regular imports (lazy loading broke production)
 import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
 import UploadProgressPopup from './views/components/globalComponents/UploadProgressPopup/UploadProgressPopup';
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
+import WindowChrome from './components/WindowChrome.jsx';
+
+const parseIntervalMinutes = (value, fallback = 60) => {
+	const parsed = Number.parseInt(value, 10);
+	return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+
+const UPDATE_CHECK_INTERVAL_MINUTES = parseIntervalMinutes(
+	import.meta.env.VITE_UPDATE_CHECK_INTERVAL_MINUTES,
+);
+const UPDATE_CHECK_INTERVAL_MS = UPDATE_CHECK_INTERVAL_MINUTES * 60 * 1000;
 
 // AppContent component that uses glass mode context
 const AppContent = () => {
 	const { routes } = useWorkspaceMode();
+	const location = useLocation();
+
+	// Global NotchDrop sync - keeps NotchDrop updated with meeting data across all routes
+	useNotchDropSync();
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	const [updateProgress, setUpdateProgress] = useState(null);
@@ -25,6 +41,28 @@ const AppContent = () => {
 
 	// NotchDrop Voice Integration - DIRECT APPROACH
 	const [showVoiceFromNotch, setShowVoiceFromNotch] = useState(false);
+
+	// Determine if user is authenticated based on route and token
+	const isAuthenticated = () => {
+		const token = localStorage.getItem('usertoken');
+		const isPublicRoute = [
+			'/',
+			'/verify-user',
+			'/onboarding',
+			'/download-app',
+			'/privacy-policy',
+			'/terms-of-service',
+			'/cookie-policy',
+			'/changelog',
+			'/user/verify-oauth-user',
+		].includes(location.pathname);
+		const isReferralRoute = location.pathname.startsWith('/referral/');
+
+		// User is authenticated if they have a token and are not on public routes
+		return token && token.trim() !== '' && !isPublicRoute && !isReferralRoute;
+	};
+
+	const [showWindowChrome, setShowWindowChrome] = useState(!isAuthenticated());
 
 	// Use glass mode context instead of local state
 	const { isGlassModeEnabled } = useGlassMode();
@@ -225,20 +263,63 @@ const AppContent = () => {
 
 		window.electronApi.onUpdateStatus(handleUpdateStatus);
 
-		// ⚡ Use requestIdleCallback for better startup performance
-		const checkUpdates = () => {
-			if ('requestIdleCallback' in window) {
-				window.requestIdleCallback(() => handleCheckForUpdates(), { timeout: 2000 });
-			} else {
-				setTimeout(handleCheckForUpdates, 2000);
-			}
-		};
-		checkUpdates();
-
 		return () => {
 			window.electronApi?.removeUpdateStatusListener?.();
 		};
 	}, []);
+
+	// Mirror auto-update logs from main process into renderer console
+	useEffect(() => {
+		if (!window?.electronApi?.onAutoUpdateLog) {
+			return undefined;
+		}
+
+		const handleAutoUpdateLog = (entry) => {
+			if (!entry) {
+				return;
+			}
+
+			const { level = 'info', formatted, message, timestamp } = entry;
+			const output = formatted || message || '';
+			const prefix = timestamp ? `[AutoUpdate ${timestamp}]` : '[AutoUpdate]';
+			const logger = console[level] || console.log;
+			logger(`${prefix} ${output}`);
+		};
+
+		window.electronApi.onAutoUpdateLog(handleAutoUpdateLog);
+
+		return () => {
+			window.electronApi?.removeAutoUpdateLogListener?.();
+		};
+	}, []);
+
+	// Schedule periodic update checks based on configurable interval
+	useEffect(() => {
+		if (!window?.electronApi?.checkForUpdatesManual) {
+			console.warn('⚠️ Update scheduler: electronApi.checkForUpdatesManual is unavailable');
+			return undefined;
+		}
+
+		console.log(
+			`🕒 Update scheduler initialized - interval: ${UPDATE_CHECK_INTERVAL_MINUTES} minute(s)`,
+		);
+
+		const intervalId = setInterval(() => {
+			console.log(
+				`🕒 Update scheduler tick - checking for updates (every ${UPDATE_CHECK_INTERVAL_MINUTES} minute(s))`,
+			);
+			handleCheckForUpdates();
+		}, UPDATE_CHECK_INTERVAL_MS);
+
+		return () => {
+			clearInterval(intervalId);
+		};
+	}, []);
+
+	// Update window chrome visibility when route or authentication state changes
+	useEffect(() => {
+		setShowWindowChrome(!isAuthenticated());
+	}, [location.pathname]);
 
 	// Glass mode is now handled by CSS classes - no complex initialization needed
 
@@ -252,6 +333,8 @@ const AppContent = () => {
 
 			{/* NotchDrop Voice Activator - handles LiveKit voice integration */}
 			<NotchDropVoiceActivator />
+
+			{showWindowChrome && <WindowChrome />}
 
 			{/* Test Permission Overlay Button - Remove in production */}
 			{/* {process.env.NODE_ENV === 'development' && (
@@ -357,14 +440,14 @@ const AppContent = () => {
 				))}
 			</Routes>
 
-		{/* NotchDrop Voice Agent Integration - DIRECT */}
-		{showVoiceFromNotch && <VoiceAgentParent />}
+			{/* NotchDrop Voice Agent Integration - DIRECT */}
+			{showVoiceFromNotch && <VoiceAgentParent />}
 
-		{/* Global Upload Progress Popup - persists across all routes */}
-		<UploadProgressPopup />
+			{/* Global Upload Progress Popup - persists across all routes */}
+			<UploadProgressPopup />
 
-		{/* Global Download Progress Popup - persists across all routes */}
-		<DownloadProgressPopup />
+			{/* Global Download Progress Popup - persists across all routes */}
+			<DownloadProgressPopup />
 
 			{/* Update Progress Indicator */}
 			{updateProgress && (
@@ -413,13 +496,13 @@ const AppContent = () => {
 				</div>
 			)}
 
-		{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
-			<UpdateReadyPopup
-				updateInfo={updateStatus}
-				onRestart={handleRestartApp}
-				onDismiss={() => setIsUpdatePopupVisible(false)}
-			/>
-		)}
+			{isUpdatePopupVisible && updateStatus?.status === 'downloaded' && (
+				<UpdateReadyPopup
+					updateInfo={updateStatus}
+					onRestart={handleRestartApp}
+					onDismiss={() => setIsUpdatePopupVisible(false)}
+				/>
+			)}
 		</div>
 	);
 };

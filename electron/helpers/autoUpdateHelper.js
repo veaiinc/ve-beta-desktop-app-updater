@@ -28,6 +28,12 @@ if (process?.type === 'browser') {
 		},
 	};
 }
+const {
+	getAutoUpdateIdleThresholdMinutes,
+	getAutoUpdateIdleThresholdMilliseconds,
+	getAutoUpdateCheckIntervalMinutes,
+	getAutoUpdateCheckIntervalMilliseconds,
+} = require('./envHelper');
 
 const checkForUpdates = (mainWindow) => {
 	mainWindow?.webContents.send('update-status', { status: 'checking' });
@@ -268,4 +274,8 @@ module.exports = {
 	ipcMainHandleCheckForUpdates,
 	ipcMainHandleDownloadUpdates,
 	ipcMainHandleRestartApp,
+	getAutoUpdateIdleThresholdMinutes,
+	getAutoUpdateIdleThresholdMilliseconds,
+	getAutoUpdateCheckIntervalMinutes,
+	getAutoUpdateCheckIntervalMilliseconds,
 };
