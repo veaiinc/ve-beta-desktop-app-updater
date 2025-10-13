@@ -5,8 +5,9 @@
 	height: 100%;
 	font-family: var(--primary-font-family);
 	user-select: text;
-	-webkit-app-region: no-drag;
-	app-region: no-drag;
+	// -webkit-app-region: no-drag;
+	// app-region: no-drag;
+	app-region: drag;
 	pointer-events: auto;
 	background: transparent;
 	padding: 0;
@@ -62,6 +63,14 @@
 				height: 24px !important;
 				width: 24px !important;
 				padding: 4px !important;
+				-webkit-app-region: no-drag;
+				app-region: no-drag;
+				cursor: pointer;
+				pointer-events: auto;
+				.hover {
+					cursor: pointer;
+					pointer-events: auto;
+				}
 			}
 		}
 

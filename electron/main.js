@@ -106,6 +106,7 @@ function createNativeThemeStub() {
 
 const WindowHelper = require('./helpers/windowHelper');
 const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
+const { resizeWindowAnimated } = require('./helpers/windowAnimationHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
@@ -506,9 +507,7 @@ const startAutoUpdateScheduler = () => {
 		() => attemptBackgroundUpdateCheck('scheduled-interval'),
 		intervalMs,
 	);
-	logAutoUpdateEvent(
-		`Background update scheduler armed (every ${intervalMinutes} minute(s))`,
-	);
+	logAutoUpdateEvent(`Background update scheduler armed (every ${intervalMinutes} minute(s))`);
 };
 
 const disposeAutoUpdateScheduler = () => {
@@ -2834,25 +2833,25 @@ function createWindow(restoreState = false) {
 
 	// Configure background update scheduler (with dev override)
 	if (isAutoUpdateSchedulerEnabled()) {
-	const intervalMinutes = getAutoUpdateCheckIntervalMins();
-	log.info(
-		`🔍 Starting background auto-update scheduler (interval: ${intervalMinutes} minute(s))`,
-	);
-	logAutoUpdateEvent(
-		`Scheduler enabled (env=${process.env.NODE_ENV}, devOverride=${parseEnvBool(
-			process.env.VE_ENABLE_AUTO_UPDATE_SCHEDULER_IN_DEV,
-		)}, interval=${intervalMinutes} minute(s))`,
-	);
-	startAutoUpdateScheduler();
+		const intervalMinutes = getAutoUpdateCheckIntervalMins();
+		log.info(
+			`🔍 Starting background auto-update scheduler (interval: ${intervalMinutes} minute(s))`,
+		);
+		logAutoUpdateEvent(
+			`Scheduler enabled (env=${process.env.NODE_ENV}, devOverride=${parseEnvBool(
+				process.env.VE_ENABLE_AUTO_UPDATE_SCHEDULER_IN_DEV,
+			)}, interval=${intervalMinutes} minute(s))`,
+		);
+		startAutoUpdateScheduler();
 
-	setTimeout(() => {
-		logAutoUpdateEvent('Attempting initial startup check (post-launch)');
-		attemptBackgroundUpdateCheck('startup');
-	}, 5000);
-} else {
-	log.info('🔧 Skipping automatic update scheduler in current environment');
-	logAutoUpdateEvent('Scheduler disabled (non-production and no override)');
-}
+		setTimeout(() => {
+			logAutoUpdateEvent('Attempting initial startup check (post-launch)');
+			attemptBackgroundUpdateCheck('startup');
+		}, 5000);
+	} else {
+		log.info('🔧 Skipping automatic update scheduler in current environment');
+		logAutoUpdateEvent('Scheduler disabled (non-production and no override)');
+	}
 
 	return mainWindow;
 }
@@ -3169,6 +3168,34 @@ app.whenReady().then(async () => {
 	log.info('🔍 Working directory:', process.cwd());
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
+
+	// Register the app as the default protocol client for veai:// URLs
+	try {
+		if (process.defaultApp) {
+			// In development mode, we can't register as the default protocol client
+			log.info('⚠️ Running in development mode - skipping protocol registration');
+		} else {
+			// Check if we're already the default protocol client
+			const isDefault = app.isDefaultProtocolClient('veai');
+			log.info(`🔍 Is already default protocol client for veai://: ${isDefault}`);
+
+			if (!isDefault) {
+				// In production, register as the default protocol client
+				const wasSet = app.setAsDefaultProtocolClient('veai');
+				if (wasSet) {
+					log.info(
+						'✅ Successfully registered as default protocol client for veai:// URLs',
+					);
+				} else {
+					log.warn('⚠️ Failed to register as default protocol client for veai:// URLs');
+				}
+			} else {
+				log.info('✅ Already registered as default protocol client for veai:// URLs');
+			}
+		}
+	} catch (error) {
+		log.error('❌ Error registering protocol client:', error);
+	}
 	const autoUpdateIdleThresholdMinutes = getAutoUpdateIdleThresholdMinutes();
 	const autoUpdateIdleThresholdMs = getAutoUpdateIdleThresholdMs();
 	log.info(
@@ -4216,6 +4243,25 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 				// Normal mode - show and focus the window
 				mainWindow.show();
 				mainWindow.focus();
+
+				// Resize to compact chat view (571x626) when navigating from NotchDrop
+				const workArea = screen.getPrimaryDisplay().workAreaSize;
+				const compactWidth = Math.min(workArea.width, 571);
+				const compactHeight = Math.min(workArea.height, 626);
+
+				if (mainWindow.isFullScreen()) {
+					mainWindow.setFullScreen(false);
+					mainWindow.once('leave-full-screen', () => {
+						mainWindow.setBounds({ width: compactWidth, height: compactHeight });
+						log.info(
+							'📐 NotchDrop: Resized main window to compact chat view (571x626) after exiting fullscreen',
+						);
+					});
+				} else {
+					mainWindow.setBounds({ width: compactWidth, height: compactHeight });
+					log.info('📐 NotchDrop: Resized main window to compact chat view (571x626)');
+				}
+
 				mainWindow.webContents.send('navigate-to', data);
 				log.info('Main window navigated to:', data?.path);
 				// }
@@ -4234,6 +4280,16 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 							// Normal mode - show and focus the window
 							mainWindow.show();
 							mainWindow.focus();
+
+							// Resize to compact chat view (571x626) when navigating from NotchDrop
+							const workArea = screen.getPrimaryDisplay().workAreaSize;
+							const compactWidth = Math.min(workArea.width, 571);
+							const compactHeight = Math.min(workArea.height, 626);
+							mainWindow.setBounds({ width: compactWidth, height: compactHeight });
+							log.info(
+								'📐 NotchDrop: Resized recreated main window to compact chat view (571x626)',
+							);
+
 							mainWindow.webContents.send('navigate-to', data);
 							log.info(
 								'Main window recreated and shown successfully with state restoration and navigated to:',
@@ -4576,37 +4632,82 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	ipcMain.handle('resize-main-window', async (event, data) => {
 		try {
-			const { dimensions, exitFullScreen } = data;
+			const {
+				dimensions,
+				exitFullScreen,
+				animate = true,
+				duration = 250,
+				easing = 'easeInOutCubic',
+			} = data;
 			const workArea = screen.getPrimaryDisplay().workAreaSize;
 			const screenWidth = workArea.width,
 				screenHeight = workArea.height;
 
+			// Create sanitized dimensions object
+			const targetDimensions = {};
+
 			if (dimensions?.width) {
 				const width = Math.min(screenWidth, dimensions.width);
-				dimensions.width = width;
+				targetDimensions.width = width;
 			}
 			if (dimensions?.height) {
 				const height = Math.min(screenHeight, dimensions.height);
-				dimensions.height = height;
+				targetDimensions.height = height;
 			}
 
-			if (mainWindow) {
-				if (exitFullScreen) {
-					if (mainWindow.isFullScreen()) {
-						mainWindow.setFullScreen(false);
-						mainWindow.once('leave-full-screen', () => {
-							mainWindow.setBounds(dimensions);
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				// Handle fullscreen exit
+				if (exitFullScreen && mainWindow.isFullScreen()) {
+					mainWindow.setFullScreen(false);
+
+					// Wait for fullscreen exit, then animate resize
+					mainWindow.once('leave-full-screen', async () => {
+						if (animate) {
+							await resizeWindowAnimated(mainWindow, targetDimensions, {
+								duration,
+								easing,
+							});
+						} else {
+							mainWindow.setBounds(targetDimensions);
+						}
+					});
+				} else {
+					// Animate resize (or instant if animate: false)
+					if (animate) {
+						await resizeWindowAnimated(mainWindow, targetDimensions, {
+							duration,
+							easing,
 						});
 					} else {
-						mainWindow.setBounds(dimensions);
+						mainWindow.setBounds(targetDimensions);
 					}
-				} else {
-					mainWindow.setBounds(dimensions);
 				}
+
+				log.info(
+					`✅ Window resized ${animate ? 'with animation' : 'instantly'}:`,
+					targetDimensions,
+				);
+				return { success: true, bounds: mainWindow.getBounds() };
 			}
+
+			return { success: false, error: 'Main window not available' };
 		} catch (error) {
 			log.error('❌ Error resizing main window:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	// Get main window bounds (for detecting compact mode)
+	ipcMain.handle('get-window-bounds', async () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				const bounds = mainWindow.getBounds();
+				return bounds;
+			}
+			return null;
+		} catch (error) {
+			log.error('❌ Error getting window bounds:', error);
+			return null;
 		}
 	});
 

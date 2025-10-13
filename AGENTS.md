@@ -59,6 +59,7 @@
     -   `electron/bridge.js` (`@zubridge` main-process bridge wiring)
     -   `electron/store.js` (Zustand store + exported actions for zubridge)
     -   `electron/helpers/windowHelper.js`
+    -   `electron/helpers/windowAnimationHelper.js` (smooth window resize animations)
     -   `electron/helpers/dynamicIslandHelper.js`
     -   `electron/helpers/autoUpdateHelper.js` + `electron/helpers/envHelper.js`
     -   `electron/helpers/utils.js`
@@ -126,6 +127,7 @@
     -   Media & gallery tools: `process-image-with-sharp`, `process-image-batch` (sends `image-processing-progress`), `download-album-zip`, `create-zip-from-urls`
     -   Screen capture & desktop: `desktop:capture-screen`, `start-screen-capture`, event `screen-audio`
     -   Content protection: `toggle-content-protection`, `get-content-protection-status`, `set-content-protection`
+    -   Window management: `resize-main-window` (supports smooth animations with `animate`, `duration`, `easing` params), `get-window-bounds`, `toggle-fullscreen`, `close-window`, `minimize-main-window`
     -   Filesystem & store bridge: `fs-ensure-dir`, `fs-write-file`, `fs-read-file`, `fs-read-file-binary`, `fs-exists`, `fs-remove`, `fs-readdir`, sync helper `get-store-actions-sync`
     -   NotchDrop voice sync: `notchdrop-update-voice-status`, `notchdrop-update-voice-connection-state`, `notchdrop-update-voice-mute-state`, `notchdrop-add-voice-message`, `notchdrop:activateVoiceAgent|deactivateVoiceAgent|getVoiceAgentStatus`
     -   Dev/test hooks: `test-overlay-connection`, `test-overlay-command`, `test-overlay-window`, `shortcut-activated`
@@ -246,10 +248,18 @@ Note: See the NotchDrop events list above for emitted events from the native lay
     - Add handlers in `DynamicIslandUI.jsx`, use `electronApi.overlay.*`
     - Add/modify IPC in preload/main if needed
 
-5. **Update auto-updater or UI**
+5. **Add smooth window resize animation**
+
+    - Use `window.electronApi.resizeMainWindow()` with animation params
+    - Standard resize: `{ dimensions: { width, height }, animate: true, duration: 250, easing: 'easeInOutCubic' }`
+    - Quick toggle: `{ dimensions: { width }, animate: true, duration: 200 }`
+    - Cleanup/close: `{ dimensions: { width, height }, animate: true, duration: 300, easing: 'easeOutCubic' }`
+    - See `/docs/WINDOW_ANIMATION_GUIDE.md` for full API reference
+
+6. **Update auto-updater or UI**
     - Use core update channels in `main.js`
     - Listen in frontend via `electronApi.onUpdateStatus`
-6. **Extend shared zubridge store**
+7. **Extend shared zubridge store**
     - Add/modify slices in `electron/features/` and register via `electron/store.js`
     - Expose additional actions through `storeActions` and consume with `window.zubridge` / `electronApi.getStoreActions()`
     - Update renderer hooks in `src/store/store.js` or feature-specific hooks/selectors
