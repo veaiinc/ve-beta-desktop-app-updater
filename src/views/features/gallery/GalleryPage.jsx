@@ -1824,27 +1824,27 @@ const GalleryPage = () => {
 		window.open(uploadUrl, '_blank');
 	};
 	const handleUploadClicked = (option = 'uploading') => {
-		// const region = localStorage.getItem('region');
-		// if (!info?.isDesktop && region === 'us-east-1') {
-		// 	setInfo((prev) => ({
-		// 		...prev,
-		// 		desktopPopup: true,
-		// 	}));
-		// } else {
-		if (option === 'uploading') {
-			handleNavigateUpload();
-		} else {
+		const region = localStorage.getItem('region');
+		if (!info?.isDesktop && region === 'us-east-1') {
 			setInfo((prev) => ({
 				...prev,
-				showDownloadAlbum: true,
-				showGalleryOptions: false,
-				showOptions: false,
-				activeTagId: albumDetails?.tags?.[0]?._id,
-				originalDownload: false,
-				webviewDownload: true,
+				desktopPopup: true,
 			}));
+		} else {
+			// if (option === 'uploading') {
+			// 	handleNavigateUpload();
+			// } else {
+			// 	setInfo((prev) => ({
+			// 		...prev,
+			// 		showDownloadAlbum: true,
+			// 		showGalleryOptions: false,
+			// 		showOptions: false,
+			// 		activeTagId: albumDetails?.tags?.[0]?._id,
+			// 		originalDownload: false,
+			// 		webviewDownload: true,
+			// 	}));
+			// }
 		}
-		// }
 	};
 	const handleCallToAction = useCallback(() => {
 		const payload = {
