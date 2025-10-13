@@ -11,6 +11,7 @@ import {
 	Maximize2,
 	Plus,
 	X,
+	ChevronRight,
 } from 'lucide-react';
 import moment from 'moment';
 import Context from '../../../context/context';
@@ -67,6 +68,8 @@ const OngoingMeeting = memo(() => {
 			width: 522,
 			height: 436,
 		},
+		isSelectedResponseId: null,
+		isResponseSelected: false,
 	});
 
 	const { liveIntelligenceData = {}, transcriptions = [], meetingId } = activeMeetingDetails;
@@ -130,6 +133,8 @@ const OngoingMeeting = memo(() => {
 				setInfo((prev) => ({
 					...prev,
 					chatOpen: false,
+					isResponseSelected: false,
+					isSelectedResponseId: null,
 				}));
 			}
 
@@ -364,7 +369,14 @@ const OngoingMeeting = memo(() => {
 	// 	});
 	// };
 
-	const handleActionClick = (prompt, isAskAi = false) => {
+	const handleActionClick = (prompt, isAskAi = false, id = null) => {
+
+		setInfo((prev) => ({
+			...prev,
+			isSelectedResponseId: id,
+			isResponseSelected: true,
+		}));
+
 		if (prompt && sessionId) {
 			console.log('prompt', prompt);
 			toggleChat(true);
@@ -380,6 +392,17 @@ const OngoingMeeting = memo(() => {
 		}
 	};
 
+
+	const handleOpenChatResponse = (open) => {
+		if (open === info.chatOpen) {
+			return;
+		}
+		toggleChat(open);
+	}
+
+
+
+
 	return (
 		<div className={s.ongoingMeetingWrapper}>
 			<div className={s.ongoingMeetingHeader}>
@@ -394,6 +417,13 @@ const OngoingMeeting = memo(() => {
 				>
 					<X size={16} />
 				</button> */}
+				{info.isResponseSelected && (
+					<button className={s.ongoingMeetingHeaderButton} onClick={() =>
+						handleOpenChatResponse(true)
+					}>
+						<ChevronRight size={16} />
+					</button>
+				)}
 			</div>
 			<div className={s.ongoingMeetingContentWrapper}>
 				<div className={s.ongoingMeetingContainer}>
@@ -598,6 +628,7 @@ const LiveIntelligencePanel = ({ liveIntelligence = [], handleActionClick }) => 
 							handleActionClick(
 								item.prompt,
 								getLiveIntelligenceType(item) === 'needHelp',
+								item.id,
 							)
 						}
 					>

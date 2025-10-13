@@ -59,14 +59,14 @@ const SettingsItem = memo(({ settingItem, isActive, onItemClick, styles }) => {
 SettingsItem.displayName = 'SettingsItem';
 
 // Memoized Settings Category Component
-const SettingsCategory = memo(({ title, items, pathname, onItemClick, styles }) => (
+const SettingsCategory = memo(({ title, items, currentPath, onItemClick, styles }) => (
 	<>
 		<div className={styles.settingsItemsTitle}>{title}</div>
 		{items.map((settingItem) => (
 			<SettingsItem
 				key={settingItem.id}
 				settingItem={settingItem}
-				isActive={settingItem.route && settingItem.route.includes(pathname)}
+				isActive={settingItem.route === currentPath}
 				onItemClick={onItemClick}
 				styles={styles}
 			/>
@@ -206,7 +206,8 @@ const Settings = memo(
 		businessName,
 		closeSettingsTooltip,
 	}) => {
-		const { pathname } = useLocation();
+		const { pathname, search } = useLocation();
+		const currentPath = pathname + search;
 		const channel = useBroadcastChannel();
 		const navigate = useNavigate();
 
@@ -421,14 +422,14 @@ const Settings = memo(
 					<SettingsCategory
 						title="Account"
 						items={categorizedSettingsItems.accountItems}
-						pathname={pathname}
+						currentPath={currentPath}
 						onItemClick={handleSettingItemClick}
 						styles={s}
 					/>
 					<SettingsCategory
 						title="Workspace"
 						items={categorizedSettingsItems.workspaceItems}
-						pathname={pathname}
+						currentPath={currentPath}
 						onItemClick={handleSettingItemClick}
 						styles={s}
 					/>

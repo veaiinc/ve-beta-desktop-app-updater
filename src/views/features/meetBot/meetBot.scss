@@ -1525,9 +1525,9 @@
 
 		.card-meet-bot-list-item-description {
 			color: var(--secondary-font, #94989e);
-			font-family: var(--primary-font-family);
+			// font-family: var(--primary-font-family);
 			font-size: 14px;
-			font-style: italic;
+			// font-style: italic;
 			line-height: 1.4;
 		}
 
@@ -1607,7 +1607,7 @@
 		.first-participant {
 			color: var(--secondary-font, #94989e);
 			font-size: 14px;
-			font-style: italic;
+			// font-style: italic;
 		}
 
 		.participant-count-container {
@@ -1617,7 +1617,7 @@
 			.participant-count {
 				color: var(--secondary-font, #94989e);
 				font-size: 14px;
-				font-style: italic;
+				// font-style: italic;
 				cursor: pointer;
 				transition: color 0.2s ease;
 
