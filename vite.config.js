@@ -60,6 +60,7 @@ export default defineConfig({
 			'dayjs',
 			'@blocknote/core',
 		],
+		exclude: ['../views/features/gallery/UploadPhotos.jsx'],
 		force: true,
 	},
 	server: {

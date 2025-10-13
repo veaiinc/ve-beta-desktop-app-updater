@@ -674,6 +674,7 @@ const GalleryPage = () => {
 				clientSelectionImages: null,
 				aiFace: null,
 				aiFaceImages: null,
+				preRegisteredUsers: null,
 			});
 		};
 	}, []);
@@ -1601,37 +1602,43 @@ const GalleryPage = () => {
 		}
 	};
 
-	const handleClickAlbum = (album, name) => {
-		const value =
-			name === 'albumName'
-				? album?.title !== info?.albumName
-				: album?.displayName !== info?.albumContains;
-		if (value) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				albumLoading: true,
-				showGalleryOptions: false,
-				showOptions: false,
-			}));
+	const handleClickAlbum = async (album, name) => {
+		const isAlbumNameChange = name === 'albumName' && album?.title !== info?.albumName;
+		const isContainNameChange =
+			name === 'containName' && album?.displayName !== info?.albumContains;
+		const isClientSelectionChange = name === 'clientSelection';
+
+		if (!isAlbumNameChange && !isContainNameChange && !isClientSelectionChange) {
+			// No meaningful change — do nothing
+			return;
 		}
-		if (name === 'albumName' && album?.title !== info?.albumName) {
+
+		// Immediately reset UI state to avoid showing stale images
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			albumLoading: true,
+			showGalleryOptions: false,
+			showOptions: false,
+			selectedImages: [],
+			showAlbumOptionsMenu: false,
+			imagesList: { docs: [], hasNextPage: true, totalDocs: 0 },
+			page: 1,
+			hasMore: true,
+			resetInfinityScroll: !prevInfo.resetInfinityScroll,
+			isRearranging: false,
+		}));
+
+		// Handle Album Name Switch (main album navigation)
+		if (isAlbumNameChange) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				imagesList: {
-					...prevInfo.imagesList,
-					docs: [],
-				},
-				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
 				albumName: album?.title,
 				activeAlbumId: album?._id,
 				activeAlbum: album,
 				isPublished: album?.isPublished,
 				isEnabled: album?.isEnabled,
 				albumSlug: album?.slug,
-				resetInfinityScroll: !prevInfo.resetInfinityScroll,
 				activeTab: 'Albums',
-				isRearranging: false,
-				showMainPopup: false,
 				tenantAlbums: Array.isArray(prevInfo?.tenantAlbums)
 					? prevInfo.tenantAlbums.map((existingAlbum) =>
 							existingAlbum._id === album._id
@@ -1640,40 +1647,59 @@ const GalleryPage = () => {
 					  )
 					: [],
 			}));
+
+			// Fetch album image count (triggers tag list update)
 			getAlbumImagesCount(galleryId);
-			// if (info?.albumName !== album?.title) {
-			// 	getAlbumCount(galleryId, album?.title);
-			// }
-		} else if (name === 'containName' && album?.displayName !== info?.albumContains) {
+
+			// Fetch images for the new album immediately
+			await getGalleryImages(
+				galleryId,
+				album?._id,
+				album?.tags?.[0]?._id || '',
+				1,
+				info.limit,
+				'',
+				true,
+			);
+		}
+		// Handle "All", "Favorites", etc. (tag/contain switch within same album)
+		else if (isContainNameChange) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				imagesList: {
-					...prevInfo.imagesList,
-					docs: [],
-				},
-				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
 				albumContains: album?.displayName,
 				albumTagId: album?._id,
 				sortType: album?.sortType,
-
-				selectedImages: [],
-				isRearranging: false,
 			}));
-		} else if (name === 'clientSelection') {
+
+			// Fetch images for the new tag immediately
+			await getGalleryImages(
+				galleryId,
+				info.activeAlbumId,
+				album?._id,
+				1,
+				info.limit,
+				'',
+				true,
+			);
+		}
+		// Handle Client Selection Switch
+		else if (isClientSelectionChange) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				activeClientSelection: album?.slug,
 				clientSelectionID: album?._id,
 				clientSelectionName: album?.title,
-				isRearranging: false,
 			}));
+
+			// Fetch client selection images
+			await getClientSelectionImages(album?._id, 1);
 		}
-		setTimeout(() => {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				albumLoading: false,
-			}));
-		}, 1000);
+
+		// Finally, turn off loading state
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			albumLoading: false,
+		}));
 	};
 
 	const handleAlbumSettings = (sectionId) => {
@@ -1799,27 +1825,27 @@ const GalleryPage = () => {
 		window.open(uploadUrl, '_blank');
 	};
 	const handleUploadClicked = (option = 'uploading') => {
-		// const region = localStorage.getItem('region');
-		// if (!info?.isDesktop && region === 'us-east-1') {
-		// 	setInfo((prev) => ({
-		// 		...prev,
-		// 		desktopPopup: true,
-		// 	}));
-		// } else {
-		if (option === 'uploading') {
-			handleNavigateUpload();
-		} else {
+		const region = localStorage.getItem('region');
+		if (!info?.isDesktop && region === 'us-east-1') {
 			setInfo((prev) => ({
 				...prev,
-				showDownloadAlbum: true,
-				showGalleryOptions: false,
-				showOptions: false,
-				activeTagId: albumDetails?.tags?.[0]?._id,
-				originalDownload: false,
-				webviewDownload: true,
+				desktopPopup: true,
 			}));
+		} else {
+			// if (option === 'uploading') {
+			// 	handleNavigateUpload();
+			// } else {
+			// 	setInfo((prev) => ({
+			// 		...prev,
+			// 		showDownloadAlbum: true,
+			// 		showGalleryOptions: false,
+			// 		showOptions: false,
+			// 		activeTagId: albumDetails?.tags?.[0]?._id,
+			// 		originalDownload: false,
+			// 		webviewDownload: true,
+			// 	}));
+			// }
 		}
-		// }
 	};
 	const handleCallToAction = useCallback(() => {
 		const payload = {
@@ -3385,23 +3411,34 @@ const GalleryPage = () => {
 		const clientX = e.clientX || e.screenX;
 		const clientY = e.clientY || e.screenY;
 
-		if (!clientX || !clientY) return;
+		if (clientX == null || clientY == null) return;
 
+		// Use the rearrange container which has the actual scrollable content
 		const container = rearrangeContainerRef.current;
 
 		if (!container) return;
 
-		const scrollSpeed = 20;
-		const buffer = 100;
+		// Enhanced smooth scrolling parameters
+		const scrollSpeed = 25; // Increased speed for more responsive scrolling
+		const buffer = 100; // Larger buffer zone for easier triggering
+		const acceleration = 1.5; // Acceleration factor for smoother feel
 
 		const { top, bottom } = container.getBoundingClientRect();
+		const distanceFromTop = clientY - top;
+		const distanceFromBottom = bottom - clientY;
 
-		if (clientY < top + buffer) {
-			// Scroll up
-			container.scrollTop -= scrollSpeed;
-		} else if (clientY > bottom - buffer) {
-			// Scroll down
-			container.scrollTop += scrollSpeed;
+		// Calculate dynamic scroll speed based on distance from edge
+		let dynamicScrollSpeed = scrollSpeed;
+		if (distanceFromTop < buffer) {
+			// Closer to top = faster scroll
+			const proximity = (buffer - distanceFromTop) / buffer;
+			dynamicScrollSpeed = scrollSpeed * (1 + proximity * acceleration);
+			container.scrollBy({ top: -dynamicScrollSpeed, behavior: 'auto' });
+		} else if (distanceFromBottom < buffer) {
+			// Closer to bottom = faster scroll
+			const proximity = (buffer - distanceFromBottom) / buffer;
+			dynamicScrollSpeed = scrollSpeed * (1 + proximity * acceleration);
+			container.scrollBy({ top: dynamicScrollSpeed, behavior: 'auto' });
 		}
 
 		// Always update the drag position and calculate drop position
@@ -3712,39 +3749,84 @@ const GalleryPage = () => {
 	const rearrangeContainerRef = useRef(null);
 	const galleryScrollTargetRef = useRef(null);
 
-	let scrolling = false;
-
 	useEffect(() => {
+		let scrollAnimationId = null;
+		let lastScrollTime = 0;
+		const scrollInterval = 16; // ~60fps for ultra-smooth scrolling
+
 		const handleMouseMove = (e) => {
-			const container = galleryScrollTargetRef.current;
+			const container = rearrangeContainerRef.current;
 			if (!container || !info.isDragging) return; // Only trigger when dragging
 
+			const now = performance.now();
+			if (now - lastScrollTime < scrollInterval) return; // Throttle for smooth performance
+			lastScrollTime = now;
+
 			const { top, bottom } = container.getBoundingClientRect();
-			const scrollAmount = 10; // Adjust scroll speed
+			const baseScrollAmount = 18; // Increased base speed for ultra-smooth scrolling
+			const buffer = 80; // Larger buffer zone for easier triggering
+			const maxAcceleration = 2.5; // Higher acceleration for smoother feel
 
-			// Check if scrolling is already in progress
-			if (!scrolling) {
-				// Check if cursor is near the top within 30px
-				if (e.clientY < top + 30) {
-					scrolling = true;
-					container.scrollBy({ top: -scrollAmount, behavior: 'auto' });
-				}
-				// Check if cursor is near the bottom within 150px
-				else if (e.clientY > bottom - 150) {
-					scrolling = true;
-					container.scrollBy({ top: scrollAmount, behavior: 'auto' });
+			// Check if cursor is near the top or bottom
+			if (e.clientY < top + buffer) {
+				// Scroll up - cancel any existing animation
+				if (scrollAnimationId) {
+					cancelAnimationFrame(scrollAnimationId);
 				}
 
-				// Reset the scrolling flag after a delay for smooth interval
-				setTimeout(() => (scrolling = false), 30);
+				const scrollUp = () => {
+					// Calculate dynamic speed based on proximity to edge
+					const distanceFromTop = e.clientY - top;
+					const proximity = (buffer - distanceFromTop) / buffer;
+					const dynamicSpeed = baseScrollAmount * (1 + proximity * maxAcceleration);
+
+					container.scrollBy({ top: -dynamicSpeed, behavior: 'auto' });
+
+					// Continue scrolling if still in buffer zone and dragging
+					if (e.clientY < top + buffer && info.isDragging) {
+						scrollAnimationId = requestAnimationFrame(scrollUp);
+					}
+				};
+				scrollAnimationId = requestAnimationFrame(scrollUp);
+			} else if (e.clientY > bottom - buffer) {
+				// Scroll down - cancel any existing animation
+				if (scrollAnimationId) {
+					cancelAnimationFrame(scrollAnimationId);
+				}
+
+				const scrollDown = () => {
+					// Calculate dynamic speed based on proximity to edge
+					const distanceFromBottom = bottom - e.clientY;
+					const proximity = (buffer - distanceFromBottom) / buffer;
+					const dynamicSpeed = baseScrollAmount * (1 + proximity * maxAcceleration);
+
+					container.scrollBy({ top: dynamicSpeed, behavior: 'auto' });
+
+					// Continue scrolling if still in buffer zone and dragging
+					if (e.clientY > bottom - buffer && info.isDragging) {
+						scrollAnimationId = requestAnimationFrame(scrollDown);
+					}
+				};
+				scrollAnimationId = requestAnimationFrame(scrollDown);
+			} else {
+				// Cancel scrolling if not in buffer zone
+				if (scrollAnimationId) {
+					cancelAnimationFrame(scrollAnimationId);
+					scrollAnimationId = null;
+				}
 			}
 		};
 
-		// Throttle the mousemove event listener
-		document.addEventListener('mousemove', handleMouseMove);
+		// Add mousemove event listener with passive option for better performance
+		document.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-		// Clean up event listener on component unmount
-		return () => document.removeEventListener('mousemove', handleMouseMove);
+		// Clean up event listener and animation on component unmount or when dragging stops
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			if (scrollAnimationId) {
+				cancelAnimationFrame(scrollAnimationId);
+			}
+		};
 	}, [info.isDragging]);
 
 	const getShareLink = () => {
@@ -5280,7 +5362,7 @@ const GalleryPage = () => {
 										}))
 									}
 									style={{
-										height: '90vh',
+										height: info?.isRearranging ? '79vh' : '90vh',
 										overflow: 'auto',
 									}}
 									ref={rearrangeContainerRef}
