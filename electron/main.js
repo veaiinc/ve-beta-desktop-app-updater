@@ -2989,6 +2989,34 @@ app.whenReady().then(async () => {
 	log.info('🔍 Working directory:', process.cwd());
 	log.info('🔍 App path:', app.getAppPath());
 	log.info('🔍 User data path:', app.getPath('userData'));
+
+	// Register the app as the default protocol client for veai:// URLs
+	try {
+		if (process.defaultApp) {
+			// In development mode, we can't register as the default protocol client
+			log.info('⚠️ Running in development mode - skipping protocol registration');
+		} else {
+			// Check if we're already the default protocol client
+			const isDefault = app.isDefaultProtocolClient('veai');
+			log.info(`🔍 Is already default protocol client for veai://: ${isDefault}`);
+
+			if (!isDefault) {
+				// In production, register as the default protocol client
+				const wasSet = app.setAsDefaultProtocolClient('veai');
+				if (wasSet) {
+					log.info(
+						'✅ Successfully registered as default protocol client for veai:// URLs',
+					);
+				} else {
+					log.warn('⚠️ Failed to register as default protocol client for veai:// URLs');
+				}
+			} else {
+				log.info('✅ Already registered as default protocol client for veai:// URLs');
+			}
+		}
+	} catch (error) {
+		log.error('❌ Error registering protocol client:', error);
+	}
 	const autoUpdateIdleThresholdMinutes = getAutoUpdateIdleThresholdMinutes();
 	const autoUpdateIdleThresholdMs = getAutoUpdateIdleThresholdMs();
 	log.info(
