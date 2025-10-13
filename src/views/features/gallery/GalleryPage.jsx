@@ -1651,15 +1651,15 @@ const GalleryPage = () => {
 			getAlbumImagesCount(galleryId);
 
 			// Fetch images for the new album immediately
-			// await getGalleryImages(
-			// 	galleryId,
-			// 	album?._id,
-			// 	album?.tags?.[0]?._id || '',
-			// 	1,
-			// 	info.limit,
-			// 	'',
-			// 	true,
-			// );
+			await getGalleryImages(
+				galleryId,
+				album?._id,
+				album?.tags?.[0]?._id || '',
+				1,
+				info.limit,
+				'',
+				true,
+			);
 		}
 		// Handle "All", "Favorites", etc. (tag/contain switch within same album)
 		else if (isContainNameChange) {
@@ -3384,23 +3384,34 @@ const GalleryPage = () => {
 		const clientX = e.clientX || e.screenX;
 		const clientY = e.clientY || e.screenY;
 
-		if (!clientX || !clientY) return;
+		if (clientX == null || clientY == null) return;
 
+		// Use the rearrange container which has the actual scrollable content
 		const container = rearrangeContainerRef.current;
 
 		if (!container) return;
 
-		const scrollSpeed = 20;
-		const buffer = 100;
+		// Enhanced smooth scrolling parameters
+		const scrollSpeed = 25; // Increased speed for more responsive scrolling
+		const buffer = 100; // Larger buffer zone for easier triggering
+		const acceleration = 1.5; // Acceleration factor for smoother feel
 
 		const { top, bottom } = container.getBoundingClientRect();
+		const distanceFromTop = clientY - top;
+		const distanceFromBottom = bottom - clientY;
 
-		if (clientY < top + buffer) {
-			// Scroll up
-			container.scrollTop -= scrollSpeed;
-		} else if (clientY > bottom - buffer) {
-			// Scroll down
-			container.scrollTop += scrollSpeed;
+		// Calculate dynamic scroll speed based on distance from edge
+		let dynamicScrollSpeed = scrollSpeed;
+		if (distanceFromTop < buffer) {
+			// Closer to top = faster scroll
+			const proximity = (buffer - distanceFromTop) / buffer;
+			dynamicScrollSpeed = scrollSpeed * (1 + proximity * acceleration);
+			container.scrollBy({ top: -dynamicScrollSpeed, behavior: 'auto' });
+		} else if (distanceFromBottom < buffer) {
+			// Closer to bottom = faster scroll
+			const proximity = (buffer - distanceFromBottom) / buffer;
+			dynamicScrollSpeed = scrollSpeed * (1 + proximity * acceleration);
+			container.scrollBy({ top: dynamicScrollSpeed, behavior: 'auto' });
 		}
 
 		// Always update the drag position and calculate drop position
@@ -3711,39 +3722,84 @@ const GalleryPage = () => {
 	const rearrangeContainerRef = useRef(null);
 	const galleryScrollTargetRef = useRef(null);
 
-	let scrolling = false;
-
 	useEffect(() => {
+		let scrollAnimationId = null;
+		let lastScrollTime = 0;
+		const scrollInterval = 16; // ~60fps for ultra-smooth scrolling
+
 		const handleMouseMove = (e) => {
-			const container = galleryScrollTargetRef.current;
+			const container = rearrangeContainerRef.current;
 			if (!container || !info.isDragging) return; // Only trigger when dragging
 
+			const now = performance.now();
+			if (now - lastScrollTime < scrollInterval) return; // Throttle for smooth performance
+			lastScrollTime = now;
+
 			const { top, bottom } = container.getBoundingClientRect();
-			const scrollAmount = 10; // Adjust scroll speed
+			const baseScrollAmount = 18; // Increased base speed for ultra-smooth scrolling
+			const buffer = 80; // Larger buffer zone for easier triggering
+			const maxAcceleration = 2.5; // Higher acceleration for smoother feel
 
-			// Check if scrolling is already in progress
-			if (!scrolling) {
-				// Check if cursor is near the top within 30px
-				if (e.clientY < top + 30) {
-					scrolling = true;
-					container.scrollBy({ top: -scrollAmount, behavior: 'auto' });
-				}
-				// Check if cursor is near the bottom within 150px
-				else if (e.clientY > bottom - 150) {
-					scrolling = true;
-					container.scrollBy({ top: scrollAmount, behavior: 'auto' });
+			// Check if cursor is near the top or bottom
+			if (e.clientY < top + buffer) {
+				// Scroll up - cancel any existing animation
+				if (scrollAnimationId) {
+					cancelAnimationFrame(scrollAnimationId);
 				}
 
-				// Reset the scrolling flag after a delay for smooth interval
-				setTimeout(() => (scrolling = false), 30);
+				const scrollUp = () => {
+					// Calculate dynamic speed based on proximity to edge
+					const distanceFromTop = e.clientY - top;
+					const proximity = (buffer - distanceFromTop) / buffer;
+					const dynamicSpeed = baseScrollAmount * (1 + proximity * maxAcceleration);
+
+					container.scrollBy({ top: -dynamicSpeed, behavior: 'auto' });
+
+					// Continue scrolling if still in buffer zone and dragging
+					if (e.clientY < top + buffer && info.isDragging) {
+						scrollAnimationId = requestAnimationFrame(scrollUp);
+					}
+				};
+				scrollAnimationId = requestAnimationFrame(scrollUp);
+			} else if (e.clientY > bottom - buffer) {
+				// Scroll down - cancel any existing animation
+				if (scrollAnimationId) {
+					cancelAnimationFrame(scrollAnimationId);
+				}
+
+				const scrollDown = () => {
+					// Calculate dynamic speed based on proximity to edge
+					const distanceFromBottom = bottom - e.clientY;
+					const proximity = (buffer - distanceFromBottom) / buffer;
+					const dynamicSpeed = baseScrollAmount * (1 + proximity * maxAcceleration);
+
+					container.scrollBy({ top: dynamicSpeed, behavior: 'auto' });
+
+					// Continue scrolling if still in buffer zone and dragging
+					if (e.clientY > bottom - buffer && info.isDragging) {
+						scrollAnimationId = requestAnimationFrame(scrollDown);
+					}
+				};
+				scrollAnimationId = requestAnimationFrame(scrollDown);
+			} else {
+				// Cancel scrolling if not in buffer zone
+				if (scrollAnimationId) {
+					cancelAnimationFrame(scrollAnimationId);
+					scrollAnimationId = null;
+				}
 			}
 		};
 
-		// Throttle the mousemove event listener
-		document.addEventListener('mousemove', handleMouseMove);
+		// Add mousemove event listener with passive option for better performance
+		document.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-		// Clean up event listener on component unmount
-		return () => document.removeEventListener('mousemove', handleMouseMove);
+		// Clean up event listener and animation on component unmount or when dragging stops
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			if (scrollAnimationId) {
+				cancelAnimationFrame(scrollAnimationId);
+			}
+		};
 	}, [info.isDragging]);
 
 	const getShareLink = () => {
@@ -5267,7 +5323,7 @@ const GalleryPage = () => {
 										}))
 									}
 									style={{
-										height: '90vh',
+										height: info?.isRearranging ? '79vh' : '90vh',
 										overflow: 'auto',
 									}}
 									ref={rearrangeContainerRef}
