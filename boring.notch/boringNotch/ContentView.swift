@@ -285,6 +285,8 @@ struct ContentView: View {
                         NotchShelfView()
                     case .meeting:
                         MeetingView()
+                    case .ask:
+                        MeetingView()
                     }
                 }
             }
@@ -882,3 +884,4 @@ struct MessageBubble: View {
         .environmentObject(vm)
         .frame(width: vm.notchSize.width, height: vm.notchSize.height)
 }
+

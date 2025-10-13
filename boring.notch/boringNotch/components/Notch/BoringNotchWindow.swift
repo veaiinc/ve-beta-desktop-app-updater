@@ -42,11 +42,13 @@ class BoringNotchWindow: NSPanel {
     
     override var canBecomeKey: Bool {
         // Allow keyboard focus when meeting view is active
-        return BoringViewCoordinator.shared.currentView == .meeting
+        let current = BoringViewCoordinator.shared.currentView
+        return current == .meeting || current == .ask
     }
     
     override var canBecomeMain: Bool {
         // Allow main window status when meeting view is active
-        return BoringViewCoordinator.shared.currentView == .meeting
+        let current = BoringViewCoordinator.shared.currentView
+        return current == .meeting || current == .ask
     }
 }
