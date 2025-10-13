@@ -3490,6 +3490,84 @@ const GalleryPage = () => {
 	// };
 
 	// ... existing code ...
+	const handleBulkSelectedImagesDownload = async (imageType = null) => {
+		try {
+			if (info.isDownloading) return;
+
+			setInfo((prev) => ({ ...prev, isDownloading: true }));
+			showMessage('loading', 'Preparing download...');
+
+			const selectedImageIds = info?.selectedImages;
+			if (!selectedImageIds || selectedImageIds.length === 0) {
+				showMessage('error', 'No images selected');
+				return;
+			}
+
+			// Determine image type (original or optimized)
+			const downloadType = imageType || (info?.isLightGallery ? 'optimized' : 'original');
+
+			// Fetch signed URLs with batch processing (10 images per batch)
+			const batchSize = 10;
+			const allItems = [];
+
+			// Process batches sequentially with 500ms delay between each
+			for (let i = 0; i < selectedImageIds.length; i += batchSize) {
+				const batchIds = selectedImageIds.slice(i, i + batchSize);
+				const payload = { image_ids: batchIds, imageType: downloadType };
+
+				try {
+					const result = await getSignedUrlsForImages(payload, galleryId);
+					if (Array.isArray(result)) {
+						allItems.push(
+							...result.map((item) => ({
+								url: item.url,
+								filename: item.filename || `${item.imageId}.jpg`,
+							})),
+						);
+					}
+				} catch (err) {
+					console.error('Failed to get signed URLs for batch:', err);
+				}
+
+				// 500ms delay between each API call (except for the last one)
+				if (i + batchSize < selectedImageIds.length) {
+					await new Promise((resolve) => setTimeout(resolve, 500));
+				}
+			}
+
+			if (allItems.length === 0) {
+				showMessage('error', 'No valid URLs generated');
+				setInfo((prev) => ({ ...prev, isDownloading: false }));
+				return;
+			}
+
+			// Create download session for background ZIP creation
+			const downloadSession = {
+				type: 'selected',
+				name: `Selected Images (${selectedImageIds.length} images)`,
+				totalFiles: 1,
+				files: [
+					{
+						name: `Selected_Images_${Date.now()}.zip`,
+						status: 'pending',
+						progress: 0,
+					},
+				],
+				downloadItems: allItems, // Store items for ZIP creation
+				folderName: `Selected_Images_${Date.now()}`,
+				maxZipSize: 3 * 1024 * 1024 * 1024, // 3GB
+			};
+
+			addDownloadSession(downloadSession);
+			showMessage('success', 'Download started');
+		} catch (err) {
+			console.error('Bulk download failed:', err);
+			showMessage('error', 'Download failed: ' + err.message);
+		} finally {
+			setInfo((prev) => ({ ...prev, isDownloading: false }));
+		}
+	};
+
 	const handleDownload = async (type = null) => {
 		if (
 			validateExpiryData &&
@@ -3568,25 +3646,8 @@ const GalleryPage = () => {
 					throw new Error('Failed to get download links');
 				}
 			} else {
-				// Handle bulk download (more than 10 images)
-				const payload = {
-					image_ids: info?.selectedImages,
-					imageType: type,
-				};
-				const response = await downloadImages(payload, galleryId, info?.activeAlbumId);
-
-				if (response?.[0] === true && response?.[1]?.signedUrl) {
-					const link = document.createElement('a');
-					link.href = response[1].signedUrl;
-					link.setAttribute('download', `gallery-images-${Date.now()}.zip`);
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-					message.destroy();
-					showMessage('success', 'Download started');
-				} else {
-					throw new Error('Failed to prepare download');
-				}
+				// Handle bulk download (more than 10 images) - use batch processing like album downloads
+				await handleBulkSelectedImagesDownload(type);
 			}
 
 			// Clear selection after successful download

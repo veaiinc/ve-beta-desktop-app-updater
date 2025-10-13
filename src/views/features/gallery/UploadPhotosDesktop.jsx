@@ -231,7 +231,9 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 			processedBuffer = Uint8Array.from(atob(resultOptimized.processedImage), (c) =>
 				c.charCodeAt(0),
 			);
-			processedFile = new File([processedBuffer], originalFile.name, { type: 'image/jpeg' });
+			// Ensure processed file has .jpg extension since it's converted to JPEG
+			const processedFileName = originalFile.name.replace(/\.[^/.]+$/, '.jpg');
+			processedFile = new File([processedBuffer], processedFileName, { type: 'image/jpeg' });
 
 			// --- Process Thumbnail 300w (NO watermark) ---
 			const resultThumbnail = await window.electronApi.processImageWithSharp({
@@ -420,6 +422,7 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 			albumName, // ✅ Include actual album name
 			uploadBatchID: newUploadBatchID, // ✅ Unique batch ID per session
 			tenantId: tenantAlbums?.tenant_id,
+			lightGallery, // ✅ Include lightGallery information
 			files: nonDuplicates.map((key) => ({
 				file: info.uploadImages[key].file,
 				isDuplicate: info.uploadImages[key].isDuplicate,

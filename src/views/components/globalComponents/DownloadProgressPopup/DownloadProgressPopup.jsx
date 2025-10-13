@@ -38,6 +38,8 @@ const DownloadProgressPopup = () => {
 			return downloadSession.albumName || 'Album Download';
 		} else if (downloadSession.type === 'clientSelection') {
 			return 'Client Selection';
+		} else if (downloadSession.type === 'selected') {
+			return downloadSession.name || 'Selected Images';
 		}
 
 		// Final fallback
@@ -246,7 +248,7 @@ const DownloadProgressPopup = () => {
 			// Process downloads based on type
 			if (initialState.type === 'single' || initialState.type === 'multiple') {
 				await processImageDownloads(sessionId, initialState);
-			} else if (initialState.type === 'album') {
+			} else if (initialState.type === 'album' || initialState.type === 'selected') {
 				await processAlbumDownload(sessionId, initialState);
 			} else if (initialState.type === 'clientSelection') {
 				await processClientSelectionDownload(sessionId, initialState);
