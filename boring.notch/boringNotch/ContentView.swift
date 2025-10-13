@@ -283,22 +283,10 @@ struct ContentView: View {
                         NotchHomeView(albumArtNamespace: albumArtNamespace)
                     case .shelf:
                         NotchShelfView()
-                    case .meetings:
-                        VStack(spacing: 8) {
-                            Image(systemName: "calendar")
-                                .font(.system(size: 24, weight: .semibold))
-                                .foregroundStyle(.secondary)
-                            Text("Meetings")
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
-                            Text("Your meetings will appear here.")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
             }
+            .zIndex(1)
             .allowsHitTesting(vm.notchState == .open)
             .blur(radius: abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0)
             .opacity(abs(gestureProgress) > 0.3 ? min(abs(gestureProgress * 2), 0.8) : 1)
