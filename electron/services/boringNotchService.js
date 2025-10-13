@@ -192,6 +192,26 @@ class BoringNotchService {
 		}
 	}
 
+	// 🚨 CRITICAL FIX: Add terminate method for proper app termination
+	async terminate() {
+		try {
+			log.info('🛑 Terminating Boring Notch app...');
+			
+			if (this.boringNotchProcess) {
+				await this.terminateBoringNotch();
+			}
+			
+			// Also cleanup after termination
+			await this.cleanup();
+			
+			log.info('✅ Boring Notch app terminated successfully');
+		} catch (error) {
+			log.error('❌ Error terminating Boring Notch app:', error);
+			// Still cleanup even if termination fails
+			await this.cleanup();
+		}
+	}
+
 	async terminateBoringNotch() {
 		return new Promise((resolve) => {
 			try {
