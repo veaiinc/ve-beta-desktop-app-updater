@@ -15,6 +15,8 @@ const DeletePopup = ({
 	deleteType,
 	handleDeleteTypeChange,
 	currentTitle = null,
+	requireConfirm = true,
+	isLoading = false,
 }) => {
 	const [inputValue, setInputValue] = useState('');
 	const customStyles = {
@@ -44,7 +46,7 @@ const DeletePopup = ({
 				<div style={{ alignSelf: 'center' }}>
 					<WarningSvg />
 				</div>
-				{!isTagDelete && (
+				{!isTagDelete && requireConfirm && (
 					<>
 						{currentTitle && (
 							<div className="deletePopupParagraph">
@@ -67,7 +69,7 @@ const DeletePopup = ({
 						You cannot undo this. All your {paragraph} and information will be lost .
 					</div>
 				</div>
-				{isTagDelete ? (
+				{isTagDelete || !requireConfirm ? (
 					<div className="deletePopupButtonContainer">
 						{isTagDelete && (
 							<div className="deletePopupSelectContainer">
@@ -77,13 +79,17 @@ const DeletePopup = ({
 								</select>
 							</div>
 						)}
-						<div style={{ alignSelf: 'flex-end' }}>
+						<div style={{ alignSelf: 'flex-end', justifyContent: 'flex-end' }}>
 							<button
 								className="deletePopupDeleteButton"
 								onClick={handleDelete}
-								style={{ cursor: 'pointer' }}
+								disabled={isLoading}
+								style={{
+									cursor: isLoading ? 'not-allowed' : 'pointer',
+									opacity: isLoading ? 0.5 : 1,
+								}}
 							>
-								Delete
+								{isLoading ? 'Deleting...' : 'Delete'}
 							</button>
 						</div>
 					</div>
@@ -92,13 +98,13 @@ const DeletePopup = ({
 						<button
 							className="deletePopupDeleteButton"
 							onClick={handleDeleteConfirm}
-							disabled={!inputValue.trim()}
+							disabled={!inputValue.trim() || isLoading}
 							style={{
-								cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
-								opacity: inputValue.trim() ? 1 : 0.5,
+								cursor: inputValue.trim() && !isLoading ? 'pointer' : 'not-allowed',
+								opacity: inputValue.trim() && !isLoading ? 1 : 0.5,
 							}}
 						>
-							Delete
+							{isLoading ? 'Deleting...' : 'Delete'}
 						</button>
 					</div>
 				)}

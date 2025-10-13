@@ -4,7 +4,7 @@ import { useSearchParams, useParams, useNavigate, useLocation } from 'react-rout
 import Context from '../../../context/context';
 import Thumbnails from '../../components/gallery/galleryView/Thumbnails';
 import FullImagesComponent from '../../components/gallery/galleryView/FullImagesComponent';
-import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav';
+// import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSettings/cross.svg';
@@ -883,13 +883,19 @@ const GalleryViewer = ({
 				/>
 				<DeletePopup
 					open={info?.showDeleteAlbum}
-					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
+					closeModal={() =>
+						setInfo((prev) => ({
+							...prev,
+							showDeleteAlbum: false,
+						}))
+					}
 					galleryId={activeGalleryId}
 					title={'Permanently Delete  image?'}
 					paragraph={
 						'You cannot undo this action.All your photos in this album lined to this label will be lost'
 					}
 					handleDelete={handleAlbumDelete}
+					requireConfirm={false}
 				/>
 			</div>
 

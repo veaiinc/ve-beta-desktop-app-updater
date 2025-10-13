@@ -87,7 +87,7 @@ const MoveStageModal = ({
 		>
 			<div className="movetoStageModalParentContainer">
 				<div className="movetoStageHeaderContainer">
-					<span className="headerTitle">Move *Client Name* down the pipeline</span>
+					<span className="headerTitle">Move document status down the pipeline</span>
 					<span className="closeBtnWrapper" onClick={closeModal}>
 						<Close />
 					</span>
@@ -95,7 +95,7 @@ const MoveStageModal = ({
 
 				{/* //dropDown */}
 				<div className="dropDownContainer">
-					<span className="dropDownLabel">Select Workflow Stage</span>
+					<span className="dropDownLabel">Select Document Status Stage</span>
 					<HeadersDropDownComp
 						selectedValue={info?.selectedStage?.label || ''}
 						options={info?.moveStageOptions}
@@ -124,7 +124,7 @@ const MoveStageModal = ({
 
 				<div className="btnContainer">
 					<div className="moveToStageBTn" onClick={moveFunc}>
-						{info?.loading ? 'Moving ...' : 'Move'}
+						{info?.loading ? 'Moving ...' : 'Move Stage'}
 					</div>
 					<div className="cancelBtn" onClick={closeModal}>
 						Cancel
