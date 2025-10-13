@@ -592,6 +592,7 @@ class WebSocketManager: ObservableObject {
     @Published var connectionStatus: String = "Disconnected"
     @Published var lastMessage: String = ""
     @Published var messages: [WebSocketMessage] = []
+    @Published var meetingStatus: String = "Ready"
     
     private var webSocketTask: URLSessionWebSocketTask?
     private var urlSession: URLSession?
@@ -680,6 +681,18 @@ class WebSocketManager: ObservableObject {
         switch message {
         case .string(let text):
             DispatchQueue.main.async {
+                // Try to parse as JSON to handle structured messages
+                if let data = text.data(using: .utf8),
+                   let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let messageType = jsonObject["type"] as? String {
+                    
+                    // Handle MEETING_STARTED message
+                    if messageType == "MEETING_STARTED" {
+                        print("🎯 MEETING_STARTED message received from Electron")
+                        self.meetingStatus = "Meeting Started"
+                    }
+                }
+                
                 let receivedMessage = WebSocketMessage(
                     id: UUID(),
                     content: text,
@@ -692,6 +705,18 @@ class WebSocketManager: ObservableObject {
         case .data(let data):
             if let text = String(data: data, encoding: .utf8) {
                 DispatchQueue.main.async {
+                    // Try to parse as JSON to handle structured messages
+                    if let jsonData = text.data(using: .utf8),
+                       let jsonObject = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+                       let messageType = jsonObject["type"] as? String {
+                        
+                        // Handle MEETING_STARTED message
+                        if messageType == "MEETING_STARTED" {
+                            print("🎯 MEETING_STARTED message received from Electron")
+                            self.meetingStatus = "Meeting Started"
+                        }
+                    }
+                    
                     let receivedMessage = WebSocketMessage(
                         id: UUID(),
                         content: text,
@@ -784,6 +809,21 @@ struct MeetingView: View {
                         .foregroundColor(.blue)
                         .cornerRadius(4)
                 }
+            }
+            .padding(.horizontal, 16)
+            
+            // Meeting Status
+            HStack {
+                Text("Status:")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Text(webSocketManager.meetingStatus)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(webSocketManager.meetingStatus == "Meeting Started" ? .green : .primary)
+                
+                Spacer()
             }
             .padding(.horizontal, 16)
             

@@ -3363,6 +3363,30 @@ app.whenReady().then(async () => {
 
 			websocketService.on('message', (data) => {
 				log.info(`📨 WebSocket message received from ${data.clientId}:`, data.data);
+
+				// Handle START_MEETING message from notch
+				if (
+					data.data &&
+					typeof data.data === 'object' &&
+					data.data.type === 'START_MEETING'
+				) {
+					log.info(
+						'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
+					);
+
+					// Wait 3 seconds then send MEETING_STARTED response
+					setTimeout(() => {
+						const responseMessage = {
+							type: 'MEETING_STARTED',
+							data: {},
+						};
+
+						// Send response back to the client that sent the START_MEETING message
+						websocketService.sendToClient(data.ws, responseMessage);
+						log.info('✅ MEETING_STARTED response sent to notch');
+					}, 3000);
+				}
+
 				// Emit the message event for other parts of the app to handle
 				// This is where you can add your custom logic to process incoming messages
 			});

@@ -62,6 +62,7 @@ private struct TabItem: View {
 
 struct TabSelectionView: View {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
+    @StateObject private var webSocketManager = WebSocketManager.shared
     @Namespace var animation
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -74,6 +75,15 @@ struct TabSelectionView: View {
                         onTap: {
                             withAnimation(.smooth) {
                                 coordinator.currentView = tab.view
+                                
+                                // Send START_MEETING message when Listen tab is clicked
+                                if tab.view == .meeting {
+                                    let message = """
+                                    {"type":"START_MEETING","data":{}}
+                                    """
+                                    webSocketManager.sendMessage(message)
+                                }
+                                
                                 if tab.view == .meeting || tab.view == .ask {
                                     DispatchQueue.main.async {
                                         if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
