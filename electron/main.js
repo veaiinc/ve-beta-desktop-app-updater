@@ -4047,6 +4047,25 @@ app.whenReady().then(async () => {
 				// Normal mode - show and focus the window
 				mainWindow.show();
 				mainWindow.focus();
+
+				// Resize to compact chat view (571x626) when navigating from NotchDrop
+				const workArea = screen.getPrimaryDisplay().workAreaSize;
+				const compactWidth = Math.min(workArea.width, 571);
+				const compactHeight = Math.min(workArea.height, 626);
+
+				if (mainWindow.isFullScreen()) {
+					mainWindow.setFullScreen(false);
+					mainWindow.once('leave-full-screen', () => {
+						mainWindow.setBounds({ width: compactWidth, height: compactHeight });
+						log.info(
+							'📐 NotchDrop: Resized main window to compact chat view (571x626) after exiting fullscreen',
+						);
+					});
+				} else {
+					mainWindow.setBounds({ width: compactWidth, height: compactHeight });
+					log.info('📐 NotchDrop: Resized main window to compact chat view (571x626)');
+				}
+
 				mainWindow.webContents.send('navigate-to', data);
 				log.info('Main window navigated to:', data?.path);
 				// }
@@ -4065,6 +4084,16 @@ app.whenReady().then(async () => {
 							// Normal mode - show and focus the window
 							mainWindow.show();
 							mainWindow.focus();
+
+							// Resize to compact chat view (571x626) when navigating from NotchDrop
+							const workArea = screen.getPrimaryDisplay().workAreaSize;
+							const compactWidth = Math.min(workArea.width, 571);
+							const compactHeight = Math.min(workArea.height, 626);
+							mainWindow.setBounds({ width: compactWidth, height: compactHeight });
+							log.info(
+								'📐 NotchDrop: Resized recreated main window to compact chat view (571x626)',
+							);
+
 							mainWindow.webContents.send('navigate-to', data);
 							log.info(
 								'Main window recreated and shown successfully with state restoration and navigated to:',
