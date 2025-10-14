@@ -226,8 +226,7 @@ class NotchDropService {
 		// Listen for selection assistant events
 		this.eventHandlers.selectionCaptured = (payload) => {
 			try {
-				const data =
-					payload && typeof payload === 'string' ? JSON.parse(payload) : payload;
+				const data = payload && typeof payload === 'string' ? JSON.parse(payload) : payload;
 				if (data && typeof data === 'object') {
 					this.emitToRenderer('selection-assistant:captured', data);
 				}
@@ -235,15 +234,11 @@ class NotchDropService {
 				log.warn('⚠️ Failed to parse selection captured payload:', error);
 			}
 		};
-		this.notchDropAddon.on(
-			'selectionCaptured',
-			this.eventHandlers.selectionCaptured,
-		);
+		this.notchDropAddon.on('selectionCaptured', this.eventHandlers.selectionCaptured);
 
 		this.eventHandlers.selectionPermissionChanged = (payload) => {
 			try {
-				const data =
-					payload && typeof payload === 'string' ? JSON.parse(payload) : payload;
+				const data = payload && typeof payload === 'string' ? JSON.parse(payload) : payload;
 				if (data && typeof data === 'object') {
 					this.emitToRenderer('selection-assistant:permission', data);
 				}
@@ -749,7 +744,8 @@ class NotchDropService {
 			log.info('🏠 Main window navigated via NotchDrop request:', path);
 			try {
 				if (path !== '/verify-user') {
-					webContents.send('navigate-to', path);
+					// Send payload as an object to match renderer expectation
+					webContents.send('navigate-to', { path });
 				}
 				log.info('🏠 Main window navigated via NotchDrop request:', path);
 			} catch (error) {
@@ -776,10 +772,20 @@ class NotchDropService {
 			const windowInstance = this.mainWindow;
 			if (!windowInstance || windowInstance.isDestroyed()) {
 				log.warn('⚠️ No main window available for Meeting AI handling');
-				// Fallback: just try to start meeting overlay
-				this.notchDropAddon &&
-					this.notchDropAddon.triggerOverlayRecording &&
+				// Fallback: just try to start meeting overlay (prefer immediate path)
+				if (
+					this.notchDropAddon &&
+					typeof this.notchDropAddon.triggerOverlayRecordingImmediate === 'function'
+				) {
+					await this.notchDropAddon.triggerOverlayRecordingImmediate();
+				} else if (
+					this.notchDropAddon &&
+					typeof this.notchDropAddon.triggerOverlayRecording === 'function'
+				) {
 					this.notchDropAddon.triggerOverlayRecording();
+				} else if (process.emit) {
+					process.emit('swift-ui-trigger-overlay-recording-immediate');
+				}
 				return { success: false, reason: 'no-window' };
 			}
 
@@ -799,8 +805,14 @@ class NotchDropService {
 				return { success: true, action: 'navigate-pricing' };
 			}
 
-			// Otherwise, start the meeting via overlay integration
+			// Otherwise, start the meeting via overlay integration (prefer immediate path)
 			if (
+				this.notchDropAddon &&
+				typeof this.notchDropAddon.triggerOverlayRecordingImmediate === 'function'
+			) {
+				await this.notchDropAddon.triggerOverlayRecordingImmediate();
+				return { success: true, action: 'start-meeting' };
+			} else if (
 				this.notchDropAddon &&
 				typeof this.notchDropAddon.triggerOverlayRecording === 'function'
 			) {
@@ -808,8 +820,10 @@ class NotchDropService {
 				return { success: true, action: 'start-meeting' };
 			}
 
-			// As a secondary path, emit the same event used elsewhere
-			process.emit && process.emit('swift-ui-trigger-overlay-recording');
+			// As a secondary path, emit the immediate event used elsewhere
+			if (process.emit) {
+				process.emit('swift-ui-trigger-overlay-recording-immediate');
+			}
 			return { success: true, action: 'start-meeting-fallback' };
 		} catch (error) {
 			log.error('❌ Failed to handle Meeting AI click:', error);
@@ -1570,11 +1584,18 @@ action: 'toggle_microphone_mute'
 			// Use the new method to sync recording state with notch lock
 			if (this.notchDropAddon.handleExternalRecordingStateChange) {
 				this.notchDropAddon.handleExternalRecordingStateChange(isRecording, isPaused);
-				log.info(`🔒 NotchDrop recording state synced - isRecording: ${isRecording}, isPaused: ${isPaused}`);
+				log.info(
+					`🔒 NotchDrop recording state synced - isRecording: ${isRecording}, isPaused: ${isPaused}`,
+				);
 				return { success: true };
 			} else {
-				log.error('❌ handleExternalRecordingStateChange method not available on NotchDrop addon');
-				return { success: false, error: 'handleExternalRecordingStateChange method not available' };
+				log.error(
+					'❌ handleExternalRecordingStateChange method not available on NotchDrop addon',
+				);
+				return {
+					success: false,
+					error: 'handleExternalRecordingStateChange method not available',
+				};
 			}
 		} catch (error) {
 			log.error('❌ Error handling external recording state change:', error);
