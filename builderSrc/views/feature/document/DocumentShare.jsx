@@ -434,6 +434,9 @@ const DocumentShare = ({
 
 		const today = dayjs().startOf('day');
 		const days = expireAt.diff(today, 'day');
+		if (days <= 0) {
+			return 'Link has expired';
+		}
 		return `Link will expire on ${expireAt.format('MMMM D, YYYY')} (in ${days} day${
 			days !== 1 ? 's' : ''
 		})`;
@@ -675,8 +678,8 @@ const DocumentShare = ({
 								{`https://${
 									isCustomDomainExists
 										? tennantSettingsData?.customDomain
-										: info.workspaceId
-								}.ve.ai/portal/`}
+										: info.workspaceId + '.ve.ai'
+								}/portal/`}
 								<span className="editableSlugInputContainer">
 									<input
 										type="text"
@@ -774,10 +777,10 @@ const DocumentShare = ({
 							<DatePicker
 								value={info.customDate}
 								onChange={handleCustomDateChange}
-								disabledDate={(current) =>
-									current && current < dayjs().startOf('day')
-								}
-								format="YYYY-MM-DD"
+								// disabledDate={(current) =>
+								// 	current && current < dayjs().startOf('day')
+								// }
+								format="DD-MMM-YYYY"
 							/>
 						</div>
 					)}

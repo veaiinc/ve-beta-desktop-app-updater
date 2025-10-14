@@ -4,7 +4,7 @@ import { useSearchParams, useParams, useNavigate, useLocation } from 'react-rout
 import Context from '../../../context/context';
 import Thumbnails from '../../components/gallery/galleryView/Thumbnails';
 import FullImagesComponent from '../../components/gallery/galleryView/FullImagesComponent';
-import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav';
+// import ImageDetailNav from '../../components/gallery/galleryView/ImageDetailNav';
 import DeletePopup from '../../components/modalsV2/gallery/DeletePopup';
 import { message } from '../../components/globalComponents/CustomToast';
 import { ReactComponent as CrossWhite } from '../../../assets/svg/workspaceSettings/cross.svg';
@@ -22,6 +22,7 @@ import slugify from 'slugify';
 import Peopleitem from '../../components/gallery/galleryView/PeopleCard';
 import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
 import Loader from '../../components/loaders/Spinner';
+import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbumImagesPopup';
 
 // import { Background } from '@xyflow/react';
 
@@ -76,6 +77,8 @@ const GalleryViewer = ({
 			tenantAlbums,
 			albumImagesCount,
 			getAlbumCount,
+			getAlbumImagesCount,
+			getAlbums,
 		},
 	} = useContext(Context);
 
@@ -93,7 +96,13 @@ const GalleryViewer = ({
 		showLabels: true,
 		facesLoading: false,
 		downloadLoading: false,
+		deletedCount: 0,
 	});
+
+	useEffect(() => {
+		// Reset local deleted counter when the underlying dataset context changes
+		setInfo((prev) => ({ ...prev, deletedCount: 0 }));
+	}, [imagesList?.totalDocs, aiFaceImages?.totalDocs, activeAlbumId, tagId, aiface]);
 
 	useEffect(() => {
 		if (!aiface && !imagesList && tagId) {
@@ -331,8 +340,11 @@ const GalleryViewer = ({
 				...prev,
 				showDeleteAlbum: false,
 				imageDetailId: null,
+				deletedCount: (prev?.deletedCount || 0) + 1,
 			}));
 			message.success('Images deleted successfully');
+			getAlbumImagesCount(activeGalleryId);
+			// getGalleryImages(activeGalleryId, activeAlbumId, tagId, 1, info?.limit, '', true);
 		} else {
 			message.error('Failed to delete images');
 		}
@@ -815,7 +827,11 @@ const GalleryViewer = ({
 						/>
 						<span className="currentImageCountContainerText">
 							{info?.activeImageIndex + 1} /{' '}
-							{aiface ? aiFaceImages?.totalDocs : imagesList?.totalDocs}
+							{Math.max(
+								(aiface ? aiFaceImages?.totalDocs : imagesList?.totalDocs) -
+									(info?.deletedCount || 0),
+								0,
+							)}
 						</span>
 						<ChevronLeft
 							onClick={() => handleNavigation('next')}
@@ -881,15 +897,21 @@ const GalleryViewer = ({
 					isAiFace={aiface}
 					activeImageIndex={info?.activeImageIndex}
 				/>
-				<DeletePopup
+
+				<DeleteAlbumImagesPopup
 					open={info?.showDeleteAlbum}
-					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
+					closeModal={() =>
+						setInfo((prev) => ({
+							...prev,
+							showDeleteAlbum: false,
+						}))
+					}
 					galleryId={activeGalleryId}
-					title={'Permanently Delete  image?'}
+					title={'Permanently Delete image?'}
 					paragraph={
 						'You cannot undo this action.All your photos in this album lined to this label will be lost'
 					}
-					handleDelete={handleAlbumDelete}
+					handleDeleteImages={handleAlbumDelete}
 				/>
 			</div>
 

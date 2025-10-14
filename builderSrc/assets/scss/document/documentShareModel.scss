@@ -45,12 +45,12 @@
 				transition: all 0.2s;
 
 				&.active {
-					background: #cfff0f;
-					color: #000000;
+					background: var(--primary-button);
+					color: var(--primary-button-font);
 				}
 
 				&:hover:not(.active) {
-					color: var(--primary-font);
+					color: var(--primary-button-font);
 				}
 			}
 		}
@@ -65,7 +65,7 @@
 		align-self: stretch;
 		border-radius: 12px;
 		// background: var(--card-over-card-hover, #2e2f32);
-		background: #1f2023;
+		background: var(--card-over-card);
 		border: 1px solid #2c2e31;
 
 		.url-section {
@@ -393,8 +393,8 @@
 			display: flex;
 			width: fit-content;
 			gap: 8px;
-			background: #cfff0f;
-			color: #000;
+			background: var(--primary-button);
+			color: var(--primary-button-font);
 			border: none;
 			border-radius: 24px;
 			padding: 8px 10px;
@@ -407,12 +407,12 @@
 			.copy-link-fab-icon {
 				width: 15px;
 				height: 15px;
-				color: #000;
+				color: var(--primary-button-font);
 			}
 
 			&:hover {
-				background: #b6e600;
-				color: #000;
+				background: var(--primary-button);
+				color: var(--primary-button-font);
 			}
 		}
 	}

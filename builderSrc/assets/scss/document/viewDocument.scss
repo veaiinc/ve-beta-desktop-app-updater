@@ -166,7 +166,7 @@
 		align-items: center;
 		align-self: stretch;
 		border-radius: 16px;
-		background: var(--new-card, #1c1d21);
+		background: var(--card-over-card, #1c1d21);
 		min-height: fit-content;
 
 		.status-tracking {
@@ -329,10 +329,10 @@
 		.section-separator {
 			width: 100%;
 			height: 2px;
-			background: #161618;
+			background: var(--stroke);
 		}
 		.section2-container {
-			background: var(--new-card, #1c1d21);
+			background: var(--card-over-card);
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -349,7 +349,7 @@
 			.section-separator {
 				width: 100%;
 				height: 2px;
-				background: #161618;
+				background: var(--stroke);
 			}
 
 			.action-container {
@@ -398,7 +398,7 @@
 		align-items: flex-start;
 		align-self: stretch;
 		gap: 32px;
-		background: #1e2021;
+		background: var(--card-over-card);
 		border-radius: 16px;
 		padding: 24px;
 
@@ -432,14 +432,14 @@
 				align-self: stretch;
 				gap: 8px;
 				border-radius: 0px 4px 4px 0px;
-				border-left: 2px solid var(--product-lime-blu, #cfff48);
+				border-left: 2px solid var(--primary-button, #cfff48);
 				background: rgba(207, 255, 72, 0.02);
 				cursor: pointer;
 				transition: all 0.2s ease;
 
 				.action-title {
 					flex: 1;
-					color: var(--primary-font);
+					color: var(--primary-font, #f2f2f3);
 					font-size: 14px;
 					font-weight: 500;
 					line-height: 21px;

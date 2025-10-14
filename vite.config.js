@@ -169,8 +169,7 @@ export default defineConfig({
 			'@blocknote/core',
 			'graphql',
 		],
-		// ⚡ PERFORMANCE FIX: Exclude large dependencies that don't need pre-bundling
-		exclude: ['notchdrop-addon'],
+		exclude: ['../views/features/gallery/UploadPhotos.jsx', 'notchdrop-addon'],
 	},
 
 	server: {

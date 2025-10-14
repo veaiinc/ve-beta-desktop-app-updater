@@ -37,8 +37,6 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		blockUntil: null, // Timestamp when block ends
 	});
 
-	console.log('info', info);
-
 	const [otpArray, setOtpArray] = useState(Array(4).fill(''));
 	const otpContainerRef = useRef(null);
 

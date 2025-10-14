@@ -1,38 +1,14 @@
 import { memo } from 'react';
 import s from '../../../../assets/scss/gallery/desktopAppIntimation.module.scss';
 import ReactModal from '../../modalsV2';
-
-const desktopAppDownloadUrl = import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
-const desktopAppDownloadWindows = import.meta.env.VITE_APP_DESKTOP_APP_WINDOWS_DOWNLOAD_URL || null;
-const deepLinkUrl = 'veai://open';
-const isMac =
-	navigator.userAgentData?.platform === 'macOS' ||
-	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
+import { getGalleryDesktopAppDownloadUrl, deepLinkUrlGallery } from '../../../../helpers';
 
 const DesktopPopup = ({ open, closeModal, onStandardUploadClick, selectedAction }) => {
-	const handleInstallOrOpen = () => {
-		window.location.href = deepLinkUrl;
-
-		const timer = setTimeout(() => {
-			if (isMac) {
-				if (desktopAppDownloadUrl) {
-					window.open(desktopAppDownloadUrl, '_blank');
-				}
-			} else {
-				if (desktopAppDownloadWindows) {
-					window.open(desktopAppDownloadWindows, '_blank');
-				}
-			}
-		}, 2000);
-
+	const handleInstallOrOpen = async () => {
+		// window.location.href = deepLinkUrlGallery;
+		const getGalleryDesktopAppDownloadUrlLink = await getGalleryDesktopAppDownloadUrl();
+		window.open(getGalleryDesktopAppDownloadUrlLink, '_blank');
 		// If user switches focus (e.g., app opened), cancel fallback
-		window.addEventListener(
-			'blur',
-			() => {
-				clearTimeout(timer);
-			},
-			{ once: true },
-		);
 	};
 	return (
 		<ReactModal

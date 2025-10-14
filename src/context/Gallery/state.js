@@ -725,11 +725,18 @@ export const Galleries = () => {
 		reset = false,
 	) => {
 		try {
-			// if (reset) {
-			// 	dispatch({
-			// 		type: Actions.RESET_IMAGES_LIST,
-			// 	});
-			// }
+			// Reset images list when switching albums or tags
+			if (reset) {
+				dispatch({
+					type: Actions.RESET_IMAGES_LIST,
+				});
+			}
+
+			// Don't make API call if tagId is empty or invalid
+			if (!tagId || tagId.trim() === '') {
+				console.warn('getGalleryImages: Empty tagId provided, skipping API call');
+				return [false, { message: 'Empty tag ID provided' }];
+			}
 
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
@@ -739,17 +746,20 @@ export const Galleries = () => {
 				'galleries',
 			);
 
-			const payload = state.imagesList
-				? {
-						...state.imagesList,
-						...response?.[1],
-						docs: [...state.imagesList.docs, ...(response?.[1]?.docs || [])],
-				  }
-				: response?.[1];
+			// When reset is true, use the response directly; otherwise append to existing docs
+			const payload =
+				reset || !state.imagesList
+					? response?.[1]
+					: {
+							...state.imagesList,
+							...response?.[1],
+							docs: [...state.imagesList.docs, ...(response?.[1]?.docs || [])],
+					  };
+
 			if (response[0] === true) {
 				dispatch({
 					type: Actions.GET_IMAGES_LIST,
-					payload: reset ? response?.[1] : payload,
+					payload: payload,
 				});
 				return [true, response?.[1]];
 			}

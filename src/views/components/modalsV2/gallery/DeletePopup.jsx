@@ -15,6 +15,8 @@ const DeletePopup = ({
 	deleteType,
 	handleDeleteTypeChange,
 	currentTitle = null,
+	requireConfirm = true,
+	isLoading = false,
 }) => {
 	const [inputValue, setInputValue] = useState('');
 	const customStyles = {
@@ -44,11 +46,12 @@ const DeletePopup = ({
 				<div style={{ alignSelf: 'center' }}>
 					<WarningSvg />
 				</div>
-				{!isTagDelete && (
+				{!isTagDelete && requireConfirm && (
 					<>
 						{currentTitle && (
 							<div className="deletePopupParagraph">
-								Copy and paste "{currentTitle}" to Permanently Delete {title}.
+								Copy and paste <strong>"{currentTitle}"</strong> to Permanently
+								Delete.
 							</div>
 						)}
 						<input
@@ -62,28 +65,30 @@ const DeletePopup = ({
 				)}
 
 				<div className="deletePopupContent">
-					{/* <div className="deletePopupHeading">Delete {title}</div> */}
-					<div className="deletePopupParagraph">
-						You cannot undo this. All your {paragraph} and information will be lost .
-					</div>
+					<div className="deletePopupHeading">{title}</div>
+					<div className="deletePopupParagraph">{paragraph}</div>
 				</div>
-				{isTagDelete ? (
+				{isTagDelete || !requireConfirm ? (
 					<div className="deletePopupButtonContainer">
 						{isTagDelete && (
 							<div className="deletePopupSelectContainer">
 								<select value={deleteType} onChange={handleDeleteTypeChange}>
-									<option value="delete_images">Delete Tag and Images </option>
 									<option value="remove_images">Delete Tag</option>
+									<option value="delete_images">Delete Tag and Images </option>
 								</select>
 							</div>
 						)}
-						<div style={{ alignSelf: 'flex-end' }}>
+						<div style={{ alignSelf: 'flex-end', justifyContent: 'flex-end' }}>
 							<button
 								className="deletePopupDeleteButton"
 								onClick={handleDelete}
-								style={{ cursor: 'pointer' }}
+								disabled={isLoading}
+								style={{
+									cursor: isLoading ? 'not-allowed' : 'pointer',
+									opacity: isLoading ? 0.5 : 1,
+								}}
 							>
-								Delete
+								{isLoading ? 'Deleting...' : 'Delete'}
 							</button>
 						</div>
 					</div>
@@ -92,13 +97,13 @@ const DeletePopup = ({
 						<button
 							className="deletePopupDeleteButton"
 							onClick={handleDeleteConfirm}
-							disabled={!inputValue.trim()}
+							disabled={!inputValue.trim() || isLoading}
 							style={{
-								cursor: inputValue.trim() ? 'pointer' : 'not-allowed',
-								opacity: inputValue.trim() ? 1 : 0.5,
+								cursor: inputValue.trim() && !isLoading ? 'pointer' : 'not-allowed',
+								opacity: inputValue.trim() && !isLoading ? 1 : 0.5,
 							}}
 						>
-							Delete
+							{isLoading ? 'Deleting...' : 'Delete'}
 						</button>
 					</div>
 				)}

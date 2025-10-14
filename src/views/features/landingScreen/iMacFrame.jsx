@@ -53,6 +53,16 @@ const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
 		}
 	}, [ref, videoRef]);
 
+	// Auto-play video when component mounts
+	useEffect(() => {
+		const video = videoRef.current;
+		if (video) {
+			video.play().catch((error) => {
+				console.warn('Video autoplay failed:', error);
+			});
+		}
+	}, [videoRef]);
+
 	return (
 		<div ref={containerRef} className={s.imacFrame}>
 			<div className={s.screen}>
@@ -65,6 +75,7 @@ const iMacFrame = forwardRef(({ videoRef: externalVideoRef }, ref) => {
 						loop
 						muted
 						playsInline
+						autoPlay
 						preload="metadata"
 					/>
 				</div>

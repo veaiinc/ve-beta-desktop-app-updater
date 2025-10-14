@@ -42,6 +42,15 @@ dayjs.updateLocale('en', {
 	},
 });
 
+const desktopAppDownloadWindows = import.meta.env.VITE_APP_DESKTOP_APP_WINDOWS_DOWNLOAD_URL || null;
+const deepLinkUrl = 'veai://open';
+const isMac =
+	navigator.userAgentData?.platform === 'macOS' ||
+	navigator.userAgent.toLowerCase().indexOf('mac') !== -1;
+const galleryDesktopAppDownloadUrl =
+	import.meta.env.VITE_APP_DESKTOP_GALLERY_APP_DOWNLOAD_URL || null;
+export const deepLinkUrlGallery = 'veaigallery://open';
+
 export const nameShortner = (name) => {
 	let newName = name?.split(' ');
 	let str = '';
@@ -467,4 +476,51 @@ export const getUserDevice = () => {
 	if (/Linux/i.test(ua)) return 'Linux';
 
 	return 'Unknown';
+};
+
+export const getMacArchitecture = async () => {
+	try {
+		if (navigator.userAgentData?.getHighEntropyValues) {
+			const ua = await navigator.userAgentData.getHighEntropyValues(['architecture']);
+			return ua.architecture === 'arm';
+		}
+		return false;
+	} catch (error) {
+		console.warn('Failed to detect Mac architecture:', error);
+		return false;
+	}
+};
+
+// Function to get the appropriate desktop app download URL
+export const getDesktopAppDownloadUrl = async () => {
+	if (!isMac) return null;
+
+	try {
+		const isMacArm64 = await getMacArchitecture();
+		return isMacArm64
+			? import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL
+			: import.meta.env.VITE_APP_DESKTOP_APP_MACINTEL64_DOWNLOAD_URL || null;
+	} catch (error) {
+		console.warn('Failed to determine download URL:', error);
+		return import.meta.env.VITE_APP_DESKTOP_APP_DOWNLOAD_URL || null;
+	}
+};
+export const getGalleryDesktopAppDownloadUrl = async () => {
+	if (!isMac)
+		return (
+			import.meta.env.VITE_APP_DESKTOP_GALLERY_APP_DOWNLOAD_URL + '/Ve.AI-x64-win.exe' || null
+		);
+
+	try {
+		const isMacArm64 = await getMacArchitecture();
+		return isMacArm64
+			? import.meta.env.VITE_APP_DESKTOP_GALLERY_APP_DOWNLOAD_URL + '/Ve.AI-arm64-mac.dmg'
+			: import.meta.env.VITE_APP_DESKTOP_GALLERY_APP_DOWNLOAD_URL + '/Ve.AI-x64-mac.dmg' ||
+					null;
+	} catch (error) {
+		console.warn('Failed to determine download URL:', error);
+		return (
+			import.meta.env.VITE_APP_DESKTOP_GALLERY_APP_DOWNLOAD_URL + '/Ve.AI-x64-win.exe' || null
+		);
+	}
 };

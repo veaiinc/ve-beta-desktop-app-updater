@@ -299,6 +299,7 @@ const GalleryPage = () => {
 		flexWrap_visible: false,
 		tagSearchValue: '',
 		albumLoading: false,
+		albumDeleting: false,
 		isPublished: tenantAlbums?.albums?.[0]?.isPublished,
 		showDragIconOfAlbum: null,
 		isOnline: true,
@@ -678,6 +679,7 @@ const GalleryPage = () => {
 				clientSelectionImages: null,
 				aiFace: null,
 				aiFaceImages: null,
+				preRegisteredUsers: null,
 			});
 		};
 	}, []);
@@ -1616,37 +1618,43 @@ const GalleryPage = () => {
 		}
 	};
 
-	const handleClickAlbum = (album, name) => {
-		const value =
-			name === 'albumName'
-				? album?.title !== info?.albumName
-				: album?.displayName !== info?.albumContains;
-		if (value) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				albumLoading: true,
-				showGalleryOptions: false,
-				showOptions: false,
-			}));
+	const handleClickAlbum = async (album, name) => {
+		const isAlbumNameChange = name === 'albumName' && album?.title !== info?.albumName;
+		const isContainNameChange =
+			name === 'containName' && album?.displayName !== info?.albumContains;
+		const isClientSelectionChange = name === 'clientSelection';
+
+		if (!isAlbumNameChange && !isContainNameChange && !isClientSelectionChange) {
+			// No meaningful change — do nothing
+			return;
 		}
-		if (name === 'albumName' && album?.title !== info?.albumName) {
+
+		// Immediately reset UI state to avoid showing stale images
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			albumLoading: true,
+			showGalleryOptions: false,
+			showOptions: false,
+			selectedImages: [],
+			showAlbumOptionsMenu: false,
+			imagesList: { docs: [], hasNextPage: true, totalDocs: 0 },
+			page: 1,
+			hasMore: true,
+			resetInfinityScroll: !prevInfo.resetInfinityScroll,
+			isRearranging: false,
+		}));
+
+		// Handle Album Name Switch (main album navigation)
+		if (isAlbumNameChange) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
-				imagesList: {
-					...prevInfo.imagesList,
-					docs: [],
-				},
-				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
 				albumName: album?.title,
 				activeAlbumId: album?._id,
 				activeAlbum: album,
 				isPublished: album?.isPublished,
 				isEnabled: album?.isEnabled,
 				albumSlug: album?.slug,
-				resetInfinityScroll: !prevInfo.resetInfinityScroll,
 				activeTab: 'Albums',
-				isRearranging: false,
-				showMainPopup: false,
 				tenantAlbums: Array.isArray(prevInfo?.tenantAlbums)
 					? prevInfo.tenantAlbums.map((existingAlbum) =>
 							existingAlbum._id === album._id
@@ -1655,40 +1663,69 @@ const GalleryPage = () => {
 					  )
 					: [],
 			}));
-			getAlbumImagesCount(galleryId);
-			// if (info?.albumName !== album?.title) {
-			// 	getAlbumCount(galleryId, album?.title);
-			// }
-		} else if (name === 'containName' && album?.displayName !== info?.albumContains) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				imagesList: {
-					...prevInfo.imagesList,
-					docs: [],
-				},
-				page: prevInfo.page !== 1 ? 1 : prevInfo.page,
-				albumContains: album?.displayName,
-				albumTagId: album?._id,
-				sortType: album?.sortType,
 
-				selectedImages: [],
-				isRearranging: false,
-			}));
-		} else if (name === 'clientSelection') {
+			// Fetch album image count (triggers tag list update)
+			// await getAlbumImagesCount(galleryId);
+
+			// Only fetch images if album has valid tags, otherwise wait for tags to load
+			if (album?.tags && album.tags.length > 0 && album.tags[0]?._id) {
+				// Set albumTagId to trigger the useEffect mechanism
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					albumTagId: album.tags[0]._id,
+				}));
+			} else {
+				// Wait for album details to load, then set albumTagId
+				setTimeout(() => {
+					const updatedAlbums = tenantAlbums?.albums || [];
+					const currentAlbum = updatedAlbums.find((a) => a._id === album._id);
+
+					if (
+						currentAlbum?.tags &&
+						currentAlbum.tags.length > 0 &&
+						currentAlbum.tags[0]?._id
+					) {
+						setInfo((prevInfo) => ({
+							...prevInfo,
+							albumTagId: currentAlbum.tags[0]._id,
+						}));
+					}
+				}, 1000);
+			}
+		}
+		// Handle "All", "Favorites", etc. (tag/contain switch within same album)
+		else if (isContainNameChange) {
+			// Only update albumTagId if we have a valid tag ID
+			// This will trigger the useEffect to call handleGetGalleryImages
+			if (album?._id) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					albumContains: album?.displayName,
+					albumTagId: album._id,
+					sortType: album?.sortType,
+				}));
+			} else {
+				console.warn('No valid tag ID provided for tag switch');
+			}
+		}
+		// Handle Client Selection Switch
+		else if (isClientSelectionChange) {
 			setInfo((prevInfo) => ({
 				...prevInfo,
 				activeClientSelection: album?.slug,
 				clientSelectionID: album?._id,
 				clientSelectionName: album?.title,
-				isRearranging: false,
 			}));
+
+			// Fetch client selection images
+			await getClientSelectionImages(album?._id, 1);
 		}
-		setTimeout(() => {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				albumLoading: false,
-			}));
-		}, 1000);
+
+		// Finally, turn off loading state
+		setInfo((prevInfo) => ({
+			...prevInfo,
+			albumLoading: false,
+		}));
 	};
 
 	const handleAlbumSettings = (sectionId) => {
@@ -1817,22 +1854,28 @@ const GalleryPage = () => {
 		// Remove completed session from global context
 		removeUploadSession(sessionId);
 	};
-
-	const handleUploadCancel = (sessionId) => {
-		// Remove cancelled session from global context
-		removeUploadSession(sessionId);
+	const handleUploadClicked = (option = 'uploading') => {
+		if (!info?.isDesktop) {
+			setInfo((prev) => ({
+				...prev,
+				desktopPopup: true,
+			}));
+		} else {
+			// if (option === 'uploading') {
+			// 	handleNavigateUpload();
+			// } else {
+			// 	setInfo((prev) => ({
+			// 		...prev,
+			// 		showDownloadAlbum: true,
+			// 		showGalleryOptions: false,
+			// 		showOptions: false,
+			// 		activeTagId: albumDetails?.tags?.[0]?._id,
+			// 		originalDownload: false,
+			// 		webviewDownload: true,
+			// 	}));
+			// }
+		}
 	};
-
-	const handleCloseUploadProgressPopup = () => {
-		// Hide the upload progress popup (but keep sessions for background processing)
-		hideUploadProgressPopup();
-	};
-
-	const handleUpdateUploadSession = (sessionId, updates) => {
-		// Update specific upload session in global context
-		updateUploadSession(sessionId, updates);
-	};
-
 	const handleCallToAction = useCallback(() => {
 		const payload = {
 			ctaPreferences: {
@@ -2557,7 +2600,20 @@ const GalleryPage = () => {
 			setInfo((prev) => ({ ...prev, uploadImageLoader: false }));
 		}
 	};
+	const handleUploadCancel = (sessionId) => {
+		// Remove cancelled session from global context
+		removeUploadSession(sessionId);
+	};
 
+	const handleCloseUploadProgressPopup = () => {
+		// Hide the upload progress popup (but keep sessions for background processing)
+		hideUploadProgressPopup();
+	};
+
+	const handleUpdateUploadSession = (sessionId, updates) => {
+		// Update specific upload session in global context
+		updateUploadSession(sessionId, updates);
+	};
 	const handleSetCoverPosition = async (focusInfo) => {
 		if (info?.coverLoading) return;
 
@@ -2687,14 +2743,14 @@ const GalleryPage = () => {
 
 	// Initialize the processing flag
 
-	const handleAlbumDelete = () => {
+	const handleAlbumDelete = async () => {
 		const payload = {
 			image_ids: info?.selectedImages,
 		};
 		let updatedImages = info?.imagesList?.docs?.filter((image) => {
 			return !info?.selectedImages?.includes(image?._id);
 		});
-		deleteImages(payload, galleryId, info?.activeAlbumId);
+		const response = await deleteImages(payload, galleryId, info?.activeAlbumId);
 		setInfo((prev) => ({
 			...prev,
 			imagesList: {
@@ -2705,6 +2761,7 @@ const GalleryPage = () => {
 			selectedImages: [],
 		}));
 		showMessage('success', 'Images deleted successfully');
+		getAlbumImagesCount(galleryId);
 	};
 
 	const handleFilter = async (value) => {
@@ -3236,47 +3293,73 @@ const GalleryPage = () => {
 
 	const handleDeleteAlbum = useCallback(async () => {
 		// If already processing, return early
-		if (handleDeleteAlbum.isProcessing) return;
+		if (handleDeleteAlbum.isProcessing || info.albumDeleting) return;
 
-		// Close popup immediately
+		// Close popup and set loading state
 		setInfo((prev) => ({
 			...prev,
 			showDeleteAlbum: false,
+			albumDeleting: true,
 		}));
 
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
 		try {
-			// const id = message.loading('Your album is being removed. Please wait...');
+			const id = message.loading('Your album is being removed. Please wait...');
 
 			const response = await deleteAlbum(galleryId, info?.activeAlbumId);
 
-			// message.destroy(id);
+			message.destroy(id);
 
 			if (response[0] === true) {
 				message.destroy('deleteAlbum');
 				showMessage('success', 'Album deleted successfully');
-				await getAlbums(galleryId);
-				navigate(`/galleries/${galleryId}`);
+
+				// Immediately update local state to remove deleted album from UI
+				const updatedAlbums =
+					tenantAlbums?.albums?.filter((album) => album._id !== info?.activeAlbumId) ||
+					[];
+
+				// Update the state with filtered albums
 				setInfo((prev) => ({
 					...prev,
-					activeAlbumId: tenantAlbums?.[0]?._id,
-					activeAlbum: tenantAlbums?.[0],
-					albumSlug: tenantAlbums?.[0]?.slug,
-					albumName: tenantAlbums?.[0]?.title,
+					tenantAlbums: {
+						...tenantAlbums,
+						albums: updatedAlbums,
+					},
+					// Set the first remaining album as active, or clear if no albums left
+					activeAlbumId: updatedAlbums?.[0]?._id || null,
+					activeAlbum: updatedAlbums?.[0] || null,
+					albumSlug: updatedAlbums?.[0]?.slug || null,
+					albumName: updatedAlbums?.[0]?.title || null,
+					albumDeleting: false,
 				}));
+
+				// Navigate to gallery page
+				navigate(`/galleries/${galleryId}`);
+
+				// Refresh albums data from server to ensure consistency
+				await getAlbums(galleryId);
 			} else {
 				message.destroy('deleteAlbum');
 				showMessage('error', response[1].message, handleDeleteAlbum);
+				setInfo((prev) => ({
+					...prev,
+					albumDeleting: false,
+				}));
 			}
 		} catch (error) {
 			console.error('Error deleting album:', error);
 			message.destroy('deleteAlbum');
 			showMessage('error', 'Failed to delete album', handleDeleteAlbum);
+			setInfo((prev) => ({
+				...prev,
+				albumDeleting: false,
+			}));
 		} finally {
 			handleDeleteAlbum.isProcessing = false;
 		}
-	}, [galleryId, info.activeAlbumId]);
+	}, [galleryId, info.activeAlbumId, info.albumDeleting, tenantAlbums]);
 	handleDeleteAlbum.isProcessing = false;
 
 	const sortByCustomIndex = (items) => {
@@ -3705,39 +3788,85 @@ const GalleryPage = () => {
 	const rearrangeContainerRef = useRef(null);
 	const galleryScrollTargetRef = useRef(null);
 
-	let scrolling = false;
-
 	useEffect(() => {
+		let scrollAnimationId = null;
+		let lastScrollTime = 0;
+		const scrollInterval = 16; // ~60fps for ultra-smooth scrolling
+
 		const handleMouseMove = (e) => {
-			const container = galleryScrollTargetRef.current;
-			if (!container || !info.isDragging) return; // Only trigger when dragging
+			const scrollableContainer = document.getElementById('galleryScrollTarget');
+			const rearrangeContainer = rearrangeContainerRef.current;
+			if (!scrollableContainer || !rearrangeContainer || !info.isDragging) return; // Only trigger when dragging
 
-			const { top, bottom } = container.getBoundingClientRect();
-			const scrollAmount = 10; // Adjust scroll speed
+			const now = performance.now();
+			if (now - lastScrollTime < scrollInterval) return; // Throttle for smooth performance
+			lastScrollTime = now;
 
-			// Check if scrolling is already in progress
-			if (!scrolling) {
-				// Check if cursor is near the top within 30px
-				if (e.clientY < top + 30) {
-					scrolling = true;
-					container.scrollBy({ top: -scrollAmount, behavior: 'auto' });
+			const { top, bottom } = rearrangeContainer.getBoundingClientRect();
+			const baseScrollAmount = 18; // Increased base speed for ultra-smooth scrolling
+			const buffer = 80; // Larger buffer zone for easier triggering
+			const maxAcceleration = 2.5; // Higher acceleration for smoother feel
+
+			// Check if cursor is near the top or bottom
+			if (e.clientY < top + buffer) {
+				// Scroll up - cancel any existing animation
+				if (scrollAnimationId) {
+					cancelAnimationFrame(scrollAnimationId);
 				}
-				// Check if cursor is near the bottom within 150px
-				else if (e.clientY > bottom - 150) {
-					scrolling = true;
-					container.scrollBy({ top: scrollAmount, behavior: 'auto' });
+
+				const scrollUp = () => {
+					// Calculate dynamic speed based on proximity to edge
+					const distanceFromTop = e.clientY - top;
+					const proximity = (buffer - distanceFromTop) / buffer;
+					const dynamicSpeed = baseScrollAmount * (1 + proximity * maxAcceleration);
+
+					scrollableContainer.scrollBy({ top: -dynamicSpeed, behavior: 'auto' });
+
+					// Continue scrolling if still in buffer zone and dragging
+					if (e.clientY < top + buffer && info.isDragging) {
+						scrollAnimationId = requestAnimationFrame(scrollUp);
+					}
+				};
+				scrollAnimationId = requestAnimationFrame(scrollUp);
+			} else if (e.clientY > bottom - buffer) {
+				// Scroll down - cancel any existing animation
+				if (scrollAnimationId) {
+					cancelAnimationFrame(scrollAnimationId);
 				}
 
-				// Reset the scrolling flag after a delay for smooth interval
-				setTimeout(() => (scrolling = false), 30);
+				const scrollDown = () => {
+					// Calculate dynamic speed based on proximity to edge
+					const distanceFromBottom = bottom - e.clientY;
+					const proximity = (buffer - distanceFromBottom) / buffer;
+					const dynamicSpeed = baseScrollAmount * (1 + proximity * maxAcceleration);
+
+					scrollableContainer.scrollBy({ top: dynamicSpeed, behavior: 'auto' });
+
+					// Continue scrolling if still in buffer zone and dragging
+					if (e.clientY > bottom - buffer && info.isDragging) {
+						scrollAnimationId = requestAnimationFrame(scrollDown);
+					}
+				};
+				scrollAnimationId = requestAnimationFrame(scrollDown);
+			} else {
+				// Cancel scrolling if not in buffer zone
+				if (scrollAnimationId) {
+					cancelAnimationFrame(scrollAnimationId);
+					scrollAnimationId = null;
+				}
 			}
 		};
 
-		// Throttle the mousemove event listener
-		document.addEventListener('mousemove', handleMouseMove);
+		// Add mousemove event listener with passive option for better performance
+		document.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-		// Clean up event listener on component unmount
-		return () => document.removeEventListener('mousemove', handleMouseMove);
+		// Clean up event listener and animation on component unmount or when dragging stops
+		return () => {
+			document.removeEventListener('mousemove', handleMouseMove);
+			if (scrollAnimationId) {
+				cancelAnimationFrame(scrollAnimationId);
+			}
+		};
 	}, [info.isDragging]);
 
 	const getShareLink = () => {
@@ -5426,26 +5555,38 @@ const GalleryPage = () => {
 
 															<div
 																onClick={() => {
-																	setInfo((prev) => ({
-																		...prev,
-																		showDeleteAlbum: true,
-																		showOptionsContainer: false, // Close options menu if it exists
-																	}));
+																	if (!info.albumDeleting) {
+																		setInfo((prev) => ({
+																			...prev,
+																			showDeleteAlbum: true,
+																			showOptionsContainer: false, // Close options menu if it exists
+																		}));
+																	}
 																}}
 																style={{
 																	display: 'flex',
 																	alignItems: 'center',
 																	gap: '4px',
+																	opacity: info.albumDeleting
+																		? 0.5
+																		: 1,
+																	cursor: info.albumDeleting
+																		? 'not-allowed'
+																		: 'pointer',
 																}}
 															>
 																<DeleteIcon />
 																<span
 																	style={{
 																		color: 'var(--error)',
-																		cursor: 'pointer',
+																		cursor: info.albumDeleting
+																			? 'not-allowed'
+																			: 'pointer',
 																	}}
 																>
-																	Delete Album
+																	{info.albumDeleting
+																		? 'Deleting...'
+																		: 'Delete Album'}
 																</span>
 															</div>
 														</div>
@@ -5529,7 +5670,7 @@ const GalleryPage = () => {
 										}))
 									}
 									style={{
-										height: '90vh',
+										height: info?.isRearranging ? '79vh' : '90vh',
 										overflow: 'auto',
 									}}
 									ref={rearrangeContainerRef}
@@ -5545,7 +5686,7 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										height={'90vh'}
+										// height={'90vh'}
 										scrollableTarget="galleryScrollTarget"
 									>
 										{!info.isRearranging ? (
@@ -6212,14 +6353,20 @@ const GalleryPage = () => {
 															<li>Set as cover</li>
 															<li>Share</li>
 															<li
-																onClick={() =>
-																	setInfo((prev) => ({
-																		...prev,
-																		showDeleteAlbum: true,
-																	}))
-																}
+																onClick={() => {
+																	if (!info.albumDeleting) {
+																		setInfo((prev) => ({
+																			...prev,
+																			showDeleteAlbum: true,
+																		}));
+																	}
+																}}
+																style={{
+																	opacity: info.albumDeleting ? 0.5 : 1,
+																	cursor: info.albumDeleting ? 'not-allowed' : 'pointer',
+																}}
 															>
-																Delete
+																{info.albumDeleting ? 'Deleting...' : 'Delete'}
 															</li>
 														</div>
 													)}
@@ -6760,10 +6907,13 @@ const GalleryPage = () => {
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
 					galleryId={galleryId}
 					isTagDelete={false}
-					title={'Album'}
-					paragraph={'Images'}
+					title={'Delete Album'}
+					paragraph={
+						'You cannot undo this action.All your photos in this album will be lost'
+					}
 					handleDelete={handleDeleteAlbum}
 					currentTitle={info?.activeAlbum?.title}
+					isLoading={info?.albumDeleting}
 				/>
 			)}
 			{info?.deleteTagPopup && (
@@ -6771,9 +6921,9 @@ const GalleryPage = () => {
 					open={info.deleteTagPopup}
 					closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
 					galleryId={galleryId}
-					title={'Delete Tag'}
+					title={'Are you sure you want to delete this tag?'}
 					isTagDelete={true}
-					paragraph={'Are you sure you want to delete this tag?'}
+					paragraph={'You cannot undo this action.'}
 					selectedDropDownValue={info.selectedDropDownValue}
 					handleDeleteTypeChange={handleDeleteTypeChange}
 					handleDelete={() =>
@@ -6893,8 +7043,10 @@ const GalleryPage = () => {
 				<DeletePopup
 					open={info.showDeletePopup}
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeletePopup: false }))}
-					title={'Gallery'}
-					paragraph={'Albums'}
+					title={'Delete Gallery ?'}
+					paragraph={
+						'You cannot undo this action.All your albums and information will be lost.'
+					}
 					handleDelete={handleDeleteGallery}
 					currentTitle={info?.activeGallery?.title}
 				/>

@@ -24,6 +24,7 @@ import { ReactComponent as PlusSvg } from '../../assets/plus.svg';
 import CreditsLeftSvg from '../../../sidebar/chatHistory/CreditsLeftSvg';
 import { ReactComponent as ChevronRightThinSvg } from '../../../../../assets/svg/tasks/chevronRightThin.svg';
 import AddOnCards from '../../../settings/planbilling/addOnCards';
+import { getGalleryDesktopAppDownloadUrl } from '../../../../../helpers';
 
 // Memoized Settings Item Component
 const SettingsItem = memo(({ settingItem, isActive, onItemClick, styles }) => {
@@ -272,18 +273,12 @@ const Settings = memo(
 		// ✅ Extract the plan title (fallback to 'Free' or currentPlan?.currentPlan if not found)
 		const currentPlanTitle = currentPlanData?.plan || currentPlan?.currentPlan || 'Free';
 		const handleInstallOrOpen = async () => {
-			window.location.href = deepLinkUrl;
+			// window.location.href = deepLinkUrl;
 
 			const timer = setTimeout(async () => {
-				if (isMac) {
-					const desktopAppDownloadUrl = await getDesktopAppDownloadUrl();
-					if (desktopAppDownloadUrl) {
-						window.open(desktopAppDownloadUrl, '_blank');
-					}
-				} else {
-					if (desktopAppDownloadWindows) {
-						window.open(desktopAppDownloadWindows, '_blank');
-					}
+				const desktopAppDownloadUrl = await getGalleryDesktopAppDownloadUrl();
+				if (desktopAppDownloadUrl) {
+					window.open(desktopAppDownloadUrl, '_blank');
 				}
 			}, 2000);
 
