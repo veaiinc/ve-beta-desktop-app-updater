@@ -185,32 +185,7 @@ class BoringViewModel: NSObject, ObservableObject {
             self.notchState = .closed
         }
 
-        // Default tab selection on close:
-        // 1) If meeting is ongoing, show Meeting tab by default
-        if coordinator.isMeetingStarted {
-            coordinator.currentView = .meeting
-            return
-        }
-        
-        // 2) If meeting was just stopped, switch to Home tab
-        if coordinator.currentView == .meeting && !coordinator.isMeetingStarted {
-            coordinator.currentView = .home
-            return
-        }
-        
-        // 3) If meeting is not started and closing app, set Home as default (unless tray items exist)
-        if !coordinator.isMeetingStarted {
-            if !TrayDrop.shared.isEmpty {
-                // If tray items exist, show Shelf tab
-                coordinator.currentView = .shelf
-            } else {
-                // If no tray items, show Home tab
-                coordinator.currentView = .home
-            }
-            return
-        }
-        
-        // 4) Otherwise, respect persisted tab selection
+        // No default tab selection on close - respect current tab selection
     }
 
     func closeHello() {

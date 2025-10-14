@@ -70,7 +70,7 @@ struct TabSelectionView: View, WebSocketEventListener {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            if coordinator.isMeetingStarted {
+            if coordinator.isMeetingStarted && coordinator.currentView == .meeting {
                 // Show only Home tab and MeetingButtons while meeting is ongoing
                 let homeTab = tabs[0]
                 HStack(spacing: 0) {
@@ -89,10 +89,6 @@ struct TabSelectionView: View, WebSocketEventListener {
             } else {
                 HStack(spacing: 0) {
                     ForEach(tabs) { tab in
-                        // Only show meeting tab if meeting is not started (to allow starting)
-                        if tab.view == .meeting && coordinator.isMeetingStarted {
-                            // Skip meeting tab when meeting is already started
-                        } else {
                             TabItem(
                                 tab: tab,
                                 selected: coordinator.currentView == tab.view,
@@ -108,7 +104,7 @@ struct TabSelectionView: View, WebSocketEventListener {
                                     }
                                 }
                             )
-                        }
+                        
                     }
                 }
             }
