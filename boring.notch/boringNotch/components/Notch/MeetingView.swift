@@ -16,99 +16,38 @@ struct MeetingView: View, WebSocketEventListener {
     
     var body: some View {
         VStack(spacing: 12) {
-            // Connection Status
-            HStack {
-                Circle()
-                    .fill(webSocketManager.isConnected ? Color.green : Color.red)
-                    .frame(width: 8, height: 8)
-                
-                Text(webSocketManager.connectionStatus)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-                
-                Button(action: {
-                    if webSocketManager.isConnected {
-                        webSocketManager.disconnect()
-                    } else {
-                        webSocketManager.connect()
-                    }
-                }) {
-                    Text(webSocketManager.isConnected ? "Disconnect" : "Connect")
-                        .font(.caption)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.blue.opacity(0.2))
-                        .foregroundColor(.blue)
-                        .cornerRadius(4)
-                }
-            }
-            .padding(.horizontal, 16)
-            
-            // Meeting Status
-            HStack {
-                Text("Status:")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Text(webSocketManager.meetingStatus)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(getStatusColor())
-                
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            
-            // Event History
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 8) {
-                    ForEach(eventHistory.suffix(10), id: \.id) { event in
-                        EventBubble(event: event)
-                    }
-                }
-                .padding(.horizontal, 16)
-            }
-            .frame(maxHeight: 200)
-            
-            // Action Buttons
-            VStack(spacing: 8) {
-                HStack(spacing: 8) {
-                    Button("Start Meeting") {
-                        webSocketManager.sendEvent(type: .startMeeting, data: ["source": "swift_ui"])
-                    }
-                    .disabled(!webSocketManager.isConnected)
-                    
-                    Button("Stop Meeting") {
-                        webSocketManager.sendEvent(type: .stopMeeting, data: ["source": "swift_ui"])
-                    }
-                    .disabled(!webSocketManager.isConnected)
-                }
-                
-                HStack(spacing: 8) {
-                    Button("Pause Meeting") {
-                        webSocketManager.sendEvent(type: .pauseMeeting, data: ["source": "swift_ui"])
-                    }
-                    .disabled(!webSocketManager.isConnected)
-                    
-                    Button("Resume Meeting") {
-                        webSocketManager.sendEvent(type: .resumeMeeting, data: ["source": "swift_ui"])
-                    }
-                    .disabled(!webSocketManager.isConnected)
-                }
-                
-                Button("Test Custom Event") {
-                    webSocketManager.sendEvent(type: .custom, data: [
-                        "message": "Test from Swift UI",
-                        "timestamp": Date().timeIntervalSince1970
-                    ])
-                }
-                .disabled(!webSocketManager.isConnected)
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 8)
-        }
+            HStack(spacing: 0) {
+                      // Scrollable list (takes remaining space)
+                      ScrollView {
+                          VStack(alignment: .leading) {
+                              ForEach(1..<50) { i in
+                                  Text("Item \(i)")
+                                      .padding()
+                                      .frame(maxWidth: .infinity, alignment: .leading)
+                                      .background(Color.gray.opacity(0.2))
+                                      .cornerRadius(8)
+                              }
+                          }
+                          .padding()
+                      }
+                      .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                      // Square view (like a button with icon)
+                      Button(action: {
+                          print("Square tapped")
+                      }) {
+                          VStack {
+                              Image(systemName: "camera.fill")
+                                  .font(.largeTitle)
+                                  .foregroundColor(.white)
+                                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+                          }
+                          .frame(maxWidth: .infinity, maxHeight: .infinity)
+                      }
+                      .aspectRatio(1, contentMode: .fit)// keeps it square
+                  }
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }.frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             // Register as event listener
             webSocketManager.addEventListener(self)
