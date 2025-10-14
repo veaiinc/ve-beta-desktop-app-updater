@@ -95,7 +95,11 @@ struct WheelPicker: View {
             }
             .padding(.vertical, 4)
             .padding(.horizontal, 4)
-            .background(isSelected ? Color.accentColor.opacity(0.25) : Color.clear)
+            .background(
+                isSelected
+                ? Color(.sRGB, red: 121/255, green: 236/255, blue: 201/255, opacity: 0.40)
+                : Color.clear
+            )
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())
@@ -111,7 +115,11 @@ struct WheelPicker: View {
     private func dateCircle(date: Date, isToday: Bool, isSelected: Bool) -> some View {
         ZStack {
             Circle()
-                .fill(isToday ? Color.accentColor : .clear)
+                .fill(
+                    isToday
+                    ? Color(.sRGB, red: 121/255, green: 236/255, blue: 201/255, opacity: 0.40)
+                    : .clear
+                )
                 .frame(width: 20, height: 20)
                 .overlay(
                     Circle()

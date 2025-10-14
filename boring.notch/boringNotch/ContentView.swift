@@ -155,13 +155,6 @@ struct ContentView: View {
                         }
                     }
                 }
-                .onChange(of: vm.isBatteryPopoverActive) { _, newPopoverState in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        if !newPopoverState && !isHovering && vm.notchState == .open {
-                            vm.close()
-                        }
-                    }
-                }
                 .sensoryFeedback(.alignment, trigger: haptics)
                 .contextMenu {
                     Button("Settings") {
@@ -192,7 +185,7 @@ struct ContentView: View {
 
     @ViewBuilder
     func NotchLayout() -> some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: vm.notchState == .open ? 26 : 0) {
             VStack(alignment: .leading) {
                 if coordinator.firstLaunch {
                     Spacer()
@@ -658,6 +651,29 @@ class WebSocketManager: ObservableObject {
                     self?.updateConnectionStatus("Send Error: \(error.localizedDescription)", isConnected: false)
                 }
             }
+        }
+    }
+    
+    func sendNavigateToMainScreen(path: String? = nil) {
+        guard isConnected else {
+            print("⚠️ WebSocket not connected - attempting to open main window via URL scheme")
+            // Fallback: try to activate Electron app
+            if let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.thelivingcompany.ve") {
+                NSWorkspace.shared.open(appURL)
+            }
+            return
+        }
+        
+        // Send navigation message matching NotchDrop's format
+        let message: [String: Any] = [
+            "type": "NAVIGATE_TO_MAIN_SCREEN",
+            "path": path ?? NSNull()
+        ]
+        
+        if let jsonData = try? JSONSerialization.data(withJSONObject: message),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            sendMessage(jsonString)
+            print("📤 Sent navigation message to Electron: \(path ?? "home")")
         }
     }
     

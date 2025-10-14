@@ -31,6 +31,9 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var isBatteryPopoverActive: Bool = false
 
     @Published var screen: String?
+    
+    // Stealth mode state for header pirate/eye toggle
+    @Published var isStealthModeEnabled: Bool = false
 
     @Published var notchSize: CGSize = getClosedNotchSize()
     @Published var closedNotchSize: CGSize = getClosedNotchSize()
@@ -200,6 +203,13 @@ class BoringViewModel: NSObject, ObservableObject {
             withAnimation(self?.animationLibrary.animation) {
                 self?.close()
             }
+        }
+    }
+
+    // MARK: - Stealth Mode
+    func toggleStealthMode() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            isStealthModeEnabled.toggle()
         }
     }
 }
