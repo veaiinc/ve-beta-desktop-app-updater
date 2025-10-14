@@ -283,6 +283,7 @@ const GalleryPage = () => {
 		flexWrap_visible: false,
 		tagSearchValue: '',
 		albumLoading: false,
+		albumDeleting: false,
 		isPublished: tenantAlbums?.albums?.[0]?.isPublished,
 		showDragIconOfAlbum: null,
 		isOnline: true,
@@ -1648,38 +1649,48 @@ const GalleryPage = () => {
 			}));
 
 			// Fetch album image count (triggers tag list update)
-			getAlbumImagesCount(galleryId);
+			await getAlbumImagesCount(galleryId);
 
-			// Fetch images for the new album immediately
-			await getGalleryImages(
-				galleryId,
-				album?._id,
-				album?.tags?.[0]?._id || '',
-				1,
-				info.limit,
-				'',
-				true,
-			);
+			// Only fetch images if album has valid tags, otherwise wait for tags to load
+			if (album?.tags && album.tags.length > 0 && album.tags[0]?._id) {
+				// Set albumTagId to trigger the useEffect mechanism
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					albumTagId: album.tags[0]._id,
+				}));
+			} else {
+				// Wait for album details to load, then set albumTagId
+				setTimeout(() => {
+					const updatedAlbums = tenantAlbums?.albums || [];
+					const currentAlbum = updatedAlbums.find((a) => a._id === album._id);
+
+					if (
+						currentAlbum?.tags &&
+						currentAlbum.tags.length > 0 &&
+						currentAlbum.tags[0]?._id
+					) {
+						setInfo((prevInfo) => ({
+							...prevInfo,
+							albumTagId: currentAlbum.tags[0]._id,
+						}));
+					}
+				}, 1000);
+			}
 		}
 		// Handle "All", "Favorites", etc. (tag/contain switch within same album)
 		else if (isContainNameChange) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				albumContains: album?.displayName,
-				albumTagId: album?._id,
-				sortType: album?.sortType,
-			}));
-
-			// Fetch images for the new tag immediately
-			await getGalleryImages(
-				galleryId,
-				info.activeAlbumId,
-				album?._id,
-				1,
-				info.limit,
-				'',
-				true,
-			);
+			// Only update albumTagId if we have a valid tag ID
+			// This will trigger the useEffect to call handleGetGalleryImages
+			if (album?._id) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					albumContains: album?.displayName,
+					albumTagId: album._id,
+					sortType: album?.sortType,
+				}));
+			} else {
+				console.warn('No valid tag ID provided for tag switch');
+			}
 		}
 		// Handle Client Selection Switch
 		else if (isClientSelectionChange) {
@@ -1824,8 +1835,7 @@ const GalleryPage = () => {
 		window.open(uploadUrl, '_blank');
 	};
 	const handleUploadClicked = (option = 'uploading') => {
-		const region = localStorage.getItem('region');
-		if (!info?.isDesktop && region === 'us-east-1') {
+		if (!info?.isDesktop) {
 			setInfo((prev) => ({
 				...prev,
 				desktopPopup: true,
@@ -3304,47 +3314,73 @@ const GalleryPage = () => {
 
 	const handleDeleteAlbum = useCallback(async () => {
 		// If already processing, return early
-		if (handleDeleteAlbum.isProcessing) return;
+		if (handleDeleteAlbum.isProcessing || info.albumDeleting) return;
 
-		// Close popup immediately
+		// Close popup and set loading state
 		setInfo((prev) => ({
 			...prev,
 			showDeleteAlbum: false,
+			albumDeleting: true,
 		}));
 
 		// Set processing flag
 		handleDeleteAlbum.isProcessing = true;
 		try {
-			// const id = message.loading('Your album is being removed. Please wait...');
+			const id = message.loading('Your album is being removed. Please wait...');
 
 			const response = await deleteAlbum(galleryId, info?.activeAlbumId);
 
-			// message.destroy(id);
+			message.destroy(id);
 
 			if (response[0] === true) {
 				message.destroy('deleteAlbum');
 				showMessage('success', 'Album deleted successfully');
-				await getAlbums(galleryId);
-				navigate(`/galleries/${galleryId}`);
+
+				// Immediately update local state to remove deleted album from UI
+				const updatedAlbums =
+					tenantAlbums?.albums?.filter((album) => album._id !== info?.activeAlbumId) ||
+					[];
+
+				// Update the state with filtered albums
 				setInfo((prev) => ({
 					...prev,
-					activeAlbumId: tenantAlbums?.[0]?._id,
-					activeAlbum: tenantAlbums?.[0],
-					albumSlug: tenantAlbums?.[0]?.slug,
-					albumName: tenantAlbums?.[0]?.title,
+					tenantAlbums: {
+						...tenantAlbums,
+						albums: updatedAlbums,
+					},
+					// Set the first remaining album as active, or clear if no albums left
+					activeAlbumId: updatedAlbums?.[0]?._id || null,
+					activeAlbum: updatedAlbums?.[0] || null,
+					albumSlug: updatedAlbums?.[0]?.slug || null,
+					albumName: updatedAlbums?.[0]?.title || null,
+					albumDeleting: false,
 				}));
+
+				// Navigate to gallery page
+				navigate(`/galleries/${galleryId}`);
+
+				// Refresh albums data from server to ensure consistency
+				await getAlbums(galleryId);
 			} else {
 				message.destroy('deleteAlbum');
 				showMessage('error', response[1].message, handleDeleteAlbum);
+				setInfo((prev) => ({
+					...prev,
+					albumDeleting: false,
+				}));
 			}
 		} catch (error) {
 			console.error('Error deleting album:', error);
 			message.destroy('deleteAlbum');
 			showMessage('error', 'Failed to delete album', handleDeleteAlbum);
+			setInfo((prev) => ({
+				...prev,
+				albumDeleting: false,
+			}));
 		} finally {
 			handleDeleteAlbum.isProcessing = false;
 		}
-	}, [galleryId, info.activeAlbumId]);
+	}, [galleryId, info.activeAlbumId, info.albumDeleting, tenantAlbums]);
 	handleDeleteAlbum.isProcessing = false;
 
 	const sortByCustomIndex = (items) => {
@@ -5221,26 +5257,38 @@ const GalleryPage = () => {
 
 															<div
 																onClick={() => {
-																	setInfo((prev) => ({
-																		...prev,
-																		showDeleteAlbum: true,
-																		showOptionsContainer: false, // Close options menu if it exists
-																	}));
+																	if (!info.albumDeleting) {
+																		setInfo((prev) => ({
+																			...prev,
+																			showDeleteAlbum: true,
+																			showOptionsContainer: false, // Close options menu if it exists
+																		}));
+																	}
 																}}
 																style={{
 																	display: 'flex',
 																	alignItems: 'center',
 																	gap: '4px',
+																	opacity: info.albumDeleting
+																		? 0.5
+																		: 1,
+																	cursor: info.albumDeleting
+																		? 'not-allowed'
+																		: 'pointer',
 																}}
 															>
 																<DeleteIcon />
 																<span
 																	style={{
 																		color: 'var(--error)',
-																		cursor: 'pointer',
+																		cursor: info.albumDeleting
+																			? 'not-allowed'
+																			: 'pointer',
 																	}}
 																>
-																	Delete Album
+																	{info.albumDeleting
+																		? 'Deleting...'
+																		: 'Delete Album'}
 																</span>
 															</div>
 														</div>
@@ -6007,14 +6055,20 @@ const GalleryPage = () => {
 															<li>Set as cover</li>
 															<li>Share</li>
 															<li
-																onClick={() =>
-																	setInfo((prev) => ({
-																		...prev,
-																		showDeleteAlbum: true,
-																	}))
-																}
+																onClick={() => {
+																	if (!info.albumDeleting) {
+																		setInfo((prev) => ({
+																			...prev,
+																			showDeleteAlbum: true,
+																		}));
+																	}
+																}}
+																style={{
+																	opacity: info.albumDeleting ? 0.5 : 1,
+																	cursor: info.albumDeleting ? 'not-allowed' : 'pointer',
+																}}
 															>
-																Delete
+																{info.albumDeleting ? 'Deleting...' : 'Delete'}
 															</li>
 														</div>
 													)}
@@ -6555,10 +6609,13 @@ const GalleryPage = () => {
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
 					galleryId={galleryId}
 					isTagDelete={false}
-					title={'Album'}
-					paragraph={'Images'}
+					title={'Delete Album'}
+					paragraph={
+						'You cannot undo this action.All your photos in this album will be lost'
+					}
 					handleDelete={handleDeleteAlbum}
 					currentTitle={info?.activeAlbum?.title}
+					isLoading={info?.albumDeleting}
 				/>
 			)}
 			{info?.deleteTagPopup && (
@@ -6566,9 +6623,9 @@ const GalleryPage = () => {
 					open={info.deleteTagPopup}
 					closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
 					galleryId={galleryId}
-					title={'Delete Tag'}
+					title={'Are you sure you want to delete this tag?'}
 					isTagDelete={true}
-					paragraph={'Are you sure you want to delete this tag?'}
+					paragraph={'You cannot undo this action.'}
 					selectedDropDownValue={info.selectedDropDownValue}
 					handleDeleteTypeChange={handleDeleteTypeChange}
 					handleDelete={() =>
@@ -6688,8 +6745,10 @@ const GalleryPage = () => {
 				<DeletePopup
 					open={info.showDeletePopup}
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeletePopup: false }))}
-					title={'Gallery'}
-					paragraph={'Albums'}
+					title={'Delete Gallery ?'}
+					paragraph={
+						'You cannot undo this action.All your albums and information will be lost.'
+					}
 					handleDelete={handleDeleteGallery}
 					currentTitle={info?.activeGallery?.title}
 				/>

@@ -726,6 +726,12 @@ export const Galleries = () => {
 				});
 			}
 
+			// Don't make API call if tagId is empty or invalid
+			if (!tagId || tagId.trim() === '') {
+				console.warn('getGalleryImages: Empty tagId provided, skipping API call');
+				return [false, { message: 'Empty tag ID provided' }];
+			}
+
 			let usertoken = localStorage.getItem('usertoken');
 			let workspaceId = localStorage.getItem('workspaceId');
 			const response = await service.fetchGet(
