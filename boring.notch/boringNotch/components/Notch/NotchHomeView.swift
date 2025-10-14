@@ -40,17 +40,12 @@ struct VoiceTopControls: View {
                     vm.toggleVoiceMute()
                     print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
                     
-                    // Send mute state to Electron via stdout
-                    let muteMessage = """
-                    {"type": "toggle_voice_mute", "isMuted": \(vm.isMicrophoneMuted), "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
-                    """
-                    print(muteMessage)
-                    
-                    // Also send a direct command to Electron via stdout
+                    // Send direct command to Electron via stdin (this will be processed by the spawned process)
                     let directCommand = """
-                    {"type": "direct_voice_mute", "isMuted": \(vm.isMicrophoneMuted), "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                    {"type": "electron_voice_mute", "isMuted": \(vm.isMicrophoneMuted), "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
                     """
                     print(directCommand)
+                    fflush(stdout)
                 }) {
                 Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
                     .font(.system(size: 16))
@@ -62,18 +57,16 @@ struct VoiceTopControls: View {
                 // Cancel/Disconnect button
                 Button(action: {
                     print("❌ Cancel button clicked - disconnecting voice agent")
-                    vm.deactivateVoiceInterface()
-                    // Send disconnect message to Electron via stdout
-                    let disconnectMessage = """
-                    {"type": "disconnect_voice_agent", "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
-                    """
-                    print(disconnectMessage)
                     
-                    // Also send a direct command to Electron via stdout
+                    // Send direct command to Electron via stdin (this will be processed by the spawned process)
                     let directCommand = """
-                    {"type": "direct_voice_disconnect", "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                    {"type": "electron_voice_disconnect", "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
                     """
                     print(directCommand)
+                    fflush(stdout)
+                    
+                    // Only deactivate UI after sending the disconnect command
+                    vm.deactivateVoiceInterface()
                 }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 16))

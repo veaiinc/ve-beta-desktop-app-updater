@@ -50,10 +50,10 @@ class BoringNotchService {
 	getBoringNotchPath() {
 		// Try to find the boring.notch app in the project directory
 		const possiblePaths = [
-			// Development path - built app (correct nested path)
-			path.join(__dirname, '..', '..', 'boring.notch', 'boring.notch', 'build', 'boringNotch.app'),
-			// Alternative development path
+			// Development path - built app (correct path from Xcode build)
 			path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app'),
+			// Alternative development path
+			path.join(__dirname, '..', '..', 'boring.notch', 'boring.notch', 'build', 'boringNotch.app'),
 			// Production path - if the app is built and placed in a specific location
 			path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.app'),
 		];
@@ -130,24 +130,41 @@ class BoringNotchService {
 
 	async buildAndRunXcodeProject(projectPath) {
 		return new Promise((resolve, reject) => {
-			log.info('🔨 Building and running Xcode project...');
+			log.info('🔨 Building Xcode project...');
 			
-			// Use xcodebuild to build and run the project
-			const buildCommand = `cd "${path.dirname(projectPath)}" && xcodebuild -project boringNotch.xcodeproj -scheme boringNotch -configuration Debug build && open -a boringNotch`;
+			// Build the project first
+			const buildCommand = `cd "${path.dirname(projectPath)}" && xcodebuild -project boringNotch.xcodeproj -scheme boringNotch -configuration Debug build`;
 			
 			exec(buildCommand, (error, stdout, stderr) => {
 				if (error) {
-					log.error('❌ Failed to build/run Xcode project:', error);
+					log.error('❌ Failed to build Xcode project:', error);
 					reject(error);
 					return;
 				}
 				
-				log.info('✅ Boring Notch Xcode project built and launched successfully');
-				log.info('Build output:', stdout);
+				log.info('✅ Boring Notch Xcode project built successfully');
 				
-				// Store the process reference (though we can't directly control the built app)
-				this.boringNotchProcess = { type: 'xcode-built', path: projectPath };
-				resolve();
+				// Find the built app and launch it with stdin communication
+				const builtAppPath = path.join(path.dirname(projectPath), 'build', 'boringNotch.app');
+				if (require('fs').existsSync(builtAppPath)) {
+					log.info('🚀 Launching built app with stdin communication...');
+					this.launchBuiltApp(builtAppPath)
+						.then(resolve)
+						.catch(reject);
+				} else {
+					// Fallback: try to open the app normally
+					log.warn('⚠️ Built app not found at expected location, trying to open normally...');
+					exec('open -a boringNotch', (openError) => {
+						if (openError) {
+							log.error('❌ Failed to open boring.notch app:', openError);
+							reject(openError);
+						} else {
+							log.info('✅ Boring Notch app opened successfully');
+							this.boringNotchProcess = { type: 'xcode-built', path: projectPath };
+							resolve();
+						}
+					});
+				}
 			});
 		});
 	}
@@ -157,7 +174,7 @@ class BoringNotchService {
 			log.info('🚀 Launching built Boring Notch app...');
 			
 			try {
-				// Launch the app normally using 'open' command first
+				// Launch the app normally using 'open' command
 				const launchCommand = `open "${appPath}"`;
 				
 				exec(launchCommand, (error, stdout, stderr) => {
@@ -169,7 +186,7 @@ class BoringNotchService {
 					
 					log.info('✅ Boring Notch app launched successfully');
 					
-					// Wait a moment for the app to start, then try to establish stdin communication
+					// Wait a moment for the app to start, then establish stdin communication
 					setTimeout(() => {
 						this.establishStdinCommunication(appPath);
 						resolve();
@@ -185,44 +202,44 @@ class BoringNotchService {
 
 	establishStdinCommunication(appPath) {
 		try {
-			// Get the executable path inside the .app bundle
-			const executablePath = path.join(appPath, 'Contents', 'MacOS', 'boringNotch');
+			// Don't spawn a new process - just mark that we have communication established
+			// The app is already running from the 'open' command
+			this.boringNotchProcess = { 
+				type: 'open-launched', 
+				path: appPath,
+				stdin: {
+					write: (data) => {
+						// Use WebSocket to send messages to boring.notch app
+						this.sendWebSocketMessage(data);
+					}
+				}
+			};
 			
-			// Try to spawn a separate process for stdin communication
-			this.boringNotchProcess = spawn(executablePath, [], {
-				stdio: ['pipe', 'pipe', 'pipe'], // stdin, stdout, stderr
-				detached: false
-			});
-			
-			// Handle process events
-			this.boringNotchProcess.on('error', (error) => {
-				log.error('❌ Failed to establish stdin communication:', error);
-				this.boringNotchProcess = null;
-			});
-			
-			this.boringNotchProcess.on('exit', (code, signal) => {
-				log.info('📱 Boring Notch stdin process exited with code:', code, 'signal:', signal);
-				this.boringNotchProcess = null;
-			});
-			
-			// Handle stdout/stderr for debugging and command processing
-			this.boringNotchProcess.stdout?.on('data', (data) => {
-				const output = data.toString().trim();
-				log.info('📱 Boring Notch stdout:', output);
-				
-				// Process direct commands from boring.notch
-				this.handleBoringNotchOutput(output);
-			});
-			
-			this.boringNotchProcess.stderr?.on('data', (data) => {
-				log.info('📱 Boring Notch stderr:', data.toString());
-			});
-			
-			log.info('✅ Boring Notch stdin communication established');
+			log.info('✅ Boring Notch communication established (app already running)');
 			
 		} catch (error) {
 			log.error('❌ Failed to establish stdin communication:', error);
 			this.boringNotchProcess = null;
+		}
+	}
+
+	// Send message to boring.notch app via WebSocket
+	sendWebSocketMessage(data) {
+		try {
+			const websocketService = require('./websocketService');
+			if (websocketService.isServerRunning()) {
+				websocketService.broadcast({
+					type: 'BORING_NOTCH_MESSAGE',
+					data: data,
+					timestamp: Date.now(),
+					source: 'electron'
+				});
+				log.info('📱 Message sent to boring.notch via WebSocket:', data);
+			} else {
+				log.warn('⚠️ WebSocket service not running, cannot send message to boring.notch');
+			}
+		} catch (error) {
+			log.error('❌ Failed to send WebSocket message to boring.notch:', error);
 		}
 	}
 
@@ -519,8 +536,11 @@ class BoringNotchService {
 	// Handle direct commands from boring.notch app
 	handleBoringNotchOutput(output) {
 		try {
+			// Clean the output - remove any extra whitespace or newlines
+			const cleanOutput = output.trim();
+			
 			// Try to parse as JSON
-			const message = JSON.parse(output);
+			const message = JSON.parse(cleanOutput);
 			
 			if (message.type === 'electron_voice_mute') {
 				log.info('🎤 Received direct voice mute command from boring.notch:', message.isMuted);
@@ -530,8 +550,7 @@ class BoringNotchService {
 				this.handleDirectVoiceDisconnect();
 			}
 		} catch (error) {
-			// Not a JSON message, just log it
-			log.info('📱 Boring Notch output (non-JSON):', output);
+			// Not a JSON message, ignore it
 		}
 	}
 
@@ -543,8 +562,54 @@ class BoringNotchService {
 			// Dispatch mute event to main window to control the actual voice agent
 			if (this.mainWindow) {
 				const result = await this.mainWindow.webContents.executeJavaScript(`
-					// Dispatch mute toggle event
-					const muteEvent = new CustomEvent('notchdrop-toggle-mute', {
+					console.log('🎤 Boring Notch: Handling voice mute command:', ${isMuted});
+					
+					// Method 1: Directly call the voice integration toggleMute function
+					console.log('🎤 Checking voice integration availability:', {
+						hasVoiceIntegration: !!window.voiceIntegration,
+						hasToggleMute: !!(window.voiceIntegration && window.voiceIntegration.toggleMute),
+						voiceIntegrationKeys: window.voiceIntegration ? Object.keys(window.voiceIntegration) : 'N/A'
+					});
+					
+					if (window.voiceIntegration && window.voiceIntegration.toggleMute) {
+						console.log('🎤 Calling voice integration toggleMute directly...');
+						try {
+							await window.voiceIntegration.toggleMute();
+							console.log('🎤 Voice integration toggleMute completed successfully');
+						} catch (error) {
+							console.error('🎤 Error calling voice integration toggleMute:', error);
+						}
+					} else {
+						console.log('🎤 Voice integration not available, trying alternative methods...');
+						
+						// Method 2: Try to find and control the actual voice agent
+						const voiceContainers = document.querySelectorAll('.voiceContainer');
+						if (voiceContainers.length > 0) {
+							console.log('🎤 Found voice container, controlling mute...');
+							const voiceContainer = voiceContainers[0];
+							
+							// Try to find mute buttons in the voice container - target specific classes
+							const muteButtons = voiceContainer.querySelectorAll('.voice-mic-icon, .action-button, .mute-button, [class*="mute"], button[title*="mute"], button[title*="Mute"]');
+							if (muteButtons.length > 0) {
+								console.log('🎤 Found mute button in voice container, clicking...');
+								muteButtons[0].click();
+							} else {
+								console.log('🎤 No mute button found in voice container');
+							}
+						} else {
+							console.log('🎤 No voice container found');
+						}
+						
+						// Method 3: Try to find DynamicIslandUI voice interface specifically
+						const dynamicIslandVoiceMic = document.querySelector('.voice-mic-icon');
+						if (dynamicIslandVoiceMic) {
+							console.log('🎤 Found DynamicIsland voice mic button, clicking...');
+							dynamicIslandVoiceMic.click();
+						}
+					}
+					
+					// Method 4: Dispatch mute toggle event for voice integration hooks
+					const muteEvent = new CustomEvent('voice-agent-mute-toggle', {
 						detail: {
 							source: 'boring-notch-direct',
 							timestamp: Date.now(),
@@ -553,13 +618,6 @@ class BoringNotchService {
 						}
 					});
 					window.dispatchEvent(muteEvent);
-					
-					// Also try to find and click mute buttons
-					const muteButtons = document.querySelectorAll('.mute-button, [class*="mute"]');
-					if (muteButtons.length > 0) {
-						console.log('🎤 Found mute button, clicking...');
-						muteButtons[0].click();
-					}
 					
 					'{ "success": true, "method": "direct voice mute" }';
 				`);
@@ -578,8 +636,54 @@ class BoringNotchService {
 			// Dispatch disconnect event to main window to control the actual voice agent
 			if (this.mainWindow) {
 				const result = await this.mainWindow.webContents.executeJavaScript(`
-					// Dispatch disconnect event
-					const disconnectEvent = new CustomEvent('notchdrop-disconnect-voice', {
+					console.log('🔌 Boring Notch: Handling voice disconnect command');
+					
+					// Method 1: Directly call the voice integration disconnect function
+					console.log('🔌 Checking voice integration availability:', {
+						hasVoiceIntegration: !!window.voiceIntegration,
+						hasDisconnect: !!(window.voiceIntegration && window.voiceIntegration.disconnect),
+						voiceIntegrationKeys: window.voiceIntegration ? Object.keys(window.voiceIntegration) : 'N/A'
+					});
+					
+					if (window.voiceIntegration && window.voiceIntegration.disconnect) {
+						console.log('🔌 Calling voice integration disconnect directly...');
+						try {
+							await window.voiceIntegration.disconnect();
+							console.log('🔌 Voice integration disconnect completed successfully');
+						} catch (error) {
+							console.error('🔌 Error calling voice integration disconnect:', error);
+						}
+					} else {
+						console.log('🔌 Voice integration not available, trying alternative methods...');
+						
+						// Method 2: Try to find and control the actual voice agent
+						const voiceContainers = document.querySelectorAll('.voiceContainer');
+						if (voiceContainers.length > 0) {
+							console.log('🔌 Found voice container, controlling disconnect...');
+							const voiceContainer = voiceContainers[0];
+							
+							// Try to find disconnect buttons in the voice container - target specific classes
+							const disconnectButtons = voiceContainer.querySelectorAll('.cancel-button, .voice-stop-btn, [class*="disconnect"], [class*="close"], button[title*="disconnect"], button[title*="Disconnect"], button[title*="stop"], button[title*="Stop"]');
+							if (disconnectButtons.length > 0) {
+								console.log('🔌 Found disconnect button in voice container, clicking...');
+								disconnectButtons[0].click();
+							} else {
+								console.log('🔌 No disconnect button found in voice container');
+							}
+						} else {
+							console.log('🔌 No voice container found');
+						}
+						
+						// Method 3: Try to find DynamicIslandUI voice interface specifically
+						const dynamicIslandVoiceStop = document.querySelector('.voice-stop-btn');
+						if (dynamicIslandVoiceStop) {
+							console.log('🔌 Found DynamicIsland voice stop button, clicking...');
+							dynamicIslandVoiceStop.click();
+						}
+					}
+					
+					// Method 4: Dispatch disconnect event for voice integration hooks
+					const disconnectEvent = new CustomEvent('voice-agent-disconnect', {
 						detail: {
 							source: 'boring-notch-direct',
 							timestamp: Date.now(),
@@ -588,14 +692,7 @@ class BoringNotchService {
 					});
 					window.dispatchEvent(disconnectEvent);
 					
-					// Also try to find and click disconnect buttons
-					const disconnectButtons = document.querySelectorAll('.cancel-button, [class*="disconnect"], [class*="close"]');
-					if (disconnectButtons.length > 0) {
-						console.log('🔌 Found disconnect button, clicking...');
-						disconnectButtons[0].click();
-					}
-					
-					// Hide voice agent UI
+					// Method 5: Hide voice agent UI
 					const voiceContainers = document.querySelectorAll('.voiceContainer');
 					voiceContainers.forEach(container => {
 						container.style.display = 'none';

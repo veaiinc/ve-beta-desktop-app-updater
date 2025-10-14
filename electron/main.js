@@ -6027,6 +6027,35 @@ ipcMain.handle('notchdrop-activate-voice-agent', async (event, data) => {
     }
 });
 
+// Direct voice control handlers from boring.notch
+ipcMain.handle('boring-notch-voice-mute', async (event, isMuted) => {
+    try {
+        log.info('🎤 Direct voice mute command from boring.notch:', isMuted);
+        if (boringNotchService) {
+            await boringNotchService.handleDirectVoiceMute(isMuted);
+            return { success: true };
+        }
+        return { success: false, error: 'Boring Notch service not available' };
+    } catch (error) {
+        log.error('Error handling direct voice mute:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('boring-notch-voice-disconnect', async (event) => {
+    try {
+        log.info('🔌 Direct voice disconnect command from boring.notch');
+        if (boringNotchService) {
+            await boringNotchService.handleDirectVoiceDisconnect();
+            return { success: true };
+        }
+        return { success: false, error: 'Boring Notch service not available' };
+    } catch (error) {
+        log.error('Error handling direct voice disconnect:', error);
+        return { success: false, error: error.message };
+    }
+});
+
 // Voice agent disconnect handler
 ipcMain.handle('notchdrop-disconnect-voice-agent', async (event, data) => {
     try {
