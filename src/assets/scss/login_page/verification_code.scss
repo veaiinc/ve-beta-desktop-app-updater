@@ -175,21 +175,14 @@
 				}
 			}
 			.back-btn-container {
-				color: var(--secondary-font, #94989e);
+				cursor: pointer;
+				color: var(--primary-font, #F2F2F3);
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
-				cursor: pointer;
-				color: var(--primary-font, #F2F2F3);
-text-align: center;
-font-family: var(--primary-font-family);
-font-size: 14px;
-font-style: normal;
-font-weight: 500;
-line-height: normal;
 				&:hover {
 					text-decoration: underline;
 				}
