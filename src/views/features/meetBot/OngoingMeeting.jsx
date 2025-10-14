@@ -11,6 +11,7 @@ import {
 	Maximize2,
 	Plus,
 	X,
+	ChevronRight,
 } from 'lucide-react';
 import moment from 'moment';
 import Context from '../../../context/context';
@@ -67,6 +68,8 @@ const OngoingMeeting = memo(() => {
 			width: 522,
 			height: 436,
 		},
+		isSelectedResponseId: null,
+		isResponseSelected: false,
 	});
 
 	const { liveIntelligenceData = {}, transcriptions = [], meetingId } = activeMeetingDetails;
@@ -79,18 +82,27 @@ const OngoingMeeting = memo(() => {
 					height: 436,
 				},
 				exitFullScreen: true,
+				animate: true,
+				duration: 300,
+				easing: 'easeInOutCubic',
 			});
 		}
 
 		// Initialize NotchDrop panel mode - show transcription initially (main app shows live intelligence)
 		if (window?.electronApi?.overlay?.setPanelMode) {
 			window.electronApi.overlay.setPanelMode('live-intel');
-			console.log('🧭 OngoingMeeting: Initialized NotchDrop to show transcription (main shows live-intel)');
+			console.log(
+				'🧭 OngoingMeeting: Initialized NotchDrop to show transcription (main shows live-intel)',
+			);
 		}
 
 		// Send initial transcription data to NotchDrop if available
 		if (transcriptions?.length > 0 && window?.electronApi?.notchdrop?.replaceTranscriptions) {
-			console.log('📝 OngoingMeeting: Sending initial transcription data to NotchDrop:', transcriptions.length, 'transcriptions');
+			console.log(
+				'📝 OngoingMeeting: Sending initial transcription data to NotchDrop:',
+				transcriptions.length,
+				'transcriptions',
+			);
 			const messages = transcriptions.map((t) => ({
 				sender: t.source || 'overlay',
 				content: t.text || '',
@@ -114,10 +126,15 @@ const OngoingMeeting = memo(() => {
 						width: 1366,
 						height: 768,
 					},
+					animate: true,
+					duration: 300,
+					easing: 'easeOutCubic',
 				});
 				setInfo((prev) => ({
 					...prev,
 					chatOpen: false,
+					isResponseSelected: false,
+					isSelectedResponseId: null,
 				}));
 			}
 
@@ -209,19 +226,31 @@ const OngoingMeeting = memo(() => {
 
 					// Ensure live intelligence data is sent to NotchDrop when switching to transcript view
 					const allThreads = liveIntelligenceData?.allThreads || [];
-					if (allThreads.length > 0 && window?.electronApi?.overlay?.sendLiveIntelligenceData) {
-						console.log('🧠 OngoingMeeting: Sending live intelligence data to NotchDrop on toggle:', allThreads.length, 'threads');
+					if (
+						allThreads.length > 0 &&
+						window?.electronApi?.overlay?.sendLiveIntelligenceData
+					) {
+						console.log(
+							'🧠 OngoingMeeting: Sending live intelligence data to NotchDrop on toggle:',
+							allThreads.length,
+							'threads',
+						);
 						allThreads.forEach((thread) => {
 							const message = {
 								source: 'ai-agent',
 								text: thread.prompt || thread.name || thread.description || '',
-								timestamp: thread.timestamp || thread.created_at || new Date().toISOString(),
+								timestamp:
+									thread.timestamp ||
+									thread.created_at ||
+									new Date().toISOString(),
 								confidence: thread.confidence,
 								metadata: thread,
 							};
 							window.electronApi.overlay.sendLiveIntelligenceData(message);
 						});
-						console.log('✅ OngoingMeeting: Live intelligence data sent to NotchDrop on toggle');
+						console.log(
+							'✅ OngoingMeeting: Live intelligence data sent to NotchDrop on toggle',
+						);
 					}
 				} else {
 					console.warn('⚠️ OngoingMeeting: setPanelMode method not available');
@@ -235,8 +264,15 @@ const OngoingMeeting = memo(() => {
 					);
 
 					// Ensure transcription data is sent to NotchDrop when switching to live intelligence view
-					if (transcriptions?.length > 0 && window?.electronApi?.notchdrop?.replaceTranscriptions) {
-						console.log('📝 OngoingMeeting: Sending transcription data to NotchDrop on toggle:', transcriptions.length, 'transcriptions');
+					if (
+						transcriptions?.length > 0 &&
+						window?.electronApi?.notchdrop?.replaceTranscriptions
+					) {
+						console.log(
+							'📝 OngoingMeeting: Sending transcription data to NotchDrop on toggle:',
+							transcriptions.length,
+							'transcriptions',
+						);
 						const messages = transcriptions.map((t) => ({
 							sender: t.source || 'overlay',
 							content: t.text || '',
@@ -247,7 +283,9 @@ const OngoingMeeting = memo(() => {
 							type: 'transcription',
 						}));
 						window.electronApi.notchdrop.replaceTranscriptions(messages);
-						console.log('✅ OngoingMeeting: Transcription data sent to NotchDrop on toggle');
+						console.log(
+							'✅ OngoingMeeting: Transcription data sent to NotchDrop on toggle',
+						);
 					}
 				} else {
 					console.warn('⚠️ OngoingMeeting: setPanelMode method not available');
@@ -290,6 +328,9 @@ const OngoingMeeting = memo(() => {
 				width: newWidth,
 			},
 			exitFullScreen: true,
+			animate: true,
+			duration: 250,
+			easing: 'easeInOutCubic',
 		});
 
 		handleStateChange({
@@ -328,7 +369,14 @@ const OngoingMeeting = memo(() => {
 	// 	});
 	// };
 
-	const handleActionClick = (prompt, isAskAi = false) => {
+	const handleActionClick = (prompt, isAskAi = false, id = null) => {
+
+		setInfo((prev) => ({
+			...prev,
+			isSelectedResponseId: id,
+			isResponseSelected: true,
+		}));
+
 		if (prompt && sessionId) {
 			console.log('prompt', prompt);
 			toggleChat(true);
@@ -344,6 +392,17 @@ const OngoingMeeting = memo(() => {
 		}
 	};
 
+
+	const handleOpenChatResponse = (open) => {
+		if (open === info.chatOpen) {
+			return;
+		}
+		toggleChat(open);
+	}
+
+
+
+
 	return (
 		<div className={s.ongoingMeetingWrapper}>
 			<div className={s.ongoingMeetingHeader}>
@@ -358,6 +417,13 @@ const OngoingMeeting = memo(() => {
 				>
 					<X size={16} />
 				</button> */}
+				{info.isResponseSelected && (
+					<button className={s.ongoingMeetingHeaderButton} onClick={() =>
+						handleOpenChatResponse(true)
+					}>
+						<ChevronRight size={16} />
+					</button>
+				)}
 			</div>
 			<div className={s.ongoingMeetingContentWrapper}>
 				<div className={s.ongoingMeetingContainer}>
@@ -562,6 +628,7 @@ const LiveIntelligencePanel = ({ liveIntelligence = [], handleActionClick }) => 
 							handleActionClick(
 								item.prompt,
 								getLiveIntelligenceType(item) === 'needHelp',
+								item.id,
 							)
 						}
 					>

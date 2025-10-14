@@ -373,7 +373,12 @@ const ChatBox = ({
 				message.error('Please wait, AI is already generating a response');
 				return;
 			}
-			handleSendMessageFunc(null, true, activePromptForChat?.prompt);
+			handleSendMessageFunc(
+				null,
+				true,
+				activePromptForChat?.prompt,
+				activePromptForChat?.imagesArray,
+			);
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat, info?.chatSessionId]);
@@ -713,7 +718,7 @@ const ChatBox = ({
 	};
 
 	const handleSendMessageFunc = useCallback(
-		async (e, click = null, query = null) => {
+		async (e, click = null, query = null, externalImages = null) => {
 			if (e?.key === 'Enter' || click) {
 				// If Shift+Enter, allow new line
 
@@ -794,6 +799,16 @@ const ChatBox = ({
 
 						localPayload = {
 							images: uploadedImagesRef?.current || [],
+						};
+					}
+					if (externalImages?.length) {
+						payload.image_data_base64 = [
+							...(payload.image_data_base64 || []),
+							...externalImages,
+						];
+						localPayload = {
+							...localPayload,
+							externalImages,
 						};
 					}
 					if (recentFilesRef?.current?.length > 0) {

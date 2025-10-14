@@ -40,7 +40,12 @@ public:
             InstanceMethod("handleExternalRecordingStateChange", &NotchDropAddon::HandleExternalRecordingStateChange),
             InstanceMethod("handleWakeWordDetected", &NotchDropAddon::HandleWakeWordDetected),
             InstanceMethod("triggerSwiftAction", &NotchDropAddon::TriggerSwiftAction),
-            InstanceMethod("on", &NotchDropAddon::On)
+            InstanceMethod("on", &NotchDropAddon::On),
+            InstanceMethod("getSelectionHistoryJSON", &NotchDropAddon::GetSelectionHistoryJSON),
+            InstanceMethod("clearSelectionHistory", &NotchDropAddon::ClearSelectionHistory),
+            InstanceMethod("presentSelectionHistoryInterface", &NotchDropAddon::PresentSelectionHistoryInterface),
+            InstanceMethod("requestSelectionAssistantPermissionPrompt", &NotchDropAddon::RequestSelectionAssistantPermissionPrompt),
+            InstanceMethod("isSelectionAssistantPermissionGranted", &NotchDropAddon::IsSelectionAssistantPermissionGranted)
         });
 
         exports.Set("NotchDropAddon", func);
@@ -334,6 +339,37 @@ private:
         result.Set("height", Napi::Number::New(env, [position[@"height"] doubleValue]));
         
         return result;
+    }
+
+    Napi::Value GetSelectionHistoryJSON(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        NSString* json = [NotchDropBridge getSelectionHistoryJSON];
+        std::string result = json ? std::string([json UTF8String]) : std::string("[]");
+        return Napi::String::New(env, result);
+    }
+
+    Napi::Value ClearSelectionHistory(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        BOOL result = [NotchDropBridge clearSelectionHistory];
+        return Napi::Boolean::New(env, result);
+    }
+
+    Napi::Value PresentSelectionHistoryInterface(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        BOOL result = [NotchDropBridge presentSelectionHistoryInterface];
+        return Napi::Boolean::New(env, result);
+    }
+
+    Napi::Value RequestSelectionAssistantPermissionPrompt(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        BOOL result = [NotchDropBridge requestSelectionAssistantPermissionPrompt];
+        return Napi::Boolean::New(env, result);
+    }
+
+    Napi::Value IsSelectionAssistantPermissionGranted(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        BOOL granted = [NotchDropBridge isSelectionAssistantPermissionGranted];
+        return Napi::Boolean::New(env, granted);
     }
 
     Napi::Value TriggerSwiftAction(const Napi::CallbackInfo& info) {

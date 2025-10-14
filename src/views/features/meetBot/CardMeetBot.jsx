@@ -43,9 +43,7 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 	};
 
 	const formatTime = (dateTime) => {
-		const localTime = new Date(dateTime).toLocaleString();
-		return moment.utc(localTime).format('h:mm A');
-		// return moment.utc(dateTime).format('h:mm A');
+		return moment(dateTime).format('h:mm A');
 	};
 
 	const getParticipantsDisplay = (meeting) => {
