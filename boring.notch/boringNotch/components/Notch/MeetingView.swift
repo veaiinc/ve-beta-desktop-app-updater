@@ -8,6 +8,7 @@
 import SwiftUI
 import Foundation
 import Defaults
+import AVFoundation
 
 // MARK: - Date Extension
 extension Date {
@@ -71,39 +72,26 @@ struct MeetingView: View, WebSocketEventListener {
     @State private var eventHistory: [WebSocketEvent] = []
     @State private var transcriptions: [Transcription] = []
     
+    // Webcam functionality
+    @StateObject private var webcamManager = WebcamManager.shared
+    @State private var isWebcamVisible: Bool = false
+    @State private var isRequestingAuthorization: Bool = false
+    
     // Persistent storage for transcriptions
     @Default(.meetingTranscriptions) private var storedTranscriptions: [Transcription]
     @Default(.isMeetingActive) private var isMeetingActive: Bool
     @Default(.currentMeetingId) private var currentMeetingId: String?
     
     var body: some View {
+        mainContent
+    }
+    
+    @ViewBuilder
+    private var mainContent: some View {
         VStack(spacing: 12) {
-            HStack(spacing: 0) {
-                      // Scrollable list (takes remaining space)
-                      ScrollViewReader { proxy in
-                          ScrollView {
-                              transcriptionScrollContent(proxy: proxy)
-                          }
-                      }
-                      .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                      // Square view (like a button with icon)
-                      Button(action: {
-                          print("Square tapped - Testing transcription flow")
-                          testTranscriptionFlow()
-                      }) {
-                          VStack {
-                              Image(systemName: "camera.fill")
-                                  .font(.largeTitle)
-                                  .foregroundColor(.white)
-                                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-                          }
-                          .frame(maxWidth: .infinity, maxHeight: .infinity)
-                      }
-                      .aspectRatio(1, contentMode: .fit)// keeps it square
-                  }
-                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            contentRow
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
             // Register as event listener
             webSocketManager.addEventListener(self)
@@ -117,7 +105,70 @@ struct MeetingView: View, WebSocketEventListener {
         .onDisappear {
             // Unregister event listener
             webSocketManager.removeEventListener(self)
+            
+            // Stop webcam session when view disappears
+            if webcamManager.isSessionRunning {
+                webcamManager.stopSession()
+                isWebcamVisible = false
+            }
         }
+    }
+    
+    @ViewBuilder
+    private var contentRow: some View {
+        HStack(spacing: 0) {
+            transcriptionScrollArea
+            webcamButton
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    @ViewBuilder
+    private var transcriptionScrollArea: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                transcriptionScrollContent(proxy: proxy)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    @ViewBuilder
+    private var webcamButton: some View {
+        Button(action: {
+            toggleWebcam()
+        }) {
+            webcamSquare
+        }
+        .aspectRatio(1, contentMode: .fit)
+    }
+    
+    @ViewBuilder
+    private var webcamSquare: some View {
+        ZStack {
+            // Show webcam feed when active
+            if isWebcamVisible && webcamManager.isSessionRunning {
+                if let previewLayer = webcamManager.previewLayer {
+                    CameraPreviewLayerView(previewLayer: previewLayer)
+                        .scaleEffect(x: -1, y: 1) // Mirror the camera
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            } else {
+                // Show webcam icon when not active
+                webcamIcon
+            }
+        }.padding(0)
+    }
+    
+    @ViewBuilder
+    private var webcamIcon: some View {
+        VStack {
+            Image(systemName: webcamManager.authorizationStatus == .denied ? "exclamationmark.triangle" : "web.camera")
+                .font(.largeTitle)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     // MARK: - WebSocketEventListener
@@ -310,7 +361,7 @@ struct MeetingView: View, WebSocketEventListener {
     private func handleParticipantJoined(_ event: WebSocketEvent) {
         print("👋 Participant joined: \(event.data)")
         // Update participant list
-        if let participantName = event.data["name"] as? String {
+        if event.data["name"] != nil {
             // Add to participant list logic here
         }
     }
@@ -318,7 +369,7 @@ struct MeetingView: View, WebSocketEventListener {
     private func handleParticipantLeft(_ event: WebSocketEvent) {
         print("👋 Participant left: \(event.data)")
         // Update participant list
-        if let participantName = event.data["name"] as? String {
+        if event.data["name"] != nil {
             // Remove from participant list logic here
         }
     }
@@ -366,7 +417,7 @@ struct MeetingView: View, WebSocketEventListener {
                 "confidence": 0.95
             ],
             [
-                "id": "test_2", 
+                "id": "test_2",
                 "text": "This is another test transcription from the screen capture. This text is also quite long to demonstrate how the auto-scroll works when the transcription content gets updated with more text.",
                 "source": "screen",
                 "timestamp": Date().iso8601String,
@@ -375,7 +426,7 @@ struct MeetingView: View, WebSocketEventListener {
             [
                 "id": "test_3",
                 "text": "And here's a third transcription to test the array replacement. This is a very long transcription that should trigger auto-scroll when it gets updated with additional content, demonstrating the improved auto-scrolling behavior for long texts.",
-                "source": "mic", 
+                "source": "mic",
                 "timestamp": Date().iso8601String,
                 "confidence": 0.92
             ]
@@ -424,11 +475,12 @@ struct MeetingView: View, WebSocketEventListener {
             }
         }
         .padding()
-        .onChange(of: transcriptions) { _ in
+        // Simpler dependencies help the type checker
+        .onChange(of: transcriptions.count) {
             autoScrollToBottom(proxy: proxy)
         }
-        .onChange(of: transcriptions.last?.text) { _ in
-            // Also scroll when the last transcription's text changes (for long text updates)
+        .onChange(of: transcriptions.last?.id) {
+            // Also scroll when the last transcription identity changes
             autoScrollToBottom(proxy: proxy)
         }
     }
@@ -450,52 +502,9 @@ struct MeetingView: View, WebSocketEventListener {
     
     @ViewBuilder
     private var transcriptionListView: some View {
-        ForEach(transcriptions) { transcription in
-            transcriptionItemView(transcription)
+        ForEach(transcriptions, id: \.id) { transcription in
+            TranscriptionItemView(transcription: transcription)
         }
-    }
-    
-    @ViewBuilder
-    private func transcriptionItemView(_ transcription: Transcription) -> some View {
-        VStack(alignment: .leading, spacing: 5) {
-            transcriptionHeader(transcription)
-            transcriptionText(transcription)
-        }
-        .frame(maxWidth: .infinity)
-        .id(transcription.id)
-    }
-    
-    @ViewBuilder
-    private func transcriptionHeader(_ transcription: Transcription) -> some View {
-        HStack(spacing: 10) {
-            Text(transcription.speakerName)
-                .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
-                .foregroundColor(.transcriptionAccent)
-            
-            Divider()
-            
-            HStack(spacing: 5) {
-                Image(systemName: "clock")
-                    .font(.system(size: 10))
-                    .foregroundColor(.transcriptionAccent)
-                
-                Text(transcription.formattedTime)
-                    .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
-                    .foregroundColor(.transcriptionAccent)
-            }
-            
-            Spacer()
-        }
-        .padding(0)
-    }
-    
-    @ViewBuilder
-    private func transcriptionText(_ transcription: Transcription) -> some View {
-        Text(transcription.text)
-            .font(Font.custom("General Sans Variable", size: 14).weight(.medium))
-            .lineSpacing(5)
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     @ViewBuilder
@@ -514,6 +523,56 @@ struct MeetingView: View, WebSocketEventListener {
                 proxy.scrollTo("bottom", anchor: UnitPoint.bottom)
                 print("📜 Scrolled to bottom")
             }
+        }
+    }
+    
+    // MARK: - Webcam Methods
+    
+    private func toggleWebcam() {
+        if isRequestingAuthorization {
+            return
+        }
+
+        switch webcamManager.authorizationStatus {
+        case .authorized:
+            if webcamManager.isSessionRunning {
+                webcamManager.stopSession()
+                isWebcamVisible = false
+            } else if webcamManager.cameraAvailable {
+                webcamManager.startSession()
+                isWebcamVisible = true
+            }
+
+        case .denied, .restricted:
+            DispatchQueue.main.async {
+                NSApp.setActivationPolicy(.regular)
+                NSApp.activate(ignoringOtherApps: true)
+
+                let alert = NSAlert()
+                alert.messageText = "Camera Access Required"
+                alert.informativeText = "Please allow camera access in System Settings."
+                alert.addButton(withTitle: "Open Settings")
+                alert.addButton(withTitle: "Cancel")
+
+                if alert.runModal() == .alertFirstButtonReturn {
+                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+
+                NSApp.setActivationPolicy(.accessory)
+                NSApp.deactivate()
+            }
+
+        case .notDetermined:
+            isRequestingAuthorization = true
+            webcamManager.checkAndRequestVideoAuthorization()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.isRequestingAuthorization = false
+            }
+
+        default:
+            break
         }
     }
     
@@ -552,6 +611,52 @@ struct MeetingView: View, WebSocketEventListener {
         default:
             return .primary
         }
+    }
+}
+
+struct TranscriptionItemView: View {
+    let transcription: Transcription
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            header
+            textBody
+        }
+        .frame(maxWidth: .infinity)
+        .id(transcription.id)
+    }
+    
+    @ViewBuilder
+    private var header: some View {
+        HStack(spacing: 10) {
+            Text(transcription.speakerName)
+                .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
+                .foregroundColor(.transcriptionAccent)
+            
+            Divider()
+            
+            HStack(spacing: 5) {
+                Image(systemName: "clock")
+                    .font(.system(size: 10))
+                    .foregroundColor(.transcriptionAccent)
+                
+                Text(transcription.formattedTime)
+                    .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
+                    .foregroundColor(.transcriptionAccent)
+            }
+            
+            Spacer()
+        }
+        .padding(0)
+    }
+    
+    @ViewBuilder
+    private var textBody: some View {
+        Text(transcription.text)
+            .font(Font.custom("General Sans Variable", size: 14).weight(.medium))
+            .lineSpacing(5)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
