@@ -890,7 +890,7 @@ const GalleryViewer = ({
 						}))
 					}
 					galleryId={activeGalleryId}
-					title={'Permanently Delete  image?'}
+					title={'Permanently Delete image?'}
 					paragraph={
 						'You cannot undo this action.All your photos in this album lined to this label will be lost'
 					}

@@ -5,7 +5,7 @@ import { getGalleryDesktopAppDownloadUrl, deepLinkUrlGallery } from '../../../..
 
 const DesktopPopup = ({ open, closeModal, onStandardUploadClick, selectedAction }) => {
 	const handleInstallOrOpen = async () => {
-		window.location.href = deepLinkUrlGallery;
+		// window.location.href = deepLinkUrlGallery;
 		const getGalleryDesktopAppDownloadUrlLink = await getGalleryDesktopAppDownloadUrl();
 		window.open(getGalleryDesktopAppDownloadUrlLink, '_blank');
 		// If user switches focus (e.g., app opened), cancel fallback

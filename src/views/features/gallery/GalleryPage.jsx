@@ -1649,38 +1649,48 @@ const GalleryPage = () => {
 			}));
 
 			// Fetch album image count (triggers tag list update)
-			getAlbumImagesCount(galleryId);
+			await getAlbumImagesCount(galleryId);
 
-			// Fetch images for the new album immediately
-			await getGalleryImages(
-				galleryId,
-				album?._id,
-				album?.tags?.[0]?._id || '',
-				1,
-				info.limit,
-				'',
-				true,
-			);
+			// Only fetch images if album has valid tags, otherwise wait for tags to load
+			if (album?.tags && album.tags.length > 0 && album.tags[0]?._id) {
+				// Set albumTagId to trigger the useEffect mechanism
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					albumTagId: album.tags[0]._id,
+				}));
+			} else {
+				// Wait for album details to load, then set albumTagId
+				setTimeout(() => {
+					const updatedAlbums = tenantAlbums?.albums || [];
+					const currentAlbum = updatedAlbums.find((a) => a._id === album._id);
+
+					if (
+						currentAlbum?.tags &&
+						currentAlbum.tags.length > 0 &&
+						currentAlbum.tags[0]?._id
+					) {
+						setInfo((prevInfo) => ({
+							...prevInfo,
+							albumTagId: currentAlbum.tags[0]._id,
+						}));
+					}
+				}, 1000);
+			}
 		}
 		// Handle "All", "Favorites", etc. (tag/contain switch within same album)
 		else if (isContainNameChange) {
-			setInfo((prevInfo) => ({
-				...prevInfo,
-				albumContains: album?.displayName,
-				albumTagId: album?._id,
-				sortType: album?.sortType,
-			}));
-
-			// Fetch images for the new tag immediately
-			await getGalleryImages(
-				galleryId,
-				info.activeAlbumId,
-				album?._id,
-				1,
-				info.limit,
-				'',
-				true,
-			);
+			// Only update albumTagId if we have a valid tag ID
+			// This will trigger the useEffect to call handleGetGalleryImages
+			if (album?._id) {
+				setInfo((prevInfo) => ({
+					...prevInfo,
+					albumContains: album?.displayName,
+					albumTagId: album._id,
+					sortType: album?.sortType,
+				}));
+			} else {
+				console.warn('No valid tag ID provided for tag switch');
+			}
 		}
 		// Handle Client Selection Switch
 		else if (isClientSelectionChange) {
@@ -1825,8 +1835,7 @@ const GalleryPage = () => {
 		window.open(uploadUrl, '_blank');
 	};
 	const handleUploadClicked = (option = 'uploading') => {
-		const region = localStorage.getItem('region');
-		if (!info?.isDesktop && region === 'us-east-1') {
+		if (!info?.isDesktop) {
 			setInfo((prev) => ({
 				...prev,
 				desktopPopup: true,
@@ -6599,8 +6608,10 @@ const GalleryPage = () => {
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
 					galleryId={galleryId}
 					isTagDelete={false}
-					title={'Album'}
-					paragraph={'Images'}
+					title={'Delete Album'}
+					paragraph={
+						'You cannot undo this action.All your photos in this album will be lost'
+					}
 					handleDelete={handleDeleteAlbum}
 					currentTitle={info?.activeAlbum?.title}
 					isLoading={info?.albumDeleting}
@@ -6611,9 +6622,9 @@ const GalleryPage = () => {
 					open={info.deleteTagPopup}
 					closeModal={() => setInfo((prev) => ({ ...prev, deleteTagPopup: false }))}
 					galleryId={galleryId}
-					title={'Delete Tag'}
+					title={'Are you sure you want to delete this tag?'}
 					isTagDelete={true}
-					paragraph={'Are you sure you want to delete this tag?'}
+					paragraph={'You cannot undo this action.'}
 					selectedDropDownValue={info.selectedDropDownValue}
 					handleDeleteTypeChange={handleDeleteTypeChange}
 					handleDelete={() =>
@@ -6733,8 +6744,10 @@ const GalleryPage = () => {
 				<DeletePopup
 					open={info.showDeletePopup}
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeletePopup: false }))}
-					title={'Gallery'}
-					paragraph={'Albums'}
+					title={'Delete Gallery ?'}
+					paragraph={
+						'You cannot undo this action.All your albums and information will be lost.'
+					}
 					handleDelete={handleDeleteGallery}
 					currentTitle={info?.activeGallery?.title}
 				/>

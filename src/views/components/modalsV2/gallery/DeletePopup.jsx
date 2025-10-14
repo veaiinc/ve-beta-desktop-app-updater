@@ -50,7 +50,8 @@ const DeletePopup = ({
 					<>
 						{currentTitle && (
 							<div className="deletePopupParagraph">
-								Copy and paste "{currentTitle}" to Permanently Delete {title}.
+								Copy and paste <strong>"{currentTitle}"</strong> to Permanently
+								Delete.
 							</div>
 						)}
 						<input
@@ -64,18 +65,16 @@ const DeletePopup = ({
 				)}
 
 				<div className="deletePopupContent">
-					{/* <div className="deletePopupHeading">Delete {title}</div> */}
-					<div className="deletePopupParagraph">
-						You cannot undo this. All your {paragraph} and information will be lost .
-					</div>
+					<div className="deletePopupHeading">{title}</div>
+					<div className="deletePopupParagraph">{paragraph}</div>
 				</div>
 				{isTagDelete || !requireConfirm ? (
 					<div className="deletePopupButtonContainer">
 						{isTagDelete && (
 							<div className="deletePopupSelectContainer">
 								<select value={deleteType} onChange={handleDeleteTypeChange}>
-									<option value="delete_images">Delete Tag and Images </option>
 									<option value="remove_images">Delete Tag</option>
+									<option value="delete_images">Delete Tag and Images </option>
 								</select>
 							</div>
 						)}
