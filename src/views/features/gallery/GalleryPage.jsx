@@ -1649,7 +1649,7 @@ const GalleryPage = () => {
 			}));
 
 			// Fetch album image count (triggers tag list update)
-			await getAlbumImagesCount(galleryId);
+			// await getAlbumImagesCount(galleryId);
 
 			// Only fetch images if album has valid tags, otherwise wait for tags to load
 			if (album?.tags && album.tags.length > 0 && album.tags[0]?._id) {
@@ -2764,14 +2764,14 @@ const GalleryPage = () => {
 
 	// Initialize the processing flag
 
-	const handleAlbumDelete = () => {
+	const handleAlbumDelete = async () => {
 		const payload = {
 			image_ids: info?.selectedImages,
 		};
 		let updatedImages = info?.imagesList?.docs?.filter((image) => {
 			return !info?.selectedImages?.includes(image?._id);
 		});
-		deleteImages(payload, galleryId, info?.activeAlbumId);
+		const response = await deleteImages(payload, galleryId, info?.activeAlbumId);
 		setInfo((prev) => ({
 			...prev,
 			imagesList: {
@@ -2782,6 +2782,7 @@ const GalleryPage = () => {
 			selectedImages: [],
 		}));
 		showMessage('success', 'Images deleted successfully');
+		getAlbumImagesCount(galleryId);
 	};
 
 	const handleFilter = async (value) => {
@@ -3420,34 +3421,23 @@ const GalleryPage = () => {
 		const clientX = e.clientX || e.screenX;
 		const clientY = e.clientY || e.screenY;
 
-		if (clientX == null || clientY == null) return;
+		if (!clientX || !clientY) return;
 
-		// Use the rearrange container which has the actual scrollable content
 		const container = rearrangeContainerRef.current;
 
 		if (!container) return;
 
-		// Enhanced smooth scrolling parameters
-		const scrollSpeed = 25; // Increased speed for more responsive scrolling
-		const buffer = 100; // Larger buffer zone for easier triggering
-		const acceleration = 1.5; // Acceleration factor for smoother feel
+		const scrollSpeed = 20;
+		const buffer = 100;
 
 		const { top, bottom } = container.getBoundingClientRect();
-		const distanceFromTop = clientY - top;
-		const distanceFromBottom = bottom - clientY;
 
-		// Calculate dynamic scroll speed based on distance from edge
-		let dynamicScrollSpeed = scrollSpeed;
-		if (distanceFromTop < buffer) {
-			// Closer to top = faster scroll
-			const proximity = (buffer - distanceFromTop) / buffer;
-			dynamicScrollSpeed = scrollSpeed * (1 + proximity * acceleration);
-			container.scrollBy({ top: -dynamicScrollSpeed, behavior: 'auto' });
-		} else if (distanceFromBottom < buffer) {
-			// Closer to bottom = faster scroll
-			const proximity = (buffer - distanceFromBottom) / buffer;
-			dynamicScrollSpeed = scrollSpeed * (1 + proximity * acceleration);
-			container.scrollBy({ top: dynamicScrollSpeed, behavior: 'auto' });
+		if (clientY < top + buffer) {
+			// Scroll up
+			container.scrollTop -= scrollSpeed;
+		} else if (clientY > bottom - buffer) {
+			// Scroll down
+			container.scrollTop += scrollSpeed;
 		}
 
 		// Always update the drag position and calculate drop position
@@ -3764,14 +3754,15 @@ const GalleryPage = () => {
 		const scrollInterval = 16; // ~60fps for ultra-smooth scrolling
 
 		const handleMouseMove = (e) => {
-			const container = rearrangeContainerRef.current;
-			if (!container || !info.isDragging) return; // Only trigger when dragging
+			const scrollableContainer = document.getElementById('galleryScrollTarget');
+			const rearrangeContainer = rearrangeContainerRef.current;
+			if (!scrollableContainer || !rearrangeContainer || !info.isDragging) return; // Only trigger when dragging
 
 			const now = performance.now();
 			if (now - lastScrollTime < scrollInterval) return; // Throttle for smooth performance
 			lastScrollTime = now;
 
-			const { top, bottom } = container.getBoundingClientRect();
+			const { top, bottom } = rearrangeContainer.getBoundingClientRect();
 			const baseScrollAmount = 18; // Increased base speed for ultra-smooth scrolling
 			const buffer = 80; // Larger buffer zone for easier triggering
 			const maxAcceleration = 2.5; // Higher acceleration for smoother feel
@@ -3789,7 +3780,7 @@ const GalleryPage = () => {
 					const proximity = (buffer - distanceFromTop) / buffer;
 					const dynamicSpeed = baseScrollAmount * (1 + proximity * maxAcceleration);
 
-					container.scrollBy({ top: -dynamicSpeed, behavior: 'auto' });
+					scrollableContainer.scrollBy({ top: -dynamicSpeed, behavior: 'auto' });
 
 					// Continue scrolling if still in buffer zone and dragging
 					if (e.clientY < top + buffer && info.isDragging) {
@@ -3809,7 +3800,7 @@ const GalleryPage = () => {
 					const proximity = (buffer - distanceFromBottom) / buffer;
 					const dynamicSpeed = baseScrollAmount * (1 + proximity * maxAcceleration);
 
-					container.scrollBy({ top: dynamicSpeed, behavior: 'auto' });
+					scrollableContainer.scrollBy({ top: dynamicSpeed, behavior: 'auto' });
 
 					// Continue scrolling if still in buffer zone and dragging
 					if (e.clientY > bottom - buffer && info.isDragging) {
@@ -5387,7 +5378,7 @@ const GalleryPage = () => {
 										}
 										resetInfinityScroll={info?.resetInfinityScroll}
 										disableDrop={true}
-										height={'90vh'}
+										// height={'90vh'}
 										scrollableTarget="galleryScrollTarget"
 									>
 										{!info.isRearranging ? (

@@ -280,7 +280,7 @@ const AiFaceRegistration = ({ link, handlePreRegistration, preRegistration }) =>
 						<div
 							className="tableWrapper"
 							style={{
-								flex: 1,
+								// flex: 1,
 								overflowY: 'auto',
 							}}
 							id="table-scroll-container"
