@@ -367,25 +367,91 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
             
-        case "update_voice_connection_status":
-            print("🔗 AppDelegate: Updating voice connection status from Electron")
-            if let statusString = jsonObject["status"] as? String,
-               let status = VoiceConnectionStatus(rawValue: statusString) {
-                
-                // Find the appropriate view model and update status
+            case "update_voice_connection_status":
+                print("🔗 AppDelegate: Updating voice connection status from Electron")
+                if let statusString = jsonObject["status"] as? String,
+                   let status = VoiceConnectionStatus(rawValue: statusString) {
+
+                    // Find the appropriate view model and update status
+                    if Defaults[.showOnAllDisplays] {
+                        if let mainScreen = NSScreen.main,
+                           let viewModel = viewModels[mainScreen] {
+                            viewModel.updateVoiceConnectionStatus(status)
+                        }
+                    } else {
+                        vm.updateVoiceConnectionStatus(status)
+                    }
+                }
+
+            case "disconnect_voice_agent":
+                print("🔌 AppDelegate: Disconnecting voice agent from boring.notch")
+                // Find the appropriate view model and deactivate voice interface
+                if Defaults[.showOnAllDisplays] {
+                    // For all displays, deactivate on the main screen
+                    if let mainScreen = NSScreen.main,
+                       let viewModel = viewModels[mainScreen] {
+                        viewModel.deactivateVoiceInterface()
+                    }
+                } else {
+                    // For single display, use the main view model
+                    vm.deactivateVoiceInterface()
+                }
+
+            case "toggle_voice_mute":
+                print("🎤 AppDelegate: Toggling voice mute from boring.notch")
+                if let isMuted = jsonObject["isMuted"] as? Bool {
+                    // Find the appropriate view model and update mute state
+                    if Defaults[.showOnAllDisplays] {
+                        if let mainScreen = NSScreen.main,
+                           let viewModel = viewModels[mainScreen] {
+                            viewModel.isMicrophoneMuted = isMuted
+                        }
+                    } else {
+                        vm.isMicrophoneMuted = isMuted
+                    }
+                }
+
+            case "direct_voice_mute":
+                print("🎤 AppDelegate: Direct voice mute command from boring.notch")
+                if let isMuted = jsonObject["isMuted"] as? Bool {
+                    // Update local UI state
+                    if Defaults[.showOnAllDisplays] {
+                        if let mainScreen = NSScreen.main,
+                           let viewModel = viewModels[mainScreen] {
+                            viewModel.isMicrophoneMuted = isMuted
+                        }
+                    } else {
+                        vm.isMicrophoneMuted = isMuted
+                    }
+                    
+                    // Send direct command to Electron to actually control the voice agent
+                    let electronCommand = """
+                    {"type": "electron_voice_mute", "isMuted": \(isMuted), "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                    """
+                    print(electronCommand)
+                }
+
+            case "direct_voice_disconnect":
+                print("🔌 AppDelegate: Direct voice disconnect command from boring.notch")
+                // Update local UI state
                 if Defaults[.showOnAllDisplays] {
                     if let mainScreen = NSScreen.main,
                        let viewModel = viewModels[mainScreen] {
-                        viewModel.updateVoiceConnectionStatus(status)
+                        viewModel.deactivateVoiceInterface()
                     }
                 } else {
-                    vm.updateVoiceConnectionStatus(status)
+                    vm.deactivateVoiceInterface()
                 }
+                
+                // Send direct command to Electron to actually disconnect the voice agent
+                let electronCommand = """
+                {"type": "electron_voice_disconnect", "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                """
+                print(electronCommand)
+
+            default:
+                print("⚠️ AppDelegate: Unknown message type: \(messageType)")
             }
-            
-        default:
-            print("⚠️ AppDelegate: Unknown message type: \(messageType)")
-        }
     }
 
     func playWelcomeSound() {

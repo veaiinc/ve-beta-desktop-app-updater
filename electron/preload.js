@@ -496,6 +496,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		addVoiceMessage: (messageData) =>
 			ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
 		activateVoiceAgent: (data) => ipcRenderer.invoke('notchdrop-activate-voice-agent', data),
+		disconnectVoiceAgent: (data) => ipcRenderer.invoke('notchdrop-disconnect-voice-agent', data),
+		toggleVoiceMute: (isMuted) => ipcRenderer.invoke('notchdrop-toggle-voice-mute', isMuted),
 		// GENERAL PURPOSE MESSAGE SYSTEM
 		sendMessage: (messageData) => ipcRenderer.invoke('notchdrop-send-message', messageData),
 		// New NotchDropLatest APIs

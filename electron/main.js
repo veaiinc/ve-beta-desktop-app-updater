@@ -2232,6 +2232,59 @@ function createWindow(restoreState = false) {
 
 	mainWindow.setWindowButtonVisibility(false);
 
+	// Add event listeners for voice agent control from boring.notch
+	mainWindow.webContents.on('did-finish-load', () => {
+		// Inject event listeners for voice agent control
+		mainWindow.webContents.executeJavaScript(`
+			// Listen for voice agent disconnect events
+			window.addEventListener('notchdrop-disconnect-voice', (event) => {
+				console.log('🔌 Received voice disconnect event from boring.notch:', event.detail);
+				
+				// Try to find and click disconnect buttons
+				const disconnectButtons = document.querySelectorAll('.cancel-button, [class*="disconnect"], [class*="close"]');
+				if (disconnectButtons.length > 0) {
+					console.log('🔌 Found disconnect button, clicking...');
+					disconnectButtons[0].click();
+				}
+				
+				// Hide voice agent UI
+				const voiceContainers = document.querySelectorAll('.voiceContainer');
+				voiceContainers.forEach(container => {
+					container.style.display = 'none';
+				});
+				
+				// Dispatch to voice integration hooks
+				const voiceDisconnectEvent = new CustomEvent('voice-agent-disconnect', {
+					detail: { source: 'boring-notch' }
+				});
+				window.dispatchEvent(voiceDisconnectEvent);
+			});
+			
+			// Listen for voice agent mute toggle events
+			window.addEventListener('notchdrop-toggle-mute', (event) => {
+				console.log('🎤 Received voice mute toggle event from boring.notch:', event.detail);
+				
+				// Try to find and click mute buttons
+				const muteButtons = document.querySelectorAll('.mute-button, [class*="mute"]');
+				if (muteButtons.length > 0) {
+					console.log('🎤 Found mute button, clicking...');
+					muteButtons[0].click();
+				}
+				
+				// Dispatch to voice integration hooks
+				const voiceMuteEvent = new CustomEvent('voice-agent-mute-toggle', {
+					detail: { 
+						source: 'boring-notch',
+						isMuted: event.detail.isMuted
+					}
+				});
+				window.dispatchEvent(voiceMuteEvent);
+			});
+			
+			console.log('✅ Voice agent event listeners added to main window');
+		`);
+	});
+
 	// Add window resize constraint validation
 	mainWindow.on('resize', () => {
 		const bounds = mainWindow.getBounds();
@@ -5930,20 +5983,175 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 		}
 	});
 
-	// Voice agent activation handler for Ask AI
-	ipcMain.handle('notchdrop-activate-voice-agent', async (event, data) => {
-		try {
-			log.info('🎤 Activating voice agent from Ask AI');
-			if (boringNotchService) {
-				await boringNotchService.activateVoiceAgent();
-				return { success: true };
-			}
-			return { success: false, error: 'NotchDrop service not available' };
-		} catch (error) {
-			log.error('Error activating voice agent:', error);
-			return { success: false, error: error.message };
-		}
-	});
+// Voice agent activation handler for Ask AI
+ipcMain.handle('notchdrop-activate-voice-agent', async (event, data) => {
+    try {
+        log.info('🎤 Activating voice agent from Ask AI');
+        if (boringNotchService) {
+            await boringNotchService.activateVoiceAgent();
+            return { success: true };
+        }
+        return { success: false, error: 'NotchDrop service not available' };
+    } catch (error) {
+        log.error('Error activating voice agent:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// Voice agent disconnect handler
+ipcMain.handle('notchdrop-disconnect-voice-agent', async (event, data) => {
+    try {
+        log.info('🔌 Disconnecting voice agent from Ask AI');
+        if (boringNotchService) {
+            await boringNotchService.disconnectVoiceAgent();
+            return { success: true };
+        }
+        return { success: false, error: 'NotchDrop service not available' };
+    } catch (error) {
+        log.error('Error disconnecting voice agent:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// Voice agent mute toggle handler
+ipcMain.handle('notchdrop-toggle-voice-mute', async (event, isMuted) => {
+    try {
+        log.info('🎤 Toggling voice mute from Ask AI:', isMuted);
+        if (boringNotchService) {
+            await boringNotchService.toggleVoiceMute(isMuted);
+            return { success: true };
+        }
+        return { success: false, error: 'NotchDrop service not available' };
+    } catch (error) {
+        log.error('Error toggling voice mute:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// Listen for system notifications from boring.notch app
+const { Notification } = require('electron');
+
+// Handle notifications from boring.notch app
+app.on('ready', () => {
+    // Listen for system notifications
+    Notification.on('click', (notification) => {
+        if (notification.title === 'BoringNotch Voice Control') {
+            const userInfo = notification.userInfo;
+            if (userInfo && userInfo.source === 'boring-notch') {
+                handleBoringNotchNotification(userInfo);
+            }
+        }
+    });
+});
+
+// Handle boring.notch notifications
+async function handleBoringNotchNotification(userInfo) {
+    try {
+        const action = userInfo.action;
+        log.info('📱 Received boring.notch notification:', action);
+
+        switch (action) {
+            case 'disconnect_voice_agent':
+                log.info('🔌 Disconnecting voice agent from boring.notch notification');
+                // Call the actual voice agent disconnect
+                await disconnectVoiceAgentFromMainWindow();
+                break;
+                
+            case 'toggle_voice_mute':
+                const isMuted = userInfo.isMuted;
+                log.info('🎤 Toggling voice mute from boring.notch notification:', isMuted);
+                // Call the actual voice agent mute toggle
+                await toggleVoiceMuteInMainWindow(isMuted);
+                break;
+                
+            default:
+                log.warn('⚠️ Unknown boring.notch notification action:', action);
+        }
+    } catch (error) {
+        log.error('❌ Error handling boring.notch notification:', error);
+    }
+}
+
+// Disconnect voice agent from main window
+async function disconnectVoiceAgentFromMainWindow() {
+    try {
+        const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+            const title = window.getTitle();
+            return !title.includes('Overlay') && !title.includes('Dynamic Island') && !title.includes('Ask AI');
+        });
+
+        if (mainWindow) {
+            await mainWindow.webContents.executeJavaScript(`
+                // Dispatch disconnect event to trigger voice agent disconnect
+                const disconnectEvent = new CustomEvent('notchdrop-disconnect-voice', {
+                    detail: {
+                        source: 'boring-notch',
+                        timestamp: Date.now(),
+                        action: 'disconnect_voice_agent'
+                    }
+                });
+                window.dispatchEvent(disconnectEvent);
+                
+                // Also try to find and click disconnect buttons
+                const disconnectButtons = document.querySelectorAll('.cancel-button, [class*="disconnect"], [class*="close"]');
+                if (disconnectButtons.length > 0) {
+                    disconnectButtons[0].click();
+                }
+                
+                // Hide voice agent UI
+                const voiceContainers = document.querySelectorAll('.voiceContainer');
+                voiceContainers.forEach(container => {
+                    container.style.display = 'none';
+                });
+                
+                '{ "success": true, "method": "boring-notch disconnect" }';
+            `);
+            log.info('🔌 Voice agent disconnect triggered from main window');
+        } else {
+            log.warn('⚠️ Main window not found for voice agent disconnect');
+        }
+    } catch (error) {
+        log.error('❌ Error disconnecting voice agent from main window:', error);
+    }
+}
+
+// Toggle voice mute in main window
+async function toggleVoiceMuteInMainWindow(isMuted) {
+    try {
+        const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+            const title = window.getTitle();
+            return !title.includes('Overlay') && !title.includes('Dynamic Island') && !title.includes('Ask AI');
+        });
+
+        if (mainWindow) {
+            await mainWindow.webContents.executeJavaScript(`
+                // Dispatch mute toggle event
+                const muteEvent = new CustomEvent('notchdrop-toggle-mute', {
+                    detail: {
+                        source: 'boring-notch',
+                        timestamp: Date.now(),
+                        isMuted: ${isMuted},
+                        action: 'toggle_voice_mute'
+                    }
+                });
+                window.dispatchEvent(muteEvent);
+                
+                // Also try to find and click mute buttons
+                const muteButtons = document.querySelectorAll('.mute-button, [class*="mute"]');
+                if (muteButtons.length > 0) {
+                    muteButtons[0].click();
+                }
+                
+                '{ "success": true, "method": "boring-notch mute toggle" }';
+            `);
+            log.info('🎤 Voice mute toggle triggered from main window:', isMuted);
+        } else {
+            log.warn('⚠️ Main window not found for voice mute toggle');
+        }
+    } catch (error) {
+        log.error('❌ Error toggling voice mute in main window:', error);
+    }
+}
 
 	// File system APIs for audio storage
 	const fs = require('fs').promises;

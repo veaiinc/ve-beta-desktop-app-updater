@@ -205,9 +205,13 @@ class BoringNotchService {
 				this.boringNotchProcess = null;
 			});
 			
-			// Handle stdout/stderr for debugging
+			// Handle stdout/stderr for debugging and command processing
 			this.boringNotchProcess.stdout?.on('data', (data) => {
-				log.info('📱 Boring Notch stdout:', data.toString());
+				const output = data.toString().trim();
+				log.info('📱 Boring Notch stdout:', output);
+				
+				// Process direct commands from boring.notch
+				this.handleBoringNotchOutput(output);
 			});
 			
 			this.boringNotchProcess.stderr?.on('data', (data) => {
@@ -429,6 +433,180 @@ class BoringNotchService {
 		} catch (error) {
 			log.error('❌ Error adding voice message:', error);
 			return { success: false, error: error.message };
+		}
+	}
+
+	async disconnectVoiceAgent() {
+		try {
+			log.info('🔌 Disconnecting voice agent from Boring Notch service');
+
+			// Send disconnect message to boring.notch app
+			if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+				const disconnectMessage = JSON.stringify({
+					type: 'disconnect_voice_agent',
+					timestamp: Date.now(),
+					source: 'electron'
+				});
+				this.boringNotchProcess.stdin.write(disconnectMessage + '\n');
+				log.info('🔌 Voice agent disconnect message sent to boring.notch app');
+			} else {
+				log.warn('⚠️ Boring Notch stdin not available or destroyed. Cannot send disconnect message.');
+			}
+
+			// Also dispatch disconnect event to main window
+			if (this.mainWindow) {
+				const result = await this.mainWindow.webContents.executeJavaScript(`
+					window.dispatchEvent(new CustomEvent('notchdrop-disconnect-voice', {
+						detail: {
+							source: 'boring-notch',
+							timestamp: Date.now(),
+							action: 'disconnect_voice_agent'
+						}
+					}));
+					'{ "success": true, "method": "Boring Notch voice disconnect event" }';
+				`);
+				log.info('🔌 Voice disconnect event dispatched to main window:', result);
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error disconnecting voice agent in Boring Notch service:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async toggleVoiceMute(isMuted) {
+		try {
+			log.info('🎤 Toggling voice mute in Boring Notch service:', isMuted);
+
+			// Send mute toggle message to boring.notch app
+			if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+				const muteMessage = JSON.stringify({
+					type: 'toggle_voice_mute',
+					isMuted: isMuted,
+					timestamp: Date.now(),
+					source: 'electron'
+				});
+				this.boringNotchProcess.stdin.write(muteMessage + '\n');
+				log.info('🎤 Voice mute toggle message sent to boring.notch app');
+			} else {
+				log.warn('⚠️ Boring Notch stdin not available or destroyed. Cannot send mute toggle message.');
+			}
+
+			// Also dispatch mute event to main window
+			if (this.mainWindow) {
+				const result = await this.mainWindow.webContents.executeJavaScript(`
+					window.dispatchEvent(new CustomEvent('notchdrop-toggle-mute', {
+						detail: {
+							source: 'boring-notch',
+							timestamp: Date.now(),
+							isMuted: ${isMuted},
+							action: 'toggle_voice_mute'
+						}
+					}));
+					'{ "success": true, "method": "Boring Notch voice mute event" }';
+				`);
+				log.info('🎤 Voice mute event dispatched to main window:', result);
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error toggling voice mute in Boring Notch service:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Handle direct commands from boring.notch app
+	handleBoringNotchOutput(output) {
+		try {
+			// Try to parse as JSON
+			const message = JSON.parse(output);
+			
+			if (message.type === 'electron_voice_mute') {
+				log.info('🎤 Received direct voice mute command from boring.notch:', message.isMuted);
+				this.handleDirectVoiceMute(message.isMuted);
+			} else if (message.type === 'electron_voice_disconnect') {
+				log.info('🔌 Received direct voice disconnect command from boring.notch');
+				this.handleDirectVoiceDisconnect();
+			}
+		} catch (error) {
+			// Not a JSON message, just log it
+			log.info('📱 Boring Notch output (non-JSON):', output);
+		}
+	}
+
+	// Handle direct voice mute command
+	async handleDirectVoiceMute(isMuted) {
+		try {
+			log.info('🎤 Handling direct voice mute command:', isMuted);
+			
+			// Dispatch mute event to main window to control the actual voice agent
+			if (this.mainWindow) {
+				const result = await this.mainWindow.webContents.executeJavaScript(`
+					// Dispatch mute toggle event
+					const muteEvent = new CustomEvent('notchdrop-toggle-mute', {
+						detail: {
+							source: 'boring-notch-direct',
+							timestamp: Date.now(),
+							isMuted: ${isMuted},
+							action: 'direct_voice_mute'
+						}
+					});
+					window.dispatchEvent(muteEvent);
+					
+					// Also try to find and click mute buttons
+					const muteButtons = document.querySelectorAll('.mute-button, [class*="mute"]');
+					if (muteButtons.length > 0) {
+						console.log('🎤 Found mute button, clicking...');
+						muteButtons[0].click();
+					}
+					
+					'{ "success": true, "method": "direct voice mute" }';
+				`);
+				log.info('🎤 Direct voice mute event dispatched to main window:', result);
+			}
+		} catch (error) {
+			log.error('❌ Error handling direct voice mute:', error);
+		}
+	}
+
+	// Handle direct voice disconnect command
+	async handleDirectVoiceDisconnect() {
+		try {
+			log.info('🔌 Handling direct voice disconnect command');
+			
+			// Dispatch disconnect event to main window to control the actual voice agent
+			if (this.mainWindow) {
+				const result = await this.mainWindow.webContents.executeJavaScript(`
+					// Dispatch disconnect event
+					const disconnectEvent = new CustomEvent('notchdrop-disconnect-voice', {
+						detail: {
+							source: 'boring-notch-direct',
+							timestamp: Date.now(),
+							action: 'direct_voice_disconnect'
+						}
+					});
+					window.dispatchEvent(disconnectEvent);
+					
+					// Also try to find and click disconnect buttons
+					const disconnectButtons = document.querySelectorAll('.cancel-button, [class*="disconnect"], [class*="close"]');
+					if (disconnectButtons.length > 0) {
+						console.log('🔌 Found disconnect button, clicking...');
+						disconnectButtons[0].click();
+					}
+					
+					// Hide voice agent UI
+					const voiceContainers = document.querySelectorAll('.voiceContainer');
+					voiceContainers.forEach(container => {
+						container.style.display = 'none';
+					});
+					
+					'{ "success": true, "method": "direct voice disconnect" }';
+				`);
+				log.info('🔌 Direct voice disconnect event dispatched to main window:', result);
+			}
+		} catch (error) {
+			log.error('❌ Error handling direct voice disconnect:', error);
 		}
 	}
 

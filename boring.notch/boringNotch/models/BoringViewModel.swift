@@ -63,6 +63,8 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var isMicrophoneMuted: Bool = false
     @Published var voiceMessages: [VoiceMessage] = []
     @Published var isVoiceActive: Bool = false
+    @Published var aiResponseIntensity: CGFloat = 0.0 // Wave animation intensity (0.0 → 1.0)
+    @Published var effectiveAnimationIntensity: CGFloat = 0.0 // Combined AI + real-time audio intensity
     
     deinit {
         destroy()
@@ -256,15 +258,52 @@ class BoringViewModel: NSObject, ObservableObject {
         }
     }
     
-    func addVoiceMessage(_ message: VoiceMessage) {
-        DispatchQueue.main.async {
-            self.voiceMessages.append(message)
+        func addVoiceMessage(_ message: VoiceMessage) {
+            DispatchQueue.main.async {
+                self.voiceMessages.append(message)
+                
+                // Pulse wave intensity when AI responds
+                if message.isFromAgent {
+                    print("🎤 AI Response detected - triggering wave animation for: \(message.content.prefix(50))...")
+                    self.pulseAIResponseIntensity(basedOnContent: message.content)
+                }
+            }
         }
-    }
     
     func toggleVoiceMute() {
         DispatchQueue.main.async {
             self.isMicrophoneMuted.toggle()
         }
     }
+    
+        /// Pulse wave animation intensity based on AI response activity (Exact NotchDrop Implementation)
+        func pulseAIResponseIntensity(basedOnContent content: String) {
+            // Professional AI speaking intensity calculation
+            let wordCount = content.split(separator: " ").count
+            let charCount = content.count
+            
+            // Multi-factor intensity calculation for realistic speech patterns:
+            // 1. Word count factor (0.3-0.8 weight)
+            // 2. Character density factor (0.2-0.6 weight)  
+            // 3. Response complexity indicators (questions, exclamations)
+            let wordFactor = min(0.8, CGFloat(wordCount) / 60.0 + 0.2)
+            let charFactor = min(0.6, CGFloat(charCount) / 400.0 + 0.1)
+            let complexityBonus = content.contains("?") || content.contains("!") ? 0.1 : 0.0
+            
+            let targetIntensity = min(1.0, wordFactor + charFactor + complexityBonus)
+            
+            // Smooth professional animation timing
+            withAnimation(.easeOut(duration: 0.4)) {
+                self.aiResponseIntensity = targetIntensity
+            }
+            
+            // Intelligent fade-back timing based on response length
+            let fadeDelay = min(3.0, max(1.5, Double(wordCount) * 0.08)) // Longer responses = longer fade
+            DispatchQueue.main.asyncAfter(deadline: .now() + fadeDelay) {
+                withAnimation(.easeInOut(duration: 1.0)) {
+                    // Gradual decay to baseline, maintaining some activity
+                    self.aiResponseIntensity = max(0.15, self.aiResponseIntensity * 0.6)
+                }
+            }
+        }
 }
