@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import Defaults
 
 // MARK: - Date Extension
 extension Date {
@@ -16,8 +17,20 @@ extension Date {
     }
 }
 
+// MARK: - Color Constants
+extension Color {
+    static let transcriptionAccent = Color(red: 0.47, green: 0.93, blue: 0.79)
+}
+
+// MARK: - Persistent Storage Keys
+extension Defaults.Keys {
+    static let meetingTranscriptions = Key<[Transcription]>("meetingTranscriptions", default: [])
+    static let isMeetingActive = Key<Bool>("isMeetingActive", default: false)
+    static let currentMeetingId = Key<String?>("currentMeetingId", default: nil)
+}
+
 // MARK: - Transcription Data Model
-struct Transcription: Identifiable, Codable {
+struct Transcription: Identifiable, Codable, Defaults.Serializable {
     let id: String
     let text: String
     let source: String
@@ -25,7 +38,7 @@ struct Transcription: Identifiable, Codable {
     let confidence: Double?
     let words: [Word]?
     
-    struct Word: Codable {
+    struct Word: Codable, Defaults.Serializable {
         let word: String
         let start: Double
         let end: Double
@@ -58,66 +71,19 @@ struct MeetingView: View, WebSocketEventListener {
     @State private var eventHistory: [WebSocketEvent] = []
     @State private var transcriptions: [Transcription] = []
     
+    // Persistent storage for transcriptions
+    @Default(.meetingTranscriptions) private var storedTranscriptions: [Transcription]
+    @Default(.isMeetingActive) private var isMeetingActive: Bool
+    @Default(.currentMeetingId) private var currentMeetingId: String?
+    
     var body: some View {
         VStack(spacing: 12) {
             HStack(spacing: 0) {
                       // Scrollable list (takes remaining space)
-                      ScrollView {
-                          VStack(alignment: .leading, spacing: 10) {
-                              if transcriptions.isEmpty {
-                                  // Empty state
-                                  VStack(spacing: 8) {
-                                      Image(systemName: "mic.slash")
-                                          .font(.system(size: 24))
-                                          .foregroundColor(.gray)
-                                      Text("No transcriptions yet")
-                                          .font(Font.custom("General Sans Variable", size: 14))
-                                          .foregroundColor(.gray)
-                                  }
-                                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                  .padding()
-                              } else {
-                                  ForEach(transcriptions) { transcription in
-                                      VStack(alignment: .leading, spacing: 5) {
-                                          HStack(spacing: 10) {
-                                              Text(transcription.speakerName)
-                                                  .font(
-                                                      Font.custom("General Sans Variable", size: 10)
-                                                          .weight(.semibold)
-                                                  )
-                                                  .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
-                                              Divider()
-                                              HStack(spacing: 5) {
-                                                  Image(systemName: "clock")
-                                                      .font(.system(size: 10))
-                                                      .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
-                                                  
-                                                  Text(transcription.formattedTime)
-                                                      .font(
-                                                          Font.custom("General Sans Variable", size: 10)
-                                                              .weight(.semibold)
-                                                      )
-                                                      .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
-                                              }
-                                              
-                                              Spacer()
-                                          }
-                                          .padding(0)
-                                          
-                                          Text(transcription.text)
-                                              .font(
-                                                  Font.custom("General Sans Variable", size: 14)
-                                                      .weight(.medium)
-                                              )
-                                              .lineSpacing(5)
-                                              .foregroundColor(.white)
-                                              .frame(maxWidth: .infinity, alignment: .leading)
-                                      }
-                                      .frame(maxWidth: .infinity)
-                                  }
-                              }
+                      ScrollViewReader { proxy in
+                          ScrollView {
+                              transcriptionScrollContent(proxy: proxy)
                           }
-                          .padding()
                       }
                       .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -141,6 +107,12 @@ struct MeetingView: View, WebSocketEventListener {
         .onAppear {
             // Register as event listener
             webSocketManager.addEventListener(self)
+            
+            // Load stored transcriptions if meeting is active
+            if isMeetingActive {
+                transcriptions = storedTranscriptions
+                print("📝 Loaded \(storedTranscriptions.count) stored transcriptions")
+            }
         }
         .onDisappear {
             // Unregister event listener
@@ -200,13 +172,35 @@ struct MeetingView: View, WebSocketEventListener {
         // Update UI based on meeting start data
         if let meetingId = event.data["meetingId"] as? String {
             meetingData["meetingId"] = meetingId
+            currentMeetingId = meetingId
         }
+        
+        // Set meeting as active
+        isMeetingActive = true
+        
+        // Load any existing transcriptions from storage
+        transcriptions = storedTranscriptions
+        print("📝 Meeting started - loaded \(storedTranscriptions.count) stored transcriptions")
     }
     
     private func handleMeetingStopped(_ event: WebSocketEvent) {
         print("🏁 Meeting stopped with data: \(event.data)")
+        
         // Clear meeting data
         meetingData.removeAll()
+        
+        // Clear persistent storage
+        storedTranscriptions = []
+        isMeetingActive = false
+        currentMeetingId = nil
+        
+        // Clear current transcriptions
+        transcriptions = []
+        
+        print("📝 Meeting stopped - cleared all transcription data")
+        
+        // Navigate to home view (this will be handled by the coordinator)
+        navigateToHome()
     }
     
     private func handleMeetingPaused(_ event: WebSocketEvent) {
@@ -291,12 +285,18 @@ struct MeetingView: View, WebSocketEventListener {
             // Replace the entire transcriptions array
             DispatchQueue.main.async {
                 self.transcriptions = newTranscriptions
+                
+                // Persist transcriptions to storage
+                self.storedTranscriptions = newTranscriptions
+                
                 print("✅ Successfully updated BoringNotch transcriptions array with \(newTranscriptions.count) items")
                 
                 // Log first few transcriptions for debugging
                 for (index, transcription) in newTranscriptions.prefix(3).enumerated() {
                     print("📝 Transcription \(index + 1): [\(transcription.speakerName)] \(transcription.text.prefix(30))...")
                 }
+                
+                // Auto-scroll is now handled by onChange modifier
             }
         } else if let text = event.data["text"] as? String {
             // Handle single transcription update (legacy support)
@@ -394,7 +394,117 @@ struct MeetingView: View, WebSocketEventListener {
         handleTranscriptionUpdate(testEvent)
     }
     
+    // MARK: - View Helper Methods
+    
+    @ViewBuilder
+    private func transcriptionScrollContent(proxy: ScrollViewProxy) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if transcriptions.isEmpty {
+                emptyStateView
+            } else {
+                transcriptionListView
+                bottomSpacer
+            }
+        }
+        .padding()
+        .onChange(of: transcriptions.count) { _ in
+            autoScrollToBottom(proxy: proxy)
+        }
+    }
+    
+    @ViewBuilder
+    private var emptyStateView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "mic.slash")
+                .font(.system(size: 24))
+                .foregroundColor(.gray)
+            Text("No transcriptions yet")
+                .font(Font.custom("General Sans Variable", size: 14))
+                .foregroundColor(.gray)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+        .id("empty-state")
+    }
+    
+    @ViewBuilder
+    private var transcriptionListView: some View {
+        ForEach(transcriptions) { transcription in
+            transcriptionItemView(transcription)
+        }
+    }
+    
+    @ViewBuilder
+    private func transcriptionItemView(_ transcription: Transcription) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            transcriptionHeader(transcription)
+            transcriptionText(transcription)
+        }
+        .frame(maxWidth: .infinity)
+        .id(transcription.id)
+    }
+    
+    @ViewBuilder
+    private func transcriptionHeader(_ transcription: Transcription) -> some View {
+        HStack(spacing: 10) {
+            Text(transcription.speakerName)
+                .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
+                .foregroundColor(.transcriptionAccent)
+            
+            Divider()
+            
+            HStack(spacing: 5) {
+                Image(systemName: "clock")
+                    .font(.system(size: 10))
+                    .foregroundColor(.transcriptionAccent)
+                
+                Text(transcription.formattedTime)
+                    .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
+                    .foregroundColor(.transcriptionAccent)
+            }
+            
+            Spacer()
+        }
+        .padding(0)
+    }
+    
+    @ViewBuilder
+    private func transcriptionText(_ transcription: Transcription) -> some View {
+        Text(transcription.text)
+            .font(Font.custom("General Sans Variable", size: 14).weight(.medium))
+            .lineSpacing(5)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    @ViewBuilder
+    private var bottomSpacer: some View {
+        Color.clear
+            .frame(height: 1)
+            .id("bottom")
+    }
+    
+    private func autoScrollToBottom(proxy: ScrollViewProxy) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                proxy.scrollTo("bottom", anchor: UnitPoint.bottom)
+            }
+        }
+    }
+    
     // MARK: - Helper Methods
+    
+    private func navigateToHome() {
+        // This will be handled by the BoringViewCoordinator
+        // We'll emit an event or use a notification to trigger navigation
+        print("🏠 Navigating to home view after meeting stopped")
+        
+        // Post notification to coordinator
+        NotificationCenter.default.post(
+            name: NSNotification.Name("MeetingStoppedNavigateHome"),
+            object: nil
+        )
+    }
     
     private func getStatusColor() -> Color {
         switch webSocketManager.meetingStatus {

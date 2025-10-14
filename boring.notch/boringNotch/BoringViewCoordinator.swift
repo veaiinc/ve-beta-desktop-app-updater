@@ -109,6 +109,47 @@ class BoringViewCoordinator: ObservableObject {
         currentView = selectedTab
         // Restore meeting state
         restoreMeetingState()
+        
+        // Setup notification observers
+        setupNotificationObservers()
+    }
+    
+    private func setupNotificationObservers() {
+        // Listen for meeting stopped navigation
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleMeetingStoppedNavigation),
+            name: NSNotification.Name("MeetingStoppedNavigateHome"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleMeetingStoppedNavigation() {
+        print("🏠 BoringViewCoordinator: Handling meeting stopped navigation")
+        
+        // Navigate to home view
+        DispatchQueue.main.async {
+            self.currentView = .home
+        }
+        
+        // Ensure notch shrinks when not in meeting
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.shrinkNotchIfNeeded()
+        }
+    }
+    
+    private func shrinkNotchIfNeeded() {
+        // This will be handled by the BoringViewModel
+        // We can post a notification or use a delegate pattern
+        NotificationCenter.default.post(
+            name: NSNotification.Name("ShrinkNotchAfterMeeting"),
+            object: nil
+        )
+    }
+    
+    deinit {
+        // Clean up notification observers
+        NotificationCenter.default.removeObserver(self)
     }
 
     func setupWorkersNotificationObservers() {
