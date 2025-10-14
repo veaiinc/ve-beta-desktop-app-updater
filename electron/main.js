@@ -4473,7 +4473,6 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 				// Send response back to the client that sent the STOP_MEETING message
 				websocketService.sendToClient(ws, { type: 'MEETING_STOPPED', data: {} });
 				break;
-
 			default:
 				log.info('🎯 Unknown message received, skipping...');
 				break;
