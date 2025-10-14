@@ -5869,7 +5869,7 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 		try {
 			// log.info('Updating NotchDrop voice connection state:', status);
 			if (boringNotchService) {
-				await boringNotchService.updateVoiceConnectionState(status);
+				await boringNotchService.updateVoiceConnectionStatus(status);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -5926,6 +5926,21 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 			return { success: false, error: 'NotchDrop service not available' };
 		} catch (error) {
 			log.error('Error updating voice mute state:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Voice agent activation handler for Ask AI
+	ipcMain.handle('notchdrop-activate-voice-agent', async (event, data) => {
+		try {
+			log.info('🎤 Activating voice agent from Ask AI');
+			if (boringNotchService) {
+				await boringNotchService.activateVoiceAgent();
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error activating voice agent:', error);
 			return { success: false, error: error.message };
 		}
 	});

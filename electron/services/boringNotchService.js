@@ -156,23 +156,70 @@ class BoringNotchService {
 		return new Promise((resolve, reject) => {
 			log.info('🚀 Launching built Boring Notch app...');
 			
-			// Use 'open' command to launch the .app bundle
-			const launchCommand = `open "${appPath}"`;
-			
-			exec(launchCommand, (error, stdout, stderr) => {
-				if (error) {
-					log.error('❌ Failed to launch built app:', error);
-					reject(error);
-					return;
-				}
+			try {
+				// Launch the app normally using 'open' command first
+				const launchCommand = `open "${appPath}"`;
 				
-				log.info('✅ Boring Notch app launched successfully');
+				exec(launchCommand, (error, stdout, stderr) => {
+					if (error) {
+						log.error('❌ Failed to launch built app:', error);
+						reject(error);
+						return;
+					}
+					
+					log.info('✅ Boring Notch app launched successfully');
+					
+					// Wait a moment for the app to start, then try to establish stdin communication
+					setTimeout(() => {
+						this.establishStdinCommunication(appPath);
+						resolve();
+					}, 2000);
+				});
 				
-				// Store the process reference
-				this.boringNotchProcess = { type: 'built-app', path: appPath };
-				resolve();
-			});
+			} catch (error) {
+				log.error('❌ Failed to launch built app:', error);
+				reject(error);
+			}
 		});
+	}
+
+	establishStdinCommunication(appPath) {
+		try {
+			// Get the executable path inside the .app bundle
+			const executablePath = path.join(appPath, 'Contents', 'MacOS', 'boringNotch');
+			
+			// Try to spawn a separate process for stdin communication
+			this.boringNotchProcess = spawn(executablePath, [], {
+				stdio: ['pipe', 'pipe', 'pipe'], // stdin, stdout, stderr
+				detached: false
+			});
+			
+			// Handle process events
+			this.boringNotchProcess.on('error', (error) => {
+				log.error('❌ Failed to establish stdin communication:', error);
+				this.boringNotchProcess = null;
+			});
+			
+			this.boringNotchProcess.on('exit', (code, signal) => {
+				log.info('📱 Boring Notch stdin process exited with code:', code, 'signal:', signal);
+				this.boringNotchProcess = null;
+			});
+			
+			// Handle stdout/stderr for debugging
+			this.boringNotchProcess.stdout?.on('data', (data) => {
+				log.info('📱 Boring Notch stdout:', data.toString());
+			});
+			
+			this.boringNotchProcess.stderr?.on('data', (data) => {
+				log.info('📱 Boring Notch stderr:', data.toString());
+			});
+			
+			log.info('✅ Boring Notch stdin communication established');
+			
+		} catch (error) {
+			log.error('❌ Failed to establish stdin communication:', error);
+			this.boringNotchProcess = null;
+		}
 	}
 
 	async cleanup() {
@@ -327,15 +374,6 @@ class BoringNotchService {
 		return { success: true };
 	}
 
-	async updateVoiceConnectionState(status) {
-		log.info('🔗 Boring Notch voice connection state updated:', status);
-		return { success: true };
-	}
-
-	async addVoiceMessage(messageData) {
-		log.info('💬 Boring Notch voice message added:', messageData);
-		return { success: true };
-	}
 
 	async sendMessage(messageData) {
 		log.info('📤 Boring Notch general message sent:', messageData);
@@ -345,6 +383,101 @@ class BoringNotchService {
 	async updateVoiceMuteState(isMuted) {
 		log.info('🔇 Boring Notch voice mute state updated:', isMuted);
 		return { success: true };
+	}
+
+	async updateVoiceConnectionStatus(status) {
+		try {
+			log.info('🔗 Boring Notch voice connection state updated:', status);
+			
+			// Send connection status update to boring.notch app
+			if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+				const statusMessage = JSON.stringify({
+					type: 'update_voice_connection_status',
+					status: status,
+					timestamp: Date.now(),
+					source: 'electron'
+				});
+				this.boringNotchProcess.stdin.write(statusMessage + '\n');
+				log.info('🔗 Voice connection status update sent to boring.notch app:', status);
+			}
+			
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error updating voice connection status:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async addVoiceMessage(messageData) {
+		try {
+			log.info('💬 Boring Notch voice message added:', messageData);
+			
+			// Send voice message to boring.notch app
+			if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+				const messageUpdate = JSON.stringify({
+					type: 'add_voice_message',
+					content: messageData.content,
+					isFromAgent: messageData.isFromAgent,
+					timestamp: Date.now(),
+					source: 'electron'
+				});
+				this.boringNotchProcess.stdin.write(messageUpdate + '\n');
+				log.info('💬 Voice message sent to boring.notch app');
+			}
+			
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error adding voice message:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	async activateVoiceAgent() {
+		try {
+			log.info('🎤 Activating voice agent from Boring Notch service');
+			
+			// First, try to activate the voice interface in the boring.notch app
+			try {
+				// Send message to boring.notch app to show voice interface
+				if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+					const voiceActivationMessage = JSON.stringify({
+						type: 'activate_voice_interface',
+						timestamp: Date.now(),
+						source: 'electron'
+					});
+					this.boringNotchProcess.stdin.write(voiceActivationMessage + '\n');
+					log.info('🎤 Voice activation message sent to boring.notch app');
+				} else {
+					log.warn('⚠️ Boring Notch process or stdin not available:', {
+						hasProcess: !!this.boringNotchProcess,
+						hasStdin: !!(this.boringNotchProcess && this.boringNotchProcess.stdin),
+						stdinDestroyed: this.boringNotchProcess?.stdin?.destroyed
+					});
+				}
+			} catch (appError) {
+				log.warn('⚠️ Could not send message to boring.notch app:', appError.message);
+			}
+			
+			// Also dispatch voice activation event to main window for fallback
+			if (this.mainWindow) {
+				const result = await this.mainWindow.webContents.executeJavaScript(`
+					window.dispatchEvent(new CustomEvent('notchdrop-activate-voice', {
+						detail: {
+							source: 'boring-notch',
+							timestamp: Date.now(),
+							action: 'activate_livekit_voice'
+						}
+					}));
+					'{ "success": true, "method": "Boring Notch voice activation event" }';
+				`);
+				log.info('🎤 Voice activation event dispatched to main window:', result);
+			}
+			
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error activating voice agent in Boring Notch service:', error);
+			return { success: false, error: error.message };
+		}
 	}
 
 	updateStealthModeState(isEnabled) {

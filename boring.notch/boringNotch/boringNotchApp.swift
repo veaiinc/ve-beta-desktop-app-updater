@@ -279,6 +279,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Auto-connect websocket on app startup
         autoConnectWebSocketOnStartup()
+        
+        // Setup stdin message handling for Electron communication
+        setupStdinMessageHandling()
     }
     
     private func autoConnectWebSocketOnStartup() {
@@ -288,6 +291,100 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
             print("🔌 AppDelegate: Auto-connecting to websocket...")
             WebSocketManager.shared.connect()
+        }
+    }
+    
+    private func setupStdinMessageHandling() {
+        print("📡 AppDelegate: Setting up stdin message handling for Electron communication...")
+        
+        // Create a background queue for stdin reading
+        let stdinQueue = DispatchQueue(label: "stdin.reader", qos: .background)
+        
+        stdinQueue.async {
+            while let line = readLine() {
+                // Process the message on the main queue
+                DispatchQueue.main.async {
+                    self.handleStdinMessage(line)
+                }
+            }
+        }
+    }
+    
+    private func handleStdinMessage(_ message: String) {
+        print("📡 AppDelegate: Received stdin message: \(message)")
+        
+        // Try to parse as JSON
+        guard let data = message.data(using: .utf8),
+              let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let messageType = jsonObject["type"] as? String else {
+            print("⚠️ AppDelegate: Could not parse stdin message as JSON")
+            return
+        }
+        
+        switch messageType {
+        case "activate_voice_interface":
+            print("🎤 AppDelegate: Activating voice interface from Electron")
+            // Find the appropriate view model and activate voice interface
+            if Defaults[.showOnAllDisplays] {
+                // For all displays, activate on the main screen
+                if let mainScreen = NSScreen.main,
+                   let viewModel = viewModels[mainScreen] {
+                    viewModel.activateVoiceInterface()
+                }
+            } else {
+                // For single display, use the main view model
+                vm.activateVoiceInterface()
+            }
+            
+        case "deactivate_voice_interface":
+            print("🔌 AppDelegate: Deactivating voice interface from Electron")
+            // Find the appropriate view model and deactivate voice interface
+            if Defaults[.showOnAllDisplays] {
+                // For all displays, deactivate on the main screen
+                if let mainScreen = NSScreen.main,
+                   let viewModel = viewModels[mainScreen] {
+                    viewModel.deactivateVoiceInterface()
+                }
+            } else {
+                // For single display, use the main view model
+                vm.deactivateVoiceInterface()
+            }
+            
+        case "add_voice_message":
+            print("💬 AppDelegate: Adding voice message from Electron")
+            if let content = jsonObject["content"] as? String,
+               let isFromAgent = jsonObject["isFromAgent"] as? Bool {
+                let voiceMessage = VoiceMessage(content: content, isFromAgent: isFromAgent)
+                
+                // Find the appropriate view model and add message
+                if Defaults[.showOnAllDisplays] {
+                    if let mainScreen = NSScreen.main,
+                       let viewModel = viewModels[mainScreen] {
+                        viewModel.addVoiceMessage(voiceMessage)
+                    }
+                } else {
+                    vm.addVoiceMessage(voiceMessage)
+                }
+            }
+            
+        case "update_voice_connection_status":
+            print("🔗 AppDelegate: Updating voice connection status from Electron")
+            if let statusString = jsonObject["status"] as? String,
+               let status = VoiceConnectionStatus(rawValue: statusString) {
+                
+                // Find the appropriate view model and update status
+                if Defaults[.showOnAllDisplays] {
+                    if let mainScreen = NSScreen.main,
+                       let viewModel = viewModels[mainScreen] {
+                        viewModel.updateVoiceConnectionStatus(status)
+                    }
+                } else {
+                    vm.updateVoiceConnectionStatus(status)
+                }
+            }
+            
+        default:
+            print("⚠️ AppDelegate: Unknown message type: \(messageType)")
         }
     }
 

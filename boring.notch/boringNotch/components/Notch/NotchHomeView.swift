@@ -10,6 +10,110 @@ import Combine
 import Defaults
 import SwiftUI
 
+// MARK: - Voice Interface Components
+
+struct VoiceInterfaceView: View {
+    @ObservedObject var vm: BoringViewModel
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Voice controls at the top
+            VoiceTopControls(vm: vm)
+            
+            // Voice transcription area
+            VoiceTranscriptionArea(vm: vm)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+struct VoiceTopControls: View {
+    @ObservedObject var vm: BoringViewModel
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Left side: Mute/Unmute toggle
+            Button(action: {
+                print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                vm.toggleVoiceMute()
+                print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+            }) {
+                Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(vm.isMicrophoneMuted ? Color.red : Color.green)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            // Cancel/Disconnect button
+            Button(action: {
+                print("❌ Cancel button clicked")
+                vm.deactivateVoiceInterface()
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+}
+
+struct VoiceTranscriptionArea: View {
+    @ObservedObject var vm: BoringViewModel
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            if vm.voiceMessages.isEmpty {
+                // Show connection status when no messages - centered text
+                Text(vm.voiceConnectionStatus == .connected ?
+                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
+                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
+            } else {
+                // Show only the most recent message - positioned towards top
+                if let lastMessage = vm.voiceMessages.last {
+                    Text(lastMessage.content)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 20)
+                        .id(lastMessage.id)
+                }
+            }
+            
+            // Show current status only when there are no voice messages
+            if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
+                Text(vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
+    }
+}
+
 // MARK: - Music Player Components
 
 struct MusicPlayerView: View {
@@ -263,23 +367,33 @@ struct NotchHomeView: View {
     }
 
     private var mainContent: some View {
-        HStack(alignment: .top, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
-            MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
+        Group {
+            if vm.showVoiceInterface {
+                // Show voice interface when active
+                VoiceInterfaceView(vm: vm)
+                    .transition(.opacity.combined(with: .scale))
+            } else {
+                // Show normal content (music, calendar, camera)
+                HStack(alignment: .top, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
+                    MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
 
-            if Defaults[.showCalendar] {
-                CalendarView()
-                    .frame(width: shouldShowCamera ? 170 : 215)
-                    .onHover { isHovering in
-                        vm.isHoveringCalendar = isHovering
+                    if Defaults[.showCalendar] {
+                        CalendarView()
+                            .frame(width: shouldShowCamera ? 170 : 215)
+                            .onHover { isHovering in
+                                vm.isHoveringCalendar = isHovering
+                            }
+                            .environmentObject(vm)
                     }
-                    .environmentObject(vm)
-            }
 
-            if shouldShowCamera {
-                CameraPreviewView(webcamManager: webcamManager)
-                    .scaledToFit()
-                    .opacity(vm.notchState == .closed ? 0 : 1)
-                    .blur(radius: vm.notchState == .closed ? 20 : 0)
+                    if shouldShowCamera {
+                        CameraPreviewView(webcamManager: webcamManager)
+                            .scaledToFit()
+                            .opacity(vm.notchState == .closed ? 0 : 1)
+                            .blur(radius: vm.notchState == .closed ? 20 : 0)
+                    }
+                }
+                .transition(.opacity.combined(with: .scale))
             }
         }
         .transition(

@@ -10,6 +10,24 @@ import Defaults
 import SwiftUI
 import TheBoringWorkerNotifier
 
+// MARK: - Voice Interface Models
+enum VoiceConnectionStatus: String, CaseIterable {
+    case disconnected, connecting, connected, error
+}
+
+struct VoiceMessage: Identifiable, Codable {
+    let id = UUID()
+    let content: String
+    let isFromAgent: Bool
+    let timestamp: Date
+    
+    init(content: String, isFromAgent: Bool = false) {
+        self.content = content
+        self.isFromAgent = isFromAgent
+        self.timestamp = Date()
+    }
+}
+
 class BoringViewModel: NSObject, ObservableObject {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @ObservedObject var detector = FullscreenMediaDetector.shared
@@ -38,6 +56,13 @@ class BoringViewModel: NSObject, ObservableObject {
     let webcamManager = WebcamManager.shared
     @Published var isCameraExpanded: Bool = false
     @Published var isRequestingAuthorization: Bool = false
+    
+    // MARK: - Voice Interface State
+    @Published var showVoiceInterface: Bool = false
+    @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
+    @Published var isMicrophoneMuted: Bool = false
+    @Published var voiceMessages: [VoiceMessage] = []
+    @Published var isVoiceActive: Bool = false
     
     deinit {
         destroy()
@@ -200,6 +225,46 @@ class BoringViewModel: NSObject, ObservableObject {
             withAnimation(self?.animationLibrary.animation) {
                 self?.close()
             }
+        }
+    }
+    
+    // MARK: - Voice Interface Methods
+    func activateVoiceInterface() {
+        print("🎤 Activating voice interface in boring.notch")
+        DispatchQueue.main.async {
+            self.showVoiceInterface = true
+            self.voiceConnectionStatus = .connecting
+            self.isVoiceActive = true
+            self.voiceMessages.removeAll()
+        }
+    }
+    
+    func deactivateVoiceInterface() {
+        print("🔌 Deactivating voice interface in boring.notch")
+        DispatchQueue.main.async {
+            self.showVoiceInterface = false
+            self.voiceConnectionStatus = .disconnected
+            self.isVoiceActive = false
+            self.isMicrophoneMuted = false
+            self.voiceMessages.removeAll()
+        }
+    }
+    
+    func updateVoiceConnectionStatus(_ status: VoiceConnectionStatus) {
+        DispatchQueue.main.async {
+            self.voiceConnectionStatus = status
+        }
+    }
+    
+    func addVoiceMessage(_ message: VoiceMessage) {
+        DispatchQueue.main.async {
+            self.voiceMessages.append(message)
+        }
+    }
+    
+    func toggleVoiceMute() {
+        DispatchQueue.main.async {
+            self.isMicrophoneMuted.toggle()
         }
     }
 }
