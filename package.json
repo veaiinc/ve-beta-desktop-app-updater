@@ -218,17 +218,29 @@
 			"category": "public.app-category.business",
 			"type": "distribution",
 			"gatekeeperAssess": false,
+			"identity": "VE AI PRIVATE LIMITED (47J296MPWB)",
 			"entitlements": "entitlements/entitlements.mac.plist",
 			"entitlementsInherit": "entitlements/entitlements.mac.plist",
 			"hardenedRuntime": true,
-			"notarize": false,
+			"notarize": true,
 			"asar": true,
 			"asarUnpack": [
-				"resources/**",
 				"**/node_modules/sharp/**/*",
 				"**/node_modules/@img/sharp-darwin*/**/*",
 				"**/node_modules/@img/sharp-libvips-darwin*/**/*",
+				"**/node_modules/active-win/**/*",
+				"**/node_modules/electron-mac-permissions/**/*",
 				"**/Electron Framework.framework/**/*"
+			],
+			"signIgnore": [
+				"Lottie.framework",
+				"LottieUI.framework",
+				"Sparkle.framework",
+				"MediaRemoteAdapter.framework",
+				".*Lottie\\.framework.*",
+				".*LottieUI\\.framework.*",
+				".*Sparkle\\.framework.*",
+				".*MediaRemoteAdapter\\.framework.*"
 			],
 			"extraResources": [
 				{
