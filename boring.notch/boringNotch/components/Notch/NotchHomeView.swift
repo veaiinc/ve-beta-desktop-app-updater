@@ -241,7 +241,6 @@ struct MusicControlsView: View {
 struct NotchHomeView: View {
     @EnvironmentObject var vm: BoringViewModel
     @ObservedObject var webcamManager = WebcamManager.shared
-    @ObservedObject var batteryModel = BatteryStatusViewModel.shared
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     let albumArtNamespace: Namespace.ID
 
@@ -264,8 +263,6 @@ struct NotchHomeView: View {
 
     private var mainContent: some View {
         HStack(alignment: .top, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
-            MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
-
             if Defaults[.showCalendar] {
                 CalendarView()
                     .frame(width: shouldShowCamera ? 170 : 215)
@@ -274,6 +271,8 @@ struct NotchHomeView: View {
                     }
                     .environmentObject(vm)
             }
+
+            MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
 
             if shouldShowCamera {
                 CameraPreviewView(webcamManager: webcamManager)

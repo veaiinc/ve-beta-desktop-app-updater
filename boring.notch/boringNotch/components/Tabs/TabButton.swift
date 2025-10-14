@@ -16,7 +16,8 @@ struct TabButton<Content: View>: View {
     var body: some View {
         Button(action: onClick) {
             content()
-                .padding(.horizontal, 15)
+                .padding(.horizontal, 0)
+                .frame(height: 24, alignment: .center)
                 .contentShape(Capsule())
         }
         .buttonStyle(PlainButtonStyle())

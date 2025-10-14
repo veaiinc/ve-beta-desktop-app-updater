@@ -95,7 +95,11 @@ struct WheelPicker: View {
             }
             .padding(.vertical, 4)
             .padding(.horizontal, 4)
-            .background(isSelected ? Color.accentColor.opacity(0.25) : Color.clear)
+            .background(
+                isSelected
+                ? Color(.sRGB, red: 121/255, green: 236/255, blue: 201/255, opacity: 0.40)
+                : Color.clear
+            )
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())
@@ -111,7 +115,11 @@ struct WheelPicker: View {
     private func dateCircle(date: Date, isToday: Bool, isSelected: Bool) -> some View {
         ZStack {
             Circle()
-                .fill(isToday ? Color.accentColor : .clear)
+                .fill(
+                    isToday
+                    ? Color(.sRGB, red: 121/255, green: 236/255, blue: 201/255, opacity: 0.40)
+                    : .clear
+                )
                 .frame(width: 20, height: 20)
                 .overlay(
                     Circle()
@@ -173,7 +181,7 @@ struct WheelPicker: View {
 
     private func dateToString(for date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "E"
+        formatter.dateFormat = "EEEEE"
         return formatter.string(from: date)
     }
 }
@@ -189,7 +197,7 @@ struct CalendarView: View {
                 VStack(alignment: .leading) {
                     Text(selectedDate.formatted(.dateTime.month(.abbreviated)))
                         .font(.title3)
-                        .fontWeight(.semibold)
+                        .fontWeight(.regular)
                         .foregroundColor(.white)
                     Text(selectedDate.formatted(.dateTime.year()))
                         .font(.title3)
@@ -201,12 +209,12 @@ struct CalendarView: View {
                     WheelPicker(selectedDate: $selectedDate, config: Config())
                     HStack(alignment: .top) {
                         LinearGradient(
-                            colors: [Color.black, .clear], startPoint: .leading, endPoint: .trailing
+                            colors: [.clear, .clear], startPoint: .leading, endPoint: .trailing
                         )
                         .frame(width: 20)
                         Spacer()
                         LinearGradient(
-                            colors: [.clear, Color.black], startPoint: .leading, endPoint: .trailing
+                            colors: [.clear, .clear], startPoint: .leading, endPoint: .trailing
                         )
                         .frame(width: 20)
                     }

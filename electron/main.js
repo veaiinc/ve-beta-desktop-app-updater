@@ -4434,6 +4434,23 @@ app.whenReady().then(async () => {
 
 	async function handleWebSocketMessage(prop) {
 		const { data, ws } = prop;
+		if (data.type === 'START_MEETING') {
+			log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+			// Send response back to the client that sent the START_MEETING message
+			await handleNotchToMainWindowEvents({ action: 'startRecording' });
+			websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		} else if (data.type === 'NAVIGATE_TO_MAIN_SCREEN') {
+			log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
+			// Show and focus main window, optionally navigate to specific path
+			await handleNotchToMainWindowEvents({ path: data.path || null });
+			log.info('✅ Main window opened/restored from BoringNotch VE logo click');
+		}
+		// switch(data.type) {
+		// 	case 'START_MEETING':
+		// 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+		// 		// Send response back to the client that sent the START_MEETING message
+		// 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		// 		break;
 
 		switch (data.type) {
 			case 'START_MEETING':
@@ -4527,6 +4544,10 @@ app.whenReady().then(async () => {
 				// 	log.info('Main window navigated in background mode to:', data?.path);
 				// } else {
 				// Normal mode - show and focus the window
+				// Restore if minimized
+				if (mainWindow.isMinimized()) {
+					mainWindow.restore();
+				}
 				mainWindow.show();
 				mainWindow.focus();
 				mainWindow.webContents.send('notchdrop-to-main-window-event', data);
