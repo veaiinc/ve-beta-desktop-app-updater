@@ -19,13 +19,41 @@ struct MeetingView: View, WebSocketEventListener {
             HStack(spacing: 0) {
                       // Scrollable list (takes remaining space)
                       ScrollView {
-                          VStack(alignment: .leading) {
+                          VStack(alignment: .leading,spacing: 10) {
                               ForEach(1..<50) { i in
-                                  Text("Item \(i)")
-                                      .padding()
-                                      .frame(maxWidth: .infinity, alignment: .leading)
-                                      .background(Color.gray.opacity(0.2))
-                                      .cornerRadius(8)
+                                  VStack(alignment:.leading,spacing: 5){
+                                      HStack(spacing:10){
+                                          Text("User")
+                                            .font(
+                                              Font.custom("General Sans Variable", size: 10)
+                                                .weight(.semibold)
+                                            )
+                                            .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                                          Divider()
+                                          HStack(spacing:5){
+                                              Image(systemName: "clock") // ⏰
+                                                      .font(.system(size: 10)) // control size
+                                                      .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                                              
+                                              Text("0:08")
+                                                .font(
+                                                  Font.custom("General Sans Variable", size: 10)
+                                                    .weight(.semibold)
+                                                )
+                                                .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                                          }
+                                         
+                                          Spacer()
+                                      }.padding(0)
+                                      Text("Sure. I mostly use it to manage client proposals and share timelines internally. I really like the auto-fill templates, but sometimes.")
+                                        .font(
+                                          Font.custom("General Sans Variable", size: 14)
+                                            .weight(.medium)
+                                        )
+                                        .lineSpacing(5)
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                  }.frame(maxWidth: .infinity)
                               }
                           }
                           .padding()
