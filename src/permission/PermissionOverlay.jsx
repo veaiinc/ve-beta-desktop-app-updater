@@ -1,17 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Mic, Monitor, Camera, Settings, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mic, Monitor, Camera, Settings, CheckCircle, AlertCircle, Music, Calendar } from 'lucide-react';
 import './permissionOverlay.scss';
 
 const PermissionOverlay = () => {
 	const [microphonePermission, setMicrophonePermission] = useState(false);
 	const [screenPermission, setScreenPermission] = useState(false);
 	const [cameraPermission, setCameraPermission] = useState(false);
+	const [mediaPermission, setMediaPermission] = useState(false);
+	const [calendarPermission, setCalendarPermission] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentStep, setCurrentStep] = useState(1); // 1: Permissions, 2: Shortcuts, 3: AI Intelligence, 4: Super Agents, 5: Proactive AI
 	const [permissionDetails, setPermissionDetails] = useState({
 		microphone: { status: 'unknown', message: '' },
 		screen: { status: 'unknown', message: '' },
 		camera: { status: 'unknown', message: '' },
+		media: { status: 'unknown', message: '' },
+		calendar: { status: 'unknown', message: '' },
 	});
 	const [isCheckingPermissions, setIsCheckingPermissions] = useState(false);
 	const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -125,14 +129,15 @@ const PermissionOverlay = () => {
 			clearInterval(intervalRef.current);
 		}
 
+		// ⚡ PERFORMANCE FIX: Reduced permission check frequency (2s → 10s)
 		intervalRef.current = setInterval(() => {
-			// Only check if we're not already checking and it's been at least 1 second
+			// Only check if we're not already checking and it's been at least 500ms
 			const now = Date.now();
-			if (!isCheckingPermissions && now - lastPermissionCheck >= 1000) {
+			if (!isCheckingPermissions && now - lastPermissionCheck >= 500) {
 				console.log('🔄 Auto-checking permissions...');
 				checkPermissions();
 			}
-		}, 2000); // Check every 2 seconds for more responsive updates
+		}, 10000); // Check every 10 seconds (was 2s - expensive IPC calls)
 	}, [isCheckingPermissions, lastPermissionCheck]);
 
 	const stopPermissionMonitoring = useCallback(() => {
@@ -187,15 +192,43 @@ const PermissionOverlay = () => {
 				},
 			}));
 
+			// Check media permission (Photos/Media Library)
+			const mediaResult = await window.electronApi.permission.checkMediaPermission?.() || { hasPermission: false, permission: 'not-determined', message: 'Media permission check not available' };
+			console.log('🎵 Media result:', mediaResult);
+			setMediaPermission(mediaResult.hasPermission);
+			setPermissionDetails((prev) => ({
+				...prev,
+				media: {
+					status: mediaResult.permission || 'unknown',
+					message: mediaResult.message || '',
+				},
+			}));
+
+			// Check calendar permission
+			const calendarResult = await window.electronApi.permission.checkCalendarPermission?.() || { hasPermission: false, permission: 'not-determined', message: 'Calendar permission check not available' };
+			console.log('📅 Calendar result:', calendarResult);
+			setCalendarPermission(calendarResult.hasPermission);
+			setPermissionDetails((prev) => ({
+				...prev,
+				calendar: {
+					status: calendarResult.permission || 'unknown',
+					message: calendarResult.message || '',
+				},
+			}));
+
 			console.log('✅ Permission check completed:', {
 				microphone: micResult.hasPermission,
 				screen: screenResult.hasPermission,
 				camera: cameraResult.hasPermission,
+				media: mediaResult.hasPermission,
+				calendar: calendarResult.hasPermission,
 				platform: finalIsMac ? 'macOS' : 'Windows/Linux',
 				details: {
 					microphone: micResult,
 					screen: screenResult,
 					camera: cameraResult,
+					media: mediaResult,
+					calendar: calendarResult,
 				},
 			});
 
@@ -240,67 +273,54 @@ const PermissionOverlay = () => {
 
 	// Improved permission action handlers
 	const handleMicrophoneAction = async () => {
-		try {
-			console.log('🎤 Requesting microphone permission...');
+	try {
+		console.log('🎤 Opening microphone settings...');
 
-			// First, try to request the permission from macOS
-			const requestResult = await window.electronApi.permission.requestMicrophonePermission();
-			console.log('🎤 Microphone permission request result:', requestResult);
+		// Open microphone settings directly
+		const result = await window.electronApi.openMicrophoneSettings();
+		if (result && result.success) {
+			console.log('✅ Microphone settings opened successfully');
+			setPermissionRequestMessage(
+				'📋 Microphone settings opened. Please enable "Ve.AI" in Privacy & Security > Microphone, then return here.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
 
-			if (requestResult.success && requestResult.granted) {
-				console.log('✅ Microphone permission granted!');
-				setPermissionRequestMessage('🎉 Microphone permission granted!');
-				setTimeout(() => setPermissionRequestMessage(''), 3000);
-				// Re-check permissions immediately
+			// Start aggressive permission monitoring after opening settings
+			console.log('🔄 Starting aggressive permission monitoring for microphone...');
+			stopPermissionMonitoring(); // Stop existing monitoring
+			startPermissionMonitoring(); // Restart with fresh interval
+			
+			// Also do immediate re-checks
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening microphone settings (1s)...');
 				checkPermissions();
-			} else if (requestResult.success && !requestResult.granted) {
-				console.log('❌ Microphone permission denied by user');
-				setPermissionRequestMessage(
-					'❌ Microphone permission denied. Please enable it manually in System Settings.',
-				);
-				setTimeout(() => setPermissionRequestMessage(''), 5000);
-				// Still re-check to update the UI
+			}, 1000);
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening microphone settings (3s)...');
 				checkPermissions();
-			} else {
-				console.log('⚠️ Permission request failed, opening system settings...');
-				// Fallback: open system settings
-				const result = await window.electronApi.openMicrophoneSettings();
-				if (result.success) {
-					console.log('✅ Microphone settings opened successfully');
-					// Start more frequent checking after opening settings
-					setTimeout(() => {
-						console.log(
-							'🔄 Re-checking permissions after opening microphone settings...',
-						);
-						checkPermissions();
-					}, 1000);
-				} else {
-					console.error('❌ Failed to open microphone settings:', result.error);
-				}
-			}
-		} catch (error) {
-			console.error('❌ Error requesting microphone permission:', error);
-			// Fallback: try to open system settings
-			try {
-				const result = await window.electronApi.openMicrophoneSettings();
-				if (result.success) {
-					console.log('✅ Microphone settings opened as fallback');
-					setTimeout(() => {
-						checkPermissions();
-					}, 1000);
-				}
-			} catch (fallbackError) {
-				console.error('❌ Fallback also failed:', fallbackError);
-			}
+			}, 3000);
+		} else {
+			console.error('❌ Failed to open microphone settings:', result?.error);
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Microphone.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
 		}
+	} catch (error) {
+		console.error('❌ Error opening microphone settings:', error);
+		setPermissionRequestMessage(
+			'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Microphone.',
+		);
+		setTimeout(() => setPermissionRequestMessage(''), 8000);
+	}
 	};
 
 	const handleScreenAction = async () => {
 		try {
 			console.log('🖥️ Opening screen recording settings...');
 
-			// Directly open system settings for screen recording
-			const result = await window.electronApi.openScreenSettings();
+		// Directly open system settings for screen recording
+		const result = await window.electronApi.openScreenRecordingSettings();
 			if (result.success) {
 				console.log('✅ Screen recording settings opened successfully');
 				setPermissionRequestMessage(
@@ -308,11 +328,20 @@ const PermissionOverlay = () => {
 				);
 				setTimeout(() => setPermissionRequestMessage(''), 8000);
 
-				// Start checking for permission updates after opening settings
+				// Start aggressive permission monitoring after opening settings
+				console.log('🔄 Starting aggressive permission monitoring for screen recording...');
+				stopPermissionMonitoring(); // Stop existing monitoring
+				startPermissionMonitoring(); // Restart with fresh interval
+				
+				// Also do immediate re-checks
 				setTimeout(() => {
-					console.log('🔄 Re-checking permissions after opening screen settings...');
+					console.log('🔄 Re-checking permissions after opening screen settings (1s)...');
 					checkPermissions();
-				}, 2000);
+				}, 1000);
+				setTimeout(() => {
+					console.log('🔄 Re-checking permissions after opening screen settings (3s)...');
+					checkPermissions();
+				}, 3000);
 			} else {
 				console.error('❌ Failed to open screen recording settings:', result.error);
 				setPermissionRequestMessage(
@@ -331,53 +360,131 @@ const PermissionOverlay = () => {
 
 	const handleCameraAction = async () => {
 		try {
-			console.log('📷 Requesting camera permission...');
+			console.log('📷 Opening camera settings...');
 
-			// First, try to request the permission from macOS
-			const requestResult = await window.electronApi.permission.requestCameraPermission();
-			console.log('📷 Camera permission request result:', requestResult);
-
-			if (requestResult.success && requestResult.granted) {
-				console.log('✅ Camera permission granted!');
-				// Re-check permissions immediately
-				checkPermissions();
-			} else if (requestResult.success && !requestResult.granted) {
-				console.log('❌ Camera permission denied by user');
+			// Open camera settings directly
+			const result = await window.electronApi.openCameraSettings();
+			if (result && result.success) {
+				console.log('✅ Camera settings opened successfully');
 				setPermissionRequestMessage(
-					'❌ Camera permission denied. Please enable it manually in System Settings.',
+					'📋 Camera settings opened. Please enable "Ve.AI" in Privacy & Security > Camera, then return here.',
 				);
-				setTimeout(() => setPermissionRequestMessage(''), 5000);
-				// Still re-check to update the UI
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+
+			// Start aggressive permission monitoring after opening settings
+			console.log('🔄 Starting aggressive permission monitoring for camera...');
+			stopPermissionMonitoring(); // Stop existing monitoring
+			startPermissionMonitoring(); // Restart with fresh interval
+			
+			// Also do immediate re-checks
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening camera settings (1s)...');
 				checkPermissions();
+			}, 1000);
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening camera settings (3s)...');
+				checkPermissions();
+			}, 3000);
 			} else {
-				console.log('⚠️ Permission request failed, opening system settings...');
-				// Fallback: open system settings
-				const result = await window.electronApi.openCameraSettings();
-				if (result.success) {
-					console.log('✅ Camera settings opened successfully');
-					// Start more frequent checking after opening settings
-					setTimeout(() => {
-						console.log('🔄 Re-checking permissions after opening camera settings...');
-						checkPermissions();
-					}, 1000);
-				} else {
-					console.error('❌ Failed to open camera settings:', result.error);
-				}
+				console.error('❌ Failed to open camera settings:', result?.error);
+				setPermissionRequestMessage(
+					'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Camera.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
 			}
 		} catch (error) {
-			console.error('❌ Error requesting camera permission:', error);
-			// Fallback: try to open system settings
-			try {
-				const result = await window.electronApi.openCameraSettings();
-				if (result.success) {
-					console.log('✅ Camera settings opened as fallback');
-					setTimeout(() => {
-						checkPermissions();
-					}, 1000);
-				}
-			} catch (fallbackError) {
-				console.error('❌ Fallback also failed:', fallbackError);
+			console.error('❌ Error opening camera settings:', error);
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Camera.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
+		}
+	};
+
+	const handleMediaAction = async () => {
+		try {
+			console.log('🎵 Opening media library settings...');
+
+			// Open specific media library settings using the new API
+			const result = await window.electronApi.openMediaSettings();
+			if (result && result.success) {
+				console.log('✅ Media library settings opened successfully');
+				const settingsName = result.method === 'Privacy_Media' ? 'Media Library' : 'Photos';
+				setPermissionRequestMessage(
+					`📋 ${settingsName} settings opened. Please enable "Ve.AI" in Privacy & Security > ${settingsName}, then return here.`,
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+
+			// Start aggressive permission monitoring after opening settings
+			console.log('🔄 Starting aggressive permission monitoring for media...');
+			stopPermissionMonitoring(); // Stop existing monitoring
+			startPermissionMonitoring(); // Restart with fresh interval
+			
+			// Also do immediate re-checks
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening media settings (1s)...');
+				checkPermissions();
+			}, 1000);
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening media settings (3s)...');
+				checkPermissions();
+			}, 3000);
+			} else {
+				console.error('❌ Failed to open media library settings:', result?.error);
+				setPermissionRequestMessage(
+					'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Photos.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
 			}
+		} catch (error) {
+			console.error('❌ Error opening media library settings:', error);
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Photos.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
+		}
+	};
+
+	const handleCalendarAction = async () => {
+		try {
+			console.log('📅 Opening calendar settings...');
+
+			// Open specific calendar settings using the new API
+			const result = await window.electronApi.openCalendarSettings();
+			if (result && result.success) {
+				console.log('✅ Calendar settings opened successfully');
+				setPermissionRequestMessage(
+					'📋 Calendar settings opened. Please enable "Ve.AI" in Privacy & Security > Calendars, then return here.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+
+			// Start aggressive permission monitoring after opening settings
+			console.log('🔄 Starting aggressive permission monitoring for calendar...');
+			stopPermissionMonitoring(); // Stop existing monitoring
+			startPermissionMonitoring(); // Restart with fresh interval
+			
+			// Also do immediate re-checks
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening calendar settings (1s)...');
+				checkPermissions();
+			}, 1000);
+			setTimeout(() => {
+				console.log('🔄 Re-checking permissions after opening calendar settings (3s)...');
+				checkPermissions();
+			}, 3000);
+			} else {
+				console.error('❌ Failed to open calendar settings:', result?.error);
+				setPermissionRequestMessage(
+					'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Calendars.',
+				);
+				setTimeout(() => setPermissionRequestMessage(''), 8000);
+			}
+		} catch (error) {
+			console.error('❌ Error opening calendar settings:', error);
+			setPermissionRequestMessage(
+				'❌ Unable to open settings. Please manually go to System Settings > Privacy & Security > Calendars.',
+			);
+			setTimeout(() => setPermissionRequestMessage(''), 8000);
 		}
 	};
 
@@ -403,11 +510,23 @@ const PermissionOverlay = () => {
 		setCurrentStep(currentStep - 1);
 	};
 
-	const handleFinish = () => {
-		// Close the permission overlay regardless of screen recording permission
-		// Screen recording is optional, only mic and camera are required
+	const handleFinish = async () => {
 		console.log('🎉 Setup completed! Closing permission overlay...');
-		window.electronApi.permission.closeWindow();
+		
+		try {
+			const result = await window.electronApi.permission.closeWindow();
+			console.log('✅ Close window result:', result);
+			
+			if (result && result.success && result.onboardingMarked) {
+				console.log('✅✅✅ SUCCESS! Onboarding marked as completed - overlay will NEVER show again!');
+			} else if (result && result.success) {
+				console.log('⚠️ Window closed but onboarding may not have been marked');
+			} else {
+				console.error('❌ Failed to close window:', result);
+			}
+		} catch (error) {
+			console.error('❌ Error closing permission overlay:', error);
+		}
 	};
 
 	const openDevTools = () => {
@@ -751,7 +870,7 @@ const PermissionOverlay = () => {
 						<div className="success-message">
 							<CheckCircle stroke="#79ECC9" size={20} />
 							<p className="success-text">
-								Essential permissions granted! Ready to proceed.
+							Essential  permissions granted (Mic, Cam, Calendar)! Ready to proceed.
 							</p>
 						</div>
 					)}
@@ -816,6 +935,112 @@ const PermissionOverlay = () => {
 							</div>
 						</div>
 
+							{/* Camera Permission */}
+							<div className="permission-item">
+							<div className="permission-info">
+								<div className="permission-icon">
+									<Camera size={20} />
+								</div>
+								<div className="permission-details">
+									<h3 className="permission-title">Camera</h3>
+									<p className="permission-description">
+										Allow Ve to access your camera
+									</p>
+									<div className="permission-status">
+										{/* <span
+											className={`status-badge ${getPermissionStatusClass(
+												permissionDetails.camera.status,
+											)}`}
+										>
+											{getPermissionStatusText(
+												permissionDetails.camera.status,
+											)}
+										</span> */}
+										{permissionDetails.camera.message && (
+											<span className="status-message">
+												{permissionDetails.camera.message}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+							<div className="permission-action">
+								<button
+									className={getActionButtonClass(
+										cameraPermission,
+										permissionDetails.camera.status,
+									)}
+									onClick={handleCameraAction}
+									disabled={cameraPermission || isCheckingPermissions}
+								>
+									{cameraPermission ? (
+										<>
+											<CheckCircle stroke="#79ECC9" size={16} />
+											{/* <span>Granted</span> */}
+										</>
+									) : (
+										<>
+											<Settings size={16} />
+											<span>
+												{getActionButtonText(
+													cameraPermission,
+													permissionDetails.camera.status,
+												)}
+											</span>
+										</>
+									)}
+								</button>
+							</div>
+						</div>
+							{/* Calendar Permission */}
+						<div className="permission-item">
+							<div className="permission-info">
+								<div className="permission-icon">
+									<Calendar size={20} />
+								</div>
+								<div className="permission-details">
+									<h3 className="permission-title">Calendar</h3>
+									<p className="permission-description">
+										Allow Ve to access your calendar events
+									</p>
+									<div className="permission-status">
+										{permissionDetails.calendar.message && (
+											<span className="status-message">
+												{permissionDetails.calendar.message}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+							<div className="permission-action">
+								<button
+									className={getActionButtonClass(
+										calendarPermission,
+										permissionDetails.calendar.status,
+									)}
+									onClick={handleCalendarAction}
+									disabled={calendarPermission || isCheckingPermissions}
+								>
+									{calendarPermission ? (
+										<>
+											<CheckCircle stroke="#79ECC9" size={16} />
+										</>
+									) : (
+										<>
+											<Settings size={16} />
+											<span>
+												{getActionButtonText(
+													calendarPermission,
+													permissionDetails.calendar.status,
+												)}
+											</span>
+										</>
+									)}
+								</button>
+							</div>
+						</div>
+
+
 						{/* Screen Sharing Permission */}
 						{finalIsMac && (
 							<div className="permission-item">
@@ -876,30 +1101,22 @@ const PermissionOverlay = () => {
 							</div>
 						)}
 
-						{/* Camera Permission */}
+					
+						{/* Media Permission */}
 						<div className="permission-item">
 							<div className="permission-info">
 								<div className="permission-icon">
-									<Camera size={20} />
+									<Music size={20} />
 								</div>
 								<div className="permission-details">
-									<h3 className="permission-title">Camera</h3>
+									<h3 className="permission-title">Media Library</h3>
 									<p className="permission-description">
-										Allow Ve to access your camera
+										Allow Ve to access your  media
 									</p>
 									<div className="permission-status">
-										{/* <span
-											className={`status-badge ${getPermissionStatusClass(
-												permissionDetails.camera.status,
-											)}`}
-										>
-											{getPermissionStatusText(
-												permissionDetails.camera.status,
-											)}
-										</span> */}
-										{permissionDetails.camera.message && (
+										{permissionDetails.media.message && (
 											<span className="status-message">
-												{permissionDetails.camera.message}
+												{permissionDetails.media.message}
 											</span>
 										)}
 									</div>
@@ -908,24 +1125,23 @@ const PermissionOverlay = () => {
 							<div className="permission-action">
 								<button
 									className={getActionButtonClass(
-										cameraPermission,
-										permissionDetails.camera.status,
+										mediaPermission,
+										permissionDetails.media.status,
 									)}
-									onClick={handleCameraAction}
-									disabled={cameraPermission || isCheckingPermissions}
+									onClick={handleMediaAction}
+									disabled={mediaPermission || isCheckingPermissions}
 								>
-									{cameraPermission ? (
+									{mediaPermission ? (
 										<>
 											<CheckCircle stroke="#79ECC9" size={16} />
-											{/* <span>Granted</span> */}
 										</>
 									) : (
 										<>
 											<Settings size={16} />
 											<span>
 												{getActionButtonText(
-													cameraPermission,
-													permissionDetails.camera.status,
+													mediaPermission,
+													permissionDetails.media.status,
 												)}
 											</span>
 										</>
@@ -933,6 +1149,8 @@ const PermissionOverlay = () => {
 								</button>
 							</div>
 						</div>
+
+					
 					</div>
 					{/* Navigation */}
 					<div className="navigation-buttons">

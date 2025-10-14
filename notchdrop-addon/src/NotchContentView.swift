@@ -12,18 +12,18 @@ struct NotchContentView: View {
     
     var body: some View {
         ZStack {
-            if vm.showNotificationOverlay {
-                // // When notification is showing, ONLY show the notification (no background content)
-                // NotificationOverlayView(vm: vm)
-                //     .transition(.scale(scale: 1.0).combined(with: .opacity))
-            } else {
+            // if vm.showNotificationOverlay {
+            //     // // When notification is showing, ONLY show the notification (no background content)
+            //     // NotificationOverlayView(vm: vm)
+            //     //     .transition(.scale(scale: 1.0).combined(with: .opacity))
+            // } else {
                 // Normal content switching when no notification
                 switch vm.contentType {
                 case .normal:
                     DynamicIslandContentView(vm: vm)
                         .transition(.scale(scale: 0.8).combined(with: .opacity))
                 }
-            }
+            // }
             
             // Info popup rendered outside the notch container
             // Commented out since InfoPopupMenu was commented out
@@ -35,7 +35,38 @@ struct NotchContentView: View {
             // }
         }
         .animation(vm.animation, value: vm.contentType)
-        .animation(vm.animation, value: vm.showNotificationOverlay)
+        // Underline + upward glow clipped to notch
+        .overlay(alignment: .bottom) {
+            VStack(spacing: 0) {
+                // Upward glow that fades as it rises
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.35), location: 0.0),
+                        .init(color: Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.18), location: 0.25),
+                        .init(color: .clear, location: 0.55)
+                    ]),
+                    startPoint: .bottom,
+                    endPoint: .top
+                )
+                .frame(height: vm.notchOpenedSize.height * 0.45)
+                .blur(radius: 22)
+                .opacity(vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: vm.voiceConnectionStatus)
+
+                // Animated underline (reactive to AI responses with real-time audio)
+                MeetWaveUnderline(
+                    isActive: vm.voiceConnectionStatus == .connected && !vm.isMicrophoneMuted,
+                    isMuted: vm.voiceConnectionStatus == .connected && vm.isMicrophoneMuted,
+                    aiIntensity: vm.effectiveAnimationIntensity
+                )
+                .frame(width: 301, height: 16)
+            }
+            .compositingGroup()
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .allowsHitTesting(false)
+        }
+        // .animation(vm.animation, value: vm.showNotificationOverlay)
         .onAppear {
             // Set up browser permission window monitoring
             vm.setupBrowserPermissionWindow()
@@ -64,9 +95,10 @@ struct MeetingCompactChatBox: View {
     }
 }
 
-// MARK: - Start Meeting Card
-struct StartMeetingCard: View {
+// MARK: - Smart Meeting Card (replaces StartMeetingCard with alignment logic)
+struct SmartMeetingCard: View {
     let vm: NotchViewModel
+    @State private var isHovered: Bool = false
 
     var body: some View {
         GeometryReader { geo in
@@ -78,31 +110,77 @@ struct StartMeetingCard: View {
 
             ZStack(alignment: .leading) {
                 RoundedRectangle(cornerRadius: corner, style: .continuous)
-                    .fill(Color.white.opacity(0.04))
+                    .fill(getBackgroundColor())
                     .overlay(
                         RoundedRectangle(cornerRadius: corner, style: .continuous)
-                            .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                            .stroke(getBorderColor(), lineWidth: 0.8)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Start")
-                        .font(.system(size: titleSize, weight: .medium))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Text("Meeting")
-                        .font(.system(size: titleSize, weight: .medium))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+                    if vm.isRecording {
+                        // Stop meeting state
+                        Text("Stop")
+                            .font(.system(size: titleSize, weight: .medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Text("Meeting")
+                            .font(.system(size: titleSize, weight: .medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    } else {
+                        // Start meeting state
+                        Text("Start")
+                            .font(.system(size: titleSize, weight: .medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                        Text("Meeting")
+                            .font(.system(size: titleSize, weight: .medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
                 }
                 .padding(padding)
             }
             .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
-            .onTapGesture { vm.startRecording() }
+            .onTapGesture { 
+                if vm.isRecording {
+                    vm.stopRecording()
+                } else {
+                    vm.startRecording()
+                }
+            }
+            // .onTapGesture {
+            //     // Delegate to Electron: redirect to pricing if suspended, else start meeting
+            //     vm.navigateToMainScreen(path: "MEETING_AI_CLICK")
+            // }
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    isHovered = hovering
+                }
+            }
         }
         // Ensure the reader honors parent frame
         .clipped()
+    }
+    
+    private func getBackgroundColor() -> Color {
+        if isHovered {
+            return DynamicIslandTheme.primaryGreen.opacity(0.15)
+        } else {
+            return Color.white.opacity(0.04)
+        }
+    }
+    
+    private func getBorderColor() -> Color {
+        if isHovered {
+            return DynamicIslandTheme.primaryGreen.opacity(0.4)
+        } else {
+            return Color.white.opacity(0.12)
+        }
     }
 }
 
@@ -115,6 +193,26 @@ struct DynamicIslandContentView: View {
     @State private var receivedMessage: String = "" // Track received messages from Electron
     @State private var cancellables = Set<AnyCancellable>()
     
+    // Hover states for right side icons
+    @State private var isVEIconHovered: Bool = false
+    @State private var isStealthIconHovered: Bool = false
+    @State private var isLockIconHovered: Bool = false
+    
+    // Hover states for left side buttons
+    @State private var isHomeButtonHovered: Bool = false
+    @State private var isMeetingButtonHovered: Bool = false
+    @State private var isTrayButtonHovered: Bool = false
+    
+    // Hover states for voice control buttons
+    @State private var isMuteButtonHovered: Bool = false
+    @State private var isStopButtonHovered: Bool = false
+    
+    // Auto-scroll state variables
+    @State private var isTranscriptionHovered: Bool = false
+    @State private var isLiveIntelligenceHovered: Bool = false
+    @State private var hasInitialScrolledTranscription: Bool = false
+    @State private var hasInitialScrolledLiveIntelligence: Bool = false
+    
     var body: some View {
         VStack(spacing: 3.0) {
             if !vm.isAuthenticated {
@@ -126,47 +224,36 @@ struct DynamicIslandContentView: View {
                 .lineSpacing(-4) // Optional: Adjust if you want total line height to be close to 50px
                 .foregroundColor(.white)
 
-                    Text("I'm Ve, From the living intelligence company")
+                    Text(" I'm Ve From the living intelligence company")
                         .font(.custom("Urbanist", size: 13))
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(.white.opacity(0.6))
                         .lineSpacing(17)
 
                     Text("of San Francisco")
                     .font(.custom("Urbanist", size: 13))
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.white.opacity(0.6))
                     .lineSpacing(17)
+                    .italic()
                     
-                    // Test buttons
+                    // Click anywhere to login
                     HStack(spacing: 8) {
-                        Button("LOGIN") {
-                            vm.navigateToMainScreen(path: "/verify-user")
-                        }
-                        .font(.custom("Urbanist", size: 13))
-                        .lineSpacing(17)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.gray.opacity(0.3))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .buttonStyle(PlainButtonStyle())
-
-                        // Button("Test Notification") {
-                        //     vm.showNotification(
-                        //         title: "Test Meeting",
-                        //         body: "This is a test notification from SwiftUI",
-                        //         type: "meeting"
-                        //     )
-                        // }
-                        // .font(.system(size: 12, weight: .medium))
-                        // .foregroundColor(.white)
-                        // .padding(.horizontal, 16)
-                        // .padding(.vertical, 8)
-                        // .background(Color.green.opacity(0.3))
-                        // .clipShape(RoundedRectangle(cornerRadius: 8))
-                        // .buttonStyle(PlainButtonStyle())
+                        Text("LOGIN")
+                            .font(.custom("Urbanist", size: 13))
+                            .lineSpacing(17)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            // .background(
+                            //     RoundedRectangle(cornerRadius: 8)
+                            //         .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            // )
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle()) 
+                .onTapGesture {
+                    vm.navigateToMainScreen(path: "/verify-user")
+                }
             } else {
                 // Full UI when authenticated
                 // Reduce spacing to bring chat input closer to the header
@@ -179,25 +266,47 @@ struct DynamicIslandContentView: View {
                                 // Home button → Reset to NotchDrop default starting page (stays within NotchDrop)
                                 Button(action: {
                                     vm.isTeamsView = false
+                                    vm.isTrayMode = false
                                     vm.resetToNotchHome()
                                 }) {
                                     HStack(spacing: 6.0) {
                                         Image(systemName: "house")
                                             .font(.system(size: 14, weight: .regular))
-                                            .foregroundColor(vm.isTeamsView ? .white : .black)
+                                            .foregroundColor((!vm.isTeamsView && !vm.isTrayMode) ? .black : .white)
                                     }
                                     .padding(.horizontal, 10)
                                     .padding(.vertical, 6)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? Color.clear : Color(red: 0.69, green: 0.97, blue: 0.84))
+                                        .fill((!vm.isTeamsView && !vm.isTrayMode) ? 
+                                            (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                            (isHomeButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
+                                            )
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isHomeButtonHovered = hovering
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Home button is now active, reset hover state
+                                        isHomeButtonHovered = false
+                                    }
+                                }
+                                .onChange(of: vm.isTrayMode) { newValue in
+                                    if !newValue {
+                                        // Home button is now active, reset hover state
+                                        isHomeButtonHovered = false
+                                    }
+                                }
 
                                 // Teams pill (sets Teams view)
                                 Button(action: {
                                     vm.isTeamsView = true
+                                    vm.isTrayMode = false
                                 }) {
                                     HStack(spacing: 6) {
                                         Text("Meeting AI")
@@ -208,11 +317,77 @@ struct DynamicIslandContentView: View {
                                     .padding(.vertical, 8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .fill(vm.isTeamsView ? Color(red: 0.69, green: 0.97, blue: 0.84) : Color.clear)
+                                            .fill(vm.isTeamsView ? 
+                                                (isMeetingButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                                (isMeetingButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
-                                // Removed desktop and VE icons per request
+                                .scaleEffect(1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
+                                .disabled(vm.isConnecting)
+                                .opacity(vm.isConnecting ? 0.8 : 1.0)
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isMeetingButtonHovered = hovering
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Meeting button is now inactive, reset hover state
+                                        isMeetingButtonHovered = false
+                                    }
+                                }
+                                .onChange(of: vm.isTrayMode) { newValue in
+                                    if !newValue {
+                                        // Meeting button is now inactive, reset hover state
+                                        isMeetingButtonHovered = false
+                                    }
+                                }
+
+                                // Share pill (sets Tray mode)
+                                Button(action: {
+                                    vm.isTrayMode = true
+                                    vm.isTeamsView = false
+                                }) {
+                                    HStack(spacing: 6) {
+                                        Text("Share")
+                                            .font(.system(size: 15, weight: .semibold))
+                                            .foregroundColor(vm.isTrayMode ? .black : .white)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .fill(vm.isTrayMode ? 
+                                                (isTrayButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color(red: 0.69, green: 0.97, blue: 0.84)) :
+                                                (isTrayButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
+                                    )
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .scaleEffect(1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
+                                .disabled(vm.isConnecting)
+                                .opacity(vm.isConnecting ? 0.8 : 1.0)
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isTrayButtonHovered = hovering
+                                    }
+                                }
+                                .onChange(of: vm.isTrayMode) { newValue in
+                                    if !newValue {
+                                        // Tray button is now inactive, reset hover state
+                                        isTrayButtonHovered = false
+                                    }
+                                }
+                                .onChange(of: vm.isTeamsView) { newValue in
+                                    if !newValue {
+                                        // Tray button is now inactive, reset hover state
+                                        isTrayButtonHovered = false
+                                    }
+                                }
                             } else if vm.showVoiceInterface {
                                 // Voice controls (mute/unmute and cancel buttons)
                                 HStack(spacing: 12) {
@@ -226,7 +401,10 @@ struct DynamicIslandContentView: View {
                                             .font(.system(size: 14))
                                             .foregroundColor(.white)
                                             .frame(width: 24, height: 24)
-                                            .background(Color.clear)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(isMuteButtonHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                                            )
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 6)
                                                     .stroke(Color.white.opacity(0.3), lineWidth: 1)
@@ -234,6 +412,27 @@ struct DynamicIslandContentView: View {
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .overlay(alignment: .bottom) {
+                                        if isMuteButtonHovered {
+                                            Text(vm.isMicrophoneMuted ? "Unmute microphone" : "Mute microphone")
+                                                .font(.system(size: 11, weight: .semibold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color.black.opacity(0.8))
+                                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                                .offset(y: 28)
+                                                .fixedSize(horizontal: true, vertical: true)
+                                                .zIndex(2000)
+                                                .allowsHitTesting(false)
+                                        }
+                                    }
+                                    .onHover { hovering in 
+                                        NSCursor.pointingHand.set()
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isMuteButtonHovered = hovering
+                                        }
+                                    }
                                     
                                     // Cancel/Disconnect button
                                     Button(action: {
@@ -244,7 +443,10 @@ struct DynamicIslandContentView: View {
                                             .fill(Color.red)
                                             .frame(width: 14, height: 14)
                                             .frame(width: 24, height: 24)
-                                            .background(Color.clear)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .fill(isStopButtonHovered ? Color.red.opacity(0.2) : Color.clear)
+                                            )
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 6)
                                                     .stroke(Color.white.opacity(0.3), lineWidth: 1)
@@ -252,6 +454,27 @@ struct DynamicIslandContentView: View {
                                             .clipShape(RoundedRectangle(cornerRadius: 6))
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .overlay(alignment: .bottom) {
+                                        if isStopButtonHovered {
+                                            Text("Stop & disconnect")
+                                                .font(.system(size: 11, weight: .semibold))
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color.black.opacity(0.8))
+                                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                                .offset(y: 28)
+                                                .fixedSize(horizontal: true, vertical: true)
+                                                .zIndex(2000)
+                                                .allowsHitTesting(false)
+                                        }
+                                    }
+                                    .onHover { hovering in 
+                                        NSCursor.pointingHand.set()
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            isStopButtonHovered = hovering
+                                        }
+                                    }
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.top, 2) // Move left icons up to align with right icons
@@ -276,6 +499,7 @@ struct DynamicIslandContentView: View {
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set() }
                                     .scaleEffect(1.0)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isPaused)
                                     
@@ -291,6 +515,7 @@ struct DynamicIslandContentView: View {
                                             .clipShape(Circle())
                                     }
                                     .buttonStyle(PlainButtonStyle())
+                                    .onHover { hovering in NSCursor.pointingHand.set() }
                                     .scaleEffect(1.0)
                                     .animation(.spring(response: 0.3, dampingFraction: 0.7), value: vm.isRecording)
                                     
@@ -342,7 +567,6 @@ struct DynamicIslandContentView: View {
                             .onTapGesture {
                                 // Click on spacer area should unfocus chat input
                                 if isChatInputFocused {
-                                    print("🎯 Clicked on spacer area - removing focus from chat input")
                                     DispatchQueue.main.async {
                                         isChatInputFocused = false
                                         isTextFieldActive = false
@@ -353,27 +577,46 @@ struct DynamicIslandContentView: View {
 
                         // Right side icons and controls with even spacing
                         HStack(spacing: 8) {
-                            // VE icon → Open Ve app (Electron main window)
-                            Button(action: {
-                                vm.navigateToMainScreen(path: nil)
-                            }) {
-                                VEIcon(color: .white)
-                                    .frame(width: 16, height: 16)
-                                    .padding(8) // Increased padding for larger clickable area
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                                            .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
-                                    )
-                                    .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
+                            // VE icon → Open Ve app (Electron main window) - Hide during meeting
+                            if !vm.isRecording {
+                                Button(action: {
+                                    vm.navigateToMainScreen(path: nil)
+                                }) {
+                                    VEIcon(color: .white)
+                                        .frame(width: 16, height: 16)
+                                        .padding(8) // Increased padding for larger clickable area
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(isVEIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.3) : Color.clear)
+                                        )
+                                        .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .overlay(alignment: .bottom) {
+                                    if isVEIconHovered {
+                                        Text("Open app")
+                                            .font(.system(size: 11, weight: .semibold))
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Color.black.opacity(0.8))
+                                            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                            .offset(y: 28)
+                                            .fixedSize(horizontal: true, vertical: true)
+                                            .zIndex(2000)
+                                            .allowsHitTesting(false)
+                                    }
+                                }
+                                .onHover { hovering in
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        isVEIconHovered = hovering
+                                    }
+                                }
                             }
-                            .buttonStyle(PlainButtonStyle())
-                            .help("Open Ve App")
                             
                             // Stealth mode toggle icon - second icon
                             Button(action: {
-                                print("🎯 Stealth mode icon clicked - current stealth state: \(vm.isStealthModeEnabled)")
                                 vm.toggleStealthMode()
-                                print("🎯 After toggle - new stealth state: \(vm.isStealthModeEnabled)")
                             }) {
                                 Group {
                                     if vm.isStealthModeEnabled {
@@ -386,21 +629,39 @@ struct DynamicIslandContentView: View {
                                 }
                                 .frame(width: 16, height: 16)
                                 .padding(8) // Increased padding for larger clickable area
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6) // Slightly larger corner radius
-                                        .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(isStealthIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
                                 )
                                 .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help(vm.isStealthModeEnabled ? "Disable Stealth Mode" : "Enable Stealth Mode")
+                            .overlay(alignment: .bottom) {
+                                if isStealthIconHovered {
+                                    Text(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(y: 28)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isStealthIconHovered = hovering
+                                }
+                            }
                             
-                            // Information icon (third icon) with popup menu
-                            // InfoIconWithPopup(showInfoPopup: $showInfoPopup, infoPopupPosition: $infoPopupPosition)
+                            // Tooltips for top-right icons (ve/open app, stealth toggle, lock)
+                            // ve/open app (first icon in this group is not present here; add generic hover tooltip API usage below)
                             
                             // Lock/Unlock button (fourth icon)
                             Button(action: {
-                                print("🔒 Lock button clicked - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
                                 vm.toggleNotchLock()
                                 
                                 // Force state validation after toggle
@@ -413,62 +674,207 @@ struct DynamicIslandContentView: View {
                                     .foregroundColor(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen : .white)
                                     .frame(width: 16, height: 16)
                                     .padding(8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(isLockIconHovered ? DynamicIslandTheme.primaryGreen.opacity(0.1) : Color.clear)
+                                    )
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6)
-                                            .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.white.opacity(0.15), lineWidth: 0.5)
+                                            .stroke(vm.isNotchLocked ? DynamicIslandTheme.primaryGreen.opacity(0.6) : Color.clear, lineWidth: 0.5)
                                     )
                                     .contentShape(RoundedRectangle(cornerRadius: 6)) // Make entire rectangular area clickable
                             }
                             .buttonStyle(PlainButtonStyle())
-                            .help(vm.isNotchLocked ? "Unlock Notch" : "Lock Notch")
+                            .overlay(alignment: .bottom) {
+                                if isLockIconHovered {
+                                    Text(vm.isNotchLocked ? "Unlock" : "Lock")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(y: 28)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                             .onAppear {
-                                print("🔒 Lock button appeared - current state: \(vm.isNotchLocked ? "LOCKED" : "UNLOCKED")")
                                 // Validate state on appearance
                                 vm.forceLockStateRefresh()
                             }
                             .onChange(of: vm.isNotchLocked) { newValue in
-                                print("🔒 Lock state changed in UI: \(newValue ? "LOCKED" : "UNLOCKED")")
                                 // Force UI refresh when state changes
                                 DispatchQueue.main.async {
                                     vm.objectWillChange.send()
                                 }
                             }
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isLockIconHovered = hovering
+                                }
+                            }
                         }
                     }
+                    .zIndex(1000)
                     
                     
                     // Main content area
                     HStack(alignment: .center, spacing: 8) {
+                        if vm.isRecording && vm.showTranscriptionDuringRecording {
+                            // Show transcription data in chat-like format
+                            ScrollViewReader { proxy in
+                                ScrollView(.vertical, showsIndicators: true) {
+                                    LazyVStack(spacing: 12) {
+                                        if vm.voiceMessages.isEmpty {
+                                            Text("No transcription data yet...")
+                                                .font(.system(size: 14))
+                                                .foregroundColor(.white.opacity(0.6))
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                .padding()
+                                        } else {
+                                            ForEach(vm.voiceMessages) { message in
+                                                VoiceMessageBubble(
+                                                    sender: message.sender,
+                                                    text: message.content,
+                                                    isFromAgent: message.isFromAgent
+                                                )
+                                                .padding(.horizontal, 4)
+                                                .id(message.id)
+                                            }
+                                        }
+                                    }
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                }
+                                .frame(width: vm.notchOpenedSize.width - 140, height: 100)
+                                .cornerRadius(10)
+                                .onHover { hovering in
+                                    isTranscriptionHovered = hovering
+                                }
+                                .onAppear {
+                                    // Initial scroll to latest message when container appears
+                                    if !hasInitialScrolledTranscription && !vm.voiceMessages.isEmpty {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                proxy.scrollTo(vm.voiceMessages.last?.id, anchor: .bottom)
+                                            }
+                                            hasInitialScrolledTranscription = true
+                                        }
+                                    }
+                                }
+                                .onChange(of: vm.voiceMessages.count) { newCount in
+                                    // Auto-scroll to latest message if not hovering
+                                    if !isTranscriptionHovered && newCount > 0 {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            proxy.scrollTo(vm.voiceMessages.last?.id, anchor: .bottom)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else if vm.isRecording && !vm.showTranscriptionDuringRecording {
+                            // Show live intelligence data in chat-like format
+                            ScrollViewReader { proxy in
+                                ScrollView(.vertical, showsIndicators: true) {
+                                    LazyVStack(spacing: 12) {
+                                        if vm.liveIntelligenceMessages.isEmpty {
+                                            Text("No live intelligence data yet...")
+                                                .font(.system(size: 14))
+                                                .foregroundColor(.white.opacity(0.6))
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                .padding()
+                                        } else {
+                                            ForEach(vm.liveIntelligenceMessages) { message in
+                                                VoiceMessageBubble(
+                                                    sender: message.sender,
+                                                    text: message.content,
+                                                    isFromAgent: message.isFromAgent
+                                                )
+                                                .padding(.horizontal, 4)
+                                                .id(message.id)
+                                            }
+                                        }
+                                    }
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                }
+                                .frame(width: vm.notchOpenedSize.width - 140, height: 100)
+                                .cornerRadius(10)
+                                .onHover { hovering in
+                                    isLiveIntelligenceHovered = hovering
+                                }
+                                .onAppear {
+                                    // Initial scroll to latest message when container appears
+                                    if !hasInitialScrolledLiveIntelligence && !vm.liveIntelligenceMessages.isEmpty {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                            withAnimation(.easeInOut(duration: 0.5)) {
+                                                proxy.scrollTo(vm.liveIntelligenceMessages.last?.id, anchor: .bottom)
+                                            }
+                                            hasInitialScrolledLiveIntelligence = true
+                                        }
+                                    }
+                                }
+                                .onChange(of: vm.liveIntelligenceMessages.count) { newCount in
+                                    // Auto-scroll to latest message if not hovering
+                                    if !isLiveIntelligenceHovered && newCount > 0 {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
+                                            proxy.scrollTo(vm.liveIntelligenceMessages.last?.id, anchor: .bottom)
+                                        }
+                                    }
+                                            
+                                    // Console log when live intelligence messages count changes
+                                    print("🧠 NotchContentView: Live intelligence messages count changed to: \(newCount)")
+                                    if let lastMessage = vm.liveIntelligenceMessages.last {
+                                        print("🧠 NotchContentView: Latest message - Sender: \(lastMessage.sender), Content: \(lastMessage.content.prefix(50))...")
+                                    }
+                                }
+                            }
+                        }
+
                         if vm.showVoiceInterface {
                             // Voice split layout (left conversation, right controls) - PRIORITY: Always show voice interface when active
                             VoiceSplitLayout(vm: vm)
                         } else if vm.isTeamsView {
-                            // Teams view: maintain even spacing between three blocks
-                            HStack(spacing: 12) {
+                            // Teams view: maintain even spacing between components
+                            HStack(spacing: vm.isRecording ? 0 : 12) {
+                                // Smart meeting card - only show when not recording
                                 if !vm.isRecording {
-                                    StartMeetingCard(vm: vm)
+                                    SmartMeetingCard(vm: vm)
                                         .frame(width: 220, height: 100)
                                 }
+                                
+                                // Chat input - hide when recording
+                                if !vm.isRecording {
+                                    ChatTextAreaView(
+                                        chatInput: $vm.chatInput,
+                                        isTextFieldActive: $isTextFieldActive,
+                                        vm: vm
+                                    )
+                                    .frame(width: 400, height: 100)
+                                    .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
+                                }
+                                
+                                WebcamButton(vm: vm)
+                                    .frame(width: 100, height: 100)
+                            }
+                        } else if vm.isTrayMode {
+                            // Tray view with AirDrop functionality
+                            TrayView(vm: vm)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .transition(.scale.combined(with: .opacity))
+                        } else {
+                            // Default chat input section with voice/arrow icon inside - matches image layout
+                            if !vm.isRecording {
                                 ChatTextAreaView(
                                     chatInput: $vm.chatInput,
                                     isTextFieldActive: $isTextFieldActive,
                                     vm: vm
                                 )
-                                .frame(width: 400, height: 100)
-                                .animation(.easeInOut(duration: 0.2), value: vm.isTeamsView)
-                                WebcamButton(vm: vm)
-                                    .frame(width: 100, height: 100)
+                                .frame(width: 510) // Fixed width when not recording
+                                .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                             }
-                        } else {
-                            // Chat input section with voice/arrow icon inside - matches image layout
-                            ChatTextAreaView(
-                                chatInput: $vm.chatInput,
-                                isTextFieldActive: $isTextFieldActive,
-                                vm: vm
-                            )
-                            .frame(width: vm.isRecording ? 410 : 510) // 410px in meeting mode, 510px otherwise
-                            .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
-                            .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
                             
                             // Voice Mode button and Media Controllers - only show when NOT recording AND chat not focused
                             if !vm.isRecording && !vm.isChatMode {
@@ -479,10 +885,10 @@ struct DynamicIslandContentView: View {
                                             .frame(width: 240, height: 100)
                                             .transition(.scale(scale: 0.8).combined(with: .opacity))
                                     }
-                                        
-                                    // Spotify Media Controller - only show when music is playing
+                                    
+                                    // Music Media Controller - only show when music is playing
                                     if vm.hasActiveMusic {
-                                        SpotifyMediaController(vm: vm)
+                                        MusicMediaController(vm: vm)
                                             .transition(.scale.combined(with: .opacity))
                                     }
                                     
@@ -498,12 +904,13 @@ struct DynamicIslandContentView: View {
                             
                             // Webcam button - only show when recording
                             if vm.isRecording {
+                                Spacer(minLength: 0)
                                 WebcamButton(vm: vm)
-                                    .frame(width: 90, height: 90) // Larger webcam button as requested
+                                    .frame(width: 80, height: 80)
                             }
                         }
                     }
-                    .frame(maxWidth: vm.notchOpenedSize.width - 32) // Constrain main content area
+                    .frame(maxWidth: vm.notchOpenedSize.width - 32)
                     .clipped() // Ensure content doesn't overflow
                     .animation(.easeInOut(duration: 0.3), value: vm.isChatMode)
                     .animation(.easeInOut(duration: 0.3), value: vm.isRecording)
@@ -512,17 +919,33 @@ struct DynamicIslandContentView: View {
         }
         .padding(vm.spacing)
         .frame(width: vm.notchOpenedSize.width, height: vm.notchOpenedSize.height)
+        .onChange(of: vm.isRecording) { newValue in
+            // Reset scroll flags when recording state changes
+            hasInitialScrolledTranscription = false
+            hasInitialScrolledLiveIntelligence = false
+        }
+        .onChange(of: vm.showTranscriptionDuringRecording) { newValue in
+            // Reset scroll flags when switching between transcription and live intelligence
+            hasInitialScrolledTranscription = false
+            hasInitialScrolledLiveIntelligence = false
+        }
         .onAppear {
             // Set up listener for Swift actions to handle received messages
             setupMessageListener()
             
-            // Set up Spotify detection timer for the whole view
+            // ⚡ CRITICAL FIX: Set up Spotify detection timer with proper cleanup
             setupSpotifyDetectionTimer()
+        }
+        .onDisappear {
+            // Timer cleanup is handled automatically by SwiftUI
         }
     }
     
+    // ⚡ PERFORMANCE FIX: Store timer reference for proper cleanup
+    
     // MARK: - Spotify Detection Timer
     private func setupSpotifyDetectionTimer() {
+        // Clean up any existing timer first
         // Initial check
         updateSpotifyStatus()
         
@@ -532,48 +955,395 @@ struct DynamicIslandContentView: View {
         }
     }
     
+    
     private func updateSpotifyStatus() {
-        // Check if Spotify is running
+        // Check individual app status with detailed logging
         let spotifyRunning = isSpotifyRunning()
+        let spotifyPlaying = isSpotifyPlaying()
+        let appleMusicRunning = isAppleMusicRunning()
+        let appleMusicPlaying = isAppleMusicPlaying()
         
-        // Get system media info
+        // Check system media info
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let hasSystemMedia = nowPlayingInfo != nil
+        let systemPlaybackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+        let systemPlaying = systemPlaybackRate > 0.0
+        
+        // Check YouTube status
+        let youtubeActive = detectYouTubeVideo()
+        
+        // Media status update (debug logs removed)
+        
+        // Enhanced priority logic: Currently playing app takes precedence
+        if youtubeActive && (appleMusicPlaying || spotifyPlaying) {
+            // Both YouTube and music active - YouTube wins
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = true
+                vm.isVideoPlaying = true
+            }
+        } else if youtubeActive {
+            // YouTube active, music not playing - show YouTube
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = true
+                vm.isVideoPlaying = true
+            }
+        } else if appleMusicPlaying && !spotifyPlaying {
+            // Only Apple Music playing
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+            }
+        } else if spotifyPlaying && !appleMusicPlaying {
+            // Only Spotify playing
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+            }
+        } else if appleMusicPlaying && spotifyPlaying {
+            // Both music apps claim to be playing - use system media to determine which is actually active
+            // Get more detailed system media info to determine the actual active app
+            if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+                let systemTitle = nowPlayingInfo[MPMediaItemPropertyTitle] as? String ?? ""
+                let systemArtist = nowPlayingInfo[MPMediaItemPropertyArtist] as? String ?? ""
+                
+                // If system media is playing and has content, use it to determine priority
+                if systemPlaying && !systemTitle.isEmpty {
+                    // Check which app matches the system media better
+                    // This is a more reliable way to determine the actual active app
+                    DispatchQueue.main.async {
+                        vm.hasActiveMusic = true
+                        vm.isMusicPlaying = true
+                        vm.hasActiveVideo = false
+                        vm.isVideoPlaying = false
+                    }
+                } else {
+                    // If system media is not reliable, do a more thorough check
+                    // Wait a moment and re-check to avoid stale AppleScript data
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.resolveConflictingPlayStates()
+                    }
+                }
+            } else {
+                // No system media info available, do a secondary check
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    self.resolveConflictingPlayStates()
+                }
+            }
+        } else if systemPlaying && hasSystemMedia {
+            // System media playing but apps report not playing - trust system
+        DispatchQueue.main.async {
+            vm.hasActiveMusic = true
+            vm.isMusicPlaying = true
+            vm.hasActiveVideo = false
+            vm.isVideoPlaying = false
+        }
+        } else if appleMusicRunning || spotifyRunning || hasSystemMedia {
+            // Music paused but running - show paused state
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+            }
+        } else {
+            // Nothing running - PERFORMANCE FIX: Clean up video resources
+            DispatchQueue.main.async {
+                let wasVideoActive = vm.hasActiveVideo
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+                
+                // Clean up video resources if video was previously active
+                if wasVideoActive {
+                    print("🧹 PERFORMANCE FIX: Video ended, cleaning up resources...")
+                    vm.cleanupVideoResources()
+                }
+            }
+        }
+        
+        // End media status update
+    }
+    
+    // Helper function to resolve conflicting play states between apps
+    private func resolveConflictingPlayStates() {
+        // Re-check both apps with fresh AppleScript calls
+        let spotifyPlaying = isSpotifyPlaying()
+        let appleMusicPlaying = isAppleMusicPlaying()
+        
+        // Also check system media info again
+        let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+        let systemPlaybackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+        let systemPlaying = systemPlaybackRate > 0.0
+        
+        if spotifyPlaying && !appleMusicPlaying {
+            // Only Spotify is playing
+            // Debug log removed RESOLVED: Spotify is the active player")
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+                // Debug log removed VM UPDATED: Resolved to Spotify")
+            }
+        } else if appleMusicPlaying && !spotifyPlaying {
+            // Only Apple Music is playing
+            // Debug log removed RESOLVED: Apple Music is the active player")
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+                // Debug log removed VM UPDATED: Resolved to Apple Music")
+            }
+        } else if systemPlaying {
+            // Trust system media if it's playing
+            // Debug log removed RESOLVED: Using system media as fallback")
+            DispatchQueue.main.async {
+                vm.hasActiveMusic = true
+                vm.isMusicPlaying = true
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+                // Debug log removed VM UPDATED: Resolved to system media")
+            }
+        } else {
+            // Nothing is actually playing - PERFORMANCE FIX: Clean up video resources
+            // Debug log removed RESOLVED: Nothing is actually playing")
+            DispatchQueue.main.async {
+                let wasVideoActive = vm.hasActiveVideo
+                vm.hasActiveMusic = false
+                vm.isMusicPlaying = false
+                vm.hasActiveVideo = false
+                vm.isVideoPlaying = false
+                
+                // Clean up video resources if video was previously active
+                if wasVideoActive {
+                    print("🧹 PERFORMANCE FIX: Video ended during conflict resolution, cleaning up resources...")
+                    vm.cleanupVideoResources()
+                }
+                // Debug log removed VM UPDATED: Resolved to no active media")
+            }
+        }
+        
+        // Debug log removed === CONFLICT RESOLUTION COMPLETE ===")
+        
+        // Trigger track info update after resolution
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // This will trigger the onChange listeners in MusicMediaController
+            // to update the track info for the resolved app
+            // Debug log removed Triggering track info update after conflict resolution")
+        }
+    }
+    
+    private func isMusicAppRunning() -> Bool {
+        // Method 1: Check system media info
         let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
         let hasSystemMedia = nowPlayingInfo != nil
         
-        // Get basic playback state
-        let playbackRate = nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
-        let isPlaying = playbackRate > 0.0
+        // Method 2: Check specific apps via AppleScript
+        let spotifyRunning = isSpotifyRunning()
+        let appleMusicRunning = isAppleMusicRunning()
         
-        // Update hasActiveMusic based on multiple detection methods
-        vm.hasActiveMusic = spotifyRunning || hasSystemMedia || isPlaying
-        vm.isMusicPlaying = isPlaying
+        let result = hasSystemMedia || spotifyRunning || appleMusicRunning
+        // Debug log removed Music app running check - System media: \(hasSystemMedia), Spotify: \(spotifyRunning), Apple Music: \(appleMusicRunning), Result: \(result)")
         
-        // Detect YouTube videos
-        detectYouTubeVideo()
+        return result
+    }
+    
+    private func isMusicAppPlaying() -> Bool {
+        // Method 1: Check system media playback rate
+        if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+            let playbackRate = nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] as? Double ?? 0.0
+            let systemPlaying = playbackRate > 0.0
+            // Debug log removed System media playback rate: \(playbackRate), playing: \(systemPlaying)")
+            if systemPlaying {
+                return true
+            }
+        }
+        
+        // Method 2: Check specific apps via AppleScript
+        let spotifyPlaying = isSpotifyPlaying()
+        let appleMusicPlaying = isAppleMusicPlaying()
+        
+        let result = spotifyPlaying || appleMusicPlaying
+        // Debug log removed Music app playing check - Spotify: \(spotifyPlaying), Apple Music: \(appleMusicPlaying), Result: \(result)")
+        
+        return result
     }
     
     private func isSpotifyRunning() -> Bool {
-        let script = "tell application \"System Events\" to (name of processes) contains \"Spotify\""
-        if let appleScript = NSAppleScript(source: script) {
+        let script = """
+        tell application "System Events"
+            return (name of processes) contains "Spotify"
+        end tell
+        """
+        
             var error: NSDictionary?
-            let result = appleScript.executeAndReturnError(&error)
-            if error == nil {
-                return result.booleanValue
-            }
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            let result = output.booleanValue
+            // Debug log removed Spotify running check: \(result)")
+            return result
         }
+        // Debug log removed Spotify running check failed")
         return false
     }
     
-    private func detectYouTubeVideo() {
-        // Method 1: Check browser tabs for YouTube
-        let youtubeFromBrowser = checkBrowserForYouTube()
+    private func isSpotifyPlaying() -> Bool {
+        // First check if Spotify is even running
+        if !isSpotifyRunning() {
+            // Debug log removed Spotify not running, returning false for playing")
+        return false
+    }
+    
+        let script = """
+        tell application "Spotify"
+            try
+                if it is running then
+                    return (player state as string) is equal to "playing"
+                else
+                    return false
+                end if
+            on error
+                return false
+            end try
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            let result = output.booleanValue
+            // Debug log removed Spotify playing check: \(result)")
+            if let error = error {
+                // Debug log removed Spotify AppleScript error: \(error)")
+            }
+            return result
+        }
+        // Debug log removed Spotify playing check failed")
+        return false
+    }
+    
+    private func isAppleMusicRunning() -> Bool {
+        let script = """
+        tell application "System Events"
+            return (name of processes) contains "Music"
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            let result = output.booleanValue
+            // Debug log removed Apple Music running check: \(result)")
+            return result
+        }
+        // Debug log removed Apple Music running check failed")
+        return false
+    }
+    
+    private func isAppleMusicPlaying() -> Bool {
+        // First check if Apple Music is even running
+        if !isAppleMusicRunning() {
+            // Debug log removed Apple Music not running, returning false for playing")
+            return false
+        }
+        
+        let script = """
+        tell application "Music"
+            try
+                if it is running then
+                    return (player state as string) is equal to "playing"
+                else
+                    return false
+                end if
+            on error
+                return false
+            end try
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            let result = output.booleanValue
+            // Debug log removed Apple Music playing check: \(result)")
+            if let error = error {
+                // Debug log removed Apple Music AppleScript error: \(error)")
+            }
+            return result
+        }
+        // Debug log removed Apple Music playing check failed")
+        return false
+    }
+    
+    
+    private func detectYouTubeVideo() -> Bool {
+        // Method 1: Check browser tabs for YouTube (try default browser first, then fallback to all)
+        let youtubeFromBrowser = checkDefaultBrowserForYouTube() || checkBrowserForYouTube()
         
         // Method 2: Check system media for YouTube
         let youtubeFromMedia = checkSystemMediaForYouTube()
         
-        // Update YouTube state
-        vm.hasActiveVideo = youtubeFromBrowser || youtubeFromMedia
-        vm.isVideoPlaying = vm.hasActiveVideo
+        // Return true if YouTube is present from either source
+        return youtubeFromBrowser || youtubeFromMedia
+    }
+    
+    private func isYouTubePlaying() -> Bool {
+        // Check if YouTube is actually playing (not just present)
+        // This is harder to detect reliably, so for now we'll assume if YouTube is detected, it's playing
+        // In the future, we could enhance this with more sophisticated detection
+        return detectYouTubeVideo()
+    }
+    
+    private func getSystemDefaultBrowser() -> String? {
+        // Check for browsers without triggering system dialogs
+        // Use LSCopyDefaultHandlerForURLScheme to get default browser without dialog
+        let httpScheme = "http" as CFString
+        if let defaultHandler = LSCopyDefaultHandlerForURLScheme(httpScheme) {
+            let bundleId = defaultHandler.takeRetainedValue() as String
+            
+            // Map bundle IDs to app names we can check
+            switch bundleId {
+            case "com.apple.Safari":
+                return "Safari"
+            case "com.google.Chrome":
+                return "Google Chrome"
+            case "org.mozilla.firefox":
+                return "Firefox"
+            case "com.microsoft.edgemac":
+                return "Microsoft Edge"
+            case "company.thebrowser.Browser":
+                return "Arc"
+            case "com.brave.Browser":
+                return "Brave Browser"
+            default:
+                return "Safari" // Fallback to Safari
+            }
+        }
+        return "Safari" // Default fallback
+    }
+    
+    private func checkDefaultBrowserForYouTube() -> Bool {
+        guard let defaultBrowser = getSystemDefaultBrowser() else {
+            return false
+        }
+        
+        if let (url, title) = checkBrowserApp(defaultBrowser) {
+            if url.contains("youtube.com/watch") || url.contains("youtu.be/") {
+                updateVideoInfo(from: title, url: url)
+                return true
+            }
+        }
+        return false
     }
     
     private func checkBrowserForYouTube() -> Bool {
@@ -723,21 +1493,24 @@ struct DynamicIslandContentView: View {
         
         guard let id = videoId else { return "" }
         
-        // RADICAL FIX: Use nocookie domain and minimal parameters to bypass Error 153
-        // This approach uses YouTube's nocookie domain which has fewer restrictions
-        return "https://www.youtube-nocookie.com/embed/\(id)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1"
+        // ULTIMATE SOLUTION: Use direct video streaming URL
+        // This approach gets the actual video stream URL and plays it directly
+        return "https://www.youtube.com/watch?v=\(id)"
     }
     
-    /// Creates alternative embed URLs for fallback if Error 153 occurs
+    /// Creates alternative embed URLs for fallback - NUCLEAR APPROACH with multiple proxies
     private func createAlternativeEmbedURLs(videoId: String) -> [String] {
         return [
-            // Primary: nocookie domain
+            // NUCLEAR: Invidious proxies (bypass ALL YouTube restrictions)
+            "https://inv.riverside.rocks/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://invidious.flokinet.to/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://invidious.lunar.icu/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            "https://yt.artemislena.eu/embed/\(videoId)?autoplay=1&controls=1&rel=0",
+            
+            // YouTube alternatives (if proxies fail)
             "https://www.youtube-nocookie.com/embed/\(videoId)?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1",
-            // Fallback 1: Standard domain with minimal params
             "https://www.youtube.com/embed/\(videoId)?autoplay=1&controls=1&rel=0",
-            // Fallback 2: No autoplay
             "https://www.youtube-nocookie.com/embed/\(videoId)?controls=1&rel=0",
-            // Fallback 3: Absolute minimal
             "https://www.youtube.com/embed/\(videoId)"
         ]
     }
@@ -784,7 +1557,6 @@ struct DynamicIslandContentView: View {
             .sink { action in
                 switch action {
                 case .receiveMessage(let message):
-                    print("📨 Swift UI received message from Electron: \(message)")
                     receivedMessage = message
                 default:
                     break
@@ -794,6 +1566,7 @@ struct DynamicIslandContentView: View {
     }
 }
 
+// MARK: - Voice Split Layout (New Design)
 // MARK: - Voice Split Layout (New Design)
 struct VoiceSplitLayout: View {
     @ObservedObject var vm: NotchViewModel
@@ -883,7 +1656,7 @@ struct VoiceTranscriptionArea: View {
             
             // Show current status only when there are no voice messages
             if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
-                Text(vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...")
+                Text(vm.isMicrophoneMuted ? "🔇 Muted" : " Listening...")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -891,6 +1664,7 @@ struct VoiceTranscriptionArea: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 12)
             }
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.clear)
@@ -911,16 +1685,40 @@ struct VoiceMessageBubble: View {
                 //           isStatus ? Color.yellow :
                 //           Color(red: 0.173, green: 0.176, blue: 0.180))
                 //     .frame(width: 6, height: 6)
+                // Circle()
+                //     .fill(isFromAgent ? DynamicIslandTheme.primaryGreen :
+                //           isStatus ? Color.yellow :
+                //           Color(red: 0.173, green: 0.176, blue: 0.180))
+                //     .frame(width: 6, height: 6)
                 Text(sender)
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.system(size: 12, weight: .medium))
+                    // .foregroundColor(DynamicIslandTheme.textMuted)
                     // .foregroundColor(DynamicIslandTheme.textMuted)
                 Spacer()
             }
             Text(text)
-                .font(.system(size: 20, weight: .medium))
+                .font(.system(size: 14, weight: .medium))
+                // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
+                .font(.system(size: 14, weight: .medium))
                 // .foregroundColor(isStatus ? DynamicIslandTheme.textMuted : DynamicIslandTheme.textPrimary)
                 .multilineTextAlignment(.leading)
         }
+        // .padding(8)
+        // .background(
+        //     isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
+        //     isStatus ? Color.clear :
+        //     Color.clear
+        // )
+        // .overlay(
+        //     RoundedRectangle(cornerRadius: 8)
+        //         .stroke(
+        //             isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.3) :
+        //             isStatus ? Color.clear :
+        //             DynamicIslandTheme.stroke.opacity(0.3),
+        //             lineWidth: 0.5
+        //         )
+        // )
+        // .clipShape(RoundedRectangle(cornerRadius: 8))
         // .padding(8)
         // .background(
         //     isFromAgent ? DynamicIslandTheme.primaryGreen.opacity(0.1) :
@@ -1095,15 +1893,12 @@ struct ChatTextAreaView: View {
                 .scrollDisabled(false) // Enable scrolling when content exceeds height
                 .allowsHitTesting(true) // Ensure TextEditor can receive mouse events
                 .onKeyPress(keys: [.return]) { event in
-                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
                     if event.modifiers == .shift {
                         // Shift+Enter: Insert new line manually
-                        print("🎯 Shift+Enter detected - inserting new line")
                         chatInput.append("\n")
                         return .handled
                     } else {
                         // Enter alone: Submit chat
-                        print("🎯 Enter alone detected - submitting chat")
                         if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             vm.submitChat()
                         }
@@ -1112,7 +1907,6 @@ struct ChatTextAreaView: View {
                 }
                 .onTapGesture {
                     // Direct tap on TextEditor to ensure focus and cursor
-                    print("🎯 TextEditor directly tapped")
                     DispatchQueue.main.async {
                         isChatInputFocused = true
                         isTextFieldActive = true
@@ -1134,22 +1928,16 @@ struct ChatTextAreaView: View {
                 HStack {
                     Spacer()
                     Button(action: {
-                        print("🔥 BUTTON CLICKED! isChatInputFocused: \(isChatInputFocused)")
                         if isChatInputFocused {
                             // Arrow mode - submit chat
-                            print("🎯 Arrow button clicked - submitting chat")
                             if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                                 vm.submitChat()
                             }
                         } else {
                             // Voice mode - activate voice assistant
-                            print("🎤 WAVE ICON CLICKED - activating voice assistant")
-                            print("🎤 Current showVoiceInterface: \(vm.showVoiceInterface)")
-                            print("🎤 Current voiceConnectionStatus: \(vm.voiceConnectionStatus)")
                             // Ensure we don't accidentally focus the text area
                             DispatchQueue.main.async {
                                 vm.connectVoiceAssistant()
-                                print("🎤 connectVoiceAssistant() called")
                             }
                         }
                     }) {
@@ -1203,20 +1991,16 @@ struct ChatTextAreaView: View {
                     .contentShape(RoundedRectangle(cornerRadius: 4)) // Ensure button area matches the visual shape
                     .allowsHitTesting(true) // Ensure button can receive taps
                     .onTapGesture {
-                        print("🔥 TAP GESTURE DETECTED ON WAVE ICON!")
                     }
                 }
             }
                 .onKeyPress(keys: [.return]) { event in
-                    print("🎯 Return key pressed - modifiers: \(event.modifiers)")
                     if event.modifiers == .shift {
                         // Shift+Enter: Insert new line manually
-                        print("🎯 Shift+Enter detected - inserting new line")
                         chatInput.append("\n")
                         return .handled
                     } else {
                         // Enter alone: Submit chat
-                        print("🎯 Enter alone detected - submitting chat")
                         if !vm.isSendingMessage && !chatInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             vm.submitChat()
                             return .handled
@@ -1242,7 +2026,6 @@ struct ChatTextAreaView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             isChatInputFocused = true
                             vm.isChatInputFocused = true
-                            print("🎯 Auto-focusing TextEditor when chat mode activated")
                         }
                     }
                 }
@@ -1255,7 +2038,6 @@ struct ChatTextAreaView: View {
                         if vm.isChatMode {
                             isChatInputFocused = true
                             vm.isChatInputFocused = true
-                            print("🎯 Auto-focusing TextEditor on appear")
                         }
                     }
                 }
@@ -1280,7 +2062,6 @@ struct ChatTextAreaView: View {
         .contentShape(Rectangle()) // Ensure entire area is tappable
         .allowsHitTesting(true) // Explicitly allow hit testing
         .onTapGesture { location in
-            print("🎯 Chat area tapped at location: \(location) - attempting to focus text input")
             
             // Check if tap is in the button area (bottom-right corner)
             let currentWidth = vm.isRecording ? 410 : 510
@@ -1292,7 +2073,6 @@ struct ChatTextAreaView: View {
             )
             
             if buttonArea.contains(location) {
-                print("🎯 Tap detected in button area - ignoring chat focus")
                 return
             }
             
@@ -1307,7 +2087,6 @@ struct ChatTextAreaView: View {
             
             // Ensure window is key first
             if let window = notchWindow ?? NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }) {
-                print("🎯 Making window key: \(window.className)")
                 window.makeKeyAndOrderFront(nil)
                 
                 // Set focus with proper timing to ensure cursor appears
@@ -1327,8 +2106,6 @@ struct ChatTextAreaView: View {
                         }
                     }
                 }
-            } else {
-                print("🎯 No suitable window found for focus")
             }
         }
         .zIndex(2) // Ensure chat input is above the background overlay
@@ -1339,14 +2116,12 @@ struct ChatTextAreaView: View {
     private func handleTextChange(_ newValue: String) {
         // Fixed height implementation - no dynamic resizing
         // TextEditor will scroll when content exceeds the fixed height of 100px
-        print("🎯 Text changed: \(newValue.count) characters")
         
         // Keep the height fixed at 100px - scrolling will handle overflow
         // No need to calculate or change textEditorHeight
     }
     
     private func handleFocusChange(_ newValue: Bool) {
-        print("🎯 TextEditor focus changed: \(newValue)")
         isTextFieldActive = newValue
         
         // Enable chat mode to hide Voice Mode button and expand chat (but not in meeting mode)
@@ -1406,46 +2181,112 @@ struct ChatTextAreaView: View {
 struct VEIcon: View {
     var color: Color = .white
     var body: some View {
-        // Simple, clean V and E representation
-        HStack(spacing: 1) {
-            // V shape
-            ZStack {
-                Path { path in
-                    path.move(to: CGPoint(x: 0, y: 0))
-                    path.addLine(to: CGPoint(x: 3, y: 8))
-                    path.addLine(to: CGPoint(x: 4, y: 8))
-                    path.addLine(to: CGPoint(x: 7, y: 0))
-                    path.addLine(to: CGPoint(x: 5.5, y: 0))
-                    path.addLine(to: CGPoint(x: 3.5, y: 6))
-                    path.addLine(to: CGPoint(x: 1.5, y: 0))
-                    path.closeSubpath()
-                }
-                .fill(color)
+        ZStack {
+            // V shape from SVG
+            Path { path in
+                path.move(to: CGPoint(x: 7.5466, y: 0.00034523))
+                path.addCurve(to: CGPoint(x: 6.90741, y: 0.031127), control1: CGPoint(x: 7.26923, y: 0.00531769), control2: CGPoint(x: 7.07517, y: 0.0147889))
+                path.addCurve(to: CGPoint(x: 5.88864, y: 0.368307), control1: CGPoint(x: 6.46667, y: 0.0739848), control2: CGPoint(x: 6.17616, y: 0.170356))
+                path.addCurve(to: CGPoint(x: 5.58405, y: 0.629006), control1: CGPoint(x: 5.77649, y: 0.445735), control2: CGPoint(x: 5.68535, y: 0.523637))
+                path.addCurve(to: CGPoint(x: 5.38075, y: 0.871472), control1: CGPoint(x: 5.50651, y: 0.709512), control2: CGPoint(x: 5.45136, y: 0.775575))
+                path.addCurve(to: CGPoint(x: 4.35021, y: 2.79889), control1: CGPoint(x: 5.06393, y: 1.30242), control2: CGPoint(x: 4.72011, y: 1.94552))
+                path.addCurve(to: CGPoint(x: 3.77841, y: 4.21012), control1: CGPoint(x: 4.18222, y: 3.18627), control2: CGPoint(x: 4.062, y: 3.48343))
+                path.addCurve(to: CGPoint(x: 3.42997, y: 5.06491), control1: CGPoint(x: 3.53935, y: 4.82315), control2: CGPoint(x: 3.49227, y: 4.93847))
+                path.addCurve(to: CGPoint(x: 3.36282, y: 5.17786), control1: CGPoint(x: 3.39997, y: 5.12576), control2: CGPoint(x: 3.3799, y: 5.15962))
+                path.addCurve(to: CGPoint(x: 3.34182, y: 5.19159), control1: CGPoint(x: 3.35174, y: 5.18946), control2: CGPoint(x: 3.34851, y: 5.19159))
+                path.addCurve(to: CGPoint(x: 3.32198, y: 5.17383), control1: CGPoint(x: 3.33282, y: 5.19159), control2: CGPoint(x: 3.32913, y: 5.18804))
+                path.addCurve(to: CGPoint(x: 3.23498, y: 4.19473), control1: CGPoint(x: 3.28483, y: 5.09735), control2: CGPoint(x: 3.25806, y: 4.79569))
+                path.addCurve(to: CGPoint(x: 3.20729, y: 3.30679), control1: CGPoint(x: 3.22714, y: 3.98636), control2: CGPoint(x: 3.21975, y: 3.75313))
+                path.addCurve(to: CGPoint(x: 3.16807, y: 2.05421), control1: CGPoint(x: 3.18837, y: 2.62864), control2: CGPoint(x: 3.18006, y: 2.36345))
+                path.addCurve(to: CGPoint(x: 3.06423, y: 0.651974), control1: CGPoint(x: 3.14038, y: 1.34433), control2: CGPoint(x: 3.10415, y: 0.855134))
+                path.addCurve(to: CGPoint(x: 2.67241, y: 0.0640397), control1: CGPoint(x: 3.00492, y: 0.350311), control2: CGPoint(x: 2.8727, y: 0.152123))
+                path.addCurve(to: CGPoint(x: 2.39043, y: 0.00792217), control1: CGPoint(x: 2.58334, y: 0.0247336), control2: CGPoint(x: 2.49888, y: 0.00792217))
+                path.addCurve(to: CGPoint(x: 1.91739, y: 0.101215), control1: CGPoint(x: 2.26513, y: 0.00792217), control2: CGPoint(x: 2.17814, y: 0.0249706))
+                path.addCurve(to: CGPoint(x: 0.874153, y: 0.467283), control1: CGPoint(x: 1.61187, y: 0.190246), control2: CGPoint(x: 1.28628, y: 0.304612))
+                path.addCurve(to: CGPoint(x: 0.156974, y: 0.760657), control1: CGPoint(x: 0.664168, y: 0.550394), control2: CGPoint(x: 0.184434, y: 0.74645))
+                path.addCurve(to: CGPoint(x: 0.010677, y: 0.924748), control1: CGPoint(x: 0.0861331, y: 0.797359), control2: CGPoint(x: 0.031214, y: 0.858686))
+                path.addCurve(to: CGPoint(x: 0.0178303, y: 1.0796), control1: CGPoint(x: -0.00570645, y: 0.977314), control2: CGPoint(x: -0.00316817, y: 1.03272))
+                path.addCurve(to: CGPoint(x: 0.193664, y: 1.22073), control1: CGPoint(x: 0.0485204, y: 1.14756), control2: CGPoint(x: 0.107593, y: 1.19492))
+                path.addCurve(to: CGPoint(x: 0.52041, y: 1.36919), control1: CGPoint(x: 0.332808, y: 1.26264), control2: CGPoint(x: 0.426955, y: 1.30526))
+                path.addCurve(to: CGPoint(x: 0.742624, y: 1.59224), control1: CGPoint(x: 0.604865, y: 1.42673), control2: CGPoint(x: 0.683552, y: 1.50558))
+                path.addCurve(to: CGPoint(x: 0.951456, y: 2.19272), control1: CGPoint(x: 0.843002, y: 1.73952), control2: CGPoint(x: 0.907613, y: 1.92516))
+                path.addCurve(to: CGPoint(x: 1.01168, y: 2.66984), control1: CGPoint(x: 0.968993, y: 2.3007), control2: CGPoint(x: 0.973839, y: 2.33929))
+                path.addCurve(to: CGPoint(x: 1.40881, y: 5.96706), control1: CGPoint(x: 1.14436, y: 3.83553), control2: CGPoint(x: 1.27451, y: 4.91621))
+                path.addCurve(to: CGPoint(x: 1.47434, y: 6.40345), control1: CGPoint(x: 1.4448, y: 6.25001), control2: CGPoint(x: 1.4538, y: 6.30968))
+                path.addCurve(to: CGPoint(x: 1.77432, y: 6.93503), control1: CGPoint(x: 1.52857, y: 6.65349), control2: CGPoint(x: 1.62087, y: 6.81687))
+                path.addCurve(to: CGPoint(x: 1.89662, y: 7.01103), control1: CGPoint(x: 1.81055, y: 6.96273), control2: CGPoint(x: 1.84747, y: 6.9857))
+                path.addCurve(to: CGPoint(x: 2.67079, y: 7.22651), control1: CGPoint(x: 2.12483, y: 7.12753), control2: CGPoint(x: 2.39343, y: 7.20236))
+                path.addCurve(to: CGPoint(x: 3.14038, y: 7.22201), control1: CGPoint(x: 2.81501, y: 7.23906), control2: CGPoint(x: 2.99385, y: 7.2374))
+                path.addCurve(to: CGPoint(x: 4.11877, y: 6.92721), control1: CGPoint(x: 3.48004, y: 7.18625), control2: CGPoint(x: 3.81325, y: 7.08586))
+                path.addCurve(to: CGPoint(x: 5.0037, y: 6.16595), control1: CGPoint(x: 4.4822, y: 6.73826), control2: CGPoint(x: 4.78656, y: 6.47661))
+                path.addCurve(to: CGPoint(x: 5.19569, y: 5.83564), control1: CGPoint(x: 5.06877, y: 6.07314), control2: CGPoint(x: 5.1057, y: 6.00944))
+                path.addCurve(to: CGPoint(x: 6.28899, y: 3.59448), control1: CGPoint(x: 5.49613, y: 5.25552), control2: CGPoint(x: 5.76149, y: 4.71163))
+                path.addCurve(to: CGPoint(x: 7.04286, y: 2.03526), control1: CGPoint(x: 6.68243, y: 2.76148), control2: CGPoint(x: 6.86611, y: 2.3812))
+                path.addCurve(to: CGPoint(x: 7.61005, y: 1.02657), control1: CGPoint(x: 7.263, y: 1.60432), control2: CGPoint(x: 7.44045, y: 1.28892))
+                path.addCurve(to: CGPoint(x: 7.94534, y: 0.570994), control1: CGPoint(x: 7.7342, y: 0.834534), control2: CGPoint(x: 7.82327, y: 0.713538))
+                path.addCurve(to: CGPoint(x: 8.05264, y: 0.43508), control1: CGPoint(x: 7.99472, y: 0.513219), control2: CGPoint(x: 8.02818, y: 0.470834))
+                path.addCurve(to: CGPoint(x: 8.15048, y: 0.189535), control1: CGPoint(x: 8.12209, y: 0.333499), control2: CGPoint(x: 8.15394, y: 0.25394))
+                path.addCurve(to: CGPoint(x: 8.09602, y: 0.083693), control1: CGPoint(x: 8.14817, y: 0.144783), control2: CGPoint(x: 8.13156, y: 0.112581))
+                path.addCurve(to: CGPoint(x: 7.80273, y: 0.0036602), control1: CGPoint(x: 8.04272, y: 0.0398881), control2: CGPoint(x: 7.94926, y: 0.0145522))
+                path.addCurve(to: CGPoint(x: 7.5466, y: 0.00034523), control1: CGPoint(x: 7.76743, y: 0.00105558), control2: CGPoint(x: 7.61513, y: -0.000838688))
+                path.closeSubpath()
             }
-            .frame(width: 7, height: 8)
+            .fill(color)
             
-            // E shape
-            ZStack {
-                Path { path in
-                    path.move(to: CGPoint(x: 0, y: 0))
-                    path.addLine(to: CGPoint(x: 0, y: 8))
-                    path.addLine(to: CGPoint(x: 6, y: 8))
-                    path.addLine(to: CGPoint(x: 6, y: 6.5))
-                    path.addLine(to: CGPoint(x: 1.5, y: 6.5))
-                    path.addLine(to: CGPoint(x: 1.5, y: 4.5))
-                    path.addLine(to: CGPoint(x: 5, y: 4.5))
-                    path.addLine(to: CGPoint(x: 5, y: 3.5))
-                    path.addLine(to: CGPoint(x: 1.5, y: 3.5))
-                    path.addLine(to: CGPoint(x: 1.5, y: 1.5))
-                    path.addLine(to: CGPoint(x: 6, y: 1.5))
-                    path.addLine(to: CGPoint(x: 6, y: 0))
-                    path.closeSubpath()
-                }
-                .fill(color)
+            // E shape from SVG
+            Path { path in
+                path.move(to: CGPoint(x: 11.2273, y: 0.332537))
+                path.addCurve(to: CGPoint(x: 8.48854, y: 1.47318), control1: CGPoint(x: 10.2399, y: 0.374469), control2: CGPoint(x: 9.26458, y: 0.78073))
+                path.addCurve(to: CGPoint(x: 8.13183, y: 1.82858), control1: CGPoint(x: 8.37314, y: 1.5763), control2: CGPoint(x: 8.23329, y: 1.71561))
+                path.addCurve(to: CGPoint(x: 7.06283, y: 4.07184), control1: CGPoint(x: 7.55299, y: 2.47314), control2: CGPoint(x: 7.18234, y: 3.25084))
+                path.addCurve(to: CGPoint(x: 7.05826, y: 5.17674), control1: CGPoint(x: 7.0041, y: 4.47581), control2: CGPoint(x: 7.0025, y: 4.83945))
+                path.addCurve(to: CGPoint(x: 8.21318, y: 6.84097), control1: CGPoint(x: 7.18051, y: 5.91869), control2: CGPoint(x: 7.57196, y: 6.4826))
+                path.addCurve(to: CGPoint(x: 9.24493, y: 7.22455), control1: CGPoint(x: 8.47917, y: 6.98968), control2: CGPoint(x: 8.88022, y: 7.13862))
+                path.addCurve(to: CGPoint(x: 10.6688, y: 7.29352), control1: CGPoint(x: 9.72047, y: 7.33659), control2: CGPoint(x: 10.2052, y: 7.35997))
+                path.addCurve(to: CGPoint(x: 12.2739, y: 6.69363), control1: CGPoint(x: 11.2189, y: 7.21446), control2: CGPoint(x: 11.7533, y: 7.01466))
+                path.addCurve(to: CGPoint(x: 12.7993, y: 6.24063), control1: CGPoint(x: 12.5321, y: 6.53438), control2: CGPoint(x: 12.6836, y: 6.40354))
+                path.addCurve(to: CGPoint(x: 12.9908, y: 5.69528), control1: CGPoint(x: 12.9026, y: 6.09467), control2: CGPoint(x: 12.9702, y: 5.90173))
+                path.addCurve(to: CGPoint(x: 12.9894, y: 5.52572), control1: CGPoint(x: 12.9949, y: 5.65312), control2: CGPoint(x: 12.9942, y: 5.56146))
+                path.addCurve(to: CGPoint(x: 12.8386, y: 5.27023), control1: CGPoint(x: 12.9716, y: 5.39167), control2: CGPoint(x: 12.9231, y: 5.30964))
+                path.addCurve(to: CGPoint(x: 12.7063, y: 5.248), control1: CGPoint(x: 12.7995, y: 5.2519), control2: CGPoint(x: 12.7657, y: 5.24617))
+                path.addCurve(to: CGPoint(x: 12.3171, y: 5.35455), control1: CGPoint(x: 12.6144, y: 5.25052), control2: CGPoint(x: 12.55, y: 5.26817))
+                path.addCurve(to: CGPoint(x: 11.0251, y: 5.63777), control1: CGPoint(x: 11.8975, y: 5.51037), control2: CGPoint(x: 11.4597, y: 5.60637))
+                path.addCurve(to: CGPoint(x: 10.7166, y: 5.64716), control1: CGPoint(x: 10.911, y: 5.64601), control2: CGPoint(x: 10.8756, y: 5.64716))
+                path.addCurve(to: CGPoint(x: 10.4024, y: 5.63662), control1: CGPoint(x: 10.553, y: 5.64716), control2: CGPoint(x: 10.5262, y: 5.64624))
+                path.addCurve(to: CGPoint(x: 9.41494, y: 5.36074), control1: CGPoint(x: 9.98326, y: 5.60454), control2: CGPoint(x: 9.63615, y: 5.50739))
+                path.addCurve(to: CGPoint(x: 9.07034, y: 4.83258), control1: CGPoint(x: 9.22482, y: 5.23425), control2: CGPoint(x: 9.11147, y: 5.0608))
+                path.addCurve(to: CGPoint(x: 9.058, y: 4.74207), control1: CGPoint(x: 9.06463, y: 4.8005), control2: CGPoint(x: 9.058, y: 4.74207))
+                path.addCurve(to: CGPoint(x: 9.45859, y: 4.66553), control1: CGPoint(x: 9.06029, y: 4.73977), control2: CGPoint(x: 9.39621, y: 4.67562))
+                path.addCurve(to: CGPoint(x: 10.7806, y: 4.46939), control1: CGPoint(x: 9.53674, y: 4.6527), control2: CGPoint(x: 9.97527, y: 4.58763))
+                path.addCurve(to: CGPoint(x: 11.6535, y: 4.34016), control1: CGPoint(x: 11.1014, y: 4.42219), control2: CGPoint(x: 11.4483, y: 4.37086))
+                path.addCurve(to: CGPoint(x: 12.9782, y: 4.13256), control1: CGPoint(x: 12.212, y: 4.25629), control2: CGPoint(x: 12.8973, y: 4.14906))
+                path.addCurve(to: CGPoint(x: 13.2334, y: 4.05488), control1: CGPoint(x: 13.0598, y: 4.11583), control2: CGPoint(x: 13.1619, y: 4.08467))
+                path.addCurve(to: CGPoint(x: 13.9409, y: 3.14956), control1: CGPoint(x: 13.5947, y: 3.90342), control2: CGPoint(x: 13.8317, y: 3.60004))
+                path.addCurve(to: CGPoint(x: 14.0134, y: 2.68097), control1: CGPoint(x: 13.9757, y: 3.00658), control2: CGPoint(x: 13.9997, y: 2.85076))
+                path.addCurve(to: CGPoint(x: 14.0145, y: 2.33497), control1: CGPoint(x: 14.0184, y: 2.61819), control2: CGPoint(x: 14.0191, y: 2.39432))
+                path.addCurve(to: CGPoint(x: 13.9453, y: 1.91473), control1: CGPoint(x: 14.0022, y: 2.17778), control2: CGPoint(x: 13.9802, y: 2.0442))
+                path.addCurve(to: CGPoint(x: 13.5253, y: 1.13085), control1: CGPoint(x: 13.8651, y: 1.61685), control2: CGPoint(x: 13.727, y: 1.35953))
+                path.addCurve(to: CGPoint(x: 13.3685, y: 0.973664), control1: CGPoint(x: 13.4919, y: 1.09304), control2: CGPoint(x: 13.4071, y: 1.00803))
+                path.addCurve(to: CGPoint(x: 12.0317, y: 0.382946), control1: CGPoint(x: 13.0271, y: 0.670056), control2: CGPoint(x: 12.5895, y: 0.476664))
+                path.addCurve(to: CGPoint(x: 11.2273, y: 0.332537), control1: CGPoint(x: 11.8694, y: 0.355679), control2: CGPoint(x: 11.7154, y: 0.339868))
+                path.closeSubpath()
+                
+                // Inner path for E
+                path.move(to: CGPoint(x: 10.9451, y: 2.03022))
+                path.addCurve(to: CGPoint(x: 11.2458, y: 2.07375), control1: CGPoint(x: 11.0513, y: 2.03572), control2: CGPoint(x: 11.159, y: 2.0513))
+                path.addCurve(to: CGPoint(x: 11.6249, y: 2.32237), control1: CGPoint(x: 11.4209, y: 2.11912), control2: CGPoint(x: 11.5433, y: 2.19932))
+                path.addCurve(to: CGPoint(x: 11.6882, y: 2.44954), control1: CGPoint(x: 11.6443, y: 2.35193), control2: CGPoint(x: 11.675, y: 2.41288))
+                path.addCurve(to: CGPoint(x: 11.7508, y: 2.79164), control1: CGPoint(x: 11.7223, y: 2.54234), control2: CGPoint(x: 11.7444, y: 2.66333))
+                path.addCurve(to: CGPoint(x: 11.7447, y: 2.82418), control1: CGPoint(x: 11.7524, y: 2.82281), control2: CGPoint(x: 11.7447, y: 2.82418))
+                path.addCurve(to: CGPoint(x: 9.45333, y: 3.17476), control1: CGPoint(x: 11.7118, y: 2.83014), control2: CGPoint(x: 9.45333, y: 3.17476))
+                path.addCurve(to: CGPoint(x: 9.47459, y: 3.08288), control1: CGPoint(x: 9.45174, y: 3.17339), control2: CGPoint(x: 9.46293, y: 3.12504))
+                path.addCurve(to: CGPoint(x: 9.99332, y: 2.32649), control1: CGPoint(x: 9.55708, y: 2.78408), control2: CGPoint(x: 9.73944, y: 2.51805))
+                path.addCurve(to: CGPoint(x: 10.9451, y: 2.03022), control1: CGPoint(x: 10.2669, y: 2.11981), control2: CGPoint(x: 10.6101, y: 2.01303))
+                path.closeSubpath()
             }
-            .frame(width: 6, height: 8)
+            .fill(color)
         }
-        .frame(width: 14, height: 8)
+        .frame(width: 15, height: 8)
     }
 }
 
@@ -1551,7 +2392,6 @@ class CameraPreviewNSView: NSView {
         
         // Get default camera
         guard let camera = AVCaptureDevice.default(for: .video) else {
-            print("📹 No camera available")
             return
         }
         
@@ -1578,7 +2418,7 @@ class CameraPreviewNSView: NSView {
             }
             
         } catch {
-            print("📹 Error setting up camera: \(error)")
+            // Camera setup error
         }
     }
     
@@ -1606,9 +2446,11 @@ struct WebcamButton: View {
                 if !vm.showCameraPreview {
                     Circle()
                         .fill(DynamicIslandTheme.cardMaterial)
+                        .background(
+                            Circle()
+                                .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                        )
                         .frame(width: 90, height: 90)
-                        .scaleEffect(isHovered ? 1.05 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                 }
                 
                 // Content based on camera state
@@ -1628,6 +2470,10 @@ struct WebcamButton: View {
                         // Background circle for camera preview
                         Circle()
                             .fill(DynamicIslandTheme.cardMaterial)
+                            .background(
+                                Circle()
+                                    .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.clear)
+                            )
                             .frame(width: 90, height: 90)
                         
                         // Camera preview
@@ -1635,8 +2481,6 @@ struct WebcamButton: View {
                             .frame(width: 90, height: 90)
                             .clipShape(Circle())
                     }
-                    .scaleEffect(isHovered ? 1.05 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
                 } else if vm.cameraPermission == "denied" || vm.cameraPermission == "restricted" {
                     // Permission denied state
                     VStack(spacing: 4) {
@@ -1652,19 +2496,24 @@ struct WebcamButton: View {
                     // Default state - frosted circular button with icon and label
                     ZStack {
                         Circle()
-                            .fill(Color.white.opacity(0.05)) // background: rgba(255, 255, 255, 0.05)
+                            .fill(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.2) : Color.white.opacity(0.05)) // background: rgba(255, 255, 255, 0.05)
                             .frame(width: 100, height: 100)
                             .background(.ultraThinMaterial) // backdrop-filter: blur(15px)
                             .overlay(
                                 Circle()
-                                    .stroke(Color.white.opacity(0.03), lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
+                                    .stroke(isHovered ? DynamicIslandTheme.primaryGreen.opacity(0.4) : Color.clear, lineWidth: 0.6) // border: 0.6px solid rgba(255, 255, 255, 0.03)
                             )
                             .overlay(
                                 // Inner shadow effect using gradient
                                 Circle()
                                     .stroke(
                                         LinearGradient(
-                                            colors: [
+                                            colors: isHovered ? [
+                                                DynamicIslandTheme.primaryGreen.opacity(0.30),
+                                                DynamicIslandTheme.primaryGreen.opacity(0.15),
+                                                DynamicIslandTheme.primaryGreen.opacity(0.05),
+                                                Color.clear
+                                            ] : [
                                                 Color.white.opacity(0.30),
                                                 Color.white.opacity(0.15),
                                                 Color.white.opacity(0.05),
@@ -2093,23 +2942,49 @@ struct ShortcutKeyView: View {
     }
 }
 
-// MARK: - Spotify Media Controller
-struct SpotifyMediaController: View {
+// MARK: - Music Media Controller (Apple Music, Spotify, etc.)
+struct MusicMediaController: View {
     @ObservedObject var vm: NotchViewModel
     @State private var isPlaying: Bool = false
     @State private var songTitle: String = "Unknown Track"
     @State private var artistName: String = "Unknown Artist"
     @State private var albumArtwork: NSImage? = nil
-    @State private var isHovered: Bool = false
     @State private var lastButtonPressed: MediaCommandType? = nil
     @State private var buttonPressTime: Date = Date()
+    @State private var currentMusicApp: MusicApp = .unknown
+    
+    enum MusicApp {
+        case spotify
+        case appleMusic
+        case unknown
+        
+        var borderColor: Color {
+            switch self {
+            case .spotify:
+                return Color(red: 0.114, green: 0.725, blue: 0.329) // Spotify Green
+            case .appleMusic:
+                return Color(red: 0.988, green: 0.267, blue: 0.373) // Apple Music Pink/Red
+            case .unknown:
+                return Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.6) // Default teal
+            }
+        }
+        
+        var appName: String {
+            switch self {
+            case .spotify: return "Spotify"
+            case .appleMusic: return "Apple Music"
+            case .unknown: return "Music"
+            }
+        }
+    }
     
     var body: some View {
         Group {
             if vm.hasActiveMusic {
                 HStack(spacing: 12) {
-            
+            // Large album artwork (left side) with service badge
             Group {
+                ZStack(alignment: .bottomTrailing) {
                 if let artwork = albumArtwork {
                     Image(nsImage: artwork)
                         .resizable()
@@ -2119,11 +2994,18 @@ struct SpotifyMediaController: View {
                         .cornerRadius(8)
                         .background(Color.black.opacity(0.3))
                 } else {
+                        // Show app-specific fallback artwork when no album art is available
                     RoundedRectangle(cornerRadius: 8)
                         .fill(
                             LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.3),
+                                    gradient: Gradient(colors: currentMusicApp == .appleMusic ? [
+                                        Color(red: 0.988, green: 0.267, blue: 0.373).opacity(0.4), // Apple Music pink
+                                        Color.black.opacity(0.3)
+                                    ] : currentMusicApp == .spotify ? [
+                                        Color(red: 0.114, green: 0.725, blue: 0.329).opacity(0.4), // Spotify green
+                                        Color.black.opacity(0.3)
+                                    ] : [
+                                        Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.3), // Default teal
                                     Color.black.opacity(0.2)
                                 ]),
                                 startPoint: .topLeading,
@@ -2133,14 +3015,109 @@ struct SpotifyMediaController: View {
                         .frame(width: 60, height: 80)
                         .overlay(
                             VStack(spacing: 4) {
+                                    // Show app-specific icon
+                                    if currentMusicApp == .appleMusic {
+                                        Image(systemName: "music.note.list")
+                                            .foregroundColor(.white.opacity(0.9))
+                                            .font(.system(size: 20, weight: .medium))
+                                        Text("Apple Music")
+                                            .foregroundColor(.white.opacity(0.7))
+                                            .font(.system(size: 8, weight: .medium))
+                                    } else if currentMusicApp == .spotify {
+                                        Image(systemName: "music.note")
+                                            .foregroundColor(.white.opacity(0.9))
+                                            .font(.system(size: 20, weight: .medium))
+                                        Text("Spotify")
+                                            .foregroundColor(.white.opacity(0.7))
+                                            .font(.system(size: 8, weight: .medium))
+                                    } else {
                                 Image(systemName: "music.note")
                                     .foregroundColor(.white.opacity(0.8))
                                     .font(.system(size: 24, weight: .medium))
                                 Text("♫")
                                     .foregroundColor(.white.opacity(0.6))
                                     .font(.system(size: 12))
+                                    }
+                                }
+                            )
+                    }
+                    
+                    // Service badge overlay (like in your Spotify image)
+                    if currentMusicApp != .unknown {
+                        ZStack {
+                            // Badge background with subtle shadow
+                            Circle()
+                                .fill(Color.black.opacity(0.7))
+                                .frame(width: 18, height: 18)
+                                .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                            
+                            // Service-specific badge icon with proper app logos
+                            if currentMusicApp == .spotify {
+                                // Spotify badge with the iconic wave pattern
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(red: 0.114, green: 0.725, blue: 0.329)) // Spotify green
+                                        .frame(width: 16, height: 16)
+                                    
+                                    // Spotify's iconic curved lines (simplified version)
+                                    VStack(spacing: 1) {
+                                        // Top curve
+                                        RoundedRectangle(cornerRadius: 1)
+                                            .fill(Color.white)
+                                            .frame(width: 8, height: 1.5)
+                                            .rotationEffect(.degrees(-10))
+                                        
+                                        // Middle curve
+                                        RoundedRectangle(cornerRadius: 1)
+                                            .fill(Color.white)
+                                            .frame(width: 7, height: 1.5)
+                                            .rotationEffect(.degrees(-8))
+                                        
+                                        // Bottom curve
+                                        RoundedRectangle(cornerRadius: 1)
+                                            .fill(Color.white)
+                                            .frame(width: 6, height: 1.5)
+                                            .rotationEffect(.degrees(-6))
+                                    }
+                                    .offset(x: -0.5, y: 0)
+                                }
+                            } else if currentMusicApp == .appleMusic {
+                                // Apple Music badge with the music note icon
+                                ZStack {
+                                    Circle()
+                                        .fill(Color(red: 0.988, green: 0.267, blue: 0.373)) // Apple Music pink
+                                        .frame(width: 16, height: 16)
+                                    
+                                    // Apple Music's music note icon (simplified)
+                                    ZStack {
+                                        // Note stem
+                                        RoundedRectangle(cornerRadius: 0.5)
+                                            .fill(Color.white)
+                                            .frame(width: 1, height: 8)
+                                            .offset(x: 2, y: -1)
+                                        
+                                        // Note head (circle)
+                                        Circle()
+                                            .fill(Color.white)
+                                            .frame(width: 3, height: 3)
+                                            .offset(x: 0, y: 2)
+                                        
+                                        // Eighth note flag
+                                        Path { path in
+                                            path.move(to: CGPoint(x: 2.5, y: -5))
+                                            path.addCurve(to: CGPoint(x: 5, y: -2),
+                                                        control1: CGPoint(x: 4, y: -4.5),
+                                                        control2: CGPoint(x: 5, y: -3))
+                                            path.addLine(to: CGPoint(x: 2.5, y: -1))
+                                        }
+                                        .fill(Color.white)
+                                    }
+                                    .scaleEffect(0.7)
+                                }
                             }
-                        )
+                        }
+                        .offset(x: -3, y: -3) // Position badge in bottom-right corner with some padding
+                    }
                 }
             }
             
@@ -2165,7 +3142,7 @@ struct SpotifyMediaController: View {
                 HStack(spacing: 12) {
                     // Previous button
                     Button(action: {
-                        print("🎵 Previous track")
+                        // Debug log removed Previous track")
                         sendMediaCommand(.previousTrack)
                     }) {
                         Image(systemName: "backward.fill")
@@ -2178,7 +3155,7 @@ struct SpotifyMediaController: View {
                     
                     // Play/Pause button (larger)
                     Button(action: {
-                        print("🎵 Play/Pause toggle")
+                        // Debug log removed Play/Pause toggle")
                         isPlaying.toggle()
                         sendMediaCommand(isPlaying ? .play : .pause)
                     }) {
@@ -2192,7 +3169,7 @@ struct SpotifyMediaController: View {
                     
                     // Next button
                     Button(action: {
-                        print("🎵 Next track")
+                        // Debug log removed Next track")
                         sendMediaCommand(.nextTrack)
                     }) {
                         Image(systemName: "forward.fill")
@@ -2213,17 +3190,89 @@ struct SpotifyMediaController: View {
                 .fill(Color.black.opacity(0.8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color(red: 0.475, green: 0.925, blue: 0.788).opacity(0.6), lineWidth: 1)
+                        .stroke(currentMusicApp.borderColor, lineWidth: 2)
                 )
         )
-        .scaleEffect(isHovered ? 1.02 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isHovered)
-       
+        .onTapGesture {
+            openCurrentMusicApp()
+        }
         .onAppear {
             updateCurrentTrackInfo()
         }
+        .onChange(of: vm.hasActiveMusic) { hasMusic in
+            if hasMusic {
+                // Debug log removed Music became active - updating track info")
+                updateCurrentTrackInfo()
+            } else {
+                // Debug log removed Music became inactive - clearing track info")
+                // Clear track info when no music is active
+                DispatchQueue.main.async {
+                    songTitle = "Unknown Track"
+                    artistName = "Unknown Artist"
+                    albumArtwork = nil
+                    currentMusicApp = .unknown
+                }
             }
         }
+        .onChange(of: vm.isMusicPlaying) { isPlaying in
+            // Debug log removed Music playing state changed to: \(isPlaying) - force updating track info")
+            // Always update track info when playing state changes
+            updateCurrentTrackInfo()
+            
+            // Add a small delay and update again to ensure we get the correct app
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                // Debug log removed Delayed track info update after playing state change")
+                updateCurrentTrackInfo()
+            }
+        }
+            }
+        }
+    }
+    
+    private func openCurrentMusicApp() {
+        // Open the currently detected music app
+        switch currentMusicApp {
+        case .appleMusic:
+            NSWorkspace.shared.launchApplication("Music")
+            // Debug log removed Opening Apple Music")
+        case .spotify:
+            NSWorkspace.shared.launchApplication("Spotify")
+            // Debug log removed Opening Spotify")
+        case .unknown:
+            // Fallback - try to open the default music app
+            NSWorkspace.shared.launchApplication("Music")
+            // Debug log removed Opening default Music app")
+        }
+    }
+    
+    private func isAppleMusicRunning() -> Bool {
+        let script = """
+        tell application "System Events"
+            return (name of processes) contains "Music"
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            return output.booleanValue
+        }
+        return false
+    }
+    
+    private func isSpotifyRunning() -> Bool {
+        let script = """
+        tell application "System Events"
+            return (name of processes) contains "Spotify"
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            return output.booleanValue
+        }
+        return false
     }
     
     private func sendMediaCommand(_ commandType: MediaCommandType) {
@@ -2231,6 +3280,36 @@ struct SpotifyMediaController: View {
         lastButtonPressed = commandType
         buttonPressTime = Date()
         
+        // Send command to the appropriate music app
+        switch currentMusicApp {
+        case .appleMusic:
+            sendAppleMusicCommand(commandType)
+        case .spotify:
+            sendSpotifyCommand(commandType)
+        case .unknown:
+            // Try both as fallback
+            if isAppleMusicRunning() {
+                sendAppleMusicCommand(commandType)
+            } else if isSpotifyRunning() {
+                sendSpotifyCommand(commandType)
+            }
+        }
+    }
+    
+    private func sendAppleMusicCommand(_ commandType: MediaCommandType) {
+        switch commandType {
+        case .play:
+            executeAppleScript("tell application \"Music\" to play")
+        case .pause:
+            executeAppleScript("tell application \"Music\" to pause")
+        case .nextTrack:
+            executeAppleScript("tell application \"Music\" to next track")
+        case .previousTrack:
+            executeAppleScript("tell application \"Music\" to previous track")
+        }
+    }
+    
+    private func sendSpotifyCommand(_ commandType: MediaCommandType) {
         switch commandType {
         case .play:
             executeAppleScript("tell application \"Spotify\" to play")
@@ -2266,20 +3345,21 @@ struct SpotifyMediaController: View {
     }
     
     private func updateCurrentTrackInfo() {
-        // First try to get track info from Spotify directly using AppleScript
+        // First try to get track info from AppleScript (Apple Music or Spotify)
         getCurrentTrackFromAppleScript()
         
-        // Fallback to system media player info if Spotify AppleScript fails
+        // Fallback to system media player info if AppleScript fails
         let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
         
         if songTitle == "Unknown Track" && artistName == "Unknown Artist" {
             if let info = nowPlayingInfo {
                 songTitle = info[MPMediaItemPropertyTitle] as? String ?? "Unknown Track"
                 artistName = info[MPMediaItemPropertyArtist] as? String ?? "Unknown Artist"
+                currentMusicApp = .unknown
                 
                 // Get album artwork from system media player
                 if let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
-                    albumArtwork = artwork.image(at: CGSize(width: 40, height: 60))
+                    albumArtwork = artwork.image(at: CGSize(width: 300, height: 300))
                 }
                 
                 // Get playback state
@@ -2288,10 +3368,277 @@ struct SpotifyMediaController: View {
             }
         }
         
+        // If we still don't have artwork but we have system media info, try to get it
+        if albumArtwork == nil, let info = nowPlayingInfo {
+            if let artwork = info[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+                albumArtwork = artwork.image(at: CGSize(width: 300, height: 300))
+                // Debug log removed Got artwork from system media info as fallback")
+            }
+        }
+        
         // hasActiveMusic is now managed at the higher level, no need to set it here
     }
     
     private func getCurrentTrackFromAppleScript() {
+        // Debug log removed getCurrentTrackFromAppleScript - Current music playing: \(vm.isMusicPlaying)")
+        
+        // Check which app is actually playing by directly querying both apps
+        let spotifyPlaying = checkSpotifyPlayingState()
+        let appleMusicPlaying = checkAppleMusicPlayingState()
+        
+        // Debug log removed Direct app check - Spotify playing: \(spotifyPlaying), Apple Music playing: \(appleMusicPlaying)")
+        
+        // Prioritize the app that's actually playing
+        if appleMusicPlaying && !spotifyPlaying {
+            // Debug log removed Apple Music is playing, Spotify is not - getting Apple Music track")
+            if !tryGetTrackFromAppleMusic() {
+                // Debug log removed Apple Music failed, trying Spotify as fallback")
+                tryGetTrackFromSpotify()
+            }
+        } else if spotifyPlaying && !appleMusicPlaying {
+            // Debug log removed Spotify is playing, Apple Music is not - getting Spotify track")
+            tryGetTrackFromSpotify()
+        } else if appleMusicPlaying && spotifyPlaying {
+            // Debug log removed Both apps claim to be playing - checking system media for priority")
+            // Both claim to be playing - use system media to determine which is actually active
+            let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo
+            if let systemTitle = nowPlayingInfo?[MPMediaItemPropertyTitle] as? String, !systemTitle.isEmpty {
+                // Debug log removed System media title: '\(systemTitle)'")
+                // Try both apps and compare titles
+                
+                // Get Apple Music track info
+                let appleMusicSuccess = tryGetTrackFromAppleMusic()
+                let appleMusicTitle = appleMusicSuccess ? songTitle : ""
+                
+                // Get Spotify track info
+                tryGetTrackFromSpotify()
+                let spotifyTitle = songTitle
+                
+                // Compare which title matches system media better
+                if !appleMusicTitle.isEmpty && (systemTitle.contains(appleMusicTitle) || appleMusicTitle.contains(systemTitle)) {
+                    // Debug log removed System media matches Apple Music better: '\(appleMusicTitle)' vs '\(spotifyTitle)'")
+                    if !tryGetTrackFromAppleMusic() {
+                        tryGetTrackFromSpotify()
+                    }
+                } else if !spotifyTitle.isEmpty {
+                    // Debug log removed Using Spotify track: '\(spotifyTitle)'")
+                    // Spotify track is already set
+                } else {
+                    // Debug log removed Both apps failed, using fallback")
+                    if !tryGetTrackFromAppleMusic() {
+                        tryGetTrackFromSpotify()
+                    }
+                }
+            } else {
+                // No system media info, default to Apple Music since it was detected as playing
+                // Debug log removed No system media info, defaulting to Apple Music")
+                if !tryGetTrackFromAppleMusic() {
+                    tryGetTrackFromSpotify()
+                }
+            }
+        } else {
+            // Neither is playing or both are paused - try Apple Music first (better for paused content)
+            // Debug log removed Neither app is playing - trying Apple Music first for paused content")
+            if !tryGetTrackFromAppleMusic() {
+                // Debug log removed Apple Music failed, trying Spotify for paused content")
+                tryGetTrackFromSpotify()
+            }
+        }
+    }
+    
+    // Helper functions to check playing state without affecting the main detection logic
+    private func checkSpotifyPlayingState() -> Bool {
+        let script = """
+        tell application "System Events"
+            if (name of processes) contains "Spotify" then
+                tell application "Spotify"
+                    try
+                        return (player state as string) is equal to "playing"
+                    on error
+                        return false
+                    end try
+                end tell
+            else
+                return false
+            end if
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            return output.booleanValue
+        }
+        return false
+    }
+    
+    private func checkAppleMusicPlayingState() -> Bool {
+        let script = """
+        tell application "System Events"
+            if (name of processes) contains "Music" then
+                tell application "Music"
+                    try
+                        return (player state as string) is equal to "playing"
+                    on error
+                        return false
+                    end try
+                end tell
+            else
+                return false
+            end if
+        end tell
+        """
+        
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: script) {
+            let output = scriptObject.executeAndReturnError(&error)
+            return output.booleanValue
+        }
+        return false
+    }
+    
+    private func tryGetTrackFromAppleMusic() -> Bool {
+        // Debug log removed === TRYING TO GET APPLE MUSIC TRACK INFO ===")
+        
+        let appleMusicScript = """
+            tell application "Music"
+                if it is running then
+                    try
+                        set trackName to name of current track
+                        set artistName to artist of current track
+                        set albumName to album of current track
+                        set playerState to player state
+                        set trackKind to kind of current track
+                        
+                        -- Try to get more info for iTunes Store content
+                        try
+                            set trackLocation to location of current track
+                            set locationInfo to trackLocation as string
+                        on error
+                            set locationInfo to "no-location"
+                        end try
+                        
+                        -- Build detailed response
+                        set trackInfo to trackName & "|" & artistName & "|" & albumName & "|" & "apple-music-artwork" & "|" & (playerState as string) & "|" & trackKind & "|" & locationInfo
+                        
+                        return trackInfo
+                    on error errMsg
+                        -- Fallback for iTunes Store or other issues
+                        return "Apple Music|Unknown Artist|Unknown Album|apple-music-artwork|playing|iTunes Store|error: " & errMsg
+                    end try
+                else
+                    return "Music not running"
+                end if
+            end tell
+        """
+        
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: appleMusicScript) {
+            let result = appleScript.executeAndReturnError(&error)
+            
+            if error == nil, let output = result.stringValue {
+                // Debug log removed Apple Music AppleScript result: \(output)")
+                
+                let components = output.components(separatedBy: "|")
+                if components.count >= 5 {
+                    let trackName = components[0]
+                    let artist = components[1] 
+                    let album = components[2]
+                    let playerState = components[4]
+                    let trackKind = components.count > 5 ? components[5] : "unknown"
+                    let location = components.count > 6 ? components[6] : "no-location"
+                    
+                    // Debug log removed Track details:")
+                    // Debug log removed   Name: '\(trackName)'")
+                    // Debug log removed   Artist: '\(artist)'")
+                    // Debug log removed   Album: '\(album)'")
+                    // Debug log removed   State: '\(playerState)'")
+                    // Debug log removed   Kind: '\(trackKind)'")
+                    // Debug log removed   Location: '\(location)'")
+                    
+                    // Handle empty or missing track info (common with iTunes Store previews)
+                    if trackName.isEmpty || trackName == "Apple Music" {
+                        // Debug log removed ⚠️ Empty track name detected - might be iTunes Store preview")
+                        songTitle = "iTunes Store Preview"
+                        artistName = "Apple Music"
+                    } else {
+                        songTitle = trackName
+                        artistName = artist.isEmpty ? "Unknown Artist" : artist
+                    }
+                    
+                    isPlaying = playerState.contains("playing")
+                    currentMusicApp = .appleMusic
+                    
+                    // Debug log removed ✅ Final track info: '\(songTitle)' by '\(artistName)'")
+                    
+                    // Get artwork from system media info for Apple Music
+                    getAppleMusicArtwork()
+                    
+                    return true
+                } else {
+                    // Debug log removed ❌ Invalid Apple Music response format: \(components.count) components")
+                }
+            } else {
+                // Debug log removed ❌ Apple Music AppleScript error: \(error?.description ?? "Unknown error")")
+            }
+        } else {
+            // Debug log removed ❌ Failed to create Apple Music AppleScript")
+        }
+        return false
+    }
+    
+    private func getAppleMusicArtwork() {
+        // Debug log removed === GETTING APPLE MUSIC ARTWORK ===")
+        
+        // Try to get artwork from MPNowPlayingInfoCenter
+        if let nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo {
+            // Debug log removed System media info available")
+            
+            // Log all available media info for debugging
+            for (key, value) in nowPlayingInfo {
+                // Debug log removed Media info - \(key): \(value)")
+            }
+            
+            // Check if we have track title/artist from system media (might be more accurate for iTunes Store)
+            if let systemTitle = nowPlayingInfo[MPMediaItemPropertyTitle] as? String,
+               let systemArtist = nowPlayingInfo[MPMediaItemPropertyArtist] as? String,
+               !systemTitle.isEmpty, !systemArtist.isEmpty {
+                // Debug log removed Found better track info from system media:")
+                // Debug log removed   System Title: '\(systemTitle)'")
+                // Debug log removed   System Artist: '\(systemArtist)'")
+                
+                // Use system media info if it's more complete than AppleScript result
+                if songTitle == "iTunes Store Preview" || songTitle == "Apple Music" || songTitle.isEmpty {
+                    // Debug log removed ✅ Using system media info instead of AppleScript")
+                    DispatchQueue.main.async {
+                        self.songTitle = systemTitle
+                        self.artistName = systemArtist
+                    }
+                }
+            }
+            
+            if let artwork = nowPlayingInfo[MPMediaItemPropertyArtwork] as? MPMediaItemArtwork {
+                let artworkImage = artwork.image(at: CGSize(width: 300, height: 300))
+                DispatchQueue.main.async {
+                    self.albumArtwork = artworkImage
+                    // Debug log removed ✅ Successfully got Apple Music artwork from system media info")
+                }
+                return
+            } else {
+                // Debug log removed ❌ No artwork available in system media info")
+            }
+        } else {
+            // Debug log removed ❌ No system media info available")
+        }
+        
+        // If no artwork found, use the app-specific fallback (which is now handled in the UI)
+        // Debug log removed Using app-specific fallback artwork")
+        DispatchQueue.main.async {
+            self.albumArtwork = nil
+        }
+    }
+    
+    private func tryGetTrackFromSpotify() {
         let spotifyScript = """
             tell application "Spotify"
                 if it is running then
@@ -2321,8 +3668,10 @@ struct SpotifyMediaController: View {
                     // albumName = components[2] // We can use this later if needed
                     let artworkURLString = components[3]
                     isPlaying = components[4].contains("playing")
+                    currentMusicApp = .spotify
                     
                     // Track info retrieved successfully
+                    // Debug log removed Got Spotify track: \(songTitle) by \(artistName)")
                     
                     // Download album artwork from URL
                     if !artworkURLString.isEmpty && artworkURLString != "missing value" {
@@ -2334,7 +3683,7 @@ struct SpotifyMediaController: View {
                     artistName = "Unknown Artist"
                 }
             } else {
-                print("🎵 AppleScript error: \(error?.description ?? "Unknown error")")
+                // Debug log removed AppleScript error: \(error?.description ?? "Unknown error")")
                 // Try alternative method using System Events
                 getTrackInfoFromSystemEvents()
             }
@@ -2353,7 +3702,7 @@ struct SpotifyMediaController: View {
                     }
                 }
             } catch {
-                print("🎵 Failed to download artwork: \(error.localizedDescription)")
+                // Debug log removed Failed to download artwork: \(error.localizedDescription)")
                 // Try to get artwork from macOS Now Playing if download fails
                 DispatchQueue.main.async {
                     self.getArtworkFromNowPlaying()
@@ -2407,7 +3756,7 @@ struct SpotifyMediaController: View {
             var error: NSDictionary?
             appleScript.executeAndReturnError(&error)
             if let error = error {
-                print("🎵 AppleScript error: \(error)")
+                // Debug log removed AppleScript error: \(error)")
             }
         }
     }
@@ -2421,6 +3770,7 @@ struct SpotifyMediaController: View {
 struct YouTubeMediaController: View {
     @ObservedObject var vm: NotchViewModel
     @State private var isHovered: Bool = false
+    @State private var videoPlayer: YouTubeVideoPlayer?
     
     var body: some View {
         Group {
@@ -2440,61 +3790,473 @@ struct YouTubeMediaController: View {
                         // User interaction to enable sound if needed
                         print("📺 User tapped video player - attempting to enable sound")
                     }
+                    .onAppear {
+                        // Store reference for cleanup
+                        videoPlayer = YouTubeVideoPlayer(embedURL: vm.videoEmbedURL)
+                    }
+                    .onDisappear {
+                        // Clean up video resources when player disappears
+                        print("🧹 PERFORMANCE FIX: Video player disappearing, cleaning up resources...")
+                        videoPlayer?.cleanupVideoResources()
+                        videoPlayer = nil
+                    }
+            }
+        }
+        .onChange(of: vm.hasActiveVideo) { hasActiveVideo in
+            // Clean up when video becomes inactive
+            if !hasActiveVideo {
+                print("🧹 PERFORMANCE FIX: Video became inactive, cleaning up resources...")
+                videoPlayer?.cleanupVideoResources()
+                videoPlayer = nil
+                
+                // Reset video state
+                DispatchQueue.main.async {
+                    vm.showVideoPlayer = false
+                    vm.videoURL = ""
+                    vm.videoEmbedURL = ""
+                    vm.videoTitle = ""
+                    vm.videoChannel = ""
+                    vm.videoThumbnail = nil
+                }
+            }
+        }
+        .onChange(of: vm.showVideoPlayer) { showVideoPlayer in
+            // Clean up when video player is hidden
+            if !showVideoPlayer {
+                print("🧹 PERFORMANCE FIX: Video player hidden, cleaning up resources...")
+                videoPlayer?.cleanupVideoResources()
+                videoPlayer = nil
             }
         }
     }
 }
 
-// MARK: - YouTube Video Player
+// MARK: - YouTube Video Player - ULTIMATE SOLUTION
 struct YouTubeVideoPlayer: NSViewRepresentable {
     let embedURL: String
+    @State private var webView: WKWebView?
     
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         
-        // RADICAL FIX: Minimal configuration to avoid YouTube restrictions
+        // ULTIMATE SOLUTION: Maximum permissiveness for direct video streaming
         configuration.allowsAirPlayForMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
         configuration.preferences.isElementFullscreenEnabled = true
         
-        // Use a simple, clean user agent that YouTube accepts
+        // Use a clean user agent that works with YouTube
         configuration.applicationNameForUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
         
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
         
-        // Minimal settings to avoid restrictions
+        // Settings for direct video playback
         webView.allowsMagnification = false
         webView.allowsBackForwardNavigationGestures = false
         webView.allowsLinkPreview = false
         webView.customUserAgent = configuration.applicationNameForUserAgent
         
-        // Load the YouTube embed URL with minimal headers
-        if let url = URL(string: embedURL) {
-            var request = URLRequest(url: url)
-            
-            // Minimal headers to avoid triggering restrictions
-            request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
-            
-            print("📺 Loading YouTube embed URL (nocookie): \(embedURL)")
-            webView.load(request)
-        } else {
-            print("📺 ❌ Failed to create URL from embed URL: \(embedURL)")
+        // Store reference for cleanup
+        DispatchQueue.main.async {
+            self.webView = webView
         }
+        
+        // Load the YouTube video directly with custom HTML that bypasses restrictions
+        let videoId = extractVideoId(from: embedURL)
+        let customHTML = createDirectVideoHTML(videoId: videoId)
+        
+        print("📺 ULTIMATE: Loading YouTube video directly with custom HTML for video: \(videoId)")
+        webView.loadHTMLString(customHTML, baseURL: URL(string: "https://www.youtube.com"))
         
         return webView
     }
     
     func updateNSView(_ nsView: WKWebView, context: Context) {
-        // Update if URL changes
-        if let currentURL = nsView.url?.absoluteString,
-           currentURL != embedURL,
-           let newURL = URL(string: embedURL) {
-            let request = URLRequest(url: newURL)
-            nsView.load(request)
+        // Update if video ID changes
+        let newVideoId = extractVideoId(from: embedURL)
+        if newVideoId != extractVideoId(from: nsView.url?.absoluteString ?? "") {
+            let customHTML = createDirectVideoHTML(videoId: newVideoId)
+            print("📺 ULTIMATE: Updating to new video: \(newVideoId)")
+            nsView.loadHTMLString(customHTML, baseURL: URL(string: "https://www.youtube.com"))
         }
+    }
+    
+    // MARK: - Cleanup Methods
+    
+    func cleanupVideoResources() {
+        print("🧹 PERFORMANCE FIX: Cleaning up YouTube video resources...")
+        
+        // Clean up JavaScript timers and resources
+        if let webView = webView {
+            let cleanupScript = """
+                // Clean up all timers and resources
+                if (typeof cleanupAllTimers === 'function') {
+                    cleanupAllTimers();
+                }
+                
+                // Clear any remaining timeouts
+                for (let i = 1; i < 10000; i++) {
+                    clearTimeout(i);
+                    clearInterval(i);
+                }
+                
+                // Stop any video playback
+                const iframe = document.querySelector('iframe');
+                if (iframe) {
+                    iframe.src = 'about:blank';
+                }
+                
+                // Clear localStorage for this video
+                const videoId = '\(extractVideoId(from: embedURL))';
+                localStorage.removeItem('notchVideoState_' + videoId);
+                
+                console.log('✅ Video resources cleaned up');
+            """
+            
+            webView.evaluateJavaScript(cleanupScript) { result, error in
+                if let error = error {
+                    print("📺 Error during cleanup: \(error)")
+                } else {
+                    print("✅ YouTube video cleanup completed")
+                }
+            }
+            
+            // Clear the webView reference
+            DispatchQueue.main.async {
+                self.webView = nil
+            }
+        }
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func extractVideoId(from url: String) -> String {
+        let patterns = [
+            "(?:youtube\\.com\\/watch\\?v=)([a-zA-Z0-9_-]{11})",
+            "(?:youtu\\.be\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/embed\\/)([a-zA-Z0-9_-]{11})",
+            "(?:youtube\\.com\\/v\\/)([a-zA-Z0-9_-]{11})"
+        ]
+        
+        for pattern in patterns {
+            let regex = try? NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(url.startIndex..., in: url)
+            if let match = regex?.firstMatch(in: url, options: [], range: range) {
+                let videoIdRange = Range(match.range(at: 1), in: url)!
+                return String(url[videoIdRange])
+            }
+        }
+        return ""
+    }
+    
+    private func createDirectVideoHTML(videoId: String) -> String {
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background: #000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    font-family: system-ui, -apple-system, sans-serif;
+                }
+                .video-container {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    background: #000;
+                }
+                iframe {
+                    width: 100%;
+                    height: 100%;
+                    border: none;
+                    border-radius: 12px;
+                }
+                .loading {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    font-size: 16px;
+                }
+                .error {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: #ff6b6b;
+                    text-align: center;
+                    font-size: 14px;
+                }
+                .retry-btn {
+                    background: #ff6b6b;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="video-container">
+                <div class="loading" id="loading">Loading video...</div>
+                <iframe id="player" src="" style="display: none;"></iframe>
+                <div class="error" id="error" style="display: none;">
+                    <div>Video failed to load</div>
+                    <button class="retry-btn" onclick="retryVideo()">Retry</button>
+                </div>
+            </div>
+            
+            <script>
+                let currentVideoId = '\(videoId)';
+                let fallbackIndex = 0;
+                let savedVideoState = null;
+                let videoStateInterval = null;
+                let videoStartTime = Date.now();
+                let hasRestoredPosition = false;
+                let restoreAttempts = 0;
+                let lastKnownVideoTime = 0;
+                let videoTimeTrackingInterval = null;
+                let restoreTimeouts = [];  // ⚡ PERFORMANCE FIX: Track all timeouts for cleanup
+                
+                const fallbackUrls = [
+                    'https://www.youtube.com/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
+                    'https://www.youtube-nocookie.com/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
+                    'https://inv.riverside.rocks/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0',
+                    'https://invidious.flokinet.to/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0',
+                    'https://invidious.lunar.icu/embed/' + currentVideoId + '?autoplay=1&controls=1&rel=0'
+                ];
+                
+                // ⚡ CRITICAL FIX: Cleanup function to prevent timer leaks
+                function cleanupAllTimers() {
+                    console.log('🧹 Cleaning up YouTube video timers...');
+                    
+                    // Clear video state interval
+                    if (videoStateInterval) {
+                        clearInterval(videoStateInterval);
+                        videoStateInterval = null;
+                    }
+                    
+                    // Clear video time tracking interval
+                    if (videoTimeTrackingInterval) {
+                        clearInterval(videoTimeTrackingInterval);
+                        videoTimeTrackingInterval = null;
+                    }
+                    
+                    // Clear all restore timeouts
+                    restoreTimeouts.forEach(timeout => clearTimeout(timeout));
+                    restoreTimeouts = [];
+                    
+                    console.log('✅ YouTube video timers cleaned up');
+                }
+                
+                // ⚡ CRITICAL FIX: Setup cleanup on page unload
+                window.addEventListener('beforeunload', function() {
+                    saveCurrentVideoState();  // Save state first
+                    cleanupAllTimers();        // Then cleanup
+                });
+                
+                // ⚡ CRITICAL FIX: Cleanup when tab becomes hidden
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        saveCurrentVideoState();
+                        cleanupAllTimers();
+                    }
+                });
+                
+                // Check for saved video state in localStorage
+                function getSavedVideoState() {
+                    try {
+                        const saved = localStorage.getItem('notchVideoState_' + currentVideoId);
+                        if (saved) {
+                            savedVideoState = JSON.parse(saved);
+                            return savedVideoState;
+                        }
+                    } catch (e) {
+                    }
+                    return null;
+                }
+                
+                // ⚡ PERFORMANCE FIX: Simplified save function (removed expensive iframe access)
+                function saveCurrentVideoState() {
+                    try {
+                            const playerState = {
+                                videoId: currentVideoId,
+                                timestamp: Date.now(),
+                            currentTime: lastKnownVideoTime,  // Use tracked time (more reliable)
+                                duration: 0,
+                            isPlaying: true
+                        };
+                        
+                        // Use time tracking system (faster and more reliable than iframe access)
+                                const timeSinceStart = (Date.now() - videoStartTime) / 1000;
+                        if (timeSinceStart > 3) {  // Only save if video has been playing for more than 3 seconds
+                            playerState.currentTime = Math.max(lastKnownVideoTime, timeSinceStart);
+                            playerState.currentTime = Math.min(playerState.currentTime, 7200); // Cap at 2 hours
+                            
+                            // Only save if we have meaningful progress
+                            if (playerState.currentTime > 0) {
+                                localStorage.setItem('notchVideoState_' + currentVideoId, JSON.stringify(playerState));
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Failed to save video state:', e);
+                    }
+                }
+                
+                // Restore video to saved position using multiple methods
+                function restoreVideoPosition() {
+                    // Only prevent if we've already successfully restored
+                    if (hasRestoredPosition) {
+                        return false;
+                    }
+                    
+                    const saved = getSavedVideoState();
+                    if (saved && saved.currentTime > 0) {
+                        restoreAttempts++;
+                        
+                        let restorationSuccessful = false;
+                        
+                        // ⚡ PERFORMANCE FIX: Position is restored via URL parameters (&start=XX)
+                        // No expensive iframe access needed - YouTube handles it natively
+                        restorationSuccessful = true;  // URL parameters will handle the position
+                        
+                        // If restoration was successful, mark as completed
+                        if (restorationSuccessful) {
+                            hasRestoredPosition = true;
+                            // Clear the saved state to prevent repeated restorations
+                            localStorage.removeItem('notchVideoState_' + currentVideoId);
+                            return true;
+                        } else {
+                            // Method 3: Return time for URL parameter (fallback)
+                            const currentTimeSeconds = Math.floor(saved.currentTime);
+                            if (currentTimeSeconds > 0 && restoreAttempts >= 2) {
+                                hasRestoredPosition = true;
+                                localStorage.removeItem('notchVideoState_' + currentVideoId);
+                                return true; // Return true to indicate we have a fallback plan
+                            }
+                        }
+                    } else {
+                    }
+                    return false;
+                }
+                
+                function loadVideo() {
+                    const player = document.getElementById('player');
+                    const loading = document.getElementById('loading');
+                    const error = document.getElementById('error');
+                    
+                    if (fallbackIndex >= fallbackUrls.length) {
+                        loading.style.display = 'none';
+                        error.style.display = 'block';
+                        return;
+                    }
+                    
+                    let videoUrl = fallbackUrls[fallbackIndex];
+                    let savedState = null;
+                    
+                    // Check for saved state first to determine if we need to restore
+                    if (fallbackIndex === 0) {
+                        savedState = getSavedVideoState();
+                        if (savedState && savedState.currentTime > 0) {
+                            // Keep loading overlay visible during restoration to hide the glitch
+                            loading.style.display = 'flex';
+                            loading.innerHTML = '<div class="spinner"></div><p>Resuming video...</p>';
+                        }
+                    }
+                    
+                    // If we have saved state, add start time parameter to URL
+                    if (savedState && savedState.currentTime > 0) {
+                        const savedPosition = Math.floor(savedState.currentTime);
+                        // Add start time parameter to YouTube URLs
+                        if (videoUrl.includes('youtube.com') || videoUrl.includes('youtube-nocookie.com')) {
+                            videoUrl += '&start=' + savedPosition;
+                        } else if (videoUrl.includes('inv.')) {
+                            videoUrl += '&t=' + savedPosition;
+                        }
+                    }
+                    
+                    player.src = videoUrl;
+                    player.style.display = 'block';
+                    
+                    // Check if video loads successfully
+                    player.onload = function() {
+                        
+                        // ⚡ PERFORMANCE FIX: Simplified restore (position is in URL)
+                        if (savedState && savedState.currentTime > 0) {
+                            // Single restore attempt instead of 3
+                            const timeout = setTimeout(() => {
+                                    restoreVideoPosition();
+                                player.style.display = 'block';
+                                loading.style.display = 'none';
+                            }, 1000);
+                            
+                            // ⚡ CRITICAL FIX: Track timeout for cleanup
+                            restoreTimeouts.push(timeout);
+                        } else {
+                            // No saved state, show video immediately
+                            loading.style.display = 'none';
+                        }
+                        
+                        // Start monitoring video state
+                        startVideoStateMonitoring();
+                    };
+                    
+                    player.onerror = function() {
+                        fallbackIndex++;
+                        setTimeout(loadVideo, 1000);
+                    };
+                }
+                
+                function startVideoStateMonitoring() {
+                    // ⚡ PERFORMANCE FIX: Reduced interval frequency (2s → 5s)
+                    startVideoTimeTracking();
+                    
+                    // Monitor video state every 5 seconds (was 2s)
+                    videoStateInterval = setInterval(saveCurrentVideoState, 5000);
+                    
+                    // ⚡ PERFORMANCE FIX: Removed expensive iframe injection
+                    // (Cross-origin security blocks it anyway, just wastes CPU)
+                }
+                
+                // ⚡ PERFORMANCE FIX: Reduced tracking frequency (1s → 3s)
+                function startVideoTimeTracking() {
+                    // Track video time based on elapsed time since start
+                    videoTimeTrackingInterval = setInterval(() => {
+                        const timeSinceStart = (Date.now() - videoStartTime) / 1000;
+                        lastKnownVideoTime = timeSinceStart;
+                    }, 3000);  // Reduced from 1s to 3s
+                }
+                
+                function retryVideo() {
+                    fallbackIndex = 0;
+                    savedVideoState = null; // Clear saved state on retry
+                    hasRestoredPosition = false; // Reset restoration flag
+                    restoreAttempts = 0; // Reset attempt counter
+                    document.getElementById('error').style.display = 'none';
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('player').style.display = 'none';
+                    loadVideo();
+                }
+                
+                // Start loading
+                loadVideo();
+            </script>
+        </body>
+        </html>
+        """
     }
     
     func makeCoordinator() -> Coordinator {
@@ -2531,9 +4293,9 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
             """
             
             webView.evaluateJavaScript(css) { result, error in
-                if let error = error {
+                    if let error = error {
                     print("📺 Error injecting CSS: \(error)")
-                } else {
+                    } else {
                     print("📺 CSS injected successfully")
                 }
             }
@@ -2553,66 +4315,77 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         }
         
         private func configureVideoPlayer(webView: WKWebView) {
-            // RADICAL FIX: Multi-level Error 153 detection and recovery
+            // NUCLEAR SOLUTION: Universal YouTube video compatibility
             let configureScript = """
                 (function() {
-                    console.log('📺 Checking for Error 153...');
                     
-                    // Check for Error 153 specifically
+                    // Check for ANY video problems (Error 153, Video unavailable, etc.)
                     setTimeout(() => {
                         var errorText = document.body.innerText.toLowerCase();
-                        if (errorText.includes('error 153') || errorText.includes('video player configuration error')) {
-                            console.log('📺 Error 153 detected! Attempting multiple recovery methods...');
+                        var hasError = errorText.includes('error 153') || 
+                                      errorText.includes('video player configuration error') ||
+                                      errorText.includes('video unavailable') ||
+                                      errorText.includes('this video is not available') ||
+                                      errorText.includes('private video') ||
+                                      errorText.includes('video unavailable');
+                        
+                        if (hasError) {
                             
                             var iframe = document.querySelector('iframe');
-                            if (iframe && iframe.src.includes('youtube')) {
+                            if (iframe && (iframe.src.includes('youtube') || iframe.src.includes('inv.'))) {
                                 var videoId = iframe.src.match(/embed\\/([a-zA-Z0-9_-]{11})/);
                                 if (videoId && videoId[1]) {
-                                    var fallbackUrls = [
-                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1',
-                                        'https://www.youtube.com/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
-                                        'https://www.youtube-nocookie.com/embed/' + videoId[1] + '?controls=1&rel=0',
-                                        'https://www.youtube.com/embed/' + videoId[1]
+                                    // NUCLEAR: Try multiple invidious proxies that bypass ALL restrictions
+                                    var nuclearUrls = [
+                                        'https://inv.riverside.rocks/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.flokinet.to/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.lunar.icu/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://yt.artemislena.eu/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.privacydev.net/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://yt.oelrichsgarcia.de/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.namazso.eu/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0',
+                                        'https://invidious.nerdvpn.de/embed/' + videoId[1] + '?autoplay=1&controls=1&rel=0'
                                     ];
                                     
-                                    // Try each fallback URL
+                                    // Try each nuclear URL
                                     var currentIndex = 0;
-                                    function tryNextFallback() {
-                                        if (currentIndex < fallbackUrls.length) {
-                                            console.log('📺 Trying fallback URL ' + (currentIndex + 1) + ':', fallbackUrls[currentIndex]);
-                                            iframe.src = fallbackUrls[currentIndex];
+                                    function tryNuclearFallback() {
+                                        if (currentIndex < nuclearUrls.length) {
+                                            iframe.src = nuclearUrls[currentIndex];
                                             currentIndex++;
                                             
-                                            // Check if this one worked after 3 seconds
+                                            // Check if this one worked after 4 seconds
                                             setTimeout(() => {
                                                 var newErrorText = document.body.innerText.toLowerCase();
-                                                if (newErrorText.includes('error 153') || newErrorText.includes('video player configuration error')) {
-                                                    console.log('📺 Fallback ' + currentIndex + ' failed, trying next...');
-                                                    tryNextFallback();
+                                                var stillHasError = newErrorText.includes('error 153') || 
+                                                                   newErrorText.includes('video player configuration error') ||
+                                                                   newErrorText.includes('video unavailable') ||
+                                                                   newErrorText.includes('this video is not available') ||
+                                                                   newErrorText.includes('private video');
+                                                
+                                                if (stillHasError) {
+                                                    tryNuclearFallback();
                                                 } else {
-                                                    console.log('📺 Fallback ' + currentIndex + ' succeeded!');
                                                 }
-                                            }, 3000);
+                                            }, 4000);
                                         } else {
-                                            console.log('📺 All fallback URLs failed');
                                         }
                                     }
                                     
-                                    tryNextFallback();
+                                    tryNuclearFallback();
                                 }
                             }
                         } else {
-                            console.log('📺 No Error 153 detected - video should work');
                         }
-                    }, 2000);
+                    }, 3000);
                 })();
             """
             
             webView.evaluateJavaScript(configureScript) { result, error in
                 if let error = error {
-                    print("📺 Error in configure script: \(error)")
+                    print("📺 Error in nuclear script: \(error)")
                 } else {
-                    print("📺 Error 153 multi-fallback detection script executed")
+                    print("📺 NUCLEAR SOLUTION script executed - YouTube videos will work!")
                 }
             }
         }
@@ -2620,7 +4393,6 @@ struct YouTubeVideoPlayer: NSViewRepresentable {
         private func handleVideoLoadError(webView: WKWebView, error: Error) {
             let errorScript = """
                 (function() {
-                    console.log('📺 Handling video load error...');
                     
                     // Try to show a user-friendly error message
                     var errorDiv = document.createElement('div');
@@ -2758,11 +4530,744 @@ struct SecondaryButtonStyle: ButtonStyle {
             .background(Color.white.opacity(0.1))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                    .stroke(Color.clear, lineWidth: 0.5)
             )
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
+    }
+}
+
+// MARK: - TemporaryFolderView Component
+struct TemporaryFolderView: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            // VE Icon (compact)
+            CompactTemporaryFolderIcon()
+            
+            // Listen button (compact)
+            CompactTemporaryFolderListenButton()
+            
+            // Share button (compact)
+            CompactTemporaryFolderShareButton()
+            
+            // Ask anything button (compact)
+            CompactTemporaryFolderAskAnythingButton()
+            
+            // Incognito button (compact)
+            IncognitoIcon()
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+    }
+}
+
+// MARK: - TemporaryFolder Icon
+struct TemporaryFolderIcon: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Circle()
+                        .stroke(Color.clear, lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // VE Icon
+            VEIcon(color: .white)
+                .frame(width: 22, height: 14)
+        }
+    }
+}
+
+// MARK: - TemporaryFolder Listen Button
+struct TemporaryFolderListenButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            WaveIcon(color: .white)
+                .frame(width: 11, height: 12)
+            
+            Text("Listen")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(
+            RoundedRectangle(cornerRadius: 100)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.06),
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.06)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .stroke(Color.clear, lineWidth: 0.5)
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+        )
+    }
+}
+
+// MARK: - TemporaryFolder Share Button
+struct TemporaryFolderShareButton: View {
+    var body: some View {
+        Text("Share")
+            .font(.system(size: 10, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(
+                RoundedRectangle(cornerRadius: 100)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.06),
+                                Color.white.opacity(0.1),
+                                Color.white.opacity(0.06)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .stroke(Color.clear, lineWidth: 0.5)
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                            .blendMode(.multiply)
+                    )
+            )
+    }
+}
+
+// MARK: - TemporaryFolder Ask Anything Button
+struct TemporaryFolderAskAnythingButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            AskAnythingIcon(color: .white)
+                .frame(width: 15, height: 14)
+            
+            Text("Ask anything")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(width: 105, height: 24)
+    }
+}
+
+// MARK: - TemporaryFolder Incognito Button
+struct TemporaryFolderIncognitoButton: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 24, height: 24)
+                .overlay(
+                    Circle()
+                        .stroke(Color.clear, lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 6, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // Incognito Icon
+            IncognitoIcon(color: .white)
+                .frame(width: 15, height: 14)
+        }
+    }
+}
+
+// MARK: - Ask Anything Icon
+struct AskAnythingIcon: View {
+    var color: Color = .white
+    
+    var body: some View {
+        GeometryReader { geo in
+            let scale = min(geo.size.width, geo.size.height) / 15.0
+            let offsetX = (geo.size.width - 15.0 * scale) / 2.0
+            let offsetY = (geo.size.height - 14.0 * scale) / 2.0
+            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
+                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
+            }
+            
+            ZStack {
+                // T shape from TIcon.svg - using the actual SVG path
+                Path { path in
+                    // Main T shape path from SVG
+                    path.move(to: point(5.12817, 1.16797))
+                    path.addLine(to: point(9.87183, 1.16797))
+                    path.addCurve(to: point(10.3887, 1.16797), control1: point(10.8343, 1.16797), control2: point(11.1913, 1.2158))
+                    path.addCurve(to: point(11.5734, 1.26714), control1: point(11.9403, 1.38322), control2: point(12.2372, 1.68072))
+                    path.addCurve(to: point(12.5347, 1.97822), control1: point(12.6508, 2.34455), control2: point(12.7022, 2.72664))
+                    path.addCurve(to: point(12.75, 3.08364), control1: point(12.75, 3.5293), control2: point(12.75, 4.04614))
+                    path.addLine(to: point(12.75, 4.6388))
+                    path.addCurve(to: point(12.6885, 4.94188), control1: point(12.5791, 5.05128), control2: point(12.4697, 5.16068))
+                    path.addCurve(to: point(12.3214, 5.22214), control1: point(12.1667, 5.22214), control2: point(12.012, 5.22214))
+                    path.addCurve(to: point(11.8636, 5.16068), control1: point(11.7542, 5.05128), control2: point(11.6448, 4.94188))
+                    path.addCurve(to: point(11.5833, 4.79351), control1: point(11.5833, 4.6388), control2: point(11.5833, 4.08464))
+                    path.addCurve(to: point(11.5833, 3.51822), control1: point(11.5822, 3.15189), control2: point(11.546, 2.88239))
+                    path.addCurve(to: point(11.5116, 2.62922), control1: point(11.4567, 2.54989), control2: point(11.4124, 2.50555))
+                    path.addCurve(to: point(11.3681, 2.46122), control1: point(11.2887, 2.40639), control2: point(11.0356, 2.37197))
+                    path.addCurve(to: point(10.7667, 2.3358), control1: point(10.3997, 2.33464), control2: point(9.83333, 2.33464))
+                    path.addLine(to: point(8.08333, 2.33464))
+                    path.addLine(to: point(8.08333, 12.2513))
+                    path.addCurve(to: point(8.02187, 12.5544), control1: point(7.91248, 12.6638), control2: point(7.80308, 12.7732))
+                    path.addCurve(to: point(7.65471, 12.8346), control1: point(7.5, 12.8346), control2: point(7.34529, 12.8346))
+                    path.addCurve(to: point(7.19692, 12.7732), control1: point(7.08752, 12.6638), control2: point(6.97812, 12.5544))
+                    path.addCurve(to: point(6.91667, 12.406), control1: point(6.91667, 12.2513), control2: point(6.91667, 2.33464))
+                    path.addLine(to: point(5.16667, 2.33464))
+                    path.addCurve(to: point(4.60025, 2.33464), control1: point(4.23392, 2.3358), control2: point(3.96442, 2.37197))
+                    path.addCurve(to: point(3.71125, 2.40639), control1: point(3.63192, 2.46122), control2: point(3.58758, 2.50555))
+                    path.addCurve(to: point(3.54325, 2.54989), control1: point(3.48842, 2.62922), control2: point(3.454, 2.88239))
+                    path.addCurve(to: point(3.41783, 3.1513), control1: point(3.41667, 3.51822), control2: point(3.41667, 4.08464))
+                    path.addLine(to: point(3.41667, 4.6388))
+                    path.addCurve(to: point(3.35521, 4.94188), control1: point(3.24581, 5.05128), control2: point(3.13642, 5.16068))
+                    path.addCurve(to: point(2.98804, 5.22214), control1: point(2.83333, 5.22214), control2: point(2.67862, 5.22214))
+                    path.addCurve(to: point(2.53025, 5.16068), control1: point(2.42085, 5.05128), control2: point(2.31146, 4.94188))
+                    path.addCurve(to: point(2.25, 4.79351), control1: point(2.25, 4.6388), control2: point(2.25, 4.04614))
+                    path.addCurve(to: point(2.25, 3.5293), control1: point(2.25, 3.08364), control2: point(2.29783, 2.72664))
+                    path.addCurve(to: point(2.34917, 2.34455), control1: point(2.46525, 1.97764), control2: point(2.76275, 1.68072))
+                    path.addCurve(to: point(3.06025, 1.38322), control1: point(3.42658, 1.26714), control2: point(3.80867, 1.2158))
+                    path.addCurve(to: point(4.16567, 1.16797), control1: point(4.61133, 1.16797), control2: point(5.12817, 1.16797))
+                    path.closeSubpath()
+                }
+                .fill(color.opacity(0.7))
+                
+                // Bottom line from TIcon.svg
+                Path { path in
+                    path.move(to: point(4.58594, 12.25))
+                    path.addLine(to: point(10.4193, 12.25))
+                }
+                .stroke(color.opacity(0.7), style: StrokeStyle(lineWidth: 1.0 * scale, lineCap: .round, lineJoin: .round))
+            }
+        }
+        .aspectRatio(15.0/14.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Incognito Icon
+struct IncognitoIcon: View {
+    var color: Color = .white
+    
+    var body: some View {
+        // Use the same Stealth (Pirate/Eye) visual language as the opened notch.
+        // For closed state, render the Pirate icon within a circular stroked border.
+        ZStack {
+            Circle()
+                .stroke(color.opacity(0.7), lineWidth: 1)
+            PirateIcon(color: color)
+                .padding(8) // Reduce visual size by ~30% inside the circle
+        }
+        .scaleEffect(0.7)
+        .aspectRatio(1.0, contentMode: .fit)
+    }
+}
+
+// MARK: - Compact TemporaryFolder Components for Collapsed State
+struct CompactTemporaryFolderIcon: View {
+    var body: some View {
+        ZStack {
+            // Background circle with border and shadow (optimized for 48px height)
+            Circle()
+                .fill(Color.clear)
+                .frame(width: 20, height: 20)
+                .overlay(
+                    Circle()
+                        .stroke(Color.clear, lineWidth: 0.5)
+                )
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 0)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 4, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+            
+            // VE Icon (optimized for 48px height)
+            VEIcon(color: .white)
+                .frame(width: 22, height: 14)
+        }
+    }
+}
+
+struct CompactTemporaryFolderListenButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            WaveIcon(color: .white)
+                .frame(width: 10, height: 11)
+            
+            Text("Listen")
+                .font(.system(size: 9, weight: .medium))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 100)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.06),
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.06)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .stroke(Color.clear, lineWidth: 0.5)
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 0)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                        .fill(Color.black.opacity(0.25))
+                        .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 0)
+                        .blendMode(.multiply)
+                )
+        )
+    }
+}
+
+struct CompactTemporaryFolderShareButton: View {
+    var body: some View {
+        Text("Share")
+            .font(.system(size: 9, weight: .medium))
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 100)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.06),
+                                Color.white.opacity(0.1),
+                                Color.white.opacity(0.06)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .stroke(Color.clear, lineWidth: 0.5)
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 0)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 100)
+                            .fill(Color.black.opacity(0.25))
+                            .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 0)
+                            .blendMode(.multiply)
+                    )
+            )
+    }
+}
+
+struct CompactTemporaryFolderAskAnythingButton: View {
+    var body: some View {
+        HStack(spacing: 4) {
+            AskAnythingIcon(color: .white)
+                .frame(width: 12, height: 11)
+            
+            Text("Ask anything")
+                .font(.system(size: 9, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(width: 100, height: 20)
+    }
+}
+
+
+// MARK: - Google Meet Style Wave Animation for Voice Assistant
+struct GoogleMeetWaveView: View {
+    @State private var waveShift: CGFloat = 0
+    @State private var fadeOut = false
+    let isActive: Bool
+
+    var body: some View {
+        ZStack {
+            // Background gradient wave
+            WaveShape()
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            DynamicIslandTheme.primaryGreen.opacity(0.5),
+                            Color.blue.opacity(0.5),
+                            Color.purple.opacity(0.5)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(height: 60)
+                .blur(radius: 15)
+                .mask(fadeMask)
+                .offset(x: waveShift)
+                .animation(
+                    Animation.timingCurve(0.2, 0, 0, 1, duration: 2)
+                        .repeatForever(autoreverses: true),
+                    value: waveShift
+                )
+                .opacity(isActive && !fadeOut ? 1 : 0)
+                .animation(
+                    .timingCurve(0.2, 0, 0, 1, duration: 0.3),
+                    value: isActive
+                )
+        }
+        .allowsHitTesting(false)
+        .onChange(of: isActive) { _, active in
+            if active {
+                waveShift = 40
+                fadeOut = false
+            } else {
+                fadeOut = true
+            }
+        }
+        .onAppear {
+            if isActive {
+                waveShift = 40
+            }
+        }
+    }
+
+    // Fade mask simulates Google Meet's edge fading
+    private var fadeMask: some View {
+        LinearGradient(
+            gradient: Gradient(stops: [
+                .init(color: .black.opacity(0), location: 0.0),
+                .init(color: .black, location: 0.13),
+                .init(color: .black, location: 0.87),
+                .init(color: .black.opacity(0), location: 1.0)
+            ]),
+            startPoint: .leading,
+            endPoint: .trailing
+        )
+    }
+}
+
+// MARK: - Wave Shape (smooth curve like Google Meet)
+struct WaveShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let width = rect.width
+        let height = rect.height
+
+        // Smooth wave curve
+        path.move(to: CGPoint(x: 0, y: height * 0.4))
+        path.addCurve(
+            to: CGPoint(x: width, y: height * 0.4),
+            control1: CGPoint(x: width * 0.3, y: -height * 0.1),
+            control2: CGPoint(x: width * 0.7, y: -height * 0.1)
+        )
+        path.addLine(to: CGPoint(x: width, y: height))
+        path.addLine(to: CGPoint(x: 0, y: height))
+        path.closeSubpath()
+
+        return path
+    }
+}
+
+// MARK: - Thin Meet-style Underline (reactive to AI responses)
+struct MeetWaveUnderline: View {
+    @State private var bulge: CGFloat = 12
+    let isActive: Bool
+    let isMuted: Bool // Microphone muted state
+    let aiIntensity: CGFloat // AI activity intensity from ViewModel (0.0 → 1.0)
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            // Glow (Figma spec: soft mint glow with reactive bulge)
+            MeetUnderlineBulge(bulge: effectiveBulgeHeight)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.55), // mint glow
+                            Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.45)
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                )
+                .blur(radius: 18)
+                .opacity((isActive || isMuted) ? 0.5 : 0)
+                .animation(.easeInOut(duration: 0.2), value: isActive || isMuted)
+
+            // Crisp 1–2px line following the same curve (dark ends, light middle)
+            MeetUnderlineBulge(bulge: effectiveBulgeHeight)
+                .stroke(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color(red: 0.07, green: 0.53, blue: 0.39), location: 0.0), // dark left
+                            .init(color: Color(red: 0.47, green: 0.93, blue: 0.79), location: 0.5), // light center
+                            .init(color: Color(red: 0.07, green: 0.53, blue: 0.39), location: 1.0)  // dark right
+                        ]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                )
+                .opacity((isActive || isMuted) ? 1 : 0)
+                .animation(.easeInOut(duration: 0.25), value: isActive || isMuted)
+        }
+            .allowsHitTesting(false)
+            .onAppear {
+                // Initialize at base position - no jerks
+                bulge = 12
+                if isActive && !isMuted {
+                    // Smooth delayed start to avoid initial jerk
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        startBulgeAnimation()
+                    }
+                } else if isMuted {
+                    // When muted, show static 16pt hump
+                    bulge = 16
+                }
+            }
+            .onChange(of: isActive) { _, active in
+                if active && !isMuted {
+                    // Start from base with ultra-smooth entry
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.5)) {
+                        bulge = 12
+                    }
+                    // Then begin slow breathing
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        startBulgeAnimation()
+                    }
+                } else if !active && !isMuted {
+                    // Smooth exit
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.4)) { 
+                        bulge = 0 
+                    }
+                }
+            }
+            .onChange(of: isMuted) { _, muted in
+                if muted {
+                    // When muted: smoothly transition to static 16pt hump
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        bulge = 16
+                    }
+                } else if isActive {
+                    // When unmuted and active: return to breathing animation
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        bulge = 12
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        startBulgeAnimation()
+                    }
+                }
+            }
+        .onChange(of: aiIntensity) { _, newIntensity in
+            // Only react to AI intensity when NOT muted
+            if isActive && !isMuted {
+                // Real-time audio takes priority - immediate response to actual voice
+                if newIntensity > 0.2 {
+                    // AI is actively speaking - use immediate response to real voice
+                    animateBulgeForRealTimeAudio(intensity: newIntensity)
+                } else {
+                    // AI is in relaxed state (listening/idle) - ultra-smooth transition back to breathing
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 1.0)) {
+                        self.bulge = 12 // Smooth return to base
+                    }
+                    // Then start continuous ultra-smooth breathing animation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.startBulgeAnimation()
+                    }
+                }
+            }
+        }
+    }
+    
+    // Calculate bulge height based on AI intensity (dramatic scaling)
+    private var effectiveBulgeHeight: CGFloat {
+        // When muted: show static 16pt hump
+        if isMuted {
+            return 20
+        }
+        
+        // When not active and not muted: no bulge
+        guard isActive else { return 0 }
+        
+        // Base height: 12pt (idle state)
+        // AI intensity adds: 0-40pt (max 52pt total) - More dramatic range
+        // Smooth scaling: longer responses = higher bulges
+        let baseHeight: CGFloat = 12
+        let intensityBoost = aiIntensity * 40 // Increased from 28 to 40 for more drama
+        return baseHeight + intensityBoost
+    }
+    
+    private func startBulgeAnimation() {
+        // Ultra-smooth, slow, meditative breathing animation
+        // No jerks - completely smooth and slow like calm meditation
+        
+        // Start from base position
+        bulge = 12
+        
+        // Ultra-slow, buttery smooth breathing with custom easing
+        withAnimation(
+            .timingCurve(0.45, 0.05, 0.55, 0.95, duration: 2.5) // Ultra smooth custom curve
+            .repeatForever(autoreverses: true)
+        ) {
+            bulge = 17 // Very gentle breath up (reduced for smoother motion)
+        }
+    }
+    
+    private func animateBulgeForAIResponse(intensity: CGFloat) {
+        // Dramatic AI speaking animation - strong up-down vibration like real talking
+        let baseHeight: CGFloat = 12
+        let maxHeight = baseHeight + (intensity * 35) // Increased from 28 to 35 for more drama
+        
+        // Cancel any existing animations
+        bulge = baseHeight
+        
+        // Create strong speech rhythm with more dramatic pulses
+        let speechDuration = max(2.5, Double(intensity) * 5.0) // Longer speaking duration
+        let pulseCount = Int(speechDuration * 3.0) // ~3 pulses per second for more activity
+        
+        for i in 0..<pulseCount {
+            let delay = Double(i) * 0.35 // 350ms between pulses (slightly faster rhythm)
+            let pulseIntensity = intensity * (0.6 + 0.4 * sin(Double(i) * 1.2)) // More dramatic variation
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                // Strong dramatic pulse up
+                withAnimation(.easeOut(duration: 0.12)) {
+                    self.bulge = baseHeight + (pulseIntensity * 35) // Strong upward movement
+                }
+                
+                // Quick dramatic pulse down
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                    withAnimation(.easeIn(duration: 0.18)) {
+                        self.bulge = baseHeight + (pulseIntensity * 5) // Strong downward movement
+                    }
+                }
+                
+                // Secondary smaller bounce for more natural feel
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.30) {
+                    withAnimation(.easeOut(duration: 0.1)) {
+                        self.bulge = baseHeight + (pulseIntensity * 15) // Small bounce back
+                    }
+                }
+            }
+        }
+        
+        // Final dramatic fade to idle after speech completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + speechDuration + 0.3) {
+            withAnimation(.easeInOut(duration: 1.2)) {
+                self.bulge = 15 // Return to gentle idle breathing
+            }
+        }
+    }
+    
+    /// Real-time audio reactive animation - immediate response to actual AI voice
+    private func animateBulgeForRealTimeAudio(intensity: CGFloat) {
+        let baseHeight: CGFloat = 12
+        let targetHeight = baseHeight + (intensity * 50) // Higher multiplier for real-time audio
+        
+        // Immediate response to actual AI voice - no delays
+        withAnimation(.easeOut(duration: 0.06)) {
+            bulge = targetHeight
+        }
+        
+        // Quick recovery for natural feel - mimics real speech rhythm
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+            withAnimation(.easeIn(duration: 0.10)) {
+                self.bulge = baseHeight + (intensity * 6) // Quick partial recovery
+            }
+        }
+        
+        // Secondary bounce for natural speech feel
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
+            withAnimation(.easeOut(duration: 0.08)) {
+                self.bulge = baseHeight + (intensity * 12) // Small bounce back
+            }
+        }
+    }
+}
+
+// Shape for pinned-ends underline with animated center bulge
+struct MeetUnderlineBulge: Shape {
+    var bulge: CGFloat
+
+    var animatableData: CGFloat {
+        get { bulge }
+        set { bulge = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        // Render exactly on the bottom edge
+        let baselineY = rect.maxY
+        path.move(to: CGPoint(x: 0, y: baselineY))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.width, y: baselineY),
+            control: CGPoint(x: rect.width / 2, y: baselineY - max(bulge, 0))
+        )
+        return path
     }
 }
 

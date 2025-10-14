@@ -29,7 +29,7 @@ const Email = ({
 		authInfo: {
 			checkAccountExistsUsingEmail,
 			createAccountUsingEmail,
-			continueWithGoogle,
+			// continueWithGoogle,
 			getUsernameDetailsViaReferralCode,
 			getLocationDetails,
 		},
@@ -160,26 +160,26 @@ const Email = ({
 		return response;
 	};
 
-	const handleContinueWithGoogle = async () => {
-		if (info?.googleLoading) {
-			return;
-		}
-		if (!locationDetails || locationDetails === null || locationDetails === 'undefined') {
-			const response = await getLocationDetails();
-			if (response?.[0] === true) {
-				locationDetails = response?.[1];
-			} else {
-				message?.error(response?.[1]?.message);
-			}
-		}
+	// const handleContinueWithGoogle = async () => {
+	// 	if (info?.googleLoading) {
+	// 		return;
+	// 	}
+	// 	if (!locationDetails || locationDetails === null || locationDetails === 'undefined') {
+	// 		const response = await getLocationDetails();
+	// 		if (response?.[0] === true) {
+	// 			locationDetails = response?.[1];
+	// 		} else {
+	// 			message?.error(response?.[1]?.message);
+	// 		}
+	// 	}
 
-		setInfo((prev) => ({ ...prev, googleLoading: true }));
-		if (info?.referrerUserDetails?.isValidReferralCode) {
-			continueWithGoogle(locationDetails, referralCode);
-		} else {
-			continueWithGoogle(locationDetails);
-		}
-	};
+	// 	setInfo((prev) => ({ ...prev, googleLoading: true }));
+	// 	if (info?.referrerUserDetails?.isValidReferralCode) {
+	// 		continueWithGoogle(locationDetails, referralCode);
+	// 	} else {
+	// 		continueWithGoogle(locationDetails);
+	// 	}
+	// };
 
 	const handleSetEmail = (e, invitedUserEmail = false) => {
 		const email = e?.target?.value ?? invitedUserEmail;
@@ -310,35 +310,35 @@ const Email = ({
 					</div>
 				</div>
 			</div>
-			{info?.isHostnameVeDotAi && (
-				<>
-					<div className="service-container">
-						<div
-							disabled={info?.googleLoading}
-							className="google-login-button"
-							onClick={handleContinueWithGoogle}
-						>
-							<div className="google-logo-container">
-								<GoogleLogo />
-								<p>Continue with Google</p>
-							</div>
-							{info?.googleLoading && (
-								<Spinner
-									width="18px"
-									height="18px"
-									color="var(--primary-button)"
-									borderTopColor="transparent"
-									borderWidth={1.5}
-								/>
-							)}
-						</div>
+			{/* {info?.isHostnameVeDotAi && (
+				<> */}
+			{/* <div className="service-container">
+				<button
+					disabled={info?.googleLoading || !info?.isHostnameVeDotAi}
+					className="google-login-button"
+					onClick={handleContinueWithGoogle}
+				>
+					<div className="google-logo-container">
+						<GoogleLogo />
+						<p>Continue with Google</p>
 					</div>
-					<div className="or-divider">
-						<div className="line"></div>
-						<span className="or-text">OR</span>
-					</div>
-				</>
-			)}
+					{info?.googleLoading && (
+						<Spinner
+							width="18px"
+							height="18px"
+							color="var(--primary-button)"
+							borderTopColor="transparent"
+							borderWidth={1.5}
+						/>
+					)}
+				</button>
+			</div>
+			<div className="or-divider">
+				<div className="line"></div>
+				<span className="or-text">OR</span>
+			</div> */}
+			{/* </>
+			)} */}
 			<div className="login-content-wrapper">
 				<div className="login-button-container">
 					<div className="email-input-container">
@@ -361,7 +361,7 @@ const Email = ({
 									width="20px"
 									height="20px"
 									borderTopColor="transparent"
-									color="var(--background-color)"
+									color="var(--font-primary-color)"
 								/>
 							) : info?.isEmailValid ? (
 								<span ref={arrowRef}>
@@ -379,7 +379,7 @@ const Email = ({
 						</button>
 					</div>
 				</div>
-				{info?.isHostnameVeDotAi && (
+				{/* {info?.isHostnameVeDotAi && (
 					<>
 						<div className="or-divider">
 							<div className="line"></div>
@@ -407,7 +407,7 @@ const Email = ({
 							</div>
 						</div>
 					</>
-				)}
+				)} */}
 			</div>
 			<div className="acknowledge-container">
 				<p className="acknowledge-text">

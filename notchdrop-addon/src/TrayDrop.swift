@@ -30,7 +30,6 @@ class TrayDrop: ObservableObject {
                 TimeInterval(customStorageTime) * 60 * 60 * 24 * 365
             }
             let ans = selectedFileStorageTime.toTimeInterval(customTime: customTime)
-            print("[*] using interval \(ans) to keep files")
             return ans
         }
         .receive(on: DispatchQueue.main)
@@ -57,23 +56,54 @@ class TrayDrop: ObservableObject {
     @Published var isLoading: Int = 0
 
     func load(_ providers: [NSItemProvider]) {
-        assert(!Thread.isMainThread)
-        DispatchQueue.main.asyncAndWait { isLoading += 1 }
+        // Don't assert - just log the thread
+        print("📥 TrayDrop: Loading \(providers.count) provider(s) on thread: \(Thread.isMainThread ? "MAIN" : "BACKGROUND")")
+        
+        // Ensure we increment loading on main thread
+        if Thread.isMainThread {
+            isLoading += 1
+        } else {
+            DispatchQueue.main.sync { isLoading += 1 }
+        }
+        
         guard let urls = providers.interfaceConvert() else {
-            DispatchQueue.main.asyncAndWait { isLoading -= 1 }
+            print("❌ TrayDrop: Failed to convert providers to URLs")
+            DispatchQueue.main.async { self.isLoading -= 1 }
             return
         }
+        
+        print("✅ TrayDrop: Got \(urls.count) URLs, creating items...")
+        urls.forEach { url in
+            print("📂 URL: \(url.path)")
+        }
+        
         do {
-            let items = try urls.map { try DropItem(url: $0) }
+            let items = try urls.map { url in
+                print("📦 Creating DropItem for: \(url.lastPathComponent)")
+                let item = try DropItem(url: url)
+                print("✅ Created DropItem with ID: \(item.id)")
+                return item
+            }
+            
+            print("💾 TrayDrop: Successfully created \(items.count) items, adding to array...")
+            
             DispatchQueue.main.async {
+                print("💾 Adding \(items.count) items to tray (current count: \(self.items.count))")
                 items.forEach { item in
                     if !self.items.contains(where: { $0.id == item.id }) {
                         self.items.insert(item, at: 0)
+                        print("✅ Added: \(item.fileName) (new count: \(self.items.count))")
+                    } else {
+                        print("⚠️ Item already exists: \(item.fileName)")
                     }
                 }
                 self.isLoading -= 1
+                print("🎉 TrayDrop: Load complete! Total items: \(self.items.count)")
+                print("📋 Current items: \(self.items.map { $0.fileName })")
             }
         } catch {
+            print("❌ TrayDrop: Error creating items: \(error)")
+            print("❌ Error details: \(error.localizedDescription)")
             DispatchQueue.main.async {
                 self.isLoading -= 1
                 NSAlert.popError(error)
@@ -93,31 +123,54 @@ class TrayDrop: ObservableObject {
     }
 
     func delete(_ item: DropItem.ID) {
-        guard let item = items.first(where: { $0.id == item }) else { return }
+        guard let item = items.first(where: { $0.id == item }) else { 
+            print("⚠️ TrayDrop: Item not found for deletion: \(item)")
+            return 
+        }
+        print("🗑️ TrayDrop: Starting deletion of item: \(item.fileName)")
         delete(item: item)
     }
 
     private func delete(item: DropItem) {
-        var inEdit = items
-
-        var url = item.storageURL
-        try? FileManager.default.removeItem(at: url)
-
-        do {
-            // loops up to the main directory
-            url = url.deletingLastPathComponent()
-            while url.lastPathComponent != DropItem.mainDir, url != FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                let contents = try FileManager.default.contentsOfDirectory(atPath: url.path)
-                guard contents.isEmpty else { break }
-                try FileManager.default.removeItem(at: url)
-                url = url.deletingLastPathComponent()
+        print("🗑️ TrayDrop: Deleting item: \(item.fileName) (ID: \(item.id))")
+        
+        // First, immediately remove from UI to provide instant feedback
+        DispatchQueue.main.async {
+            if let index = self.items.firstIndex(where: { $0.id == item.id }) {
+                print("🗑️ TrayDrop: Removing item from UI at index: \(index)")
+                self.items.remove(at: index)
+                print("✅ TrayDrop: Item removed from UI. Remaining items: \(self.items.count)")
+            } else {
+                print("⚠️ TrayDrop: Item not found in items array during deletion")
             }
-        } catch {}
-
-        if let index = inEdit.firstIndex(where: { $0.id == item.id }) {
-            inEdit.remove(at: index)
         }
-        items = inEdit
+        
+        // Then handle file system cleanup in background
+        DispatchQueue.global(qos: .background).async {
+            var url = item.storageURL
+            print("🗑️ TrayDrop: Deleting file at: \(url.path)")
+            
+            do {
+                try FileManager.default.removeItem(at: url)
+                print("✅ TrayDrop: File deleted successfully")
+            } catch {
+                print("❌ TrayDrop: Failed to delete file: \(error)")
+            }
+
+            // Clean up empty directories
+            do {
+                url = url.deletingLastPathComponent()
+                while url.lastPathComponent != DropItem.mainDir, url != FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                    let contents = try FileManager.default.contentsOfDirectory(atPath: url.path)
+                    guard contents.isEmpty else { break }
+                    try FileManager.default.removeItem(at: url)
+                    print("🗑️ TrayDrop: Removed empty directory: \(url.path)")
+                    url = url.deletingLastPathComponent()
+                }
+            } catch {
+                print("⚠️ TrayDrop: Error cleaning up directories: \(error)")
+            }
+        }
     }
 
     func removeAll() {
@@ -175,3 +228,4 @@ extension TrayDrop {
         }
     }
 }
+

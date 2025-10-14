@@ -1,0 +1,245 @@
+/* Glass Mode Styles - Enhanced Transparency System */
+
+/* Base glass mode styles */
+.glass-mode-enabled {
+	/* CRITICAL FIX: Override CSS variables for transparency ONLY when glass mode is enabled */
+	--background-color: transparent !important;
+	// --chat-background-color: rgba(18, 18, 18, 0.1) !important;
+
+	/* CRITICAL FIX: Keep these commented so production uses same defaults as dev mode */
+	// --card: rgba(18, 18, 18, 0.12) !important;
+	// --new-card: rgba(18, 18, 18, 0.12) !important;
+	// --card-hover: rgba(18, 18, 18, 0.18) !important;
+	// --card-over-card: rgba(18, 18, 18, 0.12) !important;
+	// --card-over-card-hover: rgba(18, 18, 18, 0.18) !important;
+	// --popup: rgba(18, 18, 18, 0.15) !important;
+	// --navbar: rgba(18, 18, 18, 0.05) !important;
+	// --right-bar: rgba(18, 18, 18, 0.12) !important;
+
+	/* Ensure main containers are transparent ONLY in glass mode */
+	html,
+	body,
+	#root {
+		background: transparent !important;
+		// backdrop-filter: none !important;
+		// -webkit-backdrop-filter: none !important;
+	}
+
+	/* Force transparency for any element using --background-color */
+	* {
+		&[style*='background-color: var(--background-color)'],
+		&[style*='background: var(--background-color)'],
+		&[style*="backgroundColor: 'var(--background-color)'"],
+		&[style*='backgroundColor: "var(--background-color)"'] {
+			background: transparent !important;
+		}
+	}
+
+	/* Additional selectors for common background patterns */
+	[style*='var(--background-color)'] {
+		background: transparent !important;
+	}
+
+	/* Glass morphism for content containers */
+	.app-content,
+	.glass-app {
+		background: transparent;
+		backdrop-filter: blur(20px) saturate(180%);
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+		border-radius: 16px;
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+		height: 100%;
+	}
+
+	/* Cards and panels - enhanced glass effect */
+	// .card,
+	// .panel,
+	// .sidebar,
+	// .content-panel {
+	// 	background: rgba(18, 18, 18, 0.12) !important;
+	// 	backdrop-filter: blur(20px) saturate(150%) !important;
+	// 	-webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+	// 	border-radius: 16px !important;
+	// 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+	// }
+
+	// /* Navigation and header - subtle glass effect */
+	// .navbar,
+	// .header,
+	// .nav {
+	// 	background: rgba(18, 18, 18, 0.05) !important;
+	// 	backdrop-filter: blur(8px) saturate(110%) !important;
+	// 	-webkit-backdrop-filter: blur(8px) saturate(110%) !important;
+	// 	border: 1px solid rgba(255, 255, 255, 0.03) !important;
+	// 	border-radius: 12px !important;
+	// }
+
+	/* Overlay and modal - stronger glass effect */
+	// .modal,
+	// .overlay,
+	// .popup,
+	// .dialog {
+	// 	background: rgba(18, 18, 18, 0.15) !important;
+	// 	backdrop-filter: blur(25px) saturate(180%) !important;
+	// 	-webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+	// 	border: 1px solid rgba(255, 255, 255, 0.1) !important;
+	// 	border-radius: 20px !important;
+	// 	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2) !important;
+	// }
+
+	/* Text content - ensure readability */
+	p,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6,
+	span,
+	// div[class*='text'],
+	.text,
+	.title,
+	.subtitle,
+	.label,
+	.description {
+		// backdrop-filter: none !important;
+		// -webkit-backdrop-filter: none !important;
+		background: transparent !important;
+	}
+
+	// /* Form elements - glass effect */
+	// input,
+	// textarea,
+	// select {
+	// 	backdrop-filter: blur(10px) saturate(120%) !important;
+	// 	-webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+	// 	border: 1px solid rgba(255, 255, 255, 0.1) !important;
+	// 	border-radius: 8px !important;
+	// }
+
+	// /* List items - glass effect */
+	// li,
+	// .list-item {
+	// 	background: rgba(18, 18, 18, 0.05) !important;
+	// 	backdrop-filter: blur(5px) saturate(110%) !important;
+	// 	-webkit-backdrop-filter: blur(5px) saturate(110%) !important;
+	// 	border-radius: 8px !important;
+	// 	margin: 2px 0 !important;
+	// }
+
+	// /* Tables - glass effect */
+	// table,
+	// th,
+	// td {
+	// 	background: rgba(18, 18, 18, 0.1) !important;
+	// 	backdrop-filter: blur(10px) saturate(120%) !important;
+	// 	-webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+	// 	border: 1px solid rgba(255, 255, 255, 0.1) !important;
+	// }
+
+	// /* Scrollbars - subtle glass effect */
+	// ::-webkit-scrollbar {
+	// 	background: rgba(18, 18, 18, 0.1) !important;
+	// }
+
+	// ::-webkit-scrollbar-thumb {
+	// 	background: rgba(255, 255, 255, 0.2) !important;
+	// 	backdrop-filter: blur(5px) !important;
+	// 	-webkit-backdrop-filter: blur(5px) !important;
+	// 	border-radius: 10px !important;
+	// }
+
+	/* Special components */
+	// .notch-drop-content,
+	// .dynamic-island-content {
+	// 	background: rgba(18, 18, 18, 0.15) !important;
+	// 	backdrop-filter: blur(25px) saturate(200%) !important;
+	// 	-webkit-backdrop-filter: blur(25px) saturate(200%) !important;
+	// 	border-radius: 20px !important;
+	// 	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3) !important;
+	// }
+
+	/* Voice agent components */
+	// .voice-agent,
+	// .voice-controls {
+	// 	background: rgba(18, 18, 18, 0.2) !important;
+	// 	backdrop-filter: blur(20px) saturate(180%) !important;
+	// 	-webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+	// 	border-radius: 16px !important;
+	// 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+	// }
+}
+
+// /* Light theme glass mode adjustments */
+// [theme='light'].glass-mode-enabled {
+// 	/* Override CSS variables for light theme transparency */
+// 	--background-color: transparent !important;
+// 	--chat-background-color: rgba(255, 255, 255, 0.1) !important;
+// 	--card: rgba(255, 255, 255, 0.12) !important;
+// 	--new-card: rgba(255, 255, 255, 0.12) !important;
+// 	--card-hover: rgba(255, 255, 255, 0.18) !important;
+// 	--card-over-card: rgba(255, 255, 255, 0.12) !important;
+// 	--card-over-card-hover: rgba(255, 255, 255, 0.18) !important;
+// 	--popup: rgba(255, 255, 255, 0.15) !important;
+// 	--navbar: rgba(255, 255, 255, 0.05) !important;
+// 	--right-bar: rgba(255, 255, 255, 0.12) !important;
+
+// 	/* Light theme glass effects */
+// 	.app-content,
+// 	.glass-app {
+// 		background: rgba(255, 255, 255, 0.2) !important;
+// 		backdrop-filter: blur(20px) saturate(180%) !important;
+// 		-webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+// 	}
+
+// 	.card,
+// 	.panel,
+// 	.sidebar,
+// 	.content-panel {
+// 		background: rgba(255, 255, 255, 0.12) !important;
+// 		backdrop-filter: blur(20px) saturate(150%) !important;
+// 		-webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+// 	}
+
+// 	.navbar,
+// 	.header,
+// 	.nav {
+// 		background: rgba(255, 255, 255, 0.05) !important;
+// 		backdrop-filter: blur(8px) saturate(110%) !important;
+// 		-webkit-backdrop-filter: blur(8px) saturate(110%) !important;
+// 		border: 1px solid rgba(0, 0, 0, 0.03) !important;
+// 	}
+
+// 	.modal,
+// 	.overlay,
+// 	.popup,
+// 	.dialog {
+// 		background: rgba(255, 255, 255, 0.15) !important;
+// 		backdrop-filter: blur(25px) saturate(180%) !important;
+// 		-webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+// 		border: 1px solid rgba(0, 0, 0, 0.1) !important;
+// 	}
+
+// 	input,
+// 	textarea,
+// 	select {
+// 		background: rgba(255, 255, 255, 0.1) !important;
+// 		backdrop-filter: blur(10px) saturate(120%) !important;
+// 		-webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+// 		border: 1px solid rgba(0, 0, 0, 0.1) !important;
+// 	}
+// }
+
+/* Performance optimizations */
+.glass-mode-enabled * {
+	will-change: auto;
+}
+
+.glass-mode-enabled .app-content,
+.glass-mode-enabled .glass-app,
+.glass-mode-enabled .card,
+.glass-mode-enabled .panel {
+	will-change: backdrop-filter;
+	transform: translateZ(0);
+	height: 100%;
+}

@@ -646,18 +646,33 @@ const actionHandlers = {
 		if (suggested_prompt) {
 			if ('reference_id' in suggested_prompt) {
 				const index = suggestions?.findIndex(
-					(s) => s.prompt_id === suggested_prompt.reference_id,
+					(s) =>
+						s.prompt_id === suggested_prompt.reference_id ||
+						s.previous_prompt_ids?.includes(suggested_prompt.reference_id),
 				);
 
 				if (index !== -1) {
-					// Replace existing
-					suggestions[index] = suggested_prompt;
+					const oldPrompt = suggestions[index];
+
+					// Remove old one
+					suggestions.splice(index, 1);
+
+					// Merge history: carry over previous IDs and add the old prompt_id
+					suggested_prompt.previous_prompt_ids = [
+						...(oldPrompt.previous_prompt_ids || []),
+						oldPrompt.prompt_id,
+					];
 				} else {
-					// Add new
-					suggestions?.push(suggested_prompt);
+					// If no match found, still initialize previous_prompt_ids
+					suggested_prompt.previous_prompt_ids =
+						suggested_prompt.previous_prompt_ids || [];
 				}
+
+				// Append new one to the bottom
+				suggestions?.push(suggested_prompt);
 			} else {
-				// Old version → always push
+				// Old version → always push, ensure previous_prompt_ids exists
+				suggested_prompt.previous_prompt_ids = suggested_prompt.previous_prompt_ids || [];
 				suggestions?.push(suggested_prompt);
 			}
 		}
@@ -701,6 +716,7 @@ const actionHandlers = {
 			},
 		};
 	},
+
 	RESET_STATE: () => intialState,
 };
 

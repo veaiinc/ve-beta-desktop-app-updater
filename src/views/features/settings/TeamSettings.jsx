@@ -82,11 +82,10 @@ const TeamSettings = () => {
 	useEffect(() => {
 		const filtered = tenantsUserList
 			?.filter((user) => {
-				const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`?.toLowerCase();
-				return (
-					fullName.includes(info.searchQuery.toLowerCase()) ||
-					user?.email.toLocaleLowerCase().includes(info.searchQuery.toLocaleLowerCase())
-				);
+				const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.toLowerCase();
+				const emailLower = (user?.email || '').toLowerCase();
+				const queryLower = info.searchQuery.toLowerCase();
+				return fullName.includes(queryLower) || emailLower.includes(queryLower);
 			})
 			.sort((a, b) => {
 				if (a.role === 'admin' && b.role !== 'admin') {

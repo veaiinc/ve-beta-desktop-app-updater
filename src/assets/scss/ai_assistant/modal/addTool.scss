@@ -129,12 +129,12 @@
 			&.selected {
 				background: var(--primary-button);
 				border-color: var(--primary-button);
-				color: var(--background-color);
+				color: var(--font-primary-color);
 				.app-info h3,
 				.app-info p,
 				.action-info h3,
 				.action-info p {
-					color: var(--background-color);
+					color: var(--font-primary-color);
 				}
 			}
 
@@ -348,7 +348,7 @@
 				&.active {
 					border-color: var(--primary-button);
 					background: var(--primary-button);
-					color: var(--background-color);
+					color: var(--font-primary-color);
 				}
 			}
 		}
@@ -607,11 +607,11 @@
 			&.selected {
 				background: var(--primary-button);
 				border-color: var(--primary-button);
-				color: var(--background-color);
+				color: var(--font-primary-color);
 				.account-info h3,
 				.account-info p,
 				.account-info .account-date {
-					color: var(--background-color);
+					color: var(--font-primary-color);
 				}
 			}
 

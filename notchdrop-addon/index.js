@@ -2,9 +2,7 @@
 if (process.platform !== 'darwin') {
 	// Export a mock wrapper for non-macOS platforms
 	class MockNotchDropAddonWrapper {
-		constructor() {
-			console.log('ℹ️ NotchDrop addon skipped - not supported on', process.platform);
-		}
+		constructor() {}
 
 		initialize() {
 			return false;
@@ -65,6 +63,9 @@ if (process.platform !== 'darwin') {
 		getNotchVisible() {
 			return false;
 		}
+		setInteractionEnabled() {
+			return false;
+		}
 		showMenu() {
 			return false;
 		}
@@ -108,6 +109,17 @@ if (process.platform !== 'darwin') {
 			return false;
 		}
 
+		// Mock voice and transcription methods
+		addVoiceMessage() {
+			return false;
+		}
+		addTranscriptionData() {
+			return false;
+		}
+		sendLiveIntelligenceData() {
+			return false;
+		}
+
 		// Mock async methods
 		async triggerOverlayRecording() {
 			return { success: false, error: 'Not supported on this platform' };
@@ -137,7 +149,6 @@ if (process.platform !== 'darwin') {
 
 	module.exports = MockNotchDropAddonWrapper;
 	module.exports.NotchDropAddonWrapper = MockNotchDropAddonWrapper;
-	return;
 }
 
 // Load the native addon with fallback to prebuilt binaries (macOS only)
@@ -512,6 +523,22 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'setAuthenticated':
 				this.emit('setAuthenticated', data === 'true');
 				break;
+			case 'selectionCaptured': {
+				const payload = this.safeParseJSON(data, null);
+				if (payload) {
+					this.emit('selectionCaptured', payload);
+				}
+				break;
+			}
+			case 'selectionPermissionChanged': {
+				const payload = this.safeParseJSON(data, null);
+				const granted =
+					payload && typeof payload.granted === 'boolean'
+						? payload.granted
+						: data === 'true';
+				this.emit('selectionPermissionChanged', { granted });
+				break;
+			}
 			case 'navigateToMainScreen': {
 				const targetPath =
 					typeof data === 'string' && data.trim().length > 0
@@ -540,7 +567,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 				this.emit('voiceConnectionStateChanged', data);
 				break;
 			case 'startVoiceAgent':
-				console.log('🎤 NotchDrop: Received startVoiceAgent action');
 				this.emit('startVoiceAgent', data);
 				break;
 			case 'receiveMessage':
@@ -567,7 +593,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 				break;
 			// Wake Word Detection Actions
 			case 'wakeWordDetected':
-				console.log('🎯 NotchDrop: Wake word detected with score:', data);
 				this.emit('wakeWordDetected', parseFloat(data) || 0.0);
 				break;
 			default:
@@ -591,7 +616,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 	// Handle received messages from Electron
 	handleReceivedMessage(message) {
 		try {
-			console.log('📨 Message received from Electron:', message);
 			// Emit the received message event
 			this.emit('messageReceived', message);
 		} catch (error) {
@@ -605,7 +629,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 		// so it's left as a placeholder.
 		// In a real scenario, you would try to send the message
 		// to the overlay window via ipcRenderer or direct window communication.
-		console.log('Attempting to send log to overlay:', message);
 	}
 
 	// CRITICAL FIX: Enhanced overlay integration methods
@@ -784,9 +807,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 							window.webContents.send('overlay-command', {
 								action: 'toggleLiveIntelligence',
 							});
-							console.log(
-								'✅ Overlay toggle live intelligence command sent directly to window',
-							);
 							return;
 						}
 					}
@@ -829,7 +849,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 			return true;
 		}
 
-		console.log('⏳ Waiting for bridge to be ready...');
 		const startTime = Date.now();
 
 		while (!this.isBridgeReady() && Date.now() - startTime < timeoutMs) {
@@ -853,6 +872,13 @@ class NotchDropAddonWrapper extends EventEmitter {
 			throw new Error('NotchDrop not initialized');
 		}
 		this.addon.hide();
+	}
+
+	setInteractionEnabled(enabled) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		this.addon.setInteractionEnabled(Boolean(enabled));
 	}
 
 	toggle() {
@@ -1013,6 +1039,42 @@ class NotchDropAddonWrapper extends EventEmitter {
 		this.addon.clearTrayItems();
 	}
 
+	getSelectionHistory() {
+		if (!this.isInitialized) {
+			return [];
+		}
+		const json = this.addon.getSelectionHistoryJSON();
+		return this.safeParseJSON(json, []);
+	}
+
+	clearSelectionHistory() {
+		if (!this.isInitialized) {
+			return;
+		}
+		return Boolean(this.addon.clearSelectionHistory());
+	}
+
+	showSelectionHistoryInterface() {
+		if (!this.isInitialized) {
+			return false;
+		}
+		return Boolean(this.addon.presentSelectionHistoryInterface());
+	}
+
+	requestSelectionPermissionPrompt() {
+		if (!this.isInitialized) {
+			return false;
+		}
+		return Boolean(this.addon.requestSelectionAssistantPermissionPrompt());
+	}
+
+	isSelectionPermissionGranted() {
+		if (!this.isInitialized) {
+			return false;
+		}
+		return this.addon.isSelectionAssistantPermissionGranted();
+	}
+
 	getStatusString() {
 		if (!this.isInitialized) {
 			return 'closed';
@@ -1049,7 +1111,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 		try {
 			this.addon.onOverlayStateChange(state);
-			console.log('📊 Overlay state sent to Swift side:', state);
 		} catch (error) {
 			console.error('❌ Error sending overlay state to Swift:', error);
 		}
@@ -1063,7 +1124,6 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 		try {
 			this.addon.configureVoice(url, token);
-			console.log('🎤 Voice configured with URL:', url);
 		} catch (error) {
 			console.error('❌ Error configuring voice:', error);
 			throw error;
@@ -1149,7 +1209,7 @@ class NotchDropAddonWrapper extends EventEmitter {
 		}
 	}
 
-	// Add voice message from JavaScript
+	// LEGACY: Add voice message from JavaScript (preserved for audio functionality)
 	addVoiceMessage(messageData) {
 		if (!this.isInitialized) {
 			throw new Error('NotchDrop not initialized');
@@ -1166,6 +1226,169 @@ class NotchDropAddonWrapper extends EventEmitter {
 			);
 		} catch (error) {
 			console.error('❌ Error adding voice message:', error);
+			throw error;
+		}
+	}
+
+	// Add transcription data to NotchDrop (following voice message pattern)
+	addTranscriptionData(messageData) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// // console.log('📝 JavaScript Wrapper: Received transcription data:', {
+			// 	sender: messageData.sender,
+			// 	content: messageData.content?.substring(0, 50),
+			// 	isFromAgent: messageData.isFromAgent,
+			// 	type: messageData.type,
+			// 	hasConfidence: !!messageData.confidence,
+			// 	hasWords: !!messageData.words,
+			// });
+
+			// Convert messageData to JSON string for native layer
+			const messageJson = JSON.stringify(messageData);
+			// console.log('📝 JavaScript Wrapper: Sending JSON to native layer:', messageJson);
+
+			this.addon.addTranscriptionData(messageJson);
+			// console.log(
+			// 	`📝 Transcription data added: ${
+			// 		messageData.sender
+			// 	}: ${messageData.content?.substring(0, 30)}...`,
+			// );
+		} catch (error) {
+			console.error('❌ Error adding transcription data:', error);
+			throw error;
+		}
+	}
+
+	// Send live intelligence data to NotchDrop
+	sendLiveIntelligenceData(messageData) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// console.log('🧠 JavaScript Wrapper: Received live intelligence data:', {
+			// 	sender: messageData.sender,
+			// 	content: messageData.content?.substring(0, 50),
+			// 	isFromAgent: messageData.isFromAgent,
+			// 	type: messageData.type,
+			// 	hasConfidence: !!messageData.confidence,
+			// 	hasMetadata: !!messageData.metadata,
+			// });
+
+			// Convert messageData to JSON string for native layer
+			const messageJson = JSON.stringify(messageData);
+			// console.log('🧠 JavaScript Wrapper: Sending JSON to native layer:', messageJson);
+
+			this.addon.sendLiveIntelligenceData(messageJson);
+			// console.log(
+			// 	`🧠 Live intelligence data added: ${
+			// 		messageData.sender
+			// 	}: ${messageData.content?.substring(0, 30)}...`,
+			// );
+		} catch (error) {
+			console.error('❌ Error sending live intelligence data:', error);
+			throw error;
+		}
+	}
+
+	// Replace entire transcription list in Swift UI
+	replaceTranscriptions(messages) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			const messageArray = Array.isArray(messages) ? messages : [];
+			const json = JSON.stringify(messageArray);
+			if (this.addon.replaceTranscriptions) {
+				this.addon.replaceTranscriptions(json);
+				// console.log(
+				// 	`📝 Replaced transcriptions array in Swift UI (count=${messageArray.length})`,
+				// );
+			} else {
+				console.warn('⚠️ replaceTranscriptions not available on native addon');
+			}
+		} catch (error) {
+			console.error('❌ Error replacing transcriptions:', error);
+			throw error;
+		}
+	}
+
+	// Handle external recording state changes from overlay system
+	handleExternalRecordingStateChange(isRecording, isPaused) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			console.log(`🔒 JavaScript Wrapper: External recording state - isRecording: ${isRecording}, isPaused: ${isPaused}`);
+			this.addon.handleExternalRecordingStateChange(isRecording, isPaused);
+		} catch (error) {
+			console.error('❌ Error handling external recording state change:', error);
+			throw error;
+		}
+	}
+
+	// Set which panel to show during recording: 'transcription' or 'live-intel'
+	setRecordingPanelMode(mode) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			const normalized = typeof mode === 'string' ? mode : 'transcription';
+			if (this.addon.setRecordingPanelMode) {
+				this.addon.setRecordingPanelMode(normalized);
+				// console.log(`🧭 Set recording panel mode to ${normalized}`);
+			} else {
+				console.warn('⚠️ setRecordingPanelMode not available on native addon');
+			}
+		} catch (error) {
+			console.error('❌ Error setting panel mode:', error);
+			throw error;
+		}
+	}
+
+	// Clear live intelligence data in NotchDrop
+	clearLiveIntelligenceData() {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			if (this.addon.clearLiveIntelligenceData) {
+				this.addon.clearLiveIntelligenceData();
+				console.log('🧠 Cleared live intelligence data in NotchDrop');
+			} else {
+				console.warn('⚠️ clearLiveIntelligenceData not available on native addon');
+			}
+		} catch (error) {
+			console.error('❌ Error clearing live intelligence data:', error);
+			throw error;
+		}
+	}
+
+	// GENERAL PURPOSE MESSAGE SYSTEM
+	sendGeneralMessage(messageJson) {
+		if (!this.isInitialized) {
+			throw new Error('NotchDrop not initialized');
+		}
+		try {
+			// Try to use dedicated general message method if available
+			if (this.addon.sendGeneralMessage) {
+				this.addon.sendGeneralMessage(messageJson);
+				console.log('📤 General message sent to NotchDrop');
+			} else {
+				// Fallback to voice message system for backward compatibility
+				console.log('📝 Fallback: Using voice message system for general data');
+				const messageData = JSON.parse(messageJson);
+				this.addon.addVoiceMessage(
+					JSON.stringify({
+						sender: messageData.sender || 'System',
+						content: messageData.content || JSON.stringify(messageData),
+						isFromAgent: messageData.isFromAgent || false,
+					}),
+				);
+			}
+		} catch (error) {
+			console.error('❌ Error sending general message:', error);
 			throw error;
 		}
 	}
@@ -1237,36 +1460,37 @@ class NotchDropAddonWrapper extends EventEmitter {
 	async triggerOverlayRecordingImmediate() {
 		try {
 			// Method 1: Direct IPC call to main process
-			if (typeof require !== 'undefined') {
-				try {
-					if (ipcRenderer) {
-						const result = await ipcRenderer.invoke(
-							'notchdrop:triggerOverlayRecording',
-						);
-						return result;
-					}
-				} catch (e) {
-					// Not in renderer process, try main process method
-				}
+			process.emit('swift-ui-trigger-overlay-recording-immediate');
+			// if (typeof require !== 'undefined') {
+			// 	try {
+			// 		if (ipcRenderer) {
+			// 			const result = await ipcRenderer.invoke(
+			// 				'notchdrop:triggerOverlayRecording',
+			// 			);
+			// 			return result;
+			// 		}
+			// 	} catch (e) {
+			// 		// Not in renderer process, try main process method
+			// 	}
 
-				try {
-					if (ipcMain) {
-						process.emit('swift-ui-trigger-overlay-recording-immediate');
-						return { success: true, method: 'process-emit' };
-					}
-				} catch (e) {
-					// Neither renderer nor main process IPC available
-				}
-			}
+			// 	try {
+			// 		if (ipcMain) {
+			// 			process.emit('swift-ui-trigger-overlay-recording-immediate');
+			// 			return { success: true, method: 'process-emit' };
+			// 		}
+			// 	} catch (e) {
+			// 		// Neither renderer nor main process IPC available
+			// 	}
+			// }
 
-			// Method 2: Global callback fallback
-			if (typeof global !== 'undefined' && global.notchDropOverlayCallback) {
-				global.notchDropOverlayCallback('startRecording', { immediate: true });
-				return { success: true, method: 'global-callback' };
-			}
+			// // Method 2: Global callback fallback
+			// if (typeof global !== 'undefined' && global.notchDropOverlayCallback) {
+			// 	global.notchDropOverlayCallback('startRecording', { immediate: true });
+			// 	return { success: true, method: 'global-callback' };
+			// }
 
-			// Method 3: Event emission fallback
-			this.emit('triggerOverlayRecording', { immediate: true });
+			// // Method 3: Event emission fallback
+			// this.emit('triggerOverlayRecording', { immediate: true });
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to trigger immediate overlay recording:', error);
@@ -1320,31 +1544,34 @@ class NotchDropAddonWrapper extends EventEmitter {
 		console.log('⏹️ NotchDrop requested overlay stop recording');
 		// this one is being used for stop recording
 		try {
-			if (typeof require !== 'undefined') {
-				try {
-					if (ipcRenderer) {
-						const result = await ipcRenderer.invoke(
-							'notchdrop:triggerOverlayStopRecording',
-						);
-						return result;
-					}
-				} catch (e) {
-					// Not in renderer; try direct process emit or direct window
-				}
-				// Direct window fallback
-				const windows = BrowserWindow.getAllWindows();
-				for (const window of windows) {
-					if (window.webContents && !window.isDestroyed()) {
-						const title = window.getTitle();
-						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-							window.webContents.send('overlay-command', { action: 'stopRecording' });
-							return { success: true, method: 'direct-window' };
-						}
-					}
-				}
-			}
-			// Event emission fallback (legacy)
-			this.emit('triggerOverlayStopRecording', { immediate: true });
+			// window.webContents.send('overlay-command', { action: 'stopRecording' });
+
+			// if (typeof require !== 'undefined') {
+			// 	try {
+			// 		if (ipcRenderer) {
+			// 			const result = await ipcRenderer.invoke(
+			// 				'notchdrop:triggerOverlayStopRecording',
+			// 			);
+			// 			return result;
+			// 		}
+			// 	} catch (e) {
+			// 		// Not in renderer; try direct process emit or direct window
+			// 	}
+			// 	// Direct window fallback
+			// 	const windows = BrowserWindow.getAllWindows();
+			// 	for (const window of windows) {
+			// 		if (window.webContents && !window.isDestroyed()) {
+			// 			const title = window.getTitle();
+			// 			if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+			// 				window.webContents.send('overlay-command', { action: 'stopRecording' });
+			// 				return { success: true, method: 'direct-window' };
+			// 			}
+			// 		}
+			// 	}
+			// }
+			// // Event emission fallback (legacy)
+			// this.emit('triggerOverlayStopRecording', { immediate: true });
+			process.emit('swift-ui-trigger-overlay-stop-recording');
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to stop recording immediately:', error);
@@ -1354,31 +1581,33 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	async triggerOverlayPauseRecordingImmediate() {
 		try {
-			if (typeof require !== 'undefined') {
-				try {
-					if (ipcRenderer) {
-						const result = await ipcRenderer.invoke(
-							'notchdrop:triggerOverlayPauseRecording',
-						);
-						return result;
-					}
-				} catch (e) {
-					// Not in renderer; try direct window
-				}
-				const windows = BrowserWindow.getAllWindows();
-				for (const window of windows) {
-					if (window.webContents && !window.isDestroyed()) {
-						const title = window.getTitle();
-						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-							window.webContents.send('overlay-command', {
-								action: 'pauseRecording',
-							});
-							return { success: true, method: 'direct-window' };
-						}
-					}
-				}
-			}
-			this.emit('triggerOverlayPauseRecording', { immediate: true });
+			console.log('NotchDrop requested overlay pause recording');
+			process.emit('swift-ui-trigger-overlay-pause-recording');
+			// if (typeof require !== 'undefined') {
+			// 	try {
+			// 		if (ipcRenderer) {
+			// 			const result = await ipcRenderer.invoke(
+			// 				'notchdrop:triggerOverlayPauseRecording',
+			// 			);
+			// 			return result;
+			// 		}
+			// 	} catch (e) {
+			// 		// Not in renderer; try direct window
+			// 	}
+			// 	const windows = BrowserWindow.getAllWindows();
+			// 	for (const window of windows) {
+			// 		if (window.webContents && !window.isDestroyed()) {
+			// 			const title = window.getTitle();
+			// 			if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+			// 				window.webContents.send('overlay-command', {
+			// 					action: 'pauseRecording',
+			// 				});
+			// 				return { success: true, method: 'direct-window' };
+			// 			}
+			// 		}
+			// 	}
+			// }
+			// this.emit('triggerOverlayPauseRecording', { immediate: true });
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to pause recording immediately:', error);
@@ -1388,35 +1617,58 @@ class NotchDropAddonWrapper extends EventEmitter {
 
 	async triggerOverlayResumeRecordingImmediate() {
 		try {
-			if (typeof require !== 'undefined') {
-				try {
-					if (ipcRenderer) {
-						const result = await ipcRenderer.invoke(
-							'notchdrop:triggerOverlayResumeRecording',
-						);
-						return result;
-					}
-				} catch (e) {
-					// Not in renderer; try direct window
-				}
-				const windows = BrowserWindow.getAllWindows();
-				for (const window of windows) {
-					if (window.webContents && !window.isDestroyed()) {
-						const title = window.getTitle();
-						if (title.includes('Overlay') || title.includes('Live Intelligence')) {
-							window.webContents.send('overlay-command', {
-								action: 'resumeRecording',
-							});
-							return { success: true, method: 'direct-window' };
-						}
-					}
-				}
-			}
-			this.emit('triggerOverlayResumeRecording', { immediate: true });
+			console.log('NotchDrop requested overlay resume recording');
+			process.emit('swift-ui-trigger-overlay-resume-recording');
+			// if (typeof require !== 'undefined') {
+			// 	try {
+			// 		if (ipcRenderer) {
+			// 			const result = await ipcRenderer.invoke(
+			// 				'notchdrop:triggerOverlayResumeRecording',
+			// 			);
+			// 			return result;
+			// 		}
+			// 	} catch (e) {
+			// 		// Not in renderer; try direct window
+			// 	}
+			// 	const windows = BrowserWindow.getAllWindows();
+			// 	for (const window of windows) {
+			// 		if (window.webContents && !window.isDestroyed()) {
+			// 			const title = window.getTitle();
+			// 			if (title.includes('Overlay') || title.includes('Live Intelligence')) {
+			// 				window.webContents.send('overlay-command', {
+			// 					action: 'resumeRecording',
+			// 				});
+			// 				return { success: true, method: 'direct-window' };
+			// 			}
+			// 		}
+			// 	}
+			// }
+			// this.emit('triggerOverlayResumeRecording', { immediate: true });
 			return { success: true, method: 'event-emission' };
 		} catch (error) {
 			console.error('❌ Failed to resume recording immediately:', error);
 			return { success: false, error: error.message };
+		}
+	}
+
+	safeParseJSON(payload, fallback = null) {
+		try {
+			if (payload === null || payload === undefined) {
+				return fallback;
+			}
+
+			if (typeof payload === 'string') {
+				const trimmed = payload.trim();
+				if (trimmed.length === 0) {
+					return fallback;
+				}
+				return JSON.parse(trimmed);
+			}
+
+			return payload;
+		} catch (error) {
+			console.warn('⚠️ NotchDropAddon: Failed to parse JSON payload', error);
+			return fallback;
 		}
 	}
 }

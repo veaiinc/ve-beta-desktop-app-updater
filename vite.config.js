@@ -53,26 +53,42 @@ export default defineConfig({
 								featuresIndex: 'electron/features/index.js',
 								featuresMeetingIndex: 'electron/features/meeting/index.js',
 								windowHelper: 'electron/helpers/windowHelper.js',
+								windowAnimationHelper: 'electron/helpers/windowAnimationHelper.js',
 								galleryHelper: 'electron/galleryHelper.js',
 								overlayWindowHelper: 'electron/overlayWindowHelper.js',
 								windowsCompatibility: 'electron/windowsCompatibility.js',
 								notchDropService: 'electron/services/notchDropService.js',
+								boringNotchService: 'electron/services/boringNotchService.js',
+								websocketService: 'electron/services/websocketService.js',
+								ipcThrottleService: 'electron/services/ipcThrottleService.js',
+								idleTracker: 'electron/services/idleTracker.js',
+								meetingState: 'electron/services/meetingState.js',
 								notificationHelper: 'electron/notificationHelper.js',
 								dynamicIslandHelper: 'electron/helpers/dynamicIslandHelper.js',
 								desktopUtilHelper: 'electron/desktopUtilHelper.js',
 								autoUpdateHelper: 'electron/helpers/autoUpdateHelper.js',
+								envHelper: 'electron/helpers/envHelper.js',
 							},
 							output: {
 								format: 'cjs',
 								entryFileNames: (chunkInfo) => {
 									if (
 										chunkInfo.name === 'windowHelper' ||
+										chunkInfo.name === 'windowAnimationHelper' ||
 										chunkInfo.name === 'dynamicIslandHelper' ||
+										chunkInfo.name === 'envHelper' ||
 										chunkInfo.name === 'autoUpdateHelper'
 									) {
 										return 'helpers/[name].js';
 									}
-									if (chunkInfo.name === 'notchDropService') {
+									if (
+										chunkInfo.name === 'notchDropService' ||
+										chunkInfo.name === 'boringNotchService' ||
+										chunkInfo.name === 'websocketService' ||
+										chunkInfo.name === 'ipcThrottleService' ||
+										chunkInfo.name === 'idleTracker' ||
+										chunkInfo.name === 'meetingState'
+									) {
 										return 'services/[name].js';
 									}
 									if (chunkInfo.name === 'featuresIndex') {
@@ -104,8 +120,8 @@ export default defineConfig({
 		outDir: 'build',
 		chunkSizeWarningLimit: 2000,
 		minify: 'esbuild',
-		target: 'es2015',
-		sourcemap: true,
+		target: 'es2020', // ⚡ Updated from es2015 for better performance
+		sourcemap: process.env.NODE_ENV === 'production' ? false : true, // ⚡ Disable sourcemaps in production
 		reportCompressedSize: false,
 		rollupOptions: {
 			input: {
@@ -117,6 +133,8 @@ export default defineConfig({
 				permission: './permission.html',
 				errorFallback: './error-fallback.html',
 			},
+			// ✅ REVERTED: Removed aggressive code splitting that broke production
+			// Keeping default Vite chunking strategy (safe and proven)
 		},
 	},
 	css: {
@@ -155,13 +173,28 @@ export default defineConfig({
 			'@blocknote/core',
 			'graphql',
 		],
-		force: true,
+		// ⚡ PERFORMANCE FIX: Exclude large dependencies that don't need pre-bundling
+		exclude: ['notchdrop-addon'],
 	},
 
 	server: {
 		hmr: {
 			overlay: false,
 		},
+		// ⚡ PERFORMANCE FIX: Faster HMR and better caching
+		watch: {
+			ignored: ['**/node_modules/**', '**/dist/**', '**/dist-electron/**', '**/build/**'],
+		},
+		// Improve dev server performance
+		fs: {
+			strict: false,
+		},
+	},
+
+	// ⚡ PERFORMANCE FIX: Enable esbuild optimization for dependencies
+	esbuild: {
+		logOverride: { 'this-is-undefined-in-esm': 'silent' },
+		drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
 	},
 
 	define: {

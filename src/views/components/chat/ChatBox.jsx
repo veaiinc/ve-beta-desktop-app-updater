@@ -35,6 +35,7 @@ import { getFileType } from '../../../helpers/chat/chatHelpers';
 import useSpeechTranscription from '../../../hooks/useSpeechTranscripton';
 import SpeechToTextInactivity from './SpeechToTextInactivity';
 import SourcesTooltip from './SourcesTooltip';
+import { ReactComponent as MoveHandleSvg } from '../../../askAI/move.svg';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -118,6 +119,7 @@ const ChatBox = ({
 	// below props are for desktop app
 	isDesktopApp = false,
 	handleDesktopAppPayload = null,
+	showMoveHandle = false,
 }) => {
 	const location = useLocation();
 	const params = useParams();
@@ -371,7 +373,12 @@ const ChatBox = ({
 				message.error('Please wait, AI is already generating a response');
 				return;
 			}
-			handleSendMessageFunc(null, true, activePromptForChat?.prompt);
+			handleSendMessageFunc(
+				null,
+				true,
+				activePromptForChat?.prompt,
+				activePromptForChat?.imagesArray,
+			);
 			updateStateValues({ activePromptForChat: null });
 		}
 	}, [activePromptForChat, info?.chatSessionId]);
@@ -711,7 +718,7 @@ const ChatBox = ({
 	};
 
 	const handleSendMessageFunc = useCallback(
-		async (e, click = null, query = null) => {
+		async (e, click = null, query = null, externalImages = null) => {
 			if (e?.key === 'Enter' || click) {
 				// If Shift+Enter, allow new line
 
@@ -792,6 +799,16 @@ const ChatBox = ({
 
 						localPayload = {
 							images: uploadedImagesRef?.current || [],
+						};
+					}
+					if (externalImages?.length) {
+						payload.image_data_base64 = [
+							...(payload.image_data_base64 || []),
+							...externalImages,
+						];
+						localPayload = {
+							...localPayload,
+							externalImages,
 						};
 					}
 					if (recentFilesRef?.current?.length > 0) {
@@ -1366,7 +1383,7 @@ const ChatBox = ({
 						setIsTranscribing(true);
 					} catch (error) {
 						console.log(error?.message);
-						message.error('Connection not established');
+						message.error(`Connection not established - ${error?.message}`);
 					} finally {
 						setIsMicConnecting(false);
 					}
@@ -1846,6 +1863,11 @@ const ChatBox = ({
 				)}
 
 				<div className="chatInputParentContainer">
+					{showMoveHandle && (
+						<div className="drag-handle" title="Move">
+							<MoveHandleSvg />
+						</div>
+					)}
 					<div className="buttons-left-container">
 						{showRecentFiles && (
 							<RecentFileTooltip

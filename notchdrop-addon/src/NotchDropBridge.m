@@ -79,6 +79,10 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     return [NotchDropCore.shared getNotchVisible];
 }
 
++ (void)setInteractionEnabled:(BOOL)enabled {
+    [NotchDropCore.shared setInteractionEnabled:enabled];
+}
+
 + (NSDictionary*)getWindowPosition {
     return [NotchDropCore.shared getWindowPosition];
 }
@@ -153,14 +157,145 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared addVoiceMessage:messageJson];
 }
 
++ (void)addTranscriptionData:(NSString*)messageJson {
+    NSLog(@"📝 Objective-C Bridge: Received transcription data: %@", messageJson);
+    [NotchDropCore.shared addTranscriptionData:messageJson];
+    NSLog(@"📝 Objective-C Bridge: Forwarded to Swift Core");
+}
+
++ (void)sendLiveIntelligenceData:(NSString*)messageJson {
+    NSLog(@"🧠 Objective-C Bridge: Received live intelligence data: %@", messageJson);
+    [NotchDropCore.shared sendLiveIntelligenceData:messageJson];
+    NSLog(@"🧠 Objective-C Bridge: Forwarded to Swift Core");
+}
+
++ (void)replaceTranscriptions:(NSString*)messagesJson {
+    NSLog(@"📝 Objective-C Bridge: Replace transcriptions: %@", messagesJson);
+    [NotchDropCore.shared replaceTranscriptions:messagesJson];
+}
+
+// Toggle recording panel mode
++ (void)setRecordingPanelMode:(NSString*)mode {
+    NSLog(@"🧭 Objective-C Bridge: setRecordingPanelMode=%@", mode);
+    [NotchDropCore.shared setRecordingPanelMode:mode];
+}
+
++ (void)clearLiveIntelligenceData {
+    NSLog(@"🧠 Objective-C Bridge: Clearing live intelligence data");
+    [NotchDropCore.shared clearLiveIntelligenceData];
+}
+
 + (void)updateStealthModeState:(BOOL)isEnabled {
     [NotchDropCore.shared updateStealthModeState:isEnabled];
 }
 
-// MARK: - Wake Word Detection Methods
++ (void)handleExternalRecordingStateChange:(BOOL)isRecording isPaused:(BOOL)isPaused {
+    NSLog(@"🔒 Objective-C Bridge: External recording state - isRecording: %@, isPaused: %@", 
+          isRecording ? @"YES" : @"NO", isPaused ? @"YES" : @"NO");
+    [NotchDropCore.shared handleExternalRecordingStateChange:isRecording isPaused:isPaused];
+}
 
+// MARK: - Advanced SwiftUI Components (stub implementations for missing methods)
++ (void)showAdvancedView {
+    // Method not implemented in NotchDropCore - stub implementation
+    NSLog(@"showAdvancedView called but not implemented in NotchDropCore");
+}
+
++ (void)hideAdvancedView {
+    // Method not implemented in NotchDropCore - stub implementation
+    NSLog(@"hideAdvancedView called but not implemented in NotchDropCore");
+}
+
++ (void)addNotification:(NSString*)text {
+    // Method not implemented in NotchDropCore - stub implementation
+    NSLog(@"addNotification called but not implemented in NotchDropCore");
+}
+
++ (void)updateProgress:(double)progress {
+    // Method not implemented in NotchDropCore - stub implementation
+    NSLog(@"updateProgress called but not implemented in NotchDropCore");
+}
+
++ (void)setProcessing:(BOOL)processing {
+    // Method not implemented in NotchDropCore - stub implementation
+    NSLog(@"setProcessing called but not implemented in NotchDropCore");
+}
+
+// MARK: - Advanced NotchDropLatest functionality
++ (void)showMenu {
+    // Method not implemented in NotchDropCore - stub implementation
+    NSLog(@"showMenu called but not implemented in NotchDropCore");
+}
+
++ (void)showSettings {
+    // Method not implemented in NotchDropCore - stub implementation
+    NSLog(@"showSettings called but not implemented in NotchDropCore");
+}
+
++ (void)showNormal {
+    [NotchDropCore.shared showNormal];
+}
+
++ (void)setAutoOpen:(BOOL)enabled {
+    [NotchDropCore.shared setAutoOpen:enabled];
+}
+
++ (BOOL)getAutoOpen {
+    return [NotchDropCore.shared getAutoOpen];
+}
+
++ (void)setLanguage:(NSString*)language {
+    [NotchDropCore.shared setLanguage:language];
+}
+
++ (NSString*)getLanguage {
+    return [NotchDropCore.shared getLanguage];
+}
+
++ (NSInteger)getTrayItemCount {
+    return [NotchDropCore.shared getTrayItemCount];
+}
+
++ (void)clearTrayItems {
+    [NotchDropCore.shared clearTrayItems];
+}
+
++ (NSString*)getStatusString {
+    return [NotchDropCore.shared getStatusString];
+}
+
++ (NSString*)getContentTypeString {
+    return [NotchDropCore.shared getContentTypeString];
+}
+
++ (void)setContentTypeFromString:(NSString*)contentType {
+    [NotchDropCore.shared setContentTypeFromString:contentType];
+}
+
+// MARK: - Wake Word Detection Methods
 + (void)handleWakeWordDetected:(float)score {
     [NotchDropCore.shared handleWakeWordDetected:score];
+}
+
++ (NSString*)getSelectionHistoryJSON {
+    return [NotchDropCore.shared getSelectionHistoryJSON];
+}
+
+
++ (BOOL)clearSelectionHistory {
+    return [NotchDropCore.shared clearSelectionHistory];
+}
+
++ (BOOL)presentSelectionHistoryInterface {
+    return [NotchDropCore.shared presentSelectionHistoryInterface];
+}
+
++ (BOOL)requestSelectionAssistantPermissionPrompt {
+    return [NotchDropCore.shared requestSelectionAssistantPermissionPrompt];
+}
+
++ (BOOL)isSelectionAssistantPermissionGranted {
+    return [NotchDropCore.shared isSelectionAssistantPermissionGranted];
 }
 
 @end

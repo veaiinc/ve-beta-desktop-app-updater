@@ -6,8 +6,6 @@ import { FetchMoreLoaderComp } from '../../../../../helpers';
 import moment from 'moment';
 import { ReactComponent as NotificationsSvg } from '../../assets/notification.svg';
 import DownCaret from '../../assets/DownCaret';
-import { ReactComponent as BackIcon } from '../../../../../assets/svg/mobile/back.svg';
-import { ReactComponent as CloseIcon } from '../../../../../assets/svg/mobile/close.svg';
 
 const ellipsisStyle = {
 	overflow: 'hidden',
@@ -23,7 +21,6 @@ const Notifications = ({ onClose }) => {
 	const [info, setInfo] = useState(() => ({
 		selectedNotificationId: null,
 		showCaret: null,
-		isMobileView: window.matchMedia('(max-width: 767px)').matches,
 	}));
 
 	const notificationsLoading = notificationsList === null;
@@ -52,21 +49,10 @@ const Notifications = ({ onClose }) => {
 	};
 
 	return (
-		<div className={s.notificationsContainer}>
-			<header className={s.notificationsHeader}>
-				{/* Mobile-only back button */}
-				<button className={s.mobileIconButton} aria-label="Back" onClick={handleClose}>
-					<BackIcon />
-				</button>
-				<div className={s.headerCenter}>
-					<NotificationsSvg />
-					<h2 className={s.title}>Notifications</h2>
-				</div>
-				{/* Mobile-only close button */}
-				<button className={s.mobileIconButton} aria-label="Close" onClick={handleClose}>
-					<CloseIcon />
-				</button>
-			</header>
+		<div className={s.overlayContainer}>
+			<div className={s.notificationsHeader}>
+				<h2 className={s.title}>Notification</h2>
+			</div>
 			{notificationsLoading ? (
 				<p className={s.loadingText}>Loading...</p>
 			) : emptyNotifications ? (
@@ -77,7 +63,7 @@ const Notifications = ({ onClose }) => {
 					next={fetchNextNotificationsList}
 					hasMore={hasNextPage}
 					loader={<FetchMoreLoaderComp />}
-					height={info.isMobileView ? '' : '340px'}
+					height="340px"
 				>
 					<div className={s.notificationsList}>
 						{notifications.map((notification) => {
@@ -104,13 +90,11 @@ const Notifications = ({ onClose }) => {
 											showCaret: null,
 										}))
 									}
-									className={s.notificationItem}
-									style={{
-										backgroundColor:
-											info.selectedNotificationId === notification._id
-												? 'var(--card, #1b1c1d)'
-												: '',
-									}}
+									className={`${s.notificationItem} ${
+										info.selectedNotificationId === notification._id
+											? s.selectedNotification
+											: ''
+									}`}
 									key={notification._id}
 								>
 									<div className={s.summaryContainer}>

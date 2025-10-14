@@ -7,9 +7,6 @@
 	z-index: 175;
 	overflow: visible;
 
-	// Performance optimizations for smooth circular animation
-	will-change: clip-path, opacity, transform;
-	backface-visibility: hidden;
 	transform: translateZ(0);
 
 	@media (max-width: 768px) {
@@ -296,11 +293,13 @@
 
 				// Tablet and smaller laptop screens
 				@media (max-width: 1200px) {
-					font-size: 500px;
 					width: 300px;
-					height: 400px;
+
 					top: 20vh;
 					margin-top: 120px;
+
+					font-size: 588px;
+					height: 1420px;
 					margin-left: 0;
 				}
 
@@ -310,8 +309,11 @@
 					top: 20vh;
 					margin-top: 120px;
 					margin-left: 0;
-					position: relative;
+					position: static;
+
 					top: auto;
+					display: flex;
+					height: auto;
 				}
 
 				// Mobile screens - fixed positioning, no animation
@@ -670,86 +672,62 @@
 	}
 
 	.lightPassing {
-		position: sticky;
-		top: 50vh; // lowered to sit further down
-		margin-top: 40px; // additional downward shift
-		align-self: stretch;
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%) translateZ(0);
 		width: 228px;
-		min-height: 250vh;
+		height: 100%;
 		display: flex;
 		justify-content: center;
 		z-index: 2;
-		pointer-events: none; // Allow clicks to pass through
-		margin-left: -290px;
+		pointer-events: none;
+		will-change: transform;
+		backface-visibility: hidden;
+
+		@media (max-width: 1700px) {
+			left: 40%;
+		}
 
 		// Laptop screens (1366px and below)
 		@media (max-width: 1366px) {
 			width: 200px;
-			top: 48vh;
-			margin-top: 180px;
-			margin-left: -200px;
-			min-height: 220vh;
+			left: 35%;
+		}
+		@media (max-width: 1100px) {
+			left: 30%;
 		}
 
 		// Tablet and smaller laptop screens
 		@media (max-width: 1024px) {
-			width: 160px;
-			top: 40vh;
-			margin-top: 100px;
-			margin-left: -80px;
-			min-height: 200vh;
+			display: none;
 		}
 
 		// Mobile screens - hide light passing
 		@media (max-width: 768px) {
-			display: none; // Hide light passing on mobile
+			display: none;
 		}
 
-		// Enhance the glow effect visibility
 		svg {
 			width: 100%;
 			height: 100%;
-			filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3))
-				drop-shadow(0 0 60px rgba(59, 130, 246, 0.2))
-				drop-shadow(0 0 90px rgba(255, 255, 255, 0.15))
-				drop-shadow(0 0 120px rgba(59, 130, 246, 0.1))
-				drop-shadow(0 0 150px rgba(255, 255, 255, 0.05));
+			transform: translateZ(0);
+			backface-visibility: hidden;
 
-			// Apply mask-image gradient like the divider SVG
+			// Simplified single drop-shadow for better performance
+			filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.25))
+				drop-shadow(0 0 40px rgba(59, 130, 246, 0.15));
+
+			// Apply mask-image gradient
 			-webkit-mask-image: linear-gradient(180deg, transparent 15%, #000 50%, transparent 90%);
 			mask-image: linear-gradient(180deg, transparent 15%, #000 50%, transparent 90%);
 
-			// Glow paths with enhanced animation
-			#glow-path {
-				animation: pathGlow 6s ease-in-out infinite alternate;
-			}
-
-			#glow-path-intense {
-				animation: pathGlowIntense 4.5s ease-in-out infinite alternate;
-				animation-delay: 1s;
-			}
-
-			// White glow animations
-			#white-glow-path {
-				animation: whiteGlow 7.5s ease-in-out infinite alternate;
-				animation-delay: 0.8s;
-			}
-
+			// Remove CSS animations - let GSAP handle all animation
+			#glow-path,
+			#glow-path-intense,
+			#white-glow-path,
 			#white-glow-outer {
-				animation: whiteGlowOuter 9s ease-in-out infinite alternate;
-				animation-delay: 1.5s;
-			}
-
-			// Mobile screens - reduce glow intensity
-			@media (max-width: 768px) {
-				filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2))
-					drop-shadow(0 0 30px rgba(59, 130, 246, 0.15))
-					drop-shadow(0 0 45px rgba(255, 255, 255, 0.1));
-			}
-
-			@media (max-width: 480px) {
-				filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.15))
-					drop-shadow(0 0 20px rgba(59, 130, 246, 0.1));
+				animation: none;
 			}
 		}
 	}
@@ -783,75 +761,6 @@
 				top: 0;
 				left: 0;
 			}
-		}
-	}
-
-	// Glow animation keyframes
-	@keyframes pathGlow {
-		0% {
-			filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4))
-				drop-shadow(0 0 30px rgba(59, 130, 246, 0.3))
-				drop-shadow(0 0 45px rgba(59, 130, 246, 0.2))
-				drop-shadow(0 0 60px rgba(59, 130, 246, 0.15))
-				drop-shadow(0 0 75px rgba(59, 130, 246, 0.1));
-		}
-		100% {
-			filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.6))
-				drop-shadow(0 0 50px rgba(59, 130, 246, 0.5))
-				drop-shadow(0 0 75px rgba(59, 130, 246, 0.4))
-				drop-shadow(0 0 100px rgba(59, 130, 246, 0.3))
-				drop-shadow(0 0 125px rgba(59, 130, 246, 0.2));
-		}
-	}
-
-	@keyframes pathGlowIntense {
-		0% {
-			filter: drop-shadow(0 0 10px rgba(147, 197, 253, 0.5))
-				drop-shadow(0 0 20px rgba(147, 197, 253, 0.4))
-				drop-shadow(0 0 30px rgba(147, 197, 253, 0.3))
-				drop-shadow(0 0 40px rgba(147, 197, 253, 0.2))
-				drop-shadow(0 0 50px rgba(147, 197, 253, 0.15));
-		}
-		100% {
-			filter: drop-shadow(0 0 20px rgba(147, 197, 253, 0.7))
-				drop-shadow(0 0 40px rgba(147, 197, 253, 0.6))
-				drop-shadow(0 0 60px rgba(147, 197, 253, 0.5))
-				drop-shadow(0 0 80px rgba(147, 197, 253, 0.4))
-				drop-shadow(0 0 100px rgba(147, 197, 253, 0.3));
-		}
-	}
-
-	@keyframes whiteGlow {
-		0% {
-			filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3))
-				drop-shadow(0 0 40px rgba(255, 255, 255, 0.25))
-				drop-shadow(0 0 60px rgba(255, 255, 255, 0.2))
-				drop-shadow(0 0 80px rgba(255, 255, 255, 0.15))
-				drop-shadow(0 0 100px rgba(255, 255, 255, 0.1));
-		}
-		100% {
-			filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5))
-				drop-shadow(0 0 60px rgba(255, 255, 255, 0.4))
-				drop-shadow(0 0 90px rgba(255, 255, 255, 0.3))
-				drop-shadow(0 0 120px rgba(255, 255, 255, 0.25))
-				drop-shadow(0 0 150px rgba(255, 255, 255, 0.2));
-		}
-	}
-
-	@keyframes whiteGlowOuter {
-		0% {
-			filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.2))
-				drop-shadow(0 0 50px rgba(255, 255, 255, 0.15))
-				drop-shadow(0 0 75px rgba(255, 255, 255, 0.1))
-				drop-shadow(0 0 100px rgba(255, 255, 255, 0.08))
-				drop-shadow(0 0 125px rgba(255, 255, 255, 0.05));
-		}
-		100% {
-			filter: drop-shadow(0 0 35px rgba(255, 255, 255, 0.3))
-				drop-shadow(0 0 70px rgba(255, 255, 255, 0.25))
-				drop-shadow(0 0 105px rgba(255, 255, 255, 0.2))
-				drop-shadow(0 0 140px rgba(255, 255, 255, 0.15))
-				drop-shadow(0 0 175px rgba(255, 255, 255, 0.1));
 		}
 	}
 }

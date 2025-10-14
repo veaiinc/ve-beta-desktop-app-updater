@@ -7,8 +7,6 @@ import React, {
 	useContext,
 	Fragment,
 	useLayoutEffect,
-	Suspense,
-	lazy,
 } from 'react';
 import '../../../assets/scss/chat/chat.scss';
 import {
@@ -28,8 +26,8 @@ import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import ChatRightBar from '../../components/chat/chatComponents/ChatRightBar';
-const NoteComponentModal = lazy(() => import('../../components/notes/NoteComponentModal'));
-const Browser = lazy(() => import('../../components/chat/chatComponents/Browser'));
+import NoteComponentModal from '../../components/notes/NoteComponentModal';
+import Browser from '../../components/chat/chatComponents/Browser';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -124,6 +122,7 @@ const RecentChat = ({
 			rightBarOpen: false,
 			activeRightBar: null,
 			rightBarWidth: 0,
+			isCompactMode: false, // Track if we're in compact chat mode from AskAI
 		};
 	});
 
@@ -141,6 +140,45 @@ const RecentChat = ({
 	sessionId = isPreview ? sId : sessionId;
 
 	const browserData = globalChatMessages?.[sessionId]?.browserData;
+
+	// Handle compact mode from AskAI overlay
+	useEffect(() => {
+		// Check if we're in desktop app and might be in compact mode
+		if (isDesktopApp && window?.electronApi?.resizeMainWindow) {
+			// Get current window size to detect if we're in compact mode (571x626)
+			const checkCompactMode = async () => {
+				try {
+					const bounds = await window?.electronApi?.getWindowBounds?.();
+					if (bounds && bounds.width <= 571 && bounds.height <= 626) {
+						console.log(
+							'📐 RecentChat: Detected compact mode from AskAI overlay (571x626)',
+						);
+						setInfo((prev) => ({ ...prev, isCompactMode: true }));
+					}
+				} catch (e) {
+					console.log('RecentChat: Could not check window bounds:', e);
+				}
+			};
+			checkCompactMode();
+		}
+
+		return () => {
+			// Restore normal window size when leaving chat if we were in compact mode
+			if (window?.electronApi?.resizeMainWindow) {
+				window.electronApi.resizeMainWindow({
+					dimensions: {
+						width: 1366,
+						height: 768,
+					},
+					exitFullScreen: false,
+					animate: true,
+					duration: 300,
+					easing: 'easeOutCubic',
+				});
+				console.log('📐 RecentChat: Restored normal window size on unmount (1366x768) with smooth animation');
+			}
+		};
+	}, []);
 
 	// Save whenever it changes
 	useEffect(() => {
@@ -1187,14 +1225,12 @@ const RecentChat = ({
 						}}
 					>
 						{info?.openBrowser && (
-							<Suspense fallback={'Loading...'}>
-								<Browser
-									sessionId={sessionId}
-									isOpen={info?.openBrowser}
-									browserData={browserData}
-									handleBrowserButtonClick={handleBrowserButtonClick}
-								/>
-							</Suspense>
+							<Browser
+								sessionId={sessionId}
+								isOpen={info?.openBrowser}
+								browserData={browserData}
+								handleBrowserButtonClick={handleBrowserButtonClick}
+							/>
 						)}
 					</div>
 				)}
@@ -1211,13 +1247,11 @@ const RecentChat = ({
 			</div>
 
 			{info?.noteModalIsOpen && (
-				<Suspense fallback={''}>
-					<NoteComponentModal
-						modalIsOpen={info?.noteModalIsOpen}
-						closeModal={handleNoteComponentModalClose}
-						sessionId={sessionId}
-					/>
-				</Suspense>
+				<NoteComponentModal
+					modalIsOpen={info?.noteModalIsOpen}
+					closeModal={handleNoteComponentModalClose}
+					sessionId={sessionId}
+				/>
 			)}
 		</>
 	);

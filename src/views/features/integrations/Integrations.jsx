@@ -197,6 +197,13 @@ const processLegacyData = (data) => {
 			connectType: 'outlook-mail',
 			access: 'private',
 		},
+		{
+			key: 'notion',
+			icon: notion,
+			title: 'Notion',
+			connectType: 'notion',
+			access: 'private',
+		},
 	];
 
 	legacyMappings.forEach(({ key, icon, title, connectType, access }) => {
@@ -286,6 +293,10 @@ const Integrations = () => {
 			setIsModalOpen(false);
 		}, 1000);
 	}, [fetchConnectedPlatforms]);
+
+	const handleModalClose = useCallback(() => {
+		setConnectLoader({ loader: false, title: '' });
+	}, []);
 
 	const handleConnect = useCallback((integration) => {
 		setSelectedIntegration(integration);
@@ -469,6 +480,7 @@ const Integrations = () => {
 				closeModal={() => setIsModalOpen(false)}
 				integration={selectedIntegration}
 				onConnectionSuccess={handleConnectionSuccess}
+				onModalClose={handleModalClose}
 				activeTab={activeTab}
 			/>
 		</div>

@@ -1,5 +1,4 @@
-import Context from '../../../context/context';
-import { useContext, useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ObjectID from 'bson-objectid';
 import RecentChat from '../chat/RecentChat';
@@ -11,9 +10,6 @@ import MeetBotContainer from './meetBotContainer';
 import s from './meetBotWrapper.module.scss';
 
 const MeetBotWrapper = () => {
-	const {
-		templates: { updateStateValues },
-	} = useContext(Context);
 	const [searchParams, setSearchParams] = useSearchParams();
 	const navigate = useNavigate();
 	const isAiIntelligenceEnabled = searchParams.get('isAiIntelligenceEnabled');
@@ -25,12 +21,6 @@ const MeetBotWrapper = () => {
 		transcriptionActive: false,
 	});
 	const meetingId = useParams()?.meetingId;
-
-	useEffect(() => {
-		updateStateValues({
-			leftSidebarState: 'close',
-		});
-	}, []);
 
 	useEffect(() => {
 		const chat = searchParams.get('chat');
@@ -55,7 +45,7 @@ const MeetBotWrapper = () => {
 		<div className={s.meetingContainer}>
 			<div className={s.innerContainer}>
 				<div className={s.headerArea}>
-					<button className={s.backButton} onClick={() => navigate('/meet')}>
+					<button className={s.backButton} onClick={() => navigate('/home')}>
 						<BackArrow /> Back
 					</button>
 				</div>

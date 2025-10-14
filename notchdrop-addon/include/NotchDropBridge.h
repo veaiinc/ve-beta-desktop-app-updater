@@ -28,6 +28,7 @@
 + (BOOL)getHapticFeedback;
 + (void)setNotchVisible:(BOOL)visible;
 + (BOOL)getNotchVisible;
++ (void)setInteractionEnabled:(BOOL)enabled;
 
 // Callbacks
 + (void)setNotchDropStatusChangedCallback:(void(^)(NSString*))callback;
@@ -75,10 +76,26 @@
 + (void)updateVoiceConnectionState:(NSString*)status;
 + (void)updateVoiceMuteState:(BOOL)isMuted;
 + (void)addVoiceMessage:(NSString*)messageJson;
++ (void)addTranscriptionData:(NSString*)messageJson;
++ (void)sendLiveIntelligenceData:(NSString*)messageJson;
+ + (void)replaceTranscriptions:(NSString*)messagesJson;
+// Toggle panel mode during recording ("transcription" | "live-intel")
+ + (void)setRecordingPanelMode:(NSString*)mode;
++ (void)clearLiveIntelligenceData;
 + (void)updateStealthModeState:(BOOL)isEnabled;
+
+// External Recording State Management
++ (void)handleExternalRecordingStateChange:(BOOL)isRecording isPaused:(BOOL)isPaused;
 
 // Wake Word Detection Integration
 + (void)handleWakeWordDetected:(float)score;
+
+// Selection Assistant
++ (NSString*)getSelectionHistoryJSON;
++ (BOOL)clearSelectionHistory;
++ (BOOL)presentSelectionHistoryInterface;
++ (BOOL)requestSelectionAssistantPermissionPrompt;
++ (BOOL)isSelectionAssistantPermissionGranted;
 
 @end
 

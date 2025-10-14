@@ -64,12 +64,12 @@ class WakeWordService {
 	async checkEnvironment() {
 		// Cache environment check for 30 minutes
 		const now = Date.now();
-		if (this.lastEnvironmentCheck && (now - this.lastEnvironmentCheck) < 30 * 60 * 1000) {
+		if (this.lastEnvironmentCheck && now - this.lastEnvironmentCheck < 30 * 60 * 1000) {
 			return this.isAvailable;
 		}
 
 		log.info('🐍 Checking Hey Ve Python environment...');
-		
+
 		try {
 			// Check if Python script exists
 			if (!fs.existsSync(this.pythonPath)) {
@@ -80,9 +80,13 @@ class WakeWordService {
 			}
 
 			// Check if ONNX models exist
-			const requiredModels = ['hey_ve_ee.onnx', 'melspectrogram.onnx', 'embedding_model.onnx'];
-			const missingModels = requiredModels.filter(model => 
-				!fs.existsSync(path.join(this.modelsPath, model))
+			const requiredModels = [
+				'hey_ve_ee.onnx',
+				'melspectrogram.onnx',
+				'embedding_model.onnx',
+			];
+			const missingModels = requiredModels.filter(
+				(model) => !fs.existsSync(path.join(this.modelsPath, model)),
 			);
 
 			if (missingModels.length > 0) {
@@ -95,15 +99,15 @@ class WakeWordService {
 			// Check Python and dependencies using environment checker
 			const pythonCommand = this.findPythonCommand();
 			const checkerPath = path.join(this.modelsPath, 'check_environment.py');
-			
+
 			if (fs.existsSync(checkerPath)) {
 				try {
 					const result = execSync(`${pythonCommand} "${checkerPath}"`, {
 						cwd: this.modelsPath,
 						timeout: 10000,
-						encoding: 'utf8'
+						encoding: 'utf8',
 					});
-					
+
 					const status = JSON.parse(result);
 					if (status.ready) {
 						log.info('✅ Hey Ve environment ready');
@@ -121,7 +125,7 @@ class WakeWordService {
 				try {
 					execSync(`${pythonCommand} -c "import numpy, onnxruntime, pyaudio"`, {
 						timeout: 10000,
-						stdio: 'pipe'
+						stdio: 'pipe',
 					});
 					log.info('✅ Hey Ve basic dependencies available');
 					this.isAvailable = true;
@@ -130,7 +134,6 @@ class WakeWordService {
 					this.isAvailable = false;
 				}
 			}
-
 		} catch (error) {
 			log.error('❌ Hey Ve environment check error:', error.message);
 			this.isAvailable = false;
@@ -261,24 +264,24 @@ class WakeWordService {
 			environmentChecked: this.environmentChecked,
 			lastEnvironmentCheck: this.lastEnvironmentCheck,
 			pythonPath: this.pythonPath,
-			modelsPath: this.modelsPath
+			modelsPath: this.modelsPath,
 		};
 	}
 
 	async attemptInstallDependencies() {
 		log.info('🔧 Attempting to install Hey Ve Python dependencies...');
-		
+
 		try {
 			const pythonCommand = this.findPythonCommand();
 			const installerPath = path.join(this.modelsPath, 'install_deps.py');
-			
+
 			if (fs.existsSync(installerPath)) {
 				const result = execSync(`${pythonCommand} "${installerPath}"`, {
 					cwd: this.modelsPath,
 					timeout: 120000, // 2 minutes timeout for installation
-					encoding: 'utf8'
+					encoding: 'utf8',
 				});
-				
+
 				const installResult = JSON.parse(result);
 				if (installResult.success) {
 					log.info('✅ Python dependencies installed successfully');
@@ -297,7 +300,7 @@ class WakeWordService {
 					execSync(`${pythonCommand} -m pip install -r "${requirementsPath}"`, {
 						cwd: this.modelsPath,
 						timeout: 120000,
-						stdio: 'inherit'
+						stdio: 'inherit',
 					});
 					log.info('✅ Dependencies installed via requirements.txt');
 					this.lastEnvironmentCheck = null;
@@ -309,7 +312,7 @@ class WakeWordService {
 			log.error('❌ Failed to install Python dependencies:', error.message);
 			return false;
 		}
-		
+
 		return false;
 	}
 }

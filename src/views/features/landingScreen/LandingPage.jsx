@@ -100,6 +100,17 @@ const LandingPage = () => {
 		videoRef: scrollVideoRef,
 	} = useScrollAnimation();
 
+	// Ensure light background on landing page to avoid black rubber-band background
+	useEffect(() => {
+		document.documentElement.classList.add('light-page');
+		document.body.classList.add('light-page');
+
+		return () => {
+			document.documentElement.classList.remove('light-page');
+			document.body.classList.remove('light-page');
+		};
+	}, []);
+
 	// sync tab with URL
 	useEffect(() => {
 		const path = location.pathname;

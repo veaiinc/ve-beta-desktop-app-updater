@@ -9,6 +9,8 @@
 	flex-shrink: 0;
 	padding: 24px;
 	position: relative;
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
 
 	.mobileCloseBtn {
 		display: none;

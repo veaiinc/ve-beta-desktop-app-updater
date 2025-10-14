@@ -1123,18 +1123,31 @@ const useAssemblyTranscription = ({
 			// });
 
 			try {
+				// Ensure clean timer state
+				stopTimer();
+				let permissionGranted = false;
+
+				try {
+					const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+					permissionGranted = true;
+					log('Microphone access granted', stream);
+				} catch (err) {
+					log('Microphone permission denied or unavailable.', err);
+				}
+
+				if (!permissionGranted) {
+					if (window.electronApi) {
+						window.electronApi?.sendMessageFrmVeApp('meetingstopped');
+						window.electronApi?.openMicrophoneSettings();
+					}
+					return;
+				}
+
 				// Reset all states
 				setIsMuted(false);
 				setIsPaused(false);
 				muteRef.current = false;
 				meetingIdRef.current = meetingId;
-
-				// Ensure clean timer state
-				stopTimer();
-
-				// Skip permission checking to avoid timing issues with Electron APIs
-				// The browser will handle permission prompts when we call getUserMedia/getDisplayMedia
-				log('Skipping pre-permission checks, will rely on browser permission prompts...');
 
 				// First establish WebSocket connection
 				log('Establishing WebSocket connection...');

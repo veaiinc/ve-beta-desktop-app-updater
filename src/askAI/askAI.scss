@@ -1,269 +1,89 @@
-$primary-font-family: 'GeneralSans';
 .ask-ai-app {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	height: 100%; /* Use actual window height, not viewport */
-	min-height: 100%; /* Minimum height based on container */
-	font-family: $primary-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-		Roboto, sans-serif;
-	
-	/* Apply General Sans to all elements within the overlay */
-	* {
-		font-family: $primary-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-			Roboto, sans-serif !important;
-	}
+	height: 100%;
+	font-family: var(--primary-font-family);
 	user-select: text;
-	-webkit-app-region: no-drag; /* Remove drag from main container */
-	app-region: no-drag; /* Standard property for non-draggable regions */
-	pointer-events: auto; /* Ensure interactions work properly */
+	// -webkit-app-region: no-drag;
+	// app-region: no-drag;
+	app-region: drag;
+	pointer-events: auto;
 	background: transparent;
 	padding: 0;
 	margin: 0;
-	gap: 12px;
 	overflow: hidden;
-	width: 100%;
-	font-size: 14px;
+	font-size: 10px;
 	position: relative;
 
-	// AI Response Window (Top)
-	.ai-response-window {
-		border-radius: 16px;
-		border: 0.5px solid rgba(255, 255, 255, 0.15);
-		background: rgba(0, 0, 0, 0.7);
-		backdrop-filter: blur(4px);
-		overflow: hidden;
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		overflow: auto;
-
-		.ai-response-header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			padding: 20px 20px 0 20px;
-			position: relative;
-			-webkit-app-region: drag; /* Enable dragging on header */
-			app-region: drag;
-			cursor: move; /* Visual feedback for draggable area */
-
-			&.chat-expanded {
-				-webkit-app-region: drag;
-				app-region: drag;
-			}
-
-			.ai-response-title {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				color: var(--primary-font);
-				font-family: $primary-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-					Roboto, sans-serif !important;
-				font-size: 14px;
-				font-weight: 500;
-				position: relative;
-			}
-
-			.ai-response-controls {
-				display: flex;
-				align-items: center;
-				gap: 8px;
-				position: relative;
-				-webkit-app-region: no-drag; /* Prevent dragging on control buttons */
-				app-region: no-drag;
-
-				.chat-btn {
-					background: transparent;
-					border: 1px solid var(--stroke-hover);
-					color: var(--primary-font);
-					-webkit-app-region: no-drag; /* Prevent dragging on copy/close buttons */
-					app-region: no-drag; /* Standard property for non-draggable regions */
-					padding: 6px 7px;
-					border-radius: 6px;
-					transition: all 0.2s;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					height: 30px;
-
-					&:hover {
-						background: var(--card-over-card-hover);
-					}
-				}
-
-				.close-button {
-					background: transparent;
-					border: 1px solid var(--stroke-hover);
-					color: var(--primary-font);
-					-webkit-app-region: no-drag; /* Prevent dragging on copy/close buttons */
-					app-region: no-drag; /* Standard property for non-draggable regions */
-					padding: 6px 7px;
-					border-radius: 6px;
-					transition: all 0.2s;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					height: 30px;
-
-					&:hover {
-						background: var(--card-over-card-hover);
-					}
-				}
-			}
-		}
-
-		.divider {
-			background: rgba(255, 255, 255, 0.24);
-			width: calc(100% - 40px);
-			margin: 12px auto;
-			height: 1px;
-		}
-
-		.chatWrapper {
-			width: 100%;
-			overflow: hidden; /* Prevent double scrollbars */
-			flex-grow: 1;
-			display: flex;
-			flex-direction: column;
-			min-height: 0; /* Allow flexbox to shrink */
-			-webkit-app-region: no-drag; /* Ensure chat content is not draggable */
-			app-region: no-drag;
-
-			.markdown-custom-content {
-				--font-size: 13px;
-				font-family: $primary-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-					Roboto, sans-serif !important;
-			}
-
-			.user-message-renderer-container {
-				font-size: 13px !important;
-				font-family: $primary-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-					Roboto, sans-serif !important;
-			}
-
-			.chat-page-container-wrapper {
-				flex-grow: 1;
-				display: flex;
-				flex-direction: column;
-				min-height: 0; /* Allow flexbox to shrink */
-				height: 100%;
-				overflow: hidden; /* Prevent outer scrolling */
-
-				.textArea {
-					min-height: 16px !important; /* Much more aggressive reduction */
-					max-height: 125px !important;
-					line-height: 1.2 !important; /* Tighter line height */
-					font-family: $primary-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-						Roboto, sans-serif !important;
-				}
-
-				/* Override the main chat layout for Ask AI */
-				.chatBodyWrapper {
-					flex-grow: 1;
-					display: flex;
-					flex-direction: column;
-					padding: 0 20px 0 20px;
-					min-height: 0; /* Allow flexbox to shrink */
-					overflow: hidden;
-
-					.chatBodyParentContainer {
-						flex-grow: 1;
-						overflow-y: auto !important; /* Force scrolling to be enabled */
-						overflow-x: hidden;
-						min-height: 0; /* Allow flexbox to shrink */
-						max-height: none !important; /* Remove any height restrictions */
-						height: 100% !important; /* Take full available height */
-						position: relative; /* Ensure proper positioning */
-
-						/* Ensure scrollbar is visible and functional */
-						&::-webkit-scrollbar {
-							width: 8px;
-							background: transparent;
-						}
-
-						&::-webkit-scrollbar-track {
-							background: rgba(255, 255, 255, 0.1);
-							border-radius: 4px;
-							margin: 4px 0;
-						}
-
-						&::-webkit-scrollbar-thumb {
-							background: rgba(255, 255, 255, 0.4);
-							border-radius: 4px;
-							border: 1px solid rgba(255, 255, 255, 0.1);
-						}
-
-						&::-webkit-scrollbar-thumb:hover {
-							background: rgba(255, 255, 255, 0.6);
-						}
-
-						&::-webkit-scrollbar-thumb:active {
-							background: rgba(255, 255, 255, 0.8);
-						}
-
-						/* Ensure content can be scrolled */
-						.chatContent {
-							min-height: 100%;
-							padding-bottom: 20px;
-						}
-					}
-
-					/* ChatBox is now conditionally rendered, no need to hide with CSS */
-				}
-			}
-
-			.chatContent {
-				padding: 0 5px 10px 5px; /* Reduced bottom padding */
-			}
-
-			.ve-mistake-text {
-				display: none;
-			}
-		}
+	// Glass-style draggable top handle (no content, just drag zone)
+	.ask-ai-drag-handle {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 10px;
+		-webkit-app-region: drag;
+		app-region: drag;
+		cursor: move;
+		pointer-events: auto;
+		background: transparent;
 	}
 
-	// Separate chat input wrapper outside the scrollable area
+	// Chat input wrapper
 	.ask-ai-chat-input-wrapper {
-		flex-shrink: 0; /* Keep input always visible */
-		padding: 0 20px 8px 20px; /* Much more aggressive bottom padding reduction */
+		flex: 1;
+		padding: 0 0px 8px 4px;
+		display: flex;
+		flex-direction: column;
 		background: transparent;
-		border-top: 1px solid rgba(255, 255, 255, 0.1);
-		margin: 6px 16px 8px 16px; /* Much more aggressive margin reduction */
 		position: relative;
 
-		/* Ensure the chat input is properly styled */
+		/* Compact ChatBox styles */
 		.chatBoxWrapper {
-			display: block !important; /* Show the chat input */
+			display: block !important;
 			margin: 0;
 			padding: 0;
 		}
 
-		/* Reduce input container height for Ask AI */
 		.chatInputContainer {
-			padding: 4px 8px; /* Much more aggressive padding reduction */
-			min-height: 28px; /* Much smaller minimum height */
-			gap: 8px; /* Reduce gap between elements */
-			font-family: $primary-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-				Roboto, sans-serif !important;
+			padding: 10px 9px;
+			min-height: 24px;
+			font-size: 10px;
+			font-family: var(--primary-font-family) !important;
 		}
 
-		/* Reduce button sizes for more compact layout */
+		/* Reduce button sizes for compact layout */
 		.buttons-left-container,
 		.buttons-right-container {
 			.click-btn,
 			.upload-file-btn-container,
 			.deep-search-btn-container,
 			.create-btn-container {
-				height: 28px !important; /* Smaller button height */
-				width: 28px !important; /* Smaller button width */
-				padding: 6px !important; /* Reduced padding */
+				height: 24px !important;
+				width: 24px !important;
+				padding: 4px !important;
+				-webkit-app-region: no-drag;
+				app-region: no-drag;
+				cursor: pointer;
+				pointer-events: auto;
+				.hover {
+					cursor: pointer;
+					pointer-events: auto;
+				}
 			}
 		}
 
+		/* Reduce textarea height */
+		.textArea {
+			position: absolute;
+			top: 1px;
+			min-height: 21px !important;
+			max-height: 22px !important;
+			line-height: 1.1 !important;
+			font-size: 14px !important;
+			padding: 2px 2px !important;
+			font-family: var(--primary-font-family) !important;
+		}
 	}
-
-	// Note: Window resizing is handled natively by Electron
-	// Custom resize handles removed to prevent conflicts with native functionality
 }

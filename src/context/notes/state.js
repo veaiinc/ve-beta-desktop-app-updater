@@ -97,6 +97,17 @@ export const intialState = {
 	aiLiveIntelligenceHistory: null,
 	createBotInfo: null,
 	activeMeetingRevampedPrompt: null,
+	activeMeetingDetails: {
+		meetingId: null,
+		transcriptions: null,
+		liveIntelligenceData: {
+			askUser: [],
+			needHelp: [],
+			actions: [],
+			files: [],
+			allThreads: [],
+		},
+	},
 };
 
 export const NotesState = (props) => {
@@ -2220,6 +2231,32 @@ export const NotesState = (props) => {
 		}
 	};
 
+	const getAllCalendarEventsForMeetings = async (page, limit, payload) => {
+		try {
+			let workspaceId = localStorage.getItem('workspaceId');
+			let usertoken = localStorage.getItem('usertoken');
+			const url = `/${workspaceId}/calendar/combined-events?page=${page}&limit=${limit}`;
+			const response = await Service.fetchPost(url, payload, usertoken, 'calendar_api');
+			return response;
+		} catch (error) {
+			console.log('error ==> fetchingCalendarEvents', error);
+		}
+	};
+
+	const updateActiveMeetingDetails = async (payload) => {
+		dispatch({
+			type: Actions.UPDATE_ACTIVE_MEETING_DETAILS,
+			payload,
+		});
+	};
+
+	const handleLiveIntelligenceData = async (payload) => {
+		dispatch({
+			type: Actions.HANDLE_LIVE_INTELLIGENCE_DATA,
+			payload: payload,
+		});
+	};
+
 	return {
 		...state,
 		getNotesList,
@@ -2289,5 +2326,8 @@ export const NotesState = (props) => {
 		deleteMeeting,
 		updateMeeting,
 		getRevampedPrompt,
+		getAllCalendarEventsForMeetings,
+		updateActiveMeetingDetails,
+		handleLiveIntelligenceData,
 	};
 };

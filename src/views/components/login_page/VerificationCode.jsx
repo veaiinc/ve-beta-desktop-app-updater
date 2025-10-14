@@ -6,6 +6,7 @@ import Context from '../../../context/context';
 import Spinner from '../loaders/Spinner';
 import CustomOtp from '../globalComponents/CustomOtp';
 import '../../../assets/scss/otp_input/otp_input.scss';
+import { getLocationsDetails } from '../../../helpers';
 
 const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveStage }) => {
 	const navigate = useNavigate();
@@ -14,7 +15,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			createAccountUsingEmail,
 			checkAccountExistsUsingEmail,
 			verifyEmailVerificationCode,
-			getLocationDetails,
+			// getLocationDetails,
 		},
 		profileInfo: { getWorkSpaceInfo },
 	} = useContext(Context);
@@ -36,6 +37,8 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 		blockUntil: null, // Timestamp when block ends
 	});
 
+	console.log('info', info);
+
 	const [otpArray, setOtpArray] = useState(Array(4).fill(''));
 	const otpContainerRef = useRef(null);
 
@@ -51,9 +54,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 					...prev,
 					failedAttempts: 3,
 					blockUntil,
-					otpError: `Too many failed attempts. Try again in ${Math.ceil(
-						(blockUntil - now) / 60000,
-					)} minute(s).`,
+					otpError: info?.otpError || `Too many failed attempts. Try again in 1 hour.`,
 				}));
 			} else if (now >= blockUntil) {
 				// Block expired, clean up
@@ -139,6 +140,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 			const newFailedAttempts = info.failedAttempts + 1;
 			const MAX_ATTEMPTS = 3;
 			let newBlockUntil = null;
+			setInfo((prev) => ({ ...prev, otpError: response?.[1]?.message }));
 
 			if (newFailedAttempts >= MAX_ATTEMPTS) {
 				newBlockUntil = now + 60 * 60 * 1000; // 1 hour in milliseconds
@@ -149,14 +151,14 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 					...prev,
 					failedAttempts: newFailedAttempts,
 					blockUntil: newBlockUntil,
-					otpError: 'Too many failed attempts. Try again in 1 hour.',
+					// otpError: info?.otpError || 'Too many failed attempts. Try again in 1 hour.',
 					isLoading: false,
 				}));
 			} else {
 				setInfo((prev) => ({
 					...prev,
 					failedAttempts: newFailedAttempts,
-					otpError: `Invalid code. ${MAX_ATTEMPTS - newFailedAttempts} attempt(s) left.`,
+					// otpError: info?.otpError || 'Invalid code. Try again.',
 					isLoading: false,
 				}));
 			}
@@ -238,7 +240,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 	const handleLocationDetailsData = useCallback(async () => {
 		let locationDetails = JSON.parse(localStorage.getItem('locationDetails'));
 		if (!locationDetails) {
-			const response = await getLocationDetails();
+			const response = await getLocationsDetails();
 			if (response?.[0] === true) {
 				locationDetails = response?.[1];
 			} else {

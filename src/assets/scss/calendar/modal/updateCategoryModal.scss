@@ -190,7 +190,7 @@
 							background: rgba(228, 229, 230, 0.5);
 							&::before {
 								content: '✔'; // Unicode check mark
-								color: var(--background-color);
+								color: var(--font-primary-color);
 								font-size: 13px;
 								font-weight: 100;
 								display: flex;

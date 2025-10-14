@@ -102,20 +102,15 @@ struct NotchEventModel: Identifiable, Equatable {
     
     /// Opens the Calendar app directly - simple and reliable
     func openInCalendar() {
-        print("📅 Opening Calendar app for event: \(title)")
         
         // Simply open the Calendar app by bundle identifier
         if let calendarURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iCal") {
-            print("📅 ✅ Found Calendar app, opening...")
             NSWorkspace.shared.openApplication(at: calendarURL, configuration: NSWorkspace.OpenConfiguration()) { app, error in
                 if let error = error {
-                    print("📅 ❌ Failed to open Calendar: \(error.localizedDescription)")
                 } else {
-                    print("📅 ✅ Calendar app opened successfully")
                 }
             }
         } else {
-            print("📅 ❌ Calendar app not found")
         }
     }
 }
@@ -148,19 +143,16 @@ class NotchCalendarManager: ObservableObject {
     func requestPermission() {
         // Check current authorization status first
         let currentStatus = EKEventStore.authorizationStatus(for: .event)
-        print("📅 Current calendar authorization status: \(currentStatus.rawValue)")
         
         // If already authorized, set permission and load events
         if #available(macOS 14.0, *) {
             if currentStatus == .fullAccess || currentStatus == .writeOnly {
-                print("📅 Calendar already authorized")
                 hasPermission = true
                 loadEvents()
                 return
             }
         } else {
             if currentStatus == .authorized {
-                print("📅 Calendar already authorized (legacy)")
                 hasPermission = true
                 loadEvents()
                 return
@@ -170,12 +162,9 @@ class NotchCalendarManager: ObservableObject {
         // Request permission if not already granted
         if #available(macOS 14.0, *) {
             // Use new API for macOS 14+
-            print("📅 Requesting full calendar access...")
             eventStore.requestFullAccessToEvents { [weak self] granted, error in
                 DispatchQueue.main.async {
-                    print("📅 Calendar permission granted: \(granted)")
                     if let error = error {
-                        print("📅 Calendar permission error: \(error)")
                     }
                     self?.hasPermission = granted
                     if granted {
@@ -185,12 +174,9 @@ class NotchCalendarManager: ObservableObject {
             }
         } else {
             // Use legacy API for older macOS versions
-            print("📅 Requesting calendar access (legacy)...")
             eventStore.requestAccess(to: .event) { [weak self] granted, error in
                 DispatchQueue.main.async {
-                    print("📅 Calendar permission granted: \(granted)")
                     if let error = error {
-                        print("📅 Calendar permission error: \(error)")
                     }
                     self?.hasPermission = granted
                     if granted {
@@ -202,13 +188,11 @@ class NotchCalendarManager: ObservableObject {
         
         // Also request reminder access
         let reminderStatus = EKEventStore.authorizationStatus(for: .reminder)
-        print("📅 Current reminder authorization status: \(reminderStatus.rawValue)")
         
         if #available(macOS 14.0, *) {
             if reminderStatus != .fullAccess && reminderStatus != .writeOnly {
                 eventStore.requestFullAccessToReminders { [weak self] granted, error in
                     DispatchQueue.main.async {
-                        print("📅 Reminder permission granted: \(granted)")
                         if granted {
                             self?.loadEvents()
                         }
@@ -219,7 +203,6 @@ class NotchCalendarManager: ObservableObject {
             if reminderStatus != .authorized {
                 eventStore.requestAccess(to: .reminder) { [weak self] granted, error in
                     DispatchQueue.main.async {
-                        print("📅 Reminder permission granted: \(granted)")
                         if granted {
                             self?.loadEvents()
                         }
@@ -236,7 +219,6 @@ class NotchCalendarManager: ObservableObject {
     
     private func loadEvents() {
         guard hasPermission else { 
-            print("📅 No calendar permission, skipping event load")
             return 
         }
         
@@ -244,14 +226,11 @@ class NotchCalendarManager: ObservableObject {
         let startOfDay = calendar.startOfDay(for: currentDate)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
         
-        print("📅 Loading events for date: \(currentDate)")
-        print("📅 Date range: \(startOfDay) to \(endOfDay)")
         
         // Load calendar events
         let predicate = eventStore.predicateForEvents(withStart: startOfDay, end: endOfDay, calendars: nil)
         let ekEvents = eventStore.events(matching: predicate)
         
-        print("📅 Found \(ekEvents.count) calendar events")
         
         // Load reminders
         let reminderPredicate = eventStore.predicateForReminders(in: nil)
@@ -263,7 +242,6 @@ class NotchCalendarManager: ObservableObject {
                 
                 // Convert calendar events
                 for ekEvent in ekEvents {
-                    print("📅 Processing event: \(ekEvent.title ?? "Untitled") at \(ekEvent.startDate)")
                     let event = NotchEventModel(
                         id: ekEvent.eventIdentifier,
                         title: ekEvent.title ?? "Untitled Event",
@@ -305,9 +283,7 @@ class NotchCalendarManager: ObservableObject {
                 
                 // Sort events by start time
                 self.events = allEvents.sorted { $0.start < $1.start }
-                print("📅 Final event count: \(self.events.count)")
                 for event in self.events {
-                    print("📅 Event: \(event.title) at \(event.start)")
                 }
             }
         }
@@ -322,7 +298,6 @@ class NotchCalendarManager: ObservableObject {
             try eventStore.save(reminder, commit: true)
             loadEvents() // Refresh events
         } catch {
-            print("Failed to update reminder: \(error)")
         }
     }
 }
@@ -402,18 +377,31 @@ struct NotchWheelPicker: View {
         
         return Button(action: onClick) {
             VStack(spacing: 0) {
-                // Date number (larger, on top)
-                Text("\(date.day)")
-                    .font(.system(size: isToday ? 14 : 12, weight: isToday ? .bold : .semibold))
-                    .foregroundColor(isSelected ? Color(hex: "79ecc9") ?? Color.blue : Color.white)
+                // Date number with teal circular background for today
+                if isToday {
+                    ZStack {
+                        // Teal circular background for today's date
+                        Circle()
+                            .fill(Color(hex: "79ecc9") ?? Color.blue)
+                            .frame(width: 17, height: 17)
+                        
+                        Text("\(date.day)")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.black)
+                    }
+                } else {
+                    Text("\(date.day)")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(isSelected ? Color(hex: "79ecc9") ?? Color.blue : Color.white)
+                }
                 
                 // Day of week (smaller, below)
                 Text(dateToString(for: date))
                     .font(.system(size: isToday ? 7 : 6, weight: isToday ? .semibold : .medium))
                     .foregroundColor(isSelected ? Color(hex: "79ecc9") ?? Color.blue : Color.white.opacity(0.6))
                 
-                // Teal dot for selected
-                if isSelected {
+                // Teal dot for selected (but not for today since it has red background)
+                if isSelected && !isToday {
                     Circle()
                         .fill(Color(hex: "79ecc9") ?? Color.blue)
                         .frame(width: 4, height: 4)
@@ -528,7 +516,6 @@ struct NotchCalendarView: View {
             }
         }
         .onAppear {
-            print("📅 NotchCalendarView appeared, loading events for today")
             Task {
                 await calendarManager.updateCurrentDate(selectedDate)
             }
@@ -580,23 +567,22 @@ struct NotchEventListView: View {
     }
 
     var body: some View {
-        List {
-            ForEach(Array(filteredEvents.enumerated()), id: \.element.id) { index, event in
-                Button(action: {
-                    // Use the robust calendar opening method with multiple fallbacks
-                    event.openInCalendar()
-                }) {
-                    eventRow(event, isLast: index == filteredEvents.count - 1)
+        // ⚡ PERFORMANCE FIX: Use LazyVStack instead of List for better performance
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(filteredEvents.indices, id: \.self) { index in
+                    let event = filteredEvents[index]
+                    Button(action: {
+                        // Use the robust calendar opening method with multiple fallbacks
+                        event.openInCalendar()
+                    }) {
+                        eventRow(event, isLast: index == filteredEvents.count - 1)
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .padding(.leading, -5)
-                .buttonStyle(PlainButtonStyle())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
             }
         }
-        .listStyle(.plain)
         .scrollIndicators(.never)
-        .scrollContentBackground(.hidden)
         .background(Color.clear)
         Spacer(minLength: 0)
     }

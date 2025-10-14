@@ -22,18 +22,19 @@ import { CustomDomainState } from './customDomain/state';
 import { ChatStreamState } from './chatStream/state';
 import { ChatBoxSuggestionsState } from './chatBoxSuggestions/state';
 
+// 🚨 CRITICAL FIX: Simplified context loading to prevent React hooks errors
 const useCombineState = () => {
-	// Call all hooks at the top level
+	// 🚨 CRITICAL FIX: Load all contexts directly to maintain hook order
 	const chatInfo = ChatState();
-	const templates = TemplatesState();
+	const authInfo = AuthState();
 	const themeInfo = ThemeState();
+	const templates = TemplatesState();
 	const profileInfo = ProfileState();
 	const companyInfo = CompanySettingsState();
 	const galleryInfo = Galleries();
 	const aiSetup = AiSetupState();
 	const activityInfo = ActivityState();
 	const subscriptionInfo = SubscriptionState();
-	const authInfo = AuthState();
 	const calendarInfo = Calendar();
 	const tasks = TasksState();
 	const contacts = ContactsState();
@@ -46,7 +47,8 @@ const useCombineState = () => {
 	const customDomainInfo = CustomDomainState();
 	const chatStream = ChatStreamState();
 	const chatBoxSuggestionsSocket = ChatBoxSuggestionsState();
-	// Only memoize the final combined object
+
+	// 🚨 CRITICAL FIX: Simple memoization without complex cleanup
 	return useMemo(
 		() => ({
 			chatInfo,

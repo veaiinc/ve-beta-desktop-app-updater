@@ -1,55 +1,364 @@
-import React, { useState, useContext, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import styles from './cardMeetBot.module.scss';
 import './meetBot.scss';
 import Context from '../../../context/context';
 import { useNavigate } from 'react-router-dom';
-import EmptyMeetBotList from './emptyMeetBotList';
-import { ReactComponent as ChevronDown } from '../../../assets/svg/tasks/chevronRightThin.svg';
-import { ReactComponent as SearchSvg } from '../../../assets/svg/workflow/search.svg';
-import { ReactComponent as AddIcon } from '../../../assets/svg/add.svg';
 import GuideMePopup from './guideMePopup';
 import CreateMeetingModal from './CreateMeetingModal';
 import moment from 'moment';
 import { useStore, storeActions } from '../../../store/store';
 import { useDispatch } from '@zubridge/electron';
+import { message } from '../../components/globalComponents/CustomToast';
+import Spinner from '../../components/loaders/Spinner';
 
-const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function formatDate(timestamp) {
-	const date = new Date(Number(timestamp) * 1000);
-	return date.toLocaleDateString(undefined, {
-		weekday: 'long',
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
+
+// Upcoming Meetings List Component
+const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, getMeetingStatus }) => {
+	// Group meetings by date (same as past meetings)
+	const groupMeetingsByDate = (meetings) => {
+		const grouped = {};
+
+		// Sort meetings by start time (earliest first - most recent upcoming first)
+		const sortedMeetings = [...meetings].sort((a, b) => {
+			const aTime = a?.googleCalendarMeta?.start?.dateTime || a.startDateTime;
+			const bTime = b?.googleCalendarMeta?.start?.dateTime || b.startDateTime;
+			if (!aTime || !bTime) return 0;
+			return moment.utc(aTime).valueOf() - moment.utc(bTime).valueOf();
+		});
+
+		sortedMeetings.forEach(meeting => {
+			const meetingTime = meeting?.startDateTime || meeting?.googleCalendarMeta?.start?.dateTime;
+			if (!meetingTime) return;
+
+			const date = moment.utc(meetingTime).format('DD MMM YYYY');
+
+			if (!grouped[date]) {
+				grouped[date] = [];
+			}
+			grouped[date].push(meeting);
+		});
+
+		return grouped;
+	};
+
+	const formatTime = (dateTime) => {
+		return moment(dateTime).format('h:mm A');
+	};
+
+	const getParticipantsDisplay = (meeting) => {
+		let participants = [];
+
+		// Collect all participants
+		if (meeting.participants && meeting.participants.length > 0) {
+			participants = meeting.participants;
+		} else if (meeting.attendees && meeting.attendees.length > 0) {
+			participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
+		} else if (meeting.organizer?.name) {
+			participants = [meeting.organizer.name];
+		}
+
+		if (participants.length === 0) {
+			return <span className="no-participants">No participants</span>;
+		}
+
+		// Show first participant name, then +count for others
+		const firstParticipant = participants[0];
+		const remainingCount = participants.length - 1;
+
+		return (
+			<div className="participants-display">
+				<span className="first-participant">{firstParticipant}</span>
+				{remainingCount > 0 && (
+					<div className="participant-count-container">
+						<span className="participant-count">+{remainingCount}</span>
+						<div className="participants-popup">
+							<div className="popup-header">Attendees</div>
+							<div className="popup-separator"></div>
+							<div className="popup-list">
+								{participants.map((participant, index) => (
+									<div key={index} className="popup-participant">
+										<span className="participant-email">{participant}</span>
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+		);
+	};
+
+	const groupedMeetings = groupMeetingsByDate(meetings);
+
+	// Sort date groups by date (earliest first)
+	const sortedDateKeys = Object.keys(groupedMeetings).sort((a, b) => {
+		return moment(a, 'DD MMM YYYY').valueOf() - moment(b, 'DD MMM YYYY').valueOf();
 	});
-}
+
+	return (
+		<div className='upcoming-meetings-list'>
+			{sortedDateKeys.map((date) => (
+				<div key={date} className='meetings-group'>
+					<div className='meetings-group-title'>{date}</div>
+					{groupedMeetings[date].map((meeting) => {
+						const status = getMeetingStatus(meeting);
+						const isCreating = creatingMeetingId === meeting._id;
+						const isClickable = status === 'Now' || status === 'Starting soon';
+
+						return (
+							<div
+								key={meeting._id}
+								className={`card-meet-bot-list-item upcoming ${isCreating ? 'creating' : ''} ${!isClickable ? 'non-clickable' : ''}`}
+								onClick={() => {
+									if (isCreating || !isClickable) return;
+									onMeetingClick(meeting);
+								}}
+							>
+								<div className='card-meet-bot-list-item-header'>
+									<div className='card-meet-bot-list-item-title'>{meeting.title}</div>
+									<div className='card-meet-bot-list-item-time'>{formatTime(meeting.startDateTime)}</div>
+								</div>
+								<div className='card-meet-bot-list-item-description'>
+									{getParticipantsDisplay(meeting)}
+								</div>
+								{status && (
+									<div className='card-meet-bot-list-item-status'>
+										{isCreating ? (
+											<>
+												<Spinner width="12px" height="12px" color="white" borderTopColor="transparent" borderWidth={2} />
+												Creating...
+											</>
+										) : (
+											status
+										)}
+									</div>
+								)}
+							</div>
+						);
+					})}
+				</div>
+			))}
+
+			{meetings.length === 0 && (
+				<div className='card-meet-empty-state'>
+					<div className='card-meet-empty-title'>No upcoming meetings</div>
+					<div className='card-meet-empty-description'>
+						Your upcoming meetings will appear here
+					</div>
+				</div>
+			)}
+		</div>
+	);
+};
+
+// Past Meetings List Component
+const PastMeetingsList = ({ meetings, onMeetingClick }) => {
+	// Group meetings by date
+	const groupMeetingsByDate = (meetings) => {
+		const grouped = {};
+
+		meetings.forEach(meeting => {
+			if (!meeting.createdAt) return;
+
+			const date = moment.unix(meeting.createdAt).format('DD MMM YYYY');
+
+			if (!grouped[date]) {
+				grouped[date] = [];
+			}
+			grouped[date].push(meeting);
+		});
+
+		return grouped;
+	};
+
+	const formatTime = (timestamp) => {
+		return moment.unix(timestamp).format('h:mm A');
+	};
+
+	const getParticipantsDisplay = (meeting) => {
+		let participants = [];
+
+		// Collect all participants
+		if (meeting.participants && meeting.participants.length > 0) {
+			participants = meeting.participants;
+		} else if (meeting.attendees && meeting.attendees.length > 0) {
+			participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
+		} else if (meeting.createdBy?.name) {
+			participants = [meeting.createdBy.name];
+		}
+
+		if (participants.length === 0) {
+			return <span className="no-participants">No participants</span>;
+		}
+
+		// Show first participant name, then +count for others
+		const firstParticipant = participants[0];
+		const remainingCount = participants.length - 1;
+
+		return (
+			<div className="participants-display">
+				<span className="first-participant">{firstParticipant}</span>
+				{remainingCount > 0 && (
+					<div className="participant-count-container">
+						<span className="participant-count">+{remainingCount}</span>
+						<div className="participants-popup">
+							<div className="popup-header">Attendees</div>
+							<div className="popup-separator"></div>
+							<div className="popup-list">
+								{participants.map((participant, index) => (
+									<div key={index} className="popup-participant">
+										<span className="participant-email">{participant}</span>
+									</div>
+								))}
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+		);
+	};
+
+	const groupedMeetings = groupMeetingsByDate(meetings);
+
+	return (
+		<div className='past-meetings-list'>
+			{Object.keys(groupedMeetings).map((date) => (
+				<div key={date} className='meetings-group'>
+					<div className='meetings-group-title'>{date}</div>
+					{groupedMeetings[date].map((meeting) => (
+						<div
+							key={meeting._id}
+							className='card-meet-bot-list-item past'
+							onClick={() => onMeetingClick(meeting)}
+						>
+							<div className='card-meet-bot-list-item-header'>
+								<div className='card-meet-bot-list-item-title'>{meeting.title}</div>
+								<div className='card-meet-bot-list-item-time'>{formatTime(meeting.createdAt)}</div>
+							</div>
+							<div className='card-meet-bot-list-item-description'>
+								{getParticipantsDisplay(meeting)}
+							</div>
+						</div>
+					))}
+				</div>
+			))}
+
+			{meetings.length === 0 && (
+				<div className='card-meet-empty-state'>
+					<div className='card-meet-empty-title'>No past meetings</div>
+					<div className='card-meet-empty-description'>
+						Your completed meetings will appear here
+					</div>
+				</div>
+			)}
+		</div>
+	);
+};
+
+
 
 const CardMeetBot = () => {
 	const {
-		notes: { getExistingBots, createMeetBot },
+		notes: { getExistingBots, createMeetBot, getAllCalendarEventsForMeetings },
 		templates: { updateStateValues },
 		aiSetup: { proactiveHeadings, getProactiveHeadings },
 	} = useContext(Context);
 	const navigate = useNavigate();
 	const [info, setInfo] = useState({
 		modalOpen: false,
-		currentIndex: 0,
 		searchOpen: false,
-		cards: [],
 		guideMePopupOpen: false,
 		apiFetching: false,
+		activeTab: 'upcoming',
+		creatingMeetingId: null,
+		userSwitchedTab: false, // Track if user manually switched tabs
 	});
-	const searchInputRef = useRef(null);
+	const [currentTime, setCurrentTime] = useState(moment.utc());
 
 	const dispatch = useDispatch();
-	const { pastMeetings, activeMeetingId } = useStore((state) => state.meeting) || {};
+	const { pastMeetings, activeMeetingId, upcomingMeetings } =
+		useStore((state) => state.meeting) || {};
 
-	const meetings = useMemo(() => pastMeetings?.data || [], [pastMeetings?.data]);
-	const loadingMeetings = pastMeetings?.data ? false : true;
-	const hasNextPage = pastMeetings?.hasNextPage || false;
-	const nextPage = pastMeetings?.nextPage || 1;
-	const totalDocs = pastMeetings?.totalDocs || 0;
+	// Get meetings based on active tab
+	const meetings = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			const upcomingData = upcomingMeetings?.data || [];
+			const pastData = pastMeetings?.data || [];
+
+			// Filter out past meetings (endDateTime <= now) and meetings that have already been created
+			const now = moment.utc();
+			return upcomingData.filter((meeting) => {
+				// Filter out meetings that have already ended
+				if (meeting.endDateTime) {
+					const endTime = moment.utc(meeting.endDateTime);
+					if (endTime.isSameOrBefore(now)) {
+						return false;
+					}
+				}
+
+				// Filter out meetings that have already been converted to actual meetings
+				// Check if there's a past meeting with similar title and time
+				const hasBeenCreated = pastData.some((pastMeeting) => {
+					// Compare titles (case insensitive)
+					const titleMatch =
+						pastMeeting.title &&
+						meeting.title &&
+						pastMeeting.title.toLowerCase().trim() ===
+						meeting.title.toLowerCase().trim();
+
+					// Compare start times (within 30 minutes window)
+					let timeMatch = false;
+					const upcomingMeetingTime = meeting?.googleCalendarMeta?.start?.dateTime || meeting.startDateTime;
+					if (pastMeeting.createdAt && upcomingMeetingTime) {
+						const pastMeetingTime = moment.unix(pastMeeting.createdAt);
+						const upcomingTime = moment.utc(upcomingMeetingTime);
+						timeMatch = pastMeetingTime.isBetween(
+							upcomingTime.clone().subtract(30, 'minutes'),
+							upcomingTime.clone().add(30, 'minutes'),
+						);
+					}
+
+					return titleMatch && timeMatch;
+				});
+
+				return !hasBeenCreated;
+			});
+		}
+		return pastMeetings?.data || [];
+	}, [info.activeTab, pastMeetings?.data, upcomingMeetings?.data, currentTime]);
+
+	const loadingMeetings = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			return upcomingMeetings?.data ? false : true;
+		}
+		return pastMeetings?.data ? false : true;
+	}, [info.activeTab, pastMeetings?.data, upcomingMeetings?.data]);
+
+	const hasNextPage = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			return upcomingMeetings?.hasNextPage || false;
+		}
+		return pastMeetings?.hasNextPage || false;
+	}, [info.activeTab, pastMeetings?.hasNextPage, upcomingMeetings?.hasNextPage]);
+
+	const nextPage = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			return upcomingMeetings?.nextPage || 1;
+		}
+		return pastMeetings?.nextPage || 1;
+	}, [info.activeTab, pastMeetings?.nextPage, upcomingMeetings?.nextPage]);
+
+	const totalDocs = useMemo(() => {
+		if (info.activeTab === 'upcoming') {
+			return upcomingMeetings?.totalDocs || 0;
+		}
+		return pastMeetings?.totalDocs || 0;
+	}, [info.activeTab, pastMeetings?.totalDocs, upcomingMeetings?.totalDocs]);
+
+	const handleTabChange = (tab) => {
+		setInfo((prev) => ({ ...prev, activeTab: tab, userSwitchedTab: true }));
+	};
 
 	// Modified API call handler to dispatch to store
 	const handleGetExistingBots = useCallback(
@@ -112,158 +421,116 @@ const CardMeetBot = () => {
 		[getExistingBots, dispatch, pastMeetings?.data],
 	);
 
+	const handleGetUpcomingMeetings = useCallback(
+		async (params) => {
+			setInfo((prevInfo) => ({ ...prevInfo, apiFetching: true }));
+			const now = moment();
+			try {
+				const result = await getAllCalendarEventsForMeetings(params.page, params.limit, {
+					startDate: now.toISOString(), // current time
+					endDate: now.clone().add(12, 'hours').toISOString(),
+				});
+
+				let payload = {};
+
+				if (result[0]) {
+					console.log('result==>handleGetUpcomingMeetings', result);
+
+					const data = result[1];
+					const currentPageMeetingsList = data?.data || [];
+
+					let mergedData;
+					if (params.append) {
+						const existing = upcomingMeetings?.data || [];
+
+						// Merge + deduplicate by "_id"
+						const combined = [...existing, ...currentPageMeetingsList];
+						const seen = new Set();
+						mergedData = combined.filter((meeting) => {
+							if (!meeting?._id) return false; // skip invalid entries
+							if (seen.has(meeting._id)) return false; // skip duplicates
+							seen.add(meeting._id);
+							return true;
+						});
+					} else {
+						// For fresh load, still check for duplicates in the new data itself
+						const seen = new Set();
+						mergedData = currentPageMeetingsList.filter((meeting) => {
+							if (!meeting?._id) return false; // skip invalid entries
+							if (seen.has(meeting._id)) return false; // skip duplicates
+							seen.add(meeting._id);
+							return true;
+						});
+					}
+
+					payload = {
+						data: mergedData,
+						hasNextPage: data.hasNextPage,
+						nextPage: data.nextPage,
+						totalDocs: data.totalDocs,
+						append: params.append || false,
+					};
+				}
+
+				dispatch({
+					type: storeActions.meeting.SET_UPCOMING_MEETINGS,
+					payload,
+				});
+			} catch (error) {
+				console.error('Error fetching meetings:', error);
+			} finally {
+				setInfo((prevInfo) => ({ ...prevInfo, apiFetching: false }));
+			}
+		},
+		[getAllCalendarEventsForMeetings, dispatch, upcomingMeetings?.data],
+	);
+
 	// Load existing bots when component mounts
 	useEffect(() => {
 		// if (!pastMeetings?.data || pastMeetings.data.length === 0) {
 		handleGetExistingBots({ page: 1, limit: 10, append: false });
+		handleGetUpcomingMeetings({ page: 1, limit: 10, append: false });
 		// }
 	}, []); // Only run on mount
 
-	// Carousel navigation handlers
-	const handleLeft = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			currentIndex: (prev.currentIndex - 1 + meetings.length) % meetings.length,
-		}));
-	}, [meetings.length]);
-
-	const handleRight = useCallback(() => {
-		if (hasNextPage && info?.currentIndex > meetings?.length - 5) {
-			if (!info?.apiFetching) {
-				handleGetExistingBots({ page: nextPage, limit: 10, append: true });
-			}
-		}
-		setInfo((prev) => ({
-			...prev,
-			currentIndex: (prev.currentIndex + 1) % meetings.length,
-		}));
-	}, [
-		hasNextPage,
-		info?.currentIndex,
-		info?.apiFetching,
-		meetings?.length,
-		nextPage,
-		handleGetExistingBots,
-	]);
-
+	// Update current time every minute to refresh meeting status
 	useEffect(() => {
-		if (meetings.length > 0) {
-			const length = meetings.length;
-			const cards = meetings.map((meeting, i) => {
-				let diff = i - info.currentIndex;
+		const timer = setInterval(() => {
+			setCurrentTime(moment.utc());
+		}, 60000); // Update every minute
 
-				// Handle circular navigation
-				if (diff > length / 2) diff -= length;
-				if (diff < -length / 2) diff += length;
+		return () => clearInterval(timer);
+	}, []);
 
-				return {
-					...meeting,
-					position: Math.abs(diff) <= 2 ? diff : null,
-				};
-			});
-
-			setInfo((prev) => ({
-				...prev,
-				cards: cards,
-			}));
-		} else {
-			setInfo((prev) => ({
-				...prev,
-				cards: [],
-			}));
-		}
-	}, [info.currentIndex, meetings]);
-
-	// Touch/swipe support
-	const [touchStartX, setTouchStartX] = useState(null);
-	const [touchEndX, setTouchEndX] = useState(null);
-	const minSwipeDistance = 50;
-	const handleTouchStart = (e) => {
-		setTouchStartX(e.targetTouches[0].clientX);
-		setTouchEndX(null);
-	};
-	const handleTouchMove = (e) => {
-		setTouchEndX(e.targetTouches[0].clientX);
-	};
-	const handleTouchEnd = () => {
-		if (!touchStartX || !touchEndX) return;
-		const distance = touchStartX - touchEndX;
-		const isLeftSwipe = distance > minSwipeDistance;
-		const isRightSwipe = distance < -minSwipeDistance;
-		if (isLeftSwipe) {
-			handleRight();
-		} else if (isRightSwipe) {
-			handleLeft();
-		}
-		setTouchStartX(null);
-		setTouchEndX(null);
-	};
-
-	// Focus the search input when searchOpen is true
+	// Auto-switch to past tab only on initial load when no upcoming meetings exist
 	useEffect(() => {
-		if (info.searchOpen && searchInputRef.current) {
-			searchInputRef.current.focus();
+		if (
+			info.activeTab === 'upcoming' &&
+			meetings.length === 0 &&
+			!loadingMeetings &&
+			!info.userSwitchedTab && // Don't auto-switch if user has manually switched
+			upcomingMeetings?.data !== undefined // Only auto-switch if data has been loaded
+		) {
+			// Small delay to prevent flickering
+			const timer = setTimeout(() => {
+				setInfo((prev) => ({ ...prev, activeTab: 'past' }));
+			}, 100);
+
+			return () => clearTimeout(timer);
 		}
-	}, [info.searchOpen]);
-	// useEffect(() => {
-	// 	getProactiveHeadings({ module: 'meeting' });
-	// }, []);
+	}, [meetings.length, info.activeTab, loadingMeetings, info.userSwitchedTab, upcomingMeetings?.data]);
 
-	// Search open/close toggle handler
-	const handleSearchToggle = () => {
-		setInfo((prev) => ({ ...prev, searchOpen: !prev.searchOpen }));
-	};
-
-	// Click outside to close search
+	// Reset userSwitchedTab flag when upcoming meetings are added
 	useEffect(() => {
-		if (!info.searchOpen) return;
-		function handleClickOutside(event) {
-			if (
-				searchInputRef.current &&
-				!searchInputRef.current.contains(event.target) &&
-				!event.target.closest('.search-btn')
-			) {
-				setInfo((prev) => ({ ...prev, searchOpen: false }));
-			}
+		if (meetings.length > 0 && info.userSwitchedTab) {
+			setInfo((prev) => ({ ...prev, userSwitchedTab: false }));
 		}
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, [info.searchOpen]);
+	}, [meetings.length, info.userSwitchedTab]);
 
-	function formatCustomDate(date) {
-		const month = months[date.getMonth()];
-		const day = date.getDate();
-		const year = date.getFullYear();
-		let hours = date.getHours();
-		const minutes = date.getMinutes().toString().padStart(2, '0');
-		const ampm = hours >= 12 ? 'PM' : 'AM';
-		hours = hours % 12;
-		hours = hours ? hours : 12;
-		return `${month} ${day} ${year} ${hours}:${minutes}${ampm}`;
-	}
 
-	// Keyboard navigation for cards
-	const handleKeyDown = useCallback(
-		(e) => {
-			// Don't handle arrow keys if search is focused or modal is open
-			if (info.searchOpen || info.modalOpen) return;
 
-			if (e?.key === 'ArrowUp' || e?.key === 'ArrowLeft') {
-				handleLeft();
-			} else if (e?.key === 'ArrowDown' || e?.key === 'ArrowRight') {
-				handleRight();
-			}
-		},
-		[info.searchOpen, info.modalOpen, handleLeft, handleRight],
-	);
-	useEffect(() => {
-		window.addEventListener('keydown', handleKeyDown);
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [handleKeyDown]);
+
+
 
 	const closeModal = () => {
 		setInfo((prev) => ({
@@ -271,6 +538,170 @@ const CardMeetBot = () => {
 			modalOpen: false,
 		}));
 	};
+
+	// Transform attendees array to participants format for meeting creation
+	const transformAttendeesToParticipants = (attendees, organizer) => {
+		const list = Array.isArray(attendees) ? attendees : [];
+		const organizerEmail = typeof organizer === 'string' ? organizer : organizer?.email;
+
+		// Collect all unique emails
+		const emailSet = new Set();
+
+		// Add attendee emails
+		list.forEach((attendee) => {
+			if (attendee?.email) {
+				emailSet.add(attendee.email.toLowerCase());
+			}
+		});
+
+		// Add organizer email if it exists
+		if (organizerEmail) {
+			emailSet.add(organizerEmail.toLowerCase());
+		}
+
+		// Convert set back to array of email strings
+		return Array.from(emailSet);
+	};
+
+	// Handle creating meeting from upcoming meeting
+	const handleCreateMeetingFromUpcoming = async (meeting) => {
+		setInfo((prev) => ({ ...prev, creatingMeetingId: meeting._id }));
+
+		try {
+			// Transform attendees to participants format
+			const participants = transformAttendeesToParticipants(
+				meeting.attendees,
+				meeting.organizer,
+			);
+
+			// Generate default title with current date and time
+			const now = new Date();
+			const day = now.getDate().toString().padStart(2, '0');
+			const month = now.toLocaleString('en-US', { month: 'short' });
+			const year = now.getFullYear();
+			const hours = now.getHours().toString().padStart(2, '0');
+			const minutes = now.getMinutes().toString().padStart(2, '0');
+			const defaultTitle = `${day} ${month} ${year} ${hours}:${minutes}`;
+
+			const input = {
+				title: meeting.title || defaultTitle,
+				transcriptionSource: 'desktop', // Default to desktop mode
+				isAiIntelligenceEnabled: true,
+				meetingMode: 'meeting',
+				agenda: meeting.description || '',
+				participants: participants,
+			};
+
+			const response = await createMeetBot({ input });
+			const isSuccess = response?.[0];
+
+			if (!isSuccess) {
+				message.error('Error creating meeting');
+				return;
+			}
+
+			const meetingId = response?.[1]?.data?.startMeeting?._id;
+			const type = response?.[1]?.data?.startMeeting?.transcriptionSource;
+			const meetingData = response[1]?.data?.startMeeting;
+
+			// Update store with new meeting
+			const payload = {
+				...(pastMeetings || {}),
+				data: [meetingData, ...(pastMeetings?.data || [])],
+				totalDocs: (pastMeetings?.totalDocs ?? 0) + 1,
+			};
+
+			dispatch({
+				type: storeActions.meeting.SET_PAST_MEETINGS,
+				payload,
+			});
+
+			// Remove the upcoming meeting from the upcoming meetings list since it's now created
+			if (upcomingMeetings?.data) {
+				const updatedUpcomingData = upcomingMeetings.data.filter(
+					(upcomingMeeting) => upcomingMeeting._id !== meeting._id,
+				);
+
+				dispatch({
+					type: storeActions.meeting.SET_UPCOMING_MEETINGS,
+					payload: {
+						...upcomingMeetings,
+						data: updatedUpcomingData,
+						totalDocs: Math.max(0, (upcomingMeetings.totalDocs || 0) - 1),
+					},
+				});
+			}
+
+			if (meetingId && window.electronApi) {
+				window.electronApi.overlay.startRecording({
+					...(response?.[1]?.data?.startMeeting || {}),
+				});
+
+				// window.electronApi.minimizeMainWindow();
+
+				// Trigger Dynamic Island recording
+				try {
+					console.log('🏝️ Triggering Dynamic Island recording from upcoming meeting');
+					const result = await window.electronApi.dynamicIsland.startRecordingFromModal();
+
+					if (result.success) {
+						console.log('✅ Successfully started Dynamic Island recording');
+					} else {
+						console.warn('⚠️ Dynamic Island recording failed:', result.error);
+					}
+				} catch (error) {
+					console.error('❌ Error triggering Dynamic Island recording:', error);
+				}
+			}
+		} catch (error) {
+			console.error('Error creating meeting from upcoming:', error);
+			message.error('Error creating meeting');
+		} finally {
+			setInfo((prev) => ({ ...prev, creatingMeetingId: null }));
+		}
+	};
+
+	function getMeetingStatus(meeting) {
+		const now = currentTime; // Use the state time that updates every minute
+
+		const toMoment = (value) => {
+			if (value == null) return null;
+			// Handle numeric epoch values (seconds vs milliseconds)
+			if (typeof value === 'number') {
+				return value < 1e12 ? moment.unix(value) : moment(value);
+			}
+			// Handle numeric strings
+			if (typeof value === 'string' && value.trim() !== '' && !isNaN(Number(value))) {
+				const num = Number(value);
+				return num < 1e12 ? moment.unix(num) : moment(num);
+			}
+			// Handle ISO strings - keep as UTC for consistent comparison
+			return moment.utc(value);
+		};
+
+		// Convert current local time to UTC for comparison with meeting times
+		const nowUTC = moment.utc();
+		const startTime = meeting?.googleCalendarMeta?.start?.dateTime || meeting.startDateTime;
+		const endTime = meeting?.googleCalendarMeta?.end?.dateTime || meeting.endDateTime;
+		const start = toMoment(startTime);
+		const end = toMoment(endTime);
+
+		if (!start || !start.isValid() || !end || !end.isValid()) {
+			return '';
+		}
+
+		// Check if meeting is currently happening (using UTC times)
+		if (nowUTC.isBetween(start, end, null, '[]')) {
+			return 'Now';
+		}
+
+		// Check if meeting is starting within 5 minutes
+		if (nowUTC.isBefore(start) && start.diff(nowUTC, 'minutes') <= 5) {
+			return 'Starting soon';
+		}
+
+		return '';
+	}
 
 	return (
 		<div className="meetbot">
@@ -287,235 +718,79 @@ const CardMeetBot = () => {
 									</>
 								)}
 							</div>
-							<div
-								className={styles.cardMeetBot_cardsContainer}
-								onTouchStart={handleTouchStart}
-								onTouchMove={handleTouchMove}
-								onTouchEnd={handleTouchEnd}
-							>
-								{loadingMeetings ? (
-									[0, 1, 2, -1, -2].map((pos, idx) => {
-										const positionClassMap = {
-											0: styles.cardMeetBot_selected,
-											1: styles.cardMeetBot_right1,
-											2: styles.cardMeetBot_right2,
-											'-1': styles.cardMeetBot_left1,
-											'-2': styles.cardMeetBot_left2,
-										};
-										return (
-											<div
-												key={idx}
-												className={`${styles.cardMeetBot_card} ${positionClassMap[pos]}`}
-											></div>
-										);
-									})
-								) : meetings.length === 0 ? (
-									<div
-										className={
-											styles.cardMeetBot_card +
-											' ' +
-											styles.cardMeetBot_selected
-										}
-										style={{ background: 'var(--popup)', cursor: 'pointer' }}
-										onClick={() =>
-											setInfo((prev) => ({ ...prev, modalOpen: true }))
-										}
-									>
-										<div className={styles.cardMeetBot_header}>
-											<div className={styles.cardMeetBot_cardTitle}>
-												Create Meeting
-											</div>
-											<div className={styles.cardMeetBot_cardDescription}>
-												Easily schedule a new meeting and invite
-												participants in just a few clicks.
-											</div>
-											<div className={styles.cardMeetBot_cardAgenda}>
-												<p>
-													Easily schedule a new meeting and invite
-													participants in just a few clicks.
-												</p>
-											</div>
-										</div>
-									</div>
-								) : (
-									info.cards?.map((meeting, idx) => {
-										const position = meeting.position;
-										const positionClassMap = {
-											0: styles.cardMeetBot_selected,
-											1: styles.cardMeetBot_right1,
-											2: styles.cardMeetBot_right2,
-											'-1': styles.cardMeetBot_left1,
-											'-2': styles.cardMeetBot_left2,
-										};
-										const classList = [
-											styles.cardMeetBot_card,
-											positionClassMap[position] || '',
-										];
-										if (position === null) return null;
-										return (
-											<div
-												key={meeting._id}
-												className={classList.join(' ')}
-												style={{
-													background: classList.includes(
-														styles.cardMeetBot_selected,
-													)
-														? 'var(--popup)'
-														: 'var(--background-color)',
-												}}
-												onClick={() => {
-													if (
-														activeMeetingId &&
-														activeMeetingId === meeting?._id &&
-														window.electronApi
-													) {
-														window.electronApi.minimizeMainWindow();
-													} else {
-														navigate(
-															`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`,
-														);
-													}
-												}}
-											>
-												<div className={styles.cardMeetBot_header}>
-													{position === 0 &&
-														activeMeetingId === meeting?._id && (
-															<span
-																className={
-																	styles.cardMeetBot_liveBadge
-																}
-															>
-																Live
-															</span>
-														)}
-													<div className={styles.cardMeetBot_cardTitle}>
-														{meeting.title}
-													</div>
-													<div
-														className={
-															styles.cardMeetBot_cardDescription
-														}
-													>
-														{meeting.agenda || 'No agenda provided.'}
-													</div>
-												</div>
-												{classList.includes(
-													styles.cardMeetBot_selected,
-												) && (
-													<div className={styles.cardMeetBot_footer}>
-														<div
-															className={
-																styles.cardMeetBot_moduleType
-															}
-														>
-															{meeting.meetingMode}
-														</div>
-														<div
-															className={
-																styles.cardMeetBot_modulePriority
-															}
-														>
-															<div
-																className={
-																	styles.cardMeetBot_modulePriorityText
-																}
-															>
-																<div>
-																	{meeting.createdBy?.name ||
-																		'Unknown'}
-																</div>
-																{meeting.createdAt && (
-																	<div
-																		style={{
-																			color: 'var(--secondary-font)',
-																		}}
-																	>
-																		|
-																	</div>
-																)}
-																<div
-																	style={{
-																		textOverflow: 'ellipsis',
-																		overflow: 'hidden',
-																		whiteSpace: 'nowrap',
-																		maxWidth: '100px',
-																	}}
-																>
-																	{moment
-																		.unix(meeting.createdAt)
-																		.format('DD MMM YYYY')}
-																</div>
-															</div>
-														</div>
-													</div>
-												)}
-											</div>
-										);
-									})
-								)}
-							</div>
-							<div className={styles.cardMeetBot_actionMainContainer}>
-								<div className={styles.cardMeetBot_rightContainer}>
-									<div className={styles.cardMeetBot_optionsContainer}>
-										<div className={styles.cardMeetBot_searchMainContainer}>
-											{/* <button
-												className={`search-btn${info.searchOpen ? ' expanded' : ''}`}
-												onClick={handleSearchToggle}
-												aria-label="Toggle search"
-											>
-												<SearchSvg stroke="var(--secondary-font)" />
-											</button> */}
-											{info.searchOpen && (
-												<div className={`search-wrapper expanded`}>
-													<input
-														className="search-input"
-														placeholder="Search"
-														ref={searchInputRef}
-													/>
-												</div>
-											)}
-										</div>
-										{/* <div className="action-left">
-											<button className="filter-btn" data-tooltip="Filter">
-												</button>
-										</div> */}
-									</div>
+							{/* Always show both tabs */}
+							<div className='card-meet-tab-container'>
+								<div
+									className={`card-meet-tab-item ${info.activeTab === 'upcoming' ? 'active' : ''}`}
+									onClick={() => handleTabChange('upcoming')}
+								>
+									<div className='card-meet-tab-indicator'></div>
+									<div className='card-meet-tab-item-title'>Upcoming</div>
+									<div className='card-meet-tab-item-count'>{upcomingMeetings?.data?.length || 0}</div>
 								</div>
-								<div className={styles.cardMeetBot_optionsRightMainContainer}>
-									{meetings.length > 0 && (
-										<div className={styles.cardMeetBot_actionRight}>
-											<button
-												className={styles.cardMeetBot_cardChangeBtn}
-												style={{ marginRight: 8 }}
-												onClick={handleLeft}
-											>
-												<ChevronDown
-													className={styles.cardMeetBot_leftChevron}
-												/>
-											</button>
-											<div className="card-number">
-												<span>{info.currentIndex + 1}</span>/
-												<span className="total-docs">{totalDocs}</span>
-											</div>
-											<button
-												className={styles.cardMeetBot_cardChangeBtn}
-												onClick={handleRight}
-											>
-												<ChevronDown />
-											</button>
-										</div>
-									)}
+								<div
+									className={`card-meet-tab-item ${info.activeTab === 'past' ? 'active' : ''}`}
+									onClick={() => handleTabChange('past')}
+								>
+									<div className='card-meet-tab-indicator'></div>
+									<div className='card-meet-tab-item-title'>Past</div>
+									<div className='card-meet-tab-item-count'>{pastMeetings?.data?.length || 0}</div>
 								</div>
 							</div>
 
-							<button
-								className={styles.cardMeetBot_createNewBtn}
-								onClick={() => setInfo((prev) => ({ ...prev, modalOpen: true }))}
-								disabled={activeMeetingId !== null}
-							>
-								<AddIcon />
-								Create New
-							</button>
+							<div className='card-meet-bot-list'>
+								{loadingMeetings ? (
+									<div className='card-meet-loading'>
+										<Spinner width="20px" height="20px" color="var(--primary-button)" />
+										<span>Loading meetings...</span>
+									</div>
+								) : info.activeTab === 'upcoming' ? (
+									// Show upcoming meetings or empty state
+									meetings.length > 0 ? (
+										<UpcomingMeetingsList
+											meetings={meetings}
+											onMeetingClick={handleCreateMeetingFromUpcoming}
+											creatingMeetingId={info.creatingMeetingId}
+											getMeetingStatus={getMeetingStatus}
+										/>
+									) : (
+										<div className='card-meet-empty-state'>
+											<div className='card-meet-empty-title'>No upcoming meetings</div>
+											<div className='card-meet-empty-description'>
+												Your upcoming meetings will appear here
+											</div>
+										</div>
+									)
+								) : (
+									// Show past meetings or create new meeting option
+									pastMeetings?.data && pastMeetings.data.length > 0 ? (
+										<PastMeetingsList
+											meetings={meetings}
+											onMeetingClick={(meeting) => {
+												if (activeMeetingId && activeMeetingId === meeting?._id && window.electronApi) {
+													navigate('/ongoing-meeting');
+												} else {
+													navigate(`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`);
+												}
+											}}
+										/>
+									) : (
+										<div className='card-meet-empty-state'>
+											<div className='card-meet-empty-title'>No past meetings</div>
+											<div className='card-meet-empty-description'>
+												Start your first meeting to see it here
+											</div>
+											<button
+												className='create-meeting-btn'
+												onClick={() => setInfo((prev) => ({ ...prev, modalOpen: true }))}
+											>
+												Create New Meeting
+											</button>
+										</div>
+									)
+								)}
+							</div>
+
 						</div>
 					</div>
 				</div>

@@ -15,10 +15,12 @@ const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 // const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
 // const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+const OngoingMeeting = lazy(() => import('../views/features/meetBot/OngoingMeeting'));
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
 // const ProactiveSuggestions = lazy(() =>
 // 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
 // );
+const NewChat = lazy(() => import('../views/components/chat/chatComponents/NewChat'));
 const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DownloadDesktopApp'));
 
 // components
@@ -42,6 +44,16 @@ const stableRoutes = [
 			<Suspense fallback={<SuspenseFallback />}>
 				<AuthWrapper title={'Meet'}>
 					<CardMeetBot />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/ongoing-meeting',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Ongoing Meeting'}>
+					<OngoingMeeting />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -74,12 +86,22 @@ const stableRoutes = [
 	// ========================================
 	// CHAT & COMMUNICATION
 	// ========================================
+	// {
+	// 	path: '/chats',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Chats'}>
+	// 				<ChatPage />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
-		path: '/chats',
+		path: '/new-chat',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Chats'}>
-					<ChatPage />
+				<AuthWrapper title={'New Chat'}>
+					<NewChat />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -99,7 +121,6 @@ const stableRoutes = [
 					maxWidth="100%"
 				>
 					<RecentChat
-						showChatHistory={true}
 						showDeleteChat={true}
 						showRightBar={true}
 						showChats={true}
@@ -110,16 +131,16 @@ const stableRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/meet',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Meet'}>
-					<CardMeetBot />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/meet',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Meet'}>
+	// 				<CardMeetBot />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/meet/:meetingId',
 		element: (

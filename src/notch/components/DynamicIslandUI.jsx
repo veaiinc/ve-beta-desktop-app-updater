@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useContext, useCallback, useMemo, memo } from 'react';
 import {
 	HomeIcon,
 	LockIcon,
@@ -34,7 +34,7 @@ const stopCamera = (stream) => {
 	}
 };
 
-const DynamicIslandUI = () => {
+const DynamicIslandUI = memo(() => {
 	console.log('🏝️ DynamicIslandUI component rendering...');
 	const dynamicIslandRef = useRef(null);
 	const videoRef = useRef(null);
@@ -97,7 +97,8 @@ const DynamicIslandUI = () => {
 		aiSetup: { voiceIntegrationData, updateAiSetupState },
 	} = useContext(Context);
 
-	const handleVoiceModeClick = async () => {
+	// PERFORMANCE: Memoized callbacks to prevent unnecessary re-renders
+	const handleVoiceModeClick = useCallback(async () => {
 		console.log('🎤 Clicked for voice mode');
 
 		try {
@@ -152,7 +153,16 @@ const DynamicIslandUI = () => {
 			setVoiceError(error.message || 'Failed to connect to voice assistant');
 			setShowVoiceInterface(false);
 		}
-	};
+	}, [
+		isVoiceModeActive,
+		voiceConnectionStatus,
+		handleConnect,
+		handleDisconnect,
+		updateAiSetupState,
+		shouldConnect,
+		voiceIntegrationData,
+		resetState,
+	]);
 
 	useEffect(() => {
 		// Check authentication status
@@ -173,10 +183,10 @@ const DynamicIslandUI = () => {
 			}
 		};
 
-		// Listen for periodic auth checks (fallback)
+		// ⚡ PERFORMANCE FIX: Reduced auth check frequency (2s → 30s)
 		const authCheckInterval = setInterval(() => {
 			checkAuthStatus();
-		}, 2000); // Check every 2 seconds
+		}, 30000); // Check every 30 seconds (was 2s - massive CPU waste)
 
 		window.addEventListener('storage', handleStorageChange);
 
@@ -506,54 +516,57 @@ const DynamicIslandUI = () => {
 	}, [cameraStream]);
 
 	// Handle Swift control actions
-	const handleSwiftControl = (action, data) => {
-		console.log('🎯 Handling Swift control:', action, data);
+	const handleSwiftControl = useCallback(
+		(action, data) => {
+			console.log('🎯 Handling Swift control:', action, data);
 
-		switch (action) {
-			case 'startRecording':
-				console.log('🎤 Swift requested start recording');
-				handleStartRecording();
-				break;
-			case 'stopRecording':
-				console.log('⏹️ Swift requested stop recording');
-				handleStopRecording();
-				break;
-			case 'pauseRecording':
-				console.log('⏸️ Swift requested pause recording');
-				handlePauseResume();
-				break;
-			case 'resumeRecording':
-				console.log('▶️ Swift requested resume recording');
-				handlePauseResume();
-				break;
-			case 'toggleChatMode':
-				console.log('💬 Swift requested chat mode toggle');
-				setIsChatMode(!isChatMode);
-				break;
-			case 'submitChat':
-				console.log('💬 Swift submitted chat:', data);
-				// Handle chat submission from Swift
-				break;
-			case 'setAuthenticated':
-				console.log('🔐 Swift set authentication:', data);
-				setIsAuthenticated(data);
-				break;
-			case 'expand':
-				console.log('📏 Swift requested expand');
-				if (!isExpanded && isConnected) {
-					expand();
-				}
-				break;
-			case 'collapse':
-				console.log('📏 Swift requested collapse');
-				if (isExpanded && isConnected) {
-					collapse();
-				}
-				break;
-			default:
-				console.warn('⚠️ Unknown Swift action:', action);
-		}
-	};
+			switch (action) {
+				case 'startRecording':
+					console.log('🎤 Swift requested start recording');
+					handleStartRecording();
+					break;
+				case 'stopRecording':
+					console.log('⏹️ Swift requested stop recording');
+					handleStopRecording();
+					break;
+				case 'pauseRecording':
+					console.log('⏸️ Swift requested pause recording');
+					handlePauseResume();
+					break;
+				case 'resumeRecording':
+					console.log('▶️ Swift requested resume recording');
+					handlePauseResume();
+					break;
+				case 'toggleChatMode':
+					console.log('💬 Swift requested chat mode toggle');
+					setIsChatMode(!isChatMode);
+					break;
+				case 'submitChat':
+					console.log('💬 Swift submitted chat:', data);
+					// Handle chat submission from Swift
+					break;
+				case 'setAuthenticated':
+					console.log('🔐 Swift set authentication:', data);
+					setIsAuthenticated(data);
+					break;
+				case 'expand':
+					console.log('📏 Swift requested expand');
+					if (!isExpanded && isConnected) {
+						expand();
+					}
+					break;
+				case 'collapse':
+					console.log('📏 Swift requested collapse');
+					if (isExpanded && isConnected) {
+						collapse();
+					}
+					break;
+				default:
+					console.warn('⚠️ Unknown Swift action:', action);
+			}
+		},
+		[isChatMode, isExpanded, isConnected],
+	);
 
 	// Send current state to Swift
 	const sendStateToSwift = () => {
@@ -574,20 +587,20 @@ const DynamicIslandUI = () => {
 
 	// Timer is now managed by overlay system, no local timer effect needed
 
-	// Hover events
-	const handleMouseEnter = () => {
+	// Hover events - PERFORMANCE: Memoized to prevent unnecessary re-renders
+	const handleMouseEnter = useCallback(() => {
 		console.log('🎯 MOUSE ENTER - Expanding to show rich UI!');
 		if (!isExpanded && isConnected) {
 			expand();
 		}
-	};
+	}, [isExpanded, isConnected]);
 
-	const handleMouseLeave = () => {
+	const handleMouseLeave = useCallback(() => {
 		console.log('🚪 MOUSE LEAVE - Collapsing to pill!');
 		if ((isExpanded || isNotificationExpanded) && isConnected) {
 			collapse();
 		}
-	};
+	}, [isExpanded, isNotificationExpanded, isConnected]);
 
 	const expand = async () => {
 		if (isExpanded || !isConnected) return;
@@ -1945,6 +1958,6 @@ const DynamicIslandUI = () => {
 			/>
 		</div>
 	);
-};
+});
 
 export default DynamicIslandUI;

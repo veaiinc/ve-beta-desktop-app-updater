@@ -59,14 +59,14 @@ const SettingsItem = memo(({ settingItem, isActive, onItemClick, styles }) => {
 SettingsItem.displayName = 'SettingsItem';
 
 // Memoized Settings Category Component
-const SettingsCategory = memo(({ title, items, pathname, onItemClick, styles }) => (
+const SettingsCategory = memo(({ title, items, currentPath, onItemClick, styles }) => (
 	<>
 		<div className={styles.settingsItemsTitle}>{title}</div>
 		{items.map((settingItem) => (
 			<SettingsItem
 				key={settingItem.id}
 				settingItem={settingItem}
-				isActive={settingItem.route && settingItem.route.includes(pathname)}
+				isActive={settingItem.route === currentPath}
 				onItemClick={onItemClick}
 				styles={styles}
 			/>
@@ -172,13 +172,13 @@ export const settingsItems = [
 		value: 'integrations-shared',
 		category: 'workspace',
 	},
-	{
-		id: 8,
-		label: 'Templates',
-		icon: <TemplatesSvg />,
-		route: '/playbook',
-		category: 'workspace',
-	},
+	// {
+	// 	id: 8,
+	// 	label: 'Templates',
+	// 	icon: <TemplatesSvg />,
+	// 	route: '/playbook',
+	// 	category: 'workspace',
+	// },
 	{
 		id: 9,
 		label: 'Help',
@@ -186,6 +186,14 @@ export const settingsItems = [
 		route: null,
 		category: 'workspace',
 	},
+	// {
+	// 	id: 10,
+	// 	label: 'Keyboard Shortcuts',
+	// 	icon: <HelpSvg />,
+	// 	route: '/settings/keyboard-shortcuts',
+	// 	value: 'keyboard-shortcuts',
+	// 	category: 'workspace',
+	// },
 ];
 
 const Settings = memo(
@@ -198,7 +206,8 @@ const Settings = memo(
 		businessName,
 		closeSettingsTooltip,
 	}) => {
-		const { pathname } = useLocation();
+		const { pathname, search } = useLocation();
+		const currentPath = pathname + search;
 		const channel = useBroadcastChannel();
 		const navigate = useNavigate();
 
@@ -413,14 +422,14 @@ const Settings = memo(
 					<SettingsCategory
 						title="Account"
 						items={categorizedSettingsItems.accountItems}
-						pathname={pathname}
+						currentPath={currentPath}
 						onItemClick={handleSettingItemClick}
 						styles={s}
 					/>
 					<SettingsCategory
 						title="Workspace"
 						items={categorizedSettingsItems.workspaceItems}
-						pathname={pathname}
+						currentPath={currentPath}
 						onItemClick={handleSettingItemClick}
 						styles={s}
 					/>
