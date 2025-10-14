@@ -298,7 +298,7 @@ private struct ShelfTabIcon: View {
 }
 
 
-struct TabSelectionView: View, WebSocketEventListener {
+struct TabSelectionView: View {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @StateObject private var webSocketManager = WebSocketManager.shared
     @Namespace var animation
@@ -306,95 +306,35 @@ struct TabSelectionView: View, WebSocketEventListener {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .center, spacing: 4) {
+            HStack(spacing: 0) {
                 ForEach(tabs) { tab in
-            if coordinator.isMeetingStarted && coordinator.currentView == .meeting {
-                // Show only Home tab and MeetingButtons while meeting is ongoing
-                let homeTab = tabs[0]
-                HStack(spacing: 0) {
                     TabItem(
-                        tab: homeTab,
-                        selected: coordinator.currentView == homeTab.view,
+                        tab: tab,
+                        selected: coordinator.currentView == tab.view,
                         animation: animation,
                         onTap: {
                             withAnimation(.smooth) {
-                                selectTab(homeTab.view)
-                            }
-                        }
-                    )
-                    MeetingButtons()
-                }
-            } else {
-                HStack(spacing: 0) {
-                    ForEach(tabs) { tab in
-                            TabItem(
-                                tab: tab,
-                                selected: coordinator.currentView == tab.view,
-                                animation: animation,
-                                onTap: {
-                                    withAnimation(.smooth) {
-                                        selectTab(tab.view)
-                                        
-                                        // Send START_MEETING event when Listen tab is clicked
-                                        if tab.view == .meeting && !coordinator.isMeetingStarted && !meetingLoading {
-                                            webSocketManager.sendEvent(type: .startMeeting, data: ["source": "tab_selection"])
+                                coordinator.currentView = tab.view
+                                
+                                // Send START_MEETING message when Listen tab is clicked
+                                if tab.view == .meeting {
+                                    webSocketManager.sendEvent(type: .startMeeting)
+                                }
+                                
+                                if tab.view == .meeting || tab.view == .ask {
+                                    DispatchQueue.main.async {
+                                        if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
+                                            window.makeKeyAndOrderFront(nil)
                                         }
                                     }
                                 }
-                            )
-                        
-                    }
+                            }
+                        }
+                    )
                 }
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 24, maxHeight: 24, alignment: .leading)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .onAppear {
-            // Restore the last selected tab
-            coordinator.currentView = coordinator.selectedTab
-            webSocketManager.addEventListener(self)
-        }
-        .onDisappear {
-            webSocketManager.removeEventListener(self)
-        }
-    }
-    
-    private func selectTab(_ view: NotchViews) {
-        coordinator.currentView = view
-        // Persist selection explicitly (also handled by didSet on currentView)
-        coordinator.selectedTab = view
-        
-        if view == .meeting || view == .ask {
-            DispatchQueue.main.async {
-                if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
-                    window.makeKeyAndOrderFront(nil)
-                }
-            }
-        }
-    }
-    
-    // MARK: - WebSocketEventListener
-    func onWebSocketEvent(_ event: WebSocketEvent) {
-        switch event.type {
-        case .meetingStarted:
-            meetingLoading = false
-            coordinator.meetingStart()
-        case .startMeeting:
-            meetingLoading = true
-        case .meetingPaused, .pauseMeeting:
-            coordinator.meetingPause()
-        case .meetingResumed, .resumeMeeting:
-            coordinator.meetingResume()
-        case .meetingStopped, .stopMeeting:
-            coordinator.meetingStopAndReset()
-            meetingLoading = false
-            // Switch to home tab when meeting is stopped
-            if coordinator.currentView == .meeting {
-                coordinator.currentView = .home
-            }
-        default:
-            break
-        }
     }
 }
 

@@ -51,7 +51,7 @@ struct BoringHeader: View {
                     // VE logo button (open app)
                     Button(action: {
                         // Send message to Electron to open main window
-                        WebSocketManager.shared.sendNavigateToMainScreen()
+                        WebSocketManager.shared.sendEvent(type: .navigateToMainScreen)
                     }) {
                         HStack(alignment: .center, spacing: 4) {
                             VEIcon(color: .white)
