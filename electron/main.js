@@ -4209,21 +4209,50 @@ app.whenReady().then(async () => {
 
 	async function handleWebSocketMessage(prop) {
 		const { data, ws } = prop;
-		if (data.type === 'START_MEETING') {
-			log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-			// Send response back to the client that sent the START_MEETING message
-			await handleNotchToMainWindowEvents({ action: 'startRecording' });
-			websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		}
-		// switch(data.type) {
-		// 	case 'START_MEETING':
-		// 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-		// 		// Send response back to the client that sent the START_MEETING message
-		// 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		// 		break;
+		
+		switch (data.type) {
+			case 'START_MEETING':
+				log.info(
+					'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
+				);
+				await handleNotchToMainWindowEvents({ action: 'startRecording' });
+				// Send response back to the client that sent the START_MEETING message
+				websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+				break;
 
-		// 	case 'PAUSE_'
-		// }
+			case 'PAUSE_MEETING':
+				log.info(
+					'🎯 PAUSE_MEETING message received, scheduling MEETING_PAUSED response...',
+				);
+				// Send response back to the client that sent the PAUSE_MEETING message
+				await handleNotchToMainWindowEvents({ action: 'pauseRecording' });
+
+				websocketService.sendToClient(ws, { type: 'MEETING_PAUSED', data: {} });
+				break;
+
+			case 'RESUME_MEETING':
+				log.info(
+					'🎯 RESUME_MEETING message received, scheduling MEETING_RESUMED response...',
+				);
+				await handleNotchToMainWindowEvents({ action: 'resumeRecording' });
+
+				// Send response back to the client that sent the RESUME_MEETING message
+				websocketService.sendToClient(ws, { type: 'MEETING_RESUMED', data: {} });
+				break;
+
+			case 'STOP_MEETING':
+				log.info(
+					'🎯 STOP_MEETING message received, scheduling MEETING_STOPPED response...',
+				);
+				await handleNotchToMainWindowEvents({ action: 'stopRecording' });
+				// Send response back to the client that sent the STOP_MEETING message
+				websocketService.sendToClient(ws, { type: 'MEETING_STOPPED', data: {} });
+				break;
+
+			default:
+				log.info('🎯 Unknown message received, skipping...');
+				break;
+		}
 	}
 
 	async function handleNotchToMainWindowEvents(data) {
