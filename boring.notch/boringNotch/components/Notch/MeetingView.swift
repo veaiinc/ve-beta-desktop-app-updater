@@ -30,7 +30,7 @@ extension Defaults.Keys {
 }
 
 // MARK: - Transcription Data Model
-struct Transcription: Identifiable, Codable, Defaults.Serializable {
+struct Transcription: Identifiable, Codable, Defaults.Serializable, Equatable {
     let id: String
     let text: String
     let source: String
@@ -38,7 +38,7 @@ struct Transcription: Identifiable, Codable, Defaults.Serializable {
     let confidence: Double?
     let words: [Word]?
     
-    struct Word: Codable, Defaults.Serializable {
+    struct Word: Codable, Defaults.Serializable, Equatable {
         let word: String
         let start: Double
         let end: Double
@@ -356,25 +356,25 @@ struct MeetingView: View, WebSocketEventListener {
     private func testTranscriptionFlow() {
         print("🧪 Testing transcription flow with sample data")
         
-        // Create sample transcription data
+        // Create sample transcription data with long text to test auto-scroll
         let sampleTranscriptions = [
             [
                 "id": "test_1",
-                "text": "Hello, this is a test transcription from the microphone.",
+                "text": "Hello, this is a test transcription from the microphone. This is a longer text to test the auto-scrolling functionality when text content changes.",
                 "source": "mic",
                 "timestamp": Date().iso8601String,
                 "confidence": 0.95
             ],
             [
                 "id": "test_2", 
-                "text": "This is another test transcription from the screen capture.",
+                "text": "This is another test transcription from the screen capture. This text is also quite long to demonstrate how the auto-scroll works when the transcription content gets updated with more text.",
                 "source": "screen",
                 "timestamp": Date().iso8601String,
                 "confidence": 0.88
             ],
             [
                 "id": "test_3",
-                "text": "And here's a third transcription to test the array replacement.",
+                "text": "And here's a third transcription to test the array replacement. This is a very long transcription that should trigger auto-scroll when it gets updated with additional content, demonstrating the improved auto-scrolling behavior for long texts.",
                 "source": "mic", 
                 "timestamp": Date().iso8601String,
                 "confidence": 0.92
@@ -392,6 +392,23 @@ struct MeetingView: View, WebSocketEventListener {
         
         // Process the test event
         handleTranscriptionUpdate(testEvent)
+        
+        // Simulate a text update after 2 seconds to test auto-scroll on content change
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            print("🧪 Simulating text update for auto-scroll test")
+            var updatedTranscriptions = sampleTranscriptions
+            updatedTranscriptions[2]["text"] = "And here's a third transcription to test the array replacement. This is a very long transcription that should trigger auto-scroll when it gets updated with additional content, demonstrating the improved auto-scrolling behavior for long texts. This is additional text that was added to test the auto-scroll functionality when the content of an existing transcription changes."
+            
+            let updateEvent = WebSocketEvent(
+                id: UUID(),
+                type: .transcriptionUpdate,
+                data: ["transcriptions": updatedTranscriptions],
+                timestamp: Date(),
+                rawMessage: "test_update"
+            )
+            
+            self.handleTranscriptionUpdate(updateEvent)
+        }
     }
     
     // MARK: - View Helper Methods
@@ -407,7 +424,11 @@ struct MeetingView: View, WebSocketEventListener {
             }
         }
         .padding()
-        .onChange(of: transcriptions.count) { _ in
+        .onChange(of: transcriptions) { _ in
+            autoScrollToBottom(proxy: proxy)
+        }
+        .onChange(of: transcriptions.last?.text) { _ in
+            // Also scroll when the last transcription's text changes (for long text updates)
             autoScrollToBottom(proxy: proxy)
         }
     }
@@ -485,9 +506,13 @@ struct MeetingView: View, WebSocketEventListener {
     }
     
     private func autoScrollToBottom(proxy: ScrollViewProxy) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            withAnimation(.easeInOut(duration: 0.3)) {
+        print("📜 Auto-scrolling to bottom - transcriptions count: \(transcriptions.count)")
+        
+        // Use a shorter delay for more responsive scrolling
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            withAnimation(.easeInOut(duration: 0.2)) {
                 proxy.scrollTo("bottom", anchor: UnitPoint.bottom)
+                print("📜 Scrolled to bottom")
             }
         }
     }
