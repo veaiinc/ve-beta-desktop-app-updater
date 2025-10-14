@@ -181,7 +181,7 @@ struct WheelPicker: View {
 
     private func dateToString(for date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "E"
+        formatter.dateFormat = "EEEEE"
         return formatter.string(from: date)
     }
 }
@@ -197,7 +197,7 @@ struct CalendarView: View {
                 VStack(alignment: .leading) {
                     Text(selectedDate.formatted(.dateTime.month(.abbreviated)))
                         .font(.title3)
-                        .fontWeight(.semibold)
+                        .fontWeight(.regular)
                         .foregroundColor(.white)
                     Text(selectedDate.formatted(.dateTime.year()))
                         .font(.title3)
@@ -209,12 +209,12 @@ struct CalendarView: View {
                     WheelPicker(selectedDate: $selectedDate, config: Config())
                     HStack(alignment: .top) {
                         LinearGradient(
-                            colors: [Color.black, .clear], startPoint: .leading, endPoint: .trailing
+                            colors: [.clear, .clear], startPoint: .leading, endPoint: .trailing
                         )
                         .frame(width: 20)
                         Spacer()
                         LinearGradient(
-                            colors: [.clear, Color.black], startPoint: .leading, endPoint: .trailing
+                            colors: [.clear, .clear], startPoint: .leading, endPoint: .trailing
                         )
                         .frame(width: 20)
                     }

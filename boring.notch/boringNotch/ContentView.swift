@@ -53,7 +53,7 @@ struct ContentView: View {
                         : cornerRadiusInsets.closed.bottom
                 )
                 .padding([.horizontal, .bottom], vm.notchState == .open ? 12 : 0)
-                .background(.black)
+                .background(Material.regularMaterial)
                 .mask {
                     ((vm.notchState == .open) && Defaults[.cornerRadiusScaling])
                         ? NotchShape(
