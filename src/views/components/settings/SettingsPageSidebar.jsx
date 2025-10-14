@@ -1,7 +1,7 @@
-import { memo, useMemo, useCallback, act, useState } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import '../../../assets/scss/settings/settingsPageSidebar.scss';
 import { settingsItems } from '../topNavbar/components/settings/Settings';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // Memoized settings item component to prevent unnecessary re-renders
 const SettingsItem = memo(({ item, isActive, onItemClick }) => {
@@ -37,14 +37,14 @@ const SettingsItem = memo(({ item, isActive, onItemClick }) => {
 SettingsItem.displayName = 'SettingsItem';
 
 // Memoized category section component
-const SettingsCategory = memo(({ title, items, activeType, onItemClick }) => (
+const SettingsCategory = memo(({ title, items, currentPath, onItemClick }) => (
 	<>
 		<div className="settingsSidebarOptionsTitle">{title}</div>
 		{items.map((item) => (
 			<SettingsItem
 				key={item.value}
 				item={item}
-				isActive={activeType === item.label}
+				isActive={item.route === currentPath}
 				onItemClick={onItemClick}
 			/>
 		))}
@@ -55,10 +55,8 @@ SettingsCategory.displayName = 'SettingsCategory';
 
 const SettingsPageSidebar = ({ toggleSidebar }) => {
 	const navigate = useNavigate();
-	// const { type } = useParams();
-	const [info, setInfo] = useState({
-		activeType: 'Connectors',
-	});
+	const { pathname, search } = useLocation();
+	const currentPath = pathname + search;
 
 	// Memoize filtered items to prevent unnecessary recalculations
 	const categorizedItems = useMemo(() => {
@@ -70,10 +68,6 @@ const SettingsPageSidebar = ({ toggleSidebar }) => {
 	// Memoize click handler to prevent unnecessary re-renders
 	const handleItemClick = useCallback(
 		(item) => {
-			setInfo((prev) => ({
-				...prev,
-				activeType: item.label,
-			}));
 			if (item.route) {
 				navigate(item.route);
 			} else if (item.handleClick) {
@@ -95,13 +89,13 @@ const SettingsPageSidebar = ({ toggleSidebar }) => {
 				<SettingsCategory
 					title="Account"
 					items={categorizedItems.accountItems}
-					activeType={info.activeType}
+					currentPath={currentPath}
 					onItemClick={handleItemClick}
 				/>
 				<SettingsCategory
 					title="Workspace"
 					items={categorizedItems.workspaceItems}
-					activeType={info.activeType}
+					currentPath={currentPath}
 					onItemClick={handleItemClick}
 				/>
 			</div>

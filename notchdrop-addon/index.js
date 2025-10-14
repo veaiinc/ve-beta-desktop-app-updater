@@ -523,6 +523,22 @@ class NotchDropAddonWrapper extends EventEmitter {
 			case 'setAuthenticated':
 				this.emit('setAuthenticated', data === 'true');
 				break;
+			case 'selectionCaptured': {
+				const payload = this.safeParseJSON(data, null);
+				if (payload) {
+					this.emit('selectionCaptured', payload);
+				}
+				break;
+			}
+			case 'selectionPermissionChanged': {
+				const payload = this.safeParseJSON(data, null);
+				const granted =
+					payload && typeof payload.granted === 'boolean'
+						? payload.granted
+						: data === 'true';
+				this.emit('selectionPermissionChanged', { granted });
+				break;
+			}
 			case 'navigateToMainScreen': {
 				const targetPath =
 					typeof data === 'string' && data.trim().length > 0
@@ -1021,6 +1037,42 @@ class NotchDropAddonWrapper extends EventEmitter {
 			throw new Error('NotchDrop not initialized');
 		}
 		this.addon.clearTrayItems();
+	}
+
+	getSelectionHistory() {
+		if (!this.isInitialized) {
+			return [];
+		}
+		const json = this.addon.getSelectionHistoryJSON();
+		return this.safeParseJSON(json, []);
+	}
+
+	clearSelectionHistory() {
+		if (!this.isInitialized) {
+			return;
+		}
+		return Boolean(this.addon.clearSelectionHistory());
+	}
+
+	showSelectionHistoryInterface() {
+		if (!this.isInitialized) {
+			return false;
+		}
+		return Boolean(this.addon.presentSelectionHistoryInterface());
+	}
+
+	requestSelectionPermissionPrompt() {
+		if (!this.isInitialized) {
+			return false;
+		}
+		return Boolean(this.addon.requestSelectionAssistantPermissionPrompt());
+	}
+
+	isSelectionPermissionGranted() {
+		if (!this.isInitialized) {
+			return false;
+		}
+		return this.addon.isSelectionAssistantPermissionGranted();
 	}
 
 	getStatusString() {
@@ -1596,6 +1648,27 @@ class NotchDropAddonWrapper extends EventEmitter {
 		} catch (error) {
 			console.error('❌ Failed to resume recording immediately:', error);
 			return { success: false, error: error.message };
+		}
+	}
+
+	safeParseJSON(payload, fallback = null) {
+		try {
+			if (payload === null || payload === undefined) {
+				return fallback;
+			}
+
+			if (typeof payload === 'string') {
+				const trimmed = payload.trim();
+				if (trimmed.length === 0) {
+					return fallback;
+				}
+				return JSON.parse(trimmed);
+			}
+
+			return payload;
+		} catch (error) {
+			console.warn('⚠️ NotchDropAddon: Failed to parse JSON payload', error);
+			return fallback;
 		}
 	}
 }

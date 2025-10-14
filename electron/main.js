@@ -3,12 +3,12 @@
 // TODO: PERFORMANCE - Break into modular services: WindowService, IPCService, NotificationService, etc.
 require('dotenv').config();
 const {
-	app,
+	app: electronApp,
 	BrowserWindow,
 	Menu,
 	session,
 	systemPreferences,
-	ipcMain,
+	ipcMain: electronIpcMain,
 	desktopCapturer,
 	Notification,
 	Tray,
@@ -18,13 +18,95 @@ const {
 	dialog,
 	shell,
 	powerSaveBlocker,
-	nativeTheme,
+	nativeTheme: electronNativeTheme,
 } = require('electron');
+const { EventEmitter } = require('events');
+const app = electronApp ?? createAppStub();
+const nativeTheme = electronNativeTheme ?? createNativeThemeStub();
+const ipcMain = electronIpcMain ?? createIpcMainStub();
 const path = require('node:path');
 const log = require('electron-log');
-const { autoUpdater } = require('electron-updater');
+let autoUpdater;
+if (process?.type === 'browser') {
+	({ autoUpdater } = require('electron-updater'));
+} else {
+	const noop = () => {};
+	autoUpdater = {
+		on: noop,
+		once: noop,
+		removeAllListeners: noop,
+		setFeedURL: noop,
+		downloadUpdate: async () => {},
+		checkForUpdates: async () => ({ updateInfo: null }),
+		checkForUpdatesAndNotify: async () => ({ updateInfo: null }),
+		quitAndInstall: noop,
+		autoDownload: false,
+		autoInstallOnAppQuit: false,
+		allowDowngrade: false,
+	};
+	autoUpdater.logger = {
+		info: noop,
+		warn: noop,
+		error: noop,
+		debug: noop,
+		transports: {
+			file: { level: 'info' },
+		},
+	};
+}
+
+function createIpcMainStub() {
+	const noop = () => {};
+	return {
+		handle: noop,
+		on: noop,
+		once: noop,
+		removeHandler: noop,
+		removeAllListeners: noop,
+		emit: noop,
+	};
+}
+
+function createAppStub() {
+	const emitter = new EventEmitter();
+	const noop = () => {};
+	return {
+		commandLine: {
+			appendSwitch: noop,
+		},
+		getAppPath: () => process.cwd(),
+		getPath: () => process.cwd(),
+		quit: noop,
+		exit: noop,
+		relaunch: noop,
+		requestSingleInstanceLock: () => true,
+		releaseSingleInstanceLock: noop,
+		whenReady: () => Promise.resolve(),
+		on: emitter.on.bind(emitter),
+		once: emitter.once.bind(emitter),
+		removeListener: emitter.removeListener.bind(emitter),
+		setAppUserModelId: noop,
+		isPackaged: false,
+		dock: {
+			hide: noop,
+			show: noop,
+			isVisible: () => false,
+		},
+	};
+}
+
+function createNativeThemeStub() {
+	return {
+		themeSource: 'light',
+		on: () => {},
+		removeListener: () => {},
+		shouldUseDarkColors: false,
+	};
+}
+
 const WindowHelper = require('./helpers/windowHelper');
 const DynamicIslandHelper = require('./helpers/dynamicIslandHelper');
+const { resizeWindowAnimated } = require('./helpers/windowAnimationHelper');
 const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
@@ -1288,7 +1370,7 @@ ipcMain.handle('open-system-settings', async () => {
 	}
 });
 
-ipcMain.handle('desktop:capture-screen', async () => {
+async function capturePrimaryScreenDataURL() {
 	try {
 		const sources = await desktopCapturer.getSources({
 			types: ['screen'],
@@ -1301,13 +1383,19 @@ ipcMain.handle('desktop:capture-screen', async () => {
 		}
 
 		const thumbnail = sources[0].thumbnail?.resize({ width: 1000, height: 700 });
-		if (!thumbnail) return null;
+		if (!thumbnail) {
+			return null;
+		}
 
-		return thumbnail.toDataURL(); // "image/png;base64,..."
-	} catch (err) {
-		console.error('❌ Error in desktop:capture-screen:', err);
+		return thumbnail.toDataURL();
+	} catch (error) {
+		console.error('❌ Failed to capture desktop screenshot:', error);
 		return null;
 	}
+}
+
+ipcMain.handle('desktop:capture-screen', async () => {
+	return capturePrimaryScreenDataURL();
 });
 
 ipcMain.handle('check-screen-recording-permission', async () => {
@@ -1542,6 +1630,94 @@ function createMenuBar() {
 									} catch (error) {
 										log.error(
 											'❌ Failed to set auto-open setting from menu:',
+											error,
+										);
+									}
+								},
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Show Selection History',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result = notchDropService.showSelectionHistoryInterface();
+											if (!result) {
+												await dialog.showMessageBox({
+													type: 'info',
+													title: 'Selection History',
+													message:
+														'Selection history is only available when the Selection Assistant is running.',
+												});
+											}
+										}
+									} catch (error) {
+										log.error('❌ Failed to show selection history:', error);
+									}
+								},
+							},
+							{
+								label: 'Clear Selection History…',
+								click: async () => {
+									try {
+										if (!notchDropService) {
+											return;
+										}
+
+										const confirmation = await dialog.showMessageBox({
+											type: 'warning',
+											title: 'Clear Selection History',
+											message:
+												'This will permanently delete all captured selections.',
+											detail:
+												'Selections are stored locally and encrypted. Clearing history cannot be undone.',
+											buttons: ['Clear History', 'Cancel'],
+											defaultId: 1,
+											cancelId: 1,
+										});
+
+										if (confirmation.response !== 0) {
+											return;
+										}
+
+										const result = notchDropService.clearSelectionHistory();
+										if (!result) {
+											await dialog.showMessageBox({
+												type: 'info',
+												title: 'Selection History',
+												message:
+													'No selection history was cleared. The Selection Assistant may not be running.',
+											});
+										}
+									} catch (error) {
+										log.error('❌ Failed to clear selection history:', error);
+									}
+								},
+							},
+							{
+								type: 'separator',
+							},
+							{
+								label: 'Open Accessibility Settings…',
+								click: async () => {
+									try {
+										if (notchDropService) {
+											const result =
+												notchDropService.requestSelectionPermissionPrompt();
+											if (!result) {
+												await dialog.showMessageBox({
+													type: 'info',
+													title: 'Accessibility Permissions',
+													message:
+														'Please open System Settings → Privacy & Security → Accessibility and enable Ve AI.',
+												});
+											}
+										}
+									} catch (error) {
+										log.error(
+											'❌ Failed to request selection assistant permission:',
 											error,
 										);
 									}
@@ -2797,7 +2973,12 @@ function createTray() {
 // Single instance lock to prevent multiple app instances
 // This ensures only one instance of the app can run at a time
 // When a second instance is attempted, it will focus the existing window instead
-const gotTheLock = app.requestSingleInstanceLock();
+const canRequestSingleInstanceLock = typeof app?.requestSingleInstanceLock === 'function';
+const gotTheLock = canRequestSingleInstanceLock ? app.requestSingleInstanceLock() : true;
+
+if (!canRequestSingleInstanceLock) {
+	log.warn('Single instance lock API unavailable; continuing without enforcement.');
+}
 
 if (!gotTheLock) {
 	// Another instance is already running, focus it and quit
@@ -4104,12 +4285,27 @@ app.whenReady().then(async () => {
 		}
 	}
 
-	process.on('swift-ui-submit-chat', async (data = {}) => {
-		// try {
-		// 	// if (!windowHelper) {
-		// 	// 	log.error('windowHelper not available for AskAI forwarding');
-		// 	// 	return;
-		// 	// }
+process.on('swift-ui-submit-chat', async (data = {}) => {
+	const shouldCaptureScreenshot =
+		data?.source === 'notchdrop-swift-ui' && data?.updateObject?.type === 'chat';
+
+	if (shouldCaptureScreenshot) {
+		const screenshot = await capturePrimaryScreenDataURL();
+		if (screenshot) {
+			data.imagesArray = [screenshot];
+			const existingPayload = data.updateObject.payload || {};
+			data.updateObject.payload = {
+				...existingPayload,
+				imagesArray: [screenshot],
+			};
+		}
+	}
+
+	// try {
+	// 	// if (!windowHelper) {
+	// 	// 	log.error('windowHelper not available for AskAI forwarding');
+	// 	// 	return;
+	// 	// }
 
 		// 	// let askAIWindow = windowHelper?.getAskAIWindow();
 		// 	// if (!askAIWindow || askAIWindow.isDestroyed()) {
@@ -4167,6 +4363,25 @@ app.whenReady().then(async () => {
 				// Normal mode - show and focus the window
 				mainWindow.show();
 				mainWindow.focus();
+
+				// Resize to compact chat view (571x626) when navigating from NotchDrop
+				const workArea = screen.getPrimaryDisplay().workAreaSize;
+				const compactWidth = Math.min(workArea.width, 571);
+				const compactHeight = Math.min(workArea.height, 626);
+
+				if (mainWindow.isFullScreen()) {
+					mainWindow.setFullScreen(false);
+					mainWindow.once('leave-full-screen', () => {
+						mainWindow.setBounds({ width: compactWidth, height: compactHeight });
+						log.info(
+							'📐 NotchDrop: Resized main window to compact chat view (571x626) after exiting fullscreen',
+						);
+					});
+				} else {
+					mainWindow.setBounds({ width: compactWidth, height: compactHeight });
+					log.info('📐 NotchDrop: Resized main window to compact chat view (571x626)');
+				}
+
 				mainWindow.webContents.send('navigate-to', data);
 				log.info('Main window navigated to:', data?.path);
 				// }
@@ -4185,6 +4400,16 @@ app.whenReady().then(async () => {
 							// Normal mode - show and focus the window
 							mainWindow.show();
 							mainWindow.focus();
+
+							// Resize to compact chat view (571x626) when navigating from NotchDrop
+							const workArea = screen.getPrimaryDisplay().workAreaSize;
+							const compactWidth = Math.min(workArea.width, 571);
+							const compactHeight = Math.min(workArea.height, 626);
+							mainWindow.setBounds({ width: compactWidth, height: compactHeight });
+							log.info(
+								'📐 NotchDrop: Resized recreated main window to compact chat view (571x626)',
+							);
+
 							mainWindow.webContents.send('navigate-to', data);
 							log.info(
 								'Main window recreated and shown successfully with state restoration and navigated to:',
@@ -4575,37 +4800,82 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('resize-main-window', async (event, data) => {
 		try {
-			const { dimensions, exitFullScreen } = data;
+			const {
+				dimensions,
+				exitFullScreen,
+				animate = true,
+				duration = 250,
+				easing = 'easeInOutCubic',
+			} = data;
 			const workArea = screen.getPrimaryDisplay().workAreaSize;
 			const screenWidth = workArea.width,
 				screenHeight = workArea.height;
 
+			// Create sanitized dimensions object
+			const targetDimensions = {};
+
 			if (dimensions?.width) {
 				const width = Math.min(screenWidth, dimensions.width);
-				dimensions.width = width;
+				targetDimensions.width = width;
 			}
 			if (dimensions?.height) {
 				const height = Math.min(screenHeight, dimensions.height);
-				dimensions.height = height;
+				targetDimensions.height = height;
 			}
 
-			if (mainWindow) {
-				if (exitFullScreen) {
-					if (mainWindow.isFullScreen()) {
-						mainWindow.setFullScreen(false);
-						mainWindow.once('leave-full-screen', () => {
-							mainWindow.setBounds(dimensions);
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				// Handle fullscreen exit
+				if (exitFullScreen && mainWindow.isFullScreen()) {
+					mainWindow.setFullScreen(false);
+
+					// Wait for fullscreen exit, then animate resize
+					mainWindow.once('leave-full-screen', async () => {
+						if (animate) {
+							await resizeWindowAnimated(mainWindow, targetDimensions, {
+								duration,
+								easing,
+							});
+						} else {
+							mainWindow.setBounds(targetDimensions);
+						}
+					});
+				} else {
+					// Animate resize (or instant if animate: false)
+					if (animate) {
+						await resizeWindowAnimated(mainWindow, targetDimensions, {
+							duration,
+							easing,
 						});
 					} else {
-						mainWindow.setBounds(dimensions);
+						mainWindow.setBounds(targetDimensions);
 					}
-				} else {
-					mainWindow.setBounds(dimensions);
 				}
+
+				log.info(
+					`✅ Window resized ${animate ? 'with animation' : 'instantly'}:`,
+					targetDimensions,
+				);
+				return { success: true, bounds: mainWindow.getBounds() };
 			}
+
+			return { success: false, error: 'Main window not available' };
 		} catch (error) {
 			log.error('❌ Error resizing main window:', error);
 			return { success: false, error: error.message };
+		}
+	});
+
+	// Get main window bounds (for detecting compact mode)
+	ipcMain.handle('get-window-bounds', async () => {
+		try {
+			if (mainWindow && !mainWindow.isDestroyed()) {
+				const bounds = mainWindow.getBounds();
+				return bounds;
+			}
+			return null;
+		} catch (error) {
+			log.error('❌ Error getting window bounds:', error);
+			return null;
 		}
 	});
 
@@ -5376,6 +5646,76 @@ app.whenReady().then(async () => {
 		} catch (error) {
 			log.error('Error getting auto-open setting:', error);
 			return { success: false, enabled: true, error: error.message };
+		}
+	});
+
+	// Selection Assistant IPC handlers
+	ipcMain.handle('selection-assistant:get-history', async () => {
+		try {
+			if (!notchDropService || !notchDropService.isInitialized) {
+				return {
+					success: false,
+					history: [],
+					error: 'NotchDrop service not initialized',
+				};
+			}
+			const history = notchDropService.getSelectionHistory();
+			return { success: true, history };
+		} catch (error) {
+			log.error('Error getting selection history:', error);
+			return { success: false, history: [], error: error.message };
+		}
+	});
+
+	ipcMain.handle('selection-assistant:clear-history', async () => {
+		try {
+			if (!notchDropService || !notchDropService.isInitialized) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.clearSelectionHistory();
+			return { success: result };
+		} catch (error) {
+			log.error('Error clearing selection history:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('selection-assistant:show-history', async () => {
+		try {
+			if (!notchDropService || !notchDropService.isInitialized) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.showSelectionHistoryInterface();
+			return { success: result };
+		} catch (error) {
+			log.error('Error showing selection history interface:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('selection-assistant:request-permission', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, error: 'NotchDrop service not initialized' };
+			}
+			const result = notchDropService.requestSelectionPermissionPrompt();
+			return { success: result };
+		} catch (error) {
+			log.error('Error requesting selection assistant permission:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('selection-assistant:is-permission-granted', async () => {
+		try {
+			if (!notchDropService) {
+				return { success: false, granted: false, error: 'NotchDrop service not initialized' };
+			}
+			const granted = notchDropService.isSelectionPermissionGranted();
+			return { success: true, granted };
+		} catch (error) {
+			log.error('Error getting selection assistant permission state:', error);
+			return { success: false, granted: false, error: error.message };
 		}
 	});
 

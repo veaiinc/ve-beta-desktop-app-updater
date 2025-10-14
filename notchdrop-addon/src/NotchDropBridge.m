@@ -277,4 +277,25 @@ static void (^incomingActionCallback)(NSString*, NSString*);
     [NotchDropCore.shared handleWakeWordDetected:score];
 }
 
++ (NSString*)getSelectionHistoryJSON {
+    return [NotchDropCore.shared getSelectionHistoryJSON];
+}
+
+
++ (BOOL)clearSelectionHistory {
+    return [NotchDropCore.shared clearSelectionHistory];
+}
+
++ (BOOL)presentSelectionHistoryInterface {
+    return [NotchDropCore.shared presentSelectionHistoryInterface];
+}
+
++ (BOOL)requestSelectionAssistantPermissionPrompt {
+    return [NotchDropCore.shared requestSelectionAssistantPermissionPrompt];
+}
+
++ (BOOL)isSelectionAssistantPermissionGranted {
+    return [NotchDropCore.shared isSelectionAssistantPermissionGranted];
+}
+
 @end
