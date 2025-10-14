@@ -96,7 +96,13 @@ const GalleryViewer = ({
 		showLabels: true,
 		facesLoading: false,
 		downloadLoading: false,
+		deletedCount: 0,
 	});
+
+	useEffect(() => {
+		// Reset local deleted counter when the underlying dataset context changes
+		setInfo((prev) => ({ ...prev, deletedCount: 0 }));
+	}, [imagesList?.totalDocs, aiFaceImages?.totalDocs, activeAlbumId, tagId, aiface]);
 
 	useEffect(() => {
 		if (!aiface && !imagesList && tagId) {
@@ -334,10 +340,11 @@ const GalleryViewer = ({
 				...prev,
 				showDeleteAlbum: false,
 				imageDetailId: null,
+				deletedCount: (prev?.deletedCount || 0) + 1,
 			}));
 			message.success('Images deleted successfully');
 			getAlbumImagesCount(activeGalleryId);
-			getGalleryImages(activeGalleryId, activeAlbumId, tagId, 1, info?.limit, '', true);
+			// getGalleryImages(activeGalleryId, activeAlbumId, tagId, 1, info?.limit, '', true);
 		} else {
 			message.error('Failed to delete images');
 		}
@@ -820,7 +827,11 @@ const GalleryViewer = ({
 						/>
 						<span className="currentImageCountContainerText">
 							{info?.activeImageIndex + 1} /{' '}
-							{aiface ? aiFaceImages?.totalDocs : imagesList?.totalDocs}
+							{Math.max(
+								(aiface ? aiFaceImages?.totalDocs : imagesList?.totalDocs) -
+									(info?.deletedCount || 0),
+								0,
+							)}
 						</span>
 						<ChevronLeft
 							onClick={() => handleNavigation('next')}
