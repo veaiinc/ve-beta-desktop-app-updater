@@ -1643,7 +1643,8 @@ function createMenuBar() {
 								click: async () => {
 									try {
 										if (notchDropService) {
-											const result = notchDropService.showSelectionHistoryInterface();
+											const result =
+												notchDropService.showSelectionHistoryInterface();
 											if (!result) {
 												await dialog.showMessageBox({
 													type: 'info',
@@ -1671,8 +1672,7 @@ function createMenuBar() {
 											title: 'Clear Selection History',
 											message:
 												'This will permanently delete all captured selections.',
-											detail:
-												'Selections are stored locally and encrypted. Clearing history cannot be undone.',
+											detail: 'Selections are stored locally and encrypted. Clearing history cannot be undone.',
 											buttons: ['Clear History', 'Cancel'],
 											defaultId: 1,
 											cancelId: 1,
@@ -4285,27 +4285,27 @@ app.whenReady().then(async () => {
 		}
 	}
 
-process.on('swift-ui-submit-chat', async (data = {}) => {
-	const shouldCaptureScreenshot =
-		data?.source === 'notchdrop-swift-ui' && data?.updateObject?.type === 'chat';
+	process.on('swift-ui-submit-chat', async (data = {}) => {
+		const shouldCaptureScreenshot =
+			data?.source === 'notchdrop-swift-ui' && data?.updateObject?.type === 'chat';
 
-	if (shouldCaptureScreenshot) {
-		const screenshot = await capturePrimaryScreenDataURL();
-		if (screenshot) {
-			data.imagesArray = [screenshot];
-			const existingPayload = data.updateObject.payload || {};
-			data.updateObject.payload = {
-				...existingPayload,
-				imagesArray: [screenshot],
-			};
+		if (shouldCaptureScreenshot) {
+			const screenshot = await capturePrimaryScreenDataURL();
+			if (screenshot) {
+				data.imagesArray = [screenshot];
+				const existingPayload = data.updateObject.payload || {};
+				data.updateObject.payload = {
+					...existingPayload,
+					imagesArray: [screenshot],
+				};
+			}
 		}
-	}
 
-	// try {
-	// 	// if (!windowHelper) {
-	// 	// 	log.error('windowHelper not available for AskAI forwarding');
-	// 	// 	return;
-	// 	// }
+		// try {
+		// 	// if (!windowHelper) {
+		// 	// 	log.error('windowHelper not available for AskAI forwarding');
+		// 	// 	return;
+		// 	// }
 
 		// 	// let askAIWindow = windowHelper?.getAskAIWindow();
 		// 	// if (!askAIWindow || askAIWindow.isDestroyed()) {
@@ -4434,7 +4434,7 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	async function handleWebSocketMessage(prop) {
 		const { data, ws } = prop;
-		
+
 		switch (data.type) {
 			case 'START_MEETING':
 				log.info(
@@ -4478,6 +4478,41 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 				break;
 		}
 	}
+
+	ipcMain.handle('send-transcription-data-to-notch', async (event, transcriptionData) => {
+		try {
+			// Ensure transcriptionData is an array
+			const transcriptionsArray = Array.isArray(transcriptionData)
+				? transcriptionData
+				: [transcriptionData];
+
+			// Send the transcription array to BoringNotch via WebSocket
+			websocketService.broadcast({
+				type: 'TRANSCRIPTION_UPDATE',
+				data: { transcriptions: transcriptionsArray },
+			});
+
+			log.info(
+				`📝 Sent ${transcriptionsArray.length} transcriptions to BoringNotch via WebSocket`,
+			);
+			return { success: true };
+		} catch (error) {
+			log.error('Error sending transcription data to Notch:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('send-live-intelligence-data-to-notch', async (event, liveIntelligenceData) => {
+		try {
+			websocketService.broadcast({
+				type: 'LIVE_INTELLIGENCE_UPDATE',
+				data: liveIntelligenceData,
+			});
+		} catch (error) {
+			log.error('Error sending live intelligence data to Notch:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
 	async function handleNotchToMainWindowEvents(data) {
 		try {
@@ -5708,7 +5743,11 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	ipcMain.handle('selection-assistant:is-permission-granted', async () => {
 		try {
 			if (!notchDropService) {
-				return { success: false, granted: false, error: 'NotchDrop service not initialized' };
+				return {
+					success: false,
+					granted: false,
+					error: 'NotchDrop service not initialized',
+				};
 			}
 			const granted = notchDropService.isSelectionPermissionGranted();
 			return { success: true, granted };

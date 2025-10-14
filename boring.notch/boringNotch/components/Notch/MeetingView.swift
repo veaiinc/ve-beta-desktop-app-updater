@@ -8,52 +8,113 @@
 import SwiftUI
 import Foundation
 
+// MARK: - Date Extension
+extension Date {
+    var iso8601String: String {
+        let formatter = ISO8601DateFormatter()
+        return formatter.string(from: self)
+    }
+}
+
+// MARK: - Transcription Data Model
+struct Transcription: Identifiable, Codable {
+    let id: String
+    let text: String
+    let source: String
+    let timestamp: String
+    let confidence: Double?
+    let words: [Word]?
+    
+    struct Word: Codable {
+        let word: String
+        let start: Double
+        let end: Double
+        let confidence: Double
+    }
+    
+    // Computed property for formatted timestamp
+    var formattedTime: String {
+        // Parse timestamp and format as HH:mm
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        if let date = formatter.date(from: timestamp) {
+            let timeFormatter = DateFormatter()
+            timeFormatter.dateFormat = "HH:mm"
+            return timeFormatter.string(from: date)
+        }
+        return "00:00"
+    }
+    
+    // Computed property for speaker name
+    var speakerName: String {
+        return source == "mic" ? "YOU" : "SPEAKER"
+    }
+}
+
 struct MeetingView: View, WebSocketEventListener {
     @StateObject private var webSocketManager = WebSocketManager.shared
     @State private var meetingData: [String: Any] = [:]
     @State private var lastEventTime: Date = Date()
     @State private var eventHistory: [WebSocketEvent] = []
+    @State private var transcriptions: [Transcription] = []
     
     var body: some View {
         VStack(spacing: 12) {
             HStack(spacing: 0) {
                       // Scrollable list (takes remaining space)
                       ScrollView {
-                          VStack(alignment: .leading,spacing: 10) {
-                              ForEach(1..<50) { i in
-                                  VStack(alignment:.leading,spacing: 5){
-                                      HStack(spacing:10){
-                                          Text("User")
-                                            .font(
-                                              Font.custom("General Sans Variable", size: 10)
-                                                .weight(.semibold)
-                                            )
-                                            .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
-                                          Divider()
-                                          HStack(spacing:5){
-                                              Image(systemName: "clock") // ⏰
-                                                      .font(.system(size: 10)) // control size
+                          VStack(alignment: .leading, spacing: 10) {
+                              if transcriptions.isEmpty {
+                                  // Empty state
+                                  VStack(spacing: 8) {
+                                      Image(systemName: "mic.slash")
+                                          .font(.system(size: 24))
+                                          .foregroundColor(.gray)
+                                      Text("No transcriptions yet")
+                                          .font(Font.custom("General Sans Variable", size: 14))
+                                          .foregroundColor(.gray)
+                                  }
+                                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                  .padding()
+                              } else {
+                                  ForEach(transcriptions) { transcription in
+                                      VStack(alignment: .leading, spacing: 5) {
+                                          HStack(spacing: 10) {
+                                              Text(transcription.speakerName)
+                                                  .font(
+                                                      Font.custom("General Sans Variable", size: 10)
+                                                          .weight(.semibold)
+                                                  )
+                                                  .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                                              Divider()
+                                              HStack(spacing: 5) {
+                                                  Image(systemName: "clock")
+                                                      .font(.system(size: 10))
                                                       .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                                                  
+                                                  Text(transcription.formattedTime)
+                                                      .font(
+                                                          Font.custom("General Sans Variable", size: 10)
+                                                              .weight(.semibold)
+                                                      )
+                                                      .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                                              }
                                               
-                                              Text("0:08")
-                                                .font(
-                                                  Font.custom("General Sans Variable", size: 10)
-                                                    .weight(.semibold)
-                                                )
-                                                .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                                              Spacer()
                                           }
-                                         
-                                          Spacer()
-                                      }.padding(0)
-                                      Text("Sure. I mostly use it to manage client proposals and share timelines internally. I really like the auto-fill templates, but sometimes.")
-                                        .font(
-                                          Font.custom("General Sans Variable", size: 14)
-                                            .weight(.medium)
-                                        )
-                                        .lineSpacing(5)
-                                        .foregroundColor(.white)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                  }.frame(maxWidth: .infinity)
+                                          .padding(0)
+                                          
+                                          Text(transcription.text)
+                                              .font(
+                                                  Font.custom("General Sans Variable", size: 14)
+                                                      .weight(.medium)
+                                              )
+                                              .lineSpacing(5)
+                                              .foregroundColor(.white)
+                                              .frame(maxWidth: .infinity, alignment: .leading)
+                                      }
+                                      .frame(maxWidth: .infinity)
+                                  }
                               }
                           }
                           .padding()
@@ -62,7 +123,8 @@ struct MeetingView: View, WebSocketEventListener {
 
                       // Square view (like a button with icon)
                       Button(action: {
-                          print("Square tapped")
+                          print("Square tapped - Testing transcription flow")
+                          testTranscriptionFlow()
                       }) {
                           VStack {
                               Image(systemName: "camera.fill")
@@ -182,10 +244,66 @@ struct MeetingView: View, WebSocketEventListener {
     }
     
     private func handleTranscriptionUpdate(_ event: WebSocketEvent) {
-        print("📝 Transcription update: \(event.data)")
-        // Handle transcription data
-        if let text = event.data["text"] as? String {
+        print("📝 Transcription update received: \(event.data)")
+        
+        // Handle transcription array replacement
+        if let transcriptionsData = event.data["transcriptions"] as? [[String: Any]] {
+            print("📝 Processing \(transcriptionsData.count) transcriptions from Electron")
+            
+            var newTranscriptions: [Transcription] = []
+            
+            for (index, transcriptionDict) in transcriptionsData.enumerated() {
+                // Create a unique ID if not provided
+                let id = transcriptionDict["id"] as? String ?? "transcription_\(index)"
+                let text = transcriptionDict["text"] as? String ?? transcriptionDict["content"] as? String ?? ""
+                let source = transcriptionDict["source"] as? String ?? transcriptionDict["sender"] as? String ?? "overlay"
+                let timestamp = transcriptionDict["timestamp"] as? String ?? Date().iso8601String
+                let confidence = transcriptionDict["confidence"] as? Double
+                
+                print("📝 Processing transcription \(index + 1): '\(text.prefix(50))...' from \(source)")
+                
+                // Handle words array if present
+                var words: [Transcription.Word]? = nil
+                if let wordsData = transcriptionDict["words"] as? [[String: Any]] {
+                    words = wordsData.compactMap { wordDict in
+                        guard let word = wordDict["word"] as? String,
+                              let start = wordDict["start"] as? Double,
+                              let end = wordDict["end"] as? Double,
+                              let wordConfidence = wordDict["confidence"] as? Double else {
+                            return nil
+                        }
+                        return Transcription.Word(word: word, start: start, end: end, confidence: wordConfidence)
+                    }
+                }
+                
+                let transcription = Transcription(
+                    id: id,
+                    text: text,
+                    source: source,
+                    timestamp: timestamp,
+                    confidence: confidence,
+                    words: words
+                )
+                
+                newTranscriptions.append(transcription)
+            }
+            
+            // Replace the entire transcriptions array
+            DispatchQueue.main.async {
+                self.transcriptions = newTranscriptions
+                print("✅ Successfully updated BoringNotch transcriptions array with \(newTranscriptions.count) items")
+                
+                // Log first few transcriptions for debugging
+                for (index, transcription) in newTranscriptions.prefix(3).enumerated() {
+                    print("📝 Transcription \(index + 1): [\(transcription.speakerName)] \(transcription.text.prefix(30))...")
+                }
+            }
+        } else if let text = event.data["text"] as? String {
+            // Handle single transcription update (legacy support)
             meetingData["lastTranscription"] = text
+            print("📝 Single transcription update (legacy): \(text)")
+        } else {
+            print("⚠️ No transcriptions data found in event: \(event.data)")
         }
     }
     
@@ -231,6 +349,49 @@ struct MeetingView: View, WebSocketEventListener {
         print("🛑 Are You There - User stopped: \(event.data)")
         // Handle user stopping the meeting
         meetingData.removeAll()
+    }
+    
+    // MARK: - Test Methods
+    
+    private func testTranscriptionFlow() {
+        print("🧪 Testing transcription flow with sample data")
+        
+        // Create sample transcription data
+        let sampleTranscriptions = [
+            [
+                "id": "test_1",
+                "text": "Hello, this is a test transcription from the microphone.",
+                "source": "mic",
+                "timestamp": Date().iso8601String,
+                "confidence": 0.95
+            ],
+            [
+                "id": "test_2", 
+                "text": "This is another test transcription from the screen capture.",
+                "source": "screen",
+                "timestamp": Date().iso8601String,
+                "confidence": 0.88
+            ],
+            [
+                "id": "test_3",
+                "text": "And here's a third transcription to test the array replacement.",
+                "source": "mic", 
+                "timestamp": Date().iso8601String,
+                "confidence": 0.92
+            ]
+        ]
+        
+        // Simulate receiving a transcription update event
+        let testEvent = WebSocketEvent(
+            id: UUID(),
+            type: .transcriptionUpdate,
+            data: ["transcriptions": sampleTranscriptions],
+            timestamp: Date(),
+            rawMessage: "test"
+        )
+        
+        // Process the test event
+        handleTranscriptionUpdate(testEvent)
     }
     
     // MARK: - Helper Methods
