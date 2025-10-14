@@ -345,7 +345,9 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 			});
 		}
 
-		const validFiles = Array.from(files).filter((f) => f.type.match(/image\/(jpeg|png)/));
+		const validFiles = Array.from(files).filter(
+			(f) => !f.name?.startsWith('.') && f.type.match(/image\/(jpeg|png)/),
+		);
 		const duplicateSet = getDuplicateSet();
 		const updatedUploadImages = { ...info.uploadImages };
 		let totalSize = 0;

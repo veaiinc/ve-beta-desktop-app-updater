@@ -435,6 +435,7 @@ const UploadProgressPopup = () => {
 
 	// Start upload process for a specific session - MODIFIED for Batching
 	const startUploadSession = async (sessionId, initialState) => {
+		let uniqueFiles;
 		try {
 			if (runningSessions.current.has(sessionId)) {
 				console.warn(`Session ${sessionId} is already running, skipping...`);
@@ -453,7 +454,7 @@ const UploadProgressPopup = () => {
 			updateOverallProgress(sessionId);
 
 			// Deduplicate files within this session
-			const uniqueFiles = initialState.files.filter((fileData, index, self) => {
+			uniqueFiles = initialState.files.filter((fileData, index, self) => {
 				const fileKey = `${fileData.file.name}-${fileData.file.size}`;
 				return self.findIndex((f) => `${f.file.name}-${f.file.size}` === fileKey) === index;
 			});
@@ -504,8 +505,8 @@ const UploadProgressPopup = () => {
 
 				// Step 2: Process all files in the current batch with limited concurrency
 				const processPromises = currentBatch.map(async (fileData, fileIndexInBatch) => {
+					const globalFileIndex = batchIndex * BATCH_SIZE + fileIndexInBatch; // For UI updates
 					try {
-						const globalFileIndex = batchIndex * BATCH_SIZE + fileIndexInBatch; // For UI updates
 						const fileKey = `${sessionId}-${fileData.file.name}-${fileData.file.size}`;
 
 						if (processingFiles.current.has(fileKey)) {
