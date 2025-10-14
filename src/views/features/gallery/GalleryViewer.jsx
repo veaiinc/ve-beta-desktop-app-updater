@@ -22,6 +22,7 @@ import slugify from 'slugify';
 import Peopleitem from '../../components/gallery/galleryView/PeopleCard';
 import { ReactComponent as AlbumCoverIcon } from '../../../assets/svg/gallery/albumCoverIcon.svg';
 import Loader from '../../components/loaders/Spinner';
+import DeleteAlbumImagesPopup from '../../components/modalsV2/gallery/DeleteAlbumImagesPopup';
 
 // import { Background } from '@xyflow/react';
 
@@ -76,6 +77,8 @@ const GalleryViewer = ({
 			tenantAlbums,
 			albumImagesCount,
 			getAlbumCount,
+			getAlbumImagesCount,
+			getAlbums,
 		},
 	} = useContext(Context);
 
@@ -333,6 +336,7 @@ const GalleryViewer = ({
 				imageDetailId: null,
 			}));
 			message.success('Images deleted successfully');
+			getAlbumImagesCount(activeGalleryId);
 		} else {
 			message.error('Failed to delete images');
 		}
@@ -881,15 +885,16 @@ const GalleryViewer = ({
 					isAiFace={aiface}
 					activeImageIndex={info?.activeImageIndex}
 				/>
-				<DeletePopup
+
+				<DeleteAlbumImagesPopup
 					open={info?.showDeleteAlbum}
 					closeModal={() => setInfo((prev) => ({ ...prev, showDeleteAlbum: false }))}
 					galleryId={activeGalleryId}
-					title={'Permanently Delete  image?'}
+					title={'Permanently Delete image?'}
 					paragraph={
 						'You cannot undo this action.All your photos in this album lined to this label will be lost'
 					}
-					handleDelete={handleAlbumDelete}
+					handleDeleteImages={handleAlbumDelete}
 				/>
 			</div>
 

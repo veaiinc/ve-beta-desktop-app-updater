@@ -2754,14 +2754,14 @@ const GalleryPage = () => {
 
 	// Initialize the processing flag
 
-	const handleAlbumDelete = () => {
+	const handleAlbumDelete = async () => {
 		const payload = {
 			image_ids: info?.selectedImages,
 		};
 		let updatedImages = info?.imagesList?.docs?.filter((image) => {
 			return !info?.selectedImages?.includes(image?._id);
 		});
-		deleteImages(payload, galleryId, info?.activeAlbumId);
+		const response = await deleteImages(payload, galleryId, info?.activeAlbumId);
 		setInfo((prev) => ({
 			...prev,
 			imagesList: {
@@ -2772,6 +2772,7 @@ const GalleryPage = () => {
 			selectedImages: [],
 		}));
 		showMessage('success', 'Images deleted successfully');
+		getAlbumImagesCount(galleryId);
 	};
 
 	const handleFilter = async (value) => {
