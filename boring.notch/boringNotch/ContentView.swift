@@ -25,7 +25,7 @@ struct ContentView: View {
     @State private var hoverWorkItem: DispatchWorkItem?
     @State private var debounceWorkItem: DispatchWorkItem?
 
-    @State private var isHoverStateChanging: Bool = true
+    @State private var isHoverStateChanging: Bool = false
 
     @State private var gestureProgress: CGFloat = .zero
 
