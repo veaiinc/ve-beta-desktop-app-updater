@@ -337,6 +337,7 @@ const GalleryViewer = ({
 			}));
 			message.success('Images deleted successfully');
 			getAlbumImagesCount(activeGalleryId);
+			getGalleryImages(activeGalleryId, activeAlbumId, tagId, 1, info?.limit, '', true);
 		} else {
 			message.error('Failed to delete images');
 		}
