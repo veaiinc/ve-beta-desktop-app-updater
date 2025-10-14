@@ -76,12 +76,9 @@ struct TabSelectionView: View {
                             withAnimation(.smooth) {
                                 coordinator.currentView = tab.view
                                 
-                                // Send START_MEETING message when Listen tab is clicked
+                                // Send START_MEETING event when Listen tab is clicked
                                 if tab.view == .meeting {
-                                    let message = """
-                                    {"type":"START_MEETING","data":{}}
-                                    """
-                                    webSocketManager.sendMessage(message)
+                                    webSocketManager.sendEvent(type: .startMeeting, data: ["source": "tab_selection"])
                                 }
                                 
                                 if tab.view == .meeting || tab.view == .ask {

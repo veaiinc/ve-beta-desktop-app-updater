@@ -8,9 +8,11 @@
 import SwiftUI
 import Foundation
 
-struct MeetingView: View {
+struct MeetingView: View, WebSocketEventListener {
     @StateObject private var webSocketManager = WebSocketManager.shared
-    @State private var messageText = ""
+    @State private var meetingData: [String: Any] = [:]
+    @State private var lastEventTime: Date = Date()
+    @State private var eventHistory: [WebSocketEvent] = []
     
     var body: some View {
         VStack(spacing: 12) {
@@ -53,100 +55,284 @@ struct MeetingView: View {
                 Text(webSocketManager.meetingStatus)
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundColor(webSocketManager.meetingStatus == "Meeting Started" ? .green : .primary)
+                    .foregroundColor(getStatusColor())
                 
                 Spacer()
             }
             .padding(.horizontal, 16)
             
-            // Messages List
+            // Event History
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 8) {
-                    ForEach(webSocketManager.messages) { message in
-                        MessageBubble(message: message)
+                    ForEach(eventHistory.suffix(10), id: \.id) { event in
+                        EventBubble(event: event)
                     }
                 }
                 .padding(.horizontal, 16)
             }
             .frame(maxHeight: 200)
             
-            // Input Area
-            HStack(spacing: 8) {
-                TextField("Type your message...", text: $messageText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .onSubmit {
-                        sendMessage()
+            // Action Buttons
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    Button("Start Meeting") {
+                        webSocketManager.sendEvent(type: .startMeeting, data: ["source": "swift_ui"])
                     }
-                    .onTapGesture {
-                        // Ensure window can receive focus when text field is tapped
-                        DispatchQueue.main.async {
-                            if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
-                                window.makeKeyAndOrderFront(nil)
-                            }
-                        }
+                    .disabled(!webSocketManager.isConnected)
+                    
+                    Button("Stop Meeting") {
+                        webSocketManager.sendEvent(type: .stopMeeting, data: ["source": "swift_ui"])
                     }
-                
-                Button(action: sendMessage) {
-                    Image(systemName: "paperplane.fill")
-                        .foregroundColor(.white)
-                        .frame(width: 32, height: 32)
-                        .background(Color.blue)
-                        .cornerRadius(16)
+                    .disabled(!webSocketManager.isConnected)
                 }
-                .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || !webSocketManager.isConnected)
+                
+                HStack(spacing: 8) {
+                    Button("Pause Meeting") {
+                        webSocketManager.sendEvent(type: .pauseMeeting, data: ["source": "swift_ui"])
+                    }
+                    .disabled(!webSocketManager.isConnected)
+                    
+                    Button("Resume Meeting") {
+                        webSocketManager.sendEvent(type: .resumeMeeting, data: ["source": "swift_ui"])
+                    }
+                    .disabled(!webSocketManager.isConnected)
+                }
+                
+                Button("Test Custom Event") {
+                    webSocketManager.sendEvent(type: .custom, data: [
+                        "message": "Test from Swift UI",
+                        "timestamp": Date().timeIntervalSince1970
+                    ])
+                }
+                .disabled(!webSocketManager.isConnected)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 8)
         }
         .onAppear {
-            // WebSocket auto-connection is now handled by WebSocketManager on startup
-            // No need to manually connect here
+            // Register as event listener
+            webSocketManager.addEventListener(self)
+        }
+        .onDisappear {
+            // Unregister event listener
+            webSocketManager.removeEventListener(self)
         }
     }
     
-    private func sendMessage() {
-        let trimmedMessage = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedMessage.isEmpty else { return }
-        
-        webSocketManager.sendMessage(trimmedMessage)
-        messageText = ""
+    // MARK: - WebSocketEventListener
+    
+    func onWebSocketEvent(_ event: WebSocketEvent) {
+        DispatchQueue.main.async {
+            self.eventHistory.append(event)
+            self.lastEventTime = event.timestamp
+            
+            // Handle specific event types
+            switch event.type {
+            case .meetingStarted:
+                handleMeetingStarted(event)
+            case .meetingStopped:
+                handleMeetingStopped(event)
+            case .meetingPaused:
+                handleMeetingPaused(event)
+            case .meetingResumed:
+                handleMeetingResumed(event)
+            case .startMeeting:
+                handleStartMeeting(event)
+            case .stopMeeting:
+                handleStopMeeting(event)
+            case .pauseMeeting:
+                handlePauseMeeting(event)
+            case .resumeMeeting:
+                handleResumeMeeting(event)
+            case .transcriptionUpdate:
+                handleTranscriptionUpdate(event)
+            case .participantJoined:
+                handleParticipantJoined(event)
+            case .participantLeft:
+                handleParticipantLeft(event)
+            case .dataUpdate:
+                handleDataUpdate(event)
+            case .areYouThereShow:
+                handleAreYouThereShow(event)
+            case .areYouThereContinue:
+                handleAreYouThereContinue(event)
+            case .areYouThereStop:
+                handleAreYouThereStop(event)
+            default:
+                print("📨 Unhandled event type: \(event.type.rawValue)")
+            }
+        }
+    }
+    
+    // MARK: - Event Handlers
+    
+    private func handleMeetingStarted(_ event: WebSocketEvent) {
+        print("🎯 Meeting started with data: \(event.data)")
+        // Update UI based on meeting start data
+        if let meetingId = event.data["meetingId"] as? String {
+            meetingData["meetingId"] = meetingId
+        }
+    }
+    
+    private func handleMeetingStopped(_ event: WebSocketEvent) {
+        print("🏁 Meeting stopped with data: \(event.data)")
+        // Clear meeting data
+        meetingData.removeAll()
+    }
+    
+    private func handleMeetingPaused(_ event: WebSocketEvent) {
+        print("⏸️ Meeting paused with data: \(event.data)")
+        // Handle meeting pause
+        if let reason = event.data["reason"] as? String {
+            meetingData["pauseReason"] = reason
+        }
+    }
+    
+    private func handleMeetingResumed(_ event: WebSocketEvent) {
+        print("▶️ Meeting resumed with data: \(event.data)")
+        // Handle meeting resume
+        meetingData.removeValue(forKey: "pauseReason")
+    }
+    
+    private func handleStartMeeting(_ event: WebSocketEvent) {
+        print("🚀 Start meeting request with data: \(event.data)")
+        // Handle start meeting request
+    }
+    
+    private func handleStopMeeting(_ event: WebSocketEvent) {
+        print("🛑 Stop meeting request with data: \(event.data)")
+        // Handle stop meeting request
+    }
+    
+    private func handlePauseMeeting(_ event: WebSocketEvent) {
+        print("⏸️ Pause meeting request with data: \(event.data)")
+        // Handle pause meeting request
+    }
+    
+    private func handleResumeMeeting(_ event: WebSocketEvent) {
+        print("▶️ Resume meeting request with data: \(event.data)")
+        // Handle resume meeting request
+    }
+    
+    private func handleTranscriptionUpdate(_ event: WebSocketEvent) {
+        print("📝 Transcription update: \(event.data)")
+        // Handle transcription data
+        if let text = event.data["text"] as? String {
+            meetingData["lastTranscription"] = text
+        }
+    }
+    
+    private func handleParticipantJoined(_ event: WebSocketEvent) {
+        print("👋 Participant joined: \(event.data)")
+        // Update participant list
+        if let participantName = event.data["name"] as? String {
+            // Add to participant list logic here
+        }
+    }
+    
+    private func handleParticipantLeft(_ event: WebSocketEvent) {
+        print("👋 Participant left: \(event.data)")
+        // Update participant list
+        if let participantName = event.data["name"] as? String {
+            // Remove from participant list logic here
+        }
+    }
+    
+    private func handleDataUpdate(_ event: WebSocketEvent) {
+        print("📊 Data update: \(event.data)")
+        // Merge new data with existing data
+        for (key, value) in event.data {
+            meetingData[key] = value
+        }
+    }
+    
+    private func handleAreYouThereShow(_ event: WebSocketEvent) {
+        print("❓ Are You There window shown: \(event.data)")
+        // Handle Are You There window display
+        if let reason = event.data["reason"] as? String {
+            meetingData["areYouThereReason"] = reason
+        }
+    }
+    
+    private func handleAreYouThereContinue(_ event: WebSocketEvent) {
+        print("✅ Are You There - User continued: \(event.data)")
+        // Handle user continuing the meeting
+        meetingData.removeValue(forKey: "areYouThereReason")
+    }
+    
+    private func handleAreYouThereStop(_ event: WebSocketEvent) {
+        print("🛑 Are You There - User stopped: \(event.data)")
+        // Handle user stopping the meeting
+        meetingData.removeAll()
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func getStatusColor() -> Color {
+        switch webSocketManager.meetingStatus {
+        case "Meeting Started":
+            return .green
+        case "Meeting Stopped":
+            return .red
+        case "Meeting Paused":
+            return .orange
+        case "Meeting Resumed":
+            return .green
+        case "Starting Meeting...":
+            return .blue
+        case "Stopping Meeting...":
+            return .orange
+        case "Pausing Meeting...":
+            return .yellow
+        case "Resuming Meeting...":
+            return .blue
+        default:
+            return .primary
+        }
     }
 }
 
-struct MessageBubble: View {
-    let message: WebSocketMessage
+struct EventBubble: View {
+    let event: WebSocketEvent
     
     var body: some View {
-        HStack {
-            if message.type == .sent {
-                Spacer()
-            }
-            
-            VStack(alignment: message.type == .sent ? .trailing : .leading, spacing: 4) {
-                Text(message.content)
-                    .font(.system(size: 14))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(
-                        message.type == .sent ? Color.blue : Color.gray.opacity(0.2)
-                    )
-                    .foregroundColor(message.type == .sent ? .white : .primary)
-                    .cornerRadius(16)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(event.type.rawValue)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.blue)
                 
-                Text(formatTimestamp(message.timestamp))
+                Spacer()
+                
+                Text(formatTimestamp(event.timestamp))
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
             
-            if message.type == .received {
-                Spacer()
+            if !event.data.isEmpty {
+                Text(formatEventData(event.data))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
             }
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(8)
     }
     
     private func formatTimestamp(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+    
+    private func formatEventData(_ data: [String: Any]) -> String {
+        let keyValuePairs = data.compactMap { key, value in
+            "\(key): \(value)"
+        }
+        return keyValuePairs.joined(separator: ", ")
     }
 }
