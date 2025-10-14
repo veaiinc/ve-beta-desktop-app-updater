@@ -50,7 +50,14 @@ class BoringViewCoordinator: ObservableObject {
     static let shared = BoringViewCoordinator()
     var notifier: TheBoringWorkerNotifier = .init()
 
-    @Published var currentView: NotchViews = .home
+    // Persist and publish current tab
+    @Published var currentView: NotchViews = .home {
+        didSet {
+            // Persist whenever it changes
+            selectedTab = currentView
+        }
+    }
+
     private var sneakPeekDispatch: DispatchWorkItem?
     private var expandingViewDispatch: DispatchWorkItem?
 
@@ -98,12 +105,57 @@ class BoringViewCoordinator: ObservableObject {
     private init() {
         selectedScreen = preferredScreen
         notifier = TheBoringWorkerNotifier()
+        // Restore last selected tab at startup
+        currentView = selectedTab
+        // Restore meeting state
+        restoreMeetingState()
+        
+        // Setup notification observers
+        setupNotificationObservers()
+    }
+    
+    private func setupNotificationObservers() {
+        // Listen for meeting stopped navigation
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleMeetingStoppedNavigation),
+            name: NSNotification.Name("MeetingStoppedNavigateHome"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleMeetingStoppedNavigation() {
+        print("🏠 BoringViewCoordinator: Handling meeting stopped navigation")
+        
+        // Navigate to home view
+        DispatchQueue.main.async {
+            self.currentView = .home
+        }
+        
+        // Ensure notch shrinks when not in meeting
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.shrinkNotchIfNeeded()
+        }
+    }
+    
+    private func shrinkNotchIfNeeded() {
+        // This will be handled by the BoringViewModel
+        // We can post a notification or use a delegate pattern
+        NotificationCenter.default.post(
+            name: NSNotification.Name("ShrinkNotchAfterMeeting"),
+            object: nil
+        )
+    }
+    
+    deinit {
+        // Clean up notification observers
+        NotificationCenter.default.removeObserver(self)
     }
 
     func setupWorkersNotificationObservers() {
-            notifier.setupObserver(notification: notifier.micStatusNotification, handler: initialMicStatus)
-            notifier.setupObserver(notification: notifier.sneakPeakNotification, handler: sneakPeekEvent)
-        }
+        notifier.setupObserver(notification: notifier.micStatusNotification, handler: initialMicStatus)
+        notifier.setupObserver(notification: notifier.sneakPeakNotification, handler: sneakPeekEvent)
+    }
     
     @objc func sneakPeekEvent(_ notification: Notification) {
         let decoder = JSONDecoder()
@@ -141,7 +193,6 @@ class BoringViewCoordinator: ObservableObject {
     ) {
         sneakPeekDuration = duration
         if type != .music {
-            // close()
             if !hudReplacement {
                 return
             }
@@ -163,7 +214,6 @@ class BoringViewCoordinator: ObservableObject {
     private var sneakPeekDuration: TimeInterval = 1.5
     private var sneakPeekTask: Task<Void, Never>?
 
-    // Helper function to manage sneakPeek timer using Swift Concurrency
     private func scheduleSneakPeekHide(after duration: TimeInterval) {
         sneakPeekTask?.cancel()
 
@@ -234,4 +284,154 @@ class BoringViewCoordinator: ObservableObject {
     func showEmpty() {
         currentView = .home
     }
+
+    // MARK: - Meeting Timer and persisted meeting state
+
+    @AppStorage("isMeetingStarted") var isMeetingStarted: Bool = false
+    @AppStorage("meetingElapsed") var persistedMeetingElapsed: Double = 0
+    @AppStorage("meetingIsPaused") var persistedMeetingIsPaused: Bool = true
+    @AppStorage("meetingStartTimestamp") var persistedMeetingStartTimestamp: Double = 0
+
+    @Published var meetingElapsed: TimeInterval = 0
+    @Published var meetingIsPaused: Bool = true
+
+    private var meetingStartDate: Date?
+    private var meetingTickerTask: Task<Void, Never>?
+
+    private func ensureMeetingTicker() {
+        if meetingTickerTask != nil { return }
+        meetingTickerTask = Task { [weak self] in
+            guard let self else { return }
+            while !Task.isCancelled {
+                await MainActor.run {
+                    if !self.meetingIsPaused, let start = self.meetingStartDate {
+                        self.meetingElapsed += Date().timeIntervalSince(start)
+                        self.meetingStartDate = Date()
+                        // Persist the updated elapsed time
+                        self.persistedMeetingElapsed = self.meetingElapsed
+                    }
+                }
+                try? await Task.sleep(for: .seconds(1))
+            }
+        }
+    }
+
+    func meetingStart() {
+        if !isMeetingStarted {
+            // First start: reset and run
+            isMeetingStarted = true
+            meetingElapsed = 0
+            persistedMeetingElapsed = 0
+            meetingStartDate = Date()
+            persistedMeetingStartTimestamp = Date().timeIntervalSince1970
+            meetingIsPaused = false
+            persistedMeetingIsPaused = false
+        } else {
+            // Already started: treat as resume without reset
+            if meetingIsPaused {
+                meetingStartDate = Date()
+                persistedMeetingStartTimestamp = Date().timeIntervalSince1970
+                meetingIsPaused = false
+                persistedMeetingIsPaused = false
+            }
+        }
+        ensureMeetingTicker()
+    }
+
+    func meetingPause() {
+        if let start = meetingStartDate {
+            meetingElapsed += Date().timeIntervalSince(start)
+            persistedMeetingElapsed = meetingElapsed
+        }
+        meetingStartDate = nil
+        persistedMeetingStartTimestamp = 0
+        meetingIsPaused = true
+        persistedMeetingIsPaused = true
+        ensureMeetingTicker()
+    }
+
+    func meetingResume() {
+        if meetingIsPaused {
+            meetingStartDate = Date()
+            persistedMeetingStartTimestamp = Date().timeIntervalSince1970
+            meetingIsPaused = false
+            persistedMeetingIsPaused = false
+        }
+        ensureMeetingTicker()
+    }
+
+    func meetingStopAndReset() {
+        isMeetingStarted = false
+        meetingElapsed = 0
+        persistedMeetingElapsed = 0
+        meetingStartDate = nil
+        persistedMeetingStartTimestamp = 0
+        meetingIsPaused = true
+        persistedMeetingIsPaused = true
+        ensureMeetingTicker()
+        
+        print("🛑 Meeting stopped and reset - All timers cleared")
+    }
+
+    func formattedMeetingTime() -> String {
+        let total = Int(max(0, meetingElapsed.rounded()))
+        let hours = total / 3600
+        let minutes = (total % 3600) / 60
+        let seconds = total % 60
+        if hours > 0 {
+            return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
+    }
+
+    // MARK: - Meeting State Restoration
+
+    func restoreMeetingState() {
+        // Restore persisted state
+        meetingElapsed = persistedMeetingElapsed
+        meetingIsPaused = persistedMeetingIsPaused
+        
+        // If meeting was started and not paused, calculate elapsed time since last start
+        if isMeetingStarted && !meetingIsPaused && persistedMeetingStartTimestamp > 0 {
+            let timeSinceStart = Date().timeIntervalSince1970 - persistedMeetingStartTimestamp
+            meetingElapsed += timeSinceStart
+            meetingStartDate = Date()
+            // Update the persisted elapsed time with the additional time
+            persistedMeetingElapsed = meetingElapsed
+        }
+        
+        // Start ticker if meeting is active
+        if isMeetingStarted {
+            ensureMeetingTicker()
+        }
+        
+        print("🔄 Meeting state restored - Started: \(isMeetingStarted), Paused: \(meetingIsPaused), Elapsed: \(meetingElapsed)")
+    }
+
+    // MARK: - Persist selected tab without changing NotchViews
+
+    @AppStorage("selectedTabRaw") private var selectedTabRaw: String = "home"
+
+    var selectedTab: NotchViews {
+        get {
+            switch selectedTabRaw {
+            case "shelf": return .shelf
+            case "meeting": return .meeting
+            case "ask": return .ask
+            default: return .home
+            }
+        }
+        set {
+            selectedTabRaw = {
+                switch newValue {
+                case .home: return "home"
+                case .shelf: return "shelf"
+                case .meeting: return "meeting"
+                case .ask: return "ask"
+                }
+            }()
+        }
+    }
 }
+

@@ -111,8 +111,8 @@ struct ContentView: View {
                                 isHovering = hovering
                             }
 
-                            // Only close if mouse leaves and the notch is open
-                            if !hovering && vm.notchState == .open {
+                            // Only close if mouse leaves and the notch is open, but not in meeting view
+                            if !hovering && vm.notchState == .open && coordinator.currentView != .meeting {
                                 vm.close()
                             }
                         }
@@ -232,7 +232,7 @@ struct ContentView: View {
                       } else if vm.notchState == .open {
                           BoringHeader()
                               .frame(height: max(24, vm.effectiveClosedNotchHeight))
-                              .blur(radius: abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0)
+                              .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
                               .animation(.spring(response: 1, dampingFraction: 1, blendDuration: 0.8), value: vm.notchState)
                        } else {
                            Rectangle().fill(.clear).frame(width: vm.closedNotchSize.width - 20, height: vm.effectiveClosedNotchHeight)
@@ -285,8 +285,8 @@ struct ContentView: View {
             }
             .zIndex(1)
             .allowsHitTesting(vm.notchState == .open)
-            .blur(radius: abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0)
-            .opacity(abs(gestureProgress) > 0.3 ? min(abs(gestureProgress * 2), 0.8) : 1)
+            .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
+            .opacity((coordinator.currentView == .meeting) ? 1 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress * 2), 0.8) : 1))
         }
     }
 
@@ -492,8 +492,8 @@ struct ContentView: View {
                     isHovering = false
                 }
 
-                // Close the notch if it's open and battery popover is not active
-                if vm.notchState == .open && !vm.isBatteryPopoverActive {
+                // Close the notch if it's open and battery popover is not active, but not in meeting view
+                if vm.notchState == .open && !vm.isBatteryPopoverActive && coordinator.currentView != .meeting {
                     vm.close()
                 }
             }
@@ -547,7 +547,10 @@ struct ContentView: View {
                     gestureProgress = .zero
                     isHovering = false
                 }
-                vm.close()
+                // Don't close the notch if we're in the meeting view
+                if coordinator.currentView != .meeting {
+                    vm.close()
+                }
 
                 if Defaults[.enableHaptics] {
                     haptics.toggle()

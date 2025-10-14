@@ -4452,9 +4452,84 @@ app.whenReady().then(async () => {
 		// 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
 		// 		break;
 
-		// 	case 'PAUSE_'
-		// }
+		switch (data.type) {
+			case 'START_MEETING':
+				log.info(
+					'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
+				);
+				await handleNotchToMainWindowEvents({ action: 'startRecording' });
+				// Send response back to the client that sent the START_MEETING message
+				websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+				break;
+
+			case 'PAUSE_MEETING':
+				log.info(
+					'🎯 PAUSE_MEETING message received, scheduling MEETING_PAUSED response...',
+				);
+				// Send response back to the client that sent the PAUSE_MEETING message
+				await handleNotchToMainWindowEvents({ action: 'pauseRecording' });
+
+				websocketService.sendToClient(ws, { type: 'MEETING_PAUSED', data: {} });
+				break;
+
+			case 'RESUME_MEETING':
+				log.info(
+					'🎯 RESUME_MEETING message received, scheduling MEETING_RESUMED response...',
+				);
+				await handleNotchToMainWindowEvents({ action: 'resumeRecording' });
+
+				// Send response back to the client that sent the RESUME_MEETING message
+				websocketService.sendToClient(ws, { type: 'MEETING_RESUMED', data: {} });
+				break;
+
+			case 'STOP_MEETING':
+				log.info(
+					'🎯 STOP_MEETING message received, scheduling MEETING_STOPPED response...',
+				);
+				await handleNotchToMainWindowEvents({ action: 'stopRecording' });
+				// Send response back to the client that sent the STOP_MEETING message
+				websocketService.sendToClient(ws, { type: 'MEETING_STOPPED', data: {} });
+				break;
+			default:
+				log.info('🎯 Unknown message received, skipping...');
+				break;
+		}
 	}
+
+	ipcMain.handle('send-transcription-data-to-notch', async (event, transcriptionData) => {
+		try {
+			// Ensure transcriptionData is an array
+			const transcriptionsArray = Array.isArray(transcriptionData)
+				? transcriptionData
+				: [transcriptionData];
+
+			// Send the transcription array to BoringNotch via WebSocket
+			websocketService.broadcast({
+				type: 'TRANSCRIPTION_UPDATE',
+				data: { transcriptions: transcriptionsArray },
+			});
+
+			log.info(
+				`📝 Sent ${transcriptionsArray.length} transcriptions to BoringNotch via WebSocket`,
+			);
+			return { success: true };
+		} catch (error) {
+			log.error('Error sending transcription data to Notch:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('send-live-intelligence-data-to-notch', async (event, liveIntelligenceData) => {
+		try {
+			websocketService.broadcast({
+				type: 'LIVE_INTELLIGENCE_UPDATE',
+				data: liveIntelligenceData,
+			});
+		} catch (error) {
+			log.error('Error sending live intelligence data to Notch:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
 	async function handleNotchToMainWindowEvents(data) {
 		try {

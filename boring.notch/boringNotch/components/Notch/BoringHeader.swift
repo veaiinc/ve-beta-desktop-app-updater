@@ -42,6 +42,12 @@ struct BoringHeader: View {
 
             HStack(spacing: 4) {
                 if vm.notchState == .open {
+                    if coordinator.isMeetingStarted && coordinator.currentView != .meeting{
+                        Text(coordinator.formattedMeetingTime())
+                            .font(.caption)
+                            .foregroundStyle(.white)
+                            .monospacedDigit()
+                    }
                     // VE logo button (open app)
                     Button(action: {
                         // Send message to Electron to open main window
