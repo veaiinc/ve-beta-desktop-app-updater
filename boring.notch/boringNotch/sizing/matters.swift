@@ -12,7 +12,7 @@ import SwiftUI
 let downloadSneakSize: CGSize = .init(width: 65, height: 1)
 let batterySneakSize: CGSize = .init(width: 160, height: 1)
 
-let openNotchSize: CGSize = .init(width: 640, height: 190)
+let openNotchSize: CGSize = .init(width: 800, height: 190)
 let cornerRadiusInsets: (opened: (top: CGFloat, bottom: CGFloat), closed: (top: CGFloat, bottom: CGFloat)) = (opened: (top: 19, bottom: 24), closed: (top: 6, bottom: 14))
 
 enum MusicPlayerImageSizes {
@@ -37,7 +37,7 @@ func getScreenFrame(_ screen: String? = nil) -> CGRect? {
 func getClosedNotchSize(screen: String? = nil) -> CGSize {
     // Default notch size, to avoid using optionals
     var notchHeight: CGFloat = Defaults[.nonNotchHeight]
-    var notchWidth: CGFloat = 185
+    var notchWidth: CGFloat = 360
 
     var selectedScreen = NSScreen.main
 

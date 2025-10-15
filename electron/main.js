@@ -1642,18 +1642,12 @@ function createMenuBar() {
 								label: 'Show Selection History',
 								click: async () => {
 									try {
-										if (notchDropService) {
-											const result =
-												notchDropService.showSelectionHistoryInterface();
-											if (!result) {
-												await dialog.showMessageBox({
-													type: 'info',
-													title: 'Selection History',
-													message:
-														'Selection history is only available when the Selection Assistant is running.',
-												});
-											}
-										}
+										await dialog.showMessageBox({
+											type: 'info',
+											title: 'Selection History',
+											message:
+												'Selection history is not available. This feature requires NotchDrop addon which is not currently enabled.',
+										});
 									} catch (error) {
 										log.error('❌ Failed to show selection history:', error);
 									}
@@ -1663,34 +1657,12 @@ function createMenuBar() {
 								label: 'Clear Selection History…',
 								click: async () => {
 									try {
-										if (!notchDropService) {
-											return;
-										}
-
-										const confirmation = await dialog.showMessageBox({
-											type: 'warning',
+										await dialog.showMessageBox({
+											type: 'info',
 											title: 'Clear Selection History',
 											message:
-												'This will permanently delete all captured selections.',
-											detail: 'Selections are stored locally and encrypted. Clearing history cannot be undone.',
-											buttons: ['Clear History', 'Cancel'],
-											defaultId: 1,
-											cancelId: 1,
+												'Selection history is not available. This feature requires NotchDrop addon which is not currently enabled.',
 										});
-
-										if (confirmation.response !== 0) {
-											return;
-										}
-
-										const result = notchDropService.clearSelectionHistory();
-										if (!result) {
-											await dialog.showMessageBox({
-												type: 'info',
-												title: 'Selection History',
-												message:
-													'No selection history was cleared. The Selection Assistant may not be running.',
-											});
-										}
 									} catch (error) {
 										log.error('❌ Failed to clear selection history:', error);
 									}
@@ -1703,18 +1675,12 @@ function createMenuBar() {
 								label: 'Open Accessibility Settings…',
 								click: async () => {
 									try {
-										if (notchDropService) {
-											const result =
-												notchDropService.requestSelectionPermissionPrompt();
-											if (!result) {
-												await dialog.showMessageBox({
-													type: 'info',
-													title: 'Accessibility Permissions',
-													message:
-														'Please open System Settings → Privacy & Security → Accessibility and enable Ve AI.',
-												});
-											}
-										}
+										await dialog.showMessageBox({
+											type: 'info',
+											title: 'Accessibility Permissions',
+											message:
+												'Selection Assistant is not available. This feature requires NotchDrop addon which is not currently enabled.',
+										});
 									} catch (error) {
 										log.error(
 											'❌ Failed to request selection assistant permission:',
@@ -2231,6 +2197,59 @@ function createWindow(restoreState = false) {
 	mainWindow = new BrowserWindow(mainWindowSettings);
 
 	mainWindow.setWindowButtonVisibility(false);
+
+	// Add event listeners for voice agent control from boring.notch
+	mainWindow.webContents.on('did-finish-load', () => {
+		// Inject event listeners for voice agent control
+		mainWindow.webContents.executeJavaScript(`
+			// Listen for voice agent disconnect events
+			window.addEventListener('notchdrop-disconnect-voice', (event) => {
+				console.log('🔌 Received voice disconnect event from boring.notch:', event.detail);
+				
+				// Try to find and click disconnect buttons
+				const disconnectButtons = document.querySelectorAll('.cancel-button, [class*="disconnect"], [class*="close"]');
+				if (disconnectButtons.length > 0) {
+					console.log('🔌 Found disconnect button, clicking...');
+					disconnectButtons[0].click();
+				}
+				
+				// Hide voice agent UI
+				const voiceContainers = document.querySelectorAll('.voiceContainer');
+				voiceContainers.forEach(container => {
+					container.style.display = 'none';
+				});
+				
+				// Dispatch to voice integration hooks
+				const voiceDisconnectEvent = new CustomEvent('voice-agent-disconnect', {
+					detail: { source: 'boring-notch' }
+				});
+				window.dispatchEvent(voiceDisconnectEvent);
+			});
+			
+			// Listen for voice agent mute toggle events
+			window.addEventListener('notchdrop-toggle-mute', (event) => {
+				console.log('🎤 Received voice mute toggle event from boring.notch:', event.detail);
+				
+				// Try to find and click mute buttons
+				const muteButtons = document.querySelectorAll('.mute-button, [class*="mute"]');
+				if (muteButtons.length > 0) {
+					console.log('🎤 Found mute button, clicking...');
+					muteButtons[0].click();
+				}
+				
+				// Dispatch to voice integration hooks
+				const voiceMuteEvent = new CustomEvent('voice-agent-mute-toggle', {
+					detail: { 
+						source: 'boring-notch',
+						isMuted: event.detail.isMuted
+					}
+				});
+				window.dispatchEvent(voiceMuteEvent);
+			});
+			
+			console.log('✅ Voice agent event listeners added to main window');
+		`);
+	});
 
 	// Add window resize constraint validation
 	mainWindow.on('resize', () => {
@@ -5573,16 +5592,16 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Register NotchDrop IPC handlers
+	// Register Boring Notch IPC handlers (using NotchDrop API for compatibility)
 	ipcMain.handle('notchdrop-enable', async () => {
 		try {
 			if (!boringNotchService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
+				return { success: false, error: 'Boring Notch service not initialized' };
 			}
 			const result = boringNotchService.enable();
 			return { success: result };
 		} catch (error) {
-			log.error('Error enabling NotchDrop:', error);
+			log.error('Error enabling Boring Notch:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -5590,12 +5609,12 @@ app.whenReady().then(async () => {
 	ipcMain.handle('notchdrop-disable', async () => {
 		try {
 			if (!boringNotchService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
+				return { success: false, error: 'Boring Notch service not initialized' };
 			}
 			const result = boringNotchService.disable();
 			return { success: result };
 		} catch (error) {
-			log.error('Error disabling NotchDrop:', error);
+			log.error('Error disabling Boring Notch:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -5704,78 +5723,33 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Selection Assistant IPC handlers
+	// Selection Assistant IPC handlers - DISABLED (NotchDrop addon not in use)
 	ipcMain.handle('selection-assistant:get-history', async () => {
-		try {
-			if (!notchDropService || !notchDropService.isInitialized) {
-				return {
-					success: false,
-					history: [],
-					error: 'NotchDrop service not initialized',
-				};
-			}
-			const history = notchDropService.getSelectionHistory();
-			return { success: true, history };
-		} catch (error) {
-			log.error('Error getting selection history:', error);
-			return { success: false, history: [], error: error.message };
-		}
+		return {
+			success: false,
+			history: [],
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	ipcMain.handle('selection-assistant:clear-history', async () => {
-		try {
-			if (!notchDropService || !notchDropService.isInitialized) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-			const result = notchDropService.clearSelectionHistory();
-			return { success: result };
-		} catch (error) {
-			log.error('Error clearing selection history:', error);
-			return { success: false, error: error.message };
-		}
+		return { success: false, error: 'Selection Assistant not available. NotchDrop addon is not enabled.' };
 	});
 
 	ipcMain.handle('selection-assistant:show-history', async () => {
-		try {
-			if (!notchDropService || !notchDropService.isInitialized) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-			const result = notchDropService.showSelectionHistoryInterface();
-			return { success: result };
-		} catch (error) {
-			log.error('Error showing selection history interface:', error);
-			return { success: false, error: error.message };
-		}
+		return { success: false, error: 'Selection Assistant not available. NotchDrop addon is not enabled.' };
 	});
 
 	ipcMain.handle('selection-assistant:request-permission', async () => {
-		try {
-			if (!notchDropService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-			const result = notchDropService.requestSelectionPermissionPrompt();
-			return { success: result };
-		} catch (error) {
-			log.error('Error requesting selection assistant permission:', error);
-			return { success: false, error: error.message };
-		}
+		return { success: false, error: 'Selection Assistant not available. NotchDrop addon is not enabled.' };
 	});
 
 	ipcMain.handle('selection-assistant:is-permission-granted', async () => {
-		try {
-			if (!notchDropService) {
-				return {
-					success: false,
-					granted: false,
-					error: 'NotchDrop service not initialized',
-				};
-			}
-			const granted = notchDropService.isSelectionPermissionGranted();
-			return { success: true, granted };
-		} catch (error) {
-			log.error('Error getting selection assistant permission state:', error);
-			return { success: false, granted: false, error: error.message };
-		}
+		return {
+			success: false,
+			granted: false,
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	// Swift action handlers for overlay integration
@@ -5957,7 +5931,7 @@ app.whenReady().then(async () => {
 		try {
 			// log.info('Updating NotchDrop voice connection state:', status);
 			if (boringNotchService) {
-				await boringNotchService.updateVoiceConnectionState(status);
+				await boringNotchService.updateVoiceConnectionStatus(status);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -6017,6 +5991,205 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
+
+// Voice agent activation handler for Ask AI
+ipcMain.handle('notchdrop-activate-voice-agent', async (event, data) => {
+    try {
+        log.info('🎤 Activating voice agent from Ask AI');
+        if (boringNotchService) {
+            await boringNotchService.activateVoiceAgent();
+            return { success: true };
+        }
+        return { success: false, error: 'NotchDrop service not available' };
+    } catch (error) {
+        log.error('Error activating voice agent:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// Direct voice control handlers from boring.notch
+ipcMain.handle('boring-notch-voice-mute', async (event, isMuted) => {
+    try {
+        log.info('🎤 Direct voice mute command from boring.notch:', isMuted);
+        if (boringNotchService) {
+            await boringNotchService.handleDirectVoiceMute(isMuted);
+            return { success: true };
+        }
+        return { success: false, error: 'Boring Notch service not available' };
+    } catch (error) {
+        log.error('Error handling direct voice mute:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('boring-notch-voice-disconnect', async (event) => {
+    try {
+        log.info('🔌 Direct voice disconnect command from boring.notch');
+        if (boringNotchService) {
+            await boringNotchService.handleDirectVoiceDisconnect();
+            return { success: true };
+        }
+        return { success: false, error: 'Boring Notch service not available' };
+    } catch (error) {
+        log.error('Error handling direct voice disconnect:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// Voice agent disconnect handler
+ipcMain.handle('notchdrop-disconnect-voice-agent', async (event, data) => {
+    try {
+        log.info('🔌 Disconnecting voice agent from Ask AI');
+        if (boringNotchService) {
+            await boringNotchService.disconnectVoiceAgent();
+            return { success: true };
+        }
+        return { success: false, error: 'NotchDrop service not available' };
+    } catch (error) {
+        log.error('Error disconnecting voice agent:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// Voice agent mute toggle handler
+ipcMain.handle('notchdrop-toggle-voice-mute', async (event, isMuted) => {
+    try {
+        log.info('🎤 Toggling voice mute from Ask AI:', isMuted);
+        if (boringNotchService) {
+            await boringNotchService.toggleVoiceMute(isMuted);
+            return { success: true };
+        }
+        return { success: false, error: 'NotchDrop service not available' };
+    } catch (error) {
+        log.error('Error toggling voice mute:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+// Listen for system notifications from boring.notch app
+const { Notification } = require('electron');
+
+// Handle notifications from boring.notch app
+app.on('ready', () => {
+    // Listen for system notifications
+    Notification.on('click', (notification) => {
+        if (notification.title === 'BoringNotch Voice Control') {
+            const userInfo = notification.userInfo;
+            if (userInfo && userInfo.source === 'boring-notch') {
+                handleBoringNotchNotification(userInfo);
+            }
+        }
+    });
+});
+
+// Handle boring.notch notifications
+async function handleBoringNotchNotification(userInfo) {
+    try {
+        const action = userInfo.action;
+        log.info('📱 Received boring.notch notification:', action);
+
+        switch (action) {
+            case 'disconnect_voice_agent':
+                log.info('🔌 Disconnecting voice agent from boring.notch notification');
+                // Call the actual voice agent disconnect
+                await disconnectVoiceAgentFromMainWindow();
+                break;
+                
+            case 'toggle_voice_mute':
+                const isMuted = userInfo.isMuted;
+                log.info('🎤 Toggling voice mute from boring.notch notification:', isMuted);
+                // Call the actual voice agent mute toggle
+                await toggleVoiceMuteInMainWindow(isMuted);
+                break;
+                
+            default:
+                log.warn('⚠️ Unknown boring.notch notification action:', action);
+        }
+    } catch (error) {
+        log.error('❌ Error handling boring.notch notification:', error);
+    }
+}
+
+// Disconnect voice agent from main window
+async function disconnectVoiceAgentFromMainWindow() {
+    try {
+        const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+            const title = window.getTitle();
+            return !title.includes('Overlay') && !title.includes('Dynamic Island') && !title.includes('Ask AI');
+        });
+
+        if (mainWindow) {
+            await mainWindow.webContents.executeJavaScript(`
+                // Dispatch disconnect event to trigger voice agent disconnect
+                const disconnectEvent = new CustomEvent('notchdrop-disconnect-voice', {
+                    detail: {
+                        source: 'boring-notch',
+                        timestamp: Date.now(),
+                        action: 'disconnect_voice_agent'
+                    }
+                });
+                window.dispatchEvent(disconnectEvent);
+                
+                // Also try to find and click disconnect buttons
+                const disconnectButtons = document.querySelectorAll('.cancel-button, [class*="disconnect"], [class*="close"]');
+                if (disconnectButtons.length > 0) {
+                    disconnectButtons[0].click();
+                }
+                
+                // Hide voice agent UI
+                const voiceContainers = document.querySelectorAll('.voiceContainer');
+                voiceContainers.forEach(container => {
+                    container.style.display = 'none';
+                });
+                
+                '{ "success": true, "method": "boring-notch disconnect" }';
+            `);
+            log.info('🔌 Voice agent disconnect triggered from main window');
+        } else {
+            log.warn('⚠️ Main window not found for voice agent disconnect');
+        }
+    } catch (error) {
+        log.error('❌ Error disconnecting voice agent from main window:', error);
+    }
+}
+
+// Toggle voice mute in main window
+async function toggleVoiceMuteInMainWindow(isMuted) {
+    try {
+        const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+            const title = window.getTitle();
+            return !title.includes('Overlay') && !title.includes('Dynamic Island') && !title.includes('Ask AI');
+        });
+
+        if (mainWindow) {
+            await mainWindow.webContents.executeJavaScript(`
+                // Dispatch mute toggle event
+                const muteEvent = new CustomEvent('notchdrop-toggle-mute', {
+                    detail: {
+                        source: 'boring-notch',
+                        timestamp: Date.now(),
+                        isMuted: ${isMuted},
+                        action: 'toggle_voice_mute'
+                    }
+                });
+                window.dispatchEvent(muteEvent);
+                
+                // Also try to find and click mute buttons
+                const muteButtons = document.querySelectorAll('.mute-button, [class*="mute"]');
+                if (muteButtons.length > 0) {
+                    muteButtons[0].click();
+                }
+                
+                '{ "success": true, "method": "boring-notch mute toggle" }';
+            `);
+            log.info('🎤 Voice mute toggle triggered from main window:', isMuted);
+        } else {
+            log.warn('⚠️ Main window not found for voice mute toggle');
+        }
+    } catch (error) {
+        log.error('❌ Error toggling voice mute in main window:', error);
+    }
+}
 
 	// File system APIs for audio storage
 	const fs = require('fs').promises;
@@ -6727,6 +6900,30 @@ app.whenReady().then(async () => {
 			return { success: false, error: 'NotchDrop service not available' };
 		} catch (error) {
 			log.error('Error clearing live intelligence data in NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Debug handler for Boring Notch troubleshooting
+	ipcMain.handle('boring-notch-debug-info', async () => {
+		try {
+			if (boringNotchService) {
+				const debugInfo = boringNotchService.getDebugInfo();
+				log.info('🔍 Boring Notch debug info requested:', debugInfo);
+				return { success: true, debugInfo };
+			}
+			return { 
+				success: false, 
+				error: 'Boring Notch service not initialized',
+				debugInfo: {
+					isInitialized: false,
+					processPlatform: process.platform,
+					nodeEnv: process.env.NODE_ENV,
+					serviceExists: !!boringNotchService
+				}
+			};
+		} catch (error) {
+			log.error('Error getting Boring Notch debug info:', error);
 			return { success: false, error: error.message };
 		}
 	});

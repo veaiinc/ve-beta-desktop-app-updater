@@ -10,6 +10,137 @@ import Combine
 import Defaults
 import SwiftUI
 
+// MARK: - Voice Interface Components
+
+struct VoiceInterfaceView: View {
+    @ObservedObject var vm: BoringViewModel
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Voice controls at the top
+            VoiceTopControls(vm: vm)
+            
+            // Voice transcription area
+            VoiceTranscriptionArea(vm: vm)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+struct VoiceTopControls: View {
+    @ObservedObject var vm: BoringViewModel
+    
+    var body: some View {
+        HStack(spacing: 16) {
+                // Left side: Mute/Unmute toggle
+                Button(action: {
+                    print("🎤 Mute button clicked - current state: \(vm.isMicrophoneMuted)")
+                    vm.toggleVoiceMute()
+                    print("🎤 After toggle - new state: \(vm.isMicrophoneMuted)")
+                    
+                    // Send direct command to Electron via stdin (this will be processed by the spawned process)
+                    let directCommand = """
+                    {"type": "electron_voice_mute", "isMuted": \(vm.isMicrophoneMuted), "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                    """
+                    print(directCommand)
+                    fflush(stdout)
+                }) {
+                Image(systemName: vm.isMicrophoneMuted ? "mic.slash.fill" : "mic.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(vm.isMicrophoneMuted ? Color.red : Color.green)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+                // Cancel/Disconnect button
+                Button(action: {
+                    print("❌ Cancel button clicked - disconnecting voice agent")
+                    
+                    // Send direct command to Electron via stdin (this will be processed by the spawned process)
+                    let directCommand = """
+                    {"type": "electron_voice_disconnect", "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                    """
+                    print(directCommand)
+                    fflush(stdout)
+                    
+                    // Only deactivate UI after sending the disconnect command
+                    vm.deactivateVoiceInterface()
+                }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+}
+
+struct VoiceTranscriptionArea: View {
+    @ObservedObject var vm: BoringViewModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if vm.voiceMessages.isEmpty {
+                // Show connection status when no messages - centered text
+                Text(vm.voiceConnectionStatus == .connected ?
+                    (vm.isMicrophoneMuted ? "Microphone muted - tap to unmute" : "Start speaking - your conversation will appear here") :
+                    (vm.voiceConnectionStatus == .connecting ? "Connecting to voice assistant..." : "Voice assistant disconnected"))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
+            } else {
+                // Show only the most recent message - positioned towards top
+                if let lastMessage = vm.voiceMessages.last {
+                    Text(lastMessage.content)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 20)
+                        .id(lastMessage.id)
+                }
+            }
+
+            // Show current status only when there are no voice messages
+            if vm.voiceConnectionStatus == .connected && vm.voiceMessages.isEmpty {
+                Text(vm.isMicrophoneMuted ? "🔇 Muted" : "🎤 Listening...")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+            }
+            
+                // Add wave animation at the bottom when voice is active (Exact NotchDrop Implementation)
+                if vm.voiceConnectionStatus == .connected {
+                    VoiceWaveAnimation(
+                        isActive: !vm.isMicrophoneMuted,
+                        isMuted: vm.isMicrophoneMuted,
+                        aiIntensity: vm.aiResponseIntensity
+                    )
+                    .frame(width: 301, height: 16)
+                    .padding(.bottom, 8)
+                }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.clear)
+    }
+}
+
 // MARK: - Music Player Components
 
 struct MusicPlayerView: View {
@@ -262,23 +393,33 @@ struct NotchHomeView: View {
     }
 
     private var mainContent: some View {
-        HStack(alignment: .top, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
-            if Defaults[.showCalendar] {
-                CalendarView()
-                    .frame(width: shouldShowCamera ? 170 : 215)
-                    .onHover { isHovering in
-                        vm.isHoveringCalendar = isHovering
+        Group {
+            if vm.showVoiceInterface {
+                // Show voice interface when active
+                VoiceInterfaceView(vm: vm)
+                    .transition(.opacity.combined(with: .scale))
+            } else {
+                // Show normal content (music, calendar, camera)
+                HStack(alignment: .top, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
+                            if Defaults[.showCalendar] {
+                        CalendarView()
+                            .frame(width: shouldShowCamera ? 170 : 215)
+                            .onHover { isHovering in
+                                vm.isHoveringCalendar = isHovering
+                            }
+                            .environmentObject(vm)
                     }
-                    .environmentObject(vm)
-            }
 
             MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
 
-            if shouldShowCamera {
-                CameraPreviewView(webcamManager: webcamManager)
-                    .scaledToFit()
-                    .opacity(vm.notchState == .closed ? 0 : 1)
-                    .blur(radius: vm.notchState == .closed ? 20 : 0)
+                    if shouldShowCamera {
+                        CameraPreviewView(webcamManager: webcamManager)
+                            .scaledToFit()
+                            .opacity(vm.notchState == .closed ? 0 : 1)
+                            .blur(radius: vm.notchState == .closed ? 20 : 0)
+                    }
+                }
+                .transition(.opacity.combined(with: .scale))
             }
         }
         .transition(
@@ -410,5 +551,265 @@ struct CustomSlider: View {
             )
             .animation(.bouncy.speed(1.4), value: dragging)
         }
+    }
+}
+
+    // MARK: - Voice Wave Animation Components (Exact NotchDrop Implementation)
+
+    struct VoiceWaveAnimation: View {
+        @State private var bulge: CGFloat = 12
+        let isActive: Bool
+        let isMuted: Bool // Microphone muted state
+        let aiIntensity: CGFloat // AI activity intensity from ViewModel (0.0 → 1.0)
+
+        var body: some View {
+            ZStack(alignment: .bottom) {
+                // Glow (Figma spec: soft mint glow with reactive bulge)
+                VoiceUnderlineBulge(bulge: effectiveBulgeHeight)
+                    .stroke(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.55), // mint glow
+                                Color(red: 0.47, green: 0.93, blue: 0.79).opacity(0.45)
+                            ]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ),
+                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                    )
+                    .blur(radius: 18)
+                    .opacity((isActive || isMuted) ? 0.5 : 0)
+                    .animation(.easeInOut(duration: 0.2), value: isActive || isMuted)
+
+                // Crisp 1–2px line following the same curve (dark ends, light middle)
+                VoiceUnderlineBulge(bulge: effectiveBulgeHeight)
+                    .stroke(
+                        LinearGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: Color(red: 0.07, green: 0.53, blue: 0.39), location: 0.0), // dark left
+                                .init(color: Color(red: 0.47, green: 0.93, blue: 0.79), location: 0.5), // light center
+                                .init(color: Color(red: 0.07, green: 0.53, blue: 0.39), location: 1.0)  // dark right
+                            ]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ),
+                        style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                    )
+                    .opacity((isActive || isMuted) ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.25), value: isActive || isMuted)
+            }
+            .allowsHitTesting(false)
+            .onAppear {
+                // Initialize at base position - no jerks
+                bulge = 12
+                if isActive && !isMuted {
+                    // Smooth delayed start to avoid initial jerk
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        startBulgeAnimation()
+                    }
+                } else if isMuted {
+                    // When muted, show static 16pt hump
+                    bulge = 16
+                }
+            }
+            .onChange(of: isActive) { _, active in
+                if active && !isMuted {
+                    // Start from base with ultra-smooth entry
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.5)) {
+                        bulge = 12
+                    }
+                    // Then begin slow breathing
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        startBulgeAnimation()
+                    }
+                } else if !active && !isMuted {
+                    // Smooth exit
+                    withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 0.4)) { 
+                        bulge = 0 
+                    }
+                }
+            }
+            .onChange(of: isMuted) { _, muted in
+                if muted {
+                    // When muted: smoothly transition to static 16pt hump
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        bulge = 16
+                    }
+                } else if isActive {
+                    // When unmuted and active: return to breathing animation
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        bulge = 12
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        startBulgeAnimation()
+                    }
+                }
+            }
+            .onChange(of: aiIntensity) { _, newIntensity in
+                print("🌊 Wave animation intensity changed: \(newIntensity)")
+                // Only react to AI intensity when NOT muted
+                if isActive && !isMuted {
+                    // Real-time audio takes priority - immediate response to actual voice
+                    if newIntensity > 0.1 {
+                        // AI is actively speaking - use dramatic AI response animation
+                        print("🎤 AI speaking detected - triggering dramatic wave animation")
+                        animateBulgeForAIResponse(intensity: newIntensity)
+                    } else {
+                        // AI is in relaxed state (listening/idle) - ultra-smooth transition back to breathing
+                        withAnimation(.timingCurve(0.45, 0.05, 0.55, 0.95, duration: 1.0)) {
+                            self.bulge = 12 // Smooth return to base
+                        }
+                        // Then start continuous ultra-smooth breathing animation
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            self.startBulgeAnimation()
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Calculate bulge height based on AI intensity (dramatic scaling)
+        private var effectiveBulgeHeight: CGFloat {
+            // When muted: show static 20pt hump
+            if isMuted {
+                return 20
+            }
+            
+            // When not active and not muted: no bulge
+            guard isActive else { return 0 }
+            
+            // Base height: 12pt (idle state)
+            // AI intensity adds: 0-60pt (max 72pt total) - More dramatic range
+            // Smooth scaling: longer responses = higher bulges
+            let baseHeight: CGFloat = 12
+            let intensityBoost = aiIntensity * 60 // Increased for more dramatic effect
+            let finalHeight = baseHeight + intensityBoost
+            
+            // Debug logging
+            if aiIntensity > 0.1 {
+                print("🌊 Effective bulge height: \(finalHeight) (base: \(baseHeight) + intensity: \(intensityBoost))")
+            }
+            
+            return finalHeight
+        }
+        
+        private func startBulgeAnimation() {
+            // Ultra-smooth, slow, meditative breathing animation
+            // No jerks - completely smooth and slow like calm meditation
+            
+            // Start from base position
+            bulge = 12
+            
+            // Ultra-slow, buttery smooth breathing with custom easing
+            withAnimation(
+                .timingCurve(0.45, 0.05, 0.55, 0.95, duration: 2.5) // Ultra smooth custom curve
+                .repeatForever(autoreverses: true)
+            ) {
+                bulge = 17 // Very gentle breath up (reduced for smoother motion)
+            }
+        }
+        
+        private func animateBulgeForAIResponse(intensity: CGFloat) {
+            print("🎤 Starting AI response animation with intensity: \(intensity)")
+            // Dramatic AI speaking animation - strong up-down vibration like real talking
+            let baseHeight: CGFloat = 12
+            let maxHeight = baseHeight + (intensity * 50) // Increased for more dramatic effect
+            
+            // Cancel any existing animations
+            bulge = baseHeight
+            
+            // Create strong speech rhythm with more dramatic pulses
+            let speechDuration = max(3.0, Double(intensity) * 6.0) // Longer speaking duration
+            let pulseCount = Int(speechDuration * 4.0) // ~4 pulses per second for more activity
+            
+            print("🎤 AI speech duration: \(speechDuration)s, pulse count: \(pulseCount)")
+            
+            for i in 0..<pulseCount {
+                let delay = Double(i) * 0.25 // 250ms between pulses (faster rhythm)
+                let pulseIntensity = intensity * (0.7 + 0.3 * sin(Double(i) * 1.5)) // More dramatic variation
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    // Strong dramatic pulse up
+                    withAnimation(.easeOut(duration: 0.08)) {
+                        self.bulge = baseHeight + (pulseIntensity * 50) // Strong upward movement
+                        print("🌊 Wave pulse up: \(self.bulge)")
+                    }
+                    
+                    // Quick dramatic pulse down
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+                        withAnimation(.easeIn(duration: 0.12)) {
+                            self.bulge = baseHeight + (pulseIntensity * 8) // Strong downward movement
+                        }
+                    }
+                    
+                    // Secondary smaller bounce for more natural feel
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.20) {
+                        withAnimation(.easeOut(duration: 0.08)) {
+                            self.bulge = baseHeight + (pulseIntensity * 20) // Small bounce back
+                        }
+                    }
+                }
+            }
+            
+            // Final dramatic fade to idle after speech completes
+            DispatchQueue.main.asyncAfter(deadline: .now() + speechDuration + 0.5) {
+                withAnimation(.easeInOut(duration: 1.5)) {
+                    self.bulge = 15 // Return to gentle idle breathing
+                    print("🌊 AI response animation completed, returning to breathing")
+                }
+            }
+        }
+        
+        /// Real-time audio reactive animation - immediate response to actual AI voice
+        private func animateBulgeForRealTimeAudio(intensity: CGFloat) {
+            let baseHeight: CGFloat = 12
+            let targetHeight = baseHeight + (intensity * 50) // Higher multiplier for real-time audio
+            
+            // Immediate response to actual AI voice - no delays
+            withAnimation(.easeOut(duration: 0.06)) {
+                bulge = targetHeight
+            }
+            
+            // Quick recovery for natural feel - mimics real speech rhythm
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
+                withAnimation(.easeIn(duration: 0.10)) {
+                    self.bulge = baseHeight + (intensity * 6) // Quick partial recovery
+                }
+            }
+            
+            // Secondary bounce for natural speech feel
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
+                withAnimation(.easeOut(duration: 0.08)) {
+                    self.bulge = baseHeight + (intensity * 3) // Small final bounce
+                }
+            }
+            
+            // Final settle to base
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
+                withAnimation(.easeInOut(duration: 0.12)) {
+                    self.bulge = baseHeight
+                }
+            }
+        }
+    }
+
+struct VoiceUnderlineBulge: Shape {
+    var bulge: CGFloat
+
+    var animatableData: CGFloat {
+        get { bulge }
+        set { bulge = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        // Render exactly on the bottom edge
+        let baselineY = rect.maxY
+        path.move(to: CGPoint(x: 0, y: baselineY))
+        path.addQuadCurve(
+            to: CGPoint(x: rect.width, y: baselineY),
+            control: CGPoint(x: rect.width / 2, y: baselineY - max(bulge, 0))
+        )
+        return path
     }
 }

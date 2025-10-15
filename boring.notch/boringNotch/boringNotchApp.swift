@@ -64,6 +64,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var statusItem: NSStatusItem?
     var windows: [NSScreen: NSWindow] = [:]
     var viewModels: [NSScreen: BoringViewModel] = [:]
+    private var cancellables = Set<AnyCancellable>()
     var window: NSWindow?
     let vm: BoringViewModel = .init()
     @ObservedObject var coordinator = BoringViewCoordinator.shared
@@ -72,7 +73,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var closeNotchWorkItem: DispatchWorkItem?
     private var previousScreens: [NSScreen]?
     private var onboardingWindowController: NSWindowController?
-    private var cancellables = Set<AnyCancellable>()
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
@@ -83,6 +83,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         MusicManager.shared.destroy()
         // Cleanup WebSocket connection
         WebSocketManager.shared.cleanup()
+        // Cleanup Combine cancellables
+        cancellables.removeAll()
         cleanupWindows()
     }
 
@@ -282,6 +284,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Auto-connect websocket on app startup
         autoConnectWebSocketOnStartup()
+        
+        // Setup stdin message handling for Electron communication
+        setupStdinMessageHandling()
+        
+        // Setup WebSocket event handling for Electron communication
+        setupWebSocketEventHandling()
     }
     
     private func autoConnectWebSocketOnStartup() {
@@ -292,6 +300,264 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             print("🔌 AppDelegate: Auto-connecting to websocket...")
             WebSocketManager.shared.connect()
         }
+    }
+    
+    private func setupStdinMessageHandling() {
+        print("📡 AppDelegate: Setting up stdin message handling for Electron communication...")
+
+        // Create a background queue for stdin reading
+        let stdinQueue = DispatchQueue(label: "stdin.reader", qos: .background)
+
+        stdinQueue.async {
+            while let line = readLine() {
+                // Process the message on the main queue
+                DispatchQueue.main.async {
+                    self.handleStdinMessage(line)
+                }
+            }
+        }
+    }
+    
+    private func setupWebSocketEventHandling() {
+        print("🌐 AppDelegate: Setting up WebSocket event handling for Electron communication...")
+        
+        // Listen to WebSocket events
+        WebSocketManager.shared.eventSubject
+            .sink { [weak self] event in
+                self?.handleWebSocketEvent(event)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func handleWebSocketEvent(_ event: WebSocketEvent) {
+        print("🌐 AppDelegate: Received WebSocket event: \(event.type.rawValue)")
+        
+        switch event.type {
+        case .boringNotchMessage:
+            // Handle messages from Electron
+            // The data has already been parsed by WebSocketManager, so we can use it directly
+            print("🌐 AppDelegate: Processing WebSocket message from Electron: \(event.data)")
+            
+            // Handle the parsed message object
+            if let messageType = event.data["type"] as? String {
+                print("🌐 AppDelegate: Message type: \(messageType)")
+                                
+                                switch messageType {
+                                case "activate_voice_interface":
+                                    print("🌐 AppDelegate: Activating voice interface from WebSocket message")
+                                    DispatchQueue.main.async {
+                                        self.vm.activateVoiceInterface()
+                                    }
+                                case "update_voice_connection_status":
+                                    if let statusString = event.data["status"] as? String,
+                                       let status = VoiceConnectionStatus(rawValue: statusString) {
+                                        print("🌐 AppDelegate: Updating voice connection status: \(status)")
+                                        DispatchQueue.main.async {
+                                            self.vm.updateVoiceConnectionStatus(status)
+                                        }
+                                    }
+                                case "add_voice_message":
+                                    if let content = event.data["content"] as? String,
+                                       let isFromAgent = event.data["isFromAgent"] as? Bool {
+                                        print("🌐 AppDelegate: Adding voice message: \(content), fromAgent: \(isFromAgent)")
+                                        DispatchQueue.main.async {
+                                            let message = VoiceMessage(content: content, isFromAgent: isFromAgent)
+                                            self.vm.addVoiceMessage(message)
+                                        }
+                                    }
+                                default:
+                                    print("🌐 AppDelegate: Unknown message type: \(messageType)")
+                                }
+            } else {
+                print("🌐 AppDelegate: Could not extract message type from WebSocket event data: \(event.data)")
+            }
+        default:
+            break
+        }
+    }
+    
+    private func handleStdinMessage(_ message: String) {
+        print("📡 AppDelegate: Received stdin message: \(message)")
+        
+        // Try to parse as JSON
+        guard let data = message.data(using: .utf8),
+              let jsonObject = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let messageType = jsonObject["type"] as? String else {
+            print("⚠️ AppDelegate: Could not parse stdin message as JSON")
+            return
+        }
+        
+        switch messageType {
+        case "activate_voice_interface":
+            print("🎤 AppDelegate: Activating voice interface from Electron")
+            // Find the appropriate view model and activate voice interface
+            if Defaults[.showOnAllDisplays] {
+                // For all displays, activate on the main screen
+                if let mainScreen = NSScreen.main,
+                   let viewModel = viewModels[mainScreen] {
+                    viewModel.activateVoiceInterface()
+                }
+            } else {
+                // For single display, use the main view model
+                vm.activateVoiceInterface()
+            }
+            
+        case "deactivate_voice_interface":
+            print("🔌 AppDelegate: Deactivating voice interface from Electron")
+            // Find the appropriate view model and deactivate voice interface
+            if Defaults[.showOnAllDisplays] {
+                // For all displays, deactivate on the main screen
+                if let mainScreen = NSScreen.main,
+                   let viewModel = viewModels[mainScreen] {
+                    viewModel.deactivateVoiceInterface()
+                }
+            } else {
+                // For single display, use the main view model
+                vm.deactivateVoiceInterface()
+            }
+            
+        case "add_voice_message":
+            print("💬 AppDelegate: Adding voice message from Electron")
+            if let content = jsonObject["content"] as? String,
+               let isFromAgent = jsonObject["isFromAgent"] as? Bool {
+                let voiceMessage = VoiceMessage(content: content, isFromAgent: isFromAgent)
+                
+                // Find the appropriate view model and add message
+                if Defaults[.showOnAllDisplays] {
+                    if let mainScreen = NSScreen.main,
+                       let viewModel = viewModels[mainScreen] {
+                        viewModel.addVoiceMessage(voiceMessage)
+                    }
+                } else {
+                    vm.addVoiceMessage(voiceMessage)
+                }
+            }
+            
+            case "update_voice_connection_status":
+                print("🔗 AppDelegate: Updating voice connection status from Electron")
+                if let statusString = jsonObject["status"] as? String,
+                   let status = VoiceConnectionStatus(rawValue: statusString) {
+
+                    // Find the appropriate view model and update status
+                    if Defaults[.showOnAllDisplays] {
+                        if let mainScreen = NSScreen.main,
+                           let viewModel = viewModels[mainScreen] {
+                            viewModel.updateVoiceConnectionStatus(status)
+                        }
+                    } else {
+                        vm.updateVoiceConnectionStatus(status)
+                    }
+                }
+
+            case "disconnect_voice_agent":
+                print("🔌 AppDelegate: Disconnecting voice agent from boring.notch")
+                // Find the appropriate view model and deactivate voice interface
+                if Defaults[.showOnAllDisplays] {
+                    // For all displays, deactivate on the main screen
+                    if let mainScreen = NSScreen.main,
+                       let viewModel = viewModels[mainScreen] {
+                        viewModel.deactivateVoiceInterface()
+                    }
+                } else {
+                    // For single display, use the main view model
+                    vm.deactivateVoiceInterface()
+                }
+
+            case "toggle_voice_mute":
+                print("🎤 AppDelegate: Toggling voice mute from boring.notch")
+                if let isMuted = jsonObject["isMuted"] as? Bool {
+                    // Find the appropriate view model and update mute state
+                    if Defaults[.showOnAllDisplays] {
+                        if let mainScreen = NSScreen.main,
+                           let viewModel = viewModels[mainScreen] {
+                            viewModel.isMicrophoneMuted = isMuted
+                        }
+                    } else {
+                        vm.isMicrophoneMuted = isMuted
+                    }
+                }
+
+            case "electron_voice_mute":
+                print("🎤 AppDelegate: Received electron_voice_mute command from boring.notch")
+                if let isMuted = jsonObject["isMuted"] as? Bool {
+                    // Update local UI state
+                    if Defaults[.showOnAllDisplays] {
+                        if let mainScreen = NSScreen.main,
+                           let viewModel = viewModels[mainScreen] {
+                            viewModel.isMicrophoneMuted = isMuted
+                        }
+                    } else {
+                        vm.isMicrophoneMuted = isMuted
+                    }
+                    
+                    // Send the command to Electron via stdout
+                    let command = """
+                    {"type": "electron_voice_mute", "isMuted": \(isMuted), "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                    """
+                    print(command)
+                    fflush(stdout)
+                }
+
+            case "electron_voice_disconnect":
+                print("🔌 AppDelegate: Received electron_voice_disconnect command from boring.notch")
+                // Update local UI state
+                if Defaults[.showOnAllDisplays] {
+                    if let mainScreen = NSScreen.main,
+                       let viewModel = viewModels[mainScreen] {
+                        viewModel.deactivateVoiceInterface()
+                    }
+                } else {
+                    vm.deactivateVoiceInterface()
+                }
+                
+                // Send the command to Electron via stdout
+                let command = """
+                {"type": "electron_voice_disconnect", "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                """
+                print(command)
+                fflush(stdout)
+
+            case "direct_voice_mute":
+                print("🎤 AppDelegate: Direct voice mute command from boring.notch")
+                if let isMuted = jsonObject["isMuted"] as? Bool {
+                    // Update local UI state
+                    if Defaults[.showOnAllDisplays] {
+                        if let mainScreen = NSScreen.main,
+                           let viewModel = viewModels[mainScreen] {
+                            viewModel.isMicrophoneMuted = isMuted
+                        }
+                    } else {
+                        vm.isMicrophoneMuted = isMuted
+                    }
+                    
+                    // Send direct command to Electron to actually control the voice agent
+                    let electronCommand = """
+                    {"type": "electron_voice_mute", "isMuted": \(isMuted), "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                    """
+                    print(electronCommand)
+                }
+
+            case "direct_voice_disconnect":
+                print("🔌 AppDelegate: Direct voice disconnect command from boring.notch")
+                // Update local UI state
+                if Defaults[.showOnAllDisplays] {
+                    if let mainScreen = NSScreen.main,
+                       let viewModel = viewModels[mainScreen] {
+                        viewModel.deactivateVoiceInterface()
+                    }
+                } else {
+                    vm.deactivateVoiceInterface()
+                }
+                
+                // Send direct command to Electron to actually disconnect the voice agent
+                let electronCommand = """
+                {"type": "electron_voice_disconnect", "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                """
+                print(electronCommand)
+
+            default:
+                print("⚠️ AppDelegate: Unknown message type: \(messageType)")
+            }
     }
 
     func playWelcomeSound() {

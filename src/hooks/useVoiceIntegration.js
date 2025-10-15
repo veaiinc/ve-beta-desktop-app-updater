@@ -92,6 +92,7 @@ export const useVoiceIntegration = () => {
 		};
 	}, []);
 
+
 	const startMonitoring = useCallback(() => {
 		if (audioMonitorRef.current) {
 			clearInterval(audioMonitorRef.current);
@@ -519,6 +520,32 @@ export const useVoiceIntegration = () => {
 			console.error('Error toggling Krisp noise filter:', error);
 		}
 	}, [krispProcessorRef]);
+
+	// Listen for voice agent control events from boring.notch
+	useEffect(() => {
+		const handleVoiceAgentDisconnect = (event) => {
+			console.log('🔌 Voice agent disconnect event received from boring.notch:', event.detail);
+			disconnect();
+		};
+
+		const handleVoiceAgentMuteToggle = (event) => {
+			console.log('🎤 Voice agent mute toggle event received from boring.notch:', event.detail);
+			const { isMuted: shouldMute } = event.detail;
+			if (shouldMute !== isMuted) {
+				toggleMute();
+			}
+		};
+
+		// Add event listeners
+		window.addEventListener('voice-agent-disconnect', handleVoiceAgentDisconnect);
+		window.addEventListener('voice-agent-mute-toggle', handleVoiceAgentMuteToggle);
+
+		// Cleanup event listeners
+		return () => {
+			window.removeEventListener('voice-agent-disconnect', handleVoiceAgentDisconnect);
+			window.removeEventListener('voice-agent-mute-toggle', handleVoiceAgentMuteToggle);
+		};
+	}, [disconnect, toggleMute, isMuted]);
 
 	return {
 		isConnected,

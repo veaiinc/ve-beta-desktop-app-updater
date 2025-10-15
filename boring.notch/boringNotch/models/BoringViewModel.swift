@@ -10,6 +10,24 @@ import Defaults
 import SwiftUI
 import TheBoringWorkerNotifier
 
+// MARK: - Voice Interface Models
+enum VoiceConnectionStatus: String, CaseIterable {
+    case disconnected, connecting, connected, error
+}
+
+struct VoiceMessage: Identifiable, Codable {
+    let id = UUID()
+    let content: String
+    let isFromAgent: Bool
+    let timestamp: Date
+    
+    init(content: String, isFromAgent: Bool = false) {
+        self.content = content
+        self.isFromAgent = isFromAgent
+        self.timestamp = Date()
+    }
+}
+
 class BoringViewModel: NSObject, ObservableObject {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @ObservedObject var detector = FullscreenMediaDetector.shared
@@ -41,6 +59,15 @@ class BoringViewModel: NSObject, ObservableObject {
     let webcamManager = WebcamManager.shared
     @Published var isCameraExpanded: Bool = false
     @Published var isRequestingAuthorization: Bool = false
+    
+    // MARK: - Voice Interface State
+    @Published var showVoiceInterface: Bool = false
+    @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
+    @Published var isMicrophoneMuted: Bool = false
+    @Published var voiceMessages: [VoiceMessage] = []
+    @Published var isVoiceActive: Bool = false
+    @Published var aiResponseIntensity: CGFloat = 0.0 // Wave animation intensity (0.0 → 1.0)
+    @Published var effectiveAnimationIntensity: CGFloat = 0.0 // Combined AI + real-time audio intensity
     
     deinit {
         destroy()
@@ -230,6 +257,83 @@ class BoringViewModel: NSObject, ObservableObject {
             }
         }
     }
+    
+    // MARK: - Voice Interface Methods
+    func activateVoiceInterface() {
+        print("🎤 Activating voice interface in boring.notch")
+        DispatchQueue.main.async {
+            self.showVoiceInterface = true
+            self.voiceConnectionStatus = .connecting
+            self.isVoiceActive = true
+            self.voiceMessages.removeAll()
+        }
+    }
+    
+    func deactivateVoiceInterface() {
+        print("🔌 Deactivating voice interface in boring.notch")
+        DispatchQueue.main.async {
+            self.showVoiceInterface = false
+            self.voiceConnectionStatus = .disconnected
+            self.isVoiceActive = false
+            self.isMicrophoneMuted = false
+            self.voiceMessages.removeAll()
+        }
+    }
+    
+    func updateVoiceConnectionStatus(_ status: VoiceConnectionStatus) {
+        DispatchQueue.main.async {
+            self.voiceConnectionStatus = status
+        }
+    }
+    
+        func addVoiceMessage(_ message: VoiceMessage) {
+            DispatchQueue.main.async {
+                self.voiceMessages.append(message)
+                
+                // Pulse wave intensity when AI responds
+                if message.isFromAgent {
+                    print("🎤 AI Response detected - triggering wave animation for: \(message.content.prefix(50))...")
+                    self.pulseAIResponseIntensity(basedOnContent: message.content)
+                }
+            }
+        }
+    
+    func toggleVoiceMute() {
+        DispatchQueue.main.async {
+            self.isMicrophoneMuted.toggle()
+        }
+    }
+    
+        /// Pulse wave animation intensity based on AI response activity (Exact NotchDrop Implementation)
+        func pulseAIResponseIntensity(basedOnContent content: String) {
+            // Professional AI speaking intensity calculation
+            let wordCount = content.split(separator: " ").count
+            let charCount = content.count
+            
+            // Multi-factor intensity calculation for realistic speech patterns:
+            // 1. Word count factor (0.3-0.8 weight)
+            // 2. Character density factor (0.2-0.6 weight)  
+            // 3. Response complexity indicators (questions, exclamations)
+            let wordFactor = min(0.8, CGFloat(wordCount) / 60.0 + 0.2)
+            let charFactor = min(0.6, CGFloat(charCount) / 400.0 + 0.1)
+            let complexityBonus = content.contains("?") || content.contains("!") ? 0.1 : 0.0
+            
+            let targetIntensity = min(1.0, wordFactor + charFactor + complexityBonus)
+            
+            // Smooth professional animation timing
+            withAnimation(.easeOut(duration: 0.4)) {
+                self.aiResponseIntensity = targetIntensity
+            }
+            
+            // Intelligent fade-back timing based on response length
+            let fadeDelay = min(3.0, max(1.5, Double(wordCount) * 0.08)) // Longer responses = longer fade
+            DispatchQueue.main.asyncAfter(deadline: .now() + fadeDelay) {
+                withAnimation(.easeInOut(duration: 1.0)) {
+                    // Gradual decay to baseline, maintaining some activity
+                    self.aiResponseIntensity = max(0.15, self.aiResponseIntensity * 0.6)
+                }
+            }
+        }
 
     // MARK: - Stealth Mode
     func toggleStealthMode() {
