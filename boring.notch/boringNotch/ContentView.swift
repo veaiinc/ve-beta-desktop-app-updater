@@ -86,6 +86,7 @@ struct ContentView: View {
                             ? zeroHeightHoverPadding
                             : 0
                 )
+                .preferredColorScheme(.dark)
 
             mainLayout
                 .conditionalModifier(!useModernCloseAnimation) { view in

@@ -483,6 +483,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		handleFiles: (filePaths) => ipcRenderer.invoke('notchdrop-handle-files', filePaths),
 		setAutoOpen: (enabled) => ipcRenderer.invoke('notchdrop-set-auto-open', enabled),
 		getAutoOpen: () => ipcRenderer.invoke('notchdrop-get-auto-open'),
+		getDebugInfo: () => ipcRenderer.invoke('boring-notch-debug-info'),
 		setHapticFeedback: (enabled) =>
 			ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
 		getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
@@ -495,6 +496,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
 		addVoiceMessage: (messageData) =>
 			ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
+		activateVoiceAgent: (data) => ipcRenderer.invoke('notchdrop-activate-voice-agent', data),
+		disconnectVoiceAgent: (data) => ipcRenderer.invoke('notchdrop-disconnect-voice-agent', data),
+		toggleVoiceMute: (isMuted) => ipcRenderer.invoke('notchdrop-toggle-voice-mute', isMuted),
 		// GENERAL PURPOSE MESSAGE SYSTEM
 		sendMessage: (messageData) => ipcRenderer.invoke('notchdrop-send-message', messageData),
 		// New NotchDropLatest APIs

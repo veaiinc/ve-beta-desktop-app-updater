@@ -1671,12 +1671,57 @@ const ChatBox = ({
 	);
 
 	const handleVoiceAgentClick = useCallback(
-		(e) => {
+		async (e) => {
 			e?.stopPropagation();
-			// Show the global voice widget and trigger auto-connect
-			updateAiSetupState({ showVoiceWidget: true });
+			console.log('🎤 Voice agent button clicked in Ask AI');
+			
+			try {
+				// For desktop app (Ask AI), directly trigger voice agent connection
+				if (isDesktopApp) {
+					// Method 1: Try to trigger voice agent via Electron IPC
+					if (window?.electronApi?.notchdrop?.activateVoiceAgent) {
+						console.log('🎤 Triggering voice agent via Electron IPC...');
+						await window.electronApi.notchdrop.activateVoiceAgent();
+						return;
+					}
+					
+					// Method 2: Dispatch custom event to trigger voice agent
+					console.log('🎤 Dispatching voice agent activation event...');
+					const voiceEvent = new CustomEvent('notchdrop-voice-activate', {
+						detail: { 
+							source: 'askai-microphone', 
+							timestamp: Date.now(),
+							autoStart: true
+						}
+					});
+					window.dispatchEvent(voiceEvent);
+					
+					// Method 3: Try to find and activate existing voice agent
+					setTimeout(() => {
+						const voiceContainers = document.querySelectorAll('.voiceContainer');
+						if (voiceContainers.length > 0) {
+							console.log('🎤 Found existing voice agent, activating...');
+							voiceContainers[0].style.display = 'block';
+							voiceContainers[0].style.opacity = '1';
+							voiceContainers[0].style.visibility = 'visible';
+							
+							const micButtons = voiceContainers[0].querySelectorAll('.action-button, [class*="mic"]');
+							if (micButtons.length > 0) {
+								micButtons[0].click();
+							}
+						}
+					}, 100);
+				} else {
+					// For regular web app, show the global voice widget
+					updateAiSetupState({ showVoiceWidget: true });
+				}
+			} catch (error) {
+				console.error('❌ Error activating voice agent:', error);
+				// Fallback to showing voice widget
+				updateAiSetupState({ showVoiceWidget: true });
+			}
 		},
-		[updateAiSetupState],
+		[updateAiSetupState, isDesktopApp],
 	);
 
 	const handleStopCurrentChatStream = useCallback(() => {
@@ -1988,10 +2033,19 @@ const ChatBox = ({
 									}`}
 									onClick={(e) => {
 										e.stopPropagation();
-										handleSendBtnClick(e);
+										if (info?.chatQuery?.trim()?.length > 0) {
+											handleSendBtnClick(e);
+										} else {
+											if (info?.voiceIntegration) return;
+											handleVoiceAgentClick(e);
+										}
 									}}
 								>
-									<ArrowUp className="voice-wave-icon" width={16} height={16} />
+									{info?.chatQuery?.trim()?.length > 0 ? (
+										<ArrowUp className="voice-wave-icon" width={16} height={16} />
+									) : (
+										<VoiceAgentSvg className="voice-wave-icon" width={18} height={18} />
+									)}
 								</div>
 							) : (
 								<div

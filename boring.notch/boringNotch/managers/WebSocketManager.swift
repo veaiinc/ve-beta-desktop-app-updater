@@ -46,6 +46,9 @@ enum WebSocketEventType: String, CaseIterable {
     
     // Custom Events
     case custom = "CUSTOM"
+    
+    // Boring Notch Messages (from Electron)
+    case boringNotchMessage = "BORING_NOTCH_MESSAGE"
 }
 
 // MARK: - Event Data Models
@@ -75,7 +78,7 @@ class WebSocketManager: ObservableObject {
     
     // Event system
     private var eventListeners: [ObjectIdentifier: WebSocketEventListener] = [:]
-    private var eventSubject = PassthroughSubject<WebSocketEvent, Never>()
+    var eventSubject = PassthroughSubject<WebSocketEvent, Never>()
     
     private var webSocketTask: URLSessionWebSocketTask?
     private var urlSession: URLSession?
@@ -218,7 +221,17 @@ class WebSocketManager: ObservableObject {
             return
         }
         
-        let eventData = jsonObject["data"] as? [String: Any] ?? [:]
+        // For BORING_NOTCH_MESSAGE, the data field contains a JSON string that needs to be parsed
+        var eventData: [String: Any] = [:]
+        if eventType == .boringNotchMessage {
+            if let dataString = jsonObject["data"] as? String,
+               let dataData = dataString.data(using: .utf8),
+               let parsedData = try? JSONSerialization.jsonObject(with: dataData) as? [String: Any] {
+                eventData = parsedData
+            }
+        } else {
+            eventData = jsonObject["data"] as? [String: Any] ?? [:]
+        }
         
         let event = WebSocketEvent(
             id: UUID(),

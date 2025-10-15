@@ -550,7 +550,7 @@ struct Media: View {
                 selection: $hideNotchOption,
                 label:
                     HStack {
-                        Text("Hide BoringNotch Options")
+                        Text("Hide Ve.Ai Options")
                         customBadge(text: "Beta")
                     }
             ) {
@@ -733,7 +733,7 @@ struct About: View {
             }
             VStack(spacing: 0) {
                 Divider()
-                Text("Made with 🫶🏻 by not so boring not.people")
+                Text("Powered by Ve.Ai")
                     .foregroundStyle(.secondary)
                     .padding(.top, 5)
                     .padding(.bottom, 7)
@@ -1127,7 +1127,7 @@ struct Appearance: View {
             }
 
             Section {
-                Defaults.Toggle("Enable boring mirror", key: .showMirror)
+                Defaults.Toggle("Enable mirror", key: .showMirror)
                     .disabled(!checkVideoInput())
                 Picker("Mirror shape", selection: $mirrorShape) {
                     Text("Circle")
@@ -1135,7 +1135,7 @@ struct Appearance: View {
                     Text("Square")
                         .tag(MirrorShapeEnum.rectangle)
                 }
-                Defaults.Toggle("Show cool face animation while inactivity", key: .showNotHumanFace)
+                // Defaults.Toggle("Show cool face animation while inactivity", key: .showNotHumanFace)
             } header: {
                 HStack {
                     Text("Additional features")
