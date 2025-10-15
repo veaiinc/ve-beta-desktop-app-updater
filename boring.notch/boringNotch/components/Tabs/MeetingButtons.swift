@@ -18,7 +18,7 @@ struct MeetingButtons: View, WebSocketEventListener {
 //    private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        HStack(spacing: 10,) {
+        HStack(spacing: 4,) {
             // Pause/Resume
             Button {
                 togglePause()
@@ -26,13 +26,28 @@ struct MeetingButtons: View, WebSocketEventListener {
                 Label(coordinator.meetingIsPaused ? "Resume" : "Pause",
                       systemImage: coordinator.meetingIsPaused ? "play.fill" : "pause.fill")
                     .labelStyle(.iconOnly)
+                    .frame(width: 10,height: 10)
+                    .foregroundColor(.white)
             }
             .buttonStyle(.plain)
-            .foregroundStyle(.white)
-            .padding(6)
-            .background(.white.opacity(0.08))
-            .cornerRadius(6)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 2)
+            .frame(height: 24, alignment: .center)
+            .cornerRadius(24)
+            .overlay(
+            RoundedRectangle(cornerRadius: 24)
+            .inset(by: 0.25)
+            .stroke(.white.opacity(0.2), lineWidth: 0.5)
+
+            )
             .help(coordinator.meetingIsPaused ? "Resume" : "Pause")
+            .onHover { isHovered in
+                if isHovered {
+                    NSCursor.pointingHand.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
 
             // Stop
             Button {
@@ -40,16 +55,31 @@ struct MeetingButtons: View, WebSocketEventListener {
             } label: {
                 Label("Stop", systemImage: "stop.fill")
                     .labelStyle(.iconOnly)
+                    .frame(width: 10,height: 10)
+                    .foregroundColor(Color(red: 0.79, green: 0.28, blue: 0.29))
             }
             .buttonStyle(.plain)
-            .foregroundStyle(.white)
-            .padding(6)
-            .background(.white.opacity(0.08))
-            .cornerRadius(6)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 2)
+            .frame(height: 24, alignment: .center)
+            .cornerRadius(24)
+            .overlay(
+            RoundedRectangle(cornerRadius: 24)
+            .inset(by: 0.25)
+            .stroke(.white.opacity(0.2), lineWidth: 0.5)
+
+            )
             .help("Stop")
+            .onHover { isHovered in
+                if isHovered {
+                    NSCursor.pointingHand.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
             
             // Elapsed Time
-            Text(coordinator.formattedMeetingTime())
+  //          Text(coordinator.formattedMeetingTime())
 //                .font(.caption)
 //                .foregroundStyle(.white)
 //                .monospacedDigit()
@@ -59,19 +89,31 @@ struct MeetingButtons: View, WebSocketEventListener {
             Button {
                 coordinator.toggleActiveMeetingView()
             } label: {
-                Text(coordinator.activeMeetingView == .transcription ? "LIVE INTELLIGENCE" : "TRANSCRIPTION")
+                Text(coordinator.activeMeetingView == .transcription ? "SHOW LIVE INTELLIGENCE" : "SHOW TRANSCRIPTION")
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.white)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .frame(minWidth: 80)
+                    .fixedSize(horizontal: true, vertical: false)
             }
             .buttonStyle(.plain)
-            .background(coordinator.activeMeetingView == .liveIntelligence ? .white.opacity(0.2) : .white.opacity(0.08))
-            .cornerRadius(6)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 2)
+            .frame(height: 24)
+            .background(Color.clear)
+            .cornerRadius(24)
+            .overlay(
+                RoundedRectangle(cornerRadius: 24)
+                    .inset(by: 0.25)
+                    .stroke(.white.opacity(0.2), lineWidth: 0.5)
+            )
             .help(coordinator.activeMeetingView == .transcription ? "Switch to Live Intelligence" : "Switch to Transcription")
+            .onHover { isHovered in
+                if isHovered {
+                    NSCursor.pointingHand.push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
         }
         .onAppear {
             // Listen to websocket events

@@ -43,10 +43,26 @@ struct BoringHeader: View {
             HStack(spacing: 4) {
                 if vm.notchState == .open {
                     if coordinator.isMeetingStarted {
-                        Text(coordinator.formattedMeetingTime())
-                            .font(.caption)
-                            .foregroundStyle(.white)
-                            .monospacedDigit()
+                        HStack(spacing: 4) {
+                            Text(coordinator.formattedMeetingTime())
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.white)
+
+                            Image(systemName: "waveform")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 12, height: 12)
+                                .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .frame(height: 24)
+                        .cornerRadius(24)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24)
+                                .inset(by: 0.25)
+                                .stroke(.white, lineWidth: 0.5)
+                        )
                     }
                     // VE logo button (open app)
                     Button(action: {

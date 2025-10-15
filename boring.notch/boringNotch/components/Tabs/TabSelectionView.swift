@@ -36,7 +36,7 @@ private struct TabItem: View {
     let animation: Namespace.ID
     let onTap: () -> Void
     @State private var isHovering = false
-
+    
     var body: some View {
         TabButton(selected: selected, onClick: onTap) {
             if selected {
@@ -76,11 +76,11 @@ private struct TabItem: View {
 private struct TabContentView: View {
     let tab: TabModel
     let isSelected: Bool
-
+    
     private var iconColor: Color {
         isSelected ? .white : Color.white.opacity(0.7)
     }
-
+    
     var body: some View {
         switch tab.displayStyle {
         case .homeIcon:
@@ -105,25 +105,25 @@ private struct TabContentView: View {
 
 private struct HomeTabIcon: View {
     let strokeColor: Color
-
+    
     var body: some View {
         GeometryReader { geometry in
             let minSide = min(geometry.size.width, geometry.size.height)
             let scale = minSide / 14.0
             let offsetX = (geometry.size.width - minSide) / 2.0
             let offsetY = (geometry.size.height - minSide) / 2.0
-
+            
             let baseTransform = CGAffineTransform.identity
                 .scaledBy(x: scale, y: scale)
-
+            
             let translatedOutline = homeOutline
                 .applying(baseTransform)
                 .offsetBy(dx: offsetX, dy: offsetY)
-
+            
             let translatedDoor = homeDoor
                 .applying(baseTransform)
                 .offsetBy(dx: offsetX, dy: offsetY)
-
+            
             ZStack {
                 translatedOutline.stroke(
                     strokeColor,
@@ -145,7 +145,7 @@ private struct HomeTabIcon: View {
         }
         .frame(width: 14, height: 14)
     }
-
+    
     private var homeOutline: Path {
         var path = Path()
         path.move(to: CGPoint(x: 1.75, y: 5.83492))
@@ -207,7 +207,7 @@ private struct HomeTabIcon: View {
         path.closeSubpath()
         return path
     }
-
+    
     private var homeDoor: Path {
         var path = Path()
         path.move(to: CGPoint(x: 8.75, y: 12.2516))
@@ -241,22 +241,22 @@ private struct HomeTabIcon: View {
 // New custom Shelf icon, scaled to match 14x14 canvas like HomeTabIcon
 private struct ShelfTabIcon: View {
     let strokeColor: Color
-
+    
     var body: some View {
         GeometryReader { geometry in
             let minSide = min(geometry.size.width, geometry.size.height)
             let scale = minSide / 14.0
             let offsetX = (geometry.size.width - minSide) / 2.0
             let offsetY = (geometry.size.height - minSide) / 2.0
-
+            
             let lw = 1.16667 * scale
             let stroke = StrokeStyle(lineWidth: lw, lineCap: .round, lineJoin: .round)
-
+            
             // Helper to transform SVG-space points (14x14) into our local geometry
             let pt: (CGFloat, CGFloat) -> CGPoint = { x, y in
                 CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
             }
-
+            
             ZStack {
                 // Top path: 12.8346 7 -> 9.3346 7 -> 8.168 8.75 -> 5.8346 8.75 -> 4.668 7 -> 1.168 7
                 Path { p in
@@ -268,7 +268,7 @@ private struct ShelfTabIcon: View {
                     p.addLine(to: pt(1.16797, 7.0))
                 }
                 .stroke(strokeColor, style: stroke)
-
+                
                 // Bottom container (rounded rectangle) approximating V10.5 ... H11.668 ...
                 Path { p in
                     let rect = CGRect(
@@ -280,7 +280,7 @@ private struct ShelfTabIcon: View {
                     p.addRoundedRect(in: rect, cornerSize: CGSize(width: 1.2 * scale, height: 1.2 * scale))
                 }
                 .stroke(strokeColor, style: stroke)
-
+                
                 // Lid slants: approximate the top housing from left/right supports
                 Path { p in
                     p.move(to: pt(1.16797, 7.0))
@@ -306,9 +306,11 @@ struct TabSelectionView: View {
     @State var meetingLoading: Bool = false
     
     var body: some View {
-        HStack(spacing: 0) {
-            // Show Home tab + MeetingButtons when meeting is active and in meeting view
-            if  coordinator.currentView == .meeting {
+        
+        // Show Home tab + MeetingButtons when meeting is active and in meeting view
+        if  coordinator.currentView == .meeting {
+            
+            HStack(spacing:4){
                 // Show Home tab
                 TabItem(
                     tab: tabs[0], // Home tab
@@ -323,8 +325,11 @@ struct TabSelectionView: View {
                 
                 // Add MeetingButtons after the Home tab
                 MeetingButtons()
-            } else {
-                // Show all tabs normally
+            }
+            
+        } else {
+            // Show all tabs normally
+            HStack(spacing: 0) {
                 ForEach(tabs) { tab in
                     TabItem(
                         tab: tab,
@@ -351,8 +356,9 @@ struct TabSelectionView: View {
                     )
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        
     }
 }
 
