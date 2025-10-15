@@ -155,13 +155,6 @@ struct ContentView: View {
                         }
                     }
                 }
-                .onChange(of: vm.isBatteryPopoverActive) { _, newPopoverState in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        if !newPopoverState && !isHovering && vm.notchState == .open {
-                            vm.close()
-                        }
-                    }
-                }
                 .sensoryFeedback(.alignment, trigger: haptics)
                 .contextMenu {
                     Button("Settings") {
@@ -192,7 +185,7 @@ struct ContentView: View {
 
     @ViewBuilder
     func NotchLayout() -> some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: vm.notchState == .open ? 26 : 0) {
             VStack(alignment: .leading) {
                 if coordinator.firstLaunch {
                     Spacer()
@@ -593,4 +586,3 @@ struct FullScreenDropDelegate: DropDelegate {
         .environmentObject(vm)
         .frame(width: vm.notchSize.width, height: vm.notchSize.height)
 }
-
