@@ -530,7 +530,9 @@ const NewSidebar = () => {
 			>
 				<SidebarClosingSvg width={20} height={20} />
 			</button>
-			<div className={`${s.windowChromeButtonsContainer} ${shouldShowSidebar ? s.active : ''}`}>
+			<div
+				className={`${s.windowChromeButtonsContainer} ${shouldShowSidebar ? s.active : ''}`}
+			>
 				<WindowChromeButtons />
 			</div>
 			{/* Hover Trigger - Only show when sidebar is closed */}

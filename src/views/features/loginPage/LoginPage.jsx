@@ -207,11 +207,11 @@ const LoginPage = () => {
 						</div>
 					</div>
 				</div>
-				<div className="description-section login-child-container">
-					{/* <LoginDescription />
-					 */}
+				{/* <div className="description-section login-child-container">
+					<LoginDescription />
+					
 					<NewLoginDescription />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

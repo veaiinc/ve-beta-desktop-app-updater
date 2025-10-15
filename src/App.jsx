@@ -9,11 +9,7 @@ import DragHandle from './components/DragHandle';
 import { GlassModeProvider, useGlassMode } from './context/GlassModeContext.jsx';
 import { initializeGlassModeSync } from './helpers/glassModeSync';
 import { useNotchDropSync } from './hooks/useNotchDropSync';
-// 🚨 CRITICAL FIX: Import memory manager and monitor
-import memoryManager from './utils/memoryManager';
-import MemoryMonitor from './components/MemoryMonitor';
-// 🧪 Import performance test utility
-import './utils/performanceTest';
+import useLoginWindowResize from './hooks/useLoginWindowResize';
 
 // ✅ REVERTED: Back to regular imports (lazy loading broke production)
 import VoiceAgentParent from './views/features/voiceAgent/VoiceAgentParent';
@@ -54,6 +50,10 @@ const AppContent = () => {
 
 	// Global NotchDrop sync - keeps NotchDrop updated with meeting data across all routes
 	useNotchDropSync();
+	
+	// Manage window width: 481px for login, 1366px after login
+	useLoginWindowResize();
+	
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	const [updateProgress, setUpdateProgress] = useState(null);

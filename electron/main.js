@@ -2142,11 +2142,31 @@ function createWindow(restoreState = false) {
 	// log.info('🎨 Using icon:', iconPath);
 
 	// Use saved window bounds if available, otherwise use defaults
-	const defaultBounds = { width: 1366, height: 768, x: undefined, y: undefined };
-	const windowBounds =
-		restoreState && lastWindowState.windowBounds
-			? { ...defaultBounds, ...lastWindowState.windowBounds }
-			: defaultBounds;
+	// If restoring state (user was logged in), use saved bounds or full default width (1366)
+	// If fresh start (not logged in), use login width (481px)
+	const isRestoringLoggedInState = restoreState && lastWindowState.windowBounds;
+	
+	// Get screen dimensions for centering
+	const { screen } = require('electron');
+	const primaryDisplay = screen.getPrimaryDisplay();
+	const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+	
+	const loginBounds = { 
+		width: 481, 
+		height: 768, 
+		x: Math.round((screenWidth - 481) / 2), // Center horizontally
+		y: Math.round((screenHeight - 768) / 2) // Center vertically
+	};
+	const fullBounds = { 
+		width: 1366, 
+		height: 768, 
+		x: Math.round((screenWidth - 1366) / 2), // Center horizontally
+		y: Math.round((screenHeight - 768) / 2) // Center vertically
+	};
+	
+	const windowBounds = isRestoringLoggedInState
+		? { ...fullBounds, ...lastWindowState.windowBounds }
+		: loginBounds;
 
 	const mainWindowSettings = {
 		title: 'Ve AI - Priority',
@@ -2345,6 +2365,9 @@ function createWindow(restoreState = false) {
 			log.info('✅ User authenticated - hiding permission overlay if visible');
 			userAuthenticationStatus.isLoggedIn = true;
 			userAuthenticationStatus.shouldShowPermissionOverlay = false;
+			
+			// Note: Window resize is now handled by the React hook (useLoginWindowResize)
+			// This ensures smooth animation when transitioning from login to main app
 
 			// Check if user has completed onboarding (show overlay only once)
 			try {
@@ -4899,9 +4922,9 @@ app.whenReady().then(async () => {
 			const {
 				dimensions,
 				exitFullScreen,
-				animate = true,
-				duration = 250,
-				easing = 'easeInOutCubic',
+                animate = true,
+                duration = 300,
+                easing = 'easeInOutSmooth',
 			} = data;
 			const workArea = screen.getPrimaryDisplay().workAreaSize;
 			const screenWidth = workArea.width,
@@ -4917,6 +4940,16 @@ app.whenReady().then(async () => {
 			if (dimensions?.height) {
 				const height = Math.min(screenHeight, dimensions.height);
 				targetDimensions.height = height;
+			}
+			if (dimensions?.x !== undefined) {
+				// Ensure window stays within screen bounds
+				const x = Math.max(0, Math.min(screenWidth - (targetDimensions.width || mainWindow.getBounds().width), dimensions.x));
+				targetDimensions.x = x;
+			}
+			if (dimensions?.y !== undefined) {
+				// Ensure window stays within screen bounds
+				const y = Math.max(0, Math.min(screenHeight - (targetDimensions.height || mainWindow.getBounds().height), dimensions.y));
+				targetDimensions.y = y;
 			}
 
 			if (mainWindow && !mainWindow.isDestroyed()) {
