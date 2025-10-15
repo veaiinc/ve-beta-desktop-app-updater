@@ -193,7 +193,7 @@ struct ContentView: View {
                     }
                 }
                 .padding(.trailing, 8)
-                .padding(.bottom,0)
+                .padding(.bottom,-4)
                 .frame(maxWidth: openNotchSize.width, maxHeight: openNotchSize.height, alignment: .bottomTrailing)
             }
         }
