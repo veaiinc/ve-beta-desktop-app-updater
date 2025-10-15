@@ -9,6 +9,7 @@ import SwiftUI
 import AVFoundation
 import CoreGraphics
 import ApplicationServices
+import AppKit
 
 enum OnboardingStep {
     case welcome
@@ -44,7 +45,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image(systemName: "mic.fill"),
                     title: "Enable Microphone Access",
-                    description: "VE Notch uses your microphone for voice features and quick voice interactions. We only listen when you explicitly engage voice features.",
+                    description: "Ve.Ai uses your microphone for voice features and quick voice interactions. We only listen when you explicitly engage voice features.",
                     privacyNote: "Audio is never recorded or sent without your consent.",
                     onAllow: {
                         Task {
@@ -66,7 +67,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image(systemName: "display"),
                     title: "Enable Screen Recording",
-                    description: "Grant screen capture permission so VE Notch can support features that reference on-screen content (e.g. overlay guidance).",
+                    description: "Grant screen capture permission so Ve.Ai can support features that reference on-screen content (e.g. overlay guidance).",
                     privacyNote: "We never capture your screen without an explicit action.",
                     onAllow: {
                         Task {
@@ -88,14 +89,14 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image(systemName: "hand.raised.fill"),
                     title: "Enable Accessibility",
-                    description: "Accessibility permission lets VE Notch offer features like selection assistance and global shortcuts.",
+                    description: "Accessibility permission lets Ve.Ai offer features like selection assistance and global shortcuts.",
                     privacyNote: "No keystrokes are logged; this permission is only used to enable specific interactions.",
                     onAllow: {
-                        Task {
-                            let _ = requestAccessibilityPermission()
-                            withAnimation(.easeInOut(duration: 0.6)) {
-                                step = .cameraPermission
-                            }
+                        let hasPermission = requestAccessibilityPermission()
+                        // Note: accessibility permission opens System Settings directly
+                        // so we proceed to next step regardless of immediate result
+                        withAnimation(.easeInOut(duration: 0.6)) {
+                            step = .cameraPermission
                         }
                     },
                     onSkip: {
@@ -110,7 +111,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image(systemName: "camera.fill"),
                     title: "Enable Camera Access",
-                    description: "VE Notch includes a mirror feature that lets you quickly check your appearance using your camera, right from the notch. Camera access is required only to show this live preview. You can turn the mirror feature on or off at any time in the app.",
+                    description: "Ve.Ai includes a mirror feature that lets you quickly check your appearance using your camera, right from the notch. Camera access is required only to show this live preview. You can turn the mirror feature on or off at any time in the app.",
                     privacyNote: "Your camera is never used without your consent, and nothing is recorded or stored.",
                     onAllow: {
                         Task {
@@ -132,7 +133,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image(systemName: "calendar"),
                     title: "Enable Calendar Access",
-                    description: "VE Notch can show all your upcoming events in one place. Access to your calendar is needed to display your schedule.",
+                    description: "Ve.Ai can show all your upcoming events in one place. Access to your calendar is needed to display your schedule.",
                     privacyNote: "Your calendar data is only used to show your events and is never shared.",
                     onAllow: {
                         Task {
@@ -154,7 +155,7 @@ struct OnboardingView: View {
                     PermissionRequestView(
                         icon: Image(systemName: "checklist"),
                         title: "Enable Reminders Access",
-                        description: "VE Notch can show your scheduled reminders alongside your calendar events. Access to Reminders is needed to display your reminders.",
+                        description: "Ve.Ai can show your scheduled reminders alongside your calendar events. Access to Reminders is needed to display your reminders.",
                         privacyNote: "Your reminders data is only used to show your reminders and is never shared.",
                         onAllow: {
                             Task {
@@ -208,9 +209,30 @@ struct OnboardingView: View {
     }
 
     func requestAccessibilityPermission() -> Bool {
+        // Check if already granted
+        let currentStatus = AXIsProcessTrusted()
+        if currentStatus {
+            print("🔐 Accessibility permission already granted")
+            return true
+        }
+        
+        print("🔐 Requesting accessibility permission...")
+        
+        // Method 1: Try to trigger permission dialog
         let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true] as CFDictionary
-        // This call shows the System Settings prompt if not granted
         let trusted = AXIsProcessTrustedWithOptions(options)
+        
+        // Method 2: If no dialog appeared, try opening System Settings directly
+        if !trusted {
+            print("🔐 No dialog appeared, opening System Settings...")
+            DispatchQueue.main.async {
+                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+                    NSWorkspace.shared.open(url)
+                }
+            }
+        }
+        
+        print("🔐 Accessibility permission status: \(trusted ? "Granted" : "Not granted")")
         return trusted
     }
 
