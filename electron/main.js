@@ -1642,18 +1642,12 @@ function createMenuBar() {
 								label: 'Show Selection History',
 								click: async () => {
 									try {
-										if (notchDropService) {
-											const result =
-												notchDropService.showSelectionHistoryInterface();
-											if (!result) {
-												await dialog.showMessageBox({
-													type: 'info',
-													title: 'Selection History',
-													message:
-														'Selection history is only available when the Selection Assistant is running.',
-												});
-											}
-										}
+										await dialog.showMessageBox({
+											type: 'info',
+											title: 'Selection History',
+											message:
+												'Selection history is not available. This feature requires NotchDrop addon which is not currently enabled.',
+										});
 									} catch (error) {
 										log.error('❌ Failed to show selection history:', error);
 									}
@@ -1663,34 +1657,12 @@ function createMenuBar() {
 								label: 'Clear Selection History…',
 								click: async () => {
 									try {
-										if (!notchDropService) {
-											return;
-										}
-
-										const confirmation = await dialog.showMessageBox({
-											type: 'warning',
+										await dialog.showMessageBox({
+											type: 'info',
 											title: 'Clear Selection History',
 											message:
-												'This will permanently delete all captured selections.',
-											detail: 'Selections are stored locally and encrypted. Clearing history cannot be undone.',
-											buttons: ['Clear History', 'Cancel'],
-											defaultId: 1,
-											cancelId: 1,
+												'Selection history is not available. This feature requires NotchDrop addon which is not currently enabled.',
 										});
-
-										if (confirmation.response !== 0) {
-											return;
-										}
-
-										const result = notchDropService.clearSelectionHistory();
-										if (!result) {
-											await dialog.showMessageBox({
-												type: 'info',
-												title: 'Selection History',
-												message:
-													'No selection history was cleared. The Selection Assistant may not be running.',
-											});
-										}
 									} catch (error) {
 										log.error('❌ Failed to clear selection history:', error);
 									}
@@ -1703,18 +1675,12 @@ function createMenuBar() {
 								label: 'Open Accessibility Settings…',
 								click: async () => {
 									try {
-										if (notchDropService) {
-											const result =
-												notchDropService.requestSelectionPermissionPrompt();
-											if (!result) {
-												await dialog.showMessageBox({
-													type: 'info',
-													title: 'Accessibility Permissions',
-													message:
-														'Please open System Settings → Privacy & Security → Accessibility and enable Ve AI.',
-												});
-											}
-										}
+										await dialog.showMessageBox({
+											type: 'info',
+											title: 'Accessibility Permissions',
+											message:
+												'Selection Assistant is not available. This feature requires NotchDrop addon which is not currently enabled.',
+										});
 									} catch (error) {
 										log.error(
 											'❌ Failed to request selection assistant permission:',
@@ -5626,16 +5592,16 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Register NotchDrop IPC handlers
+	// Register Boring Notch IPC handlers (using NotchDrop API for compatibility)
 	ipcMain.handle('notchdrop-enable', async () => {
 		try {
 			if (!boringNotchService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
+				return { success: false, error: 'Boring Notch service not initialized' };
 			}
 			const result = boringNotchService.enable();
 			return { success: result };
 		} catch (error) {
-			log.error('Error enabling NotchDrop:', error);
+			log.error('Error enabling Boring Notch:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -5643,12 +5609,12 @@ app.whenReady().then(async () => {
 	ipcMain.handle('notchdrop-disable', async () => {
 		try {
 			if (!boringNotchService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
+				return { success: false, error: 'Boring Notch service not initialized' };
 			}
 			const result = boringNotchService.disable();
 			return { success: result };
 		} catch (error) {
-			log.error('Error disabling NotchDrop:', error);
+			log.error('Error disabling Boring Notch:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -5757,78 +5723,33 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Selection Assistant IPC handlers
+	// Selection Assistant IPC handlers - DISABLED (NotchDrop addon not in use)
 	ipcMain.handle('selection-assistant:get-history', async () => {
-		try {
-			if (!notchDropService || !notchDropService.isInitialized) {
-				return {
-					success: false,
-					history: [],
-					error: 'NotchDrop service not initialized',
-				};
-			}
-			const history = notchDropService.getSelectionHistory();
-			return { success: true, history };
-		} catch (error) {
-			log.error('Error getting selection history:', error);
-			return { success: false, history: [], error: error.message };
-		}
+		return {
+			success: false,
+			history: [],
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	ipcMain.handle('selection-assistant:clear-history', async () => {
-		try {
-			if (!notchDropService || !notchDropService.isInitialized) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-			const result = notchDropService.clearSelectionHistory();
-			return { success: result };
-		} catch (error) {
-			log.error('Error clearing selection history:', error);
-			return { success: false, error: error.message };
-		}
+		return { success: false, error: 'Selection Assistant not available. NotchDrop addon is not enabled.' };
 	});
 
 	ipcMain.handle('selection-assistant:show-history', async () => {
-		try {
-			if (!notchDropService || !notchDropService.isInitialized) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-			const result = notchDropService.showSelectionHistoryInterface();
-			return { success: result };
-		} catch (error) {
-			log.error('Error showing selection history interface:', error);
-			return { success: false, error: error.message };
-		}
+		return { success: false, error: 'Selection Assistant not available. NotchDrop addon is not enabled.' };
 	});
 
 	ipcMain.handle('selection-assistant:request-permission', async () => {
-		try {
-			if (!notchDropService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-			const result = notchDropService.requestSelectionPermissionPrompt();
-			return { success: result };
-		} catch (error) {
-			log.error('Error requesting selection assistant permission:', error);
-			return { success: false, error: error.message };
-		}
+		return { success: false, error: 'Selection Assistant not available. NotchDrop addon is not enabled.' };
 	});
 
 	ipcMain.handle('selection-assistant:is-permission-granted', async () => {
-		try {
-			if (!notchDropService) {
-				return {
-					success: false,
-					granted: false,
-					error: 'NotchDrop service not initialized',
-				};
-			}
-			const granted = notchDropService.isSelectionPermissionGranted();
-			return { success: true, granted };
-		} catch (error) {
-			log.error('Error getting selection assistant permission state:', error);
-			return { success: false, granted: false, error: error.message };
-		}
+		return {
+			success: false,
+			granted: false,
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	// Swift action handlers for overlay integration
@@ -6979,6 +6900,30 @@ async function toggleVoiceMuteInMainWindow(isMuted) {
 			return { success: false, error: 'NotchDrop service not available' };
 		} catch (error) {
 			log.error('Error clearing live intelligence data in NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Debug handler for Boring Notch troubleshooting
+	ipcMain.handle('boring-notch-debug-info', async () => {
+		try {
+			if (boringNotchService) {
+				const debugInfo = boringNotchService.getDebugInfo();
+				log.info('🔍 Boring Notch debug info requested:', debugInfo);
+				return { success: true, debugInfo };
+			}
+			return { 
+				success: false, 
+				error: 'Boring Notch service not initialized',
+				debugInfo: {
+					isInitialized: false,
+					processPlatform: process.platform,
+					nodeEnv: process.env.NODE_ENV,
+					serviceExists: !!boringNotchService
+				}
+			};
+		} catch (error) {
+			log.error('Error getting Boring Notch debug info:', error);
 			return { success: false, error: error.message };
 		}
 	});

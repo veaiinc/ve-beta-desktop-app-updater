@@ -28,10 +28,18 @@ class BoringNotchService {
 			log.info('🚀 Initializing Boring Notch service...');
 			
 			// Get the path to the boring.notch app
-			const boringNotchPath = this.getBoringNotchPath();
+			let boringNotchPath = this.getBoringNotchPath();
+			
+			// If not found in expected locations, try to find it in the system
+			if (!boringNotchPath) {
+				log.info('🔍 Boring Notch not found in expected locations, searching system...');
+				boringNotchPath = await this.findBoringNotchInSystem();
+			}
 			
 			if (!boringNotchPath) {
-				throw new Error('Boring Notch app not found');
+				log.error('❌ Boring Notch app not found in any location');
+				log.error('❌ Please ensure Boring Notch is built and available');
+				throw new Error('Boring Notch app not found. Please run "npm run build:boring-notch" to build it.');
 			}
 
 			// Launch the boring.notch app
@@ -48,25 +56,57 @@ class BoringNotchService {
 	}
 
 	getBoringNotchPath() {
-		// Try to find the boring.notch app in the project directory
-		const possiblePaths = [
-			// Development path - built app (correct path from Xcode build)
-			path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app'),
-			// Alternative development path
-			path.join(__dirname, '..', '..', 'boring.notch', 'boring.notch', 'build', 'boringNotch.app'),
-			// Production path - if the app is built and placed in a specific location
-			path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.app'),
-		];
+		const fs = require('fs');
+		
+		// Determine if we're in development or production
+		const isDevelopment = process.env.NODE_ENV === 'development' || 
+			(__dirname.includes('dist-electron') === false && __dirname.includes('node_modules') === false);
+		
+		log.info('🔍 Boring Notch path resolution - Development mode:', isDevelopment);
+		log.info('🔍 Current __dirname:', __dirname);
+		
+		// Try to find the boring.notch app
+		const possiblePaths = [];
+		
+		if (isDevelopment) {
+			// Development paths
+			possiblePaths.push(
+				// Primary development path
+				path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app'),
+				// Alternative development path (nested structure)
+				path.join(__dirname, '..', '..', 'boring.notch', 'boring.notch', 'build', 'boringNotch.app'),
+				// Fallback development path
+				path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.app')
+			);
+		} else {
+			// Production paths - when app is packaged
+			// In production, extraResources are copied to the app bundle
+			const appPath = process.resourcesPath || path.join(__dirname, '..', '..', '..');
+			possiblePaths.push(
+				// Primary production path (extraResources location)
+				path.join(appPath, 'boringNotch.app'),
+				// Alternative production paths
+				path.join(__dirname, '..', '..', '..', 'boringNotch.app'),
+				path.join(__dirname, '..', '..', 'boringNotch.app'),
+				// Fallback to development paths in case of edge cases
+				path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app')
+			);
+		}
 
-		for (const possiblePath of possiblePaths) {
-			if (require('fs').existsSync(possiblePath)) {
-				log.info('📁 Found Boring Notch at:', possiblePath);
+		log.info('🔍 Checking paths for Boring Notch:');
+		for (let i = 0; i < possiblePaths.length; i++) {
+			const possiblePath = possiblePaths[i];
+			const exists = fs.existsSync(possiblePath);
+			log.info(`  Path ${i + 1}: ${possiblePath}`);
+			log.info(`  Exists: ${exists}`);
+			
+			if (exists) {
+				log.info('✅ Found Boring Notch at:', possiblePath);
 				return possiblePath;
 			}
 		}
 
-		// If not found in project directory, return null for now
-		// The findBoringNotchInSystem method is async and would need to be handled differently
+		log.warn('⚠️ Boring Notch app not found in any expected location');
 		return null;
 	}
 
@@ -758,6 +798,44 @@ class BoringNotchService {
 	updateStealthModeState(isEnabled) {
 		log.info('🥷 Boring Notch stealth mode state updated:', isEnabled);
 		// Could implement stealth mode logic if needed
+	}
+
+	// Debug method to help troubleshoot Boring Notch issues
+	getDebugInfo() {
+		const fs = require('fs');
+		const debugInfo = {
+			isInitialized: this.isInitialized,
+			processPlatform: process.platform,
+			nodeEnv: process.env.NODE_ENV,
+			currentDir: __dirname,
+			resourcesPath: process.resourcesPath,
+			possiblePaths: [],
+			existingPaths: [],
+			missingPaths: []
+		};
+
+		// Check all possible paths
+		const allPossiblePaths = [
+			// Development paths
+			path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app'),
+			path.join(__dirname, '..', '..', 'boring.notch', 'boring.notch', 'build', 'boringNotch.app'),
+			path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.app'),
+			// Production paths
+			path.join(process.resourcesPath || path.join(__dirname, '..', '..', '..'), 'boringNotch.app'),
+			path.join(__dirname, '..', '..', '..', 'boringNotch.app'),
+			path.join(__dirname, '..', '..', 'boringNotch.app')
+		];
+
+		allPossiblePaths.forEach(possiblePath => {
+			debugInfo.possiblePaths.push(possiblePath);
+			if (fs.existsSync(possiblePath)) {
+				debugInfo.existingPaths.push(possiblePath);
+			} else {
+				debugInfo.missingPaths.push(possiblePath);
+			}
+		});
+
+		return debugInfo;
 	}
 }
 
