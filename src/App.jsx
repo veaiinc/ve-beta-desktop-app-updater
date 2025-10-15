@@ -17,6 +17,8 @@ import UploadProgressPopup from './views/components/globalComponents/UploadProgr
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
 import WindowChrome from './components/WindowChrome.jsx';
+import MemoryMonitor from './components/MemoryMonitor';
+import memoryManager from './utils/memoryManager';
 
 const parseIntervalMinutes = (value, fallback = 60) => {
 	const parsed = Number.parseInt(value, 10);

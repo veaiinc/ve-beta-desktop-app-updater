@@ -382,7 +382,7 @@ struct TabSelectionView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         
-        .padding(.top, 2)
+    
     }
 }
 
