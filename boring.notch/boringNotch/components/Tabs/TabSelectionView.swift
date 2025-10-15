@@ -5,6 +5,7 @@
 //  Created by Hugo Persson on 2024-08-25.
 //
 
+import Foundation
 import SwiftUI
 
 enum TabDisplayStyle {
@@ -305,33 +306,31 @@ struct TabSelectionView: View {
     @State var meetingLoading: Bool = false
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 0) {
-                ForEach(tabs) { tab in
-                    TabItem(
-                        tab: tab,
-                        selected: coordinator.currentView == tab.view,
-                        animation: animation,
-                        onTap: {
-                            withAnimation(.smooth) {
-                                coordinator.currentView = tab.view
-                                
-                                // Send START_MEETING message when Listen tab is clicked
-                                if tab.view == .meeting {
-                                    webSocketManager.sendEvent(type: .startMeeting)
-                                }
-                                
-                                if tab.view == .meeting || tab.view == .ask {
-                                    DispatchQueue.main.async {
-                                        if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
-                                            window.makeKeyAndOrderFront(nil)
-                                        }
+        HStack(spacing: 0) {
+            ForEach(tabs) { tab in
+                TabItem(
+                    tab: tab,
+                    selected: coordinator.currentView == tab.view,
+                    animation: animation,
+                    onTap: {
+                        withAnimation(.smooth) {
+                            coordinator.currentView = tab.view
+                            
+                            // Send START_MEETING message when Listen tab is clicked
+                            if tab.view == .meeting {
+                                webSocketManager.sendEvent(type: .startMeeting)
+                            }
+                            
+                            if tab.view == .meeting || tab.view == .ask {
+                                DispatchQueue.main.async {
+                                    if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
+                                        window.makeKeyAndOrderFront(nil)
                                     }
                                 }
                             }
                         }
-                    )
-                }
+                    }
+                )
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
