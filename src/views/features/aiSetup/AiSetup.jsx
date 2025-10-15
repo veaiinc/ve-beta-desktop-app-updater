@@ -82,6 +82,7 @@ const AiSetup = () => {
 	useEffect(() => {
 		if (!AIMemoryInfo) {
 			getAIMemoryInfo({ page: 1, limit: 10 });
+		} else {
 			updateState({ loading: false });
 		}
 	}, [AIMemoryInfo]);
