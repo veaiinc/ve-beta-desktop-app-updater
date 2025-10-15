@@ -254,7 +254,8 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 
 	return (
 		<div className="verification-code-container">
-			<div className="verification-code-header-container">
+			<div className="verification-code-main-content">
+				<div className="verification-code-header-container">
 				<div className="verification-code-title-container">
 					<h1 className="verification-code-title">
 						We sent you a <span className="verification-code-title-span">code</span>
@@ -301,6 +302,7 @@ const VerificationCode = ({ email, emailVerified, setEmailVerified, setActiveSta
 						</>
 					)}
 				</div>
+			</div>
 			</div>
 
 			<div className="acknowledge-container">

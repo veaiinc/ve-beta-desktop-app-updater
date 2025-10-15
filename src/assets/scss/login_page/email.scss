@@ -4,9 +4,17 @@
 	gap: 40px;
 	max-width: 400px;
 	width: 100%;
-	height: auto;
-	justify-content: center;
+	height: 100%;
+	justify-content: space-between; // Push terms to bottom
 	margin-top: 0;
+
+	.login-main-content {
+		display: flex;
+		flex-direction: column;
+		gap: 40px;
+		flex: 1; // Take available space
+		justify-content: center; // Center vertically
+	}
 
 	.login-page-content {
 		display: flex;
@@ -83,6 +91,7 @@
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
+				width: 410px;
 			}
 		}
 
@@ -194,8 +203,8 @@
 					align-items: center;
 					gap: 10px;
 					flex: 1 0 0;
-					border-radius: 10px;
-					background: var(--card, #18191b);
+					border-radius: 8px;
+					background: rgba(255, 255, 255, 0.10);
 					color: var(--primary-font, #f2f2f3);
 					font-family: var(--primary-font-family);
 					font-size: 14px;
@@ -304,6 +313,8 @@
 	}
 
 	.acknowledge-container {
+		margin-top: auto; // Push to bottom
+		padding-bottom: 1px; // Space from bottom edge
 		color: var(--primary-font, #f2f2f3);
 		.acknowledge-text {
 			color: var(--secondary-font, #94989e);
