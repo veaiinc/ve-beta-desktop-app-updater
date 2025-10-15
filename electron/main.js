@@ -4547,10 +4547,25 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('send-live-intelligence-data-to-notch', async (event, liveIntelligenceData) => {
 		try {
-			websocketService.broadcast({
-				type: 'LIVE_INTELLIGENCE_UPDATE',
-				data: liveIntelligenceData,
-			});
+			// Check if this is an array replacement or individual item
+			if (Array.isArray(liveIntelligenceData)) {
+				// Send array replacement
+				websocketService.broadcast({
+					type: 'LIVE_INTELLIGENCE_UPDATE',
+					data: { liveIntelligenceArray: liveIntelligenceData },
+				});
+				log.info(
+					`🧠 Sent ${liveIntelligenceData.length} live intelligence items to BoringNotch via WebSocket (array replacement)`,
+				);
+			} else {
+				// Send individual item (legacy support)
+				websocketService.broadcast({
+					type: 'LIVE_INTELLIGENCE_UPDATE',
+					data: liveIntelligenceData,
+				});
+				log.info('🧠 Sent individual live intelligence item to BoringNotch via WebSocket');
+			}
+			return { success: true };
 		} catch (error) {
 			log.error('Error sending live intelligence data to Notch:', error);
 			return { success: false, error: error.message };
@@ -7842,6 +7857,22 @@ ipcMain.handle('notchdrop-replace-transcriptions', async (event, messages) => {
 		return { success: false, error: 'NotchDrop service not available' };
 	} catch (error) {
 		log.error('Error replacing transcriptions in NotchDrop:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// Replace entire live intelligence data array in NotchDrop
+ipcMain.handle('notchdrop-replace-live-intelligence-data', async (event, liveIntelligenceArray) => {
+	try {
+		if (boringNotchService && boringNotchService.isInitialized) {
+			const ok = await boringNotchService.replaceLiveIntelligenceData(
+				liveIntelligenceArray || [],
+			);
+			return { success: ok };
+		}
+		return { success: false, error: 'NotchDrop service not available' };
+	} catch (error) {
+		log.error('Error replacing live intelligence data in NotchDrop:', error);
 		return { success: false, error: error.message };
 	}
 });

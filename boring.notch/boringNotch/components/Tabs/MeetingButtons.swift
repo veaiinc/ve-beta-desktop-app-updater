@@ -15,7 +15,7 @@ struct MeetingButtons: View, WebSocketEventListener {
     var onStop: (() -> Void)? = nil
 
     // Tick every second to refresh elapsed label
-    private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+//    private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         HStack(spacing: 10,) {
@@ -50,10 +50,10 @@ struct MeetingButtons: View, WebSocketEventListener {
             
             // Elapsed Time
             Text(coordinator.formattedMeetingTime())
-                .font(.caption)
-                .foregroundStyle(.white)
-                .monospacedDigit()
-                .frame(alignment: .leading)
+//                .font(.caption)
+//                .foregroundStyle(.white)
+//                .monospacedDigit()
+//                .frame(alignment: .leading)
             
             // Live Intelligence Toggle Button
             Button {

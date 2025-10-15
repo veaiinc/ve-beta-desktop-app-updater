@@ -454,9 +454,55 @@ struct MeetingView: View, WebSocketEventListener {
     private func handleLiveIntelligenceUpdate(_ event: WebSocketEvent) {
         print("🧠 Live intelligence update received: \(event.data)")
         
-        // Handle live intelligence data
-        if let liveIntelligenceDict = event.data as? [String: Any] {
-            print("🧠 Processing live intelligence data from Electron")
+        // Check if this is an array replacement or individual item
+        if let liveIntelligenceArray = event.data["liveIntelligenceArray"] as? [[String: Any]] {
+            // Handle array replacement
+            print("🧠 Processing live intelligence array replacement with \(liveIntelligenceArray.count) items")
+            
+            let newLiveIntelligenceData = liveIntelligenceArray.compactMap { itemDict -> LiveIntelligence? in
+                let id = itemDict["id"] as? String ?? "live_intelligence_\(Date().timeIntervalSince1970)"
+                let text = itemDict["text"] as? String ?? itemDict["content"] as? String ?? itemDict["prompt"] as? String ?? ""
+                let source = itemDict["source"] as? String ?? itemDict["sender"] as? String ?? "ai-agent"
+                let timestamp = itemDict["timestamp"] as? String ?? itemDict["created_at"] as? String ?? Date().iso8601String
+                let confidence = itemDict["confidence"] as? Double
+                let type = itemDict["type"] as? String ?? "live-intelligence"
+                
+                // Handle metadata
+                var metadata: [String: String]? = nil
+                if let metadataDict = itemDict["metadata"] as? [String: Any] {
+                    metadata = metadataDict.compactMapValues { value in
+                        if let stringValue = value as? String {
+                            return stringValue
+                        } else if let numberValue = value as? NSNumber {
+                            return numberValue.stringValue
+                        }
+                        return nil
+                    }
+                }
+                
+                return LiveIntelligence(
+                    id: id,
+                    text: text,
+                    source: source,
+                    timestamp: timestamp,
+                    confidence: confidence,
+                    type: type,
+                    metadata: metadata
+                )
+            }
+            
+            DispatchQueue.main.async {
+                // Replace the entire array
+                self.liveIntelligenceData = newLiveIntelligenceData
+                
+                // Persist live intelligence to storage
+                self.storedLiveIntelligence = self.liveIntelligenceData
+                
+                print("✅ Successfully replaced live intelligence array. Total count: \(self.liveIntelligenceData.count)")
+            }
+        } else if let liveIntelligenceDict = event.data as? [String: Any] {
+            // Handle individual item (legacy support)
+            print("🧠 Processing individual live intelligence data from Electron")
             
             // Create a unique ID if not provided
             let id = liveIntelligenceDict["id"] as? String ?? "live_intelligence_\(Date().timeIntervalSince1970)"
