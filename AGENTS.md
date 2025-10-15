@@ -95,6 +95,8 @@
         -   Xcode project: `boring.notch/boringNotch.xcodeproj`
         -   Build artifacts consumed by Electron: `boring.notch/build/boringNotch.app`
         -   Upstream docs: `boring.notch/README.md`
+        -   Settings + Sparkle updater UI: `boring.notch/boringNotch/components/Settings/SoftwareUpdater.swift`, `boring.notch/boringNotch/components/Settings/SettingsWindowController.swift`
+        -   Sparkle feed & signing config: `boring.notch/updater/appcast.xml`, `boring.notch/boringNotch/Info.plist`
 -   **React Windows & Feature Modules**
     -   `src/notch/components/DynamicIslandUI.jsx`
     -   `src/overlay/` (recording overlay React app)
@@ -226,6 +228,9 @@ Note: See the NotchDrop events list above for emitted events from the native lay
 -   Build the shell with `npm run build:boring-notch` (macOS + Xcode 16 required); `npm run build:boring-notch:clean` wipes `build/` + `DerivedData`. `npm run dev` runs the clean build before Vite so the `.app` lives at `boring.notch/build/boringNotch.app`.
 -   The WebSocket bridge (`electron/services/websocketService.js`) listens on `ws://localhost:8080`. Incoming `START_MEETING` messages trigger `handleNotchToMainWindowEvents({ action: 'startRecording' })`; Electron responds with `MEETING_STARTED`.
 -   Keep the handshake payloads in sync with `boring.notch/boringNotch/ContentView.swift` (`WebSocketManager`). Document new message types here when you extend the protocol.
+-   Sparkle auto-updates bootstrap through `SPUStandardUpdaterController` in `boring.notch/boringNotch/boringNotchApp.swift`; feed URL and ed25519 key live beside the macOS Info.plist (`SUFeedURL`, `SUPublicEDKey`).
+-   The update UI (`CheckForUpdatesView`, `UpdaterSettingsView`) is defined in `boring.notch/boringNotch/components/Settings/SoftwareUpdater.swift` and wired via `SettingsWindowController.shared.setUpdaterController`.
+-   When publishing a refreshed `boringNotch.app`, update `boring.notch/updater/appcast.xml` with the new version, DMG URL, length, and Sparkle signature so menu-driven updates stay in sync.
 
 ---
 
