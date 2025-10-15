@@ -21,7 +21,7 @@ struct BoringHeader: View {
         HStack(spacing: 0) {
             HStack {
                 if vm.notchState == .open {
-                    TabSelectionView() // Always show tabs when notch is open for debugging
+                    TabSelectionView()
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 24, maxHeight: 24, alignment: .leading)
@@ -42,7 +42,7 @@ struct BoringHeader: View {
 
             HStack(spacing: 4) {
                 if vm.notchState == .open {
-                    if coordinator.isMeetingStarted && coordinator.currentView != .meeting{
+                    if coordinator.isMeetingStarted && coordinator.currentView == .meeting {
                         Text(coordinator.formattedMeetingTime())
                             .font(.caption)
                             .foregroundStyle(.white)

@@ -31,6 +31,11 @@ public enum NotchViews {
     case ask
 }
 
+public enum ActiveMeetingView {
+    case transcription
+    case liveIntelligence
+}
+
 enum SettingsEnum {
     case general
     case about

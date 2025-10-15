@@ -4453,23 +4453,23 @@ app.whenReady().then(async () => {
 
 	async function handleWebSocketMessage(prop) {
 		const { data, ws } = prop;
-		if (data.type === 'START_MEETING') {
-			log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-			// Send response back to the client that sent the START_MEETING message
-			await handleNotchToMainWindowEvents({ action: 'startRecording' });
-			websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		} else if (data.type === 'NAVIGATE_TO_MAIN_SCREEN') {
-			log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
-			// Show and focus main window, optionally navigate to specific path
-			await handleNotchToMainWindowEvents({ path: data.path || null });
-			log.info('✅ Main window opened/restored from BoringNotch VE logo click');
-		}
-		// switch(data.type) {
-		// 	case 'START_MEETING':
-		// 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-		// 		// Send response back to the client that sent the START_MEETING message
-		// 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		// 		break;
+		// if (data.type === 'START_MEETING') {
+		// 	log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+		// 	// Send response back to the client that sent the START_MEETING message
+		// 	await handleNotchToMainWindowEvents({ action: 'startRecording' });
+		// 	websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		// } else if (data.type === 'NAVIGATE_TO_MAIN_SCREEN') {
+		// 	log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
+		// 	// Show and focus main window, optionally navigate to specific path
+		// 	await handleNotchToMainWindowEvents({ path: data.path || null });
+		// 	log.info('✅ Main window opened/restored from BoringNotch VE logo click');
+		// }
+		// // switch(data.type) {
+		// // 	case 'START_MEETING':
+		// // 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+		// // 		// Send response back to the client that sent the START_MEETING message
+		// // 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		// // 		break;
 
 		switch (data.type) {
 			case 'START_MEETING':
@@ -4509,9 +4509,16 @@ app.whenReady().then(async () => {
 				// Send response back to the client that sent the STOP_MEETING message
 				websocketService.sendToClient(ws, { type: 'MEETING_STOPPED', data: {} });
 				break;
+
+			case 'NAVIGATE_TO_MAIN_SCREEN':
+				log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
+				// Show and focus main window, optionally navigate to specific path
+				await handleNotchToMainWindowEvents({ path: data.path || null });
+				log.info('✅ Main window opened/restored from BoringNotch VE logo click');
+				break;
+
 			default:
 				log.info('🎯 Unknown message received, skipping...');
-				break;
 		}
 	}
 
@@ -5733,15 +5740,24 @@ app.whenReady().then(async () => {
 	});
 
 	ipcMain.handle('selection-assistant:clear-history', async () => {
-		return { success: false, error: 'Selection Assistant not available. NotchDrop addon is not enabled.' };
+		return {
+			success: false,
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	ipcMain.handle('selection-assistant:show-history', async () => {
-		return { success: false, error: 'Selection Assistant not available. NotchDrop addon is not enabled.' };
+		return {
+			success: false,
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	ipcMain.handle('selection-assistant:request-permission', async () => {
-		return { success: false, error: 'Selection Assistant not available. NotchDrop addon is not enabled.' };
+		return {
+			success: false,
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	ipcMain.handle('selection-assistant:is-permission-granted', async () => {
@@ -5992,134 +6008,138 @@ app.whenReady().then(async () => {
 		}
 	});
 
-// Voice agent activation handler for Ask AI
-ipcMain.handle('notchdrop-activate-voice-agent', async (event, data) => {
-    try {
-        log.info('🎤 Activating voice agent from Ask AI');
-        if (boringNotchService) {
-            await boringNotchService.activateVoiceAgent();
-            return { success: true };
-        }
-        return { success: false, error: 'NotchDrop service not available' };
-    } catch (error) {
-        log.error('Error activating voice agent:', error);
-        return { success: false, error: error.message };
-    }
-});
+	// Voice agent activation handler for Ask AI
+	ipcMain.handle('notchdrop-activate-voice-agent', async (event, data) => {
+		try {
+			log.info('🎤 Activating voice agent from Ask AI');
+			if (boringNotchService) {
+				await boringNotchService.activateVoiceAgent();
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error activating voice agent:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
-// Direct voice control handlers from boring.notch
-ipcMain.handle('boring-notch-voice-mute', async (event, isMuted) => {
-    try {
-        log.info('🎤 Direct voice mute command from boring.notch:', isMuted);
-        if (boringNotchService) {
-            await boringNotchService.handleDirectVoiceMute(isMuted);
-            return { success: true };
-        }
-        return { success: false, error: 'Boring Notch service not available' };
-    } catch (error) {
-        log.error('Error handling direct voice mute:', error);
-        return { success: false, error: error.message };
-    }
-});
+	// Direct voice control handlers from boring.notch
+	ipcMain.handle('boring-notch-voice-mute', async (event, isMuted) => {
+		try {
+			log.info('🎤 Direct voice mute command from boring.notch:', isMuted);
+			if (boringNotchService) {
+				await boringNotchService.handleDirectVoiceMute(isMuted);
+				return { success: true };
+			}
+			return { success: false, error: 'Boring Notch service not available' };
+		} catch (error) {
+			log.error('Error handling direct voice mute:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
-ipcMain.handle('boring-notch-voice-disconnect', async (event) => {
-    try {
-        log.info('🔌 Direct voice disconnect command from boring.notch');
-        if (boringNotchService) {
-            await boringNotchService.handleDirectVoiceDisconnect();
-            return { success: true };
-        }
-        return { success: false, error: 'Boring Notch service not available' };
-    } catch (error) {
-        log.error('Error handling direct voice disconnect:', error);
-        return { success: false, error: error.message };
-    }
-});
+	ipcMain.handle('boring-notch-voice-disconnect', async (event) => {
+		try {
+			log.info('🔌 Direct voice disconnect command from boring.notch');
+			if (boringNotchService) {
+				await boringNotchService.handleDirectVoiceDisconnect();
+				return { success: true };
+			}
+			return { success: false, error: 'Boring Notch service not available' };
+		} catch (error) {
+			log.error('Error handling direct voice disconnect:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
-// Voice agent disconnect handler
-ipcMain.handle('notchdrop-disconnect-voice-agent', async (event, data) => {
-    try {
-        log.info('🔌 Disconnecting voice agent from Ask AI');
-        if (boringNotchService) {
-            await boringNotchService.disconnectVoiceAgent();
-            return { success: true };
-        }
-        return { success: false, error: 'NotchDrop service not available' };
-    } catch (error) {
-        log.error('Error disconnecting voice agent:', error);
-        return { success: false, error: error.message };
-    }
-});
+	// Voice agent disconnect handler
+	ipcMain.handle('notchdrop-disconnect-voice-agent', async (event, data) => {
+		try {
+			log.info('🔌 Disconnecting voice agent from Ask AI');
+			if (boringNotchService) {
+				await boringNotchService.disconnectVoiceAgent();
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error disconnecting voice agent:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
-// Voice agent mute toggle handler
-ipcMain.handle('notchdrop-toggle-voice-mute', async (event, isMuted) => {
-    try {
-        log.info('🎤 Toggling voice mute from Ask AI:', isMuted);
-        if (boringNotchService) {
-            await boringNotchService.toggleVoiceMute(isMuted);
-            return { success: true };
-        }
-        return { success: false, error: 'NotchDrop service not available' };
-    } catch (error) {
-        log.error('Error toggling voice mute:', error);
-        return { success: false, error: error.message };
-    }
-});
+	// Voice agent mute toggle handler
+	ipcMain.handle('notchdrop-toggle-voice-mute', async (event, isMuted) => {
+		try {
+			log.info('🎤 Toggling voice mute from Ask AI:', isMuted);
+			if (boringNotchService) {
+				await boringNotchService.toggleVoiceMute(isMuted);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error toggling voice mute:', error);
+			return { success: false, error: error.message };
+		}
+	});
 
-// Listen for system notifications from boring.notch app
-const { Notification } = require('electron');
+	// Listen for system notifications from boring.notch app
+	const { Notification } = require('electron');
 
-// Handle notifications from boring.notch app
-app.on('ready', () => {
-    // Listen for system notifications
-    Notification.on('click', (notification) => {
-        if (notification.title === 'BoringNotch Voice Control') {
-            const userInfo = notification.userInfo;
-            if (userInfo && userInfo.source === 'boring-notch') {
-                handleBoringNotchNotification(userInfo);
-            }
-        }
-    });
-});
+	// Handle notifications from boring.notch app
+	app.on('ready', () => {
+		// Listen for system notifications
+		Notification.on('click', (notification) => {
+			if (notification.title === 'BoringNotch Voice Control') {
+				const userInfo = notification.userInfo;
+				if (userInfo && userInfo.source === 'boring-notch') {
+					handleBoringNotchNotification(userInfo);
+				}
+			}
+		});
+	});
 
-// Handle boring.notch notifications
-async function handleBoringNotchNotification(userInfo) {
-    try {
-        const action = userInfo.action;
-        log.info('📱 Received boring.notch notification:', action);
+	// Handle boring.notch notifications
+	async function handleBoringNotchNotification(userInfo) {
+		try {
+			const action = userInfo.action;
+			log.info('📱 Received boring.notch notification:', action);
 
-        switch (action) {
-            case 'disconnect_voice_agent':
-                log.info('🔌 Disconnecting voice agent from boring.notch notification');
-                // Call the actual voice agent disconnect
-                await disconnectVoiceAgentFromMainWindow();
-                break;
-                
-            case 'toggle_voice_mute':
-                const isMuted = userInfo.isMuted;
-                log.info('🎤 Toggling voice mute from boring.notch notification:', isMuted);
-                // Call the actual voice agent mute toggle
-                await toggleVoiceMuteInMainWindow(isMuted);
-                break;
-                
-            default:
-                log.warn('⚠️ Unknown boring.notch notification action:', action);
-        }
-    } catch (error) {
-        log.error('❌ Error handling boring.notch notification:', error);
-    }
-}
+			switch (action) {
+				case 'disconnect_voice_agent':
+					log.info('🔌 Disconnecting voice agent from boring.notch notification');
+					// Call the actual voice agent disconnect
+					await disconnectVoiceAgentFromMainWindow();
+					break;
 
-// Disconnect voice agent from main window
-async function disconnectVoiceAgentFromMainWindow() {
-    try {
-        const mainWindow = BrowserWindow.getAllWindows().find((window) => {
-            const title = window.getTitle();
-            return !title.includes('Overlay') && !title.includes('Dynamic Island') && !title.includes('Ask AI');
-        });
+				case 'toggle_voice_mute':
+					const isMuted = userInfo.isMuted;
+					log.info('🎤 Toggling voice mute from boring.notch notification:', isMuted);
+					// Call the actual voice agent mute toggle
+					await toggleVoiceMuteInMainWindow(isMuted);
+					break;
 
-        if (mainWindow) {
-            await mainWindow.webContents.executeJavaScript(`
+				default:
+					log.warn('⚠️ Unknown boring.notch notification action:', action);
+			}
+		} catch (error) {
+			log.error('❌ Error handling boring.notch notification:', error);
+		}
+	}
+
+	// Disconnect voice agent from main window
+	async function disconnectVoiceAgentFromMainWindow() {
+		try {
+			const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+				const title = window.getTitle();
+				return (
+					!title.includes('Overlay') &&
+					!title.includes('Dynamic Island') &&
+					!title.includes('Ask AI')
+				);
+			});
+
+			if (mainWindow) {
+				await mainWindow.webContents.executeJavaScript(`
                 // Dispatch disconnect event to trigger voice agent disconnect
                 const disconnectEvent = new CustomEvent('notchdrop-disconnect-voice', {
                     detail: {
@@ -6144,25 +6164,29 @@ async function disconnectVoiceAgentFromMainWindow() {
                 
                 '{ "success": true, "method": "boring-notch disconnect" }';
             `);
-            log.info('🔌 Voice agent disconnect triggered from main window');
-        } else {
-            log.warn('⚠️ Main window not found for voice agent disconnect');
-        }
-    } catch (error) {
-        log.error('❌ Error disconnecting voice agent from main window:', error);
-    }
-}
+				log.info('🔌 Voice agent disconnect triggered from main window');
+			} else {
+				log.warn('⚠️ Main window not found for voice agent disconnect');
+			}
+		} catch (error) {
+			log.error('❌ Error disconnecting voice agent from main window:', error);
+		}
+	}
 
-// Toggle voice mute in main window
-async function toggleVoiceMuteInMainWindow(isMuted) {
-    try {
-        const mainWindow = BrowserWindow.getAllWindows().find((window) => {
-            const title = window.getTitle();
-            return !title.includes('Overlay') && !title.includes('Dynamic Island') && !title.includes('Ask AI');
-        });
+	// Toggle voice mute in main window
+	async function toggleVoiceMuteInMainWindow(isMuted) {
+		try {
+			const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+				const title = window.getTitle();
+				return (
+					!title.includes('Overlay') &&
+					!title.includes('Dynamic Island') &&
+					!title.includes('Ask AI')
+				);
+			});
 
-        if (mainWindow) {
-            await mainWindow.webContents.executeJavaScript(`
+			if (mainWindow) {
+				await mainWindow.webContents.executeJavaScript(`
                 // Dispatch mute toggle event
                 const muteEvent = new CustomEvent('notchdrop-toggle-mute', {
                     detail: {
@@ -6182,14 +6206,14 @@ async function toggleVoiceMuteInMainWindow(isMuted) {
                 
                 '{ "success": true, "method": "boring-notch mute toggle" }';
             `);
-            log.info('🎤 Voice mute toggle triggered from main window:', isMuted);
-        } else {
-            log.warn('⚠️ Main window not found for voice mute toggle');
-        }
-    } catch (error) {
-        log.error('❌ Error toggling voice mute in main window:', error);
-    }
-}
+				log.info('🎤 Voice mute toggle triggered from main window:', isMuted);
+			} else {
+				log.warn('⚠️ Main window not found for voice mute toggle');
+			}
+		} catch (error) {
+			log.error('❌ Error toggling voice mute in main window:', error);
+		}
+	}
 
 	// File system APIs for audio storage
 	const fs = require('fs').promises;
@@ -6912,15 +6936,15 @@ async function toggleVoiceMuteInMainWindow(isMuted) {
 				log.info('🔍 Boring Notch debug info requested:', debugInfo);
 				return { success: true, debugInfo };
 			}
-			return { 
-				success: false, 
+			return {
+				success: false,
 				error: 'Boring Notch service not initialized',
 				debugInfo: {
 					isInitialized: false,
 					processPlatform: process.platform,
 					nodeEnv: process.env.NODE_ENV,
-					serviceExists: !!boringNotchService
-				}
+					serviceExists: !!boringNotchService,
+				},
 			};
 		} catch (error) {
 			log.error('Error getting Boring Notch debug info:', error);

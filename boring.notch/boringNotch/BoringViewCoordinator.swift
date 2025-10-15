@@ -109,6 +109,8 @@ class BoringViewCoordinator: ObservableObject {
         currentView = selectedTab
         // Restore meeting state
         restoreMeetingState()
+        // Restore active meeting view
+        restoreActiveMeetingView()
         
         // Setup notification observers
         setupNotificationObservers()
@@ -287,13 +289,19 @@ class BoringViewCoordinator: ObservableObject {
 
     // MARK: - Meeting Timer and persisted meeting state
 
-    @AppStorage("isMeetingStarted") var isMeetingStarted: Bool = false
+    @AppStorage("isMeetingStarted") var isMeetingStarted: Bool = false {
+        didSet {
+            objectWillChange.send()
+        }
+    }
     @AppStorage("meetingElapsed") var persistedMeetingElapsed: Double = 0
     @AppStorage("meetingIsPaused") var persistedMeetingIsPaused: Bool = true
     @AppStorage("meetingStartTimestamp") var persistedMeetingStartTimestamp: Double = 0
+    @AppStorage("activeMeetingView") var persistedActiveMeetingView: String = "transcription"
 
     @Published var meetingElapsed: TimeInterval = 0
     @Published var meetingIsPaused: Bool = true
+    @Published var activeMeetingView: ActiveMeetingView = .transcription
 
     private var meetingStartDate: Date?
     private var meetingTickerTask: Task<Void, Never>?
@@ -432,6 +440,36 @@ class BoringViewCoordinator: ObservableObject {
                 }
             }()
         }
+    }
+    
+    // MARK: - Active Meeting View Persistence
+    
+    var persistedActiveMeetingViewValue: ActiveMeetingView {
+        get {
+            switch persistedActiveMeetingView {
+            case "liveIntelligence": return .liveIntelligence
+            default: return .transcription
+            }
+        }
+        set {
+            persistedActiveMeetingView = {
+                switch newValue {
+                case .transcription: return "transcription"
+                case .liveIntelligence: return "liveIntelligence"
+                }
+            }()
+        }
+    }
+    
+    func restoreActiveMeetingView() {
+        activeMeetingView = persistedActiveMeetingViewValue
+        print("🔄 Active meeting view restored: \(activeMeetingView)")
+    }
+    
+    func toggleActiveMeetingView() {
+        activeMeetingView = activeMeetingView == .transcription ? .liveIntelligence : .transcription
+        persistedActiveMeetingViewValue = activeMeetingView
+        print("🔄 Active meeting view toggled to: \(activeMeetingView)")
     }
 }
 

@@ -53,7 +53,25 @@ struct MeetingButtons: View, WebSocketEventListener {
                 .font(.caption)
                 .foregroundStyle(.white)
                 .monospacedDigit()
-                .frame(minWidth: 70, alignment: .leading)
+                .frame(alignment: .leading)
+            
+            // Live Intelligence Toggle Button
+            Button {
+                coordinator.toggleActiveMeetingView()
+            } label: {
+                Text(coordinator.activeMeetingView == .transcription ? "LIVE INTELLIGENCE" : "TRANSCRIPTION")
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .frame(minWidth: 80)
+            }
+            .buttonStyle(.plain)
+            .background(coordinator.activeMeetingView == .liveIntelligence ? .white.opacity(0.2) : .white.opacity(0.08))
+            .cornerRadius(6)
+            .help(coordinator.activeMeetingView == .transcription ? "Switch to Live Intelligence" : "Switch to Transcription")
         }
         .onAppear {
             // Listen to websocket events

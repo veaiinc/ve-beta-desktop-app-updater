@@ -307,30 +307,49 @@ struct TabSelectionView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            ForEach(tabs) { tab in
+            // Show Home tab + MeetingButtons when meeting is active and in meeting view
+            if  coordinator.currentView == .meeting {
+                // Show Home tab
                 TabItem(
-                    tab: tab,
-                    selected: coordinator.currentView == tab.view,
+                    tab: tabs[0], // Home tab
+                    selected: false, // Never selected since we're in meeting view
                     animation: animation,
                     onTap: {
                         withAnimation(.smooth) {
-                            coordinator.currentView = tab.view
-                            
-                            // Send START_MEETING message when Listen tab is clicked
-                            if tab.view == .meeting {
-                                webSocketManager.sendEvent(type: .startMeeting)
-                            }
-                            
-                            if tab.view == .meeting || tab.view == .ask {
-                                DispatchQueue.main.async {
-                                    if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
-                                        window.makeKeyAndOrderFront(nil)
+                            coordinator.currentView = .home
+                        }
+                    }
+                )
+                
+                // Add MeetingButtons after the Home tab
+                MeetingButtons()
+            } else {
+                // Show all tabs normally
+                ForEach(tabs) { tab in
+                    TabItem(
+                        tab: tab,
+                        selected: coordinator.currentView == tab.view,
+                        animation: animation,
+                        onTap: {
+                            withAnimation(.smooth) {
+                                coordinator.currentView = tab.view
+                                
+                                // Send START_MEETING message when Listen tab is clicked
+                                if tab.view == .meeting {
+                                    webSocketManager.sendEvent(type: .startMeeting)
+                                }
+                                
+                                if tab.view == .meeting || tab.view == .ask {
+                                    DispatchQueue.main.async {
+                                        if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
+                                            window.makeKeyAndOrderFront(nil)
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
