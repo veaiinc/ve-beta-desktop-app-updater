@@ -1,108 +1,127 @@
 //
-//  TabSelectionView.swift
+//  NotchShape.swift
 //  boringNotch
 //
-//  Created by Hugo Persson on 2024-08-25.
-//
+// Created by Kai Azim on 2023-08-24.
+// Original source: https://github.com/MrKai77/DynamicNotchKit
+// Modified by Alexander on 2025-05-18.
 
 import SwiftUI
 
-enum TabDisplayStyle {
-    case homeIcon
-    case shelfIcon
-    case systemSymbol(name: String)
-    case textLabel(String)
-}
+struct ClosedNotchShape: Shape {
+    private var topCornerRadius: CGFloat
+    private var bottomCornerRadius: CGFloat
 
-struct TabModel: Identifiable {
-    let id = UUID()
-    let label: String
-    let displayStyle: TabDisplayStyle
-    let view: NotchViews
-}
+    init(
+        topCornerRadius: CGFloat? = nil,
+        bottomCornerRadius: CGFloat? = nil
+    ) {
+        self.topCornerRadius = topCornerRadius ?? 6
+        self.bottomCornerRadius = bottomCornerRadius ?? 14
+    }
 
-let tabs = [
-    TabModel(label: "Home", displayStyle: .homeIcon, view: .home),
-    TabModel(label: "Shelf", displayStyle: .shelfIcon, view: .shelf),
-    TabModel(label: "Listen", displayStyle: .textLabel("Listen"), view: .meeting),
-    TabModel(label: "Ask", displayStyle: .textLabel("Ask"), view: .ask)
-]
-
-
-private struct TabItem: View {
-    let tab: TabModel
-    let selected: Bool
-    let animation: Namespace.ID
-    let onTap: () -> Void
-    @State private var isHovering = false
-
-    var body: some View {
-        TabButton(selected: selected, onClick: onTap) {
-            if selected {
-                HStack(alignment: .center, spacing: 0) {
-                    TabContentView(tab: tab, isSelected: selected)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 2)
-                .frame(height: 24, alignment: .center)
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(24)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .inset(by: 0.25)
-                        .stroke(Color.white.opacity(0.4), lineWidth: 0.5)
-                )
-            } else {
-                HStack(alignment: .center, spacing: 0) {
-                    TabContentView(tab: tab, isSelected: selected)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 2)
-                .frame(height: 24, alignment: .center)
-                .background(isHovering ? Color(red: 1, green: 1, blue: 1).opacity(0.12) : Color.clear)
-                .cornerRadius(24)
-                .onHover { hovering in
-                    isHovering = hovering
-                }
-            }
+    var animatableData: AnimatablePair<CGFloat, CGFloat> {
+        get {
+            .init(
+                topCornerRadius,
+                bottomCornerRadius
+            )
         }
-        .frame(height: 26)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(tab.label))
-    }
-}
-
-private struct TabContentView: View {
-    let tab: TabModel
-    let isSelected: Bool
-
-    private var iconColor: Color {
-        isSelected ? .white : Color.white.opacity(0.7)
-    }
-
-    var body: some View {
-        switch tab.displayStyle {
-        case .homeIcon:
-            HomeTabIcon(strokeColor: iconColor)
-                .frame(width: 16, height: 16)
-        case .shelfIcon:
-            ShelfTabIcon(strokeColor: iconColor)
-                .frame(width: 16, height: 16)
-        case .systemSymbol(let name):
-            Image(systemName: name)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(iconColor)
-        case .textLabel(let text):
-            Text(text)
-                .font(.footnote)
-                .foregroundColor(iconColor)
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
+        set {
+            topCornerRadius = newValue.first
+            bottomCornerRadius = newValue.second
         }
     }
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+       path.move(
+            to: CGPoint(
+                x: rect.minX,
+                y: rect.minY
+            )
+        )
+
+        path.addQuadCurve(
+            to: CGPoint(
+                x: rect.minX + topCornerRadius,
+                y: rect.minY + topCornerRadius
+            ),
+            control: CGPoint(
+                x: rect.minX + topCornerRadius,
+                y: rect.minY
+            )
+        )
+
+        path.addLine(
+            to: CGPoint(
+                x: rect.minX + topCornerRadius,
+                y: rect.maxY - bottomCornerRadius
+            )
+        )
+
+        path.addQuadCurve(
+            to: CGPoint(
+                x: rect.minX + topCornerRadius + bottomCornerRadius,
+                y: rect.maxY
+            ),
+            control: CGPoint(
+                x: rect.minX + topCornerRadius,
+                y: rect.maxY
+            )
+        )
+
+        path.addLine(
+            to: CGPoint(
+                x: rect.maxX - topCornerRadius - bottomCornerRadius,
+                y: rect.maxY
+            )
+        )
+
+        path.addQuadCurve(
+            to: CGPoint(
+                x: rect.maxX - topCornerRadius,
+                y: rect.maxY - bottomCornerRadius
+            ),
+            control: CGPoint(
+                x: rect.maxX - topCornerRadius,
+                y: rect.maxY
+            )
+        )
+
+        path.addLine(
+            to: CGPoint(
+                x: rect.maxX - topCornerRadius,
+                y: rect.minY + topCornerRadius
+            )
+        )
+
+        path.addQuadCurve(
+            to: CGPoint(
+                x: rect.maxX,
+                y: rect.minY
+            ),
+            control: CGPoint(
+                x: rect.maxX - topCornerRadius,
+                y: rect.minY
+            )
+        )
+
+        path.addLine(
+            to: CGPoint(
+                x: rect.minX,
+                y: rect.minY
+            )
+        )
+
+        return path
+    }
 }
 
-private struct HomeTabIcon: View {
+struct ClosedNotchContentView: View {
+
+    private struct HomeTabIcon: View {
     let strokeColor: Color
 
     var body: some View {
@@ -237,8 +256,7 @@ private struct HomeTabIcon: View {
     }
 }
 
-// New custom Shelf icon, scaled to match 14x14 canvas like HomeTabIcon
-private struct ShelfTabIcon: View {
+    private struct ShelfTabIcon: View {
     let strokeColor: Color
 
     var body: some View {
@@ -297,47 +315,34 @@ private struct ShelfTabIcon: View {
     }
 }
 
-
-struct TabSelectionView: View {
-    @ObservedObject var coordinator = BoringViewCoordinator.shared
-    @StateObject private var webSocketManager = WebSocketManager.shared
-    @Namespace var animation
-    @State var meetingLoading: Bool = false
-    
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 0) {
-                ForEach(tabs) { tab in
-                    TabItem(
-                        tab: tab,
-                        selected: coordinator.currentView == tab.view,
-                        animation: animation,
-                        onTap: {
-                            withAnimation(.smooth) {
-                                coordinator.currentView = tab.view
-                                
-                                // Send START_MEETING message when Listen tab is clicked
-                                if tab.view == .meeting {
-                                    webSocketManager.sendEvent(type: .startMeeting)
-                                }
-                                
-                                if tab.view == .meeting || tab.view == .ask {
-                                    DispatchQueue.main.async {
-                                        if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
-                                            window.makeKeyAndOrderFront(nil)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    )
-                }
+        HStack(alignment: .top, spacing: 24) {
+            // Home icon with Listen text
+            HStack(spacing: 24) {
+                HomeTabIcon(strokeColor: .white)
+                    .frame(width: 12, height: 12)
+                ShelfTabIcon(strokeColor: .white)
+                    .frame(width: 12, height: 12)
+                Text("Listen")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white)
+                Text("Ask")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white)
             }
+        
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
     }
 }
 
 #Preview {
-    BoringHeader().environmentObject(BoringViewModel())
+    ZStack {
+        ClosedNotchShape(topCornerRadius: 6, bottomCornerRadius: 14)
+            .frame(width: 300, height: 32)
+        
+        ClosedNotchContentView()
+    }
+    .padding(10)
 }

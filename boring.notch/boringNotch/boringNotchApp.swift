@@ -73,6 +73,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var closeNotchWorkItem: DispatchWorkItem?
     private var previousScreens: [NSScreen]?
     private var onboardingWindowController: NSWindowController?
+    private var cancellables = Set<AnyCancellable>()
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
@@ -197,6 +198,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 let window = self.createBoringNotchWindow(
                     for: NSScreen.main ?? NSScreen.screens.first!, with: viewModel)
                 self.window = window
+                self.setupStealthModeObserver(for: viewModel, window: window)
                 self.adjustWindowPosition(changeAlpha: true)
             } else {
                 self.adjustWindowPosition()
@@ -260,6 +262,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let window = createBoringNotchWindow(
                 for: NSScreen.main ?? NSScreen.screens.first!, with: viewModel)
             self.window = window
+            setupStealthModeObserver(for: viewModel, window: window)
             adjustWindowPosition(changeAlpha: true)
         } else {
             adjustWindowPosition(changeAlpha: true)
@@ -613,6 +616,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
                     windows[screen] = window
                     viewModels[screen] = viewModel
+                    setupStealthModeObserver(for: viewModel, window: window)
                 }
 
                 if let window = windows[screen], let viewModel = viewModels[screen] {
@@ -710,6 +714,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
         onboardingWindowController?.window?.makeKeyAndOrderFront(nil)
         onboardingWindowController?.window?.orderFrontRegardless()
+    }
+    
+    // MARK: - Stealth Mode Observer
+    private func setupStealthModeObserver(for viewModel: BoringViewModel, window: NSWindow) {
+        viewModel.$isStealthModeEnabled
+            .sink { [weak window] isEnabled in
+                guard let window = window else { return }
+                
+                if isEnabled {
+                    // STEALTH MODE ON: Hide from screen recordings
+                    if #available(macOS 10.13, *) {
+                        window.sharingType = .none
+                    }
+                    window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.maximumWindow)))
+                } else {
+                    // STEALTH MODE OFF: Restore normal behavior
+                    if #available(macOS 10.13, *) {
+                        window.sharingType = .readOnly
+                    }
+                    window.level = .mainMenu + 3  // Original level from BoringNotchWindow
+                }
+            }
+            .store(in: &cancellables)
     }
 }
 

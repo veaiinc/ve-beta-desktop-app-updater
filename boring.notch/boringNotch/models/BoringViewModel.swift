@@ -49,6 +49,9 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var isBatteryPopoverActive: Bool = false
 
     @Published var screen: String?
+    
+    // Stealth mode state for header pirate/eye toggle
+    @Published var isStealthModeEnabled: Bool = false
 
     @Published var notchSize: CGSize = getClosedNotchSize()
     @Published var closedNotchSize: CGSize = getClosedNotchSize()
@@ -73,6 +76,9 @@ class BoringViewModel: NSObject, ObservableObject {
     func destroy() {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
+        
+        // Clean up notification observers
+        NotificationCenter.default.removeObserver(self)
     }
 
     init(screen: String? = nil) {
@@ -92,6 +98,34 @@ class BoringViewModel: NSObject, ObservableObject {
             .store(in: &cancellables)
         
         setupDetectorObserver()
+        setupNotificationObservers()
+    }
+    
+    private func setupNotificationObservers() {
+        // Listen for notch shrinking after meeting
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleShrinkNotchAfterMeeting),
+            name: NSNotification.Name("ShrinkNotchAfterMeeting"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleShrinkNotchAfterMeeting() {
+        print("📏 BoringViewModel: Shrinking notch after meeting ended")
+        
+        DispatchQueue.main.async {
+            withAnimation(.easeInOut(duration: 0.5)) {
+                // Ensure notch is in closed state
+                self.notchState = .closed
+                self.notchSize = getClosedNotchSize(screen: self.screen)
+                
+                // Hide notch if it should be hidden when closed
+                if self.hideOnClosed {
+                    self.hideOnClosed = true
+                }
+            }
+        }
     }
     
     private func setupDetectorObserver() {
@@ -212,13 +246,7 @@ class BoringViewModel: NSObject, ObservableObject {
             self.notchState = .closed
         }
 
-        // Set the current view to shelf if it contains files and the user enables openShelfByDefault
-        // Otherwise, if the user has not enabled openLastShelfByDefault, set the view to home
-        if !TrayDrop.shared.isEmpty && Defaults[.openShelfByDefault] {
-            coordinator.currentView = .shelf
-        } else if !coordinator.openLastTabByDefault {
-            coordinator.currentView = .home
-        }
+        // No default tab selection on close - respect current tab selection
     }
 
     func closeHello() {
@@ -306,4 +334,12 @@ class BoringViewModel: NSObject, ObservableObject {
                 }
             }
         }
+
+    // MARK: - Stealth Mode
+    func toggleStealthMode() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            isStealthModeEnabled.toggle()
+        }
+    }
 }
+

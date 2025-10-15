@@ -283,6 +283,20 @@ const GlobalMeetingHelper = () => {
 		}
 	};
 
+	useEffect(() => {
+		if (activeMeetingDetails?.transcriptions) {
+			window.electronApi.sendTranscriptionDataToNotch(activeMeetingDetails?.transcriptions);
+		}
+	}, [activeMeetingDetails?.transcriptions]);
+
+	useEffect(() => {
+		if (activeMeetingDetails?.liveIntelligenceData) {
+			window.electronApi.sendLiveIntelligenceDataToNotch(
+				activeMeetingDetails?.liveIntelligenceData?.allThreads,
+			);
+		}
+	}, [activeMeetingDetails?.liveIntelligenceData]);
+
 	const handleStopTranscription = async () => {
 		// Set stopping flag to prevent further processing
 		isStoppingRef.current = true;

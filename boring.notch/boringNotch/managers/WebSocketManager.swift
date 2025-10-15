@@ -17,6 +17,7 @@ enum WebSocketEventType: String, CaseIterable {
     case stopMeeting = "STOP_MEETING"
     case pauseMeeting = "PAUSE_MEETING"
     case resumeMeeting = "RESUME_MEETING"
+    case navigateToMainScreen = "NAVIGATE_TO_MAIN_SCREEN"
     
     // Meeting Status Events (responses from main.js)
     case meetingStarted = "MEETING_STARTED"

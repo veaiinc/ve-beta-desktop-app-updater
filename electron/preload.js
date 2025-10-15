@@ -576,6 +576,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 	onNotchdropToMainWindowEvent: (callback) =>
 		ipcRenderer.on('notchdrop-to-main-window-event', (_, data) => callback(data)),
 
+	sendTranscriptionDataToNotch:(data)=>ipcRenderer.invoke('send-transcription-data-to-notch', data),
+	sendLiveIntelligenceDataToNotch:(data)=>ipcRenderer.invoke('send-live-intelligence-data-to-notch', data),
+
 	removeNotchdropToMainWindowEventListener: () => {
 		ipcRenderer.removeAllListeners('notchdrop-to-main-window-event');
 	},
