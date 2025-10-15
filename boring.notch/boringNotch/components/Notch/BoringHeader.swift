@@ -23,7 +23,7 @@ struct BoringHeader: View {
         HStack(spacing: 0) {
             HStack {
                 if vm.notchState == .open {
-                    TabSelectionView() // Always show tabs when notch is open for debugging
+                    TabSelectionView()
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 24, maxHeight: 24, alignment: .leading)
@@ -32,23 +32,41 @@ struct BoringHeader: View {
             .animation(.smooth.delay(0.1), value: vm.notchState)
             .zIndex(2)
 
-            if vm.notchState == .open {
-                Rectangle()
-                    .fill(NSScreen.screens
-                        .first(where: { $0.localizedName == coordinator.selectedScreen })?.safeAreaInsets.top ?? 0 > 0 ? .black : .clear)
-                    .frame(width: vm.closedNotchSize.width)
-                    .mask {
-                        NotchShape()
-                    }
-            }
+//            if vm.notchState == .open {
+//                Rectangle()
+//                    .fill(NSScreen.screens
+//                        .first(where: { $0.localizedName == coordinator.selectedScreen })?.safeAreaInsets.top ?? 0 > 0 ? .black : .black)
+//                    .frame(width: vm.closedNotchSize.width)
+//                    .mask {
+//                        NotchShape()
+//                    }
+//            }
 
             HStack(spacing: 4) {
                 if vm.notchState == .open {
-                    if coordinator.isMeetingStarted && coordinator.currentView != .meeting{
-                        Text(coordinator.formattedMeetingTime())
-                            .font(.caption)
-                            .foregroundStyle(.white)
-                            .monospacedDigit()
+                    if coordinator.isMeetingStarted {
+                        HStack(spacing: 4) {
+                            Text(coordinator.formattedMeetingTime())
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+
+                            Image(systemName: "waveform")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 12, height: 12)
+                                .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .frame(height: 24)
+                        .cornerRadius(24)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24)
+                                .inset(by: 0.25)
+                                .stroke(.white, lineWidth: 0.5)
+                        )
                     }
                     // VE logo button (open app)
                     Button(action: {
