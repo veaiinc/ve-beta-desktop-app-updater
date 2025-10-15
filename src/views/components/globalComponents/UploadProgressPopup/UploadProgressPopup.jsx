@@ -809,7 +809,7 @@ const UploadProgressPopup = () => {
 			});
 
 			// Define batch size (e.g., 50 files or ~3GB - you might need to adjust based on avg file size)
-			const BATCH_SIZE = 100; // Start with a smaller number of files per batch
+			const BATCH_SIZE = 50; // Start with a smaller number of files per batch
 			// Alternatively, you could calculate batch size based on cumulative file size, but it's more complex.
 
 			// Split files into batches
