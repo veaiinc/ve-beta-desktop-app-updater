@@ -497,7 +497,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		addVoiceMessage: (messageData) =>
 			ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
 		activateVoiceAgent: (data) => ipcRenderer.invoke('notchdrop-activate-voice-agent', data),
-		disconnectVoiceAgent: (data) => ipcRenderer.invoke('notchdrop-disconnect-voice-agent', data),
+		disconnectVoiceAgent: (data) =>
+			ipcRenderer.invoke('notchdrop-disconnect-voice-agent', data),
 		toggleVoiceMute: (isMuted) => ipcRenderer.invoke('notchdrop-toggle-voice-mute', isMuted),
 		// GENERAL PURPOSE MESSAGE SYSTEM
 		sendMessage: (messageData) => ipcRenderer.invoke('notchdrop-send-message', messageData),
@@ -526,10 +527,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		getHistory: () => ipcRenderer.invoke('selection-assistant:get-history'),
 		clearHistory: () => ipcRenderer.invoke('selection-assistant:clear-history'),
 		showHistory: () => ipcRenderer.invoke('selection-assistant:show-history'),
-		requestPermission: () =>
-			ipcRenderer.invoke('selection-assistant:request-permission'),
-		isPermissionGranted: () =>
-			ipcRenderer.invoke('selection-assistant:is-permission-granted'),
+		requestPermission: () => ipcRenderer.invoke('selection-assistant:request-permission'),
+		isPermissionGranted: () => ipcRenderer.invoke('selection-assistant:is-permission-granted'),
 		onSelectionCaptured: (callback) => {
 			ipcRenderer.on('selection-assistant:captured', (event, data) => {
 				callback(data);
@@ -577,8 +576,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 	onNotchdropToMainWindowEvent: (callback) =>
 		ipcRenderer.on('notchdrop-to-main-window-event', (_, data) => callback(data)),
 
-	sendTranscriptionDataToNotch:(data)=>ipcRenderer.invoke('send-transcription-data-to-notch', data),
-	sendLiveIntelligenceDataToNotch:(data)=>ipcRenderer.invoke('send-live-intelligence-data-to-notch', data),
+	sendTranscriptionDataToNotch: (data) =>
+		ipcRenderer.invoke('send-transcription-data-to-notch', data),
+	sendLiveIntelligenceDataToNotch: (data) =>
+		ipcRenderer.invoke('send-live-intelligence-data-to-notch', data),
 
 	removeNotchdropToMainWindowEventListener: () => {
 		ipcRenderer.removeAllListeners('notchdrop-to-main-window-event');
@@ -626,4 +627,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	syncGlassModeState: (isEnabled) => {
 		ipcRenderer.invoke('sync-glass-mode-state', { enabled: isEnabled });
 	},
+
+	// WebSocket communication for Boring Notch
+	websocketSendMessage: (data) => ipcRenderer.invoke('websocket-send-message', data),
 });

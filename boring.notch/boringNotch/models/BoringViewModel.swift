@@ -60,6 +60,14 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var isCameraExpanded: Bool = false
     @Published var isRequestingAuthorization: Bool = false
     
+    // MARK: - Authentication State
+    @Published var isAuthenticated: Bool = false
+    
+    // MARK: - Login Animation State
+    @Published var showHelloAnimation: Bool = true
+    @Published var showLoginText: Bool = false
+    @Published var loginTextOffset: CGFloat = 100
+    
     // MARK: - Voice Interface State
     @Published var showVoiceInterface: Bool = false
     @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
@@ -109,6 +117,26 @@ class BoringViewModel: NSObject, ObservableObject {
             name: NSNotification.Name("ShrinkNotchAfterMeeting"),
             object: nil
         )
+        
+        // Listen for authentication status updates from WebSocket
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAuthenticationStatusUpdate),
+            name: NSNotification.Name("AuthenticationStatusUpdate"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleAuthenticationStatusUpdate(_ notification: Notification) {
+        if let userInfo = notification.userInfo,
+           let isAuthenticated = userInfo["isAuthenticated"] as? Bool {
+            print("🔐 BoringViewModel: Received authentication status update: \(isAuthenticated)")
+            print("🔐 BoringViewModel: Current authentication status before update: \(self.isAuthenticated)")
+            updateAuthenticationStatus(isAuthenticated)
+            print("🔐 BoringViewModel: Authentication status updated to: \(self.isAuthenticated)")
+        } else {
+            print("⚠️ BoringViewModel: Received invalid authentication status notification")
+        }
     }
     
     @objc private func handleShrinkNotchAfterMeeting() {
@@ -301,6 +329,86 @@ class BoringViewModel: NSObject, ObservableObject {
     func toggleVoiceMute() {
         DispatchQueue.main.async {
             self.isMicrophoneMuted.toggle()
+        }
+    }
+    
+    // MARK: - Authentication Methods
+    func updateAuthenticationStatus(_ isAuthenticated: Bool) {
+        DispatchQueue.main.async {
+            print("🔐 BoringViewModel: Updating authentication status from \(self.isAuthenticated) to \(isAuthenticated)")
+            self.isAuthenticated = isAuthenticated
+            print("🔐 BoringViewModel: Authentication status updated: \(isAuthenticated)")
+        }
+    }
+    
+    func navigateToMainScreen(path: String) {
+        // This method will be called when user taps login
+        // Don't automatically set authentication status to true
+        // Instead, request the actual authentication status from Electron
+        print("🔗 Navigate to main screen: \(path)")
+        print("🔐 Requesting actual authentication status after login attempt...")
+        
+        // Send a message to Electron to open the login page
+        WebSocketManager.shared.sendEvent(type: .navigateToMainScreen, data: ["path": path])
+        
+        // Request the real authentication status from Electron after a delay
+        // to give the main app time to process the navigation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.requestAuthenticationStatusFromElectron()
+        }
+        
+        // Also request again after a longer delay to catch any authentication changes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            self.requestAuthenticationStatusFromElectron()
+        }
+    }
+    
+    func startLoginAnimationSequence() {
+        // Reset animation state
+        showHelloAnimation = true
+        showLoginText = false
+        loginTextOffset = 100
+        
+        // Start the animation sequence - let hello animation complete fully
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            // Hide hello animation with smooth fade out
+            withAnimation(.easeInOut(duration: 1.0)) {
+                self.showHelloAnimation = false
+            }
+            
+            // Show text content with smooth bottom-to-center animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                withAnimation(.easeOut(duration: 1.5)) {
+                    self.showLoginText = true
+                    self.loginTextOffset = 0
+                }
+            }
+        }
+    }
+    
+    func requestAuthenticationStatusFromElectron() {
+        // Manually request authentication status from Electron
+        print("🔐 BoringViewModel: Manually requesting authentication status from Electron")
+        print("🔐 BoringViewModel: Current WebSocket connection status: \(WebSocketManager.shared.isConnected)")
+        
+        if WebSocketManager.shared.isConnected {
+            WebSocketManager.shared.sendEvent(type: .requestAuthenticationStatus, data: [:])
+            print("🔐 BoringViewModel: Authentication status request sent via WebSocket")
+        } else {
+            print("⚠️ BoringViewModel: WebSocket not connected, attempting to connect...")
+            WebSocketManager.shared.connect()
+            
+            // Retry after connection is established
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                if WebSocketManager.shared.isConnected {
+                    WebSocketManager.shared.sendEvent(type: .requestAuthenticationStatus, data: [:])
+                    print("🔐 BoringViewModel: Authentication status request sent after reconnection")
+                } else {
+                    print("❌ BoringViewModel: WebSocket connection failed, using fallback authentication check")
+                    // Fallback: assume not authenticated if we can't connect
+                    self.updateAuthenticationStatus(false)
+                }
+            }
         }
     }
     
