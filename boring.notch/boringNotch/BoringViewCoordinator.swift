@@ -307,7 +307,13 @@ class BoringViewCoordinator: ObservableObject {
     private var meetingTickerTask: Task<Void, Never>?
 
     private func ensureMeetingTicker() {
-        if meetingTickerTask != nil { return }
+        // Cancel existing task if it exists
+        meetingTickerTask?.cancel()
+        meetingTickerTask = nil
+        
+        // Only start new task if meeting is started
+        guard isMeetingStarted else { return }
+        
         meetingTickerTask = Task { [weak self] in
             guard let self else { return }
             while !Task.isCancelled {
@@ -317,6 +323,7 @@ class BoringViewCoordinator: ObservableObject {
                         self.meetingStartDate = Date()
                         // Persist the updated elapsed time
                         self.persistedMeetingElapsed = self.meetingElapsed
+                        print("⏱️ Timer updated: \(self.formattedMeetingTime())")
                     }
                 }
                 try? await Task.sleep(for: .seconds(1))
@@ -334,6 +341,7 @@ class BoringViewCoordinator: ObservableObject {
             persistedMeetingStartTimestamp = Date().timeIntervalSince1970
             meetingIsPaused = false
             persistedMeetingIsPaused = false
+            print("🚀 Meeting started - Timer initialized")
         } else {
             // Already started: treat as resume without reset
             if meetingIsPaused {
@@ -341,6 +349,7 @@ class BoringViewCoordinator: ObservableObject {
                 persistedMeetingStartTimestamp = Date().timeIntervalSince1970
                 meetingIsPaused = false
                 persistedMeetingIsPaused = false
+                print("▶️ Meeting resumed - Timer restarted")
             }
         }
         ensureMeetingTicker()
@@ -355,6 +364,7 @@ class BoringViewCoordinator: ObservableObject {
         persistedMeetingStartTimestamp = 0
         meetingIsPaused = true
         persistedMeetingIsPaused = true
+        print("⏸️ Meeting paused - Timer stopped")
         ensureMeetingTicker()
     }
 
@@ -364,11 +374,16 @@ class BoringViewCoordinator: ObservableObject {
             persistedMeetingStartTimestamp = Date().timeIntervalSince1970
             meetingIsPaused = false
             persistedMeetingIsPaused = false
+            print("▶️ Meeting resumed - Timer restarted")
         }
         ensureMeetingTicker()
     }
 
     func meetingStopAndReset() {
+        // Cancel the timer task first
+        meetingTickerTask?.cancel()
+        meetingTickerTask = nil
+        
         isMeetingStarted = false
         meetingElapsed = 0
         persistedMeetingElapsed = 0
@@ -376,7 +391,6 @@ class BoringViewCoordinator: ObservableObject {
         persistedMeetingStartTimestamp = 0
         meetingIsPaused = true
         persistedMeetingIsPaused = true
-        ensureMeetingTicker()
         
         print("🛑 Meeting stopped and reset - All timers cleared")
     }

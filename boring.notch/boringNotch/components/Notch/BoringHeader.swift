@@ -30,23 +30,25 @@ struct BoringHeader: View {
             .animation(.smooth.delay(0.1), value: vm.notchState)
             .zIndex(2)
 
-            if vm.notchState == .open {
-                Rectangle()
-                    .fill(NSScreen.screens
-                        .first(where: { $0.localizedName == coordinator.selectedScreen })?.safeAreaInsets.top ?? 0 > 0 ? .black : .clear)
-                    .frame(width: vm.closedNotchSize.width)
-                    .mask {
-                        NotchShape()
-                    }
-            }
+//            if vm.notchState == .open {
+//                Rectangle()
+//                    .fill(NSScreen.screens
+//                        .first(where: { $0.localizedName == coordinator.selectedScreen })?.safeAreaInsets.top ?? 0 > 0 ? .black : .black)
+//                    .frame(width: vm.closedNotchSize.width)
+//                    .mask {
+//                        NotchShape()
+//                    }
+//            }
 
             HStack(spacing: 4) {
                 if vm.notchState == .open {
-                    if coordinator.isMeetingStarted {
+                    if coordinator.isMeetingStarted || true {
                         HStack(spacing: 4) {
                             Text(coordinator.formattedMeetingTime())
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.white)
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
 
                             Image(systemName: "waveform")
                                 .resizable()
