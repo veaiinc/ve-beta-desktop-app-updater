@@ -7,7 +7,7 @@
 ## Purpose
 
 -   **Working playbook for Electron.js and SwiftUI tasks in this repo.**
--   Covers run/build, where to change code, IPC patterns, native addon (Swift/ObjC/Node‑API) integration, NotchDrop, troubleshooting, checklists, commands, and debugging tips.
+-   Covers run/build, where to change code, IPC patterns, native addon (Swift/ObjC/Node‑API) integration, NotchDrop, Boring Notch companion app, troubleshooting, checklists, commands, and debugging tips.
 -   All instructions here apply to agents (Codex, Claude, Cursor, etc) and human contributors alike.
 
 ---
@@ -21,8 +21,11 @@
 -   **Build native addon (macOS)**:  
     `cd notchdrop-addon && npm run build`  
     Alt: `cd notchdrop-addon && sh build.sh`
+-   **Build Boring Notch shell (macOS)**:  
+    `npm run build:boring-notch` (requires Xcode; use `npm run build:boring-notch:clean` to wipe `build/` + `DerivedData` first)  
+    Automatically no-ops on non-macOS hosts.
 -   **Development run**:
-    -   Terminal A: `npm run dev` (builds NotchDrop native+UI, starts Vite, outputs `dist-electron/`)
+    -   Terminal A: `npm run dev` (runs `build:boring-notch:clean`, rebuilds NotchDrop native+UI, starts Vite, outputs `dist-electron/`)
 -   **Windows dev variants**:  
     `npm run dev:win`, `npm run dev:win:no-clean`
 -   **If the addon fails to load (preferred fix):**  
@@ -66,9 +69,11 @@
     -   `electron/notificationHelper.js`
     -   `electron/windowsCompatibility.js`
     -   `electron/services/notchDropService.js`
+    -   `electron/services/boringNotchService.js`
     -   `electron/services/ipcThrottleService.js`
     -   `electron/services/idleTracker.js`
     -   `electron/services/meetingState.js`
+    -   `electron/services/websocketService.js`
     -   `electron/overlayWindowHelper.js`
     -   `electron/galleryHelper.js` (Sharp/watermark pipeline + ZIP download helper)
     -   `electron/imageProcessWorker.js` (worker thread for Sharp processing)
@@ -86,6 +91,10 @@
         -   Native sources: `notchdrop-addon/src/` (e.g., `NotchContentView.swift`, `NotchDropCore.swift`, `notchdrop_addon.mm`, `NotchDropBridge.m`)
         -   Obj-C header: `notchdrop-addon/include/NotchDropBridge.h`
         -   Selection assistant: `SelectionAssistantManager.swift`, `SelectionAssistantViews.swift`, `SelectionMonitor.swift`, `SelectionHistoryStore.swift`
+    -   `boring.notch/` (Boring Notch SwiftUI companion app)
+        -   Xcode project: `boring.notch/boringNotch.xcodeproj`
+        -   Build artifacts consumed by Electron: `boring.notch/build/boringNotch.app`
+        -   Upstream docs: `boring.notch/README.md`
 -   **React Windows & Feature Modules**
     -   `src/notch/components/DynamicIslandUI.jsx`
     -   `src/overlay/` (recording overlay React app)
@@ -98,6 +107,7 @@
 -   **Reference docs:**
     -   `CLAUDE.md`, `cursor.md`, `QWEN.md`, `anywhere_cursor_selection.md`, `docs/*.md`, `swift-watcher.config.js`
 -   **Automation scripts:**
+    -   `scripts/build-boring-notch.js` (xcodebuild wrapper for `boring.notch`)
     -   `scripts/build-notchdrop-native.js` (native build helper)
     -   `scripts/bundle-python-runtime.js` (packages Hey Ve runtime helpers)
     -   `scripts/setup-hey-ve.js` (postinstall wake-word setup)
@@ -119,6 +129,7 @@
     -   Ask AI window: `toggle-askAI-window`, `show-askAI-window`, `is-askAI-window-visible`, `update-askAI-dimensions`, `askAI-get-position`, `askAI-move-to`, `set-askAI-ignore-mouse-events`, `set-askAI-input-focus`, `get-askAI-input-focus`, `show-askAI-chatbox`, `show-askAI-response`, events `askAI-show-chatbox`, `askAI-show-response`, `receive-tab-content`, renderer messaging via `send-chat-message-to-askai`
     -   Permission window: `toggle-permission-window`, `show-permission-window`, `hide-permission-window`, `is-permission-window-visible`, `check-auth-and-show-permission-overlay`, granular `check/request` helpers for microphone, screen, camera, media, and calendar, plus `open-system-settings`, `debug-permissions`
     -   NotchDrop: `notchdrop-enable|disable|toggle`, `notchdrop-is-visible`, `notchdrop-set-status`, `notchdrop-get-status`, `notchdrop-handle-files`, `notchdrop-set-auto-open|get-auto-open`, `notchdrop-set-haptic-feedback|get-haptic-feedback`, `update-notchdrop-menu`, `notchdrop-open-airdrop|open-share|open-file|delete-file`, `notchdrop-send-message`, `notchdrop-replace-transcriptions`, `notchdrop-clear-live-intelligence-data`, `notchdrop:triggerOverlay*`
+    -   WebSocket bridge (boring.notch): `websocket-get-status`, `websocket-get-client-count`, `websocket-send-message`; `electron/services/websocketService.js` hosts `ws://localhost:8080` and handles `START_MEETING` → `MEETING_STARTED` handshake messages.
     -   Selection Assistant: `selection-assistant:get-history`, `selection-assistant:clear-history`, `selection-assistant:show-history`, `selection-assistant:request-permission`, `selection-assistant:is-permission-granted`; events `selection-assistant:captured`, `selection-assistant:permission`
     -   Swift bridge: `swift:action`, `swift:triggerOverlayRecording`, `swift:triggerOverlayToggleLiveIntelligence`, process events `swift-ui-trigger-overlay-recording*`, `pre-create-overlay-window`
     -   Are You There: `are-you-there-continue-meeting|auto-continue-meeting|stop-meeting|pause-meeting-intelligence|end-session|are-you-there-get-recording-time|are-you-there-check-recording-state`, window events `are-you-there-show-command|are-you-there-close-command`, plus transcription detection `update-transcription-activity`, `are-you-there-continue-transcription|stop-transcription-monitoring|pause-transcription-monitoring|end-transcription-session`, `get-transcription-detection-state`
@@ -157,7 +168,7 @@ Emitted from native layer, handled by `electron/services/notchDropService.js`:
 
 ### Objective
 
-Integrate **NotchDrop** (Swift/SwiftUI) as an optional native module for macOS. Uses an Objective-C++ bridge (Node.js NAPI). Platform-safe: macOS loads NotchDrop, Windows/Linux skip gracefully.
+Integrate **NotchDrop** (Swift/SwiftUI) as an optional native module for macOS. Uses an Objective-C++ bridge (Node.js NAPI). Platform-safe: macOS loads NotchDrop, Windows/Linux skip gracefully. The repo also embeds the open-source **Boring Notch** companion app, launched as a separate process when available.
 
 ### Directory Structure
 
@@ -208,6 +219,13 @@ Note: See the NotchDrop events list above for emitted events from the native lay
 -   **Objective-C**: Wraps and exposes Swift to Node.js via `node-addon-api`.
 -   **Node.js Addon**: Exposes event-based API, only loaded on macOS in Electron main.
 -   **Voice bridge**: `electron/notchDropVoiceIntegration.js` keeps Swift voice events aligned with Dynamic Island / renderer voice IPC.
+
+### Boring Notch Companion App
+
+-   `electron/services/boringNotchService.js` launches the bundled `boring.notch` macOS app and exposes the same API surface as `NotchDropService` for compatibility.
+-   Build the shell with `npm run build:boring-notch` (macOS + Xcode 16 required); `npm run build:boring-notch:clean` wipes `build/` + `DerivedData`. `npm run dev` runs the clean build before Vite so the `.app` lives at `boring.notch/build/boringNotch.app`.
+-   The WebSocket bridge (`electron/services/websocketService.js`) listens on `ws://localhost:8080`. Incoming `START_MEETING` messages trigger `handleNotchToMainWindowEvents({ action: 'startRecording' })`; Electron responds with `MEETING_STARTED`.
+-   Keep the handshake payloads in sync with `boring.notch/boringNotch/ContentView.swift` (`WebSocketManager`). Document new message types here when you extend the protocol.
 
 ---
 
@@ -445,12 +463,15 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
 -   electron/preload.js
 -   electron/helpers/windowHelper.js
 -   electron/services/notchDropService.js
+-   electron/services/boringNotchService.js
+-   electron/services/websocketService.js
 -   electron/galleryHelper.js
 -   electron/imageProcessWorker.js
 -   electron/notchDropVoiceIntegration.js
 -   src/notch/components/DynamicIslandUI.jsx
 -   notchdrop-addon/index.js
 -   notchdrop-addon/swift-js-bridge.js
+-   scripts/build-boring-notch.js
 -   scripts/validate-notchdrop.js
 -   vite.config.js
 -   package.json
@@ -463,6 +484,8 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
     `cd notchdrop-addon && sh build.sh`  
     If it still fails: `npx electron-rebuild -f -w notchdrop-addon`  
     Confirm `asarUnpack` includes native binary; verify it’s bundled.
+-   **Boring Notch `.app` missing/outdated:**  
+    Run `npm run build:boring-notch` (macOS). Use `npm run build:boring-notch:clean` to wipe `boring.notch/build/` + `DerivedData` before rebuilding; expected bundle is `boring.notch/build/boringNotch.app`.
 -   **Sharp/image processing errors:**  
     Run `npm run clean:sharp` then reinstall (`npm install`) so all platform-specific Sharp folders exist.
 -   **Hey Ve wake word setup issues:**  
@@ -484,4 +507,4 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
 
 ---
 
-**NEVER edit or add files in build/ or dist-electron/ directories. Source code changes only in files/directories listed above!**
+**NEVER edit or add files in build/, dist/, or dist-electron/ directories. Source code changes only in files/directories listed above!**

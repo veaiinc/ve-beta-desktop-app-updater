@@ -177,8 +177,6 @@ struct BoringBatteryView: View {
     @State private var isPressed: Bool = false
     @State private var isHoveringPopover: Bool = false
 
-    @EnvironmentObject var vm: BoringViewModel
-
     var body: some View {
         HStack {
             if Defaults[.showBatteryPercentage] {
@@ -229,16 +227,6 @@ struct BoringBatteryView: View {
                 isHoveringPopover = hovering
             }
         }
-        .onChange(of: showPopupMenu) { _, _ in
-            updateBatteryPopoverActiveState()
-        }
-        .onChange(of: isHoveringPopover) { _, _ in
-            updateBatteryPopoverActiveState()
-        }
-    }
-
-    private func updateBatteryPopoverActiveState() {
-        vm.isBatteryPopoverActive = showPopupMenu && isHoveringPopover
     }
 }
 
