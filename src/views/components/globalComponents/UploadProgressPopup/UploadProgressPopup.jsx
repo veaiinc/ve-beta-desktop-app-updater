@@ -16,6 +16,8 @@ const UploadProgressPopup = () => {
 			uploadDesktopImages,
 			getImageUploadStatus,
 			tenantAlbums,
+			getAlbums,
+			getAlbumImagesCount,
 		},
 	} = useContext(Context);
 
@@ -55,18 +57,61 @@ const UploadProgressPopup = () => {
 			// Double-check that the session is actually completed before removing
 			const currentState = sessionStatesRef.current.get(sessionId);
 			if (currentState && currentState.status === 'completed') {
-				removeUploadSession(sessionId);
-				window.dispatchEvent(
-					new CustomEvent('uploadCompleted', {
-						detail: { sessionId },
-					}),
+				// Check if this is the only session or if all sessions are completed
+				const allSessions = Array.from(sessionStatesRef.current.values());
+				const activeSessions = allSessions.filter(
+					(session) => session.status === 'uploading' || session.status === 'preparing',
 				);
+
+				// If this is the only session or all sessions are completed, refresh album images count
+				if (allSessions.length === 1 || activeSessions.length === 0) {
+					if (currentState.galleryId) {
+						getAlbumImagesCount(currentState.galleryId);
+					}
+				}
+
+				// Use the cleanup function to handle session removal logic
+				cleanupCompletedSessions();
 			}
 		}, 2000); // 2 second delay to ensure all processing is complete
 	};
 
 	const handleUploadCancel = (sessionId) => {
 		removeUploadSession(sessionId);
+	};
+
+	// Helper function to clean up all completed sessions when no active sessions remain
+	const cleanupCompletedSessions = () => {
+		const allSessions = Array.from(sessionStatesRef.current.values());
+		const activeSessions = allSessions.filter(
+			(session) => session.status === 'uploading' || session.status === 'preparing',
+		);
+
+		// If no active sessions, remove all completed sessions
+		if (activeSessions.length === 0) {
+			const completedSessions = allSessions.filter(
+				(session) => session.status === 'completed',
+			);
+
+			// Get unique gallery IDs from completed sessions to refresh albums
+			const galleryIds = [...new Set(completedSessions.map((session) => session.galleryId))];
+
+			completedSessions.forEach((session) => {
+				removeUploadSession(session.sessionId);
+				window.dispatchEvent(
+					new CustomEvent('uploadCompleted', {
+						detail: { sessionId: session.sessionId },
+					}),
+				);
+			});
+
+			// Refresh albums for all affected galleries
+			galleryIds.forEach((galleryId) => {
+				if (galleryId) {
+					getAlbumImagesCount(galleryId);
+				}
+			});
+		}
 	};
 
 	const handleCloseUploadProgressPopup = () => {
@@ -917,7 +962,7 @@ const UploadProgressPopup = () => {
 
 	const handleClose = () => {
 		const hasActiveUploads = Array.from(activeUploads.values()).some(
-			(state) => state.status === 'uploading',
+			(state) => state.status === 'uploading' || state.status === 'preparing',
 		);
 
 		if (hasActiveUploads) {
@@ -1006,17 +1051,37 @@ const UploadProgressPopup = () => {
 		const states = Array.from(activeUploads.values());
 		if (states.length === 0) return 'No uploads';
 		const hasUploading = states.some((s) => s.status === 'uploading');
+		const hasPreparing = states.some((s) => s.status === 'preparing');
 		const hasCompleted = states.some((s) => s.status === 'completed');
 		const hasFailed = states.some((s) => s.status === 'failed');
-		if (hasUploading) return `Uploading ${states.length} batch${states.length > 1 ? 'es' : ''}`;
-		if (hasCompleted && !hasUploading && !hasFailed) return 'All uploads completed';
+		const activeCount = states.filter(
+			(s) => s.status === 'uploading' || s.status === 'preparing',
+		).length;
+		const completedCount = states.filter((s) => s.status === 'completed').length;
+
+		if (hasUploading || hasPreparing) {
+			if (completedCount > 0) {
+				return `Uploading ${activeCount} batch${
+					activeCount > 1 ? 'es' : ''
+				} (${completedCount} completed)`;
+			}
+			return `Uploading ${activeCount} batch${activeCount > 1 ? 'es' : ''}`;
+		}
+		if (hasCompleted && !hasUploading && !hasPreparing && !hasFailed)
+			return 'All uploads completed';
 		if (hasFailed) return 'Some uploads failed';
 		return 'Processing...';
 	};
 
 	// Ensure popup shows if there are active uploads, even if state is inconsistent
 	const hasActiveUploads = activeUploads.size > 0;
-	const shouldShowPopup = showUploadProgressPopup || hasActiveUploads;
+	const hasActiveSessions = Array.from(activeUploads.values()).some(
+		(session) =>
+			session.status === 'uploading' ||
+			session.status === 'preparing' ||
+			session.status === 'completed',
+	);
+	const shouldShowPopup = showUploadProgressPopup || hasActiveUploads || hasActiveSessions;
 
 	if (!shouldShowPopup || !uploadSessions || uploadSessions.length === 0) {
 		return null;
