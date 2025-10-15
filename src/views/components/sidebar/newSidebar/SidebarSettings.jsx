@@ -180,22 +180,22 @@ const SidebarSettings = ({ activeTab, handleTabChange, handleSidebarHoverLeave, 
 				</div>
 			</div>
 
-		<div className={s.footer}>
-			<button className={s.workspaceBtn} onClick={handleSwitchWorkspace}>
-				<SwitchWorkspaceSvg />
-				Switch Workspace
-			</button>
+			<div className={s.footer}>
+				<button className={s.workspaceBtn} onClick={handleSwitchWorkspace}>
+					<SwitchWorkspaceSvg />
+					Switch Workspace
+				</button>
 
-			<button
-				className={`${s.workspaceBtn} ${
-					activeTab === createWorkspace?.value ? s.active : ''
-				}`}
-				onClick={() => handleItemClick(createWorkspace)}
-			>
-				<CreateWorkspaceSvg />
-				Create Workspace
-			</button>
-		</div>
+				<button
+					className={`${s.workspaceBtn} ${
+						activeTab === createWorkspace?.value ? s.active : ''
+					}`}
+					onClick={() => handleItemClick(createWorkspace)}
+				>
+					<CreateWorkspaceSvg />
+					Create Workspace
+				</button>
+			</div>
 			<div
 				className={s.switchWorkspaceContainer}
 				style={{

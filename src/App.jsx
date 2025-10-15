@@ -346,7 +346,7 @@ const AppContent = () => {
 	// Glass mode is now handled by CSS classes - no complex initialization needed
 
 	return (
-		<div className="app-content glass-app">
+		<div className="app-content glass-app" style={{ height: '100%' }}>
 			{/* ⚡ PERFORMANCE MONITOR - tracks app performance in development */}
 			{/* <PerformanceMonitor /> */}
 

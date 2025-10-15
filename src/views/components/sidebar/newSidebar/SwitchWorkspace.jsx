@@ -124,6 +124,7 @@ const SwitchWorkspace = ({ workspaceList = [], switchWorkspaceEnabled = false })
 								selectedWorkspaceIndex: 0,
 							})
 						}
+						onClick={(e) => e.stopPropagation()}
 					/>
 				</div>
 			)}
