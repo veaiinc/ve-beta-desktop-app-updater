@@ -371,15 +371,39 @@ const ShareModal = ({
 		}
 	};
 
-	const handleCopyPin = (type) => {
+	const handleCopyPin = async (type) => {
+		let pinToCopy = '';
+
 		if (type === 'masterAccessPin') {
-			navigator.clipboard.writeText(info?.galleryShareDetails?.masterAccessPin).then(() => {
-				message.success('PIN copied to clipboard');
-			});
+			pinToCopy = info?.galleryShareDetails?.masterAccessPin;
 		} else if (type === 'guestAccessPin') {
-			navigator.clipboard.writeText(info?.galleryShareDetails?.guestAccess?.pin).then(() => {
+			pinToCopy = info?.galleryGuestAccess?.pin;
+		}
+
+		if (!pinToCopy) {
+			message.error('No PIN to copy');
+			return;
+		}
+
+		try {
+			// Try the modern clipboard API first
+			await navigator.clipboard.writeText(pinToCopy);
+			message.success('PIN copied to clipboard');
+		} catch (err) {
+			// Fallback for older browsers or when clipboard API fails
+			const textArea = document.createElement('textarea');
+			textArea.value = pinToCopy;
+			document.body.appendChild(textArea);
+			textArea.select();
+
+			try {
+				document.execCommand('copy');
 				message.success('PIN copied to clipboard');
-			});
+			} catch (err) {
+				message.error('Failed to copy PIN');
+			} finally {
+				document.body.removeChild(textArea);
+			}
 		}
 	};
 
