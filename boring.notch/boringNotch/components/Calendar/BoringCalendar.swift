@@ -440,6 +440,6 @@ struct ReminderToggle: View {
 #Preview {
     CalendarView()
         .frame(width: 215, height: 130)
-        .background(.black)
+        .background(Color.clear)
         .environmentObject(BoringViewModel())
 }

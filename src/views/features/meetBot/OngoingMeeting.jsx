@@ -370,7 +370,6 @@ const OngoingMeeting = memo(() => {
 	// };
 
 	const handleActionClick = (prompt, isAskAi = false, id = null) => {
-
 		setInfo((prev) => ({
 			...prev,
 			isSelectedResponseId: id,
@@ -392,16 +391,12 @@ const OngoingMeeting = memo(() => {
 		}
 	};
 
-
 	const handleOpenChatResponse = (open) => {
 		if (open === info.chatOpen) {
 			return;
 		}
 		toggleChat(open);
-	}
-
-
-
+	};
 
 	return (
 		<div className={s.ongoingMeetingWrapper}>
@@ -418,9 +413,10 @@ const OngoingMeeting = memo(() => {
 					<X size={16} />
 				</button> */}
 				{info.isResponseSelected && (
-					<button className={s.ongoingMeetingHeaderButton} onClick={() =>
-						handleOpenChatResponse(true)
-					}>
+					<button
+						className={s.ongoingMeetingHeaderButton}
+						onClick={() => handleOpenChatResponse(true)}
+					>
 						<ChevronRight size={16} />
 					</button>
 				)}

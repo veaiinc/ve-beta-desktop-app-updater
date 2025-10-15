@@ -43,33 +43,44 @@ struct ContentView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
+            let isNotchOpen = vm.notchState == .open
+            let notchCornerRadii: (top: CGFloat, bottom: CGFloat) = {
+                if isNotchOpen && Defaults[.cornerRadiusScaling] {
+                    return (cornerRadiusInsets.opened.top, cornerRadiusInsets.opened.bottom)
+                }
+
+                return (cornerRadiusInsets.closed.top, cornerRadiusInsets.closed.bottom)
+            }()
+
             let mainLayout = NotchLayout()
                 .frame(alignment: .top)
                 .padding(
                     .horizontal,
-                    vm.notchState == .open
+                    isNotchOpen
                         ? Defaults[.cornerRadiusScaling]
                             ? (cornerRadiusInsets.opened.top) : (cornerRadiusInsets.opened.bottom)
                         : cornerRadiusInsets.closed.bottom
                 )
-                .padding([.horizontal, .bottom], vm.notchState == .open ? 12 : 0)
-                .background(.black)
+                .padding([.horizontal, .bottom], isNotchOpen ? 12 : 0)
+                .background(Material.regularMaterial)
                 .mask {
-                    ((vm.notchState == .open) && Defaults[.cornerRadiusScaling])
-                        ? NotchShape(
-                            topCornerRadius: cornerRadiusInsets.opened.top,
-                            bottomCornerRadius: cornerRadiusInsets.opened.bottom
+                    if isNotchOpen {
+                        NotchShape(
+                            topCornerRadius: notchCornerRadii.top,
+                            bottomCornerRadius: notchCornerRadii.bottom
                         )
                         .drawingGroup()
-                        : NotchShape(
-                            topCornerRadius: cornerRadiusInsets.closed.top,
-                            bottomCornerRadius: cornerRadiusInsets.closed.bottom
+                    } else {
+                        ClosedNotchShape(
+                            topCornerRadius: notchCornerRadii.top,
+                            bottomCornerRadius: notchCornerRadii.bottom
                         )
                         .drawingGroup()
+                    }
                 }
                 .padding(
                     .bottom,
-                    vm.notchState == .open && Defaults[.extendHoverArea]
+                    isNotchOpen && Defaults[.extendHoverArea]
                         ? 0
                         : (vm.effectiveClosedNotchHeight == 0)
                             ? zeroHeightHoverPadding
@@ -235,7 +246,9 @@ struct ContentView: View {
                               .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
                               .animation(.spring(response: 1, dampingFraction: 1, blendDuration: 0.8), value: vm.notchState)
                        } else {
-                           Rectangle().fill(.clear).frame(width: vm.closedNotchSize.width - 20, height: vm.effectiveClosedNotchHeight)
+                           ClosedNotchContentView()
+                               .frame(width: vm.closedNotchSize.width - 20, height: vm.effectiveClosedNotchHeight)
+                               .background(Color.clear)
                        }
 
                       if coordinator.sneakPeek.show {
