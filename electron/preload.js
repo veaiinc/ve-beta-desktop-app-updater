@@ -483,6 +483,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		handleFiles: (filePaths) => ipcRenderer.invoke('notchdrop-handle-files', filePaths),
 		setAutoOpen: (enabled) => ipcRenderer.invoke('notchdrop-set-auto-open', enabled),
 		getAutoOpen: () => ipcRenderer.invoke('notchdrop-get-auto-open'),
+		getDebugInfo: () => ipcRenderer.invoke('boring-notch-debug-info'),
 		setHapticFeedback: (enabled) =>
 			ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
 		getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
