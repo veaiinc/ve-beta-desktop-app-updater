@@ -37,7 +37,7 @@ func getScreenFrame(_ screen: String? = nil) -> CGRect? {
 func getClosedNotchSize(screen: String? = nil) -> CGSize {
     // Default notch size, to avoid using optionals
     var notchHeight: CGFloat = Defaults[.nonNotchHeight]
-    var notchWidth: CGFloat = 185
+    var notchWidth: CGFloat = 360
 
     var selectedScreen = NSScreen.main
 
