@@ -33,6 +33,29 @@ const easingFunctions = {
 		return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 	},
 
+	// Ultra-smooth ease-in-out (quintic) - even smoother than cubic
+	easeInOutQuint: (t) => {
+		return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
+	},
+
+	// Custom smooth curve for window resizing
+	easeInOutSmooth: (t) => {
+		// Custom curve that feels natural for window resizing
+		const c1 = 0.25;
+		const c2 = 0.25;
+		const c3 = 0.75;
+		const c4 = 0.75;
+		
+		// Bezier curve implementation
+		const t2 = t * t;
+		const t3 = t2 * t;
+		const mt = 1 - t;
+		const mt2 = mt * mt;
+		const mt3 = mt2 * mt;
+		
+		return 3 * mt2 * t * c1 + 3 * mt * t2 * c3 + t3;
+	},
+
 	// Linear (no easing)
 	linear: (t) => t,
 };
@@ -131,7 +154,7 @@ async function animateWindowBounds(window, targetBounds, options = {}) {
 	// For Windows/Linux: Custom frame-based animation
 	return new Promise((resolve) => {
 		const startTime = Date.now();
-		const fps = 60;
+		const fps = 120; // Higher FPS for smoother animation
 		const frameTime = 1000 / fps;
 		let animationFrameId = null;
 
@@ -198,6 +221,14 @@ async function resizeWindowAnimated(window, dimensions, options = {}) {
 
 	if (dimensions.height !== undefined) {
 		targetBounds.height = dimensions.height;
+	}
+
+	if (dimensions.x !== undefined) {
+		targetBounds.x = dimensions.x;
+	}
+
+	if (dimensions.y !== undefined) {
+		targetBounds.y = dimensions.y;
 	}
 
 	return animateWindowBounds(window, targetBounds, options);

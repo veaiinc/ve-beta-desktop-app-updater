@@ -254,30 +254,31 @@ const Email = ({
 
 	return (
 		<div className="verify-user-container">
-			<div className="login-page-content">
-				{info?.referrerUserDetails?.isValidReferralCode && (
-					<h1 className="referral-message">
-						<EmailIcon className="email-icon" />
-						<span className="referrer-name">{`Invited by ${info?.referrerUserDetails?.referrerName}`}</span>
-					</h1>
-				)}
-				<div className="login-page-title">
-					{/* <span className="title-one">AI.&nbsp; </span> */}
-					{/* <span className="meetVeIndicator">MEET VE</span> */}
-					<div className="titleContainer">
-						<span className="title-two">
-							AI That Minds
-							<br />
-							Your Business
+			<div className="login-main-content">
+				<div className="login-page-content">
+					{info?.referrerUserDetails?.isValidReferralCode && (
+						<h1 className="referral-message">
+							<EmailIcon className="email-icon" />
+							<span className="referrer-name">{`Invited by ${info?.referrerUserDetails?.referrerName}`}</span>
+						</h1>
+					)}
+					<div className="login-page-title">
+						{/* <span className="title-one">AI.&nbsp; </span> */}
+						{/* <span className="meetVeIndicator">MEET VE</span> */}
+						<div className="titleContainer">
+							<span className="title-two">
+								AI That Minds
+								<br />
+								Your Business
+							</span>
+							{/* <span className="title-three">Your Business</span> */}
+						</div>
+						<span className="login-page-subtitle">
+						An always-on, Real time, Acts before you ask
 						</span>
-						{/* <span className="title-three">Your Business</span> */}
 					</div>
-					<span className="login-page-subtitle">
-						An always-on, Real time, Proactive AI
-					</span>
 				</div>
-			</div>
-			<div className="loginOptionsViewer">
+			{/* <div className="loginOptionsViewer">
 				<div className="eachLoginOption">
 					<div className="eachOptionIcon">
 						<DesktopImage />
@@ -309,7 +310,7 @@ const Email = ({
 						<div className="eachOptionDesc">Plans, builds, and acts end to end.</div>
 					</div>
 				</div>
-			</div>
+			</div> */}
 			{/* {info?.isHostnameVeDotAi && (
 				<> */}
 			{/* <div className="service-container">
@@ -408,6 +409,7 @@ const Email = ({
 						</div>
 					</>
 				)} */}
+			</div>
 			</div>
 			<div className="acknowledge-container">
 				<p className="acknowledge-text">
