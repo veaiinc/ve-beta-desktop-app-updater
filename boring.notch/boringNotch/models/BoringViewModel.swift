@@ -37,6 +37,8 @@ class BoringViewModel: NSObject, ObservableObject {
     
     // Lock state to keep notch open
     @Published var isNotchLocked: Bool = false
+    // Tracks pointer hovering over the floating lock button area
+    @Published var isHoveringLockArea: Bool = false
 
     @Published var notchSize: CGSize = getClosedNotchSize()
     @Published var closedNotchSize: CGSize = getClosedNotchSize()

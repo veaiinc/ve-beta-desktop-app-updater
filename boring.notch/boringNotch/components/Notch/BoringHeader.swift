@@ -159,58 +159,7 @@ struct BoringHeader: View {
                         .buttonStyle(PlainButtonStyle())
                     }
                     
-                    // Lock/Unlock button to keep notch open
-                    Button(action: {
-                        vm.toggleNotchLock()
-                        
-                        // Force state validation after toggle
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            vm.forceLockStateRefresh()
-                        }
-                    }) {
-                        HStack(spacing: 4) {
-                            ZStack() {
-                                #if canImport(AppKit)
-                                if vm.isNotchLocked {
-                                    if let lockIcon = NSImage.image(lucideId: "lock") {
-                                        Image(nsImage: lockIcon)
-                                            .renderingMode(.template)
-                                            .foregroundColor(.white)
-                                            .frame(width: 13, height: 13)
-                                    }
-                                } else {
-                                    if let lockOpenIcon = NSImage.image(lucideId: "lock-open") {
-                                        Image(nsImage: lockOpenIcon)
-                                            .renderingMode(.template)
-                                            .foregroundColor(.white)
-                                            .frame(width: 13, height: 13)
-                                    }
-                                }
-                                #endif
-                            }
-                            .frame(width: 13, height: 13)
-                        }
-                        .padding(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                        .frame(width: 32, height: 32)
-                        .background(
-                            vm.isNotchLocked 
-                                ? Color.white.opacity(0.1)
-                                : (hoverLock ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
-                        )
-                        .cornerRadius(32)
-                        .overlay(
-                            vm.isNotchLocked 
-                                ? RoundedRectangle(cornerRadius: 32)
-                                    .inset(by: 0.25)
-                                    .stroke(Color.white.opacity(0.4), lineWidth: 0.5)
-                                : nil
-                        )
-                        .onHover { hover in
-                            hoverLock = hover
-                        }
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .help(vm.isNotchLocked ? "Unlock notch" : "Lock notch open")
+                    // Lock button moved to floating position in ContentView
                     
                     // if Defaults[.showBatteryIndicator] {
                     //     BoringBatteryView(
