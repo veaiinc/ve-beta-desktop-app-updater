@@ -30,6 +30,307 @@ const UploadProgressPopup = () => {
 	const processingFiles = useRef(new Set()); // Global across sessions, keyed by session
 	const runningSessions = useRef(new Set()); // Track running sessions
 	const sessionStatesRef = useRef(new Map()); // ✅ LIVE state for each session — immune to re-renders
+	const retryQueues = useRef(new Map()); // Track retry queues for each session
+
+	// Retry configuration - Simple: retry any error once
+	const RETRY_CONFIG = {
+		maxRetries: 1, // Only retry once automatically
+		retryDelay: 2000, // 2 second delay before retry
+	};
+
+	// Helper function to get retry delay - simple fixed delay
+	const getRetryDelay = () => {
+		return RETRY_CONFIG.retryDelay;
+	};
+
+	// Helper function to retry a failed file upload - Simple: only retry once
+	const retryFailedFile = async (
+		sessionId,
+		fileIndex,
+		fileData,
+		processResult,
+		initialState,
+		policyData,
+		fakePolicyData,
+	) => {
+		const currentState = sessionStatesRef.current.get(sessionId);
+		if (!currentState) return;
+
+		const file = currentState.files[fileIndex];
+		if (!file || file.status !== 'failed') return;
+
+		// Check if we can retry (only once)
+		const retryCount = file.retryCount || 0;
+		if (retryCount >= RETRY_CONFIG.maxRetries) {
+			console.warn(`Max retries reached for file: ${fileData.file.name}`);
+			return;
+		}
+
+		// Update file status to retrying
+		updateUploadState(sessionId, {
+			files: currentState.files.map((f, i) =>
+				i === fileIndex
+					? {
+							...f,
+							status: 'retrying',
+							retryCount: retryCount + 1,
+							error: null,
+					  }
+					: f,
+			),
+		});
+
+		// Simple delay before retry
+		const delay = getRetryDelay();
+
+		await new Promise((resolve) => setTimeout(resolve, delay));
+
+		// Check if session is still running
+		if (!runningSessions.current.has(sessionId)) {
+			console.warn(`Session ${sessionId} no longer running, aborting retry`);
+			return;
+		}
+
+		try {
+			// Retry the upload process
+			await retryFileUpload(
+				sessionId,
+				fileIndex,
+				fileData,
+				processResult,
+				initialState,
+				policyData,
+				fakePolicyData,
+			);
+		} catch (error) {
+			console.error(`Retry failed for file: ${fileData.file.name}`, error);
+			const failedState = sessionStatesRef.current.get(sessionId);
+			updateUploadState(sessionId, {
+				files: failedState.files.map((f, i) =>
+					i === fileIndex
+						? {
+								...f,
+								status: 'failed',
+								error: error.message,
+								retryCount: retryCount + 1,
+						  }
+						: f,
+				),
+			});
+		}
+	};
+
+	// Helper function to retry file upload (extracted upload logic)
+	const retryFileUpload = async (
+		sessionId,
+		fileIndex,
+		fileData,
+		processResult,
+		initialState,
+		policyData,
+		fakePolicyData,
+	) => {
+		const imageId = ObjectID();
+		const versionId = Date.now();
+		const isLiteGallery = initialState.lightGallery === 'true';
+
+		let uploadPromises = [];
+		let uploadResultOriginal = null;
+
+		if (isLiteGallery) {
+			// For lite galleries, skip original upload
+			uploadResultOriginal = {
+				success: true,
+				fileKey: 'lite-gallery-no-original',
+			};
+
+			uploadPromises = [
+				uploadImage(
+					processResult.processedFile,
+					'optimized',
+					null,
+					policyData,
+					imageId,
+					(percent) => {
+						const currentState = sessionStatesRef.current.get(sessionId);
+						updateUploadState(sessionId, {
+							files: currentState.files.map((f, i) =>
+								i === fileIndex ? { ...f, progress: percent } : f,
+							),
+						});
+						updateOverallProgress(sessionId);
+					},
+					initialState.galleryId,
+					versionId,
+					initialState.tenantId,
+					initialState.uploadBatchID,
+				),
+				uploadImage(
+					processResult.thumbnailFile,
+					'thumbnails_300w',
+					null,
+					fakePolicyData,
+					imageId,
+					null,
+					initialState.galleryId,
+					versionId,
+					initialState.tenantId,
+					initialState.uploadBatchID,
+				),
+				uploadImage(
+					processResult.thumbnail100hFile,
+					'thumbnails_100h',
+					null,
+					fakePolicyData,
+					imageId,
+					null,
+					initialState.galleryId,
+					versionId,
+					initialState.tenantId,
+					initialState.uploadBatchID,
+				),
+			];
+		} else {
+			// For classic galleries, upload all four versions including original
+			uploadPromises = [
+				uploadImage(
+					fileData.file,
+					'originals',
+					null,
+					policyData,
+					imageId,
+					(percent) => {
+						const currentState = sessionStatesRef.current.get(sessionId);
+						updateUploadState(sessionId, {
+							files: currentState.files.map((f, i) =>
+								i === fileIndex ? { ...f, progress: percent } : f,
+							),
+						});
+						updateOverallProgress(sessionId);
+					},
+					initialState.galleryId,
+					versionId,
+					initialState.tenantId,
+					initialState.uploadBatchID,
+				),
+				uploadImage(
+					processResult.processedFile,
+					'optimized',
+					null,
+					policyData,
+					imageId,
+					null,
+					initialState.galleryId,
+					versionId,
+					initialState.tenantId,
+					initialState.uploadBatchID,
+				),
+				uploadImage(
+					processResult.thumbnailFile,
+					'thumbnails_300w',
+					null,
+					fakePolicyData,
+					imageId,
+					null,
+					initialState.galleryId,
+					versionId,
+					initialState.tenantId,
+					initialState.uploadBatchID,
+				),
+				uploadImage(
+					processResult.thumbnail100hFile,
+					'thumbnails_100h',
+					null,
+					fakePolicyData,
+					imageId,
+					null,
+					initialState.galleryId,
+					versionId,
+					initialState.tenantId,
+					initialState.uploadBatchID,
+				),
+			];
+		}
+
+		// Execute all uploads
+		const uploadResults = await Promise.all(uploadPromises);
+
+		// Extract results based on gallery type
+		let uploadResultOptimized, uploadResultThumbnail300w, uploadResultThumbnail100h;
+
+		if (isLiteGallery) {
+			[uploadResultOptimized, uploadResultThumbnail300w, uploadResultThumbnail100h] =
+				uploadResults;
+		} else {
+			[
+				uploadResultOriginal,
+				uploadResultOptimized,
+				uploadResultThumbnail300w,
+				uploadResultThumbnail100h,
+			] = uploadResults;
+		}
+
+		// Validate uploads based on gallery type
+		if (isLiteGallery) {
+			if (
+				!uploadResultOptimized.success ||
+				!uploadResultThumbnail300w.success ||
+				!uploadResultThumbnail100h.success
+			) {
+				throw new Error('One or more uploads failed');
+			}
+		} else {
+			if (
+				!uploadResultOriginal.success ||
+				!uploadResultOptimized.success ||
+				!uploadResultThumbnail300w.success ||
+				!uploadResultThumbnail100h.success
+			) {
+				throw new Error('One or more uploads failed');
+			}
+		}
+
+		const payload = generateUploadPayload(
+			fileData,
+			processResult.processedFile,
+			imageId,
+			policyData,
+			uploadResultOriginal,
+			uploadResultOptimized,
+			uploadResultThumbnail300w,
+			uploadResultThumbnail100h,
+			{
+				width: processResult.width,
+				height: processResult.height,
+				format: processResult.format,
+				originalDateTime: processResult.originalDateTime,
+			},
+			versionId,
+			initialState.uploadBatchID,
+			initialState.settings,
+			isLiteGallery,
+		);
+
+		const [success] = await uploadDesktopImages(
+			initialState.galleryId,
+			initialState.albumId,
+			payload,
+		);
+
+		if (!success) {
+			throw new Error('Failed to register image with backend');
+		}
+
+		// Mark as completed
+		const completedState = sessionStatesRef.current.get(sessionId);
+		updateUploadState(sessionId, {
+			files: completedState.files.map((f, i) =>
+				i === fileIndex ? { ...f, status: 'completed', progress: 100, error: null } : f,
+			),
+		});
+
+		updateOverallProgress(sessionId);
+	};
 
 	// Helper function to get album name from session data
 	const getAlbumName = (uploadSession) => {
@@ -214,7 +515,10 @@ const UploadProgressPopup = () => {
 			if (!activeUploads.has(session.id) && !startedSessions.current.has(session.id)) {
 				const uploadState = {
 					sessionId: session.id,
-					files: session.files || [],
+					files: (session.files || []).map((file) => ({
+						...file,
+						retryCount: 0,
+					})),
 					settings: session.settings || {},
 					galleryId: session.galleryId,
 					albumId: session.albumId,
@@ -867,13 +1171,54 @@ const UploadProgressPopup = () => {
 						} catch (error) {
 							console.error('Upload failed for file:', fileData.file.name, error);
 							const failedState = sessionStatesRef.current.get(sessionId);
-							updateUploadState(sessionId, {
-								files: (failedState?.files || uniqueFiles).map((f, i) =>
-									i === globalFileIndex
-										? { ...f, status: 'failed', error: error.message }
-										: f,
-								),
-							});
+							const currentFile = failedState?.files?.[globalFileIndex];
+							const retryCount = currentFile?.retryCount || 0;
+
+							// Check if we should retry automatically (only once, regardless of error type)
+							if (retryCount < RETRY_CONFIG.maxRetries) {
+								// Update file status to failed but schedule retry
+								updateUploadState(sessionId, {
+									files: (failedState?.files || uniqueFiles).map((f, i) =>
+										i === globalFileIndex
+											? {
+													...f,
+													status: 'failed',
+													error: error.message,
+													retryCount: retryCount + 1,
+											  }
+											: f,
+									),
+								});
+
+								// Schedule retry with simple delay
+								setTimeout(async () => {
+									if (runningSessions.current.has(sessionId)) {
+										await retryFailedFile(
+											sessionId,
+											globalFileIndex,
+											fileData,
+											processResult,
+											initialState,
+											policyData,
+											fakePolicyData,
+										);
+									}
+								}, getRetryDelay());
+							} else {
+								// Final failure - no more retries
+								updateUploadState(sessionId, {
+									files: (failedState?.files || uniqueFiles).map((f, i) =>
+										i === globalFileIndex
+											? {
+													...f,
+													status: 'failed',
+													error: error.message,
+													retryCount: retryCount + 1,
+											  }
+											: f,
+									),
+								});
+							}
 
 							// Update overall progress after file failure
 							updateOverallProgress(sessionId);
@@ -957,6 +1302,7 @@ const UploadProgressPopup = () => {
 			runningSessions.current.clear();
 			previousSessions.current.clear();
 			sessionStatesRef.current.clear(); // ✅ Clear ref state too
+			retryQueues.current.clear(); // ✅ Clear retry queues too
 		};
 	}, []);
 
@@ -1000,7 +1346,7 @@ const UploadProgressPopup = () => {
 		handleUploadCancel(sessionId);
 	};
 
-	const getStatusText = (status) => {
+	const getStatusText = (status, retryCount = 0) => {
 		switch (status) {
 			case 'preparing':
 				return 'Preparing upload...';
@@ -1009,7 +1355,9 @@ const UploadProgressPopup = () => {
 			case 'completed':
 				return 'Upload completed!';
 			case 'failed':
-				return 'Upload failed';
+				return retryCount > 0 ? 'Upload failed (retried)' : 'Upload failed';
+			case 'retrying':
+				return 'Retrying...';
 			case 'cancelled':
 				return 'Upload cancelled';
 			default:
@@ -1194,7 +1542,10 @@ const UploadProgressPopup = () => {
 													)}%`}
 												{fileData.status === 'completed' && 'Completed'}
 												{fileData.status === 'failed' &&
-													`Failed: ${fileData.error}`}
+													`Failed: ${fileData.error}${
+														fileData.retryCount > 0 ? ' (retried)' : ''
+													}`}
+												{fileData.status === 'retrying' && 'Retrying...'}
 												{(!fileData.status ||
 													fileData.status === 'pending') &&
 													'Pending...'}
