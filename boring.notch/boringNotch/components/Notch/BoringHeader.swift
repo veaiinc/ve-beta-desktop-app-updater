@@ -42,7 +42,7 @@ struct BoringHeader: View {
 
             HStack(spacing: 4) {
                 if vm.notchState == .open {
-                    if coordinator.isMeetingStarted || true {
+                    if coordinator.isMeetingStarted {
                         HStack(spacing: 4) {
                             Text(coordinator.formattedMeetingTime())
                                 .font(.system(size: 12, weight: .medium))
