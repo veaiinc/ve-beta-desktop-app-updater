@@ -20,7 +20,7 @@
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
 		"dev:win:no-clean": "set NODE_ENV=development && vite",
 		"build": "npm run build:boring-notch:clean && npm run bundle:python-runtime && cross-env NODE_ENV=production node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
-		"build:win": "npm run bundle:python-runtime && set NODE_ENV=production && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
+		"build:win": "npm run build:boring-notch:clean && npm run bundle:python-runtime && set NODE_ENV=production && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
 		"bundle:python-runtime": "node scripts/bundle-python-runtime.js",
 		"package": "npm run clean:build:cross && npm run build && electron-builder",
 		"package:win": "npm run build:win && electron-builder --win",
@@ -35,8 +35,8 @@
 		"package:mac": "npm run clean:build:cross && npm run build && electron-builder --mac -- --js-flags=\"--expose-gc\"",
 		"build:boring-notch": "node scripts/build-boring-notch.js",
 		"build:boring-notch:clean": "cd boring.notch && rm -rf build && rm -rf DerivedData && node ../scripts/build-boring-notch.js",
-		"package:mac:app:unsigned": "npm run clean:build:cross && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
-		"package:mac:app:unsigned:both": "npm run clean:build:cross && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir -a x64,arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
+		"package:mac:app:unsigned": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
+		"package:mac:app:unsigned:both": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir -a x64,arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
 		"package:linux": "npm run clean:build:cross && npm run build && electron-builder --linux",
 		"publish:mac": "npm run clean:build:cross && npm run build && electron-builder --mac --publish=always",
 		"publish:win": "npm run clean:build:cross && npm run build && electron-builder --win --publish=always",
@@ -53,7 +53,7 @@
 		"clean:build:cross": "rimraf dist-electron build dist",
 		"rebuild:native:mac": "electron-builder install-app-deps",
 		"test:performance": "node scripts/performance-test.js",
-		"release:dmg": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && electron-builder --mac --publish always",
+		"release:dmg": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && electron-builder --mac --publish always",
 		"release:auto": "bash scripts/release-dmg.sh"
 	},
 	"dependencies": {
