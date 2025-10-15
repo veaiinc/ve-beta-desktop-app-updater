@@ -6,7 +6,8 @@
 	// align-items: flex-start;
 	// gap: 14px;
 	// align-self: stretch;
-	height: calc(100vh - 302px);
+	height: 100%;
+	overflow: auto;
 
 	// border-radius: 12px;
 	// background: var(--card);

@@ -9,6 +9,11 @@ import AppKit
 import Combine
 import ApplicationServices
 
+// Private Accessibility API constants (undocumented but widely used)
+private let kAXSelectedTextMarkerRangeAttribute: CFString = "AXSelectedTextMarkerRange" as CFString
+private let kAXStringForTextMarkerRangeParameterizedAttribute: CFString = "AXStringForTextMarkerRange" as CFString
+private let kAXBoundsForTextMarkerRangeParameterizedAttribute: CFString = "AXBoundsForTextMarkerRange" as CFString
+
 private let AXTextChangedNotificationName: CFString = "AXTextChangedNotification" as CFString
 
 protocol SelectionMonitorDelegate: AnyObject {

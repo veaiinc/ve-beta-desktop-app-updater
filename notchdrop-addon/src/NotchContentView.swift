@@ -146,17 +146,14 @@ struct SmartMeetingCard: View {
                 .padding(padding)
             }
             .contentShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
-            .onTapGesture { 
+            .onTapGesture {
                 if vm.isRecording {
                     vm.stopRecording()
                 } else {
-                    vm.startRecording()
+                    // Use Electron handler to check workspaceMode and either navigate to pricing or start the meeting
+                    vm.navigateToMainScreen(path: "MEETING_AI_CLICK")
                 }
             }
-            // .onTapGesture {
-            //     // Delegate to Electron: redirect to pricing if suspended, else start meeting
-            //     vm.navigateToMainScreen(path: "MEETING_AI_CLICK")
-            // }
             .onHover { hovering in
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isHovered = hovering

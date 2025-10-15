@@ -50,12 +50,21 @@ const SectionBlock = ({
 			</div>
 			{loading ? (
 				[...Array(2)].map((_, index) => (
-					<div key={index} style={{ width: '100%' }}>
+					<div
+						key={index}
+						style={{
+							width: '100%',
+							backgroundColor: 'var(--card)',
+							borderRadius: '12px',
+						}}
+					>
 						<Skeleton
 							color="var(--primary-font)"
 							width="100%"
 							height="68px"
 							borderRadius="12px"
+							highlightColor="var(--card-over-card)"
+							baseColor="var(--card)"
 						/>
 					</div>
 				))
