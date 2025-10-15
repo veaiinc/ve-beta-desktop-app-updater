@@ -48,14 +48,35 @@ struct Transcription: Identifiable, Codable, Defaults.Serializable, Equatable {
     
     // Computed property for formatted timestamp
     var formattedTime: String {
-        // Parse timestamp and format as HH:mm
+        // Parse timestamp and format as HH:mm in local timezone
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.timeZone = TimeZone(abbreviation: "UTC") // Input is UTC
+        
         if let date = formatter.date(from: timestamp) {
             let timeFormatter = DateFormatter()
             timeFormatter.dateFormat = "HH:mm"
-            return timeFormatter.string(from: date)
+            timeFormatter.timeZone = TimeZone.current // Display in local timezone
+            let formattedTime = timeFormatter.string(from: date)
+            print("🕐 SwiftUI Timestamp: \(timestamp) -> \(formattedTime) (Local)")
+            return formattedTime
         }
+        
+        // Fallback: try parsing without milliseconds
+        let fallbackFormatter = DateFormatter()
+        fallbackFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+        fallbackFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        
+        if let date = fallbackFormatter.date(from: timestamp) {
+            let timeFormatter = DateFormatter()
+            timeFormatter.dateFormat = "HH:mm"
+            timeFormatter.timeZone = TimeZone.current
+            let formattedTime = timeFormatter.string(from: date)
+            print("🕐 SwiftUI Timestamp (fallback): \(timestamp) -> \(formattedTime) (Local)")
+            return formattedTime
+        }
+        
+        print("❌ SwiftUI Timestamp parsing failed for: \(timestamp)")
         return "00:00"
     }
     
@@ -408,26 +429,27 @@ struct MeetingView: View, WebSocketEventListener {
         print("🧪 Testing transcription flow with sample data")
         
         // Create sample transcription data with long text to test auto-scroll
+        let now = Date()
         let sampleTranscriptions = [
             [
                 "id": "test_1",
                 "text": "Hello, this is a test transcription from the microphone. This is a longer text to test the auto-scrolling functionality when text content changes.",
                 "source": "mic",
-                "timestamp": Date().iso8601String,
+                "timestamp": now.iso8601String,
                 "confidence": 0.95
             ],
             [
                 "id": "test_2",
                 "text": "This is another test transcription from the screen capture. This text is also quite long to demonstrate how the auto-scroll works when the transcription content gets updated with more text.",
                 "source": "screen",
-                "timestamp": Date().iso8601String,
+                "timestamp": now.iso8601String,
                 "confidence": 0.88
             ],
             [
                 "id": "test_3",
                 "text": "And here's a third transcription to test the array replacement. This is a very long transcription that should trigger auto-scroll when it gets updated with additional content, demonstrating the improved auto-scrolling behavior for long texts.",
                 "source": "mic",
-                "timestamp": Date().iso8601String,
+                "timestamp": now.iso8601String,
                 "confidence": 0.92
             ]
         ]
