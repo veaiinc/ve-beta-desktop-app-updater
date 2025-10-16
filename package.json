@@ -39,7 +39,7 @@
 		"test:watch": "vitest watch",
 		"test:ui": "vitest --ui",
 		"test:coverage": "vitest run --coverage",
-		"test:dmg": "npm run clean:build:cross && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test-${arch}.${ext}' -c.directories.output='dist/test'",
+		"test:dmg": "npm run clean:build:cross && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=\"veai\" -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test-${arch}.${ext}' -c.directories.output='dist/test'",
 		"dmg:test": "npm run clean:build:cross && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test.${ext}' -c.directories.output='dist'",
 		"clean:build": "rm -rf dist-electron && rm -rf build && rm -rf dist",
 		"clean:build:win": "if exist dist-electron rmdir /s /q dist-electron && if exist build rmdir /s /q build && if exist dist rmdir /s /q dist",
@@ -75,7 +75,6 @@
 		"dayjs": "^1.11.13",
 		"dotenv": "^17.2.2",
 		"electron-log": "^5.4.2",
-		
 		"electron-updater": "^6.6.2",
 		"emoji-mart": "^5.6.0",
 		"exif-reader": "^2.0.2",

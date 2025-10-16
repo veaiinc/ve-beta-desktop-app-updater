@@ -416,6 +416,50 @@ const attemptBackgroundUpdateCheck = (reason = 'scheduled') => {
 	}
 };
 
+// 🚀 STARTUP UPDATE CHECK: Immediate update check when app opens
+const performStartupUpdateCheck = () => {
+	log.info('🚀 Performing startup update check...');
+	logAutoUpdateEvent('Starting startup update check');
+
+	// Skip if already in progress
+	if (getIsUpdateInProgress()) {
+		log.info('⏳ Skipping startup update check - update already in progress');
+		logAutoUpdateEvent('Skipped startup check because an update is already running');
+		return;
+	}
+
+	// Skip in development mode
+	if (process.env.NODE_ENV === 'development') {
+		log.info('⏳ Skipping startup update check - development mode');
+		logAutoUpdateEvent('Skipped startup check in development mode');
+		return;
+	}
+
+	// Set context for startup check
+	setUpdateContext(UpdateTriggerContext.MANUAL);
+	shouldAutoRestartAfterDownload = false; // Don't auto-restart on startup check
+	pendingBackgroundCheck = false;
+
+	try {
+		log.info('🔍 Initiating startup update check...');
+		const maybePromise = autoUpdater.checkForUpdatesAndNotify();
+
+		if (maybePromise && typeof maybePromise.catch === 'function') {
+			maybePromise.catch((error) => {
+				log.error('❌ Startup update check promise rejected:', error);
+				resetUpdateContext();
+				logAutoUpdateEvent('Startup check promise rejected', 'warn');
+			});
+		}
+
+		logAutoUpdateEvent('Startup update check initiated successfully');
+	} catch (error) {
+		log.error('❌ Startup update check failed:', error);
+		resetUpdateContext();
+		logAutoUpdateEvent('Startup check failed due to exception', 'warn');
+	}
+};
+
 const startAutoUpdateScheduler = () => {
 	if (backgroundUpdateIntervalId) {
 		clearInterval(backgroundUpdateIntervalId);
@@ -2350,6 +2394,11 @@ function createWindow(restoreState = false) {
 				// log.info('Window state restoration message sent:', lastWindowState);
 			}, 1000); // Wait a bit for the app to fully load
 		}
+
+		// 🚀 STARTUP UPDATE CHECK: Check for updates immediately after window is ready
+		setTimeout(() => {
+			performStartupUpdateCheck();
+		}, 2000); // Wait 2 seconds to ensure UI is fully loaded
 	});
 
 	// Enhanced error handling for failed loads
@@ -3189,7 +3238,6 @@ app.whenReady().then(async () => {
 
 		return diagnosticInfo;
 	});
-
 
 	// Clipboard IPC handlers
 	ipcMain.handle('clipboard-write-text', async (event, text) => {
