@@ -141,6 +141,7 @@ struct MeetingView: View, WebSocketEventListener {
     @State private var eventHistory: [WebSocketEvent] = []
     @State private var transcriptions: [Transcription] = []
     @State private var liveIntelligenceData: [LiveIntelligence] = []
+    @State private var meetingError: String? = nil
     
     // Webcam functionality
     @StateObject private var webcamManager = WebcamManager.shared
@@ -216,7 +217,13 @@ struct MeetingView: View, WebSocketEventListener {
         }) {
             webcamSquare
         }
-        .aspectRatio(1, contentMode: .fit)
+//        .aspectRatio(1, contentMode: .fill)
+        .buttonStyle(.plain)
+        .padding(0)
+        .frame(width: 100, height: 100, alignment: .center)
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 0)
+        .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 4)
     }
     
     @ViewBuilder
@@ -245,6 +252,7 @@ struct MeetingView: View, WebSocketEventListener {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(.black.opacity(0.2))
     }
     
     // MARK: - WebSocketEventListener
@@ -288,6 +296,8 @@ struct MeetingView: View, WebSocketEventListener {
                 handleAreYouThereContinue(event)
             case .areYouThereStop:
                 handleAreYouThereStop(event)
+            case .meetingStartError:
+                handleMeetingStartError(event)
             default:
                 print("📨 Unhandled event type: \(event.type.rawValue)")
             }
@@ -379,6 +389,10 @@ struct MeetingView: View, WebSocketEventListener {
     private func handleResumeMeeting(_ event: WebSocketEvent) {
         print("▶️ Resume meeting request with data: \(event.data)")
         // Handle resume meeting request
+    }
+    
+    private func handleMeetingStartError(_ event: WebSocketEvent) {
+        meetingError = event.data["message"] as? String ?? "Unknown error"
     }
     
     private func handleTranscriptionUpdate(_ event: WebSocketEvent) {
@@ -598,87 +612,32 @@ struct MeetingView: View, WebSocketEventListener {
         meetingData.removeAll()
     }
     
-    // MARK: - Test Methods
-    
-    private func testTranscriptionFlow() {
-        print("🧪 Testing transcription flow with sample data")
-        
-        // Create sample transcription data with long text to test auto-scroll
-        let now = Date()
-        let sampleTranscriptions = [
-            [
-                "id": "test_1",
-                "text": "Hello, this is a test transcription from the microphone. This is a longer text to test the auto-scrolling functionality when text content changes.",
-                "source": "mic",
-                "timestamp": now.iso8601String,
-                "confidence": 0.95
-            ],
-            [
-                "id": "test_2",
-                "text": "This is another test transcription from the screen capture. This text is also quite long to demonstrate how the auto-scroll works when the transcription content gets updated with more text.",
-                "source": "screen",
-                "timestamp": now.iso8601String,
-                "confidence": 0.88
-            ],
-            [
-                "id": "test_3",
-                "text": "And here's a third transcription to test the array replacement. This is a very long transcription that should trigger auto-scroll when it gets updated with additional content, demonstrating the improved auto-scrolling behavior for long texts.",
-                "source": "mic",
-                "timestamp": now.iso8601String,
-                "confidence": 0.92
-            ]
-        ]
-        
-        // Simulate receiving a transcription update event
-        let testEvent = WebSocketEvent(
-            id: UUID(),
-            type: .transcriptionUpdate,
-            data: ["transcriptions": sampleTranscriptions],
-            timestamp: Date(),
-            rawMessage: "test"
-        )
-        
-        // Process the test event
-        handleTranscriptionUpdate(testEvent)
-        
-        // Simulate a text update after 2 seconds to test auto-scroll on content change
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            print("🧪 Simulating text update for auto-scroll test")
-            var updatedTranscriptions = sampleTranscriptions
-            updatedTranscriptions[2]["text"] = "And here's a third transcription to test the array replacement. This is a very long transcription that should trigger auto-scroll when it gets updated with additional content, demonstrating the improved auto-scrolling behavior for long texts. This is additional text that was added to test the auto-scroll functionality when the content of an existing transcription changes."
-            
-            let updateEvent = WebSocketEvent(
-                id: UUID(),
-                type: .transcriptionUpdate,
-                data: ["transcriptions": updatedTranscriptions],
-                timestamp: Date(),
-                rawMessage: "test_update"
-            )
-            
-            self.handleTranscriptionUpdate(updateEvent)
-        }
-    }
-    
     // MARK: - View Helper Methods
     
     @ViewBuilder
     private func transcriptionScrollContent(proxy: ScrollViewProxy) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            if coordinator.activeMeetingView == .transcription {
-                if transcriptions.isEmpty {
-                    emptyStateView
+            if meetingError != nil {
+                Text(meetingError ?? "")
+            }
+            else{
+                if coordinator.activeMeetingView == .transcription {
+                    if transcriptions.isEmpty {
+                        emptyStateView
+                    } else {
+                        transcriptionListView
+                        bottomSpacer
+                    }
                 } else {
-                    transcriptionListView
-                    bottomSpacer
-                }
-            } else {
-                if liveIntelligenceData.isEmpty {
-                    liveIntelligenceEmptyStateView
-                } else {
-                    liveIntelligenceListView
-                    bottomSpacer
+                    if liveIntelligenceData.isEmpty {
+                        liveIntelligenceEmptyStateView
+                    } else {
+                        liveIntelligenceListView
+                        bottomSpacer
+                    }
                 }
             }
+           
         }
         .padding()
         // Simpler dependencies help the type checker
@@ -839,28 +798,6 @@ struct MeetingView: View, WebSocketEventListener {
         )
     }
     
-    private func getStatusColor() -> Color {
-        switch webSocketManager.meetingStatus {
-        case "Meeting Started":
-            return .green
-        case "Meeting Stopped":
-            return .red
-        case "Meeting Paused":
-            return .orange
-        case "Meeting Resumed":
-            return .green
-        case "Starting Meeting...":
-            return .blue
-        case "Stopping Meeting...":
-            return .orange
-        case "Pausing Meeting...":
-            return .yellow
-        case "Resuming Meeting...":
-            return .blue
-        default:
-            return .primary
-        }
-    }
 }
 
 struct TranscriptionItemView: View {

@@ -4451,34 +4451,89 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	async function checkPermissions() {
+		try {
+			// Check if microphone hardware exists
+			const devices = await desktopCapturer.getSources({
+				types: ['audio'],
+			});
+			const micAvailable = devices.length > 0;
+
+			if (!micAvailable) {
+				return {
+					status: 'no_hardware',
+					message: 'No microphone detected',
+				};
+			}
+
+			// Check microphone permission
+			const micPermission = await app.askForMediaAccess('microphone');
+
+			if (!micPermission) {
+				return {
+					status: 'permission_denied',
+					message: 'Microphone permission denied',
+				};
+			}
+
+			// Check screen permission
+			const screenPermission = await app.askForMediaAccess('screen');
+
+			return {
+				status: 'success',
+				microphone: micPermission,
+				screen: screenPermission,
+				message: 'All permissions granted',
+			};
+		} catch (err) {
+			return {
+				status: 'error',
+				message: err.message,
+			};
+		}
+	}
+
+	async function checkPermissionsAndStartMeeting(ws) {
+		const result = await checkPermissions();
+		log.info("checkPermissionsAndStartMeeting result", result);
+	
+
+		let message = '';
+
+		if (result.status === 'success') {
+			log.info('All permissions granted - starting meeting');
+			await handleNotchToMainWindowEvents({ action: 'startRecording' });
+
+			return { success: true };
+		}
+
+		if (result.status === 'permission_denied') {
+			if (!result.microphone) {
+				message = 'Please grant microphone permission in settings and try again';
+			} else if (!result.screen) {
+				message = 'Please grant screen permission in settings and try again';
+			}
+		} else if (result.status === 'no_hardware') {
+			message = 'No microphone detected on this system';
+		} else if (result.status === 'error') {
+			message = 'Error checking permissions: ' + result.message;
+		}
+
+		log.info("checkPermissionsAndStartMeeting message", message);
+
+		websocketService.sendToClient(ws, { type: 'MEETING_START_ERROR', data: { message } });
+		return { success: false, error: message };
+	}
+
 	async function handleWebSocketMessage(prop) {
 		const { data, ws } = prop;
-		// if (data.type === 'START_MEETING') {
-		// 	log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-		// 	// Send response back to the client that sent the START_MEETING message
-		// 	await handleNotchToMainWindowEvents({ action: 'startRecording' });
-		// 	websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		// } else if (data.type === 'NAVIGATE_TO_MAIN_SCREEN') {
-		// 	log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
-		// 	// Show and focus main window, optionally navigate to specific path
-		// 	await handleNotchToMainWindowEvents({ path: data.path || null });
-		// 	log.info('✅ Main window opened/restored from BoringNotch VE logo click');
-		// }
-		// // switch(data.type) {
-		// // 	case 'START_MEETING':
-		// // 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-		// // 		// Send response back to the client that sent the START_MEETING message
-		// // 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		// // 		break;
 
 		switch (data.type) {
 			case 'START_MEETING':
 				log.info(
 					'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
 				);
-				await handleNotchToMainWindowEvents({ action: 'startRecording' });
-				// Send response back to the client that sent the START_MEETING message
-				websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+				checkPermissionsAndStartMeeting(ws);
 				break;
 
 			case 'PAUSE_MEETING':

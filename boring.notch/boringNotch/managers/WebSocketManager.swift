@@ -24,6 +24,7 @@ enum WebSocketEventType: String, CaseIterable {
     case meetingStopped = "MEETING_STOPPED"
     case meetingPaused = "MEETING_PAUSED"
     case meetingResumed = "MEETING_RESUMED"
+    case meetingStartError = "MEETING_START_ERROR"
     
     // Meeting Data Events
     case transcriptionUpdate = "TRANSCRIPTION_UPDATE"

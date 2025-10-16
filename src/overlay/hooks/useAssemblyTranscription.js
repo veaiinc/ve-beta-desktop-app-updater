@@ -1162,6 +1162,14 @@ const useAssemblyTranscription = ({
 				// Then start audio capture
 				// log('Starting audio capture...');
 				await startAudioCapture();
+				if (window.electronApi) {
+					window.electronApi.sendMessageToNotch({
+						type: 'MEETING_STARTED',
+						data: {
+							message: 'Microphone access granted',
+						},
+					});
+				}
 			} catch (error) {
 				log(`Failed to start recording: ${error.message}`);
 				stopRecording({ meetingId });
