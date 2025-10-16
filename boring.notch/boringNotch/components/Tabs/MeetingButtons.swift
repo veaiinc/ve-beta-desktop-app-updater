@@ -19,60 +19,50 @@ struct MeetingButtons: View, WebSocketEventListener {
 //    private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        HStack(spacing: 4,) {
-            // Pause/Resume
-            if meetingIsLoading {
-                Text("Connecting...")
-            } else {
-                Button {
-                    togglePause()
-                } label: {
-                    Label(coordinator.meetingIsPaused ? "Resume" : "Pause",
-                          systemImage: coordinator.meetingIsPaused ? "play.fill" : "pause.fill")
-                    .labelStyle(.iconOnly)
-                    .frame(width: 10,height: 10)
-                    .foregroundColor(.white)
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 2)
-                .frame(height: 24, alignment: .center)
-                .cornerRadius(24)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .inset(by: 0.25)
-                        .stroke(.white.opacity(0.2), lineWidth: 0.5)
-                    
-                )
-                .help(coordinator.meetingIsPaused ? "Resume" : "Pause")
-                .onHover { isHovered in
-                    if isHovered {
-                        NSCursor.pointingHand.push()
-                    } else {
-                        NSCursor.pop()
+            
+            HStack(spacing: 0) {
+                // Pause/Resume button
+                if meetingIsLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.5)
+                }else {
+                    Button {
+                        togglePause()
+                    } label: {
+                        Label(coordinator.meetingIsPaused ? "Resume" : "Pause",
+                              systemImage: coordinator.meetingIsPaused ? "play.fill" : "pause.fill")
+                        .labelStyle(.iconOnly)
+                        .foregroundColor(.white)
+                    }
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: 30)
+                    .frame(height: 24)
+                    .help(coordinator.meetingIsPaused ? "Resume" : "Pause")
+                    .onHover { isHovered in
+                        if isHovered {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
                     }
                 }
+               
                 
-                // Stop
+                Divider()
+                    .frame(height: 24)
+                
+                // Stop button
                 Button {
                     stopTimer()
                 } label: {
                     Label("Stop", systemImage: "stop.fill")
-                        .labelStyle(.iconOnly)
-                        .frame(width: 10,height: 10)
-                        .foregroundColor(Color(red: 0.79, green: 0.28, blue: 0.29))
+                    .labelStyle(.iconOnly)
+                    .foregroundColor(Color(red: 0.79, green: 0.28, blue: 0.29))
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 2)
-                .frame(height: 24, alignment: .center)
-                .cornerRadius(24)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 24)
-                        .inset(by: 0.25)
-                        .stroke(.white.opacity(0.2), lineWidth: 0.5)
-                    
-                )
+                .frame(maxWidth: 30)
+                .frame(height: 24)
                 .help("Stop")
                 .onHover { isHovered in
                     if isHovered {
@@ -81,6 +71,7 @@ struct MeetingButtons: View, WebSocketEventListener {
                         NSCursor.pop()
                     }
                 }
+            
                 
 //                Button {
 //                    coordinator.toggleActiveMeetingView()
@@ -110,8 +101,15 @@ struct MeetingButtons: View, WebSocketEventListener {
 //                        NSCursor.pop()
 //                    }
 //                }
-            }
+            
         }
+        .cornerRadius(12)
+        .frame(height: 24)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .inset(by: 0.25)
+                .stroke(.white.opacity(0.2), lineWidth: 0.5)
+        )
         .onAppear {
             // Listen to websocket events
             WebSocketManager.shared.addEventListener(self)
