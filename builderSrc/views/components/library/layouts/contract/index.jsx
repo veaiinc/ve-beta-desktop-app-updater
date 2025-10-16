@@ -726,7 +726,7 @@ export default class Signature extends Component {
 											>
 												<img
 													src={
-														this.state.activeTableData?.values[1]?.value
+														this.state.activeTableData?.values[1]?.value?.replace('ap.assets.ve.ai', 'us.assets.ve.ai')
 													}
 													style={{
 														width: '100%',
