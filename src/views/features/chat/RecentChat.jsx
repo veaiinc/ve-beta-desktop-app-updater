@@ -496,7 +496,6 @@ const RecentChat = ({
 
 			const recentChatInfo = { hasNextPage, currentPage };
 
-			// if (messages?.length > 0) {
 			handleGlobalChatMessages({
 				sessionId,
 				fetchMore,
@@ -506,9 +505,8 @@ const RecentChat = ({
 				...(chatPayload?.moduleTemplateId &&
 					chatPayload?.workflowTemplateId && { chatPayload }),
 			});
-			// }
 
-			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
+			setInfo((prev) => ({ ...prev, chatLoading: false }));
 		},
 		[sessionId, agentType],
 	);
