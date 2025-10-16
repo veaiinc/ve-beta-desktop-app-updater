@@ -275,7 +275,7 @@ const actionHandlers = {
 			if (removeChatSessions) {
 				let globalChatMessages = { ...state?.globalChatMessages };
 				globalChatMessages = Object.keys(globalChatMessages)?.reduce((acc, key) => {
-					if (messages?.length) {
+					if (globalChatMessages?.[key]?.messages) {
 						acc[key] = globalChatMessages[key];
 					}
 					return acc;
