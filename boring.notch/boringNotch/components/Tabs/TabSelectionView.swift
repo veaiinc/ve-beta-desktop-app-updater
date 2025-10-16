@@ -299,7 +299,7 @@ private struct ShelfTabIcon: View {
 }
 
 
-struct TabSelectionView: View {
+struct TabSelectionView: View, WebSocketEventListener {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @StateObject private var webSocketManager = WebSocketManager.shared
     @Namespace var animation
@@ -324,7 +324,12 @@ struct TabSelectionView: View {
                 )
                 
                 // Add MeetingButtons after the Home tab
-                MeetingButtons()
+               if !meetingLoading {
+                   MeetingButtons()
+               }else {
+                   Text("Connecting...")
+               }
+            
             }
             
         } else {
@@ -341,6 +346,7 @@ struct TabSelectionView: View {
                                 
                                 // Send START_MEETING message when Listen tab is clicked
                                 if tab.view == .meeting {
+                                    meetingLoading = true
                                     webSocketManager.sendEvent(type: .startMeeting)
                                 }
                                 
@@ -360,6 +366,16 @@ struct TabSelectionView: View {
         }
         
     }
+    
+    func onWebSocketEvent(_ event: WebSocketEvent) {
+        switch event.type {
+        case .meetingStarted:
+            meetingLoading = false
+        default:
+            break
+        }
+    }
+    
 }
 
 #Preview {
