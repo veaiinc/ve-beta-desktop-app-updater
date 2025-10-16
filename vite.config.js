@@ -128,7 +128,6 @@ export default defineConfig({
 				askAI: './askAI.html',
 				areYouThere: './areYouThere.html',
 				dynamicIsland: './dynamic-island.html',
-				permission: './permission.html',
 				errorFallback: './error-fallback.html',
 			},
 			// ✅ REVERTED: Removed aggressive code splitting that broke production
