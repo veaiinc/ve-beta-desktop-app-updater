@@ -1219,51 +1219,10 @@ const ChatBox = ({
 		});
 	};
 
-	// const handleSearchTypeChangeForReason = (type, value) => {
-	// 	const reason = { ...chatInfo?.reason, [type]: value };
-	// 	let deepResearch = chatInfo?.deepResearch;
-
-	// 	if (reason?.webSearch === false && reason?.workspaceSearch === false) {
-	// 		deepResearch = false;
-	// 	} else {
-	// 		deepResearch = true;
-	// 	}
-
-	// 	updateStateValues({
-	// 		chatInfo: {
-	// 			...chatInfo,
-	// 			reason,
-	// 			deepResearch,
-	// 			ask: deepResearch ? false : true,
-	// 			build: false,
-	// 		},
-	// 	});
-	// };
-
 	const handleChatBoxClick = (e) => {
 		if (customChatBoxClick) {
 			customChatBoxClick?.(e);
 		}
-	};
-
-	const handleAskClick = () => {
-		let chatBoxData = info?.chatBoxInfo;
-		if (chatBoxData?.ask) {
-			return;
-		}
-
-		chatBoxData = {
-			...chatBoxData,
-			ask: true,
-			deepResearch: false,
-			build: false,
-			deepSearch: false,
-		};
-		handleGlobalChatMessages({
-			sessionId: info?.chatSessionId,
-			chatBoxInfo: chatBoxData,
-			updateExtraInfo: true,
-		});
 	};
 
 	const handleDeepSearchClick = (e) => {
@@ -1558,17 +1517,6 @@ const ChatBox = ({
 											: ''
 									}
 								/>
-
-								{/* {isTranscribing && (
-									<div className="transcription-indicator">
-										<canvas
-											ref={canvasRef}
-											className="audio-visualizer"
-											width="200"
-											height="50"
-										/>
-									</div>
-								)} */}
 							</div>
 						</div>
 					</div>
@@ -1729,94 +1677,3 @@ const ChatBox = ({
 };
 
 export default memo(ChatBox);
-
-{
-	/* <div className="combined-chat-options">
-															{!isPublicChat && showBottomTools && (
-																<Tooltip
-																	title={
-																		<div className="chatbox-icon-tooltip-container ask-option-tooltip-container">
-																			<BulbSvg />
-																			Ask Ai
-																		</div>
-																	}
-																	color="transparent"
-																	arrow={false}
-																	rootClassName="chatbox-tooltip"
-																>
-																	<div
-																		className={`chat-box-icon-container ${
-																			info?.chatBoxInfo?.ask
-																				? 'active'
-																				: ''
-																		}`}
-																		onClick={handleAskClick}
-																	>
-																		<div className="chat-icon">
-																			<div
-																				className="text-wrapper  ask-text-wrapper"
-																				style={{
-																					padding: '7px',
-																				}}
-																			>
-																				<div className="bulb-icon">
-																					<BulbSvg
-																						style={{
-																							width: '20px',
-																							height: '20px',
-																						}}
-																					/>
-																				</div>
-																				<div className="icon-text ask-icon-text">
-																					Ask
-																				</div>
-																				<AskTooltip
-																					open={
-																						info?.askTooltipOpen
-																					}
-																					onOpenChange={(
-																						value,
-																					) => {
-																						setInfo(
-																							(
-																								prev,
-																							) => ({
-																								...prev,
-																								askTooltipOpen:
-																									value,
-																							}),
-																						);
-																					}}
-																				>
-																					<div
-																						className={`icon-arrow-wrapper ${
-																							info
-																								?.chatBoxInfo
-																								?.ask
-																								? 'icon-arrow-wrapper-active'
-																								: ''
-																						}`}
-																						onClick={(
-																							e,
-																						) =>
-																							handleAskTooltipClick(
-																								e,
-																							)
-																						}
-																					>
-																						<div className="icon-arrow">
-																							<ArrowDownSvg
-																								fill={
-																									'var(--primary-font)'
-																								}
-																							/>
-																						</div>
-																					</div>
-																				</AskTooltip>
-																			</div>
-																		</div>
-																	</div>
-																</Tooltip>
-															)}
-														</div> */
-}
