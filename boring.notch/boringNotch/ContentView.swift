@@ -131,8 +131,8 @@ struct ContentView: View {
                                 isHovering = hovering
                             }
 
-                            // Only close if mouse leaves and the notch is open, but not in meeting view and not locked
-                            if !hovering && vm.notchState == .open && coordinator.currentView != .meeting && !vm.isNotchLocked && !vm.isHoveringLockArea {
+                            // Only close if mouse leaves and the notch is open, but not locked
+                            if !hovering && vm.notchState == .open && !vm.isNotchLocked && !vm.isHoveringLockArea {
                                 vm.close()
                             }
                         }
@@ -575,8 +575,8 @@ struct ContentView: View {
                     isHovering = false
                 }
 
-                // Close the notch if it's open and battery popover is not active, but not in meeting view and not locked
-                if vm.notchState == .open && !vm.isBatteryPopoverActive && coordinator.currentView != .meeting && !vm.isNotchLocked && !vm.isHoveringLockArea {
+                // Close the notch if it's open and battery popover is not active, but not locked
+                if vm.notchState == .open && !vm.isBatteryPopoverActive && !vm.isNotchLocked && !vm.isHoveringLockArea {
                     vm.close()
                 }
             }
@@ -630,8 +630,8 @@ struct ContentView: View {
                     gestureProgress = .zero
                     isHovering = false
                 }
-                // Don't close the notch if we're in the meeting view or if locked
-                if coordinator.currentView != .meeting && !vm.isNotchLocked {
+                // Don't close the notch if locked
+                if !vm.isNotchLocked {
                     vm.close()
                 }
 
@@ -687,8 +687,8 @@ private struct FloatingLockButton: View {
             if hovering && vm.notchState == .closed {
                 withAnimation(.bouncy.speed(1.2)) { vm.open() }
             }
-            // Close when leaving if not locked and not in meeting
-            if !hovering && vm.notchState == .open && !vm.isNotchLocked && coordinator.currentView != .meeting {
+            // Close when leaving if not locked
+            if !hovering && vm.notchState == .open && !vm.isNotchLocked {
                 vm.close()
             }
         }

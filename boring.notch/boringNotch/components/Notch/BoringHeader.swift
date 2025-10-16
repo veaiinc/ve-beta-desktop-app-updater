@@ -127,28 +127,28 @@ struct BoringHeader: View {
                     }
                     .buttonStyle(PlainButtonStyle())
 
-                    if Defaults[.showMirror] {
-                        Button(action: {
-                            vm.toggleCameraPreview()
-                        }) {
-                            HStack(spacing: 4) {
-                                ZStack() {
-                                    Image(systemName: "web.camera")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 12, weight: .semibold))
-                                }
-                                .frame(width: 13, height: 13)
-                            }
-                            .padding(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                            .frame(width: 32, height: 32)
-                            .background(hoverMirror ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
-                            .cornerRadius(32)
-                            .onHover { hover in
-                                hoverMirror = hover
-                            }
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
+//                    if Defaults[.showMirror] {
+//                        Button(action: {
+//                            vm.toggleCameraPreview()
+//                        }) {
+//                            HStack(spacing: 4) {
+//                                ZStack() {
+//                                    Image(systemName: "web.camera")
+//                                        .foregroundColor(.white)
+//                                        .font(.system(size: 12, weight: .semibold))
+//                                }
+//                                .frame(width: 13, height: 13)
+//                            }
+//                            .padding(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+//                            .frame(width: 32, height: 32)
+//                            .background(hoverMirror ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
+//                            .cornerRadius(32)
+//                            .onHover { hover in
+//                                hoverMirror = hover
+//                            }
+//                        }
+//                        .buttonStyle(PlainButtonStyle())
+//                    }
                     if Defaults[.settingsIconInNotch] {
                         Button(action: {
                             SettingsWindowController.shared.showWindow()
