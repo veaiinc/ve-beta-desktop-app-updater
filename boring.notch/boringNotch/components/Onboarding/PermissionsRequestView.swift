@@ -14,6 +14,25 @@ struct PermissionRequestView: View {
     let privacyNote: String?
     let onAllow: () -> Void
     let onSkip: () -> Void
+    let isSkippable: Bool
+
+    init(
+        icon: Image,
+        title: String,
+        description: String,
+        privacyNote: String?,
+        onAllow: @escaping () -> Void,
+        onSkip: @escaping () -> Void,
+        isSkippable: Bool = true
+    ) {
+        self.icon = icon
+        self.title = title
+        self.description = description
+        self.privacyNote = privacyNote
+        self.onAllow = onAllow
+        self.onSkip = onSkip
+        self.isSkippable = isSkippable
+    }
  
     struct Constants {
         static let primaryFont: Color = Color(red: 0.95, green: 0.95, blue: 0.95)
@@ -63,27 +82,29 @@ struct PermissionRequestView: View {
             }
 
             HStack(spacing: 12) {
-                Button(action: onSkip) {
-                    HStack(alignment: .center, spacing: 8) { }
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 8)
-                        .frame(width: 135, height: 32, alignment: .center)
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .inset(by: 0.5)
-                                .stroke(.white.opacity(0.4), lineWidth: 1)
-                        )
-                        .overlay(
-                            Text("Not Now")
-                                .font(
-                                    Font.custom("GeneralSans", size: 14)
-                                        .weight(.medium)
-                                )
-                                .foregroundColor(.white)
-                        )
+                if isSkippable {
+                    Button(action: onSkip) {
+                        HStack(alignment: .center, spacing: 8) { }
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 8)
+                            .frame(width: 135, height: 32, alignment: .center)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .inset(by: 0.5)
+                                    .stroke(.white.opacity(0.4), lineWidth: 1)
+                            )
+                            .overlay(
+                                Text("Not Now")
+                                    .font(
+                                        Font.custom("GeneralSans", size: 14)
+                                            .weight(.medium)
+                                    )
+                                    .foregroundColor(.white)
+                            )
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
 
                 Button(action: onAllow) {
                     HStack(alignment: .center, spacing: 8) { }
