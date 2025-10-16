@@ -62,7 +62,13 @@ struct ContentView: View {
                         : cornerRadiusInsets.closed.bottom
                 )
                 .padding([.horizontal, .bottom], isNotchOpen ? 12 : 0)
-                .background(Material.regularMaterial)
+                .background {
+                    if isNotchOpen {
+                        Rectangle().fill(Material.regularMaterial)
+                    } else {
+                        Color.black
+                    }
+                }
                 .mask {
                     if isNotchOpen {
                         NotchShape(
