@@ -156,16 +156,16 @@ struct ClosedNotchContentView: View {
         HStack(alignment: .top, spacing: 24) {
             // Home icon with Listen text
             HStack(spacing: 24) {
-                HomeTabIcon(strokeColor: .white)
-                    .frame(width: 13, height: 13)
-                ShelfTabIcon(strokeColor: .white)
-                     .frame(width: 13, height: 13)
-                Text("Listen")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
-                Text("Ask")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
+                // HomeTabIcon(strokeColor: .white)
+                //     .frame(width: 13, height: 13)
+                // ShelfTabIcon(strokeColor: .white)
+                //      .frame(width: 13, height: 13)
+                // Text("Listen")
+                //     .font(.system(size: 12, weight: .medium))
+                //     .foregroundColor(.white)
+                // Text("Ask")
+                //     .font(.system(size: 12, weight: .medium))
+                //     .foregroundColor(.white)
             }
         
         }
