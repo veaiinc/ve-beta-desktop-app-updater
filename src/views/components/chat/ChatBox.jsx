@@ -21,7 +21,7 @@ import ObjectID from 'bson-objectid';
 import { useLocation, useParams } from 'react-router-dom';
 import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
-import { Image, Spin, Upload } from 'antd';
+import { Image, Spin } from 'antd';
 import { message } from '../globalComponents/CustomToast';
 // import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
@@ -45,37 +45,11 @@ const moduleHelper = {
 	note: 'notes',
 };
 
-const integrationsOptions = {
-	meeting: 'Meeting',
-	notion: 'Notion',
-	'q&a': 'Q & A',
-	website: 'Website',
-};
-
-const modulesOptions = {
-	calendar: 'Calendar',
-	tasks: 'Tasks',
-	// storage: 'Storage',
-	// gallery: 'Gallery',
-	clients: 'Clients',
-};
-
-const chatboxPlaceholders = [
-	'Start typing or use @ to mention a source.',
-	'Summarize all emails from today',
-	'Schedule a meeting for next week',
-	'Draft and send a follow-up email',
-	'Deep research "latest industry trends" with sources',
-	'Generate a professional-looking form in seconds',
-	'Search across Gmail, Drive, and Notion for "invoice"',
-];
-
 const initialChatBoxInfo = {
 	deepResearch: false,
 	webSearch: true,
 	workspaceSearch: true,
 	ask: true,
-	goals: false,
 	selectedLLMModel: null,
 	build: false,
 	deepSearch: false,
@@ -103,9 +77,7 @@ const ChatBox = ({
 	onChatQueryChange = null,
 	isBuildEnbled = true,
 	showUpgradeSubscriptionBtn = true,
-	animateChatBox = true,
 	sessionId = null,
-	getSuggestions = false,
 	placeholder = 'What would you like to do?',
 	showBrowserButton = false,
 	handleBrowserButtonClick = null,
@@ -126,11 +98,6 @@ const ChatBox = ({
 	const { workspaceMode } = useWorkspaceMode();
 
 	const textAreaRef = useRef(null);
-	const textAreaWrapperRef = useRef(null);
-	const suggestionsTimeoutRef = useRef(null);
-	const suggestionRef = useRef(null);
-	const chatSessionIdRef = useRef(null);
-	const previousChatQueryRef = useRef('');
 	const {
 		templates: {
 			globalChatMessages,
@@ -163,32 +130,16 @@ const ChatBox = ({
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		bigToolbarIsOpen: false,
 		chatQuery: '',
-		widgetQuery: '',
-		position: { x: window?.innerWidth / 2 - 900, y: 0 },
-		addQuickAction: false,
 		chatSessionId: null,
 		uploadedImages: uploadedImages,
 		chatLoading: false,
-		showFullPage: true,
 		voiceIntegration: false,
-		noteModalIsOpen: false,
-		citationsModalIsOpen: false,
-		filtersEnabled: false,
 		isRecentFileOpen: false,
-		isIntegrationsDropdownOpen: false,
-		isModulesDropdownOpen: false,
 		recentFiles: [],
-		isVoiceMuted: false,
 		isLLMModelOpen: false,
-		searchTypeOpenForReason: false,
-		activePlaceholderIndex: 0,
 		openUpgradeModal: false,
-		askTooltipOpen: false,
 		chatBoxInfo: initialChatBoxInfo,
-		chatboxMinimized: true,
-		chatBoxContainerHeight: 60,
 		stopLoading: false,
 		chatSocketConnectionAttempted: false,
 	});
@@ -211,7 +162,6 @@ const ChatBox = ({
 
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
-	// const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
 		totalCreditsLimit =
 			typeof currentPlan?.totalAiCreditLimit === 'number'
@@ -222,34 +172,7 @@ const ChatBox = ({
 		if (!currentPlan) {
 			getCurrentSubscriptionPlan();
 		}
-		// document.addEventListener('click', handleWindowClick);
-		return () => {
-			// document.removeEventListener('click', handleWindowClick);
-			if (chatSessionIdRef.current) {
-				closeWebSocketConnection(chatSessionIdRef.current);
-			}
-
-			if (suggestionsTimeoutRef.current) {
-				clearTimeout(suggestionsTimeoutRef.current);
-			}
-		};
 	}, []);
-
-	useEffect(() => {
-		if (!animateChatBox) return;
-		setInfo((prev) => {
-			const height = info?.chatboxMinimized
-				? '60px'
-				: `${Math.min(textAreaRef?.current?.scrollHeight, 200) + 58 + 28}px`;
-			if (height === prev?.chatBoxContainerHeight) {
-				return prev;
-			}
-			return {
-				...prev,
-				chatBoxContainerHeight: height,
-			};
-		});
-	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
 		if (chatBoxWrapperRef.current && chatbarContainerRef.current && getChatBoxHeight) {
@@ -289,7 +212,6 @@ const ChatBox = ({
 
 		if (sessionData?.chatBoxInfo) {
 			const deepResearch = sessionData?.chatBoxInfo?.deepResearch;
-			const goals = sessionData?.chatBoxInfo?.goals;
 			const webSearch = sessionData?.chatBoxInfo?.webSearch;
 			const workspaceSearch = sessionData?.chatBoxInfo?.workspaceSearch;
 			const ask = sessionData?.chatBoxInfo?.ask;
@@ -298,7 +220,6 @@ const ChatBox = ({
 			const deepSearch = sessionData?.chatBoxInfo?.deepSearch;
 			if (
 				info?.chatBoxInfo?.deepResearch !== deepResearch ||
-				info?.chatBoxInfo?.goals !== goals ||
 				info?.chatBoxInfo?.webSearch !== webSearch ||
 				info?.chatBoxInfo?.workspaceSearch !== workspaceSearch ||
 				info?.chatBoxInfo?.ask !== ask ||
@@ -340,7 +261,6 @@ const ChatBox = ({
 				let chatBoxData = info?.chatBoxInfo;
 				chatBoxData = {
 					...chatBoxData,
-					goals: false,
 					deepResearch: false,
 					ask: true,
 					build: false,
@@ -393,26 +313,6 @@ const ChatBox = ({
 		}
 	}, [activeInputForChat]);
 
-	// useEffect(() => {
-	// 	if (showPlaceholder && animatePlaceholder) {
-	// 		placeholderIntervalId.current = setInterval(() => {
-	// 			setInfo((prev) => {
-	// 				const nextIndex =
-	// 					prev?.activePlaceholderIndex === chatboxPlaceholders?.length - 1
-	// 						? 0
-	// 						: prev?.activePlaceholderIndex + 1;
-	// 				return {
-	// 					...prev,
-	// 					activePlaceholderIndex: nextIndex,
-	// 				};
-	// 			});
-	// 		}, 3000);
-	// 	}
-	// 	return () => {
-	// 		clearInterval(placeholderIntervalId.current);
-	// 	};
-	// }, [showPlaceholder]);
-
 	//below useeffect is for getting suggestions
 	useEffect(() => {
 		// the below condition will run when the text in the textarea is updated from external source, not through typing in textarea
@@ -430,68 +330,7 @@ const ChatBox = ({
 			createWebSocketConnection({ sessionId: info?.chatSessionId, isPublicChat, agentType });
 			setInfo((prev) => ({ ...prev, chatSocketConnectionAttempted: true }));
 		}
-
-		if (
-			info?.chatQuery?.length > 0 &&
-			info?.chatSessionId &&
-			getSuggestions &&
-			!info?.chatQuery?.includes('\n')
-		) {
-			const previousChatQuery = previousChatQueryRef.current?.trim().replace(/\n/g, '');
-			const currentChatQuery = info?.chatQuery?.trim()?.replace(/\n/g, '');
-			if (previousChatQuery === currentChatQuery) {
-				return;
-			}
-			previousChatQueryRef.current = info?.chatQuery;
-			if (suggestionsTimeoutRef.current) {
-				clearTimeout(suggestionsTimeoutRef.current);
-			}
-			suggestionsTimeoutRef.current = setTimeout(() => {
-				sendMessage({
-					sessionId: info?.chatSessionId,
-					query: info?.chatQuery,
-					onMessageFunc: handleSuggestionsMessageFunc,
-				});
-				suggestionsTimeoutRef.current = null;
-			}, 400);
-		}
 	}, [info?.chatQuery]);
-
-	// //below useeffect is for getting suggestions
-	// useEffect(() => {
-	// 	if (info?.showSuggestion) {
-	// 		let height = 0;
-	// 		if (suggestionRef?.current && textAreaRef?.current) {
-	// 			height = Math.max(
-	// 				suggestionRef?.current?.scrollHeight,
-	// 				textAreaRef?.current?.scrollHeight,
-	// 			);
-	// 			height = Math.min(height, 200);
-	// 			height = Math.max(height, 30);
-	// 		}
-	// 		if (suggestionRef?.current) {
-	// 			suggestionRef.current.style.height = `${height}px`;
-	// 		}
-	// 		if (textAreaRef?.current) {
-	// 			textAreaRef.current.style.height = `${height}px`;
-	// 		}
-	// 		if (textAreaWrapperRef?.current) {
-	// 			textAreaWrapperRef.current.style.height = `${height}px`;
-	// 		}
-	// 		setInfo((prev) => ({ ...prev, chatBoxContainerHeight: `${height + 58 + 28}px` }));
-	// 	}
-	// }, [info?.showSuggestion]);
-
-	//below useeffect is for getting suggestions
-	useEffect(() => {
-		if (info?.chatQuery && info?.suggestion) {
-			if (info?.suggestion?.startsWith(info?.chatQuery)) {
-				setInfo((prev) => ({ ...prev, showSuggestion: true }));
-			} else {
-				setInfo((prev) => ({ ...prev, showSuggestion: false }));
-			}
-		}
-	}, [info?.chatQuery, info?.suggestion]);
 
 	useEffect(() => {
 		if (galleryFile) {
@@ -538,18 +377,9 @@ const ChatBox = ({
 		}
 	}, [activePayloadForChat, info?.chatSessionId]);
 
-	// useEffect(() => {
-	// 	if (currentSessionId) {
-	// 		setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
-	// 	} else {
-	// 		updateStateValues({ currentSessionId: ObjectID()?.toString() });
-	// 	}
-	// }, [currentSessionId]);
-
 	useEffect(() => {
 		const chatSessionId = sessionId || ObjectID()?.toString();
 		setInfo((prev) => ({ ...prev, chatSessionId }));
-		chatSessionIdRef.current = chatSessionId;
 	}, [sessionId]);
 
 	useEffect(() => {
@@ -561,17 +391,6 @@ const ChatBox = ({
 			});
 		}
 	}, [info?.chatSessionId]);
-
-	useEffect(() => {
-		if (!textAreaRef?.current) return;
-
-		if (!info?.chatboxMinimized) {
-			// Focus only if not already focused
-			if (document.activeElement !== textAreaRef.current) {
-				textAreaRef.current.focus();
-			}
-		}
-	}, [info?.chatboxMinimized]);
 
 	useEffect(() => {
 		const newVoiceIntegration = voiceIntegrationData?.shouldConnect || false;
@@ -588,98 +407,12 @@ const ChatBox = ({
 		}));
 	}, [voiceIntegrationData, isTranscribing]);
 
-	const handleSuggestionsMessageFunc = (event) => {
-		const data = JSON.parse(event?.data || {});
-		if (data?.suggestion) {
-			setInfo((prev) => ({
-				...prev,
-				suggestion: data?.suggestion,
-			}));
-		}
-	};
-
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
 			file.preview = await getBase64(file.originFileObj);
 		}
 		setPreviewImage(file.url || file.preview);
 		setPreviewOpen(true);
-	};
-
-	// const handleWindowClick = useCallback(() => {
-	// 	if (!animateChatBox) return;
-	// 	setInfo((prev) => {
-	// 		if (prev?.chatboxMinimized) {
-	// 			return prev;
-	// 		}
-	// 		return {
-	// 			...prev,
-	// 			chatboxMinimized: true,
-	// 		};
-	// 	});
-	// }, [animateChatBox]);
-	const handleGoalsClick = () => {
-		let chatBoxData = info?.chatBoxInfo;
-
-		if (chatBoxData?.goals) {
-			return;
-		}
-
-		chatBoxData = {
-			...chatBoxData,
-			goals: true,
-			ask: false,
-			deepResearch: false,
-			build: false,
-			deepSearch: false,
-		};
-
-		handleGlobalChatMessages({
-			sessionId: info?.chatSessionId,
-			chatBoxInfo: chatBoxData,
-			updateExtraInfo: true,
-		});
-	};
-	const handleDeepResearchClick = () => {
-		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
-			return;
-		}
-
-		let chatBoxData = info?.chatBoxInfo;
-
-		if (isPublicChat) {
-			if (chatBoxData?.webSearch) {
-				chatBoxData = {
-					...chatBoxData,
-					webSearch: false,
-					deepResearch: !chatBoxData?.deepResearch,
-				};
-				handleGlobalChatMessages({
-					sessionId: info?.chatSessionId,
-					chatBoxInfo: chatBoxData,
-					updateExtraInfo: true,
-				});
-				return;
-			}
-		}
-
-		if (chatBoxData?.deepResearch) {
-			return;
-		}
-
-		chatBoxData = {
-			...chatBoxData,
-			deepResearch: true,
-			ask: false,
-			goals: false,
-			build: false,
-		};
-
-		handleGlobalChatMessages({
-			sessionId: info?.chatSessionId,
-			chatBoxInfo: chatBoxData,
-			updateExtraInfo: true,
-		});
 	};
 
 	const handleRecentFileClick = (file) => {
@@ -916,9 +649,6 @@ const ChatBox = ({
 						uploadedImages: [],
 						chatQuery: '',
 						recentFiles: [],
-						chatboxMinimized: true,
-						suggestion: null,
-						showSuggestion: false,
 					}));
 					uploadedImagesRef.current = [];
 					recentFilesRef.current = [];
@@ -1412,35 +1142,6 @@ const ChatBox = ({
 
 	const handleTextAreaKeyDown = (e) => {
 		handleSendMessageFunc?.(e);
-		if (e?.key === 'Tab') {
-			e?.preventDefault();
-			e?.stopPropagation();
-			setInfo((prev) => {
-				if (
-					prev?.suggestion &&
-					prev?.chatQuery?.length > 0 &&
-					prev?.suggestion?.startsWith(prev?.chatQuery)
-				) {
-					previousChatQueryRef.current = prev?.suggestion;
-					return {
-						...prev,
-						chatQuery: prev?.suggestion,
-						suggestion: null,
-						showSuggestion: false,
-					};
-				}
-				return prev;
-			});
-		}
-	};
-
-	const handleTextAreaFocus = () => {
-		// Clear suggestions when text field is focused
-		setInfo((prev) => ({
-			...prev,
-			suggestion: null,
-			showSuggestion: false,
-		}));
 	};
 
 	const handleTextAreaPaste = useCallback(
@@ -1465,8 +1166,6 @@ const ChatBox = ({
 	const handleTextAreaChange = (e, queryValue = '') => {
 		isTypingRef.current = true;
 		const textArea = textAreaRef?.current;
-		// const textAreaWrapper = textAreaWrapperRef?.current;
-		// const suggestionContainer = suggestionRef?.current;
 		const query = e?.target?.value ?? queryValue;
 		const lastChar = query?.trim()?.slice(-1);
 
@@ -1475,22 +1174,8 @@ const ChatBox = ({
 		if (textArea) {
 			textArea.style.height = 'auto';
 			textAreaHeight = textArea?.scrollHeight;
-			// if (suggestionContainer) {
-			// 	const suggestionContainerHeight = suggestionContainer?.scrollHeight;
-			// 	if (textAreaHeight < suggestionContainerHeight) {
-			// 		textAreaHeight = suggestionContainerHeight;
-			// 	}
-			// }
-			// textAreaHeight = Math.min(textAreaHeight, 200);
 			textArea.style.height = textAreaHeight + 'px';
 		}
-
-		// if (textAreaWrapper) {
-		// 	textAreaWrapper.style.height = textAreaHeight + 'px';
-		// }
-		// if (suggestionContainer) {
-		// 	suggestionContainer.style.height = textAreaHeight + 'px';
-		// }
 
 		let isRecentFileOpen = false;
 		if (lastChar === '@') {
@@ -1505,23 +1190,14 @@ const ChatBox = ({
 			...prev,
 			chatQuery: query,
 			isRecentFileOpen,
-			chatBoxContainerHeight: textAreaHeight + 58 + 28 + 'px',
 		}));
 	};
 
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
-		// const textAreaWrapper = textAreaWrapperRef?.current;
-		// const suggestionContainer = suggestionRef?.current;
 		if (textArea) {
 			textArea.style.height = '30px'; // Reset to initial min-height
 		}
-		// if (textAreaWrapper) {
-		// 	textAreaWrapper.style.height = '30px';
-		// }
-		// if (suggestionContainer) {
-		// 	suggestionContainer.style.height = '30px';
-		// }
 	};
 
 	const handleBuildClick = () => {
@@ -1534,7 +1210,6 @@ const ChatBox = ({
 			build: true,
 			ask: false,
 			deepResearch: false,
-			goals: false,
 			deepSearch: false,
 		};
 		handleGlobalChatMessages({
@@ -1566,15 +1241,6 @@ const ChatBox = ({
 	// };
 
 	const handleChatBoxClick = (e) => {
-		// if (animateChatBox) {
-		// 	e?.stopPropagation();
-		// 	if (info?.chatboxMinimized) {
-		// 		setInfo((prev) => ({
-		// 			...prev,
-		// 			chatboxMinimized: false,
-		// 		}));
-		// 	}
-		// }
 		if (customChatBoxClick) {
 			customChatBoxClick?.(e);
 		}
@@ -1590,7 +1256,6 @@ const ChatBox = ({
 			...chatBoxData,
 			ask: true,
 			deepResearch: false,
-			goals: false,
 			build: false,
 			deepSearch: false,
 		};
@@ -1609,7 +1274,6 @@ const ChatBox = ({
 			deepSearch: !chatBoxData?.deepSearch,
 			ask: false,
 			deepResearch: false,
-			goals: false,
 			build: false,
 		};
 		handleGlobalChatMessages({
@@ -1626,7 +1290,6 @@ const ChatBox = ({
 			...chatBoxData,
 			ask: false,
 			deepResearch: false,
-			goals: false,
 			build: false,
 			[key]: value,
 		};
@@ -1652,14 +1315,6 @@ const ChatBox = ({
 
 	const handleCloseUpgrageModal = useCallback(() => {
 		setInfo((prev) => ({ ...prev, openUpgradeModal: false }));
-	}, []);
-
-	const handleAskTooltipClick = useCallback((e) => {
-		e?.stopPropagation();
-		setInfo((prev) => ({
-			...prev,
-			askTooltipOpen: true,
-		}));
 	}, []);
 
 	const handleScrollButtonClick = useCallback(
@@ -1763,14 +1418,7 @@ const ChatBox = ({
 					</div>
 				)}
 			</div>
-			<div
-				className="chatInputContainer"
-				// style={{
-				// 	...(animateChatBox && {
-				// 		height: info?.chatBoxContainerHeight,
-				// 	}),
-				// }}
-			>
+			<div className="chatInputContainer">
 				{chatReplyData && (
 					<div className="chat-reply-data">
 						<div className="reply-icon"></div>
@@ -1890,22 +1538,7 @@ const ChatBox = ({
 						)}
 					</div>
 					<div className="chat-input-container">
-						<div
-							className="textAreaWrapper"
-							//  ref={textAreaWrapperRef}
-						>
-							<div
-								className="suggestion-container"
-								ref={suggestionRef}
-								style={{
-									display:
-										info?.showSuggestion && info?.chatQuery?.length > 0
-											? 'block'
-											: 'none',
-								}}
-							>
-								{info?.suggestion}
-							</div>
+						<div className="textAreaWrapper">
 							<div className="textarea-container">
 								<textarea
 									type="text"
@@ -1913,7 +1546,6 @@ const ChatBox = ({
 									onChange={handleTextAreaChange}
 									autoFocus={autoFocus}
 									onKeyDown={handleTextAreaKeyDown}
-									onFocus={handleTextAreaFocus}
 									className={`textArea ${isTranscribing ? 'transcribing' : ''}`}
 									rows={1}
 									ref={textAreaRef}

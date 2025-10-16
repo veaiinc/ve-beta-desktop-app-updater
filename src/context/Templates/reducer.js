@@ -285,11 +285,7 @@ const actionHandlers = {
 			if (removeChatSessions) {
 				let globalChatMessages = { ...state?.globalChatMessages };
 				globalChatMessages = Object.keys(globalChatMessages)?.reduce((acc, key) => {
-					if (
-						globalChatMessages[key]?.isStreaming ||
-						key === sessionId ||
-						globalChatMessages[key]?.open_browser
-					) {
+					if (messages?.length) {
 						acc[key] = globalChatMessages[key];
 					}
 					return acc;

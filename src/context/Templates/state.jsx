@@ -127,7 +127,6 @@ export const intialState = {
 	aiQuestions: null,
 	proactiveAiData: null,
 	chatBoxSuggestions: null,
-	newChatSessionIds: [],
 	aiMessagesInfo: null,
 	proactiveInfoForChat: null,
 	isDirectSearchAgent: false,
