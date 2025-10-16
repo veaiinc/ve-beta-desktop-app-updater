@@ -55,6 +55,10 @@ class BoringViewCoordinator: ObservableObject {
         didSet {
             // Persist whenever it changes
             selectedTab = currentView
+            // Resize window when view changes
+            DispatchQueue.main.async {
+                self.resizeWindowForCurrentView()
+            }
         }
     }
 
@@ -101,6 +105,28 @@ class BoringViewCoordinator: ObservableObject {
     @Published var selectedScreen: String = NSScreen.main?.localizedName ?? "Unknown"
 
     @Published var optionKeyPressed: Bool = true
+    
+    // MARK: - Dynamic Width Management
+    
+    /// Returns the appropriate width for the current view
+    var currentViewWidth: CGFloat {
+        switch currentView {
+        case .meeting, .ask:
+            return 600  // Smaller width for meeting view
+        case .home, .shelf:
+            return 800  // Original width for home and shelf views
+        }
+    }
+    
+    /// Resizes the window when the view changes
+    func resizeWindowForCurrentView() {
+        let newSize = getOpenNotchSize()
+        NotificationCenter.default.post(
+            name: NSNotification.Name("ResizeWindowForViewChange"),
+            object: nil,
+            userInfo: ["newSize": newSize]
+        )
+    }
 
     private init() {
         selectedScreen = preferredScreen

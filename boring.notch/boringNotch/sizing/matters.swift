@@ -13,6 +13,12 @@ let downloadSneakSize: CGSize = .init(width: 65, height: 1)
 let batterySneakSize: CGSize = .init(width: 160, height: 1)
 
 let openNotchSize: CGSize = .init(width: 800, height: 190)
+
+/// Returns the dynamic open notch size based on the current view
+func getOpenNotchSize() -> CGSize {
+    let coordinator = BoringViewCoordinator.shared
+    return CGSize(width: coordinator.currentViewWidth, height: 190)
+}
 let cornerRadiusInsets: (opened: (top: CGFloat, bottom: CGFloat), closed: (top: CGFloat, bottom: CGFloat)) = (opened: (top: 19, bottom: 24), closed: (top: 6, bottom: 14))
 
 enum MusicPlayerImageSizes {
