@@ -4226,6 +4226,7 @@ app.whenReady().then(async () => {
 				getStatus: getContentProtectionStatus,
 				setStatus: setContentProtection,
 			});
+			boringNotchService.setWindowHelper(windowHelper);
 
 			// Initialize Boring Notch in background without blocking main window
 			try {

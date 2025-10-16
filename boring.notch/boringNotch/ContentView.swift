@@ -309,8 +309,8 @@ struct ContentView: View {
                         NotchShelfView()
                     case .meeting:
                         MeetingView()
-                    case .ask:
-                        MeetingView()
+            case .ask:
+                NotchHomeView(albumArtNamespace: albumArtNamespace)
                     }
                 }
             }

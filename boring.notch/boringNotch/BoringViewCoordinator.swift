@@ -105,8 +105,8 @@ class BoringViewCoordinator: ObservableObject {
     private init() {
         selectedScreen = preferredScreen
         notifier = TheBoringWorkerNotifier()
-        // Restore last selected tab at startup
-        currentView = selectedTab
+        // Always start with home tab, don't restore last selected tab
+        currentView = .home
         // Restore meeting state
         restoreMeetingState()
         // Restore active meeting view

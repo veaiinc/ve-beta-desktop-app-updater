@@ -47,6 +47,7 @@ enum WebSocketEventType: String, CaseIterable {
     
     // Custom Events
     case custom = "CUSTOM"
+    case showAskAIWindow = "SHOW_ASK_AI_WINDOW"
     
     // Boring Notch Messages (from Electron)
     case boringNotchMessage = "BORING_NOTCH_MESSAGE"
