@@ -88,6 +88,7 @@ const RecentChat = ({
 		rightBarOpen: false,
 		activeRightBar: null,
 		rightBarWidth: 0,
+		ready: true,
 		isCompactMode: false, // Track if we're in compact chat mode from AskAI
 	});
 
@@ -230,7 +231,8 @@ const RecentChat = ({
 		}
 	}, [info?.latestStreamMessage]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
+		let timer = null;
 		if (sessionId) {
 			if (info?.renderingTwice) {
 				//clearing context state when rendering different session
@@ -239,6 +241,19 @@ const RecentChat = ({
 					isBrowserScreenActive: false,
 				});
 				userMessagesRefs.current = {};
+
+				// Delay showing previous chat messages for a smoother transition.
+				// This ensures the chat area briefly appears blank when revisiting a session,
+				// since old messages are preserved and not cleared from state.
+				timer = setTimeout(
+					() =>
+						setInfo((prev) => ({
+							...prev,
+							ready: true,
+						})),
+					500, // delay in ms
+				);
+
 				setInfo((prev) => ({
 					...prev,
 					scrollExecuted: false,
@@ -246,8 +261,10 @@ const RecentChat = ({
 					rightBarOpen: false,
 					activeRightBar: null,
 					rightBarWidth: 0,
+					ready: false,
 				}));
 			}
+
 			if (currentUserMessageTimeoutRef.current) {
 				clearTimeout(currentUserMessageTimeoutRef.current);
 				currentUserMessageTimeoutRef.current = null;
@@ -274,6 +291,12 @@ const RecentChat = ({
 				renderingTwice: true,
 			}));
 		}
+
+		return () => {
+			if (timer) {
+				clearTimeout(timer);
+			}
+		};
 	}, [sessionId, fetchRecentChatMessages]);
 
 	useEffect(() => {
@@ -292,7 +315,7 @@ const RecentChat = ({
 	}, [sessionId, agentType, assistantId]);
 
 	useLayoutEffect(() => {
-		if (!info?.scrollExecuted && globalChatMessages?.[sessionId]?.messages) {
+		if (!info?.scrollExecuted && globalChatMessages?.[sessionId]?.messages && info?.ready) {
 			requestAnimationFrame(() => {
 				smoothScrollToLastMessage('instant');
 			});
@@ -302,7 +325,7 @@ const RecentChat = ({
 				scrollExecuted: true,
 			}));
 		}
-	}, [globalChatMessages, info?.scrollExecuted]);
+	}, [globalChatMessages, info?.scrollExecuted, info?.ready]);
 
 	useEffect(() => {
 		globalChatMessagesRef.current = globalChatMessages;
@@ -800,133 +823,138 @@ const RecentChat = ({
 							ref={chatContentRef}
 							id="scrollableDiv"
 						>
-							<InfiniteScroll
-								dataLength={globalChatMessages?.[sessionId]?.messages?.length || 0}
-								next={fetchMoreData}
-								hasMore={
-									globalChatMessages?.[sessionId]?.recentChatInfo?.hasNextPage ||
-									false
-								}
-								loader={<FetchMoreLoaderComp />}
-								scrollableTarget="scrollableDiv"
-								inverse={true}
-								style={{
-									overflow: 'unset',
-								}}
-							>
-								<div
-									className="chatContent"
-									style={{ paddingBottom: `${info?.chatPaddingBottom}px` }}
+							{info?.ready && (
+								<InfiniteScroll
+									dataLength={
+										globalChatMessages?.[sessionId]?.messages?.length || 0
+									}
+									next={fetchMoreData}
+									hasMore={
+										globalChatMessages?.[sessionId]?.recentChatInfo
+											?.hasNextPage || false
+									}
+									loader={<FetchMoreLoaderComp />}
+									scrollableTarget="scrollableDiv"
+									inverse={true}
+									style={{
+										overflow: 'unset',
+									}}
 								>
-									{(globalChatMessages?.[sessionId]?.messages || [])?.map(
-										(chat, index) =>
-											chat?.content ? (
-												<Fragment key={index}>{chat?.content}</Fragment>
-											) : (
-												<div
-													key={index}
-													className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
-													style={{
-														minHeight:
-															index ===
-															globalChatMessages?.[sessionId]
-																?.messages?.length -
-																1
-																? `${
-																		chatContentRef?.current
-																			?.clientHeight - 160
-																  }px`
-																: 'auto',
-													}}
-												>
-													<div className="message-content">
-														{chat?.type?.toLowerCase() === 'ai' ? (
-															<div
-																className="content"
-																style={{
-																	...(info?.currentUserMessageIndex !==
-																		null && {
-																		opacity:
+									<div
+										className="chatContent"
+										style={{ paddingBottom: `${info?.chatPaddingBottom}px` }}
+									>
+										{(globalChatMessages?.[sessionId]?.messages || [])?.map(
+											(chat, index) =>
+												chat?.content ? (
+													<Fragment key={index}>{chat?.content}</Fragment>
+												) : (
+													<div
+														key={index}
+														className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
+														style={{
+															minHeight:
+																index ===
+																globalChatMessages?.[sessionId]
+																	?.messages?.length -
+																	1
+																	? `${
+																			chatContentRef?.current
+																				?.clientHeight - 160
+																	  }px`
+																	: 'auto',
+														}}
+													>
+														<div className="message-content">
+															{chat?.type?.toLowerCase() === 'ai' ? (
+																<div
+																	className="content"
+																	style={{
+																		...(info?.currentUserMessageIndex !==
+																			null && {
+																			opacity:
+																				index ===
+																				info?.currentUserMessageIndex +
+																					1
+																					? 1
+																					: 0.6,
+																		}),
+																	}}
+																	data-message-id={
+																		chat?.messageId
+																	}
+																	data-index={index}
+																>
+																	<AIMessageRenderer
+																		messageData={chat}
+																		handleNoteComponentModalOpen={
+																			handleNoteComponentModalOpen
+																		}
+																		handleViewDocument={
+																			handleViewDocument
+																		}
+																		showViewDocument={
+																			info?.showViewDocument
+																		}
+																		isPublicChat={isPublicChat}
+																		handleSourcesClick={
+																			handleSourcesClick
+																		}
+																		messageIndex={index}
+																		showCitationsButton={
+																			showCitationsButton
+																		}
+																		isLastMessage={
 																			index ===
-																			info?.currentUserMessageIndex +
+																			globalChatMessages?.[
+																				sessionId
+																			]?.messages?.length -
 																				1
-																				? 1
-																				: 0.6,
-																	}),
-																}}
-																data-message-id={chat?.messageId}
-																data-index={index}
-															>
-																<AIMessageRenderer
-																	messageData={chat}
-																	handleNoteComponentModalOpen={
-																		handleNoteComponentModalOpen
-																	}
-																	handleViewDocument={
-																		handleViewDocument
-																	}
-																	showViewDocument={
-																		info?.showViewDocument
-																	}
-																	isPublicChat={isPublicChat}
-																	handleSourcesClick={
-																		handleSourcesClick
-																	}
-																	messageIndex={index}
-																	showCitationsButton={
-																		showCitationsButton
-																	}
-																	isLastMessage={
-																		index ===
-																		globalChatMessages?.[
-																			sessionId
-																		]?.messages?.length -
-																			1
-																	}
-																	sessionId={sessionId}
-																	showResponseEditBtn={
-																		showResponseEditBtn
-																	}
-																/>
-															</div>
-														) : (
-															<div
-																ref={(el) => {
-																	if (
-																		el &&
-																		!userMessagesRefs.current?.[
-																			index
-																		]
-																	) {
-																		userMessagesRefs.current[
-																			index
-																		] = el;
-																	}
-																}}
-																data-index={index}
-																key={index}
-																style={{
-																	...(info?.currentUserMessageIndex !==
-																		null && {
-																		opacity:
-																			index ===
-																			info?.currentUserMessageIndex
-																				? 1
-																				: 0.6,
-																	}),
-																}}
-															>
-																<UserMessageRenderer
-																	messageData={chat}
-																/>
-															</div>
-														)}
+																		}
+																		sessionId={sessionId}
+																		showResponseEditBtn={
+																			showResponseEditBtn
+																		}
+																	/>
+																</div>
+															) : (
+																<div
+																	ref={(el) => {
+																		if (
+																			el &&
+																			!userMessagesRefs
+																				.current?.[index]
+																		) {
+																			userMessagesRefs.current[
+																				index
+																			] = el;
+																		}
+																	}}
+																	data-index={index}
+																	key={index}
+																	style={{
+																		...(info?.currentUserMessageIndex !==
+																			null && {
+																			opacity:
+																				index ===
+																				info?.currentUserMessageIndex
+																					? 1
+																					: 0.6,
+																		}),
+																	}}
+																>
+																	<UserMessageRenderer
+																		messageData={chat}
+																	/>
+																</div>
+															)}
+														</div>
 													</div>
-												</div>
-											),
-									)}
-								</div>
-							</InfiniteScroll>
+												),
+										)}
+									</div>
+								</InfiniteScroll>
+							)}
 						</div>
 						{showChatBox && (
 							<div className="chatBoxWrapper">
