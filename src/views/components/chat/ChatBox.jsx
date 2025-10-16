@@ -63,14 +63,11 @@ Dont change this otherwise chat functionality will break.
 */
 const ChatBox = ({
 	onSend,
-	aiChatLoading,
-	handleAiUploadImage,
 	customChatActions = false,
 	uploadedImages = [],
 	handleSendWebsocketMessage,
 	isPublicChat = false,
 	autoFocus = true,
-	animatePlaceholder = false,
 	customChatBoxClick = null,
 	showScrollButton = false,
 	smoothScrollToBottom = null,
@@ -469,7 +466,7 @@ const ChatBox = ({
 					}
 				}
 
-				if (aiChatLoading || info?.chatLoading) {
+				if (info?.chatLoading) {
 					return message.error('Please wait for the AI response');
 				}
 
@@ -692,7 +689,6 @@ const ChatBox = ({
 			}
 		},
 		[
-			aiChatLoading,
 			onSend,
 			customChatActions,
 			info,
@@ -1010,13 +1006,7 @@ const ChatBox = ({
 				recentFiles,
 			}));
 		},
-		[
-			handleAiUploadImage,
-			info,
-			recentFilesRef?.current,
-			uploadedImagesRef?.current,
-			currentPlan,
-		],
+		[info, currentPlan],
 	);
 
 	const checkAllUploadLoadingStatus = useCallback(() => {
@@ -1510,11 +1500,7 @@ const ChatBox = ({
 									ref={textAreaRef}
 									onPaste={handleTextAreaPaste}
 									placeholder={
-										isTranscribing
-											? 'Listening... Speak now'
-											: !animatePlaceholder
-											? placeholder
-											: ''
+										isTranscribing ? 'Listening... Speak now' : placeholder
 									}
 								/>
 							</div>
