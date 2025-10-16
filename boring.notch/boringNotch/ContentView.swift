@@ -94,7 +94,7 @@ struct ContentView: View {
                     let notchStateAnimation = Animation.spring.speed(1.2)
                     return
                         view
-                        .animation(hoverAnimationAnimation, value: isHovering)
+                        .animation(vm.isAuthenticated ? hoverAnimationAnimation : .none, value: isHovering)
                         .animation(notchStateAnimation, value: vm.notchState)
                         .animation(.smooth, value: gestureProgress)
                         .transition(
@@ -104,15 +104,15 @@ struct ContentView: View {
                     let hoverAnimationAnimation = Animation.bouncy.speed(1.2)
                     let notchStateAnimation = Animation.spring.speed(1.2)
                     return view
-                        .animation(hoverAnimationAnimation, value: isHovering)
+                        .animation(vm.isAuthenticated ? hoverAnimationAnimation : .none, value: isHovering)
                         .animation(notchStateAnimation, value: vm.notchState)
                 }
-                .conditionalModifier(Defaults[.openNotchOnHover]) { view in
+                .conditionalModifier(Defaults[.openNotchOnHover] && vm.isAuthenticated) { view in
                     view.onHover { hovering in
                         handleHover(hovering)
                     }
                 }
-                .conditionalModifier(!Defaults[.openNotchOnHover]) { view in
+                .conditionalModifier(!Defaults[.openNotchOnHover] && vm.isAuthenticated) { view in
                     view
                         .onHover { hovering in
                             if (vm.notchState == .closed) && Defaults[.enableHaptics] {
@@ -616,18 +616,29 @@ struct ContentView: View {
                     // Text content - animates from bottom to center
                     if vm.showLoginText {
                         VStack(spacing: 12) { // Reduced gap from 20 to 12
-                            // Main greeting text - clean white text
+                            // Main greeting text - with gradient foreground and individual animation
                             Text("Hey there! Ready when you are.")
-                                .font(.system(size: 18, weight: .semibold, design: .default))
-                                .foregroundColor(.white.opacity(0.9))
+                                .font(.system(size: 18, weight: .regular, design: .default))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.white.opacity(0.4),
+                                            Color.white.opacity(0.8),
+                                            Color.white.opacity(0.4)
+                                        ]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
                                 .multilineTextAlignment(.center)
                                 .lineLimit(2)
                                 .padding(.horizontal, 20)
-                                .animation(.none, value: isHovering) // Disable global hover animations for this text
+                                .offset(y: vm.greetingTextOffset)
+                                .opacity(vm.greetingTextOpacity)
                             
                             // Login text - with gradient foreground and tap gesture (no hover animation)
                             Text("LOGIN")
-                                .font(.system(size: 16, weight: .medium, design: .default))
+                                .font(.system(size: 16, weight: .semibold, design: .default))
                                 .foregroundStyle(
                                     LinearGradient(
                                         gradient: Gradient(colors: [
@@ -646,19 +657,19 @@ struct ContentView: View {
                                 .onTapGesture {
                                     vm.navigateToMainScreen(path: "/verify-user")
                                 }
-                                .onHover { _ in
-                                    // Disable hover effects for login text
-                                }
-                                .animation(.none, value: isHovering) // Disable global hover animations for this text
+                                .offset(y: vm.loginButtonOffset)
+                                .opacity(vm.loginButtonOpacity)
                         }
-                        .offset(y: vm.loginTextOffset) // Enable bottom-to-center animation
+                        .frame(maxWidth: .infinity, alignment: .center) // Ensure proper centering
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .center) // Center the entire content
                 
                 Spacer()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .allowsHitTesting(true)
         .onHover { _ in
             // Prevent hover events from bubbling up to parent views
             // This stops the login overlay from triggering hover animations

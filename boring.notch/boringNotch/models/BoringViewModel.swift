@@ -73,6 +73,12 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var showLoginText: Bool = false
     @Published var loginTextOffset: CGFloat = 100
     
+    // Individual text animation properties for staggered bottom-to-center effect
+    @Published var greetingTextOffset: CGFloat = 80
+    @Published var greetingTextOpacity: Double = 0.0
+    @Published var loginButtonOffset: CGFloat = 80
+    @Published var loginButtonOpacity: Double = 0.0
+    
     // MARK: - Voice Interface State
     @Published var showVoiceInterface: Bool = false
     @Published var voiceConnectionStatus: VoiceConnectionStatus = .disconnected
@@ -374,18 +380,34 @@ class BoringViewModel: NSObject, ObservableObject {
         showLoginText = false
         loginTextOffset = 100
         
-        // Start the animation sequence - let hello animation complete fully
+        // Reset individual text animation properties
+        greetingTextOffset = 80
+        greetingTextOpacity = 0.0
+        loginButtonOffset = 80
+        loginButtonOpacity = 0.0
+        
+        // Start the animation sequence - let hello animation complete fully (4 seconds)
         DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-            // Hide hello animation with smooth fade out
-            withAnimation(.easeInOut(duration: 1.0)) {
+            // Hide hello animation with same duration as initial display (4 seconds)
+            withAnimation(.easeInOut(duration: 4.0)) {
                 self.showHelloAnimation = false
             }
             
-            // Show text content with smooth bottom-to-center animation
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            // Show text content immediately after hello starts fading
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 withAnimation(.easeOut(duration: 1.5)) {
                     self.showLoginText = true
                     self.loginTextOffset = 0
+                }
+                
+                // Animate both text elements simultaneously (no delay between them)
+                withAnimation(.easeOut(duration: 1.2)) {
+                    self.greetingTextOffset = 0
+                    self.loginButtonOffset = 0
+                }
+                withAnimation(.easeOut(duration: 0.8)) {
+                    self.greetingTextOpacity = 1.0
+                    self.loginButtonOpacity = 1.0
                 }
             }
         }
