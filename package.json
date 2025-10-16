@@ -75,7 +75,7 @@
 		"dayjs": "^1.11.13",
 		"dotenv": "^17.2.2",
 		"electron-log": "^5.4.2",
-		"electron-mac-permissions": "^2.2.2",
+		
 		"electron-updater": "^6.6.2",
 		"emoji-mart": "^5.6.0",
 		"exif-reader": "^2.0.2",
@@ -145,6 +145,9 @@
 		"vite-plugin-electron": "^0.29.0",
 		"web-vitals": "^2.1.4",
 		"zustand": "^5.0.8"
+	},
+	"optionalDependencies": {
+		"electron-mac-permissions": "^2.2.2"
 	},
 	"build": {
 		"npmRebuild": false,

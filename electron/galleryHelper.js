@@ -19,6 +19,38 @@ const loadSharp = () => {
 	}
 };
 
+// Normalize various incoming buffer-like payloads (ArrayBuffer, Uint8Array, Buffer, base64 string)
+const toNodeBuffer = (input) => {
+	if (!input) return Buffer.alloc(0);
+	if (Buffer.isBuffer(input)) return input;
+	// Handle { type: 'Buffer', data: [...] } objects
+	if (typeof input === 'object' && input.type === 'Buffer' && Array.isArray(input.data)) {
+		return Buffer.from(input.data);
+	}
+	// Handle ArrayBuffer
+	if (typeof ArrayBuffer !== 'undefined' && input instanceof ArrayBuffer) {
+		return Buffer.from(new Uint8Array(input));
+	}
+	// Handle TypedArrays (e.g., Uint8Array)
+	if (ArrayBuffer.isView && ArrayBuffer.isView(input)) {
+		return Buffer.from(input.buffer, input.byteOffset, input.byteLength);
+	}
+	// Handle base64-encoded string
+	if (typeof input === 'string') {
+		try {
+			return Buffer.from(input, 'base64');
+		} catch (_) {
+			return Buffer.from(input);
+		}
+	}
+	// Fallback: try structured clone with JSON (may be slow, last resort)
+	try {
+		return Buffer.from(input);
+ 	} catch (_) {
+ 		return Buffer.alloc(0);
+ 	}
+};
+
 const axios = require('axios');
 const exifReader = require('exif-reader');
 const archiver = require('archiver');
@@ -95,10 +127,7 @@ const processImageWithSharp = async (event, data) => {
 		const MIN_WIDTH = 1200; // Don't go below this
 		const TARGET_QUALITY = 85; // Max allowed
 
-		let imageData =
-			typeof imageBuffer === 'string'
-				? Buffer.from(imageBuffer, 'base64')
-				: Buffer.from(imageBuffer);
+		const imageData = toNodeBuffer(imageBuffer);
 
 		const metadata = await sharpModule(imageData).metadata();
 		if (!metadata.width || !metadata.height) {
@@ -225,7 +254,62 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 		};
 	}
 
-	const buffer = Buffer.from(imageBuffer);
+	const buffer = toNodeBuffer(imageBuffer);
+	if (!buffer || buffer.length === 0) {
+		log.warn('extractImageMetadata: received empty buffer');
+		return {
+			success: false,
+			width: null,
+			height: null,
+			format: 'unknown',
+			originalDateTime: Math.floor(Date.now() / 1000),
+			error: 'Empty image buffer received',
+		};
+	}
+
+	// Lightweight magic-bytes format detection
+	const detectFormat = (buf) => {
+		if (buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return 'png';
+		if (buf.slice(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return 'jpeg';
+		if (buf.slice(0, 4).toString('ascii') === 'RIFF' && buf.slice(8, 12).toString('ascii') === 'WEBP') return 'webp';
+		if (buf.slice(4, 12).toString('ascii') === 'ftypheic' || buf.slice(4, 12).toString('ascii') === 'ftypheif' || buf.slice(4, 12).toString('ascii') === 'ftypmif1' || buf.slice(4, 12).toString('ascii') === 'ftypheix') return 'heic';
+		return 'unknown';
+	};
+
+	const parseJpegDimensions = (buf) => {
+		let offset = 2; // skip SOI
+		while (offset < buf.length) {
+			if (buf[offset] !== 0xff) break;
+			const marker = buf[offset + 1];
+			const length = buf.readUInt16BE(offset + 2);
+			// SOF0..SOF3, SOF5..SOF7, SOF9..SOF11, SOF13..SOF15
+			if (
+				(marker >= 0xc0 && marker <= 0xc3) ||
+				(marker >= 0xc5 && marker <= 0xc7) ||
+				(marker >= 0xc9 && marker <= 0xcb) ||
+				(marker >= 0xcd && marker <= 0xcf)
+			) {
+				const height = buf.readUInt16BE(offset + 5);
+				const width = buf.readUInt16BE(offset + 7);
+				return { width, height };
+			}
+			offset += 2 + length;
+		}
+		return null;
+	};
+
+	const parsePngDimensions = (buf) => {
+		// IHDR chunk follows the 8-byte signature and a 4-byte length, 4-byte type
+		if (buf.length >= 24) {
+			const width = buf.readUInt32BE(16);
+			const height = buf.readUInt32BE(20);
+			return { width, height };
+		}
+		return null;
+	};
+
+	const fmt = detectFormat(buffer);
+	log.info(`extractImageMetadata: buffer=${buffer.length} bytes, detectedFormat=${fmt}`);
 	try {
 		const metadata = await sharpModule(buffer).metadata();
 		const { width, height, format } = metadata;
@@ -245,13 +329,39 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 
 		return { success: true, width, height, format, originalDateTime };
 	} catch (err) {
-		console.error('Metadata extraction failed:', err);
+		log.warn('sharp metadata failed, attempting fallback parse:', err?.message || String(err));
+		let dims = null;
+		if (fmt === 'jpeg') dims = parseJpegDimensions(buffer);
+		else if (fmt === 'png') dims = parsePngDimensions(buffer);
+
+		if (dims && dims.width && dims.height) {
+			return {
+				success: true,
+				width: dims.width,
+				height: dims.height,
+				format: fmt,
+				originalDateTime: Math.floor(Date.now() / 1000),
+			};
+		}
+
+		if (fmt === 'heic') {
+			return {
+				success: false,
+				width: null,
+				height: null,
+				format: 'heic',
+				originalDateTime: Math.floor(Date.now() / 1000),
+				error: 'HEIC/HEIF not supported by Windows sharp build. Please convert to JPEG/PNG.',
+			};
+		}
+
 		return {
 			success: false,
 			width: null,
 			height: null,
-			format: 'jpeg',
+			format: fmt,
 			originalDateTime: Math.floor(Date.now() / 1000),
+			error: 'Failed to extract image metadata',
 		};
 	}
 };
