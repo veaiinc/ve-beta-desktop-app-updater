@@ -45,7 +45,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image("microphone"),
                     title: "Enable Microphone Access",
-                    description: "Ve.Ai uses your microphone for voice features and quick voice interactions. We only listen when you explicitly engage voice features.",
+                    description: "Ve uses your microphone for voice features and Meetings.",
                     privacyNote: "Audio is never recorded or sent without your consent.",
                     onAllow: {
                         Task {
@@ -67,7 +67,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image("screen"),
                     title: "Enable Screen Access",
-                    description: "Grant screen capture permission so Ve.Ai can support features that reference on-screen content (e.g. overlay guidance).",
+                    description: "Ve requires screen access to display real-time visuals, overlays, or shared views within the app. This helps create interactive and dynamic on-screen experiences.",
                     privacyNote: "We never capture your screen without an explicit action.",
                     onAllow: {
                         Task {
@@ -89,7 +89,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image("accessibility"),
                     title: "Enable Accessibility",
-                    description: "Accessibility permission lets Ve.Ai offer features like selection assistance and global shortcuts.",
+                    description: "Ve requires accessibility permissions to enhance your experience — allowing smooth interactions, shortcuts, and smart on-screen assistance.  Granting this access helps the app work seamlessly across your system.",
                     privacyNote: "No keystrokes are logged; this permission is only used to enable specific interactions.",
                     onAllow: {
                         let hasPermission = requestAccessibilityPermission()
@@ -111,7 +111,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image("camera"),
                     title: "Enable Camera Access",
-                    description: "Ve.Ai includes a mirror feature that lets you quickly check your appearance using your camera, right from the notch. Camera access is required only to show this live preview. You can turn the mirror feature on or off at any time in the app.",
+                    description: "Ve includes a mirror feature that lets you quickly check your appearance using your camera, right from the notch. Camera access is required only to show this live preview. You can turn the mirror feature on or off at any time in the app.",
                     privacyNote: "Your camera is never used without your consent, and nothing is recorded or stored.",
                     onAllow: {
                         Task {
@@ -133,8 +133,8 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image("calendar"),
                     title: "Enable Calendar Access",
-                    description: "Ve.Ai can show all your upcoming events in one place. Access to your calendar is needed to display your schedule.",
-                    privacyNote: "Your calendar data is only used to show your events and is never shared.",
+                    description: "Ve can show all your upcoming events in one place. Access to your calendar is needed to display your schedule.",
+                    privacyNote: "Your calendar data is only used to show your events and is never shared or stored.",
                     onAllow: {
                         Task {
                                 await requestCalendarPermission()
@@ -155,7 +155,7 @@ struct OnboardingView: View {
                     PermissionRequestView(
                         icon: Image("reminders"),
                         title: "Enable Reminders Access",
-                        description: "Ve.Ai can show your scheduled reminders alongside your calendar events. Access to Reminders is needed to display your reminders.",
+                        description: "Ve can show your scheduled reminders alongside your calendar events. Access to Reminders is needed to display your reminders.",
                         privacyNote: "Your reminders data is only used to show your reminders and is never shared.",
                         onAllow: {
                             Task {
@@ -188,6 +188,7 @@ struct OnboardingView: View {
             }
         }
         .frame(width: 400, height: 600)
+        .font(Font.custom("GeneralSans", size: 15))
     }
 
     // MARK: - Permission Request Logic
