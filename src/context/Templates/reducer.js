@@ -215,7 +215,6 @@ const actionHandlers = {
 			removeLoadingMessage,
 			chatPayload,
 			removeStreaming,
-			removeChatSession,
 			removeChatSessions,
 			latestStreamMessage,
 			removeLatestStreamMessage,
@@ -226,15 +225,6 @@ const actionHandlers = {
 			recentChatInfo,
 		} = action?.payload;
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
-
-		if (removeChatSession) {
-			if (state?.globalChatMessages?.[sessionId]?.open_browser) {
-				return state;
-			}
-			const globalChatMessages = { ...state?.globalChatMessages };
-			delete globalChatMessages[sessionId];
-			return { ...state, globalChatMessages };
-		}
 
 		if (updateExtraInfo) {
 			let sessionIdData = state?.globalChatMessages?.[sessionId] || {};

@@ -616,7 +616,7 @@ const RecentChat = ({
 
 	// stream chat
 	const onMessageFunc = useCallback(
-		(event, currentSessionId) => {
+		(event) => {
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
 
@@ -677,10 +677,6 @@ const RecentChat = ({
 					chunkId: message_chunk_id,
 					sessionId,
 					updateExtraInfo: false,
-					...(data?.stream_end &&
-						sessionId !== currentSessionId && {
-							removeChatSession: true,
-						}),
 				});
 			}
 		},
