@@ -193,8 +193,8 @@ struct ContentView: View {
                         FloatingLockButton()
                     }
                 }
-                .padding(.trailing, 8)
-                .padding(.bottom,-4)
+                .padding(.trailing, 3)
+                .padding(.bottom, -6)
                 .frame(maxWidth: openNotchSize.width, maxHeight: openNotchSize.height, alignment: .bottomTrailing)
             }
         }
@@ -337,103 +337,64 @@ struct ContentView: View {
 
     @ViewBuilder
     func MusicLiveActivity() -> some View {
-        HStack {
-            HStack {
-                Color.clear
-                    .aspectRatio(1, contentMode: .fit)
-                    .background(
-                        Image(nsImage: musicManager.albumArt)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    )
-                    .clipped()
-                    .clipShape(
-                        RoundedRectangle(
-                            cornerRadius: MusicPlayerImageSizes.cornerRadiusInset.closed)
-                    )
-                    .matchedGeometryEffect(id: "albumArt", in: albumArtNamespace)
-                    .frame(
-                        width: max(0, vm.effectiveClosedNotchHeight - 12),
-                        height: max(0, vm.effectiveClosedNotchHeight - 12))
-            }
+        CircularMusicThumbnail()
             .frame(
-                width: max(
-                    0, vm.effectiveClosedNotchHeight - (isHovering ? 0 : 12) + gestureProgress / 2),
-                height: max(0, vm.effectiveClosedNotchHeight - (isHovering ? 0 : 12)))
+                width: max(0, vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0)),
+                height: max(0, vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0)),
+                alignment: .center
+            )
+    }
 
-            Rectangle()
-                .fill(.black)
+    // MARK: - Circular Music Thumbnail (compact style)
+    @ViewBuilder
+    private func CircularMusicThumbnail() -> some View {
+        let size = max(0, vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0))
+        ZStack(alignment: .center) {
+            // Album art circle
+            Image(nsImage: musicManager.albumArt)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: size, height: size)
+                .clipShape(Circle())
                 .overlay(
-                    HStack(alignment: .top) {
-                        if coordinator.expandingView.show
-                            && coordinator.expandingView.type == .music
-                        {
-                            MarqueeText(
-                                .constant(musicManager.songTitle),
-                                textColor: Defaults[.coloredSpectrogram]
-                                    ? Color(nsColor: musicManager.avgColor) : Color.gray,
-                                minDuration: 0.4,
-                                frameWidth: 100
-                            )
-                            .opacity(
-                                (coordinator.expandingView.show && Defaults[.enableSneakPeek]
-                                    && Defaults[.sneakPeekStyles] == .inline) ? 1 : 0)
-                            Spacer(minLength: vm.closedNotchSize.width)
-                            // Song Artist
-                            Text(musicManager.artistName)
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-                                .foregroundStyle(
-                                    Defaults[.coloredSpectrogram]
-                                        ? Color(nsColor: musicManager.avgColor) : Color.gray
-                                )
-                                .opacity(
-                                    (coordinator.expandingView.show
-                                        && coordinator.expandingView.type == .music
-                                        && Defaults[.enableSneakPeek]
-                                        && Defaults[.sneakPeekStyles] == .inline) ? 1 : 0)
-                        }
-                    }
+                    Circle()
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
                 )
-                .frame(
-                    width: (coordinator.expandingView.show
-                        && coordinator.expandingView.type == .music && Defaults[.enableSneakPeek]
-                        && Defaults[.sneakPeekStyles] == .inline)
-                        ? 380 : vm.closedNotchSize.width + (isHovering ? 8 : 0))
 
-            HStack {
-                if useMusicVisualizer {
-                    Rectangle()
-                        .fill(
-                            Defaults[.coloredSpectrogram]
-                                ? Color(nsColor: musicManager.avgColor).gradient
-                                : Color.gray.gradient
-                        )
-                        .frame(width: 50, alignment: .center)
-                        .matchedGeometryEffect(id: "spectrum", in: albumArtNamespace)
-                        .mask {
-                            AudioSpectrumView(isPlaying: $musicManager.isPlaying)
-                                .frame(width: 16, height: 12)
-                        }
-                        .frame(
-                            width: max(
-                                0,
-                                vm.effectiveClosedNotchHeight - (isHovering ? 0 : 12)
-                                    + gestureProgress / 2),
-                            height: max(0, vm.effectiveClosedNotchHeight - (isHovering ? 0 : 12)),
-                            alignment: .center)
-                } else {
-                    LottieAnimationView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
+            // Title + artist centered
+            VStack(spacing: 2) {
+                Text(musicManager.songTitle.isEmpty ? "Not Playing" : musicManager.songTitle)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                Text(musicManager.artistName.isEmpty ? "Unknown" : musicManager.artistName)
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.white.opacity(0.85))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
             }
-            .frame(
-                width: max(
-                    0, vm.effectiveClosedNotchHeight - (isHovering ? 0 : 12) + gestureProgress / 2),
-                height: max(0, vm.effectiveClosedNotchHeight - (isHovering ? 0 : 12)),
-                alignment: .center)
+            .padding(.horizontal, 8)
+            .multilineTextAlignment(.center)
+            .shadow(color: .black.opacity(0.6), radius: 2, x: 0, y: 1)
+
+            // Small translucent play/pause chip at the top
+            VStack {
+                let symbolName = musicManager.isPlaying ? "pause" : "play"
+                Circle()
+                    .fill(.black.opacity(0.35))
+                    .frame(width: 24, height: 24)
+                    .overlay(
+                        Image(systemName: symbolName)
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
+                    )
+                Spacer(minLength: 0)
+            }
+            .padding(.top, 4)
         }
-        .frame(height: vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0), alignment: .center)
+        .contentShape(Circle())
+        .matchedGeometryEffect(id: "albumArt", in: albumArtNamespace)
     }
 
     @ViewBuilder
@@ -595,6 +556,7 @@ struct ContentView: View {
 private struct FloatingLockButton: View {
     @EnvironmentObject var vm: BoringViewModel
     @ObservedObject var coordinator = BoringViewCoordinator.shared
+    @State private var isHovering = false
 
     var body: some View {
         Button(action: {
@@ -605,7 +567,7 @@ private struct FloatingLockButton: View {
         }) {
             ZStack {
                 Circle()
-                    .fill(vm.isNotchLocked ? Color.white.opacity(0.1) : Color.clear)
+                    .fill(vm.isNotchLocked ? Color.white.opacity(0.25) : Color.white.opacity(isHovering ? 0.1 : 0.05))
                 #if canImport(AppKit)
                 Group {
                     if vm.isNotchLocked {
@@ -623,13 +585,22 @@ private struct FloatingLockButton: View {
             }
             .frame(width: 32, height: 32)
             .overlay(
-                vm.isNotchLocked
-                    ? RoundedRectangle(cornerRadius: 32).inset(by: 0.25).stroke(Color.white.opacity(0.4), lineWidth: 0.5)
-                    : nil
+                RoundedRectangle(cornerRadius: 32)
+                    .inset(by: 0.25)
+                    .stroke(
+                        vm.isNotchLocked 
+                            ? Color.white.opacity(0.5) 
+                            : Color.white.opacity(isHovering ? 0.3 : 0.15), 
+                        lineWidth: vm.isNotchLocked ? 1.0 : 0.5
+                    )
             )
+            .scaleEffect(isHovering ? 1.05 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isHovering)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: vm.isNotchLocked)
         }
         .buttonStyle(PlainButtonStyle())
         .onHover { hovering in
+            isHovering = hovering
             vm.isHoveringLockArea = hovering
             // Open on hover when closed
             if hovering && vm.notchState == .closed {

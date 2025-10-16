@@ -367,6 +367,188 @@ struct MusicControlsView: View {
     }
 }
 
+// MARK: - Shortcut Palette Card used beside music
+private struct ShortcutPaletteCard: View {
+    let title: String
+    let rows: [[String]]
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.white.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text(title)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                        HStack(spacing: 8) {
+                            ForEach(Array(row.enumerated()), id: \.offset) { _, symbol in
+                                Keycap(symbol: symbol)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(12)
+        }
+    }
+}
+
+private struct Keycap: View {
+    let symbol: String
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.white.opacity(0.06))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(Color.white.opacity(0.28), lineWidth: 1)
+                )
+
+            Text(symbol)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.white)
+        }
+        .frame(width: 28, height: 28)
+    }
+}
+
+// MARK: - Figma-style Shortcut List Card (3 rows)
+private struct ShortcutListCard: View {
+    struct Row {
+        let title: String
+        let leftKey: String
+        let rightKey: String
+    }
+
+    let rows: [Row]
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.white.opacity(0.1))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+
+            Grid(horizontalSpacing: 12, verticalSpacing: 10) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                    GridRow(alignment: .center) {
+                        Text(row.title)
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .frame(height: 24, alignment: .leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .gridColumnAlignment(.leading)
+
+                        // Flexible spacer column to push keys to the far right
+                        Color.clear
+                            .frame(maxWidth: .infinity, maxHeight: 1)
+
+                        smallKeycap(row.leftKey)
+                            .gridColumnAlignment(.trailing)
+
+                        smallKeycap(row.rightKey)
+                            .gridColumnAlignment(.trailing)
+                    }
+                }
+            }
+            .padding(12)
+        }
+    }
+}
+
+private struct ShortcutRow: View {
+    let title: String
+    let leftKey: String
+    let rightKey: String
+
+    var body: some View {
+        HStack(spacing: 70) {
+            Text(title)
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .layoutPriority(1)
+                .frame(height: 24, alignment: .center)
+
+            HStack(spacing: 8) {
+                // Left keycap (empty inside like the spec)
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(Color.clear)
+                    .frame(width: 18, height: 18)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .inset(by: 0.25)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 0.25)
+                    )
+                    .overlay(
+                        Text(leftKey)
+                            .foregroundColor(.white)
+                    )
+
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(Color.clear)
+                    .frame(width: 18, height: 18)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .inset(by: 0.25)
+                            .stroke(Color.white.opacity(0.15), lineWidth: 0.25)
+                    )
+                    .overlay(
+                        Text(rightKey)
+                            .foregroundColor(.white)
+                    )
+            }
+            .frame(width: 64, alignment: .trailing)
+        }
+    }
+}
+
+// MARK: - Small keycap helper (18x18) for aligned grid columns
+@ViewBuilder
+private func smallKeycap(_ symbol: String) -> some View {
+    RoundedRectangle(cornerRadius: 4, style: .continuous)
+        .fill(Color.white.opacity(0.1))
+        .frame(width: 18, height: 18)
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .inset(by: 0.25)
+                .stroke(Color.white.opacity(0.15), lineWidth: 0.25)
+        )
+        .overlay(alignment: .center) {
+            Group {
+                if symbol == "." {
+                    Text(symbol)
+                        .foregroundColor(.white)
+                        .font(.system(size: 12, weight: .semibold))
+                        .baselineOffset(5) // nudge dot down to optical center
+                } else if symbol == "↩︎" {
+                    Text(symbol)
+                        .foregroundColor(.white)
+                        .font(.system(size: 12, weight: .semibold))
+                        .baselineOffset(-1) // nudge enter down slightly
+                } else {
+                    Text(symbol)
+                        .foregroundColor(.white)
+                        .font(.system(size: 11, weight: .semibold))
+                }
+            }
+            .multilineTextAlignment(.center)
+            .frame(width: 18, height: 18, alignment: .center)
+        }
+}
+
 // MARK: - Main View
 
 struct NotchHomeView: View {
@@ -399,8 +581,8 @@ struct NotchHomeView: View {
                 VoiceInterfaceView(vm: vm)
                     .transition(.opacity.combined(with: .scale))
             } else {
-                // Show normal content (music, calendar, camera)
-                HStack(alignment: .top, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
+                // Show normal content (calendar | centered shortcuts | music at end)
+                HStack(alignment: .center, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
                             if Defaults[.showCalendar] {
                         CalendarView()
                             .frame(width: shouldShowCamera ? 170 : 215)
@@ -410,7 +592,17 @@ struct NotchHomeView: View {
                             .environmentObject(vm)
                     }
 
-            MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
+                    Spacer(minLength: 12)
+
+            ShortcutListCard(
+                rows: [
+                    .init(title: "Open VE", leftKey: "⌘", rightKey: "."),
+                    .init(title: "Notch", leftKey: "⌘", rightKey: "E"),
+                    .init(title: "Ask Ve", leftKey: "⌘", rightKey: "↩︎"),
+                ]
+            )
+            .frame(width: 220, height: 108)
+
 
                     if shouldShowCamera {
                         CameraPreviewView(webcamManager: webcamManager)
@@ -418,6 +610,9 @@ struct NotchHomeView: View {
                             .opacity(vm.notchState == .closed ? 0 : 1)
                             .blur(radius: vm.notchState == .closed ? 20 : 0)
                     }
+
+            MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
+                .frame(maxWidth: 330) // compact music at end
                 }
                 .transition(.opacity.combined(with: .scale))
             }
