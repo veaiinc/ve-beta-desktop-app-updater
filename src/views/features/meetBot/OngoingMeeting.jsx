@@ -116,6 +116,18 @@ const OngoingMeeting = memo(() => {
 			console.log('✅ OngoingMeeting: Initial transcription data sent to NotchDrop');
 		}
 
+		// Send initial live intelligence data to NotchDrop if available
+		const allThreads = liveIntelligenceData?.allThreads || [];
+		if (allThreads.length > 0 && window?.electronApi?.notchdrop?.replaceLiveIntelligenceData) {
+			console.log(
+				'🧠 OngoingMeeting: Sending initial live intelligence data to NotchDrop:',
+				allThreads.length,
+				'threads',
+			);
+			window.electronApi.notchdrop.replaceLiveIntelligenceData(allThreads);
+			console.log('✅ OngoingMeeting: Initial live intelligence data sent to NotchDrop');
+		}
+
 		const newState = { overlay: false, open: false };
 		updateStateValues({ sidebarState: newState });
 
@@ -228,28 +240,16 @@ const OngoingMeeting = memo(() => {
 					const allThreads = liveIntelligenceData?.allThreads || [];
 					if (
 						allThreads.length > 0 &&
-						window?.electronApi?.overlay?.sendLiveIntelligenceData
+						window?.electronApi?.notchdrop?.replaceLiveIntelligenceData
 					) {
 						console.log(
-							'🧠 OngoingMeeting: Sending live intelligence data to NotchDrop on toggle:',
+							'🧠 OngoingMeeting: Sending live intelligence data array to NotchDrop on toggle:',
 							allThreads.length,
 							'threads',
 						);
-						allThreads.forEach((thread) => {
-							const message = {
-								source: 'ai-agent',
-								text: thread.prompt || thread.name || thread.description || '',
-								timestamp:
-									thread.timestamp ||
-									thread.created_at ||
-									new Date().toISOString(),
-								confidence: thread.confidence,
-								metadata: thread,
-							};
-							window.electronApi.overlay.sendLiveIntelligenceData(message);
-						});
+						window.electronApi.notchdrop.replaceLiveIntelligenceData(allThreads);
 						console.log(
-							'✅ OngoingMeeting: Live intelligence data sent to NotchDrop on toggle',
+							'✅ OngoingMeeting: Live intelligence data array sent to NotchDrop on toggle',
 						);
 					}
 				} else {

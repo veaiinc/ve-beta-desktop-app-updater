@@ -52,6 +52,11 @@ class BoringViewModel: NSObject, ObservableObject {
     
     // Stealth mode state for header pirate/eye toggle
     @Published var isStealthModeEnabled: Bool = false
+    
+    // Lock state to keep notch open
+    @Published var isNotchLocked: Bool = false
+    // Tracks pointer hovering over the floating lock button area
+    @Published var isHoveringLockArea: Bool = false
 
     @Published var notchSize: CGSize = getClosedNotchSize()
     @Published var closedNotchSize: CGSize = getClosedNotchSize()
@@ -339,6 +344,21 @@ class BoringViewModel: NSObject, ObservableObject {
     func toggleStealthMode() {
         withAnimation(.easeInOut(duration: 0.2)) {
             isStealthModeEnabled.toggle()
+        }
+    }
+    
+    // MARK: - Lock Notch
+    func toggleNotchLock() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            isNotchLocked.toggle()
+        }
+        print("🔒 Notch lock toggled: \(isNotchLocked ? "LOCKED" : "UNLOCKED")")
+    }
+    
+    func forceLockStateRefresh() {
+        // Force UI refresh by sending object will change
+        DispatchQueue.main.async {
+            self.objectWillChange.send()
         }
     }
 }

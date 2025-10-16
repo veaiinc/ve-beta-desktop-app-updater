@@ -27,6 +27,7 @@ enum WebSocketEventType: String, CaseIterable {
     
     // Meeting Data Events
     case transcriptionUpdate = "TRANSCRIPTION_UPDATE"
+    case liveIntelligenceUpdate = "LIVE_INTELLIGENCE_UPDATE"
     case participantJoined = "PARTICIPANT_JOINED"
     case participantLeft = "PARTICIPANT_LEFT"
     case screenShareStarted = "SCREEN_SHARE_STARTED"

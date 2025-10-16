@@ -7,6 +7,7 @@
 
 import Defaults
 import SwiftUI
+import LucideIcons
 
 struct BoringHeader: View {
     @EnvironmentObject var vm: BoringViewModel
@@ -17,11 +18,12 @@ struct BoringHeader: View {
     @State private var hoverStealth = false
     @State private var hoverMirror = false
     @State private var hoverSettings = false
+    @State private var hoverLock = false
     var body: some View {
         HStack(spacing: 0) {
             HStack {
                 if vm.notchState == .open {
-                    TabSelectionView() // Always show tabs when notch is open for debugging
+                    TabSelectionView()
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 24, maxHeight: 24, alignment: .leading)
@@ -30,23 +32,41 @@ struct BoringHeader: View {
             .animation(.smooth.delay(0.1), value: vm.notchState)
             .zIndex(2)
 
-            if vm.notchState == .open {
-                Rectangle()
-                    .fill(NSScreen.screens
-                        .first(where: { $0.localizedName == coordinator.selectedScreen })?.safeAreaInsets.top ?? 0 > 0 ? .black : .clear)
-                    .frame(width: vm.closedNotchSize.width)
-                    .mask {
-                        NotchShape()
-                    }
-            }
+//            if vm.notchState == .open {
+//                Rectangle()
+//                    .fill(NSScreen.screens
+//                        .first(where: { $0.localizedName == coordinator.selectedScreen })?.safeAreaInsets.top ?? 0 > 0 ? .black : .black)
+//                    .frame(width: vm.closedNotchSize.width)
+//                    .mask {
+//                        NotchShape()
+//                    }
+//            }
 
             HStack(spacing: 4) {
                 if vm.notchState == .open {
-                    if coordinator.isMeetingStarted && coordinator.currentView != .meeting{
-                        Text(coordinator.formattedMeetingTime())
-                            .font(.caption)
-                            .foregroundStyle(.white)
-                            .monospacedDigit()
+                    if coordinator.isMeetingStarted {
+                        HStack(spacing: 4) {
+                            Text(coordinator.formattedMeetingTime())
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+
+                            Image(systemName: "waveform")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 12, height: 12)
+                                .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .frame(height: 24)
+                        .cornerRadius(24)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24)
+                                .inset(by: 0.25)
+                                .stroke(.white, lineWidth: 0.5)
+                        )
                     }
                     // VE logo button (open app)
                     Button(action: {
@@ -55,38 +75,52 @@ struct BoringHeader: View {
                     }) {
                         HStack(alignment: .center, spacing: 4) {
                             VEIcon(color: .white)
-                                .frame(width: 14, height: 14)
+                                .frame(width: 13, height: 13)
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 2)
-                        .frame(width: 24, height: 24, alignment: .center)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .frame(width: 32, height: 32, alignment: .center)
                         .background(hoverVE ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
-                        .cornerRadius(24)
+                        .cornerRadius(32)
                         .onHover { hover in
                             hoverVE = hover
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
 
-                    // Stealth mode toggle (Pirate/Eye)
+                    // Stealth mode toggle (Glasses/Eye)
                     Button(action: {
                         vm.toggleStealthMode()
                     }) {
                         HStack(alignment: .center, spacing: 4) {
-                            Group {
+                            ZStack() {
+                                #if canImport(AppKit)
                                 if vm.isStealthModeEnabled {
-                                    EyeIcon(color: .white)
+                                    // Eye icon when stealth mode is ON
+                                    if let eyeIcon = NSImage.image(lucideId: "eye") {
+                                        Image(nsImage: eyeIcon)
+                                            .renderingMode(.template)
+                                            .foregroundColor(.white)
+                                            .frame(width: 13, height: 13)
+                                    }
                                 } else {
-                                    PirateIcon(color: .white)
+                                    // Hat with glasses icon when stealth mode is OFF (default)
+                                    if let hatGlassesIcon = NSImage.image(lucideId: "hat-glasses") {
+                                        Image(nsImage: hatGlassesIcon)
+                                            .renderingMode(.template)
+                                            .foregroundColor(.white)
+                                            .frame(width: 13, height: 13)
+                                    }
                                 }
+                                #endif
                             }
-                            .frame(width: 14, height: 14)
+                            .frame(width: 13, height: 13)
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 2)
-                        .frame(width: 24, height: 24, alignment: .center)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .frame(width: 32, height: 32, alignment: .center)
                         .background(hoverStealth ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
-                        .cornerRadius(24)
+                        .cornerRadius(32)
                         .onHover { hover in
                             hoverStealth = hover
                         }
@@ -103,12 +137,12 @@ struct BoringHeader: View {
                                         .foregroundColor(.white)
                                         .font(.system(size: 12, weight: .semibold))
                                 }
-                                .frame(width: 14, height: 14)
+                                .frame(width: 13, height: 13)
                             }
-                            .padding(EdgeInsets(top: 2, leading: 12, bottom: 2, trailing: 12))
-                            .frame(width: 24, height: 24)
+                            .padding(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .frame(width: 32, height: 32)
                             .background(hoverMirror ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
-                            .cornerRadius(24)
+                            .cornerRadius(32)
                             .onHover { hover in
                                 hoverMirror = hover
                             }
@@ -121,21 +155,30 @@ struct BoringHeader: View {
                         }) {
                             HStack(spacing: 4) {
                                 ZStack() {
-                                    SettingsIcon(color: .white)
-                                        .frame(width: 14, height: 14)
+                                    #if canImport(AppKit)
+                                    if let settingsIcon = NSImage.image(lucideId: "settings") {
+                                        Image(nsImage: settingsIcon)
+                                            .renderingMode(.template)
+                                            .foregroundColor(.white)
+                                            .frame(width: 13, height: 13)
+                                    }
+                                    #endif
                                 }
-                                .frame(width: 14, height: 14)
+                                .frame(width: 13, height: 13)
                             }
-                            .padding(EdgeInsets(top: 2, leading: 12, bottom: 2, trailing: 12))
-                            .frame(width: 24, height: 24)
+                            .padding(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .frame(width: 32, height: 32)
                             .background(hoverSettings ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
-                            .cornerRadius(24)
+                            .cornerRadius(32)
                             .onHover { hover in
                                 hoverSettings = hover
                             }
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
+                    
+                    // Lock button moved to floating position in ContentView
+                    
                     // if Defaults[.showBatteryIndicator] {
                     //     BoringBatteryView(
                     //         batteryWidth: 30,
@@ -271,154 +314,6 @@ private struct VEIcon: View {
             .fill(color)
         }
         .frame(width: 15, height: 8)
-    }
-}
-
-private struct EyeIcon: View {
-    var color: Color = .white
-    var body: some View {
-        GeometryReader { geo in
-            let scale = min(geo.size.width, geo.size.height) / 24.0
-            let offsetX = (geo.size.width - 24.0 * scale) / 2.0
-            let offsetY = (geo.size.height - 24.0 * scale) / 2.0
-            let strokeStyle = StrokeStyle(lineWidth: 2.0 * scale, lineCap: .round, lineJoin: .round)
-            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
-                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
-            }
-            ZStack {
-                Path { path in
-                    path.move(to: point(2.0, 12.0))
-                    path.addQuadCurve(to: point(12.0, 5.0), control: point(5.0, 6.0))
-                    path.addQuadCurve(to: point(22.0, 12.0), control: point(19.0, 6.0))
-                    path.addQuadCurve(to: point(12.0, 19.0), control: point(19.0, 18.0))
-                    path.addQuadCurve(to: point(2.0, 12.0), control: point(5.0, 18.0))
-                }
-                .stroke(color, style: strokeStyle)
-                Path { path in
-                    let radius: CGFloat = 3.0
-                    let rect = CGRect(
-                        x: offsetX + (12.0 - radius) * scale,
-                        y: offsetY + (12.0 - radius) * scale,
-                        width: radius * 2.0 * scale,
-                        height: radius * 2.0 * scale
-                    )
-                    path.addEllipse(in: rect)
-                }
-                .stroke(color, style: strokeStyle)
-            }
-        }
-        .aspectRatio(1.0, contentMode: .fit)
-    }
-}
-
-private struct PirateIcon: View {
-    var color: Color = .white
-    var body: some View {
-        GeometryReader { geo in
-            let scale = min(geo.size.width, geo.size.height) / 24.0
-            let offsetX = (geo.size.width - 24.0 * scale) / 2.0
-            let offsetY = (geo.size.height - 24.0 * scale) / 2.0
-            let strokeStyle = StrokeStyle(lineWidth: 2.0 * scale, lineCap: .round, lineJoin: .round)
-            let point: (CGFloat, CGFloat) -> CGPoint = { x, y in
-                CGPoint(x: offsetX + x * scale, y: offsetY + y * scale)
-            }
-            let circleRect: (CGFloat, CGFloat, CGFloat) -> CGRect = { centerX, centerY, radius in
-                CGRect(
-                    x: offsetX + (centerX - radius) * scale,
-                    y: offsetY + (centerY - radius) * scale,
-                    width: radius * 2.0 * scale,
-                    height: radius * 2.0 * scale
-                )
-            }
-            ZStack {
-                Path { path in
-                    path.move(to: point(2.0, 11.0))
-                    path.addLine(to: point(22.0, 11.0))
-                }
-                .stroke(color, style: strokeStyle)
-                Path { path in
-                    path.move(to: point(19.0, 11.0))
-                    path.addLine(to: point(16.9, 4.3))
-                    path.addLine(to: point(14.4, 3.2))
-                    path.addLine(to: point(12.0, 4.0))
-                    path.addLine(to: point(8.5, 4.0))
-                    path.addLine(to: point(6.6, 5.9))
-                    path.addLine(to: point(5.0, 11.0))
-                }
-                .stroke(color, style: strokeStyle)
-                Path { path in
-                    path.move(to: point(10.0, 18.0))
-                    path.addLine(to: point(14.0, 18.0))
-                }
-                .stroke(color, style: strokeStyle)
-                Path { path in
-                    path.addEllipse(in: circleRect(7.0, 18.0, 3.0))
-                }
-                .stroke(color, style: strokeStyle)
-                Path { path in
-                    path.addEllipse(in: circleRect(17.0, 18.0, 3.0))
-                }
-                .stroke(color, style: strokeStyle)
-                Path { path in
-                    path.addArc(
-                        center: point(12.0, 18.0),
-                        radius: 2.0 * scale,
-                        startAngle: .degrees(0),
-                        endAngle: .degrees(180),
-                        clockwise: true
-                    )
-                }
-                .stroke(color, style: strokeStyle)
-            }
-        }
-        .aspectRatio(1.0, contentMode: .fit)
-    }
-}
-
-// MARK: - SettingsIcon (SVG path)
-private struct SettingsIcon: View {
-    var color: Color = .white
-    var body: some View {
-        GeometryReader { geo in
-            let w: CGFloat = 14
-            let h: CGFloat = 14
-            let sx = geo.size.width / w
-            let sy = geo.size.height / h
-            let s = min(sx, sy)
-
-            Path { p in
-                // Inner circle
-                p.addArc(center: CGPoint(x: 7 * s, y: 7 * s), radius: 2.1875 * s, startAngle: .degrees(0), endAngle: .degrees(360), clockwise: false)
-            }
-            .stroke(color, style: StrokeStyle(lineWidth: 0.875 * s, lineCap: .round, lineJoin: .round))
-
-            Path { p in
-                // Outer gear path approximated from the provided SVG
-                // This is a simplified but visually matching path sized to 14x14
-                p.move(to: CGPoint(x: 7.11116 * s, y: 11.2716 * s))
-                p.addLine(to: CGPoint(x: 6.89241 * s, y: 11.2716 * s))
-                p.addLine(to: CGPoint(x: 5.13968 * s, y: 12.25 * s))
-                p.addCurve(to: CGPoint(x: 3.26773 * s, y: 11.2 * s), control1: CGPoint(x: 4.45736 * s, y: 12.0205 * s), control2: CGPoint(x: 3.82448 * s, y: 11.6642 * s))
-                p.addLine(to: CGPoint(x: 3.15835 * s, y: 9.04477 * s))
-                p.addLine(to: CGPoint(x: 1.41546 * s, y: 8.05219 * s))
-                p.addCurve(to: CGPoint(x: 1.41546 * s, y: 5.94891 * s), control1: CGPoint(x: 1.27818 * s, y: 7.35781 * s), control2: CGPoint(x: 1.27818 * s, y: 6.64328 * s))
-                p.addLine(to: CGPoint(x: 3.15671 * s, y: 4.95906 * s))
-                p.addLine(to: CGPoint(x: 3.27483 * s, y: 2.80383 * s))
-                p.addCurve(to: CGPoint(x: 5.13968 * s, y: 1.75 * s), control1: CGPoint(x: 3.82453 * s, y: 2.33824 * s), control2: CGPoint(x: 4.45724 * s, y: 1.9807 * s))
-                p.addLine(to: CGPoint(x: 6.88968 * s, y: 2.72836 * s))
-                p.addLine(to: CGPoint(x: 7.10843 * s, y: 2.72836 * s))
-                p.addLine(to: CGPoint(x: 8.85843 * s, y: 1.75 * s))
-                p.addCurve(to: CGPoint(x: 10.7238 * s, y: 2.8 * s), control1: CGPoint(x: 9.54075 * s, y: 1.97952 * s), control2: CGPoint(x: 10.1736 * s, y: 2.33575 * s))
-                p.addLine(to: CGPoint(x: 10.8398 * s, y: 4.95523 * s))
-                p.addLine(to: CGPoint(x: 12.5816 * s, y: 5.94727 * s))
-                p.addCurve(to: CGPoint(x: 12.5816 * s, y: 8.05055 * s), control1: CGPoint(x: 12.7188 * s, y: 6.64164 * s), control2: CGPoint(x: 12.7188 * s, y: 7.35617 * s))
-                p.addLine(to: CGPoint(x: 10.7222 * s, y: 11.1956 * s))
-                p.addCurve(to: CGPoint(x: 8.85843 * s, y: 12.25 * s), control1: CGPoint(x: 10.1729 * s, y: 11.6613 * s), control2: CGPoint(x: 9.54052 * s, y: 12.019 * s))
-                p.addLine(to: CGPoint(x: 7.11116 * s, y: 11.2716 * s))
-            }
-            .stroke(color, style: StrokeStyle(lineWidth: 0.875 * s, lineCap: .round, lineJoin: .round))
-        }
-        .aspectRatio(1.0, contentMode: .fit)
     }
 }
 

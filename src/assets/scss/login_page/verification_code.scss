@@ -2,10 +2,22 @@
 	display: flex;
 	width: 100%;
 	max-width: 400px;
+	height: 100%; // Full height to push terms to bottom
 	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
 	gap: 80px;
+	position: relative; // For absolute positioned acknowledge container
+	
+	.verification-code-main-content {
+		display: flex;
+		flex-direction: column;
+		gap: 80px;
+		flex: 1; // Take available space
+		justify-content: center; // Center vertically
+		width: 100%;
+	}
+	
 	.verification-code-header-container {
 		display: flex;
 		flex-direction: column;
@@ -163,14 +175,14 @@
 				}
 			}
 			.back-btn-container {
-				color: var(--secondary-font, #94989e);
+				cursor: pointer;
+				color: var(--primary-font, #F2F2F3);
 				text-align: center;
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
 				font-weight: 500;
 				line-height: normal;
-				cursor: pointer;
 				&:hover {
 					text-decoration: underline;
 				}
@@ -178,8 +190,8 @@
 		}
 	}
 	.acknowledge-container {
-		width: 65%;
-		bottom: 16px;
+		width: 90%;
+		bottom: 1px; // Space from bottom edge
 		color: var(--primary-font, #f2f2f3);
 		left: 50%;
 		position: absolute;

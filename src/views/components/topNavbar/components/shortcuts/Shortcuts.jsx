@@ -8,11 +8,11 @@ const shortcuts = [
 		name: 'Glass Mode',
 		keys: ['⌘', 'G'],
 	},
-	{
-		id: 'overlay',
-		name: 'Overlay',
-		keys: ['⌘', '\\'],
-	},
+	// {
+	// 	id: 'overlay',
+	// 	name: 'Overlay',
+	// 	keys: ['⌘', '\\'],
+	// },
 	{
 		id: 'ask-ai',
 		name: 'Ask AI',
