@@ -100,7 +100,7 @@ struct ContentView: View {
                     let notchStateAnimation = Animation.spring.speed(1.2)
                     return
                         view
-                        .animation(hoverAnimationAnimation, value: isHovering)
+                        .animation(vm.isAuthenticated ? hoverAnimationAnimation : .none, value: isHovering)
                         .animation(notchStateAnimation, value: vm.notchState)
                         .animation(.smooth, value: gestureProgress)
                         .transition(
@@ -110,15 +110,15 @@ struct ContentView: View {
                     let hoverAnimationAnimation = Animation.bouncy.speed(1.2)
                     let notchStateAnimation = Animation.spring.speed(1.2)
                     return view
-                        .animation(hoverAnimationAnimation, value: isHovering)
+                        .animation(vm.isAuthenticated ? hoverAnimationAnimation : .none, value: isHovering)
                         .animation(notchStateAnimation, value: vm.notchState)
                 }
-                .conditionalModifier(Defaults[.openNotchOnHover]) { view in
+                .conditionalModifier(Defaults[.openNotchOnHover] && vm.isAuthenticated) { view in
                     view.onHover { hovering in
                         handleHover(hovering)
                     }
                 }
-                .conditionalModifier(!Defaults[.openNotchOnHover]) { view in
+                .conditionalModifier(!Defaults[.openNotchOnHover] && vm.isAuthenticated) { view in
                     view
                         .onHover { hovering in
                             if (vm.notchState == .closed) && Defaults[.enableHaptics] {
@@ -218,7 +218,10 @@ struct ContentView: View {
     func NotchLayout() -> some View {
         VStack(alignment: .leading, spacing: vm.notchState == .open ? 26 : 0) {
             VStack(alignment: .leading) {
-                if coordinator.firstLaunch {
+                if !vm.isAuthenticated {
+                    // Welcome section when not authenticated
+                    LoginViewContent()
+                } else if coordinator.firstLaunch {
                     Spacer()
                     HelloAnimation().frame(width: 200, height: 80).onAppear(perform: {
                         vm.closeHello()
@@ -304,7 +307,7 @@ struct ContentView: View {
               .zIndex(2)
 
             ZStack {
-                if vm.notchState == .open {
+                if vm.notchState == .open && vm.isAuthenticated {
                     switch coordinator.currentView {
                     case .home:
                         NotchHomeView(albumArtNamespace: albumArtNamespace)
@@ -312,8 +315,8 @@ struct ContentView: View {
                         NotchShelfView()
                     case .meeting:
                         MeetingView()
-                    case .ask:
-                        MeetingView()
+            case .ask:
+                NotchHomeView(albumArtNamespace: albumArtNamespace)
                     }
                 }
             }
@@ -553,6 +556,99 @@ struct ContentView: View {
                 if Defaults[.enableHaptics] {
                     haptics.toggle()
                 }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func LoginViewContent() -> some View {
+        ZStack {
+            // Transparent background - let the black background show through
+            Color.clear
+            
+            VStack(spacing: 0) {
+                Spacer()
+                
+                VStack(spacing: 24) {
+                    // Hello Animation - shows first, then disappears
+                    if vm.showHelloAnimation {
+                        HelloAnimation()
+                            .frame(width: 180, height: 70)
+                            .transition(.asymmetric(
+                                insertion: .opacity.combined(with: .scale(scale: 0.8)),
+                                removal: .opacity.combined(with: .scale(scale: 1.1))
+                            ))
+                    }
+                    
+                    // Text content - animates from bottom to center
+                    if vm.showLoginText {
+                        VStack(spacing: 12) { // Reduced gap from 20 to 12
+                            // Main greeting text - with gradient foreground and individual animation
+                            Text("Hey there! Ready when you are.")
+                                .font(.system(size: 18, weight: .regular, design: .default))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.white.opacity(0.4),
+                                            Color.white.opacity(0.8),
+                                            Color.white.opacity(0.4)
+                                        ]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .padding(.horizontal, 20)
+                                .offset(y: vm.greetingTextOffset)
+                                .opacity(vm.greetingTextOpacity)
+                            
+                            // Login text - with gradient foreground and tap gesture (no hover animation)
+                            Text("LOGIN")
+                                .font(.system(size: 16, weight: .semibold, design: .default))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.purple.opacity(0.9),
+                                            Color.blue.opacity(0.8),
+                                            Color.cyan.opacity(0.7)
+                                        ]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                                .padding(.horizontal, 40) // Apply padding to the tappable area
+                                .contentShape(Rectangle()) // Ensures the entire padded area is tappable
+                                .onTapGesture {
+                                    vm.navigateToMainScreen(path: "/verify-user")
+                                }
+                                .offset(y: vm.loginButtonOffset)
+                                .opacity(vm.loginButtonOpacity)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center) // Ensure proper centering
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .center) // Center the entire content
+                
+                Spacer()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .allowsHitTesting(true)
+        .onHover { _ in
+            // Prevent hover events from bubbling up to parent views
+            // This stops the login overlay from triggering hover animations
+        }
+        .onAppear {
+            vm.startLoginAnimationSequence()
+            // Request authentication status immediately when login view appears
+            vm.requestAuthenticationStatusFromElectron()
+            
+            // Also request again after a short delay to ensure WebSocket is ready
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                vm.requestAuthenticationStatusFromElectron()
             }
         }
     }

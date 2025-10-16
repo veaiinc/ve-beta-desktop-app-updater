@@ -23,31 +23,40 @@ class BoringNotchService {
 		this.stealthModeController = controller;
 	}
 
+	setWindowHelper(helper) {
+		this.windowHelper = helper;
+	}
+
 	async initialize() {
 		try {
 			log.info('🚀 Initializing Boring Notch service...');
-			
+
 			// Get the path to the boring.notch app
 			let boringNotchPath = this.getBoringNotchPath();
-			
+
 			// If not found in expected locations, try to find it in the system
 			if (!boringNotchPath) {
 				log.info('🔍 Boring Notch not found in expected locations, searching system...');
 				boringNotchPath = await this.findBoringNotchInSystem();
 			}
-			
+
 			if (!boringNotchPath) {
 				log.error('❌ Boring Notch app not found in any location');
 				log.error('❌ Please ensure Boring Notch is built and available');
-				throw new Error('Boring Notch app not found. Please run "npm run build:boring-notch" to build it.');
+				throw new Error(
+					'Boring Notch app not found. Please run "npm run build:boring-notch" to build it.',
+				);
 			}
 
 			// Launch the boring.notch app
 			await this.launchBoringNotch(boringNotchPath);
-			
+
+			// Set up WebSocket message listening
+			this.setupWebSocketMessageListening();
+
 			this.isInitialized = true;
 			log.info('✅ Boring Notch service initialized successfully');
-			
+
 			return true;
 		} catch (error) {
 			log.error('❌ Failed to initialize Boring Notch service:', error);
@@ -57,26 +66,36 @@ class BoringNotchService {
 
 	getBoringNotchPath() {
 		const fs = require('fs');
-		
+
 		// Determine if we're in development or production
-		const isDevelopment = process.env.NODE_ENV === 'development' || 
-			(__dirname.includes('dist-electron') === false && __dirname.includes('node_modules') === false);
-		
+		const isDevelopment =
+			process.env.NODE_ENV === 'development' ||
+			(__dirname.includes('dist-electron') === false &&
+				__dirname.includes('node_modules') === false);
+
 		log.info('🔍 Boring Notch path resolution - Development mode:', isDevelopment);
 		log.info('🔍 Current __dirname:', __dirname);
-		
+
 		// Try to find the boring.notch app
 		const possiblePaths = [];
-		
+
 		if (isDevelopment) {
 			// Development paths
 			possiblePaths.push(
 				// Primary development path
 				path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app'),
 				// Alternative development path (nested structure)
-				path.join(__dirname, '..', '..', 'boring.notch', 'boring.notch', 'build', 'boringNotch.app'),
+				path.join(
+					__dirname,
+					'..',
+					'..',
+					'boring.notch',
+					'boring.notch',
+					'build',
+					'boringNotch.app',
+				),
 				// Fallback development path
-				path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.app')
+				path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.app'),
 			);
 		} else {
 			// Production paths - when app is packaged
@@ -89,7 +108,7 @@ class BoringNotchService {
 				path.join(__dirname, '..', '..', '..', 'boringNotch.app'),
 				path.join(__dirname, '..', '..', 'boringNotch.app'),
 				// Fallback to development paths in case of edge cases
-				path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app')
+				path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app'),
 			);
 		}
 
@@ -99,7 +118,7 @@ class BoringNotchService {
 			const exists = fs.existsSync(possiblePath);
 			log.info(`  Path ${i + 1}: ${possiblePath}`);
 			log.info(`  Exists: ${exists}`);
-			
+
 			if (exists) {
 				log.info('✅ Found Boring Notch at:', possiblePath);
 				return possiblePath;
@@ -116,26 +135,30 @@ class BoringNotchService {
 			exec('find /Applications -name "*boring*" -type d 2>/dev/null', (error, stdout) => {
 				if (!error && stdout.trim()) {
 					const apps = stdout.trim().split('\n');
-					const boringApp = apps.find(app => app.includes('boring') && app.endsWith('.app'));
+					const boringApp = apps.find(
+						(app) => app.includes('boring') && app.endsWith('.app'),
+					);
 					if (boringApp) {
 						log.info('📁 Found Boring Notch in Applications:', boringApp);
 						resolve(boringApp);
 						return;
 					}
 				}
-				
+
 				// Try to find using mdfind (Spotlight search)
 				exec('mdfind "kMDItemDisplayName == \'*boring*\'" 2>/dev/null', (error, stdout) => {
 					if (!error && stdout.trim()) {
 						const results = stdout.trim().split('\n');
-						const boringApp = results.find(result => result.includes('boring') && result.endsWith('.app'));
+						const boringApp = results.find(
+							(result) => result.includes('boring') && result.endsWith('.app'),
+						);
 						if (boringApp) {
 							log.info('📁 Found Boring Notch via Spotlight:', boringApp);
 							resolve(boringApp);
 							return;
 						}
 					}
-					
+
 					log.warn('⚠️ Boring Notch app not found in system');
 					resolve(null);
 				});
@@ -147,18 +170,14 @@ class BoringNotchService {
 		return new Promise((resolve, reject) => {
 			try {
 				log.info('🚀 Launching Boring Notch app from:', appPath);
-				
+
 				// Check if it's an Xcode project or a built app
 				if (appPath.endsWith('.xcodeproj')) {
 					// For development - build and run the Xcode project
-					this.buildAndRunXcodeProject(appPath)
-						.then(resolve)
-						.catch(reject);
+					this.buildAndRunXcodeProject(appPath).then(resolve).catch(reject);
 				} else if (appPath.endsWith('.app')) {
 					// For production - launch the built app
-					this.launchBuiltApp(appPath)
-						.then(resolve)
-						.catch(reject);
+					this.launchBuiltApp(appPath).then(resolve).catch(reject);
 				} else {
 					reject(new Error('Invalid app path format'));
 				}
@@ -171,29 +190,35 @@ class BoringNotchService {
 	async buildAndRunXcodeProject(projectPath) {
 		return new Promise((resolve, reject) => {
 			log.info('🔨 Building Xcode project...');
-			
+
 			// Build the project first
-			const buildCommand = `cd "${path.dirname(projectPath)}" && xcodebuild -project boringNotch.xcodeproj -scheme boringNotch -configuration Debug build`;
-			
+			const buildCommand = `cd "${path.dirname(
+				projectPath,
+			)}" && xcodebuild -project boringNotch.xcodeproj -scheme boringNotch -configuration Debug build`;
+
 			exec(buildCommand, (error, stdout, stderr) => {
 				if (error) {
 					log.error('❌ Failed to build Xcode project:', error);
 					reject(error);
 					return;
 				}
-				
+
 				log.info('✅ Boring Notch Xcode project built successfully');
-				
+
 				// Find the built app and launch it with stdin communication
-				const builtAppPath = path.join(path.dirname(projectPath), 'build', 'boringNotch.app');
+				const builtAppPath = path.join(
+					path.dirname(projectPath),
+					'build',
+					'boringNotch.app',
+				);
 				if (require('fs').existsSync(builtAppPath)) {
 					log.info('🚀 Launching built app with stdin communication...');
-					this.launchBuiltApp(builtAppPath)
-						.then(resolve)
-						.catch(reject);
+					this.launchBuiltApp(builtAppPath).then(resolve).catch(reject);
 				} else {
 					// Fallback: try to open the app normally
-					log.warn('⚠️ Built app not found at expected location, trying to open normally...');
+					log.warn(
+						'⚠️ Built app not found at expected location, trying to open normally...',
+					);
 					exec('open -a boringNotch', (openError) => {
 						if (openError) {
 							log.error('❌ Failed to open boring.notch app:', openError);
@@ -212,27 +237,26 @@ class BoringNotchService {
 	async launchBuiltApp(appPath) {
 		return new Promise((resolve, reject) => {
 			log.info('🚀 Launching built Boring Notch app...');
-			
+
 			try {
 				// Launch the app normally using 'open' command
 				const launchCommand = `open "${appPath}"`;
-				
+
 				exec(launchCommand, (error, stdout, stderr) => {
 					if (error) {
 						log.error('❌ Failed to launch built app:', error);
 						reject(error);
 						return;
 					}
-					
+
 					log.info('✅ Boring Notch app launched successfully');
-					
+
 					// Wait a moment for the app to start, then establish stdin communication
 					setTimeout(() => {
 						this.establishStdinCommunication(appPath);
 						resolve();
 					}, 2000);
 				});
-				
 			} catch (error) {
 				log.error('❌ Failed to launch built app:', error);
 				reject(error);
@@ -244,19 +268,18 @@ class BoringNotchService {
 		try {
 			// Don't spawn a new process - just mark that we have communication established
 			// The app is already running from the 'open' command
-			this.boringNotchProcess = { 
-				type: 'open-launched', 
+			this.boringNotchProcess = {
+				type: 'open-launched',
 				path: appPath,
 				stdin: {
 					write: (data) => {
 						// Use WebSocket to send messages to boring.notch app
 						this.sendWebSocketMessage(data);
-					}
-				}
+					},
+				},
 			};
-			
+
 			log.info('✅ Boring Notch communication established (app already running)');
-			
 		} catch (error) {
 			log.error('❌ Failed to establish stdin communication:', error);
 			this.boringNotchProcess = null;
@@ -272,7 +295,7 @@ class BoringNotchService {
 					type: 'BORING_NOTCH_MESSAGE',
 					data: data,
 					timestamp: Date.now(),
-					source: 'electron'
+					source: 'electron',
 				});
 				log.info('📱 Message sent to boring.notch via WebSocket:', data);
 			} else {
@@ -283,17 +306,56 @@ class BoringNotchService {
 		}
 	}
 
+	// Set up WebSocket message listening to receive messages from boring.notch app
+	setupWebSocketMessageListening() {
+		try {
+			const websocketService = require('./websocketService');
+
+			// Listen for WebSocket messages
+			websocketService.on('message', (messageData) => {
+				log.info('📱 Received WebSocket message from boring.notch:', messageData);
+
+				// Check if this is a message from boring.notch app
+				if (messageData.data) {
+					// Handle WebSocket event format from boring.notch
+					if (messageData.data.type === 'SHOW_ASK_AI_WINDOW') {
+						log.info('🎯 Received SHOW_ASK_AI_WINDOW event from boring.notch');
+						this.handleShowAskAIWindow();
+					}
+					// Handle legacy stdout format (if any)
+					else if (typeof messageData.data === 'string') {
+						// Try to parse as JSON (stdout format from boring.notch)
+						try {
+							const parsedMessage = JSON.parse(messageData.data);
+							if (parsedMessage.source === 'boring-notch') {
+								// This is a message from boring.notch app, handle it
+								this.handleBoringNotchOutput(messageData.data);
+							}
+						} catch (parseError) {
+							// Not JSON, might be a different type of message
+							log.debug('WebSocket message is not JSON format:', messageData.data);
+						}
+					}
+				}
+			});
+
+			log.info('✅ WebSocket message listening set up for boring.notch');
+		} catch (error) {
+			log.error('❌ Failed to set up WebSocket message listening:', error);
+		}
+	}
+
 	async cleanup() {
 		try {
 			log.info('🧹 Cleaning up Boring Notch service...');
-			
+
 			if (this.boringNotchProcess) {
 				await this.terminateBoringNotch();
 			}
-			
+
 			this.isInitialized = false;
 			this.boringNotchProcess = null;
-			
+
 			log.info('✅ Boring Notch service cleaned up successfully');
 		} catch (error) {
 			log.error('❌ Error cleaning up Boring Notch service:', error);
@@ -304,14 +366,14 @@ class BoringNotchService {
 	async terminate() {
 		try {
 			log.info('🛑 Terminating Boring Notch app...');
-			
+
 			if (this.boringNotchProcess) {
 				await this.terminateBoringNotch();
 			}
-			
+
 			// Also cleanup after termination
 			await this.cleanup();
-			
+
 			log.info('✅ Boring Notch app terminated successfully');
 		} catch (error) {
 			log.error('❌ Error terminating Boring Notch app:', error);
@@ -324,7 +386,7 @@ class BoringNotchService {
 		return new Promise((resolve) => {
 			try {
 				log.info('🛑 Terminating Boring Notch app...');
-				
+
 				// Try to find and terminate the boring.notch process
 				exec('pkill -f "boringNotch"', (error, stdout, stderr) => {
 					if (error && !error.message.includes('No matching processes')) {
@@ -332,21 +394,24 @@ class BoringNotchService {
 					} else {
 						log.info('✅ Boring Notch process terminated');
 					}
-					
+
 					// Also try to quit the app gracefully using AppleScript
 					const quitScript = `
 						tell application "boringNotch"
 							quit
 						end tell
 					`;
-					
+
 					exec(`osascript -e '${quitScript}'`, (quitError) => {
-						if (quitError && !quitError.message.includes('Application isn\'t running')) {
-							log.warn('⚠️ Error gracefully quitting Boring Notch:', quitError.message);
+						if (quitError && !quitError.message.includes("Application isn't running")) {
+							log.warn(
+								'⚠️ Error gracefully quitting Boring Notch:',
+								quitError.message,
+							);
 						} else {
 							log.info('✅ Boring Notch app quit gracefully');
 						}
-						
+
 						resolve();
 					});
 				});
@@ -435,7 +500,6 @@ class BoringNotchService {
 		return { success: true };
 	}
 
-
 	async sendMessage(messageData) {
 		log.info('📤 Boring Notch general message sent:', messageData);
 		return { success: true };
@@ -449,19 +513,23 @@ class BoringNotchService {
 	async updateVoiceConnectionStatus(status) {
 		try {
 			log.info('🔗 Boring Notch voice connection state updated:', status);
-			
+
 			// Send connection status update to boring.notch app
-			if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+			if (
+				this.boringNotchProcess &&
+				this.boringNotchProcess.stdin &&
+				!this.boringNotchProcess.stdin.destroyed
+			) {
 				const statusMessage = JSON.stringify({
 					type: 'update_voice_connection_status',
 					status: status,
 					timestamp: Date.now(),
-					source: 'electron'
+					source: 'electron',
 				});
 				this.boringNotchProcess.stdin.write(statusMessage + '\n');
 				log.info('🔗 Voice connection status update sent to boring.notch app:', status);
 			}
-			
+
 			return { success: true };
 		} catch (error) {
 			log.error('❌ Error updating voice connection status:', error);
@@ -472,20 +540,24 @@ class BoringNotchService {
 	async addVoiceMessage(messageData) {
 		try {
 			log.info('💬 Boring Notch voice message added:', messageData);
-			
+
 			// Send voice message to boring.notch app
-			if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+			if (
+				this.boringNotchProcess &&
+				this.boringNotchProcess.stdin &&
+				!this.boringNotchProcess.stdin.destroyed
+			) {
 				const messageUpdate = JSON.stringify({
 					type: 'add_voice_message',
 					content: messageData.content,
 					isFromAgent: messageData.isFromAgent,
 					timestamp: Date.now(),
-					source: 'electron'
+					source: 'electron',
 				});
 				this.boringNotchProcess.stdin.write(messageUpdate + '\n');
 				log.info('💬 Voice message sent to boring.notch app');
 			}
-			
+
 			return { success: true };
 		} catch (error) {
 			log.error('❌ Error adding voice message:', error);
@@ -498,16 +570,22 @@ class BoringNotchService {
 			log.info('🔌 Disconnecting voice agent from Boring Notch service');
 
 			// Send disconnect message to boring.notch app
-			if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+			if (
+				this.boringNotchProcess &&
+				this.boringNotchProcess.stdin &&
+				!this.boringNotchProcess.stdin.destroyed
+			) {
 				const disconnectMessage = JSON.stringify({
 					type: 'disconnect_voice_agent',
 					timestamp: Date.now(),
-					source: 'electron'
+					source: 'electron',
 				});
 				this.boringNotchProcess.stdin.write(disconnectMessage + '\n');
 				log.info('🔌 Voice agent disconnect message sent to boring.notch app');
 			} else {
-				log.warn('⚠️ Boring Notch stdin not available or destroyed. Cannot send disconnect message.');
+				log.warn(
+					'⚠️ Boring Notch stdin not available or destroyed. Cannot send disconnect message.',
+				);
 			}
 
 			// Also dispatch disconnect event to main window
@@ -537,17 +615,23 @@ class BoringNotchService {
 			log.info('🎤 Toggling voice mute in Boring Notch service:', isMuted);
 
 			// Send mute toggle message to boring.notch app
-			if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+			if (
+				this.boringNotchProcess &&
+				this.boringNotchProcess.stdin &&
+				!this.boringNotchProcess.stdin.destroyed
+			) {
 				const muteMessage = JSON.stringify({
 					type: 'toggle_voice_mute',
 					isMuted: isMuted,
 					timestamp: Date.now(),
-					source: 'electron'
+					source: 'electron',
 				});
 				this.boringNotchProcess.stdin.write(muteMessage + '\n');
 				log.info('🎤 Voice mute toggle message sent to boring.notch app');
 			} else {
-				log.warn('⚠️ Boring Notch stdin not available or destroyed. Cannot send mute toggle message.');
+				log.warn(
+					'⚠️ Boring Notch stdin not available or destroyed. Cannot send mute toggle message.',
+				);
 			}
 
 			// Also dispatch mute event to main window
@@ -578,16 +662,22 @@ class BoringNotchService {
 		try {
 			// Clean the output - remove any extra whitespace or newlines
 			const cleanOutput = output.trim();
-			
+
 			// Try to parse as JSON
 			const message = JSON.parse(cleanOutput);
-			
+
 			if (message.type === 'electron_voice_mute') {
-				log.info('🎤 Received direct voice mute command from boring.notch:', message.isMuted);
+				log.info(
+					'🎤 Received direct voice mute command from boring.notch:',
+					message.isMuted,
+				);
 				this.handleDirectVoiceMute(message.isMuted);
 			} else if (message.type === 'electron_voice_disconnect') {
 				log.info('🔌 Received direct voice disconnect command from boring.notch');
 				this.handleDirectVoiceDisconnect();
+			} else if (message.type === 'show_ask_ai_window') {
+				log.info('🎯 Received show Ask AI window command from boring.notch');
+				this.handleShowAskAIWindow();
 			}
 		} catch (error) {
 			// Not a JSON message, ignore it
@@ -598,7 +688,7 @@ class BoringNotchService {
 	async handleDirectVoiceMute(isMuted) {
 		try {
 			log.info('🎤 Handling direct voice mute command:', isMuted);
-			
+
 			// Dispatch mute event to main window to control the actual voice agent
 			if (this.mainWindow) {
 				const result = await this.mainWindow.webContents.executeJavaScript(`
@@ -672,7 +762,7 @@ class BoringNotchService {
 	async handleDirectVoiceDisconnect() {
 		try {
 			log.info('🔌 Handling direct voice disconnect command');
-			
+
 			// Dispatch disconnect event to main window to control the actual voice agent
 			if (this.mainWindow) {
 				const result = await this.mainWindow.webContents.executeJavaScript(`
@@ -750,15 +840,19 @@ class BoringNotchService {
 	async activateVoiceAgent() {
 		try {
 			log.info('🎤 Activating voice agent from Boring Notch service');
-			
+
 			// First, try to activate the voice interface in the boring.notch app
 			try {
 				// Send message to boring.notch app to show voice interface
-				if (this.boringNotchProcess && this.boringNotchProcess.stdin && !this.boringNotchProcess.stdin.destroyed) {
+				if (
+					this.boringNotchProcess &&
+					this.boringNotchProcess.stdin &&
+					!this.boringNotchProcess.stdin.destroyed
+				) {
 					const voiceActivationMessage = JSON.stringify({
 						type: 'activate_voice_interface',
 						timestamp: Date.now(),
-						source: 'electron'
+						source: 'electron',
 					});
 					this.boringNotchProcess.stdin.write(voiceActivationMessage + '\n');
 					log.info('🎤 Voice activation message sent to boring.notch app');
@@ -766,13 +860,13 @@ class BoringNotchService {
 					log.warn('⚠️ Boring Notch process or stdin not available:', {
 						hasProcess: !!this.boringNotchProcess,
 						hasStdin: !!(this.boringNotchProcess && this.boringNotchProcess.stdin),
-						stdinDestroyed: this.boringNotchProcess?.stdin?.destroyed
+						stdinDestroyed: this.boringNotchProcess?.stdin?.destroyed,
 					});
 				}
 			} catch (appError) {
 				log.warn('⚠️ Could not send message to boring.notch app:', appError.message);
 			}
-			
+
 			// Also dispatch voice activation event to main window for fallback
 			if (this.mainWindow) {
 				const result = await this.mainWindow.webContents.executeJavaScript(`
@@ -787,7 +881,7 @@ class BoringNotchService {
 				`);
 				log.info('🎤 Voice activation event dispatched to main window:', result);
 			}
-			
+
 			return { success: true };
 		} catch (error) {
 			log.error('❌ Error activating voice agent in Boring Notch service:', error);
@@ -811,22 +905,33 @@ class BoringNotchService {
 			resourcesPath: process.resourcesPath,
 			possiblePaths: [],
 			existingPaths: [],
-			missingPaths: []
+			missingPaths: [],
 		};
 
 		// Check all possible paths
 		const allPossiblePaths = [
 			// Development paths
 			path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app'),
-			path.join(__dirname, '..', '..', 'boring.notch', 'boring.notch', 'build', 'boringNotch.app'),
+			path.join(
+				__dirname,
+				'..',
+				'..',
+				'boring.notch',
+				'boring.notch',
+				'build',
+				'boringNotch.app',
+			),
 			path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.app'),
 			// Production paths
-			path.join(process.resourcesPath || path.join(__dirname, '..', '..', '..'), 'boringNotch.app'),
+			path.join(
+				process.resourcesPath || path.join(__dirname, '..', '..', '..'),
+				'boringNotch.app',
+			),
 			path.join(__dirname, '..', '..', '..', 'boringNotch.app'),
-			path.join(__dirname, '..', '..', 'boringNotch.app')
+			path.join(__dirname, '..', '..', 'boringNotch.app'),
 		];
 
-		allPossiblePaths.forEach(possiblePath => {
+		allPossiblePaths.forEach((possiblePath) => {
 			debugInfo.possiblePaths.push(possiblePath);
 			if (fs.existsSync(possiblePath)) {
 				debugInfo.existingPaths.push(possiblePath);
@@ -836,6 +941,41 @@ class BoringNotchService {
 		});
 
 		return debugInfo;
+	}
+
+	// Handle show Ask AI window command from boring.notch
+	async handleShowAskAIWindow() {
+		try {
+			log.info('🎯 Handling show Ask AI window command from boring.notch');
+
+			if (this.windowHelper) {
+				// Create ask AI window if it doesn't exist
+				this.windowHelper.createAskAIWindow?.();
+
+				// Check if window is visible
+				const isAskAIVisible = this.windowHelper.isAskAIWindowVisible();
+
+				if (isAskAIVisible) {
+					// Hide ask AI window
+					this.windowHelper.hideAskAIWindow?.();
+					log.info('🎯 Ask AI window hidden');
+				} else {
+					// Show ask AI window
+					this.windowHelper.showAskAIWindow?.();
+
+					// Send message to show chatbox mode
+					const askAIWindow = this.windowHelper.getAskAIWindow();
+					if (askAIWindow && !askAIWindow.isDestroyed()) {
+						askAIWindow.webContents.send('askAI-show-chatbox');
+						log.info('🎯 Ask AI window shown and chatbox mode activated');
+					}
+				}
+			} else {
+				log.error('❌ WindowHelper not available for Ask AI window control');
+			}
+		} catch (error) {
+			log.error('❌ Error handling show Ask AI window command:', error);
+		}
 	}
 }
 
