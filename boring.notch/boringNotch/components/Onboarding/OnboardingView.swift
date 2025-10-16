@@ -43,7 +43,7 @@ struct OnboardingView: View {
 
             case .microphonePermission:
                 PermissionRequestView(
-                    icon: Image(systemName: "mic.fill"),
+                    icon: Image("microphone"),
                     title: "Enable Microphone Access",
                     description: "Ve.Ai uses your microphone for voice features and quick voice interactions. We only listen when you explicitly engage voice features.",
                     privacyNote: "Audio is never recorded or sent without your consent.",
@@ -65,8 +65,8 @@ struct OnboardingView: View {
 
             case .screenPermission:
                 PermissionRequestView(
-                    icon: Image(systemName: "display"),
-                    title: "Enable Screen Recording",
+                    icon: Image("screen"),
+                    title: "Enable Screen Access",
                     description: "Grant screen capture permission so Ve.Ai can support features that reference on-screen content (e.g. overlay guidance).",
                     privacyNote: "We never capture your screen without an explicit action.",
                     onAllow: {
@@ -87,7 +87,7 @@ struct OnboardingView: View {
 
             case .accessibilityPermission:
                 PermissionRequestView(
-                    icon: Image(systemName: "hand.raised.fill"),
+                    icon: Image("accessibility"),
                     title: "Enable Accessibility",
                     description: "Accessibility permission lets Ve.Ai offer features like selection assistance and global shortcuts.",
                     privacyNote: "No keystrokes are logged; this permission is only used to enable specific interactions.",
@@ -109,7 +109,7 @@ struct OnboardingView: View {
 
             case .cameraPermission:
                 PermissionRequestView(
-                    icon: Image(systemName: "camera.fill"),
+                    icon: Image("camera"),
                     title: "Enable Camera Access",
                     description: "Ve.Ai includes a mirror feature that lets you quickly check your appearance using your camera, right from the notch. Camera access is required only to show this live preview. You can turn the mirror feature on or off at any time in the app.",
                     privacyNote: "Your camera is never used without your consent, and nothing is recorded or stored.",
@@ -131,7 +131,7 @@ struct OnboardingView: View {
 
             case .calendarPermission:
                 PermissionRequestView(
-                    icon: Image(systemName: "calendar"),
+                    icon: Image("calendar"),
                     title: "Enable Calendar Access",
                     description: "Ve.Ai can show all your upcoming events in one place. Access to your calendar is needed to display your schedule.",
                     privacyNote: "Your calendar data is only used to show your events and is never shared.",
@@ -153,7 +153,7 @@ struct OnboardingView: View {
 
                 case .remindersPermission:
                     PermissionRequestView(
-                        icon: Image(systemName: "checklist"),
+                        icon: Image("reminders"),
                         title: "Enable Reminders Access",
                         description: "Ve.Ai can show your scheduled reminders alongside your calendar events. Access to Reminders is needed to display your reminders.",
                         privacyNote: "Your reminders data is only used to show your reminders and is never shared.",

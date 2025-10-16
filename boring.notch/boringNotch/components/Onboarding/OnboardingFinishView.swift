@@ -16,8 +16,10 @@ struct OnboardingFinishView: View {
         VStack(spacing: 20) {
             Spacer()
 
-            Image(systemName: "sparkles")
-                .font(.system(size: 60))
+            Image("finalsparkel")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 60, height: 60)
                 .foregroundColor(.accentColor)
                 .padding()
 
