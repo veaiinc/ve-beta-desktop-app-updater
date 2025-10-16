@@ -10,6 +10,7 @@ const UploadProgressPopup = () => {
 		galleryInfo: {
 			uploadSessions,
 			showUploadProgressPopup,
+			showUploadProgressPopupFunc,
 			removeUploadSession,
 			hideUploadProgressPopup,
 			getUploadImagePolicy,
@@ -412,6 +413,11 @@ const UploadProgressPopup = () => {
 					getAlbumImagesCount(galleryId);
 				}
 			});
+			// ✅ AUTO-CLOSE POPUP: If all sessions are completed and no active uploads remain
+			// Add a small delay to let users see the completion status
+			setTimeout(() => {
+				handleCloseUploadProgressPopup();
+			}, 3000); // 3 second delay to show completion status
 		}
 	};
 
@@ -1310,7 +1316,6 @@ const UploadProgressPopup = () => {
 		const hasActiveUploads = Array.from(activeUploads.values()).some(
 			(state) => state.status === 'uploading' || state.status === 'preparing',
 		);
-
 		if (hasActiveUploads) {
 			if (
 				window.confirm(

@@ -1,6 +1,6 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import useWorkspaceMode from './hooks/useWorkspaceMode';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 // import useVoiceIntegration from './hooks/useVoiceIntegration';
 // import NotchDropVoiceActivator from './components/NotchDropVoiceActivator';
 // import PerformanceMonitor from './components/PerformanceMonitor';
@@ -16,6 +16,7 @@ import UploadProgressPopup from './views/components/globalComponents/UploadProgr
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
 import WindowChrome from './components/WindowChrome.jsx';
+import Context from './context/context';
 
 const parseIntervalMinutes = (value, fallback = 60) => {
 	const parsed = Number.parseInt(value, 10);
@@ -31,6 +32,9 @@ const UPDATE_CHECK_INTERVAL_MS = UPDATE_CHECK_INTERVAL_MINUTES * 60 * 1000;
 const AppContent = () => {
 	const { routes } = useWorkspaceMode();
 	const location = useLocation();
+	const {
+		galleryInfo: { showUploadProgressPopup },
+	} = useContext(Context);
 
 	// Global NotchDrop sync - keeps NotchDrop updated with meeting data across all routes
 	// useNotchDropSync();
@@ -437,7 +441,7 @@ const AppContent = () => {
 			{/* NotchDrop Voice Agent Integration - DIRECT */}
 			{/* {showVoiceFromNotch && <VoiceAgentParent />} */}
 			{/* Global Upload Progress Popup - persists across all routes */}
-			<UploadProgressPopup />
+			{showUploadProgressPopup && <UploadProgressPopup />}
 			{/* Global Download Progress Popup - persists across all routes */}
 			<DownloadProgressPopup />
 			{/* Update Progress Indicator */}

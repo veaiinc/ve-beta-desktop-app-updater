@@ -212,7 +212,6 @@ const GalleryPage = () => {
 			getSignedUrlsForImages,
 			// Upload session management
 			uploadSessions,
-			showUploadProgressPopup,
 			addUploadSession,
 			updateUploadSession,
 			removeUploadSession,
@@ -3926,11 +3925,11 @@ const GalleryPage = () => {
 			albumContains: '',
 		}));
 		// Preserve the lite-gallery parameter in navigation
-		// if (info?.isLightGallery) {
-		// 	navigate('/files?active-tab=Lite+Gallery&lite-gallery=true');
-		// } else {
-		navigate('/files');
-		// }
+		if (info?.isLightGallery) {
+			navigate('/files?active-tab=Lite+Gallery&lite-gallery=true');
+		} else {
+			navigate('/files');
+		}
 	};
 	const selectedFaceChange = (face) => {
 		setInfo((prev) => ({
