@@ -123,8 +123,8 @@ struct ContentView: View {
                                 isHovering = hovering
                             }
 
-                            // Only close if mouse leaves and the notch is open, but not in meeting view
-                            if !hovering && vm.notchState == .open && coordinator.currentView != .meeting {
+                            // Only close if mouse leaves and the notch is open, but not in meeting view and not locked
+                            if !hovering && vm.notchState == .open && coordinator.currentView != .meeting && !vm.isNotchLocked && !vm.isHoveringLockArea {
                                 vm.close()
                             }
                         }
@@ -184,6 +184,19 @@ struct ContentView: View {
 //                    #endif
 //                    .keyboardShortcut("E", modifiers: .command)
                 }
+            // Floating lock button at bottom-right of the notch
+            if vm.notchState == .open {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        FloatingLockButton()
+                    }
+                }
+                .padding(.trailing, 8)
+                .padding(.bottom,-4)
+                .frame(maxWidth: openNotchSize.width, maxHeight: openNotchSize.height, alignment: .bottomTrailing)
+            }
         }
         .padding(.bottom, 8)
         .frame(maxWidth: openNotchSize.width, maxHeight: openNotchSize.height, alignment: .top)
@@ -246,6 +259,7 @@ struct ContentView: View {
                           BoringFaceAnimation().animation(.interactiveSpring, value: musicManager.isPlayerIdle)
                       } else if vm.notchState == .open {
                           BoringHeader()
+                              .padding(.top, 4)
                               .frame(height: max(24, vm.effectiveClosedNotchHeight))
                               .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
                               .animation(.spring(response: 1, dampingFraction: 1, blendDuration: 0.8), value: vm.notchState)
@@ -444,7 +458,10 @@ struct ContentView: View {
                         }
 
                         vm.dropEvent = false
-                        vm.close()
+                        // Don't close if locked
+                        if !vm.isNotchLocked {
+                            vm.close()
+                        }
                     }
                 }
         } else {
@@ -509,8 +526,8 @@ struct ContentView: View {
                     isHovering = false
                 }
 
-                // Close the notch if it's open and battery popover is not active, but not in meeting view
-                if vm.notchState == .open && !vm.isBatteryPopoverActive && coordinator.currentView != .meeting {
+                // Close the notch if it's open and battery popover is not active, but not in meeting view and not locked
+                if vm.notchState == .open && !vm.isBatteryPopoverActive && coordinator.currentView != .meeting && !vm.isNotchLocked && !vm.isHoveringLockArea {
                     vm.close()
                 }
             }
@@ -564,8 +581,8 @@ struct ContentView: View {
                     gestureProgress = .zero
                     isHovering = false
                 }
-                // Don't close the notch if we're in the meeting view
-                if coordinator.currentView != .meeting {
+                // Don't close the notch if we're in the meeting view or if locked
+                if coordinator.currentView != .meeting && !vm.isNotchLocked {
                     vm.close()
                 }
 
@@ -656,6 +673,59 @@ struct ContentView: View {
                 vm.requestAuthenticationStatusFromElectron()
             }
         }
+    }
+}
+
+// MARK: - Floating lock button aligned bottom-right
+private struct FloatingLockButton: View {
+    @EnvironmentObject var vm: BoringViewModel
+    @ObservedObject var coordinator = BoringViewCoordinator.shared
+
+    var body: some View {
+        Button(action: {
+            vm.toggleNotchLock()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                vm.forceLockStateRefresh()
+            }
+        }) {
+            ZStack {
+                Circle()
+                    .fill(vm.isNotchLocked ? Color.white.opacity(0.1) : Color.clear)
+                #if canImport(AppKit)
+                Group {
+                    if vm.isNotchLocked {
+                        if let lockIcon = NSImage.image(lucideId: "lock") {
+                            Image(nsImage: lockIcon).renderingMode(.template).foregroundColor(.white)
+                        }
+                    } else {
+                        if let lockOpenIcon = NSImage.image(lucideId: "lock-open") {
+                            Image(nsImage: lockOpenIcon).renderingMode(.template).foregroundColor(.white)
+                        }
+                    }
+                }
+                .frame(width: 13, height: 13)
+                #endif
+            }
+            .frame(width: 32, height: 32)
+            .overlay(
+                vm.isNotchLocked
+                    ? RoundedRectangle(cornerRadius: 32).inset(by: 0.25).stroke(Color.white.opacity(0.4), lineWidth: 0.5)
+                    : nil
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onHover { hovering in
+            vm.isHoveringLockArea = hovering
+            // Open on hover when closed
+            if hovering && vm.notchState == .closed {
+                withAnimation(.bouncy.speed(1.2)) { vm.open() }
+            }
+            // Close when leaving if not locked and not in meeting
+            if !hovering && vm.notchState == .open && !vm.isNotchLocked && coordinator.currentView != .meeting {
+                vm.close()
+            }
+        }
+        .help(vm.isNotchLocked ? "Unlock notch" : "Lock notch open")
     }
 }
 

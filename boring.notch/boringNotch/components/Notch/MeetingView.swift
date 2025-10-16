@@ -26,6 +26,7 @@ extension Color {
 // MARK: - Persistent Storage Keys
 extension Defaults.Keys {
     static let meetingTranscriptions = Key<[Transcription]>("meetingTranscriptions", default: [])
+    static let meetingLiveIntelligence = Key<[LiveIntelligence]>("meetingLiveIntelligence", default: [])
     static let isMeetingActive = Key<Bool>("isMeetingActive", default: false)
     static let currentMeetingId = Key<String?>("currentMeetingId", default: nil)
 }
@@ -86,22 +87,74 @@ struct Transcription: Identifiable, Codable, Defaults.Serializable, Equatable {
     }
 }
 
+// MARK: - Live Intelligence Data Model
+struct LiveIntelligence: Identifiable, Codable, Defaults.Serializable, Equatable {
+    let id: String
+    let text: String
+    let source: String
+    let timestamp: String
+    let confidence: Double?
+    let type: String
+    let metadata: [String: String]?
+    
+    // Computed property for formatted timestamp
+    var formattedTime: String {
+        // Parse timestamp and format as HH:mm in local timezone
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.timeZone = TimeZone(abbreviation: "UTC") // Input is UTC
+        
+        if let date = formatter.date(from: timestamp) {
+            let timeFormatter = DateFormatter()
+            timeFormatter.dateFormat = "HH:mm"
+            timeFormatter.timeZone = TimeZone.current // Display in local timezone
+            let formattedTime = timeFormatter.string(from: date)
+            return formattedTime
+        }
+        
+        // Fallback: try parsing without milliseconds
+        let fallbackFormatter = DateFormatter()
+        fallbackFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+        fallbackFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        
+        if let date = fallbackFormatter.date(from: timestamp) {
+            let timeFormatter = DateFormatter()
+            timeFormatter.dateFormat = "HH:mm"
+            timeFormatter.timeZone = TimeZone.current
+            let formattedTime = timeFormatter.string(from: date)
+            return formattedTime
+        }
+        
+        return "00:00"
+    }
+    
+    // Computed property for source name
+    var sourceName: String {
+        return "AI AGENT"
+    }
+}
+
 struct MeetingView: View, WebSocketEventListener {
     @StateObject private var webSocketManager = WebSocketManager.shared
     @State private var meetingData: [String: Any] = [:]
     @State private var lastEventTime: Date = Date()
     @State private var eventHistory: [WebSocketEvent] = []
     @State private var transcriptions: [Transcription] = []
+    @State private var liveIntelligenceData: [LiveIntelligence] = []
     
     // Webcam functionality
     @StateObject private var webcamManager = WebcamManager.shared
     @State private var isWebcamVisible: Bool = false
     @State private var isRequestingAuthorization: Bool = false
     
-    // Persistent storage for transcriptions
+    // Persistent storage for transcriptions and live intelligence
     @Default(.meetingTranscriptions) private var storedTranscriptions: [Transcription]
+    @Default(.meetingLiveIntelligence) private var storedLiveIntelligence: [LiveIntelligence]
     @Default(.isMeetingActive) private var isMeetingActive: Bool
     @Default(.currentMeetingId) private var currentMeetingId: String?
+    
+    // Coordinator for active meeting view
+    @ObservedObject var coordinator = BoringViewCoordinator.shared
     
     var body: some View {
         mainContent
@@ -117,10 +170,12 @@ struct MeetingView: View, WebSocketEventListener {
             // Register as event listener
             webSocketManager.addEventListener(self)
             
-            // Load stored transcriptions if meeting is active
+            // Load stored transcriptions and live intelligence if meeting is active
             if isMeetingActive {
                 transcriptions = storedTranscriptions
+                liveIntelligenceData = storedLiveIntelligence
                 print("📝 Loaded \(storedTranscriptions.count) stored transcriptions")
+                print("🧠 Loaded \(storedLiveIntelligence.count) stored live intelligence items")
             }
         }
         .onDisappear {
@@ -219,6 +274,8 @@ struct MeetingView: View, WebSocketEventListener {
                 handleResumeMeeting(event)
             case .transcriptionUpdate:
                 handleTranscriptionUpdate(event)
+            case .liveIntelligenceUpdate:
+                handleLiveIntelligenceUpdate(event)
             case .participantJoined:
                 handleParticipantJoined(event)
             case .participantLeft:
@@ -241,6 +298,10 @@ struct MeetingView: View, WebSocketEventListener {
     
     private func handleMeetingStarted(_ event: WebSocketEvent) {
         print("🎯 Meeting started with data: \(event.data)")
+        
+        // Call coordinator to set meeting state
+        coordinator.meetingStart()
+        
         // Update UI based on meeting start data
         if let meetingId = event.data["meetingId"] as? String {
             meetingData["meetingId"] = meetingId
@@ -257,6 +318,9 @@ struct MeetingView: View, WebSocketEventListener {
     
     private func handleMeetingStopped(_ event: WebSocketEvent) {
         print("🏁 Meeting stopped with data: \(event.data)")
+        
+        // Call coordinator to reset meeting state
+        coordinator.meetingStopAndReset()
         
         // Clear meeting data
         meetingData.removeAll()
@@ -277,6 +341,10 @@ struct MeetingView: View, WebSocketEventListener {
     
     private func handleMeetingPaused(_ event: WebSocketEvent) {
         print("⏸️ Meeting paused with data: \(event.data)")
+        
+        // Call coordinator to pause meeting
+        coordinator.meetingPause()
+        
         // Handle meeting pause
         if let reason = event.data["reason"] as? String {
             meetingData["pauseReason"] = reason
@@ -285,6 +353,10 @@ struct MeetingView: View, WebSocketEventListener {
     
     private func handleMeetingResumed(_ event: WebSocketEvent) {
         print("▶️ Meeting resumed with data: \(event.data)")
+        
+        // Call coordinator to resume meeting
+        coordinator.meetingResume()
+        
         // Handle meeting resume
         meetingData.removeValue(forKey: "pauseReason")
     }
@@ -376,6 +448,109 @@ struct MeetingView: View, WebSocketEventListener {
             print("📝 Single transcription update (legacy): \(text)")
         } else {
             print("⚠️ No transcriptions data found in event: \(event.data)")
+        }
+    }
+    
+    private func handleLiveIntelligenceUpdate(_ event: WebSocketEvent) {
+        print("🧠 Live intelligence update received: \(event.data)")
+        
+        // Check if this is an array replacement or individual item
+        if let liveIntelligenceArray = event.data["liveIntelligenceArray"] as? [[String: Any]] {
+            // Handle array replacement
+            print("🧠 Processing live intelligence array replacement with \(liveIntelligenceArray.count) items")
+            
+            let newLiveIntelligenceData = liveIntelligenceArray.compactMap { itemDict -> LiveIntelligence? in
+                let id = itemDict["id"] as? String ?? "live_intelligence_\(Date().timeIntervalSince1970)"
+                let text = itemDict["text"] as? String ?? itemDict["content"] as? String ?? itemDict["prompt"] as? String ?? ""
+                let source = itemDict["source"] as? String ?? itemDict["sender"] as? String ?? "ai-agent"
+                let timestamp = itemDict["timestamp"] as? String ?? itemDict["created_at"] as? String ?? Date().iso8601String
+                let confidence = itemDict["confidence"] as? Double
+                let type = itemDict["type"] as? String ?? "live-intelligence"
+                
+                // Handle metadata
+                var metadata: [String: String]? = nil
+                if let metadataDict = itemDict["metadata"] as? [String: Any] {
+                    metadata = metadataDict.compactMapValues { value in
+                        if let stringValue = value as? String {
+                            return stringValue
+                        } else if let numberValue = value as? NSNumber {
+                            return numberValue.stringValue
+                        }
+                        return nil
+                    }
+                }
+                
+                return LiveIntelligence(
+                    id: id,
+                    text: text,
+                    source: source,
+                    timestamp: timestamp,
+                    confidence: confidence,
+                    type: type,
+                    metadata: metadata
+                )
+            }
+            
+            DispatchQueue.main.async {
+                // Replace the entire array
+                self.liveIntelligenceData = newLiveIntelligenceData
+                
+                // Persist live intelligence to storage
+                self.storedLiveIntelligence = self.liveIntelligenceData
+                
+                print("✅ Successfully replaced live intelligence array. Total count: \(self.liveIntelligenceData.count)")
+            }
+        } else if let liveIntelligenceDict = event.data as? [String: Any] {
+            // Handle individual item (legacy support)
+            print("🧠 Processing individual live intelligence data from Electron")
+            
+            // Create a unique ID if not provided
+            let id = liveIntelligenceDict["id"] as? String ?? "live_intelligence_\(Date().timeIntervalSince1970)"
+            let text = liveIntelligenceDict["text"] as? String ?? liveIntelligenceDict["content"] as? String ?? ""
+            let source = liveIntelligenceDict["source"] as? String ?? liveIntelligenceDict["sender"] as? String ?? "ai-agent"
+            let timestamp = liveIntelligenceDict["timestamp"] as? String ?? Date().iso8601String
+            let confidence = liveIntelligenceDict["confidence"] as? Double
+            let type = liveIntelligenceDict["type"] as? String ?? "live-intelligence"
+            
+            // Handle metadata
+            var metadata: [String: String]? = nil
+            if let metadataDict = liveIntelligenceDict["metadata"] as? [String: Any] {
+                metadata = metadataDict.compactMapValues { value in
+                    if let stringValue = value as? String {
+                        return stringValue
+                    } else if let numberValue = value as? NSNumber {
+                        return numberValue.stringValue
+                    }
+                    return nil
+                }
+            }
+            
+            print("🧠 Processing live intelligence: '\(text.prefix(50))...' from \(source)")
+            
+            let liveIntelligence = LiveIntelligence(
+                id: id,
+                text: text,
+                source: source,
+                timestamp: timestamp,
+                confidence: confidence,
+                type: type,
+                metadata: metadata
+            )
+            
+            // Add to the live intelligence array
+            DispatchQueue.main.async {
+                self.liveIntelligenceData.append(liveIntelligence)
+                
+                // Persist live intelligence to storage
+                self.storedLiveIntelligence = self.liveIntelligenceData
+                
+                print("✅ Successfully added live intelligence item. Total count: \(self.liveIntelligenceData.count)")
+                print("🧠 Live intelligence: [\(liveIntelligence.sourceName)] \(liveIntelligence.text.prefix(30))...")
+                
+                // Auto-scroll is handled by onChange modifier
+            }
+        } else {
+            print("⚠️ No live intelligence data found in event: \(event.data)")
         }
     }
     
@@ -489,21 +664,45 @@ struct MeetingView: View, WebSocketEventListener {
     @ViewBuilder
     private func transcriptionScrollContent(proxy: ScrollViewProxy) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            if transcriptions.isEmpty {
-                emptyStateView
+            if coordinator.activeMeetingView == .transcription {
+                if transcriptions.isEmpty {
+                    emptyStateView
+                } else {
+                    transcriptionListView
+                    bottomSpacer
+                }
             } else {
-                transcriptionListView
-                bottomSpacer
+                if liveIntelligenceData.isEmpty {
+                    liveIntelligenceEmptyStateView
+                } else {
+                    liveIntelligenceListView
+                    bottomSpacer
+                }
             }
         }
         .padding()
         // Simpler dependencies help the type checker
         .onChange(of: transcriptions.count) {
-            autoScrollToBottom(proxy: proxy)
+            if coordinator.activeMeetingView == .transcription {
+                autoScrollToBottom(proxy: proxy)
+            }
         }
         .onChange(of: transcriptions.last?.id) {
-            // Also scroll when the last transcription identity changes
-            autoScrollToBottom(proxy: proxy)
+            if coordinator.activeMeetingView == .transcription {
+                // Also scroll when the last transcription identity changes
+                autoScrollToBottom(proxy: proxy)
+            }
+        }
+        .onChange(of: liveIntelligenceData.count) {
+            if coordinator.activeMeetingView == .liveIntelligence {
+                autoScrollToBottom(proxy: proxy)
+            }
+        }
+        .onChange(of: liveIntelligenceData.last?.id) {
+            if coordinator.activeMeetingView == .liveIntelligence {
+                // Also scroll when the last live intelligence identity changes
+                autoScrollToBottom(proxy: proxy)
+            }
         }
     }
     
@@ -526,6 +725,34 @@ struct MeetingView: View, WebSocketEventListener {
     private var transcriptionListView: some View {
         ForEach(transcriptions, id: \.id) { transcription in
             TranscriptionItemView(transcription: transcription)
+        }
+    }
+    
+    @ViewBuilder
+    private var liveIntelligenceEmptyStateView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "brain.head.profile")
+                .font(.largeTitle)
+                .foregroundColor(.white.opacity(0.6))
+            
+            Text("No Live Intelligence Yet")
+                .font(.headline)
+                .foregroundColor(.white.opacity(0.8))
+            
+            Text("AI insights will appear here during your meeting")
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.6))
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+        .id("live-intelligence-empty-state")
+    }
+    
+    @ViewBuilder
+    private var liveIntelligenceListView: some View {
+        ForEach(liveIntelligenceData, id: \.id) { liveIntelligence in
+            LiveIntelligenceItemView(liveIntelligence: liveIntelligence)
         }
     }
     
@@ -675,6 +902,52 @@ struct TranscriptionItemView: View {
     @ViewBuilder
     private var textBody: some View {
         Text(transcription.text)
+            .font(Font.custom("General Sans Variable", size: 14).weight(.medium))
+            .lineSpacing(5)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+struct LiveIntelligenceItemView: View {
+    let liveIntelligence: LiveIntelligence
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            header
+            textBody
+        }
+        .frame(maxWidth: .infinity)
+        .id(liveIntelligence.id)
+    }
+    
+    @ViewBuilder
+    private var header: some View {
+        HStack(spacing: 10) {
+            Text(liveIntelligence.sourceName)
+                .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
+                .foregroundColor(.orange)
+            
+            Divider()
+            
+            HStack(spacing: 5) {
+                Image(systemName: "brain.head.profile")
+                    .font(.system(size: 10))
+                    .foregroundColor(.orange)
+                
+                Text(liveIntelligence.formattedTime)
+                    .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
+                    .foregroundColor(.orange)
+            }
+            
+            Spacer()
+        }
+        .padding(0)
+    }
+    
+    @ViewBuilder
+    private var textBody: some View {
+        Text(liveIntelligence.text)
             .font(Font.custom("General Sans Variable", size: 14).weight(.medium))
             .lineSpacing(5)
             .foregroundColor(.white)

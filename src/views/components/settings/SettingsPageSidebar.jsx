@@ -68,8 +68,13 @@ const SettingsPageSidebar = ({ toggleSidebar }) => {
 	// Memoize click handler to prevent unnecessary re-renders
 	const handleItemClick = useCallback(
 		(item) => {
+			console.log(item, 'item');
 			if (item.route) {
 				navigate(item.route);
+			} else if (item.label === 'Help') {
+				if (window.Intercom) {
+					window.Intercom('show');
+				}
 			} else if (item.handleClick) {
 				item.handleClick();
 			}

@@ -97,10 +97,10 @@ struct WheelPicker: View {
             .padding(.horizontal, 4)
             .background(
                 isSelected
-                ? Color(.sRGB, red: 121/255, green: 236/255, blue: 201/255, opacity: 0.40)
+                ? Color.white.opacity(0.1)
                 : Color.clear
             )
-            .cornerRadius(8)
+            .cornerRadius(100)
         }
         .buttonStyle(PlainButtonStyle())
         .id(id)

@@ -510,6 +510,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Replace entire transcription list in NotchDrop
 		replaceTranscriptions: (messages) =>
 			ipcRenderer.invoke('notchdrop-replace-transcriptions', messages),
+		// Replace entire live intelligence data array in NotchDrop
+		replaceLiveIntelligenceData: (liveIntelligenceArray) =>
+			ipcRenderer.invoke('notchdrop-replace-live-intelligence-data', liveIntelligenceArray),
 		// Clear live intelligence data in NotchDrop
 		clearLiveIntelligenceData: () =>
 			ipcRenderer.invoke('notchdrop-clear-live-intelligence-data'),

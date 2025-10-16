@@ -2142,11 +2142,31 @@ function createWindow(restoreState = false) {
 	// log.info('🎨 Using icon:', iconPath);
 
 	// Use saved window bounds if available, otherwise use defaults
-	const defaultBounds = { width: 1366, height: 768, x: undefined, y: undefined };
-	const windowBounds =
-		restoreState && lastWindowState.windowBounds
-			? { ...defaultBounds, ...lastWindowState.windowBounds }
-			: defaultBounds;
+	// If restoring state (user was logged in), use saved bounds or full default width (1366)
+	// If fresh start (not logged in), use login width (481px)
+	const isRestoringLoggedInState = restoreState && lastWindowState.windowBounds;
+
+	// Get screen dimensions for centering
+	const { screen } = require('electron');
+	const primaryDisplay = screen.getPrimaryDisplay();
+	const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+
+	const loginBounds = {
+		width: 481,
+		height: 768,
+		x: Math.round((screenWidth - 481) / 2), // Center horizontally
+		y: Math.round((screenHeight - 768) / 2), // Center vertically
+	};
+	const fullBounds = {
+		width: 1366,
+		height: 768,
+		x: Math.round((screenWidth - 1366) / 2), // Center horizontally
+		y: Math.round((screenHeight - 768) / 2), // Center vertically
+	};
+
+	const windowBounds = isRestoringLoggedInState
+		? { ...fullBounds, ...lastWindowState.windowBounds }
+		: loginBounds;
 
 	const mainWindowSettings = {
 		title: 'Ve AI - Priority',
@@ -2345,6 +2365,9 @@ function createWindow(restoreState = false) {
 			log.info('✅ User authenticated - hiding permission overlay if visible');
 			userAuthenticationStatus.isLoggedIn = true;
 			userAuthenticationStatus.shouldShowPermissionOverlay = false;
+
+			// Note: Window resize is now handled by the React hook (useLoginWindowResize)
+			// This ensures smooth animation when transitioning from login to main app
 
 			// Check if user has completed onboarding (show overlay only once)
 			try {
@@ -4516,23 +4539,23 @@ app.whenReady().then(async () => {
 
 	async function handleWebSocketMessage(prop) {
 		const { data, ws } = prop;
-		if (data.type === 'START_MEETING') {
-			log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-			// Send response back to the client that sent the START_MEETING message
-			await handleNotchToMainWindowEvents({ action: 'startRecording' });
-			websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		} else if (data.type === 'NAVIGATE_TO_MAIN_SCREEN') {
-			log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
-			// Show and focus main window, optionally navigate to specific path
-			await handleNotchToMainWindowEvents({ path: data.path || null });
-			log.info('✅ Main window opened/restored from BoringNotch VE logo click');
-		}
-		// switch(data.type) {
-		// 	case 'START_MEETING':
-		// 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-		// 		// Send response back to the client that sent the START_MEETING message
-		// 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		// 		break;
+		// if (data.type === 'START_MEETING') {
+		// 	log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+		// 	// Send response back to the client that sent the START_MEETING message
+		// 	await handleNotchToMainWindowEvents({ action: 'startRecording' });
+		// 	websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		// } else if (data.type === 'NAVIGATE_TO_MAIN_SCREEN') {
+		// 	log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
+		// 	// Show and focus main window, optionally navigate to specific path
+		// 	await handleNotchToMainWindowEvents({ path: data.path || null });
+		// 	log.info('✅ Main window opened/restored from BoringNotch VE logo click');
+		// }
+		// // switch(data.type) {
+		// // 	case 'START_MEETING':
+		// // 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+		// // 		// Send response back to the client that sent the START_MEETING message
+		// // 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		// // 		break;
 
 		switch (data.type) {
 			case 'START_MEETING':
@@ -4586,9 +4609,15 @@ app.whenReady().then(async () => {
 				log.info(`✅ Authentication status sent to Boring Notch: ${isAuthenticated}`);
 				break;
 
+			case 'NAVIGATE_TO_MAIN_SCREEN':
+				log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
+				// Show and focus main window, optionally navigate to specific path
+				await handleNotchToMainWindowEvents({ path: data.path || null });
+				log.info('✅ Main window opened/restored from BoringNotch VE logo click');
+				break;
+
 			default:
 				log.info('🎯 Unknown message received, skipping...');
-				break;
 		}
 	}
 
@@ -4617,10 +4646,25 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('send-live-intelligence-data-to-notch', async (event, liveIntelligenceData) => {
 		try {
-			websocketService.broadcast({
-				type: 'LIVE_INTELLIGENCE_UPDATE',
-				data: liveIntelligenceData,
-			});
+			// Check if this is an array replacement or individual item
+			if (Array.isArray(liveIntelligenceData)) {
+				// Send array replacement
+				websocketService.broadcast({
+					type: 'LIVE_INTELLIGENCE_UPDATE',
+					data: { liveIntelligenceArray: liveIntelligenceData },
+				});
+				log.info(
+					`🧠 Sent ${liveIntelligenceData.length} live intelligence items to BoringNotch via WebSocket (array replacement)`,
+				);
+			} else {
+				// Send individual item (legacy support)
+				websocketService.broadcast({
+					type: 'LIVE_INTELLIGENCE_UPDATE',
+					data: liveIntelligenceData,
+				});
+				log.info('🧠 Sent individual live intelligence item to BoringNotch via WebSocket');
+			}
+			return { success: true };
 		} catch (error) {
 			log.error('Error sending live intelligence data to Notch:', error);
 			return { success: false, error: error.message };
@@ -4955,8 +4999,8 @@ app.whenReady().then(async () => {
 				dimensions,
 				exitFullScreen,
 				animate = true,
-				duration = 250,
-				easing = 'easeInOutCubic',
+				duration = 300,
+				easing = 'easeInOutSmooth',
 			} = data;
 			const workArea = screen.getPrimaryDisplay().workAreaSize;
 			const screenWidth = workArea.width,
@@ -4972,6 +5016,28 @@ app.whenReady().then(async () => {
 			if (dimensions?.height) {
 				const height = Math.min(screenHeight, dimensions.height);
 				targetDimensions.height = height;
+			}
+			if (dimensions?.x !== undefined) {
+				// Ensure window stays within screen bounds
+				const x = Math.max(
+					0,
+					Math.min(
+						screenWidth - (targetDimensions.width || mainWindow.getBounds().width),
+						dimensions.x,
+					),
+				);
+				targetDimensions.x = x;
+			}
+			if (dimensions?.y !== undefined) {
+				// Ensure window stays within screen bounds
+				const y = Math.max(
+					0,
+					Math.min(
+						screenHeight - (targetDimensions.height || mainWindow.getBounds().height),
+						dimensions.y,
+					),
+				);
+				targetDimensions.y = y;
 			}
 
 			if (mainWindow && !mainWindow.isDestroyed()) {
@@ -7912,6 +7978,22 @@ ipcMain.handle('notchdrop-replace-transcriptions', async (event, messages) => {
 		return { success: false, error: 'NotchDrop service not available' };
 	} catch (error) {
 		log.error('Error replacing transcriptions in NotchDrop:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// Replace entire live intelligence data array in NotchDrop
+ipcMain.handle('notchdrop-replace-live-intelligence-data', async (event, liveIntelligenceArray) => {
+	try {
+		if (boringNotchService && boringNotchService.isInitialized) {
+			const ok = await boringNotchService.replaceLiveIntelligenceData(
+				liveIntelligenceArray || [],
+			);
+			return { success: ok };
+		}
+		return { success: false, error: 'NotchDrop service not available' };
+	} catch (error) {
+		log.error('Error replacing live intelligence data in NotchDrop:', error);
 		return { success: false, error: error.message };
 	}
 });

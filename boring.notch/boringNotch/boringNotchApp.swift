@@ -29,14 +29,14 @@ struct DynamicNotchApp: App {
     }
 
     var body: some Scene {
-        MenuBarExtra("boring.notch", systemImage: "sparkle", isInserted: $showMenuBarIcon) {
+        MenuBarExtra("ve.ai", systemImage: "sparkle", isInserted: $showMenuBarIcon) {
             Button("Settings") {
                 SettingsWindowController.shared.showWindow()
             }
             .keyboardShortcut(KeyEquivalent(","), modifiers: .command)
             CheckForUpdatesView(updater: updaterController.updater)
             Divider()
-            Button("Restart Boring Notch") {
+            Button("Restart Ve.Ai") {
                 guard let bundleIdentifier = Bundle.main.bundleIdentifier else { return }
 
                 let workspace = NSWorkspace.shared
