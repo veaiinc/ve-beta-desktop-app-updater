@@ -216,7 +216,6 @@ const useAssemblyTranscription = ({
 		audioBufferRef.current = [];
 		sampleCountRef.current = 0;
 		cleanup();
-		initializeMeetingSummary({ meeting_id: meetingId });
 	}, [log, meetingId]);
 
 	const connect = useCallback(async () => {

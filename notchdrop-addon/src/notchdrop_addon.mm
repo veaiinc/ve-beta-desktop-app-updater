@@ -22,6 +22,7 @@ public:
             InstanceMethod("getHapticFeedback", &NotchDropAddon::GetHapticFeedback),
             InstanceMethod("setNotchVisible", &NotchDropAddon::SetNotchVisible),
             InstanceMethod("getNotchVisible", &NotchDropAddon::GetNotchVisible),
+            InstanceMethod("setInteractionEnabled", &NotchDropAddon::SetInteractionEnabled),
             InstanceMethod("getWindowPosition", &NotchDropAddon::GetWindowPosition),
             InstanceMethod("configureVoice", &NotchDropAddon::ConfigureVoice),
             InstanceMethod("connectVoiceAssistant", &NotchDropAddon::ConnectVoiceAssistant),
@@ -30,10 +31,21 @@ public:
             InstanceMethod("updateVoiceConnectionState", &NotchDropAddon::UpdateVoiceConnectionState),
             InstanceMethod("updateVoiceMuteState", &NotchDropAddon::UpdateVoiceMuteState),
             InstanceMethod("addVoiceMessage", &NotchDropAddon::AddVoiceMessage),
+            InstanceMethod("addTranscriptionData", &NotchDropAddon::AddTranscriptionData),
+            InstanceMethod("sendLiveIntelligenceData", &NotchDropAddon::SendLiveIntelligenceData),
+  InstanceMethod("replaceTranscriptions", &NotchDropAddon::ReplaceTranscriptions),
+            InstanceMethod("setRecordingPanelMode", &NotchDropAddon::SetRecordingPanelMode),
+            InstanceMethod("clearLiveIntelligenceData", &NotchDropAddon::ClearLiveIntelligenceData),
             InstanceMethod("updateStealthModeState", &NotchDropAddon::UpdateStealthModeState),
+            InstanceMethod("handleExternalRecordingStateChange", &NotchDropAddon::HandleExternalRecordingStateChange),
             InstanceMethod("handleWakeWordDetected", &NotchDropAddon::HandleWakeWordDetected),
             InstanceMethod("triggerSwiftAction", &NotchDropAddon::TriggerSwiftAction),
-            InstanceMethod("on", &NotchDropAddon::On)
+            InstanceMethod("on", &NotchDropAddon::On),
+            InstanceMethod("getSelectionHistoryJSON", &NotchDropAddon::GetSelectionHistoryJSON),
+            InstanceMethod("clearSelectionHistory", &NotchDropAddon::ClearSelectionHistory),
+            InstanceMethod("presentSelectionHistoryInterface", &NotchDropAddon::PresentSelectionHistoryInterface),
+            InstanceMethod("requestSelectionAssistantPermissionPrompt", &NotchDropAddon::RequestSelectionAssistantPermissionPrompt),
+            InstanceMethod("isSelectionAssistantPermissionGranted", &NotchDropAddon::IsSelectionAssistantPermissionGranted)
         });
 
         exports.Set("NotchDropAddon", func);
@@ -288,6 +300,20 @@ private:
         return Napi::Boolean::New(env, visible);
     }
 
+    Napi::Value SetInteractionEnabled(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        bool enabled = false;
+        if (info.Length() > 0) {
+            if (info[0].IsBoolean()) {
+                enabled = info[0].As<Napi::Boolean>();
+            } else {
+                enabled = info[0].ToBoolean();
+            }
+        }
+        [NotchDropBridge setInteractionEnabled:enabled];
+        return env.Undefined();
+    }
+
     Napi::Value GetWindowPosition(const Napi::CallbackInfo& info) {
         Napi::Env env = info.Env();
         NSDictionary* position = [NotchDropBridge getWindowPosition];
@@ -299,6 +325,37 @@ private:
         result.Set("height", Napi::Number::New(env, [position[@"height"] doubleValue]));
         
         return result;
+    }
+
+    Napi::Value GetSelectionHistoryJSON(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        NSString* json = [NotchDropBridge getSelectionHistoryJSON];
+        std::string result = json ? std::string([json UTF8String]) : std::string("[]");
+        return Napi::String::New(env, result);
+    }
+
+    Napi::Value ClearSelectionHistory(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        BOOL result = [NotchDropBridge clearSelectionHistory];
+        return Napi::Boolean::New(env, result);
+    }
+
+    Napi::Value PresentSelectionHistoryInterface(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        BOOL result = [NotchDropBridge presentSelectionHistoryInterface];
+        return Napi::Boolean::New(env, result);
+    }
+
+    Napi::Value RequestSelectionAssistantPermissionPrompt(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        BOOL result = [NotchDropBridge requestSelectionAssistantPermissionPrompt];
+        return Napi::Boolean::New(env, result);
+    }
+
+    Napi::Value IsSelectionAssistantPermissionGranted(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        BOOL granted = [NotchDropBridge isSelectionAssistantPermissionGranted];
+        return Napi::Boolean::New(env, granted);
     }
 
     Napi::Value TriggerSwiftAction(const Napi::CallbackInfo& info) {
@@ -401,6 +458,99 @@ private:
         std::string messageJson = info[0].As<Napi::String>();
         NSString* nsMessageJson = [NSString stringWithUTF8String:messageJson.c_str()];
         [NotchDropBridge addVoiceMessage:nsMessageJson];
+        return env.Undefined();
+    }
+    
+    Napi::Value AddTranscriptionData(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected string argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        std::string messageJson = info[0].As<Napi::String>();
+        NSString* nsMessageJson = [NSString stringWithUTF8String:messageJson.c_str()];
+        
+        // Console log in C++ bridge
+        NSLog(@"📝 C++ Bridge: Received transcription data JSON: %@", nsMessageJson);
+        
+        [NotchDropBridge addTranscriptionData:nsMessageJson];
+        NSLog(@"📝 C++ Bridge: Forwarded to Objective-C bridge");
+        
+        return env.Undefined();
+    }
+
+    Napi::Value SendLiveIntelligenceData(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected string argument").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        std::string messageJson = info[0].As<Napi::String>();
+        NSString* nsMessageJson = [NSString stringWithUTF8String:messageJson.c_str()];
+        
+        // Console log in C++ bridge
+        NSLog(@"🧠 C++ Bridge: Received live intelligence data JSON: %@", nsMessageJson);
+        
+        [NotchDropBridge sendLiveIntelligenceData:nsMessageJson];
+        NSLog(@"🧠 C++ Bridge: Forwarded to Objective-C bridge");
+        
+        return env.Undefined();
+    }
+    
+    Napi::Value HandleExternalRecordingStateChange(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 2 || !info[0].IsBoolean() || !info[1].IsBoolean()) {
+            Napi::TypeError::New(env, "Expected two boolean arguments: isRecording, isPaused").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        
+        bool isRecording = info[0].As<Napi::Boolean>();
+        bool isPaused = info[1].As<Napi::Boolean>();
+        
+        NSLog(@"🔒 C++ Bridge: External recording state - isRecording: %@, isPaused: %@", 
+              isRecording ? @"YES" : @"NO", isPaused ? @"YES" : @"NO");
+        
+        [NotchDropBridge handleExternalRecordingStateChange:isRecording isPaused:isPaused];
+        
+        return env.Undefined();
+    }
+
+    Napi::Value ReplaceTranscriptions(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected JSON string array").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        std::string arrayJson = info[0].As<Napi::String>();
+        NSString* nsArrayJson = [NSString stringWithUTF8String:arrayJson.c_str()];
+        NSLog(@"📝 C++ Bridge: Replace transcriptions JSON count=%lu", (unsigned long)[nsArrayJson length]);
+        [NotchDropBridge replaceTranscriptions:nsArrayJson];
+        return env.Undefined();
+    }
+
+    Napi::Value SetRecordingPanelMode(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        if (info.Length() < 1 || !info[0].IsString()) {
+            Napi::TypeError::New(env, "Expected mode string").ThrowAsJavaScriptException();
+            return env.Null();
+        }
+        std::string mode = info[0].As<Napi::String>();
+        NSString* nsMode = [NSString stringWithUTF8String:mode.c_str()];
+        [NotchDropBridge setRecordingPanelMode:nsMode];
+        return env.Undefined();
+    }
+
+    Napi::Value ClearLiveIntelligenceData(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+        
+        // Console log in C++ bridge
+        NSLog(@"🧠 C++ Bridge: Clearing live intelligence data");
+        
+        [NotchDropBridge clearLiveIntelligenceData];
+        NSLog(@"🧠 C++ Bridge: Forwarded clear request to Objective-C bridge");
+        
         return env.Undefined();
     }
         Napi::Value UpdateStealthModeState(const Napi::CallbackInfo& info) {

@@ -7,7 +7,7 @@ import Context from '../../../context/context';
 import ObjectID from 'bson-objectid';
 
 const page = 1;
-const limit = 10;
+const limit = 6;
 const reset = true;
 
 const ActiveChatIndication = ({ activeChatData }) => {

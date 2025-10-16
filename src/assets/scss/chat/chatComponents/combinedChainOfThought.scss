@@ -2,6 +2,13 @@
 	display: flex;
 	flex-direction: column;
 	gap: 24px;
+
+	.chainOfThought {
+		width: 100%;
+		.cot-wrapper {
+			margin: 0;
+		}
+	}
 	.thoughts-container {
 		display: flex;
 		flex-direction: column;

@@ -6,6 +6,7 @@ import { message } from '../../components/globalComponents/CustomToast';
 import { useNavigate } from 'react-router-dom';
 import Context from '../../../context/context';
 import { SHARE_AND_EARN_KIT_URL, REFERRAL_BASE_URL } from '../../../helpers/ConstantUrls';
+import { copyToClipboard } from '../../../helpers/clipboardHelper';
 
 const ShareAndEarn = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -39,9 +40,30 @@ const ShareAndEarn = () => {
 			navigate('/home');
 		}
 	};
-	const handleCopyLink = () => {
-		navigator.clipboard.writeText(referralLink);
-		message.success('Copied to clipboard');
+	const handleCopyLink = async () => {
+		if (!referralLink) {
+			message.error('No referral link available to copy');
+			return;
+		}
+
+		try {
+			const success = await copyToClipboard(referralLink, {
+				onSuccess: () => {
+					message.success('Copied to clipboard');
+				},
+				onError: (error) => {
+					console.error('Copy failed:', error);
+					message.error('Failed to copy to clipboard. Please try again.');
+				},
+			});
+
+			if (!success) {
+				message.error('Failed to copy to clipboard. Please try again.');
+			}
+		} catch (error) {
+			console.error('Copy error:', error);
+			message.error('Failed to copy to clipboard. Please try again.');
+		}
 	};
 	return (
 		<>

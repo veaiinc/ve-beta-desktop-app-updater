@@ -17,21 +17,48 @@ extension NotchViewModel {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
+                guard self.isInteractionEnabled else { return }
                 let mouseLocation: NSPoint = NSEvent.mouseLocation
                 switch status {
                 case .opened:
+                    // Fast-path: if we opened by hover and user clicks anywhere outside → close immediately
+                    if openReason == .hover, !notchOpenedRect.contains(mouseLocation) {
+                        withAnimation(DynamicIslandTheme.instantAnimation) {
+                            self.notchClose()
+                        }
+                        return
+                    }
                     // If chat input is focused or we're in chat mode, don't interfere with clicks in the notch area
                     if isChatInputFocused || (isChatMode && notchOpenedRect.contains(mouseLocation)) {
                         // Let SwiftUI handle the click for text input
-                        print("🎯 Chat input focused or click in chat area - allowing SwiftUI to handle")
                         return
                     }
                     
-                    // touch outside, close
-                    if !notchOpenedRect.contains(mouseLocation) {
+                    // For unauthenticated users: auto-unlock and collapse when clicking on opened notch
+                    // But allow a small delay to let SwiftUI buttons handle their clicks first
+                    if !isAuthenticated && notchOpenedRect.contains(mouseLocation) {
+                        if isNotchLocked {
+                            isNotchLocked = false
+                        }
+                        
+                        // Add a small delay to allow SwiftUI buttons to handle their clicks first
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            // Only collapse if the notch is still opened (button didn't handle the click)
+                            if self.status == .opened {
+                                self.notchClose()
+                            }
+                        }
+                        return
+                    }
+                    
+                    // touch outside, close (unless explicitly locked)
+                    if !notchOpenedRect.contains(mouseLocation), !isNotchLocked {
+                        print("🖱️ Click outside detected - closing notch (unlocked)")
                         notchClose()
-                        // click where user open the panel
-                    } else if deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
+                    } else if !notchOpenedRect.contains(mouseLocation), isNotchLocked {
+                        print("🖱️ Click outside detected - NOT closing notch (LOCKED)")
+                        // click where user open the panel - but don't auto-close if video is playing or locked
+                    } else if notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation), !hasActiveVideo, !isNotchLocked {
                         notchClose()
                         // for the same height as device notch, open the url of project
                     } else if headlineOpenedRect.contains(mouseLocation) {
@@ -45,7 +72,13 @@ extension NotchViewModel {
                     }
                 case .closed, .popping:
                     // touch inside, open
-                    if deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
+                    if notchClosedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation) {
+                        // For unauthenticated users: auto-unlock and open
+                        if !isAuthenticated && isNotchLocked {
+                            isNotchLocked = false
+                        }
+                        // Lock the notch when opened by click to prevent auto-close
+                        isNotchLocked = true
                         notchOpen(.click)
                     }
                 }
@@ -60,25 +93,67 @@ extension NotchViewModel {
             }
             .store(in: &cancellables)
 
+        // ULTIMATE FIX: Ultra-optimized hover processing with memory management
         events.mouseLocation
-            .receive(on: DispatchQueue.main)
+            .throttle(for: .milliseconds(50), scheduler: DispatchQueue.main, latest: true) // Further reduced frequency
             .sink { [weak self] _ in
                 guard let self else { return }
-                let mouseLocation: NSPoint = NSEvent.mouseLocation
-                // Hover zones
-                let inClosedHoverZone = deviceNotchRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
-                let inOpenedHoverZone = notchOpenedRect.insetBy(dx: inset, dy: inset).contains(mouseLocation)
+                guard self.isInteractionEnabled else { return }
+                // Skip hover processing while opened by click to reduce churn
+                if status == .opened, openReason == .click { return }
+                
+                // ULTIMATE FIX: Use autoreleasepool to prevent memory accumulation
+                autoreleasepool { [weak self] in
+                    guard let self = self else { return }
+                    let mouseLocation: NSPoint = NSEvent.mouseLocation
+                    
+                    // ULTIMATE FIX: Cache hover zone calculations with reduced precision
+                    let inClosedHoverZone = self.notchClosedRect.insetBy(dx: self.inset, dy: self.inset).contains(mouseLocation)
+                    let inOpenedHoverZone = self.notchOpenedRect.insetBy(dx: self.inset, dy: self.inset).contains(mouseLocation)
 
-                switch status {
-                case .closed:
-                    // Fully expand on hover entry
-                    if inClosedHoverZone { notchOpen(.hover) }
-                case .opened:
-                    // Auto-close only if we opened due to hover and the pointer leaves the opened island
-                    if openReason == .hover, !inOpenedHoverZone { notchClose() }
-                case .popping:
-                    // Legacy pop behavior: close pop if pointer leaves the closed hover zone
-                    if !inClosedHoverZone { notchClose() }
+                    // ULTIMATE FIX: Only activate performance mode when needed
+                    if inClosedHoverZone || inOpenedHoverZone {
+                        self.ensureInteractivePerformance()
+                    }
+
+                    switch self.status {
+                    case .closed:
+                        // Edge-detect hover ENTER into closed zone
+                        if inClosedHoverZone && !self.wasInClosedHoverZone {
+                            // ULTIMATE FIX: Reduced haptic feedback frequency
+                            self.performHoverHapticIfNeeded()
+                            
+                            // ULTIMATE FIX: Faster animation
+                            withAnimation(DynamicIslandTheme.hoverOpenBubbly) {
+                                self.notchOpen(.hover) 
+                            }
+                        }
+                        // Update edge state
+                        self.wasInClosedHoverZone = inClosedHoverZone
+                        self.wasInOpenedHoverZone = false
+                    case .opened:
+                        // Edge-detect hover EXIT from opened zone for auto-close
+                        if self.openReason == .hover, !inOpenedHoverZone, self.wasInOpenedHoverZone, !self.hasActiveVideo, !self.isNotchLocked {
+                            // ULTIMATE FIX: Faster close animation
+                            withAnimation(DynamicIslandTheme.hoverAnimation) {
+                                self.notchClose() 
+                            }
+                        }
+                        // Update edge state
+                        self.wasInOpenedHoverZone = inOpenedHoverZone
+                        self.wasInClosedHoverZone = false
+                    case .popping:
+                        // Legacy pop behavior: close pop if pointer leaves the closed hover zone
+                        if !inClosedHoverZone { 
+                            // ULTIMATE FIX: Instant close for better responsiveness
+                            withAnimation(DynamicIslandTheme.instantAnimation) {
+                                self.notchClose() 
+                            }
+                        }
+                        // Update edge state
+                        self.wasInClosedHoverZone = inClosedHoverZone
+                        self.wasInOpenedHoverZone = false
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -156,7 +231,6 @@ extension NotchViewModel {
         )
         
         let isInChatArea = chatInputRect.contains(mouseLocation)
-        print("🎯 Mouse at: \(mouseLocation), Chat area: \(chatInputRect), Contains: \(isInChatArea)")
         
         return isInChatArea
     }

@@ -4,8 +4,8 @@ import Cookies from 'js-cookie';
 import fallbackRoute from '../routes/fallbackRoute';
 import Context from '../context/context';
 import { fetchDomainName } from '../helpers';
-import logout from '../helpers/logout';
 import useBroadcastChannel from './useBroadcastChannel';
+import logout from '../helpers/logout';
 
 export const publicRoutesList = [
 	'/',
@@ -17,19 +17,21 @@ export const publicRoutesList = [
 	'/forefront',
 	'/onboarding',
 	'/verify-user',
+	'/pricing',
 	'/referral/:referralCode',
 	'/privacy-policy',
 	'/terms-of-service',
 	'/cookie-policy',
 	'/changelog',
 	'/user/verify-oauth-user',
+	'/download-app',
 ];
 
 const routeImports = {
 	publicRoutes: () => import('../routes/publicRoutes'),
 	stableRoutes: () => import('../routes/stableRoutes'),
-	betaRoutes: () => import('../routes/betaRoutes'),
-	internalRoutes: () => import('../routes/internalRoutes'),
+	// betaRoutes: () => import('../routes/betaRoutes'),
+	// internalRoutes: () => import('../routes/internalRoutes'),
 	workspaceNotFoundRoute: () => import('../routes/workspaceNotFoundRoute'),
 	suspendedRoute: () => import('../routes/suspendedRoute'),
 };
@@ -37,8 +39,8 @@ const routeImports = {
 const routeMap = {
 	null: 'fallbackRoute',
 	stable: 'stableRoutes',
-	beta: 'betaRoutes',
-	internal: 'internalRoutes',
+	beta: 'stableRoutes',
+	internal: 'stableRoutes',
 	suspended: 'suspendedRoute',
 };
 
@@ -47,6 +49,7 @@ const useWorkspaceMode = () => {
 	const channel = useBroadcastChannel();
 	const {
 		profileInfo: { tennantSettingsData, getTenantSettings },
+		subscriptionInfo: { updateTokenExpiryState },
 	} = useContext(Context);
 
 	const [routesInfo, setRoutesInfo] = useState({
@@ -72,17 +75,20 @@ const useWorkspaceMode = () => {
 	const routes = routesInfo[routeType] ?? routesInfo['fallbackRoute'];
 	const workspaceModeLoading =
 		isPublicRoute || workspaceNotFound ? false : workspaceMode === null;
+	const workspaceId = localStorage.getItem('workspaceId');
 
 	const fetchMode = async () => {
 		try {
-			if (workspaceMode === null) {
+			if (workspaceId === null || workspaceId === undefined) {
+				logout();
+			}
+			if (workspaceMode === null || workspaceMode === undefined) {
 				const response = await getTenantSettings();
 				const success = response[0] === true;
 				if (!success) {
-					console.log('response', response);
 					const { code } = response[1];
 					if (code === 401) {
-						logout();
+						updateTokenExpiryState({ expiredTokenModal: true });
 						channel.postMessage('reload');
 					} else if (code === 404) setWorkspaceNotFound(true);
 				}

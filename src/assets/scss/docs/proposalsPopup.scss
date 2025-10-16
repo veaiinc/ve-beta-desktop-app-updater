@@ -62,7 +62,7 @@
 				gap: 6px;
 				border-radius: 20px;
 				background: var(--primary-font, #f2f2f3);
-				color: var(--background-color, #0c0c0d);
+				color: var(--font-primary-color, #0c0c0d);
 				font-family: var(--primary-font-family);
 				font-size: 14px;
 				font-style: normal;
@@ -98,7 +98,7 @@
 					&.selected {
 						border-radius: 100px;
 						background: var(--primary-font);
-						color: var(--background-color);
+						color: var(--font-primary-color);
 					}
 				}
 			}

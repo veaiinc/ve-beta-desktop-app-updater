@@ -8,6 +8,7 @@ import moment from 'moment';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 // import ObjectID from 'bson-objectid';
 import Spinner from '../../loaders/Spinner';
+import ObjectID from 'bson-objectid';
 
 const infiniteScrollStyle = {
 	display: 'flex',
@@ -15,15 +16,13 @@ const infiniteScrollStyle = {
 	alignItems: 'flex-start',
 	alignSelf: 'stretch',
 	gap: '2px',
-
-	// height: '38vh',
 };
 const skeletonLoaders = Array?.from({ length: 30 }, (_, index) => index + 1);
 const page = 1;
-const limit = 10;
+const limit = 6;
 const reset = true;
 
-const ChatHistory = ({ onChatSelect, isClosed = false }) => {
+const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const {
@@ -163,6 +162,9 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 	const hasNextPage = aiChatSessions?.hasMore || false;
 	const currentPage = aiChatSessions?.currentPage || 1;
 
+	// Don't show skeleton if we already know there are no chats
+	const shouldShowSkeleton = loadingState && !emptyChatsState;
+
 	return (
 		<div className={`chats-drawer-container${isClosed ? ' closed' : ''}`}>
 			<div className="chats-container">
@@ -178,17 +180,18 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 						/>
 					</div>
 				)} */}
-				{loadingState ? (
+				{shouldShowSkeleton ? (
 					<div className="skeleton-loader-container">
 						{skeletonLoaders?.map((skeletonId) => (
-							<Skeleton
-								key={skeletonId}
-								width="211px"
-								height="46px"
-								borderRadius="12px"
-								baseColor="var(--card)"
-								highlightColor="gray"
-							/>
+							<div key={skeletonId} className="skeleton-loader-item">
+								<Skeleton
+									width="100%"
+									height="35px"
+									borderRadius="8px"
+									highlightColor="var(--card-over-card)"
+									baseColor="var(--card)"
+								/>
+							</div>
 						))}
 					</div>
 				) : emptyChatsState ? (
@@ -197,7 +200,7 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 					// 		Create New Chat
 					// 	</button>
 					// </div>
-					''
+					null
 				) : (
 					<InfiniteScroll
 						dataLength={chats?.length || 0}
@@ -212,6 +215,15 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 						// scrollableTarget="chatsScroll"
 						height={'100%'}
 					>
+						{showNewChatBtn && (
+							<button
+								className="new-chat-btn"
+								onClick={() => navigate(`/chat/${ObjectID()?.toString()}`)}
+							>
+								New Chat
+							</button>
+						)}
+
 						{chats?.map((chat, index) => {
 							const dateGroup = getChatDateGroup(chat.createdAt);
 							const showGroupHeader =
@@ -223,7 +235,9 @@ const ChatHistory = ({ onChatSelect, isClosed = false }) => {
 									{showGroupHeader && (
 										<div
 											className="chat-group-header"
-											style={{ marginTop: `${index !== 0 ? '20px' : '0'}` }}
+											style={{
+												marginTop: `${index !== 0 ? '20px' : '0'}`,
+											}}
 										>
 											{dateGroup}
 										</div>

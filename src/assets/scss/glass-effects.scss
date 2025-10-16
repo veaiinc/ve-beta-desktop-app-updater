@@ -1,0 +1,415 @@
+// Enhanced Glass Effect Utility Classes
+// Comprehensive translucent component styles for consistent glass effects across the application
+
+// Base Glass Effect - Optimized for Electron with enhanced targeting
+.glass-effect {
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+	/* Performance optimization */
+	will-change: backdrop-filter, transform;
+	transform: translateZ(0);
+	isolation: isolate;
+	/* Enhanced positioning */
+	position: relative;
+	z-index: 1;
+}
+
+// Main Window Glass Effect - Glass morphism for the main application window
+.glass-effect-main {
+	background: rgba(18, 18, 18, 0.15);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border-radius: 16px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+	/* Performance optimization */
+	will-change: backdrop-filter;
+	transform: translateZ(0);
+	/* Ensure proper positioning */
+	position: relative;
+	z-index: 1;
+}
+
+// Light Glass Effect (subtle)
+.glass-effect-light {
+	background: rgba(255, 255, 255, 0.05);
+	backdrop-filter: blur(15px) saturate(120%);
+	-webkit-backdrop-filter: blur(15px) saturate(120%);
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+// Strong Glass Effect (more pronounced)
+.glass-effect-strong {
+	background: rgba(255, 255, 255, 0.15);
+	backdrop-filter: blur(25px) saturate(200%);
+	-webkit-backdrop-filter: blur(25px) saturate(200%);
+	border-radius: 16px;
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+// Dark Glass Effect (for dark themes)
+.glass-effect-dark {
+	background: rgba(0, 0, 0, 0.3);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+// Frosted Glass Effect (high blur)
+.glass-effect-frosted {
+	background: rgba(255, 255, 255, 0.12);
+	backdrop-filter: blur(30px) saturate(150%);
+	-webkit-backdrop-filter: blur(30px) saturate(150%);
+	border-radius: 16px;
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+// Colored Glass Effects
+.glass-effect-blue {
+	background: rgba(59, 130, 246, 0.1);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-effect-green {
+	background: rgba(34, 197, 94, 0.1);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(34, 197, 94, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-effect-purple {
+	background: rgba(147, 51, 234, 0.1);
+	backdrop-filter: blur(20px) saturate(180%);
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(147, 51, 234, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+// Interactive Glass Effects
+.glass-effect-hover {
+	transition: all 0.3s ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.15);
+		backdrop-filter: blur(25px) saturate(200%);
+		-webkit-backdrop-filter: blur(25px) saturate(200%);
+		transform: translateY(-2px);
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	}
+}
+
+.glass-effect-active {
+	transition: all 0.2s ease;
+
+	&:active {
+		transform: translateY(0);
+		background: rgba(255, 255, 255, 0.2);
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+	}
+}
+
+// Glass Effect with Animation
+.glass-effect-animated {
+	animation: glassShimmer 3s ease-in-out infinite;
+}
+
+@keyframes glassShimmer {
+	0%,
+	100% {
+		background: rgba(255, 255, 255, 0.1);
+		backdrop-filter: blur(20px) saturate(180%);
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+	}
+	50% {
+		background: rgba(255, 255, 255, 0.15);
+		backdrop-filter: blur(25px) saturate(200%);
+		-webkit-backdrop-filter: blur(25px) saturate(200%);
+	}
+}
+
+// Responsive Glass Effects
+@media (max-width: 768px) {
+	.glass-effect,
+	.glass-effect-light,
+	.glass-effect-strong,
+	.glass-effect-dark,
+	.glass-effect-frosted {
+		backdrop-filter: blur(15px) saturate(150%);
+		-webkit-backdrop-filter: blur(15px) saturate(150%);
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	}
+}
+
+@media (max-width: 480px) {
+	.glass-effect,
+	.glass-effect-light,
+	.glass-effect-strong,
+	.glass-effect-dark,
+	.glass-effect-frosted {
+		backdrop-filter: blur(10px) saturate(120%);
+		-webkit-backdrop-filter: blur(10px) saturate(120%);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	}
+}
+
+// Performance Optimized Glass Effects (for lower-end devices)
+.glass-effect-performance {
+	background: rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+// Accessibility Considerations
+@media (prefers-reduced-motion: reduce) {
+	.glass-effect-animated {
+		animation: none;
+	}
+
+	.glass-effect-hover {
+		transition: none;
+
+		&:hover {
+			transform: none;
+		}
+	}
+}
+
+// High Contrast Mode Support
+@media (prefers-contrast: high) {
+	.glass-effect,
+	.glass-effect-light,
+	.glass-effect-strong,
+	.glass-effect-dark,
+	.glass-effect-frosted {
+		background: rgba(255, 255, 255, 0.2);
+		// backdrop-filter: none;
+		// -webkit-backdrop-filter: none;
+	}
+}
+
+// Enhanced Div Targeting Classes
+// Specific classes for automatic translucency application
+
+// Container Classes
+.glass-container {
+	@extend .glass-effect;
+	background: rgba(255, 255, 255, 0.12);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 16px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel {
+	@extend .glass-effect;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 14px;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+.glass-card {
+	@extend .glass-effect;
+	background: rgba(255, 255, 255, 0.09);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+// Content Panel Classes
+.content-panel {
+	@extend .glass-effect;
+	background: rgba(255, 255, 255, 0.11);
+	border: 1px solid rgba(255, 255, 255, 0.13);
+	border-radius: 18px;
+	box-shadow: 0 10px 36px rgba(0, 0, 0, 0.12);
+}
+
+.sidebar {
+	@extend .glass-effect;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 16px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+// Generic Panel Classes
+.card {
+	@extend .glass-effect;
+	background: rgba(255, 255, 255, 0.09);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.panel {
+	@extend .glass-effect;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 14px;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+// Translucency Helper Classes
+.translucency-helper {
+	@extend .glass-effect;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 16px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+// Disabled State
+.translucency-disabled {
+	background: transparent !important;
+	backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+
+// Enhanced Level Classes
+.translucent-light {
+	@extend .glass-effect-light;
+}
+
+.translucent-medium {
+	@extend .glass-effect;
+}
+
+.translucent-strong {
+	@extend .glass-effect-strong;
+}
+
+.translucent-dark {
+	@extend .glass-effect-dark;
+}
+
+.translucent-frosted {
+	@extend .glass-effect-frosted;
+}
+
+// Auto-apply classes for JavaScript targeting
+.auto-translucent {
+	@extend .glass-effect;
+}
+
+.auto-translucent-light {
+	@extend .glass-effect-light;
+}
+
+.auto-translucent-medium {
+	@extend .glass-effect;
+}
+
+.auto-translucent-strong {
+	@extend .glass-effect-strong;
+}
+
+// Exclusion classes (elements that should NOT have translucency)
+.no-translucency {
+	background: transparent !important;
+	backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+
+.text-content {
+	background: transparent !important;
+	backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important;
+}
+
+.transparent {
+	background: transparent !important;
+	backdrop-filter: none !important;
+	-webkit-backdrop-filter: none !important;
+}
+
+// Performance Classes
+.translucency-performance {
+	@extend .glass-effect-performance;
+}
+
+.translucency-optimized {
+	will-change: backdrop-filter, transform;
+	transform: translateZ(0);
+	isolation: isolate;
+}
+
+// Animation Classes
+.translucency-fade-in {
+	animation: translucencyFadeIn 0.3s ease-out;
+}
+
+.translucency-fade-out {
+	animation: translucencyFadeOut 0.3s ease-in;
+}
+
+@keyframes translucencyFadeIn {
+	from {
+		opacity: 0;
+		backdrop-filter: blur(0px);
+		-webkit-backdrop-filter: blur(0px);
+	}
+	to {
+		opacity: 1;
+		backdrop-filter: blur(20px) saturate(180%);
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+	}
+}
+
+@keyframes translucencyFadeOut {
+	from {
+		opacity: 1;
+		backdrop-filter: blur(20px) saturate(180%);
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+	}
+	to {
+		opacity: 0;
+		backdrop-filter: blur(0px);
+		-webkit-backdrop-filter: blur(0px);
+	}
+}
+
+// Responsive Div Targeting
+@media (max-width: 768px) {
+	.glass-container,
+	.glass-panel,
+	.glass-card,
+	.content-panel,
+	.sidebar,
+	.card,
+	.panel,
+	.translucency-helper {
+		backdrop-filter: blur(15px) saturate(150%);
+		-webkit-backdrop-filter: blur(15px) saturate(150%);
+		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+	}
+}
+
+@media (max-width: 480px) {
+	.glass-container,
+	.glass-panel,
+	.glass-card,
+	.content-panel,
+	.sidebar,
+	.card,
+	.panel,
+	.translucency-helper {
+		backdrop-filter: blur(10px) saturate(120%);
+		-webkit-backdrop-filter: blur(10px) saturate(120%);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+}

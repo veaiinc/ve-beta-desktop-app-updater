@@ -7,14 +7,45 @@
 	gap: 48px;
 	flex-direction: column;
 	align-items: center;
-	padding: 48px 0 0 0;
+	padding: 0;
 	font-family: var(--primary-font-family);
 	color: var(--primary-font, #f2f2f3);
 	// z-index: 100;
 	margin-top: 100px;
+
+	.pricing-page-header-container {
+		display: flex;
+		width: 100%;
+		padding: 32px;
+		justify-content: flex-start;
+		align-items: center;
+		flex-shrink: 0;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 10;
+
+		.logo {
+			cursor: pointer;
+			transition: opacity 0.2s ease;
+
+			&:hover {
+				opacity: 0.8;
+			}
+		}
+
+		@media screen and (max-width: 1000px) {
+			padding: 20px;
+		}
+
+		@media screen and (max-width: 768px) {
+			padding: 16px;
+		}
+	}
 	.pricing-header {
 		text-align: center;
 		margin-bottom: 32px;
+		margin-top: 48px;
 		.pricing-header-title {
 			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
@@ -60,7 +91,7 @@
 					cursor: pointer;
 					&.active {
 						background: var(--primary-button, #00f3c5);
-						color: var(--primary-font, #0c0c0d);
+						color: var(--primary-button-font, #0c0c0d);
 						font-family: var(--primary-font-family);
 						font-size: 14px;
 						font-style: normal;

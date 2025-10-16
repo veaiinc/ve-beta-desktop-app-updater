@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
-import './UpdateReadyPopup.scss';
+import { memo, useState } from 'react';
+import styles from './UpdateReadyPopup.module.scss';
+import { RotateCcw } from 'lucide-react';
 
 const UpdateReadyPopup = ({ updateInfo, onRestart, onDismiss }) => {
 	const [isRestarting, setIsRestarting] = useState(false);
@@ -9,8 +9,6 @@ const UpdateReadyPopup = ({ updateInfo, onRestart, onDismiss }) => {
 	if (!updateInfo) {
 		return null;
 	}
-
-	const { version, message, releaseName } = updateInfo;
 
 	const handleRestartClick = async () => {
 		if (!onRestart) {
@@ -33,54 +31,53 @@ const UpdateReadyPopup = ({ updateInfo, onRestart, onDismiss }) => {
 	};
 
 	return (
-		<div className="update-ready-popup" role="status" aria-live="polite">
-			<div className="update-ready-popup__header">
-				<span className="update-ready-popup__title">Update ready to install</span>
+		<div
+			className={styles.updateReadyPopup}
+			role="dialog"
+			aria-live="polite"
+			aria-labelledby="update-title"
+			aria-describedby="update-description"
+		>
+			<div className={styles.content}>
+				<h2 id="update-title" className={styles.title}>
+					There's a new version available
+				</h2>
+				<p id="update-description" className={styles.subtitle}>
+					Restart to get the latest features and improvements
+				</p>
+			</div>
+
+			{restartError && (
+				<div className={styles.error} role="alert">
+					{restartError}
+				</div>
+			)}
+
+			<div className={styles.actions}>
 				{onDismiss && (
 					<button
 						type="button"
-						className="update-ready-popup__close"
+						className={styles.dismissButton}
 						onClick={onDismiss}
 						aria-label="Dismiss update notification"
 					>
-						Close
+						Dismiss
 					</button>
 				)}
+				<button
+					type="button"
+					className={styles.refreshButton}
+					onClick={handleRestartClick}
+					disabled={isRestarting}
+					aria-describedby="update-description"
+				>
+					<span className={styles.refreshIcon}>
+						<RotateCcw size={12} />
+					</span>
+					{isRestarting ? 'Restarting...' : 'Restart now'}
+				</button>
 			</div>
-
-			<p className="update-ready-popup__message">
-				{message ||
-					`Version ${version || ''} downloaded. Restart to apply when you're ready.`}
-			</p>
-
-			{restartError && <p className="update-ready-popup__error">{restartError}</p>}
-
-			<button
-				type="button"
-				className="update-ready-popup__restart"
-				onClick={handleRestartClick}
-				disabled={isRestarting}
-			>
-				{isRestarting ? 'Restarting...' : 'Restart now'}
-			</button>
 		</div>
 	);
 };
-
-UpdateReadyPopup.propTypes = {
-	updateInfo: PropTypes.shape({
-		version: PropTypes.string,
-		message: PropTypes.string,
-		releaseName: PropTypes.string,
-		status: PropTypes.string,
-	}).isRequired,
-	onRestart: PropTypes.func,
-	onDismiss: PropTypes.func,
-};
-
-UpdateReadyPopup.defaultProps = {
-	onRestart: undefined,
-	onDismiss: undefined,
-};
-
-export default UpdateReadyPopup;
+export default memo(UpdateReadyPopup);

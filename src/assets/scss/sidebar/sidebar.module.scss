@@ -1,0 +1,612 @@
+.sidebarLayout {
+	width: fit-content;
+	display: flex;
+	align-items: flex-start;
+	position: fixed;
+	gap: 12px;
+	top: 0;
+	left: 0;
+	height: 100dvh;
+	backdrop-filter: blur(20px);
+	z-index: 900;
+	transform: translateX(-280px);
+	transition: transform 0.3s cubic-bezier(0, 0, 0.2, 1),
+		background 0.3s cubic-bezier(0, 0, 0.2, 1);
+
+	// Reset button styles
+	button {
+		background: none;
+		border: none;
+		outline: none;
+		padding: 0;
+		margin: 0;
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+	}
+
+	&.active {
+		transform: translateX(0);
+	}
+	// -webkit-app-region: no-drag !important;
+
+	.sidebarContainer {
+		width: 280px;
+		padding: 12px;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		overflow-y: auto;
+		// border-right: 1px solid rgba(255, 255, 255, 0.1);
+
+		.header {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			width: 100%;
+			align-self: stretch;
+
+			.veLogo {
+				display: flex;
+				height: 32px;
+				justify-content: center;
+				align-items: center;
+				flex-shrink: 0;
+				cursor: pointer;
+
+				:global(svg) path {
+					fill: var(--primary-button);
+				}
+				svg {
+					flex-shrink: 0;
+					width: 37px;
+				}
+			}
+
+			.rightContainer {
+				display: flex;
+				align-items: center;
+				gap: 6px;
+
+				.creditsLeftContainer {
+					display: flex;
+					padding: 8px;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+					border-radius: 100px;
+					border: 1px solid transparent;
+					background: transparent;
+					transition: all 0.2s ease-in-out;
+
+					svg {
+						flex-shrink: 0;
+					}
+
+					&:hover {
+						background: rgba(255, 255, 255, 0.1);
+						border: 1px solid rgba(255, 255, 255, 0.1);
+					}
+				}
+
+				.settingsIcon {
+					display: flex;
+					width: 40px;
+					height: 40px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+					border-radius: 100px;
+					border: 1px solid transparent;
+					background: transparent;
+					transition: all 0.2s ease-in-out;
+
+					svg {
+						flex-shrink: 0;
+					}
+
+					&:hover,
+					&.active {
+						background: rgba(255, 255, 255, 0.1);
+						border: 1px solid rgba(255, 255, 255, 0.1);
+					}
+				}
+
+				.notificationsIcon {
+					display: flex;
+					width: 40px;
+					height: 40px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+					border-radius: 100px;
+					border: 1px solid transparent;
+					background: transparent;
+					transition: all 0.2s ease-in-out;
+
+					svg {
+						flex-shrink: 0;
+					}
+
+					&:hover,
+					&.active {
+						background: rgba(255, 255, 255, 0.1);
+						border: 1px solid rgba(255, 255, 255, 0.1);
+					}
+				}
+
+				.gridIcon {
+					display: flex;
+					width: 40px;
+					height: 40px;
+					padding: 12px;
+					justify-content: center;
+					align-items: center;
+					cursor: pointer;
+					border-radius: 100px;
+					border: 1px solid transparent;
+					background: transparent;
+					transition: all 0.2s ease-in-out;
+
+					svg {
+						flex-shrink: 0;
+					}
+
+					&:hover,
+					&.active {
+						background: rgba(255, 255, 255, 0.1);
+						border: 1px solid rgba(255, 255, 255, 0.1);
+					}
+				}
+			}
+		}
+
+		.mainContent {
+			display: flex;
+			flex-direction: column;
+			flex: 1 1 0%;
+			overflow: auto;
+		}
+
+		.footer {
+			display: flex;
+			flex-direction: column;
+			padding: 8px;
+			gap: 8px;
+			align-self: stretch;
+			cursor: pointer;
+			border-radius: 8px;
+			background: transparent;
+			border: 1px solid transparent;
+			transition: all 0.2s ease-in-out;
+			position: relative;
+			min-height: auto;
+
+			&:hover {
+				background: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				.rightContainer .logoutButton {
+					opacity: 1;
+					pointer-events: auto;
+				}
+			}
+
+			&.expanded {
+				background: rgba(255, 255, 255, 0.1);
+				border: 1px solid rgba(255, 255, 255, 0.1);
+				min-height: 140px;
+			}
+
+			.footerContent {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.leftContainer {
+				display: flex;
+				.userInfo {
+					width: 100%;
+					display: flex;
+					gap: 10px;
+					position: relative;
+					align-items: center;
+
+					.workspaceImage {
+						border-radius: 50%;
+						object-fit: cover;
+						position: absolute;
+						top: 14px;
+						left: 14px;
+						width: 14px;
+						height: 14px;
+						border: 2px solid rgba(27, 28, 29, 1);
+						background-color: #b83910;
+					}
+
+					.profileImg {
+						width: 28px;
+						height: 28px;
+						border-radius: 50%;
+						object-fit: cover;
+					}
+
+					.nameInitials {
+						align-items: center;
+						background: var(--primary-button, #79ecc9);
+						border-radius: 50%;
+						color: var(--primary-font, #f2f2f3);
+						display: flex;
+						font-family: var(--primary-font-family);
+						font-size: 14px;
+						font-style: normal;
+						font-weight: 600;
+						justify-content: center;
+						line-height: normal;
+						width: 28px;
+						height: 28px;
+					}
+
+					.userInfoDetails {
+						flex: 1;
+						display: flex;
+						flex-direction: column;
+						gap: 2px;
+
+						.nameAndRole {
+							display: flex;
+							align-items: center;
+							gap: 4px;
+
+							.fullName {
+								color: var(--primary-font, #f2f2f3);
+								font-family: Inter, sans-serif;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 1.21;
+							}
+
+							.role {
+								color: rgba(255, 255, 255, 0.5);
+								font-family: Inter, sans-serif;
+								font-size: 14px;
+								font-style: normal;
+								font-weight: 500;
+								line-height: 1.21;
+							}
+						}
+
+						.businessName {
+							color: rgba(255, 255, 255, 0.5);
+							font-family: var(--primary-font-family);
+							font-size: 11px;
+							font-style: normal;
+							font-weight: 400;
+							line-height: 1.35;
+						}
+					}
+				}
+			}
+
+			.rightContainer {
+				display: flex;
+				gap: 2px;
+				.logoutButton {
+					opacity: 0;
+					pointer-events: none;
+					transition: opacity 0.2s ease-in-out;
+					width: fit-content;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 8px;
+					padding: 0;
+					border-radius: 8px;
+					background: transparent;
+					transition: background 0.3s ease-in-out;
+
+					font-family: var(--primary-font-family);
+					font-size: 14px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+
+					:global(svg) {
+						width: 18px;
+						height: 18px;
+					}
+
+					&:hover {
+						opacity: 0.8;
+					}
+
+					&:disabled {
+						opacity: 0.5;
+						cursor: not-allowed;
+						pointer-events: none;
+					}
+				}
+			}
+		}
+
+		// Workspace options inside footer
+		.workspaceOptions {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			// padding: 8px 0;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+			margin-bottom: 8px;
+		}
+
+		// Workspace list overlay inside footer - similar to workspace options
+		.workspaceListOverlay {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			// padding: 8px 0;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+			margin-bottom: 8px;
+			max-height: 300px;
+			overflow-y: auto;
+		}
+
+		.workspaceListHeader {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			padding: 0px 6px;
+			margin-bottom: 4px;
+		}
+
+		.workspaceListTitle {
+			color: #fff;
+			text-align: center;
+			font-family: var(--primary-font-family);
+			font-size: 13px;
+			font-style: normal;
+			font-weight: 400;
+			line-height: normal;
+			letter-spacing: 1.56px;
+			margin: 0;
+		}
+
+		.workspaceListContent {
+			flex: 1;
+			overflow-y: auto;
+			// padding: 0 8px;
+		}
+
+		// Notifications top overlay - comes from top of sidebar with glass effect
+		.notificationsTopOverlay {
+			position: absolute;
+			top: 60px; // Position below header
+			left: 12px;
+			right: 12px;
+			z-index: 1000;
+			border-radius: 12px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			background: #434343f7;
+			backdrop-filter: blur(25px);
+			-webkit-backdrop-filter: blur(25px);
+			max-height: 400px;
+			overflow: hidden;
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+		}
+
+		.notificationsTopOverlayContent {
+			height: 100%;
+			overflow-y: auto;
+		}
+
+		// Shortcuts top overlay - comes from top of sidebar with glass effect
+		.shortcutsTopOverlay {
+			position: absolute;
+			top: 60px; // Position below header
+			left: 12px;
+			right: 12px;
+			z-index: 1000;
+			border-radius: 12px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			background: #434343f7;
+			backdrop-filter: blur(25px);
+			-webkit-backdrop-filter: blur(25px);
+			max-height: 500px;
+			overflow: hidden;
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+		}
+
+		.shortcutsTopOverlayContent {
+			height: 100%;
+			overflow-y: auto;
+		}
+
+		.workspaceOption {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 10px 12px;
+			background: transparent;
+			border: 1px solid transparent;
+			border-radius: 6px;
+			color: var(--primary-font);
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+			width: 100%;
+			text-align: left;
+
+			&:hover {
+				background: rgba(255, 255, 255, 0.15);
+				border: 1px solid rgba(255, 255, 255, 0.15);
+			}
+
+			.icon {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 20px;
+				height: 20px;
+				flex-shrink: 0;
+
+				:global(svg) {
+					flex-shrink: 0;
+				}
+
+				:global(svg) path {
+					stroke: var(--primary-font);
+				}
+			}
+
+			.label {
+				font-family: var(--primary-font-family);
+				font-size: 14px;
+				font-weight: 500;
+				line-height: 1.35;
+				color: var(--primary-font);
+			}
+		}
+	}
+}
+
+// Animation for internal sidebar overlay
+@keyframes slideUpInternal {
+	from {
+		transform: translateY(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.switchWorkspaceContainer {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100dvw;
+	height: 100dvh;
+	z-index: 1000;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+
+	.overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.5);
+	}
+
+	.switchWorkspaceContent {
+		position: relative;
+		background: var(--background-color);
+		border-radius: 12px 12px 0 0;
+		width: 100%;
+		max-width: 400px;
+		max-height: 70vh;
+		overflow-y: auto;
+		z-index: 1001;
+	}
+}
+.sidebarOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100dvw;
+	height: 100dvh;
+	background-color: var(--backdrop);
+	z-index: 899;
+	cursor: pointer;
+}
+.sidebarHoverElement {
+	position: fixed;
+	width: 36px;
+	height: 100dvh;
+	top: 0;
+	left: 0;
+	z-index: 899;
+}
+
+// Absolute positioned toggle button - fixed position
+.sidebarToggle {
+	position: fixed;
+	top: 10px;
+	left: 8px;
+	z-index: 901;
+	display: flex;
+	width: 40px;
+	height: 40px;
+	padding: 12px;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 100px;
+	cursor: pointer;
+	transition: all 0.3s cubic-bezier(0, 0, 0.2, 1);
+	-webkit-app-region: no-drag;
+
+	:global(svg) {
+		flex-shrink: 0;
+	}
+
+	:global(svg) path {
+		stroke: var(--primary-font);
+	}
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+
+		& + .windowChromeButtonsContainer {
+			opacity: 1;
+		}
+	}
+}
+
+.notificationsTooltip {
+	max-width: unset;
+
+	:global(.notificationsContainer) {
+		top: 0;
+	}
+}
+
+@media (max-width: 768px) {
+	.sidebarHoverElement {
+		display: none;
+	}
+}
+
+.windowChromeButtonsContainer {
+	position: fixed;
+	top: 0px;
+	left: 50px;
+	z-index: 901;
+	display: flex;
+	align-items: flex-end;
+	justify-content: flex-start;
+	gap: 8px;
+	height: 41px;
+	width: 60px;
+	display: flex;
+	padding-bottom: 4px;
+	opacity: 0;
+	transition: all 0.3s cubic-bezier(0, 0, 0.2, 1);
+
+	&.active {
+		opacity: 1;
+	}
+
+	&:hover {
+		opacity: 1;
+	}
+}

@@ -13,12 +13,15 @@ const Onboarding = lazy(() => import('../views/features/onboarding/Onboarding'))
 const ChatPage = lazy(() => import('../views/components/homePage/ChatPage'));
 // const Agents = lazy(() => import('../views/features/agents/Agents'));
 // const Agent = lazy(() => import('../views/features/agents/agent/Agent'));
-const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
+// const GlobalWorkflows = lazy(() => import('../views/features/sales/GlobalWorkflows'));
 const CardMeetBot = lazy(() => import('../views/features/meetBot/CardMeetBot'));
+const OngoingMeeting = lazy(() => import('../views/features/meetBot/OngoingMeeting'));
 const MeetBotWrapper = lazy(() => import('../views/features/meetBot/meetBotWrapper'));
-const ProactiveSuggestions = lazy(() =>
-	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
-);
+// const ProactiveSuggestions = lazy(() =>
+// 	import('../views/features/homePage/ambientAi/ProactiveSuggestions'),
+// );
+const NewChat = lazy(() => import('../views/components/chat/chatComponents/NewChat'));
+const DownloadDesktopApp = lazy(() => import('../views/features/desktopApp/DownloadDesktopApp'));
 
 // components
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
@@ -30,10 +33,27 @@ const stableRoutes = [
 	// ========================================
 	{
 		path: '/home',
+		// element: (
+		// 	<Suspense fallback={<SuspenseFallback />}>
+		// 		<AuthWrapper title={'Ambient AI'}>
+		// 			<ProactiveSuggestions />
+		// 		</AuthWrapper>
+		// 	</Suspense>
+		// ),
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Ambient AI'}>
-					<ProactiveSuggestions />
+				<AuthWrapper title={'Meet'}>
+					<CardMeetBot />
+				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/ongoing-meeting',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Ongoing Meeting'}>
+					<OngoingMeeting />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -66,12 +86,22 @@ const stableRoutes = [
 	// ========================================
 	// CHAT & COMMUNICATION
 	// ========================================
+	// {
+	// 	path: '/chats',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Chats'}>
+	// 				<ChatPage />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
-		path: '/chats',
+		path: '/new-chat',
 		element: (
 			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Chats'}>
-					<ChatPage />
+				<AuthWrapper title={'New Chat'}>
+					<NewChat />
 				</AuthWrapper>
 			</Suspense>
 		),
@@ -91,8 +121,8 @@ const stableRoutes = [
 					maxWidth="100%"
 				>
 					<RecentChat
-						showChatHistory={true}
 						showDeleteChat={true}
+						showRightBar={true}
 						showChats={true}
 						showChatsButton={true}
 						showBrowser={true}
@@ -101,16 +131,16 @@ const stableRoutes = [
 			</Suspense>
 		),
 	},
-	{
-		path: '/meet',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Meet'}>
-					<CardMeetBot />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/meet',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Meet'}>
+	// 				<CardMeetBot />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 	{
 		path: '/meet/:meetingId',
 		element: (
@@ -125,16 +155,16 @@ const stableRoutes = [
 	// ========================================
 	// Playbook
 	// ========================================
-	{
-		path: '/playbook',
-		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Playbook'}>
-					<GlobalWorkflows />
-				</AuthWrapper>
-			</Suspense>
-		),
-	},
+	// {
+	// 	path: '/playbook',
+	// 	element: (
+	// 		<Suspense fallback={<SuspenseFallback />}>
+	// 			<AuthWrapper title={'Playbook'}>
+	// 				<GlobalWorkflows />
+	// 			</AuthWrapper>
+	// 		</Suspense>
+	// 	),
+	// },
 
 	// ========================================
 	// SETTINGS & ADMINISTRATION
@@ -146,6 +176,14 @@ const stableRoutes = [
 				<AuthWrapper title={'Workspace Settings'}>
 					<SettingsWrapper />
 				</AuthWrapper>
+			</Suspense>
+		),
+	},
+	{
+		path: '/download-app',
+		element: (
+			<Suspense fallback={<SuspenseFallback />}>
+				<DownloadDesktopApp />
 			</Suspense>
 		),
 	},

@@ -16,15 +16,16 @@
 	--info: rgb(80, 137, 249); /* #5089f9 */
 
 	/* main colors */
-	--background-color: #121212; /* #0f0f10 */
+	--background-color: #121212;
 	--chat-background-color: #19191a;
 
 	/* font colors */
 	--primary-font: rgb(242, 242, 243); /* #f2f2f3 */
-	--secondary-font: #94989e; /* #7a7e85 */
+	--font-primary-color: #18181b; /* #0c0c0d */
+	--secondary-font: #ffffff79; /* #7a7e85 */
 	--chat-secondary-font: #e1e1e5; /* rgb(193, 193, 201) */
 
-	/* card colors */
+	/* card colors - SOLID backgrounds (NOT transparent) */
 	--card: #1b1c1d; /* #18191b */
 	--new-card: rgb(26, 27, 30); /* #1a1b1e */
 	--card-hover: #202122; /* #202123 */
@@ -35,14 +36,15 @@
 	--backdrop: #0f0f10;
 
 	/* stroke colors */
-	--stroke: rgb(44, 45, 46); /* #2c2d2e */
+	--stroke: #2c2d2e; /* #2c2d2e */
 	--stroke-hover: rgb(66, 69, 72); /* #424548 */
 	--stroke-active: rgb(32, 33, 35); /* #202123 */
 	--dividers: rgba(30, 31, 32, 1);
 
-	/* navbar colors */
+	/* navbar colors - SOLID backgrounds */
 	--navbar: #141415; /* #202123 */
 	--right-bar: #18191b; /* #171819 */
+	--svg-color:  rgb(12, 12, 12);
 
 	/* ai color code */
 	--ai-color-code: linear-gradient(
@@ -57,7 +59,7 @@
 	--primary-opacity: rgba(121, 236, 201, 0.3);
 	--primary-button-hover: rgb(38, 40, 41); /* #262829 */
 	--primary-button-active: rgb(38, 40, 41); /* #262829 */
-	--primary-button-font: var(--background-color); /* #0c0c0d */
+	--primary-button-font: #0c0c0d; /* #0c0c0d */
 
 	--secondary-button: rgb(122, 126, 133); /* #7a7e85 */
 	--secondary-button-hover: rgb(255, 255, 231); /* #ffffe7 */
@@ -95,7 +97,7 @@
 
 /* light theme global css variables */
 [theme='light'] {
-	/* main colors */
+	/* main colors - Simplified for glass mode */
 	--background-color: #ffffff; /* #fafafa */
 	--chat-background-color: #f4f5f5;
 
@@ -107,6 +109,7 @@
 
 	/* font colors */
 	--primary-font: #18181b; /* #0c0c0d */
+	--font-primary-color: #18181b; /* #0c0c0d */
 	--secondary-font: #7f858f; /* #7b7e84 */
 	--chat-secondary-font: rgb(12, 12, 13); /* rgb(79, 96, 100) */
 
@@ -136,7 +139,7 @@
 	--primary-opacity: rgba(121, 236, 201, 0.3);
 	--primary-button-hover: rgb(242, 242, 243); /* #f2f2f3 */
 	--primary-button-active: rgb(242, 242, 243); /* #f2f2f3 */
-	--primary-button-font: var(--background-color); /* #0c0c0d */
+	--primary-button-font: #fff; /* #0c0c0d */
 
 	--secondary-button: rgb(242, 242, 243); /* #f2f2f3 */
 	--secondary-button-hover: rgb(228, 228, 231); /* #e4e4e7 */
@@ -165,3 +168,6 @@
 	--primary-dark-text: #123b35;
 	--primary-opacity: rgba(52, 160, 144, 0.1);
 }
+
+/* REMOVED: Duplicate Glass Mode override section that was causing production transparency issues
+   Glass mode is now ONLY controlled by glass-mode.scss to ensure dev/prod consistency */

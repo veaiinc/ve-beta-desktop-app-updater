@@ -1,7 +1,7 @@
 import useAuth from './useAuth';
 import useTheme from './useTheme';
 import useSubscription from './useSubscription';
-import useTokenExpiry from './useTokenExpiry';
+// import useTokenExpiry from './useTokenExpiry';
 import useAccessControls from './useAccessControls';
 import useWorkspaceMode from './useWorkspaceMode';
 import registerUnifiedSW from '../helpers/registerOfflineSW';
@@ -12,7 +12,7 @@ const useAuthInitializer = () => {
 	const { workspaceModeLoading, workspaceMode } = useWorkspaceMode();
 	useTheme();
 	useSubscription();
-	useTokenExpiry();
+	// useTokenExpiry();
 	const { accessControlsLoading } = useAccessControls();
 
 	const authInitialized = authLoading || accessControlsLoading || workspaceModeLoading;

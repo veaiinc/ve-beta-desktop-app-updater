@@ -1,0 +1,169 @@
+.animatedGlowBackground {
+	position: relative;
+	width: 100%;
+	min-height: 100vh;
+	background: #000938;
+	overflow: hidden;
+
+	// Performance optimizations
+	will-change: transform;
+	backface-visibility: hidden;
+	transform: translateZ(0);
+	contain: layout style paint;
+
+	// Intensity variations
+	&.lowIntensity {
+		.ball {
+			opacity: 0.2;
+			filter: blur(20vw);
+		}
+	}
+
+	&.mediumIntensity {
+		.ball {
+			opacity: 0.4;
+			filter: blur(15vw);
+		}
+	}
+
+	&.highIntensity {
+		.ball {
+			opacity: 0.6;
+			filter: blur(12vw);
+		}
+	}
+
+	.glowContainer {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100vh;
+		z-index: 1;
+		pointer-events: none;
+		overflow: visible;
+	}
+
+	.ball {
+		--delay: 0s;
+		--size: 0.4;
+		--speed: 20s;
+
+		aspect-ratio: 1;
+		width: calc(150vw * var(--size));
+
+		background: radial-gradient(
+			circle at center,
+			#2563eb 0%,
+			#3b82f6 20%,
+			#60a5fa 40%,
+			#93c5fd 60%,
+			#bfdbfe 80%,
+			rgba(191, 219, 254, 0.1) 100%
+		);
+
+		border-radius: 50%;
+		position: absolute;
+		top: 0;
+		left: 0;
+
+		animation: glowLoop var(--speed) infinite linear;
+		animation-delay: var(--delay);
+		transform-origin: 50% 50%;
+
+		// Enhanced glow effect with primary color influence
+		&::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			border-radius: 50%;
+			background: radial-gradient(
+				circle at center,
+				rgba(0, 9, 56, 0.3) 0%,
+				rgba(0, 9, 56, 0.1) 50%,
+				transparent 100%
+			);
+			z-index: 1;
+		}
+	}
+
+	@keyframes glowLoop {
+		0% {
+			transform: translate3D(-25%, -25%, 0) rotate(0deg);
+		}
+		12.5% {
+			transform: translate3D(0%, -15%, 0) rotate(45deg);
+		}
+		25% {
+			transform: translate3D(25%, 0%, 0) rotate(90deg);
+		}
+		37.5% {
+			transform: translate3D(35%, 25%, 0) rotate(135deg);
+		}
+		50% {
+			transform: translate3D(25%, 50%, 0) rotate(180deg);
+		}
+		62.5% {
+			transform: translate3D(0%, 65%, 0) rotate(225deg);
+		}
+		75% {
+			transform: translate3D(-25%, 50%, 0) rotate(270deg);
+		}
+		87.5% {
+			transform: translate3D(-35%, 25%, 0) rotate(315deg);
+		}
+		100% {
+			transform: translate3D(-25%, -25%, 0) rotate(360deg);
+		}
+	}
+
+	// Responsive adjustments
+	@media (max-width: 768px) {
+		.ball {
+			filter: blur(20vw);
+		}
+
+		&.highIntensity .ball {
+			filter: blur(18vw);
+		}
+	}
+
+	@media (max-width: 480px) {
+		.ball {
+			filter: blur(25vw);
+		}
+
+		&.highIntensity .ball {
+			filter: blur(22vw);
+		}
+	}
+}
+
+// Global background variant for full-screen usage
+.globalGlowBackground {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: -1;
+	pointer-events: none;
+
+	.glowContainer {
+		width: 100%;
+		height: 100vh;
+		overflow: visible;
+	}
+}
+
+// Modifier: fit content height instead of forcing viewport height
+.fitContent {
+	min-height: auto;
+
+	.glowContainer {
+		height: 100%;
+	}
+}

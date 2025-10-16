@@ -1,15 +1,21 @@
 import { ApolloClient, ApolloLink, HttpLink, from, InMemoryCache } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
+import { Observable } from '@apollo/client/utilities';
+import Cookies from 'js-cookie';
+import getBaseUrl from './baseUrls.js';
+import getSharedRefreshToken from './utils/sharedTokenRefresh.js';
 
-const DEV_ENVIRONMENT = import.meta.env.VITE_APP_DEV_ENVIRONMENT || 'development';
+const refreshTokenForGraphQL = async () => {
+	const refreshResult = await getSharedRefreshToken();
 
-async function loadConfig() {
-	if (DEV_ENVIRONMENT === 'production') {
-		return await import('./config.live.js');
-	} else {
-		return await import('./config.dev.js');
+	// If refresh failed, return the error
+	if (!refreshResult.success) {
+		return [false, refreshResult.refreshTokenResponse, refreshResult.status];
 	}
-}
+
+	// If refresh succeeded, return the new token
+	return [true, refreshResult.accessToken, refreshResult.status];
+};
 
 const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) => {
 	if (graphQLErrors) {
@@ -22,7 +28,40 @@ const errorLink = onError(({ graphQLErrors, networkError, forward, operation }) 
 	}
 
 	if (networkError) {
-		console.log(`[Network error]: ${networkError}`);
+		if (
+			networkError.statusCode === 401 ||
+			(networkError.message && networkError.message.includes('401')) ||
+			(networkError.message && networkError.message.includes('jwt expired'))
+		) {
+			return new Observable((observer) => {
+				refreshTokenForGraphQL()
+					.then(([success, accessToken, status]) => {
+						if (success) {
+							operation.setContext({
+								...operation.getContext(),
+								headers: {
+									...operation.getContext().headers,
+									authorization: accessToken ? `Bearer ${accessToken}` : '',
+								},
+							});
+
+							const retryObservable = forward(operation);
+							retryObservable.subscribe({
+								next: (result) => observer.next(result),
+								error: (err) => observer.error(err),
+								complete: () => observer.complete(),
+							});
+						} else {
+							console.error('Token refresh failed:', status);
+							observer.error(networkError);
+						}
+					})
+					.catch((error) => {
+						console.error('Token refresh failed:', error);
+						observer.error(networkError);
+					});
+			});
+		}
 	}
 
 	return forward(operation);
@@ -33,74 +72,20 @@ const defaultOptions = {
 	query: { fetchPolicy: 'no-cache' },
 };
 
-let cachedConfig = null;
-
-async function getConfig() {
-	if (!cachedConfig) {
-		cachedConfig = await loadConfig();
-	}
-	return cachedConfig;
-}
-
 const Service = {
 	query: async (query, variables, workspaceId, usertoken, type = null) => {
-		const config = await getConfig();
+		const region = Cookies.get('region') || localStorage.getItem('region') || 'us-east-1';
+		const baseUrl = getBaseUrl({ type, region });
 
-		const {
-			ve_conversations_api,
-			workflows_Api,
-			ve_conversations_api_US,
-			workflows_Api_US,
-			activity_api,
-			activity_api_US,
-			multi_agent_chat,
-			multi_agent_chat_US,
-			automation_builder_api,
-			automation_builder_api_US,
-			page_notes_api,
-			page_notes_api_US,
-			page_notes_api_database,
-			page_notes_api_database_US,
-			meeting_summary_api,
-			meeting_summary_api_US,
-			meeting_api,
-			meeting_api_US,
-		} = config;
-
-		const graphQLAPICall = {
-			ve_conversations_api,
-			workflows_Api,
-			activity_api,
-			multi_agent_chat,
-			automation_builder_api,
-			page_notes_api,
-			page_notes_api_database,
-			meeting_summary_api,
-			meeting_api,
-		};
-
-		const graphQLAPICallUS = {
-			ve_conversations_api: ve_conversations_api_US,
-			workflows_Api: workflows_Api_US,
-			activity_api: activity_api_US,
-			multi_agent_chat: multi_agent_chat_US,
-			automation_builder_api: automation_builder_api_US,
-			page_notes_api: page_notes_api_US,
-			page_notes_api_database: page_notes_api_database_US,
-			meeting_summary_api: meeting_summary_api_US,
-			meeting_api: meeting_api_US,
-		};
-
-		// hotfix
-		// const region = localStorage.getItem('region') || 'us-east-1';
-		let region;
-		if (workspaceId === 'framemax') {
-			const region = 'us-north-1';
-		} else {
-			region = localStorage.getItem('region') || 'us-east-1';
+		if (!baseUrl) {
+			console.error(`No base URL found for type: ${type} and region: ${region}`);
+			return [
+				false,
+				{ message: `No base URL found for type: ${type} and region: ${region}` },
+			];
 		}
-		const subUrl = region === 'ap-south-1' ? graphQLAPICall[type] : graphQLAPICallUS[type];
-		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceId}/graphql` });
+
+		const httpLink = new HttpLink({ uri: `${baseUrl}/${workspaceId}/graphql` });
 
 		const apolloClient = new ApolloClient({
 			cache: new InMemoryCache({ resultCaching: true }),
@@ -128,56 +113,18 @@ const Service = {
 	},
 
 	mutation: async (mutation, variables, workspaceId, usertoken, type = null) => {
-		const config = await getConfig();
+		const region = Cookies.get('region') || localStorage.getItem('region') || 'us-east-1';
+		const baseUrl = getBaseUrl({ type, region });
 
-		const {
-			ve_conversations_api,
-			workflows_Api,
-			ve_conversations_api_US,
-			workflows_Api_US,
-			activity_api,
-			activity_api_US,
-			multi_agent_chat,
-			multi_agent_chat_US,
-			automation_builder_api,
-			automation_builder_api_US,
-			page_notes_api,
-			page_notes_api_US,
-			page_notes_api_database,
-			page_notes_api_database_US,
-			meeting_summary_api,
-			meeting_summary_api_US,
-			meeting_api,
-			meeting_api_US,
-		} = config;
+		if (!baseUrl) {
+			console.error(`No base URL found for type: ${type} and region: ${region}`);
+			return [
+				false,
+				{ message: `No base URL found for type: ${type} and region: ${region}` },
+			];
+		}
 
-		const graphQLAPICall = {
-			ve_conversations_api,
-			workflows_Api,
-			activity_api,
-			multi_agent_chat,
-			automation_builder_api,
-			page_notes_api,
-			page_notes_api_database,
-			meeting_summary_api,
-			meeting_api,
-		};
-
-		const graphQLAPICallUS = {
-			ve_conversations_api: ve_conversations_api_US,
-			workflows_Api: workflows_Api_US,
-			activity_api: activity_api_US,
-			multi_agent_chat: multi_agent_chat_US,
-			automation_builder_api: automation_builder_api_US,
-			page_notes_api: page_notes_api_US,
-			page_notes_api_database: page_notes_api_database_US,
-			meeting_summary_api: meeting_summary_api_US,
-			meeting_api: meeting_api_US,
-		};
-
-		const region = localStorage.getItem('region') || 'us-east-1';
-		const subUrl = region === 'ap-south-1' ? graphQLAPICall[type] : graphQLAPICallUS[type];
-		const httpLink = new HttpLink({ uri: `${subUrl}/${workspaceId}/graphql` });
+		const httpLink = new HttpLink({ uri: `${baseUrl}/${workspaceId}/graphql` });
 		const link = ApolloLink.from([errorLink, httpLink]);
 
 		const apolloClient = new ApolloClient({

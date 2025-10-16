@@ -16,6 +16,8 @@ import { ReactComponent as CameraIcon } from './cameraIcon.svg';
 import GuideMePopup from './guideMePopup';
 import CreateModalPreferences from './CreateModalPreferences';
 import { message } from '../../components/globalComponents/CustomToast';
+import { useStore, storeActions } from '../../../store/store.js';
+import { useDispatch } from '@zubridge/electron';
 
 const meetingModeOptions = [
 	{ value: 'sales', label: 'Sales Mode' },
@@ -39,6 +41,8 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 		notes: { createMeetBot },
 	} = useContext(Context);
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
+	const { pastMeetings } = useStore((state) => state.meeting) || {};
 
 	const [formData, setFormData] = useState({
 		selectedMode: 'desktop',
@@ -85,12 +89,25 @@ const CreateMeetingModal = ({ isOpen, onClose }) => {
 
 			const isSuccess = response?.[0];
 			if (!isSuccess) {
-				message.error('Invalid meeting link');
+				message.error('Error creating meeting');
 				return; // Do not close modal
 			}
 
 			const meetingId = response?.[1]?.data?.startMeeting?._id;
 			const type = response?.[1]?.data?.startMeeting?.transcriptionSource;
+
+			const meetingData = response[1]?.data?.startMeeting;
+
+			const payload = {
+				...(pastMeetings || {}),
+				data: [meetingData, ...(pastMeetings?.data || [])],
+				totalDocs: (pastMeetings?.totalDocs ?? 0) + 1,
+			};
+
+			dispatch({
+				type: storeActions.meeting.SET_PAST_MEETINGS,
+				payload,
+			});
 
 			if (meetingId) {
 				// navigate(

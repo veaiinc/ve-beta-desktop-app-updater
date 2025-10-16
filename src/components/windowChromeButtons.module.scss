@@ -1,0 +1,23 @@
+.windowChromeButtons {
+	display: flex;
+	gap: 8px;
+	height: fit-content;
+	-webkit-app-region: no-drag;
+
+	.windowChromeButton {
+		background-color: rgba(255, 255, 255, 0.104);
+		width: 15px;
+		height: 15px;
+		border-radius: 50%;
+		border: none;
+		cursor: pointer;
+		backdrop-filter: blur(10px);
+		padding: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--primary-font);
+		-webkit-app-region: no-drag;
+		cursor: pointer;
+	}
+}

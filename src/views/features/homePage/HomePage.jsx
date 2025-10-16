@@ -134,7 +134,7 @@ const HomePage = ({ getSelectedOption, start, setGoBackToInitialHomePage, prompt
 	);
 
 	return (
-		<div className="home-page-container">
+		<div className="home-page-container translucent">
 			<div className="black-linear-gradient"></div>
 			<div className="home-page-container-content">
 				<div className="home-page-container-content-item-container">

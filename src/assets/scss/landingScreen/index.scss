@@ -1,8 +1,22 @@
 @import 'mobileMenu';
 
+// Force light theme for landing page
+.landing-page-container {
+	--background-color: #f3f6f5;
+	--primary-font: #18181b;
+	--primary-button: #34ad9b;
+}
+
+// Desktop-only class - hide on mobile and tablet
+.desktop-only {
+	@media (max-width: 1024px) {
+		display: none !important;
+	}
+}
+
 .landing-page-container {
 	width: 100%;
-	background-color: var(--background-color, #202124);
+	background-color: var(--background-color, #f3f6f5);
 	display: flex;
 	flex-direction: column;
 	overflow-x: hidden;
@@ -19,12 +33,17 @@
 		left: 0;
 		right: 0;
 		width: 100%;
-		background: var(--background-color, #0c0c0d);
+		// background: var(--background-color, #0c0c0d);
 		font-family: var(--primary-font-family);
 		z-index: 150;
 		transition: all 0.3s ease;
 		padding-inline: 20px;
 		transform: translateY(0);
+
+		// When fullscreen iMac is active, header should be behind it
+		&.behind-fullscreen {
+			z-index: 0; // Lower than fullscreen iMac (9999)
+		}
 
 		&.hidden {
 			transform: translateY(-100%);
@@ -44,9 +63,11 @@
 			margin: 0 auto;
 			background: transparent;
 			border-radius: 8px;
-			max-width: 1700px;
+			max-width: 1845px;
 			width: 100%;
 			box-sizing: border-box;
+
+			height: 80px;
 			// padding-top: 10px;
 
 			.left-container {
@@ -172,6 +193,47 @@
 				align-items: center;
 				gap: 10px;
 
+				.nav-buttons {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+				}
+
+				.nav-btn {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					gap: 10px;
+					padding: 12px 18px;
+					border-radius: 6px;
+					font-family: var(--primary-font-family);
+					font-weight: 500;
+					font-size: 14px;
+					line-height: 1.35;
+					color: #94989e;
+					text-decoration: none;
+					transition: all 0.2s ease;
+
+					@media (max-width: 768px) {
+						padding: 10px 14px;
+						font-size: 13px;
+						color: #ffffff;
+					}
+
+					&:hover {
+						color: var(--primary-font);
+					}
+
+					&.primary {
+						font-weight: 600;
+						color: #34ad9b;
+
+						@media (max-width: 768px) {
+							color: #79ecc9;
+						}
+					}
+				}
+
 				.theme-btn {
 					display: flex;
 					width: 45px;
@@ -193,7 +255,7 @@
 						gap: 6px;
 						border-radius: 100px;
 						background: var(--primary-button, #cfff48);
-						color: var(--background-color, #0c0c0d);
+						color: var(--font-primary-color, #0c0c0d);
 						cursor: pointer;
 						border: none;
 						font-family: var(--primary-font-family);
@@ -231,7 +293,7 @@
 					&:hover {
 						background-color: var(--primary-font);
 						border-color: var(--stroke-hover);
-						color: var(--background-color);
+						color: var(--font-primary-color);
 					}
 				}
 			}
@@ -244,7 +306,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 100px;
+		// gap: 100px;
 		background: var(--background-color, #0c0c0d);
 		padding: 30px 0 0;
 
@@ -265,6 +327,12 @@
 			justify-content: center;
 			flex-direction: column;
 			gap: 50px;
+			margin-top: 260px;
+
+			@media (max-width: 768px) {
+				margin-top: 60px;
+			}
+
 			.title-container {
 				display: flex;
 				flex-direction: column;
@@ -490,13 +558,37 @@
 @media screen and (max-width: 1000px) {
 	.landing-page-container {
 		.page-header {
-			padding: 20px;
+			padding: 0 20px;
+			position: fixed !important; // Ensure header stays fixed on mobile
+			z-index: 200 !important; // Higher z-index to stay above all content
+			// border-radius: 597px;
+			// border-top-left-radius: 0;
+			// border-top-right-radius: 0;
+			background: rgba(4, 10, 66, 0.01);
+			backdrop-filter: blur(10px);
+
+			height: 76px;
+			width: auto;
+			flex-shrink: 0;
+
+			// Make logo white on mobile
+			.ve-logo-container {
+				svg {
+					* {
+						color: #ffffff !important;
+						fill: #ffffff !important;
+					}
+				}
+			}
 
 			.page-header-wrapper {
 				.middle-container {
 					display: none;
 				}
 				.right-container {
+					.nav-buttons {
+						gap: 6px;
+					}
 					.login-container {
 						.login-btn {
 							display: none;
@@ -510,10 +602,21 @@
 		}
 
 		.page-body {
-			gap: 50px;
+			// gap: 50px;
+			background: linear-gradient(270deg, rgba(1, 8, 65, 1) 0%, rgba(21, 26, 73, 1) 100%);
+			// Hide desktop-only elements on mobile
+			.desktop-only {
+				display: none !important;
+			}
+
+			.dummy-div {
+				height: 0 !important;
+				min-height: 0 !important;
+			}
 
 			.heroContainer {
-				height: 100vh;
+				margin-top: 0; // Remove margin since we have padding-top on page-body
+				height: auto; // Allow natural height
 				.videoContainer {
 					height: 50%;
 					button {
@@ -548,5 +651,85 @@
 				padding-inline: 20px;
 			}
 		}
+	}
+}
+
+// Newsletter floating on MacBook overlay styles
+.newsletter-macbook-container {
+	position: relative;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 100px; // Add space between FAQ and MacBook sections
+
+	@media (max-width: 768px) {
+		margin-top: 80px;
+		display: none; // Hide desktop footer container on mobile
+	}
+
+	@media (max-width: 480px) {
+		margin-top: 60px;
+		display: none; // Hide desktop footer container on mobile
+	}
+}
+
+.newsletter-overlay {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 10;
+	width: 100%;
+	max-width: 1920px;
+	padding: 0 120px;
+	box-sizing: border-box;
+	margin-top: -300px;
+
+	@media (max-width: 1200px) {
+		padding: 0 60px;
+		margin-top: -180px; // Reduced from -280px
+	}
+
+	@media (max-width: 768px) {
+		padding: 0 24px;
+		margin-top: -160px; // Reduced from -240px
+	}
+
+	@media (max-width: 480px) {
+		padding: 0 16px;
+		margin-top: -140px; // Reduced from -200px
+	}
+}
+
+// Mobile Footer Container - positioned below NewsletterSection on mobile
+.mobile-footer-container {
+	display: none;
+
+	@media (max-width: 768px) {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		margin-top: 0;
+		gap: 0;
+	}
+}
+
+// Scroll Background Animation
+.scroll-background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: -1;
+	opacity: 0;
+	pointer-events: none;
+
+	.background-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
 	}
 }

@@ -6,8 +6,9 @@ import Cookies from 'js-cookie';
 import { fetchDomainName } from '../../helpers';
 import { NEWSLETTER_SUBSCRIPTION_URL } from '../../helpers/ConstantUrls';
 import getBaseUrl from '../../services/baseUrls';
-import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
-import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
+// import requestPushNotificationPermission from '../../services/pushNotifications/requestPushNotificationPermission';
+// import generateFCMToken from '../../services/pushNotifications/generateFCMToken';
+import logout from '../../helpers/logout';
 
 export const initialState = {
 	currentPlanAddOns: null,
@@ -146,13 +147,13 @@ export const AuthState = () => {
 		// 	});
 		// }
 
-		const body =
-			// emailVerified
-			// ? fcmToken
-			// 	? { email, otp: verificationCode, fcmToken }
-			// 	: { email, otp: verificationCode }
-			// :
-			{ email, otp: verificationCode };
+		// const body =
+		// emailVerified
+		// ? fcmToken
+		// 	? { email, otp: verificationCode, fcmToken }
+		// 	: { email, otp: verificationCode }
+		// :
+		const body = emailVerified ? { email, otp: verificationCode } : { email, verificationCode };
 		try {
 			const response = await service?.fetchPost(path, body, null, 'auth');
 
@@ -160,28 +161,17 @@ export const AuthState = () => {
 
 			if (response[0] === true) {
 				const { tokens, accessibleWorkspaces } = response?.[1] || {};
-				const { accessToken, refreshToken, accessTokenExpiry, refreshTokenExpiry } =
-					tokens || {};
+				const { accessToken, accessTokenExpiry } = tokens || {};
 				const hasWorkspaces = accessibleWorkspaces?.length > 0;
 
 				if (accessToken?.length) {
 					localStorage.setItem('usertoken', accessToken);
-					localStorage.setItem('refreshToken', refreshToken);
 					localStorage.setItem('accessTokenExpiry', accessTokenExpiry);
-					localStorage.setItem('refreshTokenExpiry', refreshTokenExpiry);
 					Cookies.set('usertoken', accessToken, {
 						sameSite: 'lax',
 						domain: host,
 					});
-					Cookies.set('refreshToken', refreshToken, {
-						sameSite: 'lax',
-						domain: host,
-					});
 					Cookies.set('accessTokenExpiry', accessTokenExpiry, {
-						sameSite: 'lax',
-						domain: host,
-					});
-					Cookies.set('refreshTokenExpiry', refreshTokenExpiry, {
 						sameSite: 'lax',
 						domain: host,
 					});
@@ -196,7 +186,7 @@ export const AuthState = () => {
 					return [true, { hasWorkspaces: false, isOnboard: false }];
 				}
 
-				const { isOnboard, workspaceId, region } = accessibleWorkspaces?.[0];
+				const { isOnboard, workspaceId, region } = accessibleWorkspaces?.[0] || {};
 
 				localStorage.setItem('isOnboard', isOnboard);
 				Cookies.set('isOnboard', isOnboard, {
@@ -440,12 +430,43 @@ export const AuthState = () => {
 		const encodedReferralCode = referralCode ? encodeURIComponent(referralCode) : false;
 		const userId = localStorage?.getItem('user_id') ?? null;
 		const path = '/google/url';
+
+		// let permission;
+		// try {
+		// 	permission = await requestPushNotificationPermission();
+		// } catch (err) {
+		// 	return [
+		// 		false,
+		// 		{
+		// 			message:
+		// 				'An unexpected error occurred while requesting notification permission.',
+		// 		},
+		// 	];
+		// }
+		// if (permission === 'error') {
+		// 	return [false, { message: 'An unexpected error occurred. Please try again!' }];
+		// }
+
+		// const fcmToken = permission === 'granted' ? await generateFCMToken() : '';
+		// if (fcmToken) {
+		// 	localStorage.setItem('fcmToken', fcmToken);
+		// 	Cookies.set('fcmToken', fcmToken, {
+		// 		sameSite: 'lax',
+		// 		domain: fetchDomainName(),
+		// 	});
+		// }
+
 		let params = referralCode
 			? new URLSearchParams({
 					locationDetails: encodedLocationDetails,
 					referralCode: encodedReferralCode,
 			  })?.toString()
-			: new URLSearchParams({
+			: // : fcmToken
+			  // ? new URLSearchParams({
+			  // 		locationDetails: encodedLocationDetails,
+			  // 		fcmToken,
+			  //   })?.toString()
+			  new URLSearchParams({
 					locationDetails: encodedLocationDetails,
 			  })?.toString();
 
@@ -459,7 +480,8 @@ export const AuthState = () => {
 
 		const type = 'auth';
 		const authBaseUrl = getBaseUrl({ region: null, type });
-		window.location.href = `${authBaseUrl}${path}?${params}`;
+		window.location.hash = `${authBaseUrl}${path}?${params}`;
+		window.location.reload();
 	};
 
 	const getUsernameDetailsViaReferralCode = async (referralCode) => {
@@ -523,16 +545,10 @@ export const AuthState = () => {
 	const getNewAccessToken = async () => {
 		try {
 			const path = '/refresh-token';
-
-			const currentAccessToken =
-				localStorage.getItem('usertoken') || Cookies.get('usertoken');
-			const refreshToken =
-				localStorage.getItem('refreshToken') || Cookies.get('refreshToken');
-			const body = {
-				refreshToken,
-			};
-
-			const response = await service.fetchPost(path, body, currentAccessToken, 'auth');
+			const token = localStorage.getItem('usertoken') || Cookies.get('usertoken');
+			const response = await service.fetchPost(path, null, token, 'auth');
+			const responseStatus = response?.[2];
+			if (responseStatus === 401 || responseStatus === 403) logout();
 			if (response?.[0] === true) {
 				return [true, response?.[1]];
 			} else {
@@ -541,6 +557,17 @@ export const AuthState = () => {
 		} catch (error) {
 			console.error('Error getting new access token:', error);
 			throw error;
+		}
+	};
+
+	const getLocationDetails = async () => {
+		const path = '/geo-location/ip-location';
+		const response = await service?.fetchGet(path, null, 'auth');
+		if (response?.[0] === true) {
+			localStorage.setItem('locationDetails', JSON.stringify(response?.[1]));
+			return [true, response?.[1]];
+		} else {
+			return [false, { message: response?.[1]?.message?.trim() + '. Please try again!' }];
 		}
 	};
 
@@ -560,5 +587,6 @@ export const AuthState = () => {
 		getAddOnsForCurrentPlan,
 		purchaseAddOn,
 		getNewAccessToken,
+		getLocationDetails,
 	};
 };

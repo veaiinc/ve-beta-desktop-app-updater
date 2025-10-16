@@ -2,12 +2,14 @@ const { BrowserWindow, globalShortcut, screen, app } = require('electron');
 const log = require('electron-log');
 const path = require('node:path');
 
+// TODO: PERFORMANCE - This class manages multiple windows but lacks proper cleanup patterns
+// TODO: PERFORMANCE - Consider implementing WeakMap for window references to prevent memory leaks
 class WindowHelper {
 	constructor(applyContentProtectionCallback = null) {
 		this.overlayWindow = null;
 		this.isOverlayVisible = false;
 		this.windowPosition = { x: 0, y: 0 };
-		this.windowSize = { width: 500, height: 150 };
+		this.windowSize = { width: 500, height: 0 };
 
 		// Store callback to apply content protection to new windows
 		this.applyContentProtection = applyContentProtectionCallback || (() => {});
@@ -21,13 +23,19 @@ class WindowHelper {
 		this.askAIWindow = null;
 		this.isAskAIVisible = false;
 		this.askAIWindowPosition = { x: 0, y: 0 };
-		this.askAIWindowSize = { width: 600, height: 600 };
+		this.askAIWindowSize = { width: 600, height: 100 };
 
 		// Are You There window properties
 		this.areYouThereWindow = null;
 		this.isAreYouThereVisible = false;
 		this.areYouThereWindowPosition = { x: 0, y: 0 };
 		this.areYouThereWindowSize = { width: 500, height: 400 };
+
+		// Permission window properties
+		this.permissionWindow = null;
+		this.isPermissionVisible = false;
+		this.permissionWindowPosition = { x: 0, y: 0 };
+		this.permissionWindowSize = { width: 520, height: 640 };
 
 		this.screenWidth = 0;
 		this.screenHeight = 0;
@@ -137,127 +145,120 @@ class WindowHelper {
 	}
 
 	createOverlayWindow() {
-		if (this.overlayWindow !== null) return;
-
-		// CRITICAL FIX: Reset readiness state when creating new window
-		this.overlayWindowReady = false;
-		this.pendingOverlayActions = [];
-
-		const primaryDisplay = screen.getPrimaryDisplay();
-		const workArea = primaryDisplay.workAreaSize;
-		this.screenWidth = workArea.width;
-		this.screenHeight = workArea.height;
-
-		this.step = Math.floor(this.screenWidth / 10);
-		// Position at center, below Dynamic Island with proper spacing
-		this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
-
-		// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
-		const dynamicIslandHeight = 180; // Height of expanded Dynamic Island
-		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		this.currentY = 0 + dynamicIslandHeight + gapFromDynamicIsland;
-
-		// Initialize window position for future position persistence
-		this.windowPosition = { x: this.currentX, y: this.currentY };
-
-		const windowSettings = {
-			width: this.windowSize.width,
-			height: this.windowSize.height,
-			x: this.currentX,
-			y: this.currentY,
-			webPreferences: {
-				nodeIntegration: false,
-				contextIsolation: true,
-				preload: path.join(__dirname, '..', 'preload.js'),
-				devTools: true, // Enable developer tools
-			},
-			show: false,
-			alwaysOnTop: true,
-			frame: false,
-			transparent: true,
-			fullscreenable: false,
-			hasShadow: false,
-			backgroundColor: '#00000000',
-			focusable: true,
-			skipTaskbar: true,
-			visibleOnAllWorkspaces: true,
-			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel', // Use normal window type in development
-			acceptFirstMouse: true,
-			disableAutoHideCursor: true,
-			resizable: false, // Disable resizing
-			movable: true, // Explicitly enable window movement
-		};
-
-		// Platform-specific window settings
-		if (process.platform === 'win32') {
-			// Windows-specific settings
-			windowSettings.type = 'toolbar'; // Use toolbar type for Windows overlay windows
-			windowSettings.alwaysOnTop = true;
-			windowSettings.skipTaskbar = true;
-			windowSettings.focusable = true;
-			windowSettings.transparent = true;
-			windowSettings.hasShadow = false;
-		}
-
-		this.overlayWindow = new BrowserWindow(windowSettings);
-
-		// Apply content protection to overlay window
-		this.applyContentProtection(this.overlayWindow);
-
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
-		const isDevelopment =
-			process.env.NODE_ENV === 'development' ||
-			process.env.NODE_ENV?.trim() === 'development';
-
-		const overlayUrl = isDevelopment
-			? `${devURL}/overlay.html`
-			: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
-
-		this.overlayWindow.loadURL(overlayUrl).catch((err) => {
-			log.error('Failed to load overlay URL:', err);
-		});
-
-		if (process.platform === 'darwin') {
-			// Use the highest window level for maximum visibility during desktop switching
-			this.overlayWindow.setAlwaysOnTop(true, 'floating');
-
-			// Configure for all workspaces/desktops with fullscreen support
-			this.overlayWindow.setVisibleOnAllWorkspaces(true, {
-				visibleOnFullScreen: true,
-				skipTransformProcessType: true,
-			});
-
-			// Hide from Mission Control but keep visible during transitions
-			this.overlayWindow.setHiddenInMissionControl(true);
-
-			// Disable click-through - overlay should be interactive
-			this.overlayWindow.setIgnoreMouseEvents(false);
-			this.overlayWindow.setMovable(true);
-		} else if (process.platform === 'win32') {
-			// Windows-specific window behavior
-			this.overlayWindow.setAlwaysOnTop(true, 'floating');
-			this.overlayWindow.setIgnoreMouseEvents(false);
-			this.overlayWindow.setMovable(true);
-			// Windows doesn't have the same workspace concept as macOS
-			this.overlayWindow.setVisibleOnAllWorkspaces(true);
-		} else {
-			// For Linux and other platforms
-			this.overlayWindow.setAlwaysOnTop(true, 'floating');
-			// Disable click-through - overlay should be interactive
-			this.overlayWindow.setIgnoreMouseEvents(false);
-		}
-
-		this.setupWindowListeners();
-
-		const bounds = this.overlayWindow.getBounds();
-		this.windowPosition = { x: bounds.x, y: bounds.y };
-		this.windowSize = { width: bounds.width, height: bounds.height };
-		this.currentX = bounds.x;
-		this.currentY = bounds.y;
+		// if (this.overlayWindow !== null) return;
+		// // CRITICAL FIX: Reset readiness state when creating new window
+		// this.overlayWindowReady = false;
+		// this.pendingOverlayActions = [];
+		// const primaryDisplay = screen.getPrimaryDisplay();
+		// const workArea = primaryDisplay.workAreaSize;
+		// this.screenWidth = workArea.width;
+		// this.screenHeight = workArea.height;
+		// this.step = Math.floor(this.screenWidth / 10);
+		// // Position at center, below Dynamic Island with proper spacing
+		// this.currentX = Math.floor(this.screenWidth / 2) - Math.floor(this.windowSize.width / 2);
+		// // Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
+		// const dynamicIslandHeight = 180; // Height of expanded Dynamic Island
+		// const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+		// this.currentY = 0 + dynamicIslandHeight + gapFromDynamicIsland;
+		// // Initialize window position for future position persistence
+		// this.windowPosition = { x: this.currentX, y: this.currentY };
+		// const windowSettings = {
+		// 	width: this.windowSize.width,
+		// 	height: this.windowSize.height,
+		// 	x: this.currentX,
+		// 	y: this.currentY,
+		// 	webPreferences: {
+		// 		nodeIntegration: false,
+		// 		contextIsolation: true,
+		// 		preload: path.join(__dirname, '..', 'preload.js'),
+		// 		devTools: true, // Enable developer tools
+		// 		// Prevent Chromium from throttling timers/RAF when window is backgrounded
+		// 		backgroundThrottling: false,
+		// 		sandbox: false,
+		// 	},
+		// 	show: false,
+		// 	alwaysOnTop: true,
+		// 	frame: false,
+		// 	transparent: true,
+		// 	fullscreenable: false,
+		// 	hasShadow: false,
+		// 	backgroundColor: '#00000000',
+		// 	focusable: true,
+		// 	skipTaskbar: true,
+		// 	visibleOnAllWorkspaces: true,
+		// 	type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel', // Use normal window type in development
+		// 	acceptFirstMouse: true,
+		// 	disableAutoHideCursor: true,
+		// 	resizable: false, // Disable resizing
+		// 	movable: true, // Explicitly enable window movement
+		// };
+		// // Platform-specific window settings
+		// if (process.platform === 'win32') {
+		// 	// Windows-specific settings
+		// 	windowSettings.type = 'toolbar'; // Use toolbar type for Windows overlay windows
+		// 	windowSettings.alwaysOnTop = true;
+		// 	windowSettings.skipTaskbar = true;
+		// 	windowSettings.focusable = true;
+		// 	windowSettings.transparent = true;
+		// 	windowSettings.hasShadow = false;
+		// }
+		// this.overlayWindow = new BrowserWindow(windowSettings);
+		// // Apply content protection to overlay window
+		// this.applyContentProtection(this.overlayWindow);
+		// const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+		// 	/\/$/,
+		// 	'',
+		// );
+		// const isDevelopment =
+		// 	process.env.NODE_ENV === 'development' ||
+		// 	process.env.NODE_ENV?.trim() === 'development';
+		// const overlayUrl = isDevelopment
+		// 	? `${devURL}/overlay.html`
+		// 	: `file://${path.join(__dirname, '..', '..', 'build', 'overlay.html')}`;
+		// this.overlayWindow.loadURL(overlayUrl).catch((err) => {
+		// 	log.error('Failed to load overlay URL:', err);
+		// });
+		// if (process.platform === 'darwin') {
+		// 	// Use the highest window level for maximum visibility during desktop switching
+		// 	this.overlayWindow.setAlwaysOnTop(true, 'floating');
+		// 	// Configure for all workspaces/desktops with fullscreen support
+		// 	this.overlayWindow.setVisibleOnAllWorkspaces(true, {
+		// 		visibleOnFullScreen: true,
+		// 		skipTransformProcessType: true,
+		// 	});
+		// 	// Hide from Mission Control but keep visible during transitions
+		// 	this.overlayWindow.setHiddenInMissionControl(true);
+		// 	// Disable click-through - overlay should be interactive
+		// 	this.overlayWindow.setIgnoreMouseEvents(false);
+		// 	this.overlayWindow.setMovable(true);
+		// } else if (process.platform === 'win32') {
+		// 	// Windows-specific window behavior
+		// 	this.overlayWindow.setAlwaysOnTop(true, 'floating');
+		// 	this.overlayWindow.setIgnoreMouseEvents(false);
+		// 	this.overlayWindow.setMovable(true);
+		// 	// Windows doesn't have the same workspace concept as macOS
+		// 	this.overlayWindow.setVisibleOnAllWorkspaces(true);
+		// } else {
+		// 	// For Linux and other platforms
+		// 	this.overlayWindow.setAlwaysOnTop(true, 'floating');
+		// 	// Disable click-through - overlay should be interactive
+		// 	this.overlayWindow.setIgnoreMouseEvents(false);
+		// }
+		// this.setupWindowListeners();
+		// const bounds = this.overlayWindow.getBounds();
+		// this.windowPosition = { x: bounds.x, y: bounds.y };
+		// this.windowSize = { width: bounds.width, height: bounds.height };
+		// this.currentX = bounds.x;
+		// this.currentY = bounds.y;
 	}
 
 	createAskAIWindow() {
-		if (this.askAIWindow !== null) return;
+		if (this.askAIWindow !== null) {
+			log.info('🎯 Ask AI window already exists, skipping creation');
+			return;
+		}
+
+		log.info('🎯 Creating Ask AI window...');
 
 		// Initialize window ready state
 		this.askAIWindowReady = false;
@@ -267,14 +268,51 @@ class WindowHelper {
 		this.screenWidth = workArea.width;
 		this.screenHeight = workArea.height;
 
-		// Center Ask AI window on screen, below Dynamic Island with proper spacing
-		const askAIX =
-			Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
+		// Determine initial position based on whether overlay is visible
+		let askAIX, askAIY;
 
-		// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
-		const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
-		const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
-		const askAIY = -8 + dynamicIslandHeight + gapFromDynamicIsland;
+		const overlayVisible = this.isVisible();
+		const overlayExists = this.overlayWindow && !this.overlayWindow.isDestroyed();
+
+		log.info(
+			`🎯 Ask AI creation: Overlay visible: ${overlayVisible}, Overlay exists: ${overlayExists}`,
+		);
+
+		if (overlayVisible && overlayExists) {
+			// Position relative to overlay if it's visible
+			const overlayBounds = this.overlayWindow.getBounds();
+			const overlayX = overlayBounds.x;
+			const overlayY = overlayBounds.y;
+
+			// Update tracking variables
+			this.currentX = overlayX;
+			this.currentY = overlayY;
+
+			// Position ask AI to the right of overlay with proper gap
+			const gap = 20;
+			askAIX = overlayX + this.windowSize.width + gap;
+			askAIY = overlayY; // Same Y level as overlay
+
+			// Ensure Ask AI doesn't go off-screen
+			if (askAIX + this.askAIWindowSize.width > workArea.width) {
+				// If Ask AI would go off-screen, position it to the left of overlay instead
+				askAIX = overlayX - this.askAIWindowSize.width - gap;
+			}
+
+			log.info(
+				`🎯 Ask AI creation: Overlay at (${overlayX}, ${overlayY}), Ask AI at (${askAIX}, ${askAIY})`,
+			);
+		} else {
+			// Center Ask AI window on screen, below Dynamic Island with proper spacing
+			askAIX = Math.floor(this.screenWidth / 2) - Math.floor(this.askAIWindowSize.width / 2);
+
+			// Add proper spacing from Dynamic Island (which is now at Y=-8 with height ~280)
+			const dynamicIslandHeight = 220; // Height of expanded Dynamic Island
+			const gapFromDynamicIsland = 30; // Gap between Dynamic Island and Overlay
+			askAIY = -8 + dynamicIslandHeight + gapFromDynamicIsland;
+
+			log.info(`🎯 Ask AI creation: Centered at (${askAIX}, ${askAIY})`);
+		}
 
 		const windowSettings = {
 			width: this.askAIWindowSize.width,
@@ -286,6 +324,7 @@ class WindowHelper {
 				contextIsolation: true,
 				preload: path.join(__dirname, '..', 'preload.js'),
 				devTools: true,
+				sandbox: false,
 			},
 			show: false,
 			alwaysOnTop: true,
@@ -300,11 +339,12 @@ class WindowHelper {
 			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
 			acceptFirstMouse: true,
 			disableAutoHideCursor: true,
-			resizable: true, // Enable resizing for user customization
-			movable: true, // Explicitly enable window movement
-			minWidth: 400, // Minimum width for usability
-			minHeight: 300, // Minimum height for usability
-			// maxWidth and maxHeight removed to allow full screen expansion
+			resizable: false,
+
+			movable: true,
+			minWidth: 460,
+			minHeight: 40,
+
 			devTools: true,
 		};
 
@@ -334,7 +374,10 @@ class WindowHelper {
 		// Apply content protection to Ask AI window
 		this.applyContentProtection(this.askAIWindow);
 
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+			/\/$/,
+			'',
+		);
 		const isDevelopment =
 			process.env.NODE_ENV === 'development' ||
 			process.env.NODE_ENV?.trim() === 'development';
@@ -413,6 +456,7 @@ class WindowHelper {
 				contextIsolation: true,
 				preload: path.join(__dirname, '..', 'preload.js'),
 				devTools: true,
+				sandbox: false,
 			},
 			show: false,
 			alwaysOnTop: true,
@@ -450,7 +494,10 @@ class WindowHelper {
 		// Apply content protection to Are You There window
 		this.applyContentProtection(this.areYouThereWindow);
 
-		const devURL = process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173';
+		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+			/\/$/,
+			'',
+		);
 		const isDevelopment =
 			process.env.NODE_ENV === 'development' ||
 			process.env.NODE_ENV?.trim() === 'development';
@@ -494,9 +541,121 @@ class WindowHelper {
 		this.areYouThereWindowSize = { width: bounds.width, height: bounds.height };
 	}
 
+	createPermissionWindow() {
+		if (this.permissionWindow !== null) return;
+
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+		this.screenWidth = workArea.width;
+		this.screenHeight = workArea.height;
+
+		// Center permission window on screen
+		const permissionX =
+			Math.floor(this.screenWidth / 2) - Math.floor(this.permissionWindowSize.width / 2);
+		const permissionY =
+			Math.floor(this.screenHeight / 2) - Math.floor(this.permissionWindowSize.height / 2);
+
+		const windowSettings = {
+			width: this.permissionWindowSize.width,
+			height: this.permissionWindowSize.height,
+			x: permissionX,
+			y: permissionY,
+			webPreferences: {
+				nodeIntegration: false,
+				contextIsolation: true,
+				preload: path.join(__dirname, '..', 'preload.js'),
+				devTools: true,
+				sandbox: false,
+			},
+			show: false,
+			alwaysOnTop: true,
+			frame: false,
+			transparent: true,
+			fullscreenable: false,
+			hasShadow: false,
+			backgroundColor: '#00000000',
+			focusable: true,
+			skipTaskbar: true,
+			visibleOnAllWorkspaces: true,
+			type: process.env.NODE_ENV === 'development' ? 'normal' : 'panel',
+			acceptFirstMouse: true,
+			disableAutoHideCursor: true,
+			resizable: false,
+			movable: true,
+			devTools: true,
+		};
+
+		// Platform-specific window settings
+		if (process.platform === 'win32') {
+			// Windows-specific settings
+			windowSettings.type = 'toolbar';
+			windowSettings.alwaysOnTop = true;
+			windowSettings.skipTaskbar = true;
+			windowSettings.focusable = true;
+			windowSettings.transparent = true;
+			windowSettings.hasShadow = false;
+		} else if (process.platform === 'darwin') {
+			// macOS-specific settings
+			windowSettings.type = process.env.NODE_ENV === 'development' ? 'normal' : 'panel';
+		}
+
+		this.permissionWindow = new BrowserWindow(windowSettings);
+
+		// Apply content protection to permission window
+		this.applyContentProtection(this.permissionWindow);
+
+		const devURL = (process.env.VITE_DEV_SERVER_URL || 'http://localhost:5173').replace(
+			/\/$/,
+			'',
+		);
+		const isDevelopment =
+			process.env.NODE_ENV === 'development' ||
+			process.env.NODE_ENV?.trim() === 'development';
+
+		const permissionUrl = isDevelopment
+			? `${devURL}/permission.html`
+			: `file://${path.join(__dirname, '..', '..', 'build', 'permission.html')}`;
+
+		log.info(`Loading Permission URL: ${permissionUrl}`);
+
+		this.permissionWindow.loadURL(permissionUrl).catch((err) => {
+			log.error('Failed to load Permission URL:', err);
+		});
+
+		if (process.platform === 'darwin') {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			this.permissionWindow.setHiddenInMissionControl(true);
+			// Permission window should always be interactive
+			this.permissionWindow.setIgnoreMouseEvents(false);
+			this.permissionWindow.setMovable(true);
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setIgnoreMouseEvents(false);
+			this.permissionWindow.setMovable(true);
+			this.permissionWindow.setVisibleOnAllWorkspaces(true);
+		} else {
+			// For Linux and other platforms
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setIgnoreMouseEvents(false);
+		}
+
+		this.setupPermissionWindowListeners();
+
+		const bounds = this.permissionWindow.getBounds();
+		this.permissionWindowPosition = { x: bounds.x, y: bounds.y };
+		this.currentX = bounds.x;
+		this.currentY = bounds.y;
+	}
+
 	setupWindowListeners() {
 		if (!this.overlayWindow) return;
 
+		// TODO: PERFORMANCE - Multiple timeout variables could cause memory leaks if not properly cleaned up
 		// Simple drag detection: Hide Dynamic Island during drag, show when stopped
 		let isDragging = false;
 		let dragEndTimeout;
@@ -647,6 +806,14 @@ class WindowHelper {
 				const bounds = this.askAIWindow.getBounds();
 				this.askAIWindowSize = { width: bounds.width, height: bounds.height };
 				log.info('🎯 ASK AI RESIZE: Updated size tracking', this.askAIWindowSize);
+			}
+		});
+
+		// Hide window when it loses focus (user clicks outside)
+		this.askAIWindow.on('blur', () => {
+			if (this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+				log.info('🎯 ASK AI BLUR: Hiding window due to focus loss');
+				this.hideAskAIWindow();
 			}
 		});
 
@@ -879,6 +1046,51 @@ class WindowHelper {
 		});
 	}
 
+	setupPermissionWindowListeners() {
+		if (!this.permissionWindow) return;
+
+		// Same drag detection for permission window: Hide Dynamic Island during drag, show when stopped
+		let isDragging = false;
+		let dragEndTimeout;
+
+		// Listen for when permission window starts moving (drag start)
+		this.permissionWindow.on('will-move', () => {
+			if (!isDragging) {
+				isDragging = true;
+				log.info('🎯 PERMISSION DRAG START: Hiding Dynamic Island for smooth dragging');
+				this.hideDynamicIslandForDrag();
+			}
+		});
+
+		this.permissionWindow.on('move', () => {
+			if (this.permissionWindow && !this.permissionWindow.isDestroyed()) {
+				const bounds = this.permissionWindow.getBounds();
+				this.permissionWindowPosition = { x: bounds.x, y: bounds.y };
+
+				// Reset the drag end timeout since we're still moving
+				if (isDragging) {
+					clearTimeout(dragEndTimeout);
+					dragEndTimeout = setTimeout(() => {
+						isDragging = false;
+						log.info('🎯 PERMISSION DRAG END: Showing Dynamic Island again');
+						this.showDynamicIslandAfterDrag();
+					}, 100); // 100ms after last move event
+				}
+			}
+		});
+
+		this.permissionWindow.on('closed', () => {
+			this.permissionWindow = null;
+			this.isPermissionVisible = false;
+		});
+
+		// Set up mouse event handling for permission window
+		this.permissionWindow.webContents.on('dom-ready', () => {
+			// Set permission window to be interactive immediately
+			this.permissionWindow.setIgnoreMouseEvents(false);
+		});
+	}
+
 	setupMainWindowListeners() {
 		if (!this.mainWindow) return;
 
@@ -927,6 +1139,10 @@ class WindowHelper {
 		return this.areYouThereWindow;
 	}
 
+	getPermissionWindow() {
+		return this.permissionWindow;
+	}
+
 	// CRITICAL FIX: Send command to overlay with proper queuing if not ready
 	sendOverlayCommand(action) {
 		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) {
@@ -948,7 +1164,11 @@ class WindowHelper {
 	}
 
 	isVisible() {
-		return this.isOverlayVisible && this.overlayWindow && !this.overlayWindow.isDestroyed();
+		return (
+			this.overlayWindow &&
+			!this.overlayWindow.isDestroyed() &&
+			this.overlayWindow.isVisible()
+		);
 	}
 
 	isAskAIWindowVisible() {
@@ -960,6 +1180,14 @@ class WindowHelper {
 			this.isAreYouThereVisible &&
 			this.areYouThereWindow &&
 			!this.areYouThereWindow.isDestroyed()
+		);
+	}
+
+	isPermissionWindowVisible() {
+		return (
+			this.isPermissionVisible &&
+			this.permissionWindow &&
+			!this.permissionWindow.isDestroyed()
 		);
 	}
 
@@ -1006,7 +1234,7 @@ class WindowHelper {
 
 		// Don't hide ask AI window - allow both to be visible
 		// if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
-		// 	this.hideAskAIWindow();
+		//  this.hideAskAIWindow();
 		// }
 
 		const primaryDisplay = screen.getPrimaryDisplay();
@@ -1090,7 +1318,7 @@ class WindowHelper {
 
 		// Don't hide main window - keep it independent
 		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-		// 	this.mainWindow.hide();
+		//  this.mainWindow.hide();
 		// }
 
 		this.isOverlayVisible = true;
@@ -1098,28 +1326,34 @@ class WindowHelper {
 
 	showAskAIWindow() {
 		if (!this.askAIWindow || this.askAIWindow.isDestroyed()) {
+			log.info('🎯 Ask AI window not found, creating...');
 			this.createAskAIWindow();
+		} else {
+			log.info('🎯 Ask AI window exists, showing...');
 		}
 
 		// Don't hide overlay window - allow both to be visible
 		// if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-		// 	this.hideOverlayWindow();
+		//  this.hideOverlayWindow();
 		// }
 
 		let askAIX, askAIY;
 
 		// Check if we have a saved position from previous hide/show cycle
+		// BUT only use it if overlay is not visible (to avoid positioning conflicts)
 		const hasValidSavedPosition =
 			this.askAIWindowPosition &&
 			typeof this.askAIWindowPosition.x === 'number' &&
 			typeof this.askAIWindowPosition.y === 'number' &&
 			this.askAIWindowPosition.x !== 0 &&
-			this.askAIWindowPosition.y !== 0;
+			this.askAIWindowPosition.y !== 0 &&
+			!(this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed());
 
 		if (hasValidSavedPosition) {
-			// Use the saved position (user's last position)
+			// Use the saved position (user's last position) only when overlay is not visible
 			askAIX = this.askAIWindowPosition.x;
 			askAIY = this.askAIWindowPosition.y;
+			log.info(`🎯 Ask AI show: Using saved position (${askAIX}, ${askAIY})`);
 		} else {
 			// Calculate default position for first-time show or when no saved position
 			const primaryDisplay = screen.getPrimaryDisplay();
@@ -1127,9 +1361,28 @@ class WindowHelper {
 			const gap = 20; // Gap between windows
 
 			if (this.isVisible() && this.overlayWindow && !this.overlayWindow.isDestroyed()) {
-				// Position ask AI to the right of overlay
-				askAIX = this.currentX + this.windowSize.width + gap;
-				askAIY = 80; // Same Y level as overlay
+				// Always get the actual overlay position from the window bounds
+				const overlayBounds = this.overlayWindow.getBounds();
+				const overlayX = overlayBounds.x;
+				const overlayY = overlayBounds.y;
+
+				// Update tracking variables for future use
+				this.currentX = overlayX;
+				this.currentY = overlayY;
+
+				// Position ask AI to the right of overlay with proper gap
+				askAIX = overlayX + this.windowSize.width + gap;
+				askAIY = overlayY; // Same Y level as overlay
+
+				// Ensure Ask AI doesn't go off-screen
+				if (askAIX + this.askAIWindowSize.width > workArea.width) {
+					// If Ask AI would go off-screen, position it to the left of overlay instead
+					askAIX = overlayX - this.askAIWindowSize.width - gap;
+				}
+
+				log.info(
+					`🎯 Ask AI positioning: Overlay at (${overlayX}, ${overlayY}), Ask AI at (${askAIX}, ${askAIY})`,
+				);
 			} else {
 				// Center ask AI when overlay is not visible, below Dynamic Island with proper spacing
 				askAIX =
@@ -1187,7 +1440,7 @@ class WindowHelper {
 
 		// Don't hide main window - keep it independent
 		// if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-		// 	this.mainWindow.hide();
+		//  this.mainWindow.hide();
 		// }
 
 		this.isAskAIVisible = true;
@@ -1249,6 +1502,79 @@ class WindowHelper {
 		this.isAreYouThereVisible = true;
 	}
 
+	showPermissionWindow() {
+		if (!this.permissionWindow || this.permissionWindow.isDestroyed()) {
+			this.createPermissionWindow();
+		}
+
+		// Center the permission window on screen
+		const primaryDisplay = screen.getPrimaryDisplay();
+		const workArea = primaryDisplay.workAreaSize;
+
+		const permissionX =
+			Math.floor(workArea.width / 2) - Math.floor(this.permissionWindowSize.width / 2);
+		const permissionY =
+			Math.floor(workArea.height / 2) - Math.floor(this.permissionWindowSize.height / 2);
+
+		this.permissionWindow.setBounds({
+			x: permissionX,
+			y: permissionY,
+			width: this.permissionWindowSize.width,
+			height: this.permissionWindowSize.height,
+		});
+
+		// Ensure window properties for all desktops/spaces on macOS
+		if (process.platform === 'darwin') {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true, {
+				visibleOnFullScreen: true,
+				skipTransformProcessType: true,
+			});
+			// Ensure permission window is above all other windows
+			this.permissionWindow.moveTop();
+		} else if (process.platform === 'win32') {
+			// Windows-specific window behavior
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+			this.permissionWindow.setVisibleOnAllWorkspaces(true);
+			this.permissionWindow.moveTop();
+		} else {
+			this.permissionWindow.setAlwaysOnTop(true, 'floating');
+		}
+
+		// Update position tracking
+		this.permissionWindowPosition = { x: permissionX, y: permissionY };
+
+		// Show permission window
+		this.permissionWindow.show();
+
+		// Make sure permission window is on top after showing
+		setTimeout(() => {
+			if (this.permissionWindow && !this.permissionWindow.isDestroyed()) {
+				this.permissionWindow.moveTop();
+				this.permissionWindow.focus();
+			}
+		}, 100);
+
+		this.isPermissionVisible = true;
+	}
+
+	hidePermissionWindow() {
+		if (!this.permissionWindow || this.permissionWindow.isDestroyed()) return;
+		const bounds = this.permissionWindow.getBounds();
+		this.permissionWindowPosition = { x: bounds.x, y: bounds.y };
+		this.permissionWindowSize = { width: bounds.width, height: bounds.height };
+		this.permissionWindow.hide();
+		this.isPermissionVisible = false;
+	}
+
+	togglePermissionWindow() {
+		if (this.isPermissionVisible) {
+			this.hidePermissionWindow();
+		} else {
+			this.showPermissionWindow();
+		}
+	}
+
 	toggleOverlayWindow() {
 		if (this.isOverlayVisible) {
 			this.hideOverlayWindow();
@@ -1308,18 +1634,31 @@ class WindowHelper {
 
 		// Update ask AI window position only if it's visible and we need to maintain side-by-side layout
 		if (this.isAskAIWindowVisible() && this.askAIWindow && !this.askAIWindow.isDestroyed()) {
+			// Always get the actual overlay position from the window bounds
+			const overlayBounds = this.overlayWindow.getBounds();
+			const overlayX = overlayBounds.x;
+			const overlayY = overlayBounds.y;
+
 			// Position ask AI to the right of overlay with gap
 			const gap = 20;
-			const askAIX = currentX + newWidth + gap;
-			const askAIY = currentY; // Same Y level as overlay
+			let askAIX = overlayX + newWidth + gap;
+			const askAIY = overlayY; // Same Y level as overlay
+
+			// Ensure Ask AI doesn't go off-screen
+			if (askAIX + this.askAIWindowSize.width > workArea.width) {
+				// If Ask AI would go off-screen, position it to the left of overlay instead
+				askAIX = overlayX - this.askAIWindowSize.width - gap;
+			}
 
 			this.askAIWindow.setBounds({
+				x: askAIX,
+				y: askAIY,
 				width: this.askAIWindowSize.width,
 				height: this.askAIWindowSize.height,
 			});
 
 			// Update ask AI position tracking
-			// this.askAIWindowPosition = { x: askAIX, y: askAIY };
+			this.askAIWindowPosition = { x: askAIX, y: askAIY };
 
 			// Make sure ask AI stays on top
 			setTimeout(() => {
@@ -1338,8 +1677,8 @@ class WindowHelper {
 		const workArea = screen.getPrimaryDisplay().workAreaSize;
 
 		// Apply min constraints that match the window creation settings
-		const minWidth = 400;
-		const minHeight = 300;
+		const minWidth = 420;
+		const minHeight = 60; // small height ask ai
 
 		// Get current bounds to preserve dimensions when not specified
 		const currentBounds = this.askAIWindow.getBounds();
@@ -1416,6 +1755,9 @@ class WindowHelper {
 			return;
 		}
 
+		// Initialize translucency state
+		this.isTranslucencyEnabled = this.isTranslucencyEnabled ?? false;
+
 		// Register Cmd+\ to toggle overlay window only (independent of main window)
 		const cmdBackslashRegistered = globalShortcut.register('CommandOrControl+\\', () => {
 			// Check if overlay window is visible
@@ -1461,13 +1803,13 @@ class WindowHelper {
 			// Call the toggle function directly through IPC invoke
 			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 				this.mainWindow.webContents.executeJavaScript(`
-					if (window.electronApi && window.electronApi.toggleContentProtection) {
-						window.electronApi.toggleContentProtection().then(status => {
-						}).catch(err => {
-							console.error('Error toggling content protection:', err);
-						});
-					}
-				`);
+                    if (window.electronApi && window.electronApi.toggleContentProtection) {
+                        window.electronApi.toggleContentProtection().then(status => {
+                        }).catch(err => {
+                            console.error('Error toggling content protection:', err);
+                        });
+                    }
+                `);
 			}
 		});
 
@@ -1478,22 +1820,24 @@ class WindowHelper {
 				const altProtectionRegistered = globalShortcut.register('Ctrl+Alt+P', () => {
 					if (this.mainWindow && !this.mainWindow.isDestroyed()) {
 						this.mainWindow.webContents.executeJavaScript(`
-							if (window.electronApi && window.electronApi.toggleContentProtection) {
-								window.electronApi.toggleContentProtection().then(status => {
-								}).catch(err => {
-									console.error('Error toggling content protection:', err);
-								});
-							}
-						`);
+                            if (window.electronApi && window.electronApi.toggleContentProtection) {
+                                window.electronApi.toggleContentProtection().then(status => {
+                                }).catch(err => {
+                                    console.error('Error toggling content protection:', err);
+                                });
+                            }
+                        `);
 					}
 				});
 			}
 		}
 
-		// Register Cmd+Enter to toggle ask AI window only (independent of main window)
+		// Register Cmd+Enter to show ask AI chatbox mode
 		const cmdEnterRegistered = globalShortcut.register('CommandOrControl+Return', () => {
 			// Create ask AI window if it doesn't exist
 			this.createAskAIWindow?.();
+
+			// Always show chatbox mode when Command+Enter is pressed
 
 			const isAskAIVisible = this.isAskAIWindowVisible();
 
@@ -1503,6 +1847,12 @@ class WindowHelper {
 			} else {
 				// Show ask AI window only
 				this.showAskAIWindow?.();
+
+				// Send message to show chatbox mode
+				const askAIWindow = this.getAskAIWindow();
+				if (askAIWindow && !askAIWindow.isDestroyed()) {
+					askAIWindow.webContents.send('askAI-show-chatbox');
+				}
 			}
 		});
 
@@ -1560,6 +1910,88 @@ class WindowHelper {
 						process.emit('recreate-main-window');
 					}
 				});
+			}
+		}
+
+		// Register Cmd+G to toggle glass mode (Cross-platform)
+		const cmdGRegistered = globalShortcut.register('CommandOrControl+G', () => {
+			try {
+				log.info('🎨 Command+G pressed: Toggling glass mode');
+
+				// Toggle glass mode state
+				this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+
+				// CRITICAL FIX: Always set BOTH vibrancy AND background TOGETHER
+				// This PREVENTS fully transparent window with no background
+				if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+					if (this.isTranslucencyEnabled) {
+						// Glass mode: Enable vibrancy WITH transparent background
+						if (process.platform === 'darwin') {
+							this.mainWindow.setVibrancy('fullscreen-ui');
+						}
+						this.mainWindow.setBackgroundColor('#00000000'); // Transparent for vibrancy
+						log.info('🎨 Glass mode ENABLED: vibrancy + transparent background');
+					} else {
+						// Normal mode: NO vibrancy WITH solid background
+						if (process.platform === 'darwin') {
+							this.mainWindow.setVibrancy(null);
+						}
+						this.mainWindow.setBackgroundColor('#121212'); // Solid background
+						log.info('🎨 Glass mode DISABLED: solid background #121212');
+					}
+
+					// Notify renderer to toggle glass mode CSS classes
+					this.mainWindow.webContents.send('translucency-changed', {
+						enabled: this.isTranslucencyEnabled,
+						platform: process.platform,
+						source: 'keyboard-shortcut',
+					});
+				} else {
+					log.warn('⚠️ Main window not available for glass mode toggle');
+				}
+			} catch (error) {
+				log.error('❌ Glass mode toggle failed:', error);
+			}
+		});
+
+		if (cmdGRegistered) {
+			log.info('✅ Command+G glass mode shortcut registered successfully');
+		} else {
+			log.error('❌ Failed to register Command+G glass mode shortcut');
+
+			// Try alternative shortcuts on Windows if the main one fails
+			if (process.platform === 'win32') {
+				const altGlassRegistered = globalShortcut.register('Ctrl+Alt+G', () => {
+					try {
+						log.info('🎨 Ctrl+Alt+G pressed: Toggling glass mode');
+						this.isTranslucencyEnabled = !this.isTranslucencyEnabled;
+
+						if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+							// CRITICAL FIX: Always set background color - never fully transparent
+							if (this.isTranslucencyEnabled) {
+								this.mainWindow.setBackgroundColor('#00000000'); // Transparent for glass
+								log.info('🎨 Glass mode ENABLED via Ctrl+Alt+G');
+							} else {
+								this.mainWindow.setBackgroundColor('#121212'); // Solid background
+								log.info('🎨 Glass mode DISABLED via Ctrl+Alt+G: solid background');
+							}
+
+							this.mainWindow.webContents.send('translucency-changed', {
+								enabled: this.isTranslucencyEnabled,
+								platform: process.platform,
+								source: 'keyboard-shortcut',
+							});
+						}
+					} catch (error) {
+						log.error('❌ Alternative glass mode toggle failed:', error);
+					}
+				});
+
+				if (altGlassRegistered) {
+					log.info('✅ Ctrl+Alt+G glass mode shortcut registered as fallback');
+				} else {
+					log.error('❌ Failed to register alternative glass mode shortcut');
+				}
 			}
 		}
 	}

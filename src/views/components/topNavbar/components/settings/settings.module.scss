@@ -4,6 +4,7 @@
 	flex-direction: column;
 	gap: 16px;
 	top: 22px;
+	background: var(--background-color);
 }
 .settingsContainer {
 	display: flex;
@@ -21,6 +22,14 @@
 	z-index: 10001;
 	max-height: calc(100vh - 80px);
 	overflow-y: auto;
+
+	/* Backdrop filter with proper browser support */
+	-webkit-backdrop-filter: blur(20px) saturate(180%);
+	backdrop-filter: blur(20px) saturate(180%);
+
+	/* Ensure proper stacking context */
+	will-change: backdrop-filter;
+	transform: translateZ(0); /* Force hardware acceleration */
 
 	// overlay and sheet are used in mobile only
 	.mobileOverlay {
@@ -239,11 +248,21 @@
 			}
 		}
 	}
+	.settingsItemsTitle {
+		color: var(--secondary-font, #a3a3a3);
+		font-family: var(--primary-font-family);
+		font-size: 12px;
+		font-style: normal;
+		font-weight: 500;
+		line-height: normal;
+	}
 	.settingsItems {
-		width: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 1px;
+		gap: 2px;
+		max-height: 300px;
+		width: 100%;
+		overflow-y: scroll;
 
 		.settingItem {
 			display: flex;
@@ -352,7 +371,7 @@
 		}
 
 		span {
-			color: var(--background-color, #121212);
+			color: var(--font-primary-color, #121212);
 			font-family: var(--primary-font-family);
 			font-size: 12px;
 			font-style: normal;
@@ -380,26 +399,27 @@
 		padding: 14px;
 		gap: 12px;
 		width: 320px;
-		
+
 		.userInfo {
 			padding: 4px;
 			gap: 6px;
-			
-			.profileImg, .nameInitials {
+
+			.profileImg,
+			.nameInitials {
 				width: 32px;
 				height: 32px;
 			}
-			
+
 			.nameInitials {
 				font-size: 12px;
 			}
-			
+
 			.workspaceImage {
 				width: 18px;
 				left: 24px;
 				top: 24px;
 			}
-			
+
 			.userInfoDetails {
 				.nameAndRole {
 					.fullName {
@@ -414,82 +434,82 @@
 				}
 			}
 		}
-		
+
 		.settingsPlans {
 			width: 100%;
 			padding: 12px 0;
 			gap: 8px;
-			
+
 			.settingCurrentPlan {
 				padding: 0 16px;
-				
+
 				.settingPlanName {
 					font-size: 16px;
 				}
-				
+
 				.settingsUpgrade {
 					height: 28px;
 					padding: 4px 12px;
 					font-size: 12px;
 				}
 			}
-			
+
 			.settingsDivider {
 				width: calc(100% - 32px);
 			}
-			
+
 			.settingsCredits {
 				padding: 0 16px;
-				
+
 				.settingsCreditsLeft {
 					height: 28px;
 					padding: 4px 0;
 					gap: 8px;
-					
+
 					.settingsCreditsTitle {
 						font-size: 12px;
 					}
 				}
-				
+
 				.settingsCreditsCount {
 					height: 28px;
 					padding: 4px 0;
-					
+
 					.settingsCreditsLeftCount {
 						font-size: 12px;
 					}
 				}
 			}
 		}
-		
+
 		.settingsItems {
 			gap: 4px;
-			
+
 			.settingItem {
 				padding: 8px 10px;
 				min-height: 36px;
 				gap: 8px;
-				
+
 				.settingItemLabel {
 					font-size: 12px;
 				}
 			}
 		}
-		
+
 		.switchWorkspaceAndLogoutContainer {
 			gap: 6px;
-			
+
 			.switchWorkspaceButton {
 				padding: 8px 10px;
 				font-size: 12px;
 			}
-			
+
 			.logoutButton {
 				padding: 8px 10px;
 				font-size: 12px;
 			}
 		}
-		
+
 		.downloadMacAppButton {
 			padding: 8px 12px;
 			font-size: 12px;
@@ -503,26 +523,27 @@
 		padding: 12px;
 		gap: 10px;
 		width: 300px;
-		
+
 		.userInfo {
 			padding: 2px;
 			gap: 4px;
-			
-			.profileImg, .nameInitials {
+
+			.profileImg,
+			.nameInitials {
 				width: 28px;
 				height: 28px;
 			}
-			
+
 			.nameInitials {
 				font-size: 11px;
 			}
-			
+
 			.workspaceImage {
 				width: 16px;
 				left: 20px;
 				top: 20px;
 			}
-			
+
 			.userInfoDetails {
 				.nameAndRole {
 					.fullName {
@@ -537,81 +558,81 @@
 				}
 			}
 		}
-		
+
 		.settingsPlans {
 			padding: 10px 0;
 			gap: 6px;
-			
+
 			.settingCurrentPlan {
 				padding: 0 12px;
-				
+
 				.settingPlanName {
 					font-size: 14px;
 				}
-				
+
 				.settingsUpgrade {
 					height: 24px;
 					padding: 2px 8px;
 					font-size: 11px;
 				}
 			}
-			
+
 			.settingsDivider {
 				width: calc(100% - 24px);
 			}
-			
+
 			.settingsCredits {
 				padding: 0 12px;
-				
+
 				.settingsCreditsLeft {
 					height: 24px;
 					padding: 2px 0;
 					gap: 6px;
-					
+
 					.settingsCreditsTitle {
 						font-size: 11px;
 					}
 				}
-				
+
 				.settingsCreditsCount {
 					height: 24px;
 					padding: 2px 0;
-					
+
 					.settingsCreditsLeftCount {
 						font-size: 11px;
 					}
 				}
 			}
 		}
-		
+
 		.settingsItems {
 			gap: 2px;
-			
+
 			.settingItem {
 				padding: 6px 8px;
 				min-height: 32px;
 				gap: 6px;
-				
+
 				.settingItemLabel {
 					font-size: 11px;
 				}
 			}
 		}
-		
+
 		.switchWorkspaceAndLogoutContainer {
 			gap: 4px;
-			
+
 			.switchWorkspaceButton {
 				padding: 6px 8px;
 				font-size: 11px;
 			}
-			
+
 			.logoutButton {
 				padding: 6px 8px;
 				font-size: 11px;
 			}
 		}
-		
+
 		.downloadMacAppButton {
 			padding: 6px 10px;
 			font-size: 11px;
@@ -628,12 +649,21 @@
 		bottom: 0;
 		width: 100%;
 		height: 100vh;
-		background: var(--navbar, #141415);
+		background: rgba(20, 20, 21, 0.85); /* Semi-transparent for mobile */
 		border: none;
 		border-radius: 0;
 		padding: 14px 16px;
 		overflow: hidden;
 		z-index: 10001;
+
+		/* Enhanced backdrop filter for mobile */
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+		backdrop-filter: blur(20px) saturate(180%);
+
+		/* Fallback for mobile browsers */
+		@supports not (backdrop-filter: blur(20px)) {
+			background: rgba(20, 20, 21, 0.95);
+		}
 	}
 
 	.mobileOverlay {
@@ -643,7 +673,16 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: var(--navbar, #141415);
+		background: rgba(20, 20, 21, 0.6); /* Semi-transparent overlay */
+
+		/* Backdrop filter for overlay */
+		-webkit-backdrop-filter: blur(10px);
+		backdrop-filter: blur(10px);
+
+		/* Fallback for unsupported browsers */
+		@supports not (backdrop-filter: blur(10px)) {
+			background: rgba(20, 20, 21, 0.8);
+		}
 	}
 
 	.mobileSheet {
@@ -653,13 +692,22 @@
 		right: 0;
 		width: 100%;
 		height: 100%;
-		background: var(--navbar, #141415);
+		background: rgba(20, 20, 21, 0.85); /* Semi-transparent for mobile sheet */
 		border-left: 1px solid var(--dividers, #1e1f20);
 		transform: translateX(100%);
 		animation: slideInRight 0.3s ease-out forwards;
-		will-change: transform;
+		will-change: transform, backdrop-filter;
 		overflow-y: auto;
 		padding: 14px 16px;
+
+		/* Enhanced backdrop filter for mobile sheet */
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+		backdrop-filter: blur(20px) saturate(180%);
+
+		/* Fallback for mobile browsers */
+		@supports not (backdrop-filter: blur(20px)) {
+			background: rgba(20, 20, 21, 0.95);
+		}
 	}
 
 	.settingsContainer .mobileHeader {
@@ -678,7 +726,6 @@
 		display: none;
 	}
 }
-
 
 @keyframes slideInRight {
 	from {

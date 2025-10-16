@@ -51,6 +51,13 @@
 			href="/src/assets/scss/global.scss"
 			onload="this.rel='stylesheet'"
 		/>
+		<!-- REMOVED: All glass effect stylesheet preloads -->
+		<!-- Glass effects are now ONLY controlled by glass-mode.scss when .glass-mode-enabled class is present -->
+		<link
+			rel="stylesheet"
+			href="/src/assets/scss/antd-translucency.scss"
+			onload="this.rel='stylesheet'"
+		/>
 		<link rel="preload" as="style" href="/src/index.css" onload="this.rel='stylesheet'" />
 
 		<!-- Adaptive theme‑color for address‑bar tinting -->
@@ -180,12 +187,55 @@
 				/>
 				<link rel="stylesheet" href="/src/assets/fonts/generalSans/general-sans.css" />
 				<link rel="stylesheet" href="/src/assets/fonts/Inter/inter.css" />
-				<link rel="stylesheet" href="/src/assets/scss/global.scss" />
-				<link rel="stylesheet" href="/src/index.css" />
+			<link rel="stylesheet" href="/src/assets/scss/global.scss" />
+			<!-- REMOVED glass effect files - they were forcing transparency even when glass mode was OFF -->
+			<!-- Glass effects are now ONLY controlled by glass-mode.scss when .glass-mode-enabled class is present -->
+			<link rel="stylesheet" href="/src/index.css" />
 			</noscript>
 		</noscript>
 
 		<div id="root"></div>
+
+		<!-- Simplified Glass Mode System -->
+		<script>
+			// Simple glass mode initialization - CSS handles the rest
+			function initializeGlassMode() {
+				// Ensure main elements are transparent when glass mode is enabled
+				const ensureTransparency = () => {
+					const isGlassModeEnabled =
+						localStorage.getItem('glassModeEnabled') === 'true' ||
+						document.documentElement.classList.contains('glass-mode-enabled');
+
+					if (isGlassModeEnabled) {
+						const mainElements = ['html', 'body', '#root'];
+						mainElements.forEach((selector) => {
+							const element = document.querySelector(selector);
+							if (element) {
+								element.style.background = 'transparent';
+								element.style.backgroundColor = 'transparent';
+							}
+						});
+					}
+				};
+
+				// Apply transparency on load
+				ensureTransparency();
+
+				// Monitor for glass mode class changes
+				const observer = new MutationObserver(() => {
+					ensureTransparency();
+				});
+
+				observer.observe(document.documentElement, {
+					attributes: true,
+					attributeFilter: ['class'],
+				});
+				console.log('Simplified glass mode system initialized');
+			}
+
+			// Initialize when DOM is ready
+			document.addEventListener('DOMContentLoaded', initializeGlassMode);
+		</script>
 
 		<!-- Main bundle -->
 		<script type="module" src="/src/main.jsx"></script>

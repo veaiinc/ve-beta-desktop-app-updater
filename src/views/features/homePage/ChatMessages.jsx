@@ -1,4 +1,4 @@
-import { memo, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, memo, useLayoutEffect, useRef, useState } from 'react';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
 import s from '../../../assets/scss/home_page/chatMessages.module.scss';
@@ -54,11 +54,13 @@ const ChatMessages = ({ messages = [], sessionId = null }) => {
 					),
 				)}
 			</div>
-			<NoteComponentModal
-				modalIsOpen={info?.noteModalIsOpen}
-				closeModal={handleNoteComponentModalClose}
-				sessionId={sessionId}
-			/>
+			{info?.noteModalIsOpen && (
+				<NoteComponentModal
+					modalIsOpen={info?.noteModalIsOpen}
+					closeModal={handleNoteComponentModalClose}
+					sessionId={sessionId}
+				/>
+			)}
 		</>
 	);
 };

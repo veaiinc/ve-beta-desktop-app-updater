@@ -1,5 +1,53 @@
-import { createBrowserHistory } from 'history';
-const history = createBrowserHistory();
+import Cookies from 'js-cookie';
+import getBuilderSrcSharedRefreshToken from './utils/sharedTokenRefresh.js';
+
+const authBearerTypes = new Set(['form', 'design_builder_api_server']);
+
+const handleHeaders = (token, type) => {
+	const headers = { 'Content-Type': 'application/json' };
+
+	if (token) {
+		headers['x-access-token'] = token;
+		if (authBearerTypes.has(type)) {
+			headers['Authorization'] = `Bearer ${token}`;
+		}
+	}
+
+	return headers;
+};
+
+const refreshAccessTokenAndRetry = async (requestData) => {
+	const refreshResult = await getBuilderSrcSharedRefreshToken();
+
+	// If refresh failed, return the error
+	if (!refreshResult.success) {
+		return [false, refreshResult.refreshTokenResponse, refreshResult.status];
+	}
+
+	// If refresh succeeded, retry the original request with new token
+	const { endpoint, method, body, type } = requestData;
+	const headers = handleHeaders(refreshResult.accessToken, type);
+	const resp = await fetch(endpoint, { method, headers, body });
+	const success = resp.status >= 200 && resp.status < 300;
+	const data = await resp.json();
+	const status = resp.status;
+	return [success, data, status];
+};
+
+const processResponse = async (response, requestData) => {
+	const jsonData = await response.json();
+	const responseStatus = response.status;
+	if (responseStatus >= 200 && responseStatus < 300) {
+		return [true, jsonData, responseStatus];
+	} else if (responseStatus === 401 && jsonData.message === 'jwt expired') {
+		const [success, data, status] = await refreshAccessTokenAndRetry(requestData);
+		return [success, data, status];
+	} else if (responseStatus === 500) {
+		return [false, jsonData, responseStatus];
+	} else {
+		return [false, jsonData, responseStatus];
+	}
+};
 
 import {
 	proposal_api_server,
@@ -56,233 +104,174 @@ const apiEndPointMapperUS = {
 
 const Service = {
 	fetchGet: async (url, token = null, type = null, body = null) => {
-		let URL;
-		const region = localStorage.getItem('region') || 'us-east-1';
-		if (region === 'ap-south-1') {
-			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
-		} else {
-			URL =
-				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
-				url;
-		}
-
-		const headers = { 'Content-Type': 'application/json' };
-		if (token) {
-			if (type === 'form') {
-				headers['Authorization'] = `Bearer ${token}`;
-			} else {
-				headers['x-access-token'] = token;
-			}
-		}
-		if (body) {
-			headers['body'] = JSON.stringify(body);
-		}
 		try {
-			const res = await fetch(URL, { method: 'GET', headers: headers });
-			const ress = await res.json();
+			const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
+			let baseUrl;
 
-			if (res.status >= 200 && res.status < 400) {
-				return [true, ress];
-			} else if (res.status === 401) {
-				onUserKickedOut();
-				return false;
-			} else if (res.status === 403) {
-				history.replace(`/${history.location.pathname.split('/')[1]}/access-denied`);
-				return [false];
-			} else if (res.status >= 400) {
-				return [res.status, ress];
+			if (region === 'ap-south-1') {
+				baseUrl = apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server;
 			} else {
-				onFailure('server', url);
-				return false;
+				baseUrl = apiEndPointMapperUS?.[type]
+					? apiEndPointMapperUS?.[type]
+					: images_api_server_US;
 			}
-		} catch (e) {
-			onFailure('network', url);
-			return false;
+
+			const endpoint = baseUrl + url;
+			const headers = handleHeaders(token, type);
+
+			if (body) {
+				headers['body'] = JSON.stringify(body);
+			}
+
+			const response = await fetch(endpoint, { method: 'GET', headers });
+			const requestData = { endpoint, method: 'GET', headers, body, type };
+			const [success, data, status] = await processResponse(response, requestData);
+			return [success, data, status];
+		} catch (error) {
+			console.log('Api Failed: ' + error.message);
+			return [false, { message: error.message }, 500];
 		}
 	},
 
 	fetchPost: async (url, body, token = null, type = null) => {
-		let URL;
-
-		const region = localStorage.getItem('region') || 'us-east-1';
-		if (region === 'ap-south-1') {
-			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
-		} else {
-			URL =
-				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
-				url;
-		}
-
-		const headers = { 'Content-Type': 'application/json' };
-		if (token) {
-			if (type === 'form' || type === 'design_builder_api_server') {
-				headers['Authorization'] = `Bearer ${token}`;
-			} else {
-				headers['x-access-token'] = token;
-			}
-		}
-
 		try {
-			const res = await fetch(URL, {
+			const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
+			let baseUrl;
+
+			if (region === 'ap-south-1') {
+				baseUrl = apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server;
+			} else {
+				baseUrl = apiEndPointMapperUS?.[type]
+					? apiEndPointMapperUS?.[type]
+					: images_api_server_US;
+			}
+
+			const endpoint = baseUrl + url;
+			const headers = handleHeaders(token, type);
+
+			const response = await fetch(endpoint, {
 				method: 'POST',
-				headers: headers,
+				headers,
 				body: JSON.stringify(body),
 			});
-			const ress = await res.json();
 
-			if (res.status >= 200 && res.status < 400) {
-				return [true, ress];
-			} else if (
-				(res.status === 403 || res.status === 401) &&
-				url !== '/login-with-password' &&
-				url !== '/request-password-reset' &&
-				url !== '/verify-password-reset' &&
-				url !== '/verify-email-address'
-			) {
-				onUserKickedOut();
-				return false;
-			} else if (res.status >= 400) {
-				return [res.status, ress];
-			}
-		} catch (e) {
-			return false;
+			const requestData = { endpoint, method: 'POST', headers, body, type };
+			const [success, data, status] = await processResponse(response, requestData);
+			return [success, data, status];
+		} catch (error) {
+			console.log('Api Failed: ' + error.message);
+			return [false, { message: error.message }, 500];
 		}
 	},
 
 	fetchPut: async (url, body, token = null, type = null) => {
-		let URL;
-
-		const region = localStorage.getItem('region') || 'use-east-1';
-		if (region === 'ap-south-1') {
-			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
-		} else {
-			URL =
-				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
-				url;
-		}
-
-		const headers = { 'Content-Type': 'application/json' };
-		if (token) {
-			if (type === 'form') {
-				headers['Authorization'] = `Bearer ${token}`;
-			} else {
-				headers['x-access-token'] = token;
-			}
-		}
 		try {
-			const res = await fetch(URL, {
+			const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
+			let baseUrl;
+
+			if (region === 'ap-south-1') {
+				baseUrl = apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server;
+			} else {
+				baseUrl = apiEndPointMapperUS?.[type]
+					? apiEndPointMapperUS?.[type]
+					: images_api_server_US;
+			}
+
+			const endpoint = baseUrl + url;
+			const headers = handleHeaders(token, type);
+
+			const response = await fetch(endpoint, {
 				method: 'PUT',
-				headers: headers,
+				headers,
 				body: JSON.stringify(body),
 			});
-			const ress = await res.json();
-			if (res.status >= 200 && res.status < 400) {
-				return [true, ress];
-			} else if (res.status === 401) {
-				onUserKickedOut();
-				return false;
-			} else if (res.status >= 400) {
-				return [res.status, ress];
-			}
-		} catch (e) {
-			return false;
+
+			const requestData = { endpoint, method: 'PUT', headers, body, type };
+			const [success, data, status] = await processResponse(response, requestData);
+			return [success, data, status];
+		} catch (error) {
+			console.log('Api Failed: ' + error.message);
+			return [false, { message: error.message }, 500];
 		}
 	},
 
 	fetchDelete: async (url, token = null, body = null, type = null) => {
-		let URL;
-
-		const region = localStorage.getItem('region') || 'use-east-1';
-		if (region === 'ap-south-1') {
-			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
-		} else {
-			URL =
-				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
-				url;
-		}
-		const headers = { 'Content-Type': 'application/json' };
-		if (token) {
-			if (type === 'form') {
-				headers['Authorization'] = `Bearer ${token}`;
-			} else {
-				headers['x-access-token'] = token;
-			}
-		}
-		if (type === 'proposal') {
-			headers['x-api-key'] = 'MEayJjUZQ9DedOGVbSBA6d5ovx6REAIh';
-		}
 		try {
-			let json = {
+			const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
+			let baseUrl;
+
+			if (region === 'ap-south-1') {
+				baseUrl = apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server;
+			} else {
+				baseUrl = apiEndPointMapperUS?.[type]
+					? apiEndPointMapperUS?.[type]
+					: images_api_server_US;
+			}
+
+			const endpoint = baseUrl + url;
+			const headers = handleHeaders(token, type);
+
+			if (type === 'proposal') {
+				headers['x-api-key'] = 'MEayJjUZQ9DedOGVbSBA6d5ovx6REAIh';
+			}
+
+			let options = {
 				method: 'DELETE',
-				headers: headers,
+				headers,
 			};
 
 			if (body != null) {
-				json = {
-					...json,
-					body: JSON.stringify(body),
-				};
+				options.body = JSON.stringify(body);
 			}
 
-			const res = await fetch(URL, json);
-			const ress = await res.json();
-			if (res.status >= 200 && res.status < 400) {
-				return [true, ress];
-			} else if (res.status === 401) {
-				onUserKickedOut();
-				return false;
-			} else if (res.status >= 400) {
-				return [res.status, ress];
-			}
-		} catch (e) {
-			return false;
+			const response = await fetch(endpoint, options);
+			const requestData = { endpoint, ...options, type };
+			const [success, data, status] = await processResponse(response, requestData);
+			return [success, data, status];
+		} catch (error) {
+			console.log('Api Failed: ' + error.message);
+			return [false, { message: error.message }, 500];
 		}
 	},
 
 	fetchPostFiles: async (url, body, token = null, type = null) => {
-		let URL;
-
-		const region = localStorage.getItem('region') || 'use-east-1';
-		if (region === 'ap-south-1') {
-			URL = (apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server) + url;
-		} else {
-			URL =
-				(apiEndPointMapperUS?.[type] ? apiEndPointMapperUS?.[type] : images_api_server_US) +
-				url;
-		}
-		const headers = {};
-		if (token) {
-			if (type === 'form') {
-				headers['Authorization'] = `Bearer ${token}`;
-			} else {
-				headers['x-access-token'] = token;
-			}
-		}
 		try {
-			const res = await fetch(URL, {
-				method: 'POST',
-				headers: headers,
-				body: body,
-			});
-			const ress = await res.json();
-			if (res.status >= 200 && res.status < 400) {
-				return [true, ress];
-			} else if (res.status >= 400) {
-				return [false, ress];
+			const region = Cookies.get('region') ?? localStorage.getItem('region') ?? 'us-east-1';
+			let baseUrl;
+
+			if (region === 'ap-south-1') {
+				baseUrl = apiEndPointMapper?.[type] ? apiEndPointMapper?.[type] : images_api_server;
+			} else {
+				baseUrl = apiEndPointMapperUS?.[type]
+					? apiEndPointMapperUS?.[type]
+					: images_api_server_US;
 			}
-		} catch (e) {
-			return false;
+
+			const endpoint = baseUrl + url;
+			const headers = {};
+
+			if (token) {
+				if (type === 'form') {
+					headers['Authorization'] = `Bearer ${token}`;
+				} else {
+					headers['x-access-token'] = token;
+				}
+			}
+
+			const response = await fetch(endpoint, {
+				method: 'POST',
+				headers,
+				body,
+			});
+
+			const requestData = { endpoint, method: 'POST', headers, body, type };
+			const [success, data, status] = await processResponse(response, requestData);
+			return [success, data, status];
+		} catch (error) {
+			console.log('Api Failed: ' + error.message);
+			return [false, { message: error.message }, 500];
 		}
 	},
-};
-
-const onFailure = async (res, url) => {
-	//alert(res.type);
-};
-
-const onUserKickedOut = async (res, url) => {
-	// localStorage.removeItem('usertoken');
-	// window.location.reload();
 };
 
 export default Service;

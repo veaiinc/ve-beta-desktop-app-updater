@@ -1,0 +1,65 @@
+/**
+ * DragHandle Styles
+ * Provides a simple drag bar at the top of the Electron window
+ * Uses -webkit-app-region: drag for native Electron window dragging
+ * Simple drag bar that spans the full width
+ */
+
+.drag-handle-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 12px; /* Cover the drag bar area */
+
+	z-index: 2147483647; /* Maximum z-index to ensure drag bar is above all other content */
+}
+
+/* Simple drag bar at the top */
+.drag-bar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 12px;
+	pointer-events: auto; /* Enable pointer events for this element */
+
+	/* Electron drag region - this enables window dragging */
+	-webkit-app-region: drag;
+
+	/* Smooth transitions for cursor changes */
+	transition: background-color 0.2s ease;
+
+	/* Center the icon */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	/* Cursor styling */
+	cursor: grab;
+	cursor: -webkit-grab;
+	cursor: -moz-grab;
+}
+
+/* GripVertical icon styling */
+.drag-icon {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+
+	/* Icon appearance/disappearance with smooth transitions */
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.3s ease;
+
+	/* Icon styling */
+	color: white;
+	pointer-events: none; /* Prevent icon from interfering with drag */
+
+	/* Show icon when visible class is applied */
+	&.drag-icon--visible {
+		opacity: 1;
+		visibility: visible;
+	}
+}

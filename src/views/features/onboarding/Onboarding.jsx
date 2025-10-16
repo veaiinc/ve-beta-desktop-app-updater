@@ -1,13 +1,14 @@
 import { memo, useContext, useEffect, useState } from 'react';
 import '../../../assets/scss/onboarding/index.scss';
 import OnboardingStepper from './OnboardingStepper';
-import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
-import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
+// import { ReactComponent as DarkModeGradient } from '../../../assets/svg/onboarding/dark-mode-gradient.svg';
+// import { ReactComponent as LightModeGradient } from '../../../assets/svg/onboarding/light-mode-gradient.svg';
 import Context from '../../../context/context';
 import { ReactComponent as VeLogo } from '../../../assets/svg/veLogo.svg';
-import LoginDescription from '../../components/login_page/LoginDescription';
-import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
-import logout from '../../../helpers/logout';
+import { useNavigate } from 'react-router-dom';
+// import LoginDescription from '../../components/login_page/LoginDescription';
+// import { ReactComponent as LogoutRedSvg } from '../../../assets/svg/sidebar/logout_red.svg';
+// import logout from '../../../helpers/logout';
 
 const aboutVe = `Hi! Welcome to VEAI, you can give me access to everything from your Slack, Google Drive files, Calendar, Notion documents, and Salesforce. I'll help you get answers from data you don't have the time or energy to go through, help find connections between points in multiple different documents, record and summarize meetings you join (or the ones you skip).`;
 
@@ -23,7 +24,7 @@ const Onboarding = () => {
 		themeInfo: { theme },
 	} = useContext(Context);
 	const [currentStep, setCurrentStep] = useState(1);
-
+	const navigate = useNavigate();
 	const isDarkMode =
 		theme === 'systemDefault'
 			? window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -34,13 +35,17 @@ const Onboarding = () => {
 		animateFadeIn(selector);
 	}, []);
 
+	const handleLogoClick = () => {
+		navigate('/new-chat');
+	};
+
 	return (
 		<div className={`onboardingContainer`}>
 			<div className="onboarding-page-container">
 				<div className="main-content-container onboarding-child-container">
 					<div className="header-container">
 						<div className="logo">
-							<VeLogo />
+							<VeLogo onClick={handleLogoClick} style={{ cursor: 'pointer' }} />
 						</div>
 					</div>
 					<div className="content-container">
@@ -49,9 +54,9 @@ const Onboarding = () => {
 						</div>
 					</div>
 				</div>
-				<div className="description-section onboarding-child-container">
+				{/* <div className="description-section onboarding-child-container">
 					<LoginDescription />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

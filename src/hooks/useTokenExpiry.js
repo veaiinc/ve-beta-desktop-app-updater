@@ -24,26 +24,19 @@ const useTokenExpiry = () => {
 				const response = await getNewAccessToken();
 				const success = response?.[0];
 				if (success) {
-					const { tokens } = response?.[1];
+					const { tokens } = response?.[1] || {};
 					const newAccessToken = tokens.accessToken;
 					const newAccessTokenExpiry = tokens.accessTokenExpiry;
-					const newRefreshTokenExpiry = tokens.refreshTokenExpiry;
 					const host = fetchDomainName();
 
 					localStorage.setItem('usertoken', newAccessToken);
 					localStorage.setItem('accessTokenExpiry', newAccessTokenExpiry);
-					localStorage.setItem('refreshTokenExpiry', newRefreshTokenExpiry);
 
 					Cookies.set('usertoken', newAccessToken, {
 						sameSite: 'lax',
 						domain: host,
 					});
-
 					Cookies.set('accessTokenExpiry', newAccessTokenExpiry, {
-						sameSite: 'lax',
-						domain: host,
-					});
-					Cookies.set('refreshTokenExpiry', newRefreshTokenExpiry, {
 						sameSite: 'lax',
 						domain: host,
 					});

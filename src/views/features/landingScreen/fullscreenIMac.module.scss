@@ -1,0 +1,11 @@
+.fullscreenIMac {
+	top: 0;
+	left: 0;
+	scale: 5;
+	z-index: 9999; // Above everything including header
+	opacity: 0;
+	pointer-events: none;
+	display: block; // Always display, control with opacity
+	transform-origin: center center; // Ensure scaling happens from center
+	will-change: transform, opacity; // Optimize for animations
+}

@@ -9,7 +9,7 @@
 	.error-message {
 		position: absolute;
 		top: -24px;
-		color: #d1243f;
+		color: var(--error, #d1243f);
 		font-family: var(--secondary-font-family);
 		font-size: 12px;
 		font-style: normal;
@@ -34,12 +34,12 @@
 			.otp-input {
 				outline: none;
 				border-radius: 12px;
-				border: 1px solid grey;
+				border: 1px solid #ababab38;
 				// background: var(--card);
 				width: 60px;
 				height: 60px;
 				// color: var(--primary-font);
-				color: black;
+				color: var(--primary-font, #f2f2f3);
 				text-align: center;
 
 				// Corrected padding
@@ -47,8 +47,8 @@
 				font-size: 16px;
 
 				&:focus {
-					border-color: grey;
-					box-shadow: 0 0 0 2px rgba(5, 147, 255, 0.052);
+					border-color: var(--stroke, #2e2f30);
+					box-shadow: 0 0 0 2px var(--primary-button, #34ad9b);
 				}
 			}
 		}

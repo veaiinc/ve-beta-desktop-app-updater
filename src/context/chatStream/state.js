@@ -1,6 +1,7 @@
 import { useReducer, useRef, useCallback } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Cookies from 'js-cookie';
+import getSharedRefreshToken from '../../services/utils/sharedTokenRefresh';
 
 export const initialChatStreamState = {};
 
@@ -19,6 +20,7 @@ export const ChatStreamState = () => {
 	const socketsInfoRef = useRef({});
 	const inactivityTimeoutsRef = useRef({});
 	const currentSessionIdRef = useRef(null);
+	const fetchingAccessTokenRef = useRef(false);
 	const MAX_RETRY_ATTEMPTS = 6;
 
 	// Helper function to reset the inactivity timer
@@ -43,6 +45,7 @@ export const ChatStreamState = () => {
 				...(onMessageFunc && { onMessageFunc }),
 				isPublicChat,
 			};
+			console.log(sessionId, socketRefs.current[sessionId], 'socketRefs.current[sessionId]');
 			return new Promise((resolve, reject) => {
 				let attempts = 0;
 
@@ -107,8 +110,26 @@ export const ChatStreamState = () => {
 	);
 	const createWebSocketConnection = useCallback(
 		async ({ sessionId, onMessageFunc, agentType, isPublicChat = false }) => {
-			if (!sessionId) {
+			if (!sessionId || fetchingAccessTokenRef.current) {
 				return;
+			}
+
+			const accessTokenExpiry =
+				(JSON.parse(localStorage.getItem('accessTokenExpiry')) ?? 0) - 10;
+
+			if (accessTokenExpiry < Math.floor(Date.now() / 1000)) {
+				let response = null;
+				try {
+					fetchingAccessTokenRef.current = true;
+					response = await getSharedRefreshToken();
+				} catch {
+					console.log('Api for new refresh token is failed');
+				} finally {
+					fetchingAccessTokenRef.current = false;
+				}
+				if (!response?.success) {
+					return;
+				}
 			}
 
 			currentSessionIdRef.current = sessionId;
@@ -116,6 +137,8 @@ export const ChatStreamState = () => {
 			if (socketRefs.current[sessionId]) {
 				return;
 			}
+
+			console.log(sessionId, 'sessionId');
 
 			const agent = agentTypeMap[agentType] || 'multi_agent_chat_streaming';
 
@@ -159,7 +182,13 @@ export const ChatStreamState = () => {
 
 			socketRefs.current[sessionId].onerror = (e) => {
 				console.log('Error from socket', e);
-				socketRefs.current[sessionId].close();
+				try {
+					if (socketRefs.current[sessionId].readyState !== WebSocket.CLOSED) {
+						socketRefs.current[sessionId].close();
+					}
+				} catch (_) {
+					console.log('Failed to close server on socket error');
+				}
 			};
 
 			socketRefs.current[sessionId].onmessage = (event) => {

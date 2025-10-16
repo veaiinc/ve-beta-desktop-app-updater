@@ -7,14 +7,14 @@ import Context from '../../../context/context';
 // components
 import Settings from './components/settings/Settings';
 import Notifications from './components/notifications/Notifications';
-import FilesTooltip from './components/filesTooltip/FilesTooltip';
-import ToolsTooltip from './components/toolsTooltip/ToolsTooltip';
+// import FilesTooltip from './components/filesTooltip/FilesTooltip';
+// import ToolsTooltip from './components/toolsTooltip/ToolsTooltip';
 import ShareAndEarnModal from '../../features/shareAndEarn/ShareAndEarnModal';
 import { Tooltip } from 'antd';
 
 // svg icons
-import { ReactComponent as LightMode } from './assets/light-mode.svg';
-import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
+// import { ReactComponent as LightMode } from './assets/light-mode.svg';
+// import { ReactComponent as DarkMode } from './assets/dark-mode.svg';
 import { ReactComponent as NotificationsSvg } from './assets/notification.svg';
 import { ReactComponent as ShareAndEarnSvg } from './assets/share-and-earn.svg';
 import { ReactComponent as MenuSvg } from '../../../assets/svg/mobile/menu.svg';
@@ -32,15 +32,17 @@ const tooltipStyle = {
 };
 
 const baseLeftContainerItems = [
-	{
-		id: 1,
-		label: 'Priority',
-		route: '/home',
-	},
+	// {
+	// 	id: 1,
+	// 	label: 'Proactive AI',
+	// 	route: '/home',
+	// 	showBetaBadge: true,
+	// },
 	{
 		id: 2,
 		label: 'Meetings',
 		route: '/meet',
+		showBetaBadge: false,
 	},
 	{
 		id: 3,
@@ -50,25 +52,27 @@ const baseLeftContainerItems = [
 			</>
 		),
 		route: '/chats',
+		type: 'chat',
+		showBetaBadge: false,
 	},
-	{
-		id: 4,
-		label: 'Agents',
-		route: '/agents',
-		showBetaBadge: true,
-	},
-	{
-		id: 5,
-		label: 'Vault',
-		route: '/files',
-		showBetaBadge: true,
-	},
-	{
-		id: 6,
-		label: 'Tools',
-		route: '/home',
-		showBetaBadge: true,
-	},
+	// {
+	// 	id: 4,
+	// 	label: 'Agents',
+	// 	route: '/agents',
+	// 	showBetaBadge: true,
+	// },
+	// {
+	// 	id: 5,
+	// 	label: 'Vault',
+	// 	route: '/files',
+	// 	showBetaBadge: true,
+	// },
+	// {
+	// 	id: 6,
+	// 	label: 'Tools',
+	// 	route: '/tools',
+	// 	showBetaBadge: true,
+	// },
 ];
 
 const activeNavItemMap = {
@@ -92,7 +96,8 @@ const TopNavbar = () => {
 		pathname.includes('agent/') ||
 		pathname.includes('note/') ||
 		pathname.includes('meet/') ||
-		pathname.includes('chat/');
+		pathname.includes('chat/') ||
+		pathname.includes('ongoing-meeting');
 
 	const {
 		profileInfo: {
@@ -138,7 +143,7 @@ const TopNavbar = () => {
 				(item) =>
 					item.label !== 'Vault' &&
 					item.label !== 'Tools' &&
-					item.label !== 'Priority' &&
+					item.label !== 'Proactive AI' &&
 					item.label !== 'Agents',
 			);
 		}
@@ -270,6 +275,9 @@ const TopNavbar = () => {
 					arrow={false}
 					color={'transparent'}
 					rootClassName={s.topNavbarSettings}
+					style={{
+						backdropFilter: 'blur(20px)',
+					}}
 				>
 					<div className={s.creditsLeftContainer}>
 						<CreditsLeftSvg
@@ -319,6 +327,9 @@ const TopNavbar = () => {
 					arrow={false}
 					color={'transparent'}
 					rootClassName={s.topNavbarNotifications}
+					style={{
+						backdropFilter: 'blur(20px)',
+					}}
 				>
 					<div className={s.creditsLeftContainer}>
 						<NotificationsSvg />
@@ -358,101 +369,100 @@ const TopNavbar = () => {
 			element: (
 				<ul className={s.leftContainer}>
 					{info.activeMode !== 3
-						? leftContainerItems.map((navItem, index) =>
-								navItem.id === 5 ? (
-									<Tooltip
-										open={info.filesTooltipOpen}
-										onOpenChange={() =>
-											setInfo((prev) => ({
-												...prev,
-												filesTooltipOpen: !prev.filesTooltipOpen,
-												toolsTooltipOpen: false,
-												settingsTooltipOpen: false,
-											}))
-										}
-										key={`tooltip1-${navItem.id}-${index}`}
-										title={
-											<FilesTooltip
-												closeTooltip={() =>
-													setInfo((prev) => ({
-														...prev,
-														filesTooltipOpen: false,
-														toolsTooltipOpen: false,
-														settingsTooltipOpen: false,
-													}))
-												}
-											/>
-										}
-										placement="bottom"
-										arrow={false}
-										color={'transparent'}
-										rootClassName={s.topNavbarSettings}
-									>
-										<li
-											className={`${s.navItem} ${s.profileItem} ${
-												pathname.includes('/files') ? s.active : ''
-											}`}
-											onClick={() =>
-												handleNavigation({
-													navItemId: navItem.id,
-													route: navItem.route,
-												})
-											}
-										>
-											{navItem.label}{' '}
-											{navItem.showBetaBadge && (
-												<span className={s.betaBadge}>Beta</span>
-											)}
-										</li>
-									</Tooltip>
-								) : navItem.id === 6 ? (
-									<Tooltip
-										open={info.toolsTooltipOpen}
-										onOpenChange={() =>
-											setInfo((prev) => ({
-												...prev,
-												toolsTooltipOpen: !prev.toolsTooltipOpen,
-											}))
-										}
-										title={
-											<ToolsTooltip
-												closeTooltip={() =>
-													setInfo((prev) => ({
-														...prev,
-														toolsTooltipOpen: false,
-														settingsTooltipOpen: false,
-														filesTooltipOpen: false,
-													}))
-												}
-											/>
-										}
-										placement="bottom"
-										arrow={false}
-										color={'transparent'}
-										rootClassName={s.topNavbarSettings}
-										key={`tooltip2-${navItem.id}-${index}`}
-									>
-										<li
-											onClick={() => {
-												navigate('/tools');
-												setInfo((prev) => ({
-													...prev,
-													toolsTooltipOpen: false,
-													settingsTooltipOpen: false,
-													filesTooltipOpen: false,
-												}));
-											}}
-											className={`${s.navItem} ${s.profileItem} ${
-												pathname.includes('/tools') ? s.active : ''
-											}`}
-										>
-											{navItem.label}{' '}
-											{navItem.showBetaBadge && (
-												<span className={s.betaBadge}>Beta</span>
-											)}
-										</li>
-									</Tooltip>
-								) : (
+						? leftContainerItems.map(
+								(navItem, index) => (
+									// navItem.id === 5 ? (
+									// 	<Tooltip
+									// 		open={info.filesTooltipOpen}
+									// 		onOpenChange={() =>
+									// 			setInfo((prev) => ({
+									// 				...prev,
+									// 				filesTooltipOpen: !prev.filesTooltipOpen,
+									// 				toolsTooltipOpen: false,
+									// 				settingsTooltipOpen: false,
+									// 			}))
+									// 		}
+									// 		key={`tooltip1-${navItem.id}-${index}`}
+									// 		title={
+									// 			<FilesTooltip
+									// 				closeTooltip={() =>
+									// 					setInfo((prev) => ({
+									// 						...prev,
+									// 						filesTooltipOpen: false,
+									// 						toolsTooltipOpen: false,
+									// 						settingsTooltipOpen: false,
+									// 					}))
+									// 				}
+									// 			/>
+									// 		}
+									// 		placement="bottom"
+									// 		arrow={false}
+									// 		color={'transparent'}
+									// 		rootClassName={s.topNavbarSettings}
+									// 	>
+									// 		<li
+									// 			className={`${s.navItem} ${s.profileItem} ${
+									// 				pathname.includes('/files') ? s.active : ''
+									// 			}`}
+									// 			onClick={() =>
+									// 				handleNavigation({
+									// 					navItemId: navItem.id,
+									// 					route: navItem.route,
+									// 				})
+									// 			}
+									// 		>
+									// 			{navItem.label}{' '}
+									// 			{navItem.showBetaBadge && (
+									// 				<span className={s.betaBadge}>Beta</span>
+									// 			)}
+									// 		</li>
+									// 	</Tooltip>
+									// ) : navItem.id === 6 ? (
+									// 	<Tooltip
+									// 		open={info.toolsTooltipOpen}
+									// 		onOpenChange={() =>
+									// 			setInfo((prev) => ({
+									// 				...prev,
+									// 				toolsTooltipOpen: !prev.toolsTooltipOpen,
+									// 			}))
+									// 		}
+									// 		title={
+									// 			<ToolsTooltip
+									// 				closeTooltip={() =>
+									// 					setInfo((prev) => ({
+									// 						...prev,
+									// 						toolsTooltipOpen: false,
+									// 						settingsTooltipOpen: false,
+									// 						filesTooltipOpen: false,
+									// 					}))
+									// 				}
+									// 			/>
+									// 		}
+									// 		placement="bottom"
+									// 		arrow={false}
+									// 		color={'transparent'}
+									// 		rootClassName={s.topNavbarSettings}
+									// 		key={`tooltip2-${navItem.id}-${index}`}
+									// 	>
+									// 		<li
+									// 			onClick={() => {
+									// 				navigate('/tools');
+									// 				setInfo((prev) => ({
+									// 					...prev,
+									// 					toolsTooltipOpen: false,
+									// 					settingsTooltipOpen: false,
+									// 					filesTooltipOpen: false,
+									// 				}));
+									// 			}}
+									// 			className={`${s.navItem} ${s.profileItem}`}
+									// 		>
+									// 			{navItem.label}{' '}
+									// 			{navItem.showBetaBadge && (
+									// 				<span className={s.betaBadge}>Beta</span>
+									// 			)}
+									// 		</li>
+									// 	</Tooltip>
+									// ) : (
 									<li
 										className={`${s.navItem} ${
 											info.activeNavItem === navItem.id ? s.active : ''
@@ -471,6 +481,7 @@ const TopNavbar = () => {
 										)}
 									</li>
 								),
+								// ),
 						  )
 						: null}
 				</ul>
@@ -491,7 +502,7 @@ const TopNavbar = () => {
 					))}
 
 					<Tooltip
-						open={info.settingsTooltipOpen}
+						open={true || info.settingsTooltipOpen}
 						onOpenChange={() =>
 							setInfo((prev) => ({
 								...prev,
@@ -522,6 +533,9 @@ const TopNavbar = () => {
 						arrow={false}
 						color={'transparent'}
 						rootClassName={s.topNavbarSettings}
+						style={{
+							backdropFilter: 'blur(20px)',
+						}}
 					>
 						<li className={`${s.navItem} ${s.profileItem}`}>
 							{profilePicExists ? (
@@ -540,6 +554,8 @@ const TopNavbar = () => {
 		!hideTopNavbar && (
 			<>
 				<nav className={s.topNavbarContainer}>
+					{/* Draggable area for window dragging */}
+
 					{/* Mobile Menu Button */}
 					<button
 						className={s.mobileMenuButton}

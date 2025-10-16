@@ -38,7 +38,6 @@ const PricingPage = () => {
 	const paidPlanExpiredAt = new Date(currentPlan?.expiresAt * 1000).toLocaleDateString('en-GB'); // indicates the user's last paid plan's expiry date
 
 	// console.log(currentPlan);
-	console.log(subscriptionPlans);
 	useEffect(() => {
 		if (subscriptionPlans === null) {
 			setInfo((prev) => ({ ...prev, isLoading: true }));
@@ -471,8 +470,38 @@ const PricingPage = () => {
 													<div className="quantitySelectorLabel">
 														Users
 													</div>
+													{console.log(
+														info.tenantUsersCount[plan._id],
+														currentPlan?.tenantUsers,
+													)}
 													<div className="quantitySelectorControls">
 														<button
+															disabled={
+																info.tenantUsersCount[plan._id] ===
+																	undefined ||
+																info.tenantUsersCount[plan._id] ===
+																	currentPlan?.tenantUsers
+															}
+															style={{
+																opacity:
+																	info.tenantUsersCount[
+																		plan._id
+																	] === undefined ||
+																	info.tenantUsersCount[
+																		plan._id
+																	] === currentPlan?.tenantUsers
+																		? 0.5
+																		: 1,
+																cursor:
+																	info.tenantUsersCount[
+																		plan._id
+																	] === undefined ||
+																	info.tenantUsersCount[
+																		plan._id
+																	] === currentPlan?.tenantUsers
+																		? 'not-allowed'
+																		: 'pointer',
+															}}
 															onClick={() =>
 																decreaseTenantUsersCount(plan._id)
 															}
@@ -535,7 +564,7 @@ const PricingPage = () => {
 											<div className="pricingButtonRow">
 												{/* Trial button for Plus */}
 												{!currentPlan?.showTrail &&
-													plan?.plan === 'Plus' &&
+													plan?.plan === 'Pro' &&
 													!isEnterprise &&
 													info.selectedPlanId !== plan._id && (
 														<button
@@ -546,7 +575,7 @@ const PricingPage = () => {
 																	: handleBuyTrialPlan(plan)
 															}
 														>
-															Start free {planConfig.trialDays || 1}{' '}
+															Start free {planConfig.trialDays || 2}{' '}
 															day
 															{planConfig.trialDays > 1
 																? 's'

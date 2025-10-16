@@ -3,6 +3,8 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 import Combine
+import AVFoundation
+import ApplicationServices
 
 // MARK: - Custom Panel for NotchDrop
 class NotchDropPanel: NSPanel {
@@ -48,10 +50,20 @@ class NotchDropPanel: NSPanel {
     private var contentType: String = "normal"
     private var hapticFeedback: Bool = true
     private var notchViewModel: NotchViewModel?
+    private var isInteractionEnabled: Bool = true
+    private var selectionAssistant: SelectionAssistantManager?
+    // PERFORMANCE FIX: Optimized App Nap prevention for better performance
+    private var appNapActivity: NSObjectProtocol?
+    // PERFORMANCE FIX: Use optimized window level for better performance
     private let notchWindowLevel: NSWindow.Level = {
-        let assistive = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.assistiveTechHighWindow)))
         let statusBar = NSWindow.Level.statusBar
-        return assistive.rawValue > statusBar.rawValue ? assistive : statusBar
+        // Use statusBar for optimal performance while maintaining functionality
+        return statusBar
+    }()
+    private let iso8601Formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
     }()
 
     // MARK: - Callbacks
@@ -70,10 +82,33 @@ class NotchDropPanel: NSPanel {
         setupNotchDrop()
     }
 
-    // MARK: - Setup
+    // MARK: - ULTIMATE FIX: Optimized Setup for Zero Stuttering
     private func setupNotchDrop() {
-        DispatchQueue.main.async { [weak self] in
+        // ULTIMATE FIX: Immediate initialization to prevent stuttering
+        DispatchQueue.main.async(qos: .userInitiated) { [weak self] in
+            // Pre-warm the system for smooth performance
+            self?.preWarmSystem()
             self?.createNotchWindow()
+            self?.initializeSelectionAssistant()
+        }
+
+        // Start App Nap prevention early to keep process responsive
+        startAppNapPrevention()
+    }
+    
+    /// ULTIMATE FIX: Pre-warm system for smooth initial performance
+    private func preWarmSystem() {
+        // Pre-warm SwiftUI rendering pipeline
+        DispatchQueue.main.async {
+            // Force initial render to prevent stuttering
+            let _ = DynamicIslandTheme.expansionAnimation
+            let _ = DynamicIslandTheme.hoverAnimation
+        }
+        
+        // Pre-warm audio system
+        DispatchQueue.global(qos: .background).async {
+            // Pre-initialize audio components
+            let _ = AVAudioEngine()
         }
     }
 
@@ -95,6 +130,7 @@ class NotchDropPanel: NSPanel {
             height: notchHeight
         )
 
+        // Keep .nonactivatingPanel but allow drag/drop with special window subclass
         let panelStyle: NSWindow.StyleMask = [
             .borderless,
             .fullSizeContentView,
@@ -110,7 +146,7 @@ class NotchDropPanel: NSPanel {
 
         guard let window = notchWindow else { return }
 
-        // Use the same window properties as NotchDropLatest
+        // Use the notchWindowLevel (statusBar level)
         window.level = notchWindowLevel
         window.isOpaque = false
         window.alphaValue = 1
@@ -119,20 +155,39 @@ class NotchDropPanel: NSPanel {
         window.backgroundColor = NSColor.clear
         window.isMovable = false
         window.hasShadow = false
+        // Keep stationary but remove transient to allow drag/drop
         window.collectionBehavior = [
             .fullScreenAuxiliary,
             .canJoinAllSpaces,
-            .stationary,
-            .transient,
+            .stationary,  // Keep stationary for proper positioning
+            // .transient,  // REMOVED: This blocks drag/drop!
             .ignoresCycle,
         ]
         window.isExcludedFromWindowsMenu = true
         window.isReleasedWhenClosed = false
         window.animationBehavior = .none
+        window.isRestorable = false
         
-        // CRITICAL: Enable keyboard input and first responder capabilities
+        // CRITICAL: Enable keyboard input and mouse/drag events
         window.acceptsMouseMovedEvents = true
         window.setFrame(topRect, display: false)
+        
+        // Make window completely fixed like Boring Notch
+        window.isMovableByWindowBackground = false
+        window.isMovable = false
+        // window.ignoresMouseEvents = false
+        window.hidesOnDeactivate = false
+        
+        // CRITICAL: Enable drag and drop for the window
+        window.registerForDraggedTypes([
+            .fileURL,
+            .URL,
+            .string,
+            .tiff,
+            .png
+        ])
+        
+        print("✅ NotchDropCore: Window configured for drag and drop")
 
         // Don't set initial first responder - let SwiftUI manage TextField focus
 
@@ -156,8 +211,9 @@ class NotchDropPanel: NSPanel {
         // Create the proper NotchView
         let notchView = NotchView(vm: vm)
 
-        // Set up status monitoring
+        // Set up status monitoring with throttling to prevent excessive updates
         vm.$status
+            .throttle(for: .milliseconds(16), scheduler: DispatchQueue.main, latest: true)
             .sink { [weak self] newStatus in
                 let statusString = String(describing: newStatus)
                 self?.status = statusString
@@ -165,6 +221,11 @@ class NotchDropPanel: NSPanel {
                 // Ensure the notch window stays visible/above when opening (especially in fullscreen spaces)
                 if statusString == "opened" {
                     self?.enforceWindowPresentation()
+                    // Keep CPU timers unthrottled while opened
+                    self?.startAppNapPrevention()
+                } else if statusString == "closed" {
+                    // Allow system to resume normal energy policy when fully closed
+                    self?.stopAppNapPrevention()
                 }
             }
             .store(in: &vm.cancellables)
@@ -245,6 +306,24 @@ class NotchDropPanel: NSPanel {
         }
         window.orderFrontRegardless()
     }
+
+    // MARK: - App Nap / Idle Throttling Prevention
+    private func startAppNapPrevention() {
+        // Use NSProcessInfo activity to prevent App Nap when idle for a long time
+        if appNapActivity == nil {
+            appNapActivity = ProcessInfo.processInfo.beginActivity(options: [
+                .userInitiatedAllowingIdleSystemSleep,
+                .latencyCritical
+            ], reason: "Keep NotchDrop responsive for hover after inactivity") as NSObjectProtocol
+        }
+    }
+    
+    private func stopAppNapPrevention() {
+        if let activity = appNapActivity {
+            ProcessInfo.processInfo.endActivity(activity as! NSObjectProtocol)
+            appNapActivity = nil
+        }
+    }
     
     // Add the same screen selection logic as NotchDropLatest
     private func findScreenFitsOurNeeds() -> NSScreen? {
@@ -267,6 +346,8 @@ class NotchDropPanel: NSPanel {
             
             // Don't immediately set first responder - let SwiftUI handle TextField focus
             
+            self?.isInteractionEnabled = true
+            self?.notchViewModel?.isInteractionEnabled = true
             self?.isVisible = true
             self?.notchViewModel?.notchOpen(.click)
         }
@@ -367,6 +448,21 @@ class NotchDropPanel: NSPanel {
         return isVisible
     }
 
+    @objc public func setInteractionEnabled(_ enabled: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.isInteractionEnabled = enabled
+            self.notchViewModel?.isInteractionEnabled = enabled
+
+            if !enabled {
+                self.notchViewModel?.isNotchLocked = false
+                self.notchViewModel?.notchClose()
+                self.notchWindow?.orderOut(nil)
+                self.isVisible = false
+            }
+        }
+    }
+
     @objc public func getWindowPosition() -> [String: CGFloat] {
         guard let window = notchWindow else {
             return ["x": 0, "y": 0, "width": 0, "height": 0]
@@ -379,6 +475,43 @@ class NotchDropPanel: NSPanel {
             "width": frame.size.width,
             "height": frame.size.height
         ]
+    }
+
+    @objc public func getSelectionHistoryJSON() -> String {
+        initializeSelectionAssistant()
+        let entries = selectionAssistant?.fetchHistoryEntries() ?? SelectionHistoryStore.shared.entriesSync()
+        let payload = entries.map { entryDictionary(from: $0) }
+        if let data = try? JSONSerialization.data(withJSONObject: payload, options: []),
+           let json = String(data: data, encoding: .utf8) {
+            return json
+        }
+        return "[]"
+    }
+
+    @objc public func clearSelectionHistory() -> Bool {
+        initializeSelectionAssistant()
+        guard let assistant = selectionAssistant else { return false }
+        assistant.clearAllHistoryEntries()
+        return true
+    }
+
+    @objc public func presentSelectionHistoryInterface() -> Bool {
+        initializeSelectionAssistant()
+        guard let assistant = selectionAssistant else { return false }
+        assistant.presentHistoryInterface()
+        return true
+    }
+
+    @objc public func requestSelectionAssistantPermissionPrompt() -> Bool {
+        initializeSelectionAssistant()
+        guard let assistant = selectionAssistant else { return false }
+        assistant.requestAccessibilityPrompt()
+        return true
+    }
+
+    @objc public func isSelectionAssistantPermissionGranted() -> Bool {
+        initializeSelectionAssistant()
+        return selectionAssistant?.isAccessibilityPermissionGranted() ?? AXIsProcessTrusted()
     }
 
     // MARK: - Advanced NotchDropLatest methods
@@ -463,7 +596,7 @@ class NotchDropPanel: NSPanel {
             case "receiveMessage":
                 viewModel.receiveMessage(data)
             default:
-                print("⚠️ Unknown incoming action: \(action)")
+                break
             }
         }
     }
@@ -472,33 +605,27 @@ class NotchDropPanel: NSPanel {
     @objc public func onOverlayStateChange(_ state: [String: Any]) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { 
-                print("❌ NotchDropCore: No viewModel available for state update")
                 return 
             }
             
-            print("📊 NotchDropCore: Received overlay state:", state)
             
             // Update recording state
             if let isRecording = state["isRecording"] as? Bool {
-                print("📊 Updating recording state: \(isRecording)")
                 viewModel.isRecording = isRecording
                 
                 // Stop the timer if recording stopped
                 if !isRecording {
-                    print("📊 Recording stopped - calling stopRecording to stop timer")
                     viewModel.stopRecording()
                 }
             }
             
             // Update pause state
             if let isPaused = state["isPaused"] as? Bool {
-                print("📊 Updating pause state: \(isPaused)")
                 viewModel.isPaused = isPaused
             }
             
             // Update timer
             if let timer = state["timer"] as? Int {
-                print("📊 Updating timer: \(timer)")
                 viewModel.timer = timer
             }
             
@@ -506,17 +633,14 @@ class NotchDropPanel: NSPanel {
             
             // Update authentication state
             if let isAuthenticated = state["isAuthenticated"] as? Bool {
-                print("📊 Updating authentication: \(isAuthenticated)")
                 viewModel.isAuthenticated = isAuthenticated
             }
             
             // Update controlled by dynamic island state
             if let controlledByDynamicIsland = state["controlledByDynamicIsland"] as? Bool {
-                print("📊 Updating controlled by dynamic island: \(controlledByDynamicIsland)")
                 viewModel.controlledByDynamicIsland = controlledByDynamicIsland
             }
             
-            print("📊 NotchDropCore: Final state - Recording: \(viewModel.isRecording), Paused: \(viewModel.isPaused), Timer: \(viewModel.timer)")
         }
     }
     
@@ -524,11 +648,9 @@ class NotchDropPanel: NSPanel {
     @objc public func configureVoice(_ url: String, token: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { 
-                print("❌ NotchDropCore: No viewModel available for voice configuration")
                 return 
             }
             
-            print("🎤 NotchDropCore: Configuring voice with URL: \(url)")
             viewModel.configureVoice(url: url, token: token)
         }
     }
@@ -555,7 +677,6 @@ class NotchDropPanel: NSPanel {
     @objc public func updateVoiceConnectionState(_ status: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
-            print("🔄 NotchDropCore: Updating voice connection state to: \(status)")
             viewModel.updateVoiceConnectionState(status)
         }
     }
@@ -563,34 +684,189 @@ class NotchDropPanel: NSPanel {
     @objc public func updateVoiceMuteState(_ isMuted: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
-            print("🔇 NotchDropCore: Updating voice mute state: \(isMuted)")
             viewModel.isMicrophoneMuted = isMuted
         }
     }
 
-    @objc public func updateStealthModeState(_ isEnabled: Bool) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, let viewModel = self.notchViewModel else { return }
-            viewModel.updateStealthModeState(isEnabled)
-        }
-    }
+    // @objc public func updateStealthModeState(_ isEnabled: Bool) {
+    //     DispatchQueue.main.async { [weak self] in
+    //         guard let self = self, let viewModel = self.notchViewModel else { return }
+    //         viewModel.updateStealthModeState(isEnabled)
+    //     }
+    // }
     
     @objc public func addVoiceMessage(_ messageJson: String) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self, let viewModel = self.notchViewModel else { return }
-            print("💬 NotchDropCore: Adding voice message: \(messageJson)")
             
             // Parse JSON message
             guard let messageData = messageJson.data(using: .utf8),
                   let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
                   let sender = json["sender"] as? String,
                   let content = json["content"] as? String else {
-                print("❌ Failed to parse voice message JSON")
                 return
             }
             
             let isFromAgent = json["isFromAgent"] as? Bool ?? false
             viewModel.addVoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+        }
+    }
+    
+    // ⚡ ULTRA OPTIMIZATION: Parse JSON on background queue, then dispatch to main
+    @objc public func addTranscriptionData(_ messageJson: String) {
+        print("📝 Swift Core: Received transcription data JSON: \(messageJson)")
+        
+        // ⚡ CRITICAL: Parse JSON on background queue to avoid blocking UI
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            
+            print("📝 Swift Core: Parsing JSON data on background queue...")
+            
+            // Parse JSON message on background thread
+            guard let messageData = messageJson.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
+                  let sender = json["sender"] as? String,
+                  let content = json["content"] as? String else {
+                print("📝 Swift Core: Failed to parse JSON data")
+                return
+            }
+            
+            let isFromAgent = json["isFromAgent"] as? Bool ?? false
+            let timestamp = json["timestamp"] as? String
+            let confidence = json["confidence"] as? Double
+            let words = json["words"] as? [Any]
+            
+            print("📝 Swift Core: Parsed data - Sender: \(sender), Content: \(content.prefix(50))..., IsFromAgent: \(isFromAgent)")
+            
+            // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, let viewModel = self.notchViewModel else { 
+                    print("📝 Swift Core: No viewModel available")
+                    return 
+                }
+                
+                // Add transcription data to viewModel
+                viewModel.addTranscriptionData(
+                    sender: sender, 
+                    content: content, 
+                    isFromAgent: isFromAgent,
+                    timestamp: timestamp,
+                    confidence: confidence,
+                    words: words
+                )
+                
+                print("📝 Swift Core: Called viewModel.addTranscriptionData")
+            }
+        }
+    }
+
+    // ⚡ ULTRA OPTIMIZATION: Parse JSON on background queue, then dispatch to main
+    @objc public func sendLiveIntelligenceData(_ messageJson: String) {
+        print("🧠 Swift Core: Received live intelligence data JSON: \(messageJson)")
+        
+        // ⚡ CRITICAL: Parse JSON on background queue to avoid blocking UI
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            
+            print("🧠 Swift Core: Parsing JSON data on background queue...")
+            
+            // Parse JSON message on background thread
+            guard let messageData = messageJson.data(using: .utf8),
+                  let json = try? JSONSerialization.jsonObject(with: messageData) as? [String: Any],
+                  let sender = json["sender"] as? String,
+                  let content = json["content"] as? String else {
+                print("🧠 Swift Core: Failed to parse JSON data")
+                return
+            }
+            
+            let isFromAgent = json["isFromAgent"] as? Bool ?? true // Live intelligence is from AI agent
+            let timestamp = json["timestamp"] as? String
+            let confidence = json["confidence"] as? Double
+            let metadata = json["metadata"] as? [String: Any]
+            
+            print("🧠 Swift Core: Parsed data - Sender: \(sender), Content: \(content.prefix(50))..., IsFromAgent: \(isFromAgent)")
+            
+            // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, let viewModel = self.notchViewModel else { 
+                    print("🧠 Swift Core: No viewModel available")
+                    return 
+                }
+                
+                // Add live intelligence data to viewModel
+                viewModel.addLiveIntelligenceData(
+                    sender: sender, 
+                    content: content, 
+                    isFromAgent: isFromAgent,
+                    timestamp: timestamp,
+                    confidence: confidence,
+                    metadata: metadata
+                )
+                
+                print("🧠 Swift Core: Called viewModel.addLiveIntelligenceData")
+            }
+        }
+    }
+
+    // ⚡ ULTRA OPTIMIZATION: Parse JSON on background queue for bulk replace operations
+    // Replace the entire transcription/voiceMessages array from JSON array
+    @objc public func replaceTranscriptions(_ messagesJson: String) {
+        // ⚡ CRITICAL: Parse JSON on background queue for large arrays
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+
+            guard let data = messagesJson.data(using: .utf8),
+                  let jsonArray = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+                print("📝 Swift Core: Failed to parse messages JSON array")
+                return
+            }
+
+            // Map to VoiceMessage on background thread
+            var newMessages: [NotchViewModel.VoiceMessage] = []
+            for obj in jsonArray {
+                let sender = (obj["sender"] as? String) ?? "overlay"
+                let content = (obj["content"] as? String) ?? (obj["text"] as? String) ?? ""
+                let isFromAgent = (obj["isFromAgent"] as? Bool) ?? false
+                let message = NotchViewModel.VoiceMessage(sender: sender, content: content, isFromAgent: isFromAgent)
+                newMessages.append(message)
+            }
+
+            // ⚡ OPTIMIZATION: Only dispatch UI update to main queue
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, let viewModel = self.notchViewModel else { return }
+                viewModel.replaceTranscriptions(messages: newMessages)
+                print("📝 Swift Core: Replaced voiceMessages (count=\(newMessages.count))")
+            }
+        }
+    }
+
+    // Toggle what to show during recording: "transcription" or "live-intel"
+    @objc public func setRecordingPanelMode(_ mode: String) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            let normalized = mode.lowercased()
+            // Overlay 'transcription' => Notch shows live intelligence (hide transcription)
+            // Overlay 'live-intel'   => Notch shows transcription panel
+            viewModel.showTranscriptionDuringRecording = (normalized == "live-intel")
+            print("🧭 Swift Core: setRecordingPanelMode=\(normalized) | showTranscriptionDuringRecording=\(viewModel.showTranscriptionDuringRecording)")
+        }
+    }
+
+    // Clear live intelligence data
+    @objc public func clearLiveIntelligenceData() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            viewModel.clearLiveIntelligenceData()
+            print("🧠 Swift Core: Cleared live intelligence data")
+        }
+    }
+    
+    // Handle external recording state changes from overlay system
+    @objc public func handleExternalRecordingStateChange(_ isRecording: Bool, isPaused: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let viewModel = self.notchViewModel else { return }
+            viewModel.handleExternalRecordingStateChange(isRecording: isRecording, isPaused: isPaused)
+            print("🔒 Swift Core: External recording state - isRecording: \(isRecording), isPaused: \(isPaused)")
         }
     }
     
@@ -605,7 +881,6 @@ class NotchDropPanel: NSPanel {
     
     // MARK: - Swift Action Handling
     private func handleSwiftAction(_ action: NotchViewModel.SwiftAction) {
-        // print("🔍 DEBUG: NotchDropCore handling Swift action: \(action)")
         switch action {
         case .startRecording:
             swiftActionCallback?("startRecording", "")
@@ -672,6 +947,159 @@ class NotchDropPanel: NSPanel {
             swiftActionCallback?("requestCameraPermission", "")
         case .toggleStealthMode:
             swiftActionCallback?("toggleStealthMode", "")
+        // Video State Actions
+        case .saveVideoState:
+            swiftActionCallback?("saveVideoState", "")
+        case .restoreVideoState:
+            swiftActionCallback?("restoreVideoState", "")
         }
     }
+    
+    // MARK: - Selection Assistant Integration
+    private func initializeSelectionAssistant() {
+        if selectionAssistant != nil {
+            return
+        }
+
+        let initializeBlock = { [weak self] in
+            guard let self else { return }
+            let manager = SelectionAssistantManager.shared
+            manager.onSelectionCaptured = { [weak self] entry in
+                self?.emitSelectionCaptured(entry)
+            }
+            manager.onPermissionStateChanged = { [weak self] granted in
+                self?.emitSelectionPermissionChange(granted: granted)
+            }
+            manager.onSelectionAskAI = { [weak self] text in
+                self?.emitSelectionAskAI(text)
+            }
+            manager.start()
+            self.selectionAssistant = manager
+        }
+
+        if Thread.isMainThread {
+            initializeBlock()
+        } else {
+            DispatchQueue.main.async(execute: initializeBlock)
+        }
+    }
+
+    private func emitSelectionCaptured(_ entry: SelectionHistoryEntry) {
+        guard let swiftActionCallback else { return }
+        let payload = entryDictionary(from: entry)
+        if let data = try? JSONSerialization.data(withJSONObject: payload, options: []),
+           let json = String(data: data, encoding: .utf8) {
+            swiftActionCallback("selectionCaptured", json)
+        }
+    }
+
+    private func emitSelectionPermissionChange(granted: Bool) {
+        guard let swiftActionCallback else { return }
+        let payload: [String: Any] = ["granted": granted]
+        if let data = try? JSONSerialization.data(withJSONObject: payload, options: []),
+           let json = String(data: data, encoding: .utf8) {
+            swiftActionCallback("selectionPermissionChanged", json)
+        }
+    }
+
+    private func emitSelectionAskAI(_ text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            print("⚠️ Selection Assistant Ask AI skipped for empty text")
+            return
+        }
+
+        guard let swiftActionCallback else {
+            print("⚠️ Selection Assistant Ask AI skipped - no Swift action callback")
+            return
+        }
+
+        print("💬 Selection Assistant sending chat to AskAI: '\(trimmed)'")
+        swiftActionCallback("submitChat", trimmed)
+
+        let chatMessage: [String: Any] = [
+            "type": "dynamic-island-chat",
+            "message": trimmed,
+            "timestamp": iso8601Formatter.string(from: Date()),
+            "source": "notchdrop-swift",
+            "context": "selection-assistant"
+        ]
+
+        guard
+            let data = try? JSONSerialization.data(withJSONObject: chatMessage, options: []),
+            let json = String(data: data, encoding: .utf8)
+        else {
+            print("⚠️ Selection Assistant Ask AI failed to encode payload")
+            return
+        }
+
+        swiftActionCallback("sendChatMessageToAskAI", json)
+        print("✅ Selection Assistant chat payload emitted")
+    }
+
+    private func entryDictionary(from entry: SelectionHistoryEntry) -> [String: Any] {
+        var dict: [String: Any] = [
+            "id": entry.id.uuidString,
+            "text": entry.text,
+            "createdAt": iso8601Formatter.string(from: entry.createdAt),
+            "isPinned": entry.isPinned,
+        ]
+
+        if let sourceName = entry.sourceAppName {
+            dict["sourceAppName"] = sourceName
+        }
+        if let bundleId = entry.sourceBundleIdentifier {
+            dict["bundleIdentifier"] = bundleId
+        }
+
+        return dict
+    }
+    // MARK: - Stealth Mode
+    @objc public func updateStealthModeState(_ isEnabled: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let window = self.notchWindow else {
+                print(":pirate_flag: NotchDropCore: No window available for stealth mode")
+                return
+            }
+            print(":pirate_flag: NotchDropCore: Applying stealth mode: \(isEnabled)")
+            print(":pirate_flag: NotchDropCore: Window type: \(type(of: window))")
+            print(":pirate_flag: NotchDropCore: Window title: \(window.title)")
+            print(":pirate_flag: NotchDropCore: Window isVisible: \(window.isVisible)")
+            if isEnabled {
+                // STEALTH MODE ON: Hide from screen recordings but keep visible to user
+                print(":pirate_flag: NotchDropCore: ENABLING stealth mode - hiding from recordings only")
+                // Method 1: Set sharing type to exclude from screen recording
+                if #available(macOS 10.13, *) {
+                    window.sharingType = .none
+                    print(":pirate_flag: NotchDropCore: Window sharingType set to .none (hidden from recordings)")
+                }
+                // Method 2: Set window level to be above screen recording level
+                window.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.maximumWindow)))
+                print(":pirate_flag: NotchDropCore: Window level set to maximum (above recording)")
+                // Keep window visible to user - DO NOT hide or make transparent
+                print(":pirate_flag: NotchDropCore: Window remains visible to user")
+            } else {
+                // STEALTH MODE OFF: Restore normal behavior
+                print(":pirate_flag: NotchDropCore: DISABLING stealth mode - restoring normal recording")
+                // Restore normal sharing type
+                if #available(macOS 10.13, *) {
+                    window.sharingType = .readOnly
+                    print(":pirate_flag: NotchDropCore: Window sharingType restored to .readOnly")
+                }
+                // Restore ORIGINAL window level (not normal, but the custom notch level)
+                window.level = self.notchWindowLevel
+                print(":pirate_flag: NotchDropCore: Window level restored to normal")
+                // Ensure window is visible
+                if !window.isVisible {
+                    window.orderFront(nil)
+                    window.makeKeyAndOrderFront(nil)
+                    self.enforceWindowPresentation()
+                    print(":pirate_flag: NotchDropCore: Window restored to visible state")
+                }
+            }
+            print(":pirate_flag: NotchDropCore: Stealth mode \(isEnabled ? "ENABLED" : "DISABLED")")
+        }
+    }
+
+
 }

@@ -5,11 +5,11 @@ import { Markdown } from '../../../helpers/markdownHelper';
 import Context from '../../../context/context';
 import Spinner from '../../components/loaders/Spinner';
 import ClockSvg from '../meetBot/clock.svg';
-import { Copy, Check } from 'lucide-react';
+import DownSvg from '../../../assets/svg/activity/DownSvg';
 
-const MeetSummary = ({ meetingId }) => {
+const MeetSummary = ({ meetingId, handleActionClick }) => {
 	const {
-		notes: { meetSummary, getMeetingAnalytics },
+		notes: { getMeetingAnalytics },
 		templates: { updateStateValues },
 	} = useContext(Context);
 
@@ -26,8 +26,6 @@ const MeetSummary = ({ meetingId }) => {
 		chapters: true,
 		decisions: true,
 	});
-
-	const [copying, setCopying] = useState(false);
 
 	// Fetch meeting analytics data
 	const fetchMeetingAnalytics = async () => {
@@ -71,13 +69,19 @@ const MeetSummary = ({ meetingId }) => {
 		const chapters = analyticsData.chapters || analyticsData.topics || [];
 		const decisions = analyticsData.decisions || analyticsData.keyDecisions || [];
 		const actionItems = analyticsData.action_items || analyticsData.actionItems || [];
+		const keyStrengths = analyticsData.keyStrengths || analyticsData.strengths || [];
+		const growthAreas =
+			analyticsData.growthAreas ||
+			analyticsData.growth_areas ||
+			analyticsData.improvements ||
+			[];
 
 		// Process chapters data
 		const processedChapters = Array.isArray(chapters)
 			? chapters.map((chapter) => ({
 					title: chapter.title || chapter.topic || 'Untitled Chapter',
 					description: chapter.description || chapter.summary || '',
-					points: chapter.points || chapter.keyPoints || [],
+					points: chapter.sub_topics || chapter.points || chapter.keyPoints || [],
 			  }))
 			: [];
 
@@ -100,11 +104,19 @@ const MeetSummary = ({ meetingId }) => {
 			  }))
 			: [];
 
+		// Process key strengths data
+		const processedKeyStrengths = Array.isArray(keyStrengths) ? keyStrengths : [];
+
+		// Process growth areas data
+		const processedGrowthAreas = Array.isArray(growthAreas) ? growthAreas : [];
+
 		return {
 			summary,
 			chapters: processedChapters,
 			decisions: processedDecisions,
 			actionItems: processedActionItems,
+			keyStrengths: processedKeyStrengths,
+			growthAreas: processedGrowthAreas,
 		};
 	};
 
@@ -132,18 +144,6 @@ const MeetSummary = ({ meetingId }) => {
 		}, 0);
 	};
 
-	const handleSummaryCopy = () => {
-		if (copying) return;
-		setCopying(true);
-		if (window.electronApi) {
-			window.electronApi.clipboard.writeText(meetingData.summary);
-		}
-
-		setTimeout(() => {
-			setCopying(false);
-		}, 1000);
-	};
-
 	// Handle Ask AI functionality
 	const handleAskAI = () => {
 		const newParams = new URLSearchParams(searchParams);
@@ -166,9 +166,9 @@ const MeetSummary = ({ meetingId }) => {
 	const getPriorityColor = (priority) => {
 		switch (priority) {
 			case 'High':
-				return '#ff6b6b';
+				return '#E03F4F';
 			case 'Medium':
-				return '#ffa726';
+				return '#EDA145';
 			case 'Low':
 				return '#66bb6a';
 			default:
@@ -180,11 +180,11 @@ const MeetSummary = ({ meetingId }) => {
 	const getStatusColor = (status) => {
 		switch (status) {
 			case 'Completed':
-				return '#66bb6a';
+				return '#1C993E1A';
 			case 'In Progress':
 				return '#ffa726';
 			case 'Pending':
-				return '#94989e';
+				return '#EDA145';
 			default:
 				return '#94989e';
 		}
@@ -197,47 +197,69 @@ const MeetSummary = ({ meetingId }) => {
 
 	// Render summary section
 	const renderSummarySection = () => {
-		if (!meetingData) return null;
+		if (!meetingData?.summary) return null;
 
 		return (
 			<div className={s.summarySection}>
-				{meetingData.summary && (
-					<>
-						<div className={s.actionButtons}>
-							<button className={s.copyButton} onClick={handleSummaryCopy}>
-								{copying ? (
-									<>
-										<Check size={16} style={{ color: 'var(--primary-font)' }} />{' '}
-										copied
-									</>
-								) : (
-									<>
-										<Copy size={16} style={{ color: 'var(--primary-font)' }} />{' '}
-										copy
-									</>
-								)}
-							</button>
-						</div>
-						<p className={s.summaryText}>{meetingData.summary}</p>
-						<br />
-					</>
-				)}
+				<p className={s.summaryText}>{meetingData.summary}</p>
+			</div>
+		);
+	};
+
+	// Render key strengths section
+	const renderKeyStrengthsSection = () => {
+		if (!meetingData?.keyStrengths || meetingData.keyStrengths.length === 0) return null;
+
+		return (
+			<div className={s.strengthsSection}>
+				<div className={s.sectionHeader}>
+					<div className={s.greenBullet}></div>
+					<h3>Key Strengths:</h3>
+				</div>
+				<ul className={s.bulletList}>
+					{meetingData.keyStrengths.map((strength, index) => (
+						<li key={index} className={s.bulletItem}>
+							<div className={s.greenBullet}></div>
+							<span>{strength}</span>
+						</li>
+					))}
+				</ul>
+			</div>
+		);
+	};
+
+	// Render growth areas section
+	const renderGrowthAreasSection = () => {
+		if (!meetingData?.growthAreas || meetingData.growthAreas.length === 0) return null;
+
+		return (
+			<div className={s.growthSection}>
+				<div className={s.sectionHeader}>
+					<div className={s.orangeBullet}></div>
+					<h3>Growth Areas:</h3>
+				</div>
+				<ul className={s.bulletList}>
+					{meetingData.growthAreas.map((area, index) => (
+						<li key={index} className={s.bulletItem}>
+							<div className={s.orangeBullet}></div>
+							<span>{area}</span>
+						</li>
+					))}
+				</ul>
 			</div>
 		);
 	};
 
 	// Render chapters section
 	const renderChaptersSection = () => {
-		if (!meetingData || !meetingData.chapters || meetingData.chapters.length === 0) {
-			return null;
-		}
+		if (!meetingData?.chapters || meetingData.chapters.length === 0) return null;
 
 		return (
 			<div className={s.chaptersSection}>
 				<div className={s.sectionHeader} onClick={() => toggleSection('chapters')}>
 					<h3>Chapters & Topics:</h3>
 					<span className={`${s.chevron} ${expandedSections.chapters ? s.expanded : ''}`}>
-						▼
+						<DownSvg />
 					</span>
 				</div>
 
@@ -269,9 +291,10 @@ const MeetSummary = ({ meetingId }) => {
 
 	// Render decisions and actions section
 	const renderDecisionsSection = () => {
-		if (!meetingData || (!meetingData.decisions?.length && !meetingData.actionItems?.length)) {
-			return null;
-		}
+		const hasDecisions = meetingData?.decisions && meetingData.decisions.length > 0;
+		const hasActionItems = meetingData?.actionItems && meetingData.actionItems.length > 0;
+
+		if (!hasDecisions && !hasActionItems) return null;
 
 		return (
 			<div className={s.decisionsSection}>
@@ -280,13 +303,13 @@ const MeetSummary = ({ meetingId }) => {
 					<span
 						className={`${s.chevron} ${expandedSections.decisions ? s.expanded : ''}`}
 					>
-						▼
+						<DownSvg />
 					</span>
 				</div>
 
 				{expandedSections.decisions && (
 					<div className={s.decisionsContent}>
-						{meetingData.decisions && meetingData.decisions.length > 0 && (
+						{hasDecisions && (
 							<div className={s.keyDecisions}>
 								<div className={s.sectionHead}>
 									<div className={s.checkIcon}>✓</div>
@@ -298,7 +321,7 @@ const MeetSummary = ({ meetingId }) => {
 											<div className={s.decisionText}>{decision.text}</div>
 											<div className={s.decisionMeta}>
 												{decision.time && (
-													<div>
+													<div className={s.timeContainer}>
 														<img
 															src={ClockSvg}
 															alt="clock"
@@ -325,7 +348,7 @@ const MeetSummary = ({ meetingId }) => {
 							</div>
 						)}
 
-						{meetingData.actionItems && meetingData.actionItems.length > 0 && (
+						{hasActionItems && (
 							<div className={s.actionItems}>
 								<div className={s.sectionHead}>
 									<div className={s.gearIcon}>⚙</div>
@@ -333,12 +356,22 @@ const MeetSummary = ({ meetingId }) => {
 								</div>
 								<div className={s.actionList}>
 									{meetingData.actionItems.map((action, index) => (
-										<div key={index} className={s.actionItem}>
+										<div
+											key={index}
+											className={s.actionItem}
+											onClick={() => handleActionClick(action.text)}
+										>
 											<div className={s.actionText}>
-												{action.text}
+												<span className={s.actionDescription}>
+													{action.text}
+												</span>
 												<span
 													className={s.actionStatus}
-													style={{ color: getStatusColor(action.status) }}
+													style={{
+														backgroundcolor: getStatusColor(
+															action.status,
+														),
+													}}
 												>
 													{action.status}
 												</span>
@@ -433,9 +466,12 @@ const MeetSummary = ({ meetingId }) => {
 
 	return (
 		<div className={s.meetSummaryContainer}>
+			{/* Content Section */}
 			{activeTab === 'summary' && (
 				<div className={s.content}>
 					{renderSummarySection()}
+					{renderKeyStrengthsSection()}
+					{renderGrowthAreasSection()}
 					{renderChaptersSection()}
 					{renderDecisionsSection()}
 				</div>

@@ -16,18 +16,18 @@ import {
 } from '../../../helpers/chat/chatHelpers';
 import Context from '../../../context/context';
 import { UserMessageRenderer } from '../../../helpers/markdownHelper';
-import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import ChatBox from '../../components/chat/ChatBox';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { FetchMoreLoaderComp } from '../../../helpers';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import ChatHeader from '../../components/chat/ChatHeader';
-import CitationsModal from '../../components/modalsV2/chat/CitationsModal';
 import { message } from '../../components/globalComponents/CustomToast';
 import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
-import Browser from '../../components/chat/chatComponents/Browser';
 import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import ChatRightBar from '../../components/chat/chatComponents/ChatRightBar';
+import NoteComponentModal from '../../components/notes/NoteComponentModal';
+import Browser from '../../components/chat/chatComponents/Browser';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -48,6 +48,7 @@ const RecentChat = ({
 	showResponseEditBtn = true,
 	fetchRecentChatMessages = true,
 	showChatBox = true, // New prop to control ChatBox visibility
+	showRightBar = false,
 
 	// below props are for desktop app
 	isDesktopApp = false,
@@ -113,12 +114,15 @@ const RecentChat = ({
 			// getFollowUpQueries: false,
 			chatQuery: '',
 			citationsAiMessageIndex: null,
-			citationsModalIsOpen: false,
 			isMobileView: false,
 			isChatHistoryClosed,
 			openBrowser: false,
 			browserDataAvailable: false,
 			chatPaddingBottom: 70,
+			rightBarOpen: false,
+			activeRightBar: null,
+			rightBarWidth: 0,
+			isCompactMode: false, // Track if we're in compact chat mode from AskAI
 		};
 	});
 
@@ -131,10 +135,50 @@ const RecentChat = ({
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	const currentUserMessageTimeoutRef = useRef(null);
 	const followUpQueryTimeoutRef = useRef(null);
+	const rightBarRef = useRef(null);
 
 	sessionId = isPreview ? sId : sessionId;
 
 	const browserData = globalChatMessages?.[sessionId]?.browserData;
+
+	// Handle compact mode from AskAI overlay
+	useEffect(() => {
+		// Check if we're in desktop app and might be in compact mode
+		if (isDesktopApp && window?.electronApi?.resizeMainWindow) {
+			// Get current window size to detect if we're in compact mode (571x626)
+			const checkCompactMode = async () => {
+				try {
+					const bounds = await window?.electronApi?.getWindowBounds?.();
+					if (bounds && bounds.width <= 571 && bounds.height <= 626) {
+						console.log(
+							'📐 RecentChat: Detected compact mode from AskAI overlay (571x626)',
+						);
+						setInfo((prev) => ({ ...prev, isCompactMode: true }));
+					}
+				} catch (e) {
+					console.log('RecentChat: Could not check window bounds:', e);
+				}
+			};
+			checkCompactMode();
+		}
+
+		return () => {
+			// Restore normal window size when leaving chat if we were in compact mode
+			if (window?.electronApi?.resizeMainWindow) {
+				window.electronApi.resizeMainWindow({
+					dimensions: {
+						width: 1366,
+						height: 768,
+					},
+					exitFullScreen: false,
+					animate: true,
+					duration: 300,
+					easing: 'easeOutCubic',
+				});
+				console.log('📐 RecentChat: Restored normal window size on unmount (1366x768) with smooth animation');
+			}
+		};
+	}, []);
 
 	// Save whenever it changes
 	useEffect(() => {
@@ -161,7 +205,6 @@ const RecentChat = ({
 				updateStateValues({
 					moreRecentChatStorage: null,
 					recentChatStorage: null,
-					citations: null,
 					chatPayload: {
 						workflowTemplateId: null,
 						moduleTemplateId: null,
@@ -214,6 +257,15 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages?.[sessionId]?.open_browser]);
 
+	useEffect(() => {
+		if (rightBarRef.current) {
+			setInfo((prev) => ({
+				...prev,
+				rightBarWidth: rightBarRef.current?.clientWidth,
+			}));
+		}
+	}, [info?.rightBarOpen, info?.activeRightBar]);
+
 	// useEffect(() => {
 	// 	if (info?.getFollowUpQueries) {
 	// 		if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
@@ -258,7 +310,6 @@ const RecentChat = ({
 			if (info?.renderingTwice) {
 				//clearing context state when rendering different session
 				updateStateValues({
-					citations: null,
 					chatPayload: {
 						workflowTemplateId: null,
 						moduleTemplateId: null,
@@ -270,8 +321,10 @@ const RecentChat = ({
 				setInfo((prev) => ({
 					...prev,
 					scrollExecuted: false,
-					citationsModalIsOpen: false,
 					citationsAiMessageIndex: null,
+					rightBarOpen: false,
+					activeRightBar: null,
+					rightBarWidth: 0,
 				}));
 			}
 			if (currentUserMessageTimeoutRef.current) {
@@ -476,7 +529,7 @@ const RecentChat = ({
 		//logic related to scroll button
 		const { scrollTop, scrollHeight, clientHeight } = chatContentRef.current;
 		const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-		const isNearBottom = distanceFromBottom < 5;
+		const isNearBottom = distanceFromBottom < 50;
 
 		if (isNearBottom && info?.showScrollButton) {
 			setInfo((prev) => ({
@@ -565,9 +618,8 @@ const RecentChat = ({
 
 				if (chainOfThought?.length > 0) {
 					for (let i = 0; i < chainOfThought?.length; i++) {
-						const { cot, deep_research, open_browser, normal_search } =
-							chainOfThought?.[i] || {};
-						if (cot || normal_search) {
+						const { cot, deep_research, open_browser } = chainOfThought?.[i] || {};
+						if (cot) {
 							hasChainOfThought = true;
 							break;
 						} else if (deep_research) {
@@ -866,38 +918,49 @@ const RecentChat = ({
 	const handleCloseCitationsModal = useCallback(() => {
 		setInfo((prev) => ({
 			...prev,
-			citationsModalIsOpen: false,
+			rightBarOpen: false,
+			activeRightBar: null,
+			rightBarWidth: 0,
 			citationsAiMessageIndex: null,
 		}));
 	}, []);
 
 	const handleSourcesClick = useCallback(
 		(index) => {
+			if (index !== info?.citationsAiMessageIndex) {
+				updateStateValues({
+					chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
+				});
+			}
 			setInfo((prev) => {
-				if (index !== prev?.citationsAiMessageIndex) {
-					updateStateValues({
-						chatSources: globalChatMessages?.[sessionId]?.messages?.[index]?.citations,
-					});
-				}
 				return {
 					...prev,
-					citationsModalIsOpen: index !== prev?.citationsAiMessageIndex,
+					rightBarOpen: index !== prev?.citationsAiMessageIndex,
+					activeRightBar: index !== prev?.citationsAiMessageIndex ? 'citations' : null,
 					citationsAiMessageIndex: index !== prev?.citationsAiMessageIndex ? index : null,
 				};
 			});
 		},
-		[globalChatMessages, sessionId, updateStateValues],
+		[globalChatMessages, sessionId, updateStateValues, info?.citationsAiMessageIndex],
 	);
+
+	const handleRightBarToggle = useCallback(({ open = false, activeRightBar = null }) => {
+		setInfo((prev) => ({
+			...prev,
+			rightBarOpen: open,
+			activeRightBar: activeRightBar,
+		}));
+	}, []);
 
 	const handleChatBoxHeight = useCallback((chatboxHeight) => {
 		setInfo((prev) => {
-			if (prev?.chatPaddingBottom === chatboxHeight - 47) {
+			if (prev?.chatPaddingBottom === chatboxHeight - 31) {
 				return prev;
 			}
 
 			return {
 				...prev,
-				chatPaddingBottom: chatboxHeight - 47,
+				chatPaddingBottom: chatboxHeight - 31,
 			};
 		});
 	}, []);
@@ -907,7 +970,9 @@ const RecentChat = ({
 			<div
 				className="chat-page-container-wrapper"
 				style={{
-					width: info?.citationsModalIsOpen ? 'calc(100% - 400px)' : '100%',
+					...(showRightBar && {
+						paddingRight: info?.rightBarOpen ? `${info?.rightBarWidth}px` : '0px',
+					}),
 				}}
 			>
 				{showChatHistory && !info?.isMobileView && (
@@ -1128,10 +1193,12 @@ const RecentChat = ({
 									animateChatBox={animateChatBox}
 									sessionId={sessionId}
 									handleBrowserButtonClick={handleBrowserButtonClick}
-									showBrowserButton={!info?.openBrowser && info?.browserDataAvailable}
+									showBrowserButton={
+										!info?.openBrowser && info?.browserDataAvailable
+									}
 									browserImage={
-										globalChatMessages?.[sessionId]?.browserData?.browserMetadata
-											?.signedUrl
+										globalChatMessages?.[sessionId]?.browserData
+											?.browserMetadata?.signedUrl
 									}
 									showBottomTools={showBottomTools}
 									showMicBtn={showMicBtn}
@@ -1157,25 +1224,35 @@ const RecentChat = ({
 							width: info?.openBrowser ? '50vw' : '0px',
 						}}
 					>
-						<Browser
-							sessionId={sessionId}
-							isOpen={info?.openBrowser}
-							browserData={browserData}
-							handleBrowserButtonClick={handleBrowserButtonClick}
-						/>
+						{info?.openBrowser && (
+							<Browser
+								sessionId={sessionId}
+								isOpen={info?.openBrowser}
+								browserData={browserData}
+								handleBrowserButtonClick={handleBrowserButtonClick}
+							/>
+						)}
 					</div>
 				)}
+
+				<div className="chat-right-bar-container" ref={rightBarRef}>
+					{showRightBar && (
+						<ChatRightBar
+							activeRightBar={info?.activeRightBar}
+							handleRightBarToggle={handleRightBarToggle}
+							handleCloseCitationsModal={handleCloseCitationsModal}
+						/>
+					)}
+				</div>
 			</div>
 
-			<CitationsModal
-				modalIsOpen={info?.citationsModalIsOpen}
-				closeModal={handleCloseCitationsModal}
-			/>
-			<NoteComponentModal
-				modalIsOpen={info?.noteModalIsOpen}
-				closeModal={handleNoteComponentModalClose}
-				sessionId={sessionId}
-			/>
+			{info?.noteModalIsOpen && (
+				<NoteComponentModal
+					modalIsOpen={info?.noteModalIsOpen}
+					closeModal={handleNoteComponentModalClose}
+					sessionId={sessionId}
+				/>
+			)}
 		</>
 	);
 };

@@ -1,8 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import Context from '../context/context';
-// import useLiveIntelligenceStream from '../hooks/useLiveIntelligenceStream';
-import useRecallStream from '../hooks/useRecallStream';
-import useMeetingAudioRecorder from '../hooks/useMeetingAudioRecorder';
 import audioStorageService from '../services/audioStorageService';
 import ObjectID from 'bson-objectid';
 import OverlayCommands from './OverlayCommands';
@@ -12,6 +9,8 @@ import TranscriptPanel from './components/TranscriptPanel';
 import OverlayNotification, { useOverlayNotification } from './components/OverlayNotification';
 import './overlay.scss';
 import useAssemblyTranscription from './hooks/useAssemblyTranscription';
+import { useDispatch } from '@zubridge/electron';
+import { useStore, storeActions } from '../store/store';
 
 const OverlayApp = () => {
 	const containerRef = useRef(null);
@@ -27,6 +26,8 @@ const OverlayApp = () => {
 
 	// Custom notification system
 	const notification = useOverlayNotification();
+	const dispatch = useDispatch();
+	const { pastMeetings } = useStore((state) => state.meeting) || {};
 
 	const [info, setInfo] = useState({
 		isMeetIsOngoing: false,
@@ -61,7 +62,7 @@ const OverlayApp = () => {
 
 	// Context
 	const {
-		notes: { getLiveKitToken, deleteLiveKitRoom, createMeetBot },
+		notes: { getLiveKitToken, deleteLiveKitRoom, createMeetBot, getMeetingAnalytics },
 		profileInfo: { tennantSettingsData, getTenantSettings },
 		templates: {
 			handleTranscriptionSuggestions,
@@ -105,7 +106,53 @@ const OverlayApp = () => {
 			...prev,
 			transcriptions: updateTranscriptionHelper(prev.transcriptions, newTranscript),
 		}));
+
+		// Send transcription data to main process
+		if (window.electronApi?.overlay?.sendTranscriptionData) {
+			console.log(
+				'📝 OverlayApp: Sending individual transcription to main process:',
+				newTranscript.text?.substring(0, 50) + '...',
+			);
+			window.electronApi.overlay.sendTranscriptionData(newTranscript);
+		} else {
+			console.warn('⚠️ OverlayApp: sendTranscriptionData method not available');
+		}
+
+		// Don't send transcription data as live intelligence - keep them separate
+		// Transcription data should only appear in transcription section
 	};
+
+	// Send full transcription array to NotchDrop on every change
+	useEffect(() => {
+		try {
+			if (!window.electronApi?.notchdrop?.replaceTranscriptions) {
+				console.warn('⚠️ OverlayApp: replaceTranscriptions method not available');
+				return;
+			}
+
+			const transcriptions = info?.transcriptions || [];
+			console.log(
+				'📝 OverlayApp: Sending transcriptions to NotchDrop:',
+				transcriptions.length,
+				'transcriptions',
+			);
+
+			const messages = transcriptions.map((t) => ({
+				sender: t.source || 'overlay',
+				content: t.text || '',
+				isFromAgent: false,
+				timestamp: t.timestamp || new Date().toISOString(),
+				confidence: t.confidence,
+				words: t.words,
+				type: 'transcription',
+			}));
+
+			window.electronApi.notchdrop.replaceTranscriptions(messages);
+			console.log('✅ OverlayApp: Transcriptions sent to NotchDrop successfully');
+		} catch (e) {
+			console.error('❌ OverlayApp: Failed to send full transcriptions to NotchDrop:', e);
+		}
+	}, [info?.transcriptions]);
 
 	const {
 		isConnected,
@@ -128,24 +175,8 @@ const OverlayApp = () => {
 	const meetingId = info.meetingData?._id || null;
 	// console.log('OverlayApp: Current meeting ID:', meetingId);
 
-	const {
-		isRecording: isAudioRecording,
-		startRecording: startAudioRecording,
-		stopRecording: stopAudioRecording,
-		audioBlob,
-		recordingDuration,
-		error: audioError,
-	} = useMeetingAudioRecorder(meetingId);
-
 	// const { closeWebSocketConnection: closeLiveIntelligenceConnection } =
 	// 	useLiveIntelligenceStream();
-
-	// Recall Stream Hook for Live Intelligence
-	const {
-		createWebSocketConnection: createRecallConnection,
-		closeWebSocketConnection: closeRecallConnection,
-		sendMessage: sendRecallMessage,
-	} = useRecallStream();
 
 	// Utility Functions
 	const formatTime = (seconds) => {
@@ -380,6 +411,17 @@ const OverlayApp = () => {
 
 			if (meetingResponse && meetingResponse[0] === true) {
 				meetingData = meetingResponse[1]?.data?.startMeeting;
+
+				const payload = {
+					...(pastMeetings || {}),
+					data: [meetingData, ...(pastMeetings?.data || [])],
+					totalDocs: (pastMeetings?.totalDocs ?? 0) + 1,
+				};
+
+				dispatch({
+					type: storeActions.meeting.SET_PAST_MEETINGS,
+					payload,
+				});
 			}
 		}
 
@@ -387,6 +429,11 @@ const OverlayApp = () => {
 			// console.log('Meeting created successfully:', meetingData);
 
 			// Store meeting data and ID for later use
+			dispatch({
+				type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
+				payload: meetingData._id,
+			});
+
 			meetingIdRef.current = meetingData._id;
 			// console.log('OverlayApp: Stored meeting ID in ref:', meetingData._id);
 
@@ -404,18 +451,8 @@ const OverlayApp = () => {
 				isAiIntelligenceEnabled: meetingData.isAiIntelligenceEnabled,
 			});
 
-			// Start audio recording for local storage
-			try {
-				// console.log('OverlayApp: Starting audio recording for meeting:', meetingData._id);
-				console.log(
-					'OverlayApp: startAudioRecording function available:',
-					typeof startAudioRecording,
-				);
-				await startAudioRecording();
-				console.log('OverlayApp: Audio recording started successfully');
-			} catch (error) {
-				console.error('OverlayApp: Error starting audio recording:', error);
-			}
+			// Store meeting ID for analytics generation when meeting ends
+			// Analytics will be generated when the meeting stops, not when it starts
 
 			updateStateValues({ aiTranscriptionSuggestions: null });
 
@@ -439,7 +476,7 @@ const OverlayApp = () => {
 			// promptToBoxMapping.current = {};
 			// boxIdCounter.current = 0;
 		} else {
-			console.error('Failed to create meeting:', meetingResponse);
+			console.error('Failed to create meeting');
 			notification.error(
 				'Meeting creation failed',
 				'Failed to create meeting. Please try again.',
@@ -448,7 +485,7 @@ const OverlayApp = () => {
 		}
 	};
 
-	const handleStopTranscription = () => {
+	const handleStopTranscription = async () => {
 		// Set stopping flag to prevent further processing
 		isStoppingRef.current = true;
 
@@ -459,17 +496,53 @@ const OverlayApp = () => {
 		sessionIdRef.current = null;
 
 		stopRecording({ meetingId: info?.meetingData?._id });
+
+		// Generate meeting analytics when meeting ends (only if not already exists)
+		if (currentMeetingId) {
+			try {
+				console.log(
+					'OverlayApp: Checking if analytics already exist for ended meeting:',
+					currentMeetingId,
+				);
+				
+				// First, check if analytics data already exists
+				const [success, data] = await getMeetingAnalytics(currentMeetingId);
+				
+				if (success && data) {
+					console.log('OverlayApp: Analytics data already exists, skipping generation');
+					return;
+				}
+				
+				console.log(
+					'OverlayApp: No analytics data found, generating analytics for ended meeting:',
+					currentMeetingId,
+				);
+				const result = await audioStorageService.generateMeetingAnalytics(currentMeetingId);
+				if (result.success) {
+					console.log('OverlayApp: Successfully generated meeting analytics');
+				} else {
+					console.error(
+						'OverlayApp: Failed to generate meeting analytics:',
+						result.error,
+					);
+				}
+			} catch (error) {
+				console.error('OverlayApp: Error generating meeting analytics:', error);
+			}
+		}
+
+		dispatch({
+			type: storeActions.meeting.SET_ACTIVE_MEETING_ID,
+			payload: null,
+		});
 		// closeLiveIntelligenceConnection();
 		// closeRecallConnection();
 
 		// Stop audio recording for local storage
 		try {
 			console.log('OverlayApp: Stopping audio recording for meeting:', currentMeetingId);
-			console.log(
-				'OverlayApp: stopAudioRecording function available:',
-				typeof stopAudioRecording,
-			);
-			stopAudioRecording();
+			console.log('OverlayApp: stopRecording function available:', typeof stopRecording);
+			// Note: stopRecording is already called above, this is for local audio storage cleanup
 			console.log('OverlayApp: Audio recording stopped successfully');
 		} catch (error) {
 			console.error('OverlayApp: Error stopping audio recording:', error);
@@ -488,6 +561,23 @@ const OverlayApp = () => {
 				allThreads: [],
 			},
 		}));
+
+		// Send empty arrays to notch to clear data when meeting ends
+		try {
+			// Clear transcriptions in notch
+			if (window.electronApi?.notchdrop?.replaceTranscriptions) {
+				window.electronApi.notchdrop.replaceTranscriptions([]);
+				console.log('✅ Sent empty transcription array to NotchDrop for cleanup');
+			}
+
+			// Clear live intelligence data in notch
+			if (window.electronApi?.notchdrop?.clearLiveIntelligenceData) {
+				window.electronApi.notchdrop.clearLiveIntelligenceData();
+				console.log('✅ Cleared live intelligence data in NotchDrop for cleanup');
+			}
+		} catch (e) {
+			console.error('Failed to clear data in NotchDrop during meeting cleanup:', e);
+		}
 
 		// Reset stopping flag after cleanup
 		setTimeout(() => {
@@ -563,7 +653,7 @@ const OverlayApp = () => {
 
 		if (window.electronApi?.overlay?.onCommand) {
 			// console.log('✅ Setting up overlay command listener');
-			window.electronApi.overlay.onCommand(handleOverlayCommand);
+			// window.electronApi.overlay.onCommand(handleOverlayCommand);
 		} else {
 			console.error('❌ Overlay command listener not available');
 			// console.log(
@@ -576,7 +666,7 @@ const OverlayApp = () => {
 			isMountedRef.current = false;
 			// Clean up overlay command listener
 			if (window.electronApi?.overlay?.removeCommandListener) {
-				window.electronApi.overlay.removeCommandListener();
+				// window.electronApi.overlay.removeCommandListener();
 			}
 		};
 	}, [toggleMute, startRecording, stopRecording]);
@@ -625,6 +715,23 @@ const OverlayApp = () => {
 			// Open live intelligence panel and start recording automatically
 			setActivePanel('live-intelligence');
 
+			// Ensure overlay window is visible for proper Ask AI positioning
+			window?.electronApi?.overlay?.showOverlayWindow();
+
+			// Notify Notch: overlay is showing live intelligence → Notch should show transcription
+			try {
+				if (window?.electronApi?.overlay?.setPanelMode) {
+					window.electronApi.overlay.setPanelMode('live-intel');
+					console.log(
+						'🧭 OverlayApp: Set panel mode to live-intel (Notch will show transcription)',
+					);
+				} else {
+					console.warn('⚠️ OverlayApp: setPanelMode method not available');
+				}
+			} catch (e) {
+				console.error('❌ OverlayApp: Failed to send panel mode (live-intel) to Notch:', e);
+			}
+
 			// Mark current threads as seen when opening live intelligence
 			const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
 			setLastSeenThreadCount(currentThreadCount);
@@ -646,6 +753,23 @@ const OverlayApp = () => {
 
 		// Always open live intelligence panel when triggered from Dynamic Island
 		setActivePanel('live-intelligence');
+
+		// Ensure overlay window is visible for proper Ask AI positioning
+		window?.electronApi?.overlay?.showOverlayWindow();
+
+		// Notify Notch: overlay is showing live intelligence → Notch should show transcription
+		try {
+			if (window?.electronApi?.overlay?.setPanelMode) {
+				window.electronApi.overlay.setPanelMode('live-intel');
+				console.log(
+					'🧭 OverlayApp: Set panel mode to live-intel (Notch will show transcription)',
+				);
+			} else {
+				console.warn('⚠️ OverlayApp: setPanelMode method not available');
+			}
+		} catch (e) {
+			console.error('❌ OverlayApp: Failed to send panel mode (live-intel) to Notch:', e);
+		}
 
 		// Mark current threads as seen when opening live intelligence via Dynamic Island
 		const currentThreadCount = info?.liveIntelligenceData?.allThreads?.length || 0;
@@ -670,6 +794,20 @@ const OverlayApp = () => {
 
 	const handleShowTranscript = () => {
 		setActivePanel('transcript');
+
+		// Notify Notch of current overlay mode so it can show the opposite
+		try {
+			if (window?.electronApi?.overlay?.setPanelMode) {
+				window.electronApi.overlay.setPanelMode('transcription');
+				console.log(
+					'🧭 OverlayApp: Set panel mode to transcription (Notch will show live intelligence)',
+				);
+			} else {
+				console.warn('⚠️ OverlayApp: setPanelMode method not available');
+			}
+		} catch (e) {
+			console.error('❌ OverlayApp: Failed to send panel mode (transcription) to Notch:', e);
+		}
 	};
 
 	const handleShowLiveIntelligence = () => {
@@ -679,6 +817,20 @@ const OverlayApp = () => {
 		// console.log('👁️ Switching to live intelligence - marking threads as seen:', currentThreadCount);
 
 		setActivePanel('live-intelligence');
+
+		// Notify Notch of current overlay mode so it can show the opposite
+		try {
+			if (window?.electronApi?.overlay?.setPanelMode) {
+				window.electronApi.overlay.setPanelMode('live-intel');
+				console.log(
+					'🧭 OverlayApp: Set panel mode to live-intel (Notch will show transcription)',
+				);
+			} else {
+				console.warn('⚠️ OverlayApp: setPanelMode method not available');
+			}
+		} catch (e) {
+			console.error('❌ OverlayApp: Failed to send panel mode (live-intel) to Notch:', e);
+		}
 	};
 
 	// Function to send recording state updates to Dynamic Island
@@ -719,11 +871,17 @@ const OverlayApp = () => {
 
 	useEffect(() => {
 		if (aiTranscriptionSuggestions && aiTranscriptionSuggestions?.suggestions?.length > 0) {
+			console.log(
+				'🧠 OverlayApp: Processing live intelligence suggestions:',
+				aiTranscriptionSuggestions.suggestions.length,
+			);
+
 			const allThreads = [];
 			const askUser = [];
 			const needHelp = [];
 			const actions = [];
 			const files = [];
+
 			aiTranscriptionSuggestions.suggestions.forEach((suggestion) => {
 				if (suggestion.entity === 'user') {
 					askUser.push(suggestion);
@@ -747,34 +905,55 @@ const OverlayApp = () => {
 					allThreads,
 				},
 			}));
+
+			// Send live intelligence data to notch immediately when it arrives
+			try {
+				if (window?.electronApi?.overlay?.sendLiveIntelligenceData) {
+					console.log(
+						'🧠 OverlayApp: Sending live intelligence data to NotchDrop:',
+						allThreads.length,
+						'threads',
+					);
+					allThreads.forEach((thread) => {
+						const message = {
+							source: 'ai-agent',
+							text: thread.prompt || thread.name || thread.description || '',
+							timestamp:
+								thread.timestamp || thread.created_at || new Date().toISOString(),
+							type: 'live-intelligence',
+							confidence: thread.confidence,
+							metadata: thread,
+						};
+						window.electronApi.overlay.sendLiveIntelligenceData(message);
+					});
+					console.log(
+						'✅ OverlayApp: Live intelligence data sent to NotchDrop successfully',
+					);
+				} else {
+					console.warn('⚠️ OverlayApp: sendLiveIntelligenceData method not available');
+				}
+			} catch (e) {
+				console.error('❌ OverlayApp: Failed to send live intelligence data to Notch:', e);
+			}
 		}
 	}, [aiTranscriptionSuggestions]);
 
-	// Save audio when recording stops
+	// Debug effect to monitor state changes
 	useEffect(() => {
-		const saveAudio = async () => {
-			// Use the meeting ID from the ref (which should persist until after saving)
-			const currentMeetingId = meetingIdRef.current;
-
-			if (audioBlob && !isAudioRecording && currentMeetingId) {
-				try {
-					const result = await audioStorageService.saveAudio(currentMeetingId, audioBlob);
-					if (result.success) {
-						// Clear the meeting ID ref ONLY after successful save
-						meetingIdRef.current = null;
-					} else {
-						console.error('OverlayApp: Failed to save audio:', result.error);
-					}
-				} catch (error) {
-					console.error('OverlayApp: Error saving audio:', error);
-				}
-			} else if (audioBlob && !isAudioRecording && !currentMeetingId) {
-				console.error('OverlayApp: Cannot save audio - no meeting ID available');
-			}
-		};
-
-		saveAudio();
-	}, [audioBlob, isAudioRecording]);
+		console.log('🔍 OverlayApp State Debug:', {
+			activePanel,
+			isRecording,
+			transcriptionsCount: info?.transcriptions?.length || 0,
+			liveIntelligenceCount: info?.liveIntelligenceData?.allThreads?.length || 0,
+			aiSuggestionsCount: aiTranscriptionSuggestions?.suggestions?.length || 0,
+		});
+	}, [
+		activePanel,
+		isRecording,
+		info?.transcriptions?.length,
+		info?.liveIntelligenceData?.allThreads?.length,
+		aiTranscriptionSuggestions?.suggestions?.length,
+	]);
 
 	return (
 		<div
@@ -819,6 +998,7 @@ const OverlayApp = () => {
 						timer={timer}
 						formatTime={formatTime}
 						socketData={info?.liveIntelligenceData}
+						sessionId={info?.meetingData?._id}
 					/>
 				</div>
 			)}
