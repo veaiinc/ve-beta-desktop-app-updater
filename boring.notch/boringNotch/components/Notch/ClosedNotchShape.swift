@@ -153,24 +153,20 @@ struct ClosedNotchContentView: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 24) {
-            // Home icon with Listen text
-            HStack(spacing: 24) {
-                HomeTabIcon(strokeColor: .white)
-                    .frame(width: 13, height: 13)
-                ShelfTabIcon(strokeColor: .white)
-                     .frame(width: 13, height: 13)
-                Text("Listen")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
-                Text("Ask")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
-            }
-        
+        HStack(alignment: .center, spacing: 0) {
+            // Ve logo on the left
+            Image("ve-logo")
+                .resizable()
+                .renderingMode(.template)
+                .foregroundColor(.white)
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 50, height: 32)
+                .padding(.leading, -5)
+            
+            Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 0)
+        .padding(.vertical, 0)
     }
 }
 
