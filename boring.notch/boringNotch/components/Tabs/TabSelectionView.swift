@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import LucideIcons
 
 enum TabDisplayStyle {
     case homeIcon
@@ -36,6 +37,16 @@ private struct TabItem: View {
     let animation: Namespace.ID
     let onTap: () -> Void
     @State private var isHovering = false
+
+    // Reduce padding for text tabs (Listen, Ask) to bring them closer together
+    private var horizontalPadding: CGFloat {
+        switch tab.displayStyle {
+        case .textLabel:
+            return 8
+        default:
+            return 12
+        }
+    }
     
     var body: some View {
         TabButton(selected: selected, onClick: onTap) {
@@ -43,7 +54,7 @@ private struct TabItem: View {
                 HStack(alignment: .center, spacing: 0) {
                     TabContentView(tab: tab, isSelected: selected)
                 }
-                .padding(.horizontal, 12)
+                .padding(.horizontal, horizontalPadding)
                 .padding(.vertical, 2)
                 .frame(height: 24, alignment: .center)
                 .background(Color.white.opacity(0.1))
@@ -57,7 +68,7 @@ private struct TabItem: View {
                 HStack(alignment: .center, spacing: 0) {
                     TabContentView(tab: tab, isSelected: selected)
                 }
-                .padding(.horizontal, 12)
+                .padding(.horizontal, horizontalPadding)
                 .padding(.vertical, 2)
                 .frame(height: 24, alignment: .center)
                 .background(isHovering ? Color(red: 1, green: 1, blue: 1).opacity(0.12) : Color.clear)
@@ -78,25 +89,37 @@ private struct TabContentView: View {
     let isSelected: Bool
     
     private var iconColor: Color {
-        isSelected ? .white : Color.white.opacity(0.7)
+        .white
     }
     
     var body: some View {
         switch tab.displayStyle {
         case .homeIcon:
-            HomeTabIcon(strokeColor: iconColor)
-                .frame(width: 16, height: 16)
+            #if canImport(AppKit)
+            if let houseIcon = NSImage.image(lucideId: "house") {
+                Image(nsImage: houseIcon)
+                    .renderingMode(.template)
+                    .foregroundColor(iconColor)
+                    .frame(width: 13, height: 13)
+            }
+            #endif
         case .shelfIcon:
-            ShelfTabIcon(strokeColor: iconColor)
-                .frame(width: 16, height: 16)
+            #if canImport(AppKit)
+            if let inboxIcon = NSImage.image(lucideId: "inbox") {
+                Image(nsImage: inboxIcon)
+                    .renderingMode(.template)
+                    .foregroundColor(iconColor)
+                    .frame(width: 13, height: 13)
+            }
+            #endif
         case .systemSymbol(let name):
             Image(systemName: name)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(size: 21, weight: .semibold))
                 .foregroundColor(iconColor)
         case .textLabel(let text):
             Text(text)
-                .font(.footnote)
-                .foregroundColor(iconColor)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white)
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
         }
@@ -329,7 +352,7 @@ struct TabSelectionView: View {
             
         } else {
             // Show all tabs normally
-            HStack(spacing: 0) {
+            HStack(spacing: 6) {
                 ForEach(tabs) { tab in
                     TabItem(
                         tab: tab,
@@ -359,6 +382,7 @@ struct TabSelectionView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         
+    
     }
     
 }

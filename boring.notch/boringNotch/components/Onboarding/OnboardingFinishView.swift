@@ -1,6 +1,6 @@
 //
 //  OnboardingFinishView.swift
-//  boringNotch
+//  VENotch
 //
 //  Created by Alexander on 2025-06-23.
 //

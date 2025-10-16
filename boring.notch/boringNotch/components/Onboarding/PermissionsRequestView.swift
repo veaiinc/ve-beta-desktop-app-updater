@@ -14,7 +14,7 @@ struct PermissionRequestView: View {
     let privacyNote: String?
     let onAllow: () -> Void
     let onSkip: () -> Void
-
+ 
     var body: some View {
         VStack(spacing: 28) {
             icon

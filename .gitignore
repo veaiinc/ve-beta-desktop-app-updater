@@ -127,3 +127,5 @@ boring.notch/**/*.tmp
 boring.notch/**/*.temp
 boring.notch/**/*.log
 boring.notch/**/*.cache
+
+boring.notch/build

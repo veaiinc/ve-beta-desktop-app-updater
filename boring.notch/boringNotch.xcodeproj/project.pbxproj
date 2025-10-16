@@ -83,6 +83,7 @@
 		9A987A0D2C73CA66005CA465 /* NotchShelfView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A987A032C73CA66005CA465 /* NotchShelfView.swift */; };
 		9A987A102C73CA8D005CA465 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 9A987A0F2C73CA8D005CA465 /* Collections */; };
 		9AB0C6BD2C73C9CB00F7CD30 /* NotchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB0C6BB2C73C9CB00F7CD30 /* NotchHomeView.swift */; };
+		A966AEB72E9F7B5E0055C6C6 /* LucideIcons in Frameworks */ = {isa = PBXBuildFile; productRef = A966AEB62E9F7B5E0055C6C6 /* LucideIcons */; };
 		A9B8A6512E9E25180050577A /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8A6502E9E25180050577A /* WebSocketManager.swift */; };
 		A9B8A6532E9E28120050577A /* MeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8A6522E9E28120050577A /* MeetingView.swift */; };
 		A9B8A6552E9E3ABC0050577A /* MeetingButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8A6542E9E3AAB0050577A /* MeetingButtons.swift */; };
@@ -268,6 +269,7 @@
 				14D0321A2C68F32E0096E6A1 /* LaunchAtLogin in Frameworks */,
 				B1A78C842C8C65ED00BD51B0 /* MediaRemote.framework in Frameworks */,
 				B18654392C6F4990000B926A /* KeyboardShortcuts in Frameworks */,
+				A966AEB72E9F7B5E0055C6C6 /* LucideIcons in Frameworks */,
 				B19016222CC15B3D00E3F12E /* Defaults in Frameworks */,
 				B1628B922CC260C0003D8DF3 /* SwiftUIIntrospect in Frameworks */,
 			);
@@ -651,6 +653,7 @@
 				B1628B912CC260C0003D8DF3 /* SwiftUIIntrospect */,
 				B194240A2CD10017003E5DC2 /* LottieUI */,
 				146BC4362D366E9B0047C66A /* MacroVisionKit */,
+				A966AEB62E9F7B5E0055C6C6 /* LucideIcons */,
 			);
 			productName = dynamicNotch;
 			productReference = 14CEF4122C5CAED300855D72 /* boringNotch.app */;
@@ -692,6 +695,7 @@
 				B1628B902CC260C0003D8DF3 /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 				B19424072CD0DB52003E5DC2 /* XCRemoteSwiftPackageReference "LottieUI" */,
 				146BC4352D366E9B0047C66A /* XCRemoteSwiftPackageReference "MacroVisionKit" */,
+				A966AEB52E9F7B5E0055C6C6 /* XCRemoteSwiftPackageReference "lucide-icons-swift" */,
 			);
 			productRefGroup = 14CEF4132C5CAED300855D72 /* Products */;
 			projectDirPath = "";
@@ -972,7 +976,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = boringNotch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TheBoringNotch;
+				INFOPLIST_KEY_CFBundleDisplayName = Ve.Ai;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = NO;
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -988,7 +992,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = "2.7-rc.3";
 				PRODUCT_BUNDLE_IDENTIFIER = theboringteam.boringnotch;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Ve.Ai";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = targeted;
@@ -1026,7 +1030,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = boringNotch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TheBoringNotch;
+				INFOPLIST_KEY_CFBundleDisplayName = Ve.Ai;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = NO;
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -1042,7 +1046,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = "2.7-rc.3";
 				PRODUCT_BUNDLE_IDENTIFIER = theboringteam.boringnotch;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Ve.Ai";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = targeted;
@@ -1126,6 +1130,14 @@
 				minimumVersion = 1.0.4;
 			};
 		};
+		A966AEB52E9F7B5E0055C6C6 /* XCRemoteSwiftPackageReference "lucide-icons-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/shahnawaz-ve/lucide-icons-swift.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		B1628B902CC260C0003D8DF3 /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/siteline/swiftui-introspect";
@@ -1185,6 +1197,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9A987A0E2C73CA8D005CA465 /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = Collections;
+		};
+		A966AEB62E9F7B5E0055C6C6 /* LucideIcons */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A966AEB52E9F7B5E0055C6C6 /* XCRemoteSwiftPackageReference "lucide-icons-swift" */;
+			productName = LucideIcons;
 		};
 		B1628B912CC260C0003D8DF3 /* SwiftUIIntrospect */ = {
 			isa = XCSwiftPackageProductDependency;

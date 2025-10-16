@@ -8,7 +8,7 @@ const projectRoot = path.join(__dirname, '..')
 const boringNotchDir = path.join(projectRoot, 'boring.notch')
 const xcodeProject = path.join(boringNotchDir, 'boringNotch.xcodeproj')
 const buildDir = path.join(boringNotchDir, 'build')
-const builtAppPath = path.join(buildDir, 'Build', 'Products', 'Debug', 'boringNotch.app')
+const builtAppPath = path.join(buildDir, 'Build', 'Products', 'Debug', 'Ve.Ai.app')
 const targetAppPath = path.join(buildDir, 'boringNotch.app')
 
 console.log('🚀 Building Boring Notch app...')

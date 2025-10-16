@@ -4,7 +4,7 @@ import BlockPage from '../views/features/landingScreen/blockPage/BlockPage';
 import AuthWrapper from '../views/layouts/authWrapper';
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 
-// Lazy load the pricing page
+// Lazy load the pricing page (must be a component, not a string)
 const PricingPage = lazy(() => import('../views/features/pricingPlans/pricingPage'));
 
 const suspendedRoute = [
@@ -12,9 +12,11 @@ const suspendedRoute = [
 	{
 		path: '/settings/pricing',
 		element: (
-			<AuthWrapper title={'Pricing'}>
-				<PricingPage />
-			</AuthWrapper>
+			<Suspense fallback={<SuspenseFallback />}>
+				<AuthWrapper title={'Pricing'}>
+					<PricingPage />
+				</AuthWrapper>
+			</Suspense>
 		),
 	},
 	// Block all other routes for suspended users

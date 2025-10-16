@@ -299,11 +299,13 @@ const Settings = memo(
 		};
 		const handleSettingItemClick = useCallback(
 			(settingItem) => {
+				console.log('settingItem', settingItem);
 				if (settingItem.route) {
 					navigate(settingItem.route);
 				} else {
 					if (settingItem.label === 'Help') {
 						// Use global Intercom instance
+
 						if (window.Intercom) {
 							if (info.intercomOpen) {
 								window.Intercom('shutdown');

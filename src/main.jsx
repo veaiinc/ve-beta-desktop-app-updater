@@ -6,7 +6,12 @@ import ContextState from './context/ContextStates';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
 	<ContextState>
-		<HashRouter>
+		<HashRouter
+			future={{
+				v7_startTransition: true,
+				v7_relativeSplatPath: true
+			}}
+		>
 			<App />
 		</HashRouter>
 	</ContextState>,
