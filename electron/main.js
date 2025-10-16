@@ -1080,6 +1080,7 @@ ipcMain.handle('websocket-send-message', async (event, data) => {
 		}
 
 		websocketService.broadcast(data);
+		log.info('WebSocket message sent: ', data?.type);
 		return { success: true };
 	} catch (error) {
 		log.error('❌ Failed to send WebSocket message:', error);
@@ -4451,34 +4452,133 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Helper function to open system settings for specific permissions
+	const openSystemSettingsForPermission = async (permissionType) => {
+		const platform = process.platform;
+
+		try {
+			if (platform === 'darwin') {
+				let settingsUrl = '';
+				switch (permissionType) {
+					case 'microphone':
+						settingsUrl =
+							'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone';
+						break;
+					case 'screen':
+						settingsUrl =
+							'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture';
+						break;
+					default:
+						settingsUrl = 'x-apple.systempreferences:';
+				}
+
+				await shell.openExternal(settingsUrl);
+				log.info(`🔧 Opened ${permissionType} settings in System Preferences`);
+				return { success: true, platform: 'macOS' };
+			} else if (platform === 'win32') {
+				let settingsCommand = '';
+				switch (permissionType) {
+					case 'microphone':
+						settingsCommand = 'start ms-settings:privacy-microphone';
+						break;
+					case 'screen':
+						settingsCommand = 'start ms-settings:privacy';
+						break;
+					default:
+						settingsCommand = 'start ms-settings:';
+				}
+
+				exec(settingsCommand, (error) => {
+					if (error) {
+						log.error(`Failed to open Windows ${permissionType} settings:`, error);
+					}
+				});
+				return { success: true, platform: 'Windows' };
+			} else {
+				log.warn('Unsupported platform for system settings:', platform);
+				return { success: false, error: 'Unsupported platform' };
+			}
+		} catch (err) {
+			log.error(`❌ Error opening ${permissionType} settings:`, err);
+			return { success: false, error: err.message };
+		}
+	};
+
 	async function checkPermissions() {
 		try {
-			// Check if microphone hardware exists
-			const devices = await desktopCapturer.getSources({
-				types: ['audio'],
-			});
-			const micAvailable = devices.length > 0;
+			log.info('🔍 Starting permission checks...');
 
-			if (!micAvailable) {
-				return {
-					status: 'no_hardware',
-					message: 'No microphone detected',
-				};
+			// Check microphone permission and request if needed
+			log.info('🔍 Checking microphone permission...');
+			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+			log.info('🔍 Microphone permission status:', micStatus);
+
+			let micPermission = micStatus === 'granted';
+
+			if (micStatus !== 'granted') {
+				log.info('🔍 Requesting microphone permission...');
+				try {
+					micPermission = await systemPreferences.askForMediaAccess('microphone');
+					log.info('🔍 Microphone permission request result:', micPermission);
+
+					// If still not granted, open system settings
+					if (!micPermission) {
+						log.info('🔧 Opening microphone settings in System Preferences...');
+						await openSystemSettingsForPermission('microphone');
+					}
+				} catch (error) {
+					log.error('🔍 Error requesting microphone permission:', error);
+					micPermission = false;
+					// Open system settings as fallback
+					await openSystemSettingsForPermission('microphone');
+				}
 			}
-
-			// Check microphone permission
-			const micPermission = await app.askForMediaAccess('microphone');
 
 			if (!micPermission) {
 				return {
 					status: 'permission_denied',
-					message: 'Microphone permission denied',
+					message:
+						'Microphone permission not granted. Please allow microphone access in System Settings.',
+					settingsOpened: true,
 				};
 			}
 
-			// Check screen permission
-			const screenPermission = await app.askForMediaAccess('screen');
+			// Check screen permission and request if needed
+			log.info('🔍 Checking screen permission...');
+			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
+			log.info('🔍 Screen permission status:', screenStatus);
 
+			let screenPermission = screenStatus === 'granted';
+
+			if (screenStatus !== 'granted') {
+				log.info('🔍 Requesting screen permission...');
+				try {
+					screenPermission = await systemPreferences.askForMediaAccess('screen');
+					log.info('🔍 Screen permission request result:', screenPermission);
+
+					// If still not granted, open system settings
+					if (!screenPermission) {
+						log.info('🔧 Opening screen recording settings in System Preferences...');
+						await openSystemSettingsForPermission('screen');
+					}
+				} catch (error) {
+					log.error('🔍 Error requesting screen permission:', error);
+					screenPermission = false;
+					// Open system settings as fallback
+					await openSystemSettingsForPermission('screen');
+				}
+			}
+
+			if (!screenPermission) {
+				return {
+					status: 'permission_denied',
+					message:
+						'Screen permission not granted. Please allow screen recording access in System Settings.',
+					settingsOpened: true,
+				};
+			}
+
+			log.info('🔍 All permissions granted successfully');
 			return {
 				status: 'success',
 				microphone: micPermission,
@@ -4486,6 +4586,7 @@ app.whenReady().then(async () => {
 				message: 'All permissions granted',
 			};
 		} catch (err) {
+			log.error('🔍 Error in checkPermissions:', err);
 			return {
 				status: 'error',
 				message: err.message,
@@ -4494,9 +4595,9 @@ app.whenReady().then(async () => {
 	}
 
 	async function checkPermissionsAndStartMeeting(ws) {
+		log.info('🚀 checkPermissionsAndStartMeeting function called');
 		const result = await checkPermissions();
-		log.info("checkPermissionsAndStartMeeting result", result);
-	
+		log.info('checkPermissionsAndStartMeeting result', result);
 
 		let message = '';
 
@@ -4504,22 +4605,20 @@ app.whenReady().then(async () => {
 			log.info('All permissions granted - starting meeting');
 			await handleNotchToMainWindowEvents({ action: 'startRecording' });
 
+			// Send success response to WebSocket client
+			websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
 			return { success: true };
 		}
 
 		if (result.status === 'permission_denied') {
-			if (!result.microphone) {
-				message = 'Please grant microphone permission in settings and try again';
-			} else if (!result.screen) {
-				message = 'Please grant screen permission in settings and try again';
-			}
+			message = result.message || 'Permissions not granted';
 		} else if (result.status === 'no_hardware') {
 			message = 'No microphone detected on this system';
 		} else if (result.status === 'error') {
 			message = 'Error checking permissions: ' + result.message;
 		}
 
-		log.info("checkPermissionsAndStartMeeting message", message);
+		log.info('checkPermissionsAndStartMeeting message', message);
 
 		websocketService.sendToClient(ws, { type: 'MEETING_START_ERROR', data: { message } });
 		return { success: false, error: message };
@@ -4533,7 +4632,15 @@ app.whenReady().then(async () => {
 				log.info(
 					'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
 				);
-				checkPermissionsAndStartMeeting(ws);
+				try {
+					await checkPermissionsAndStartMeeting(ws);
+				} catch (error) {
+					log.error('Error in checkPermissionsAndStartMeeting:', error);
+					websocketService.sendToClient(ws, {
+						type: 'MEETING_START_ERROR',
+						data: { message: 'Internal error: ' + error.message },
+					});
+				}
 				break;
 
 			case 'PAUSE_MEETING':
