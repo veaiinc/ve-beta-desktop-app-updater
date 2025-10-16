@@ -2247,7 +2247,7 @@ export const Galleries = () => {
 		});
 	};
 
-	const showDownloadProgressPopup = () => {
+	const showDownloadProgressPopupFunc = () => {
 		dispatch({
 			type: Actions.UPDATE_STATE_VALUES_SUCCESS,
 			payload: {
@@ -2368,7 +2368,7 @@ export const Galleries = () => {
 		updateDownloadSession,
 		removeDownloadSession,
 		hideDownloadProgressPopup,
-		showDownloadProgressPopup,
 		showUploadProgressPopupFunc,
+		showDownloadProgressPopupFunc,
 	};
 };

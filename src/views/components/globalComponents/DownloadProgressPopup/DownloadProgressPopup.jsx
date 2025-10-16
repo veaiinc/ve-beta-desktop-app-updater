@@ -684,20 +684,21 @@ const DownloadProgressPopup = () => {
 		const allCompleted = states.every((state) => state.status === 'completed');
 		const allFailed = states.every((state) => state.status === 'failed');
 		const allFinished = allCompleted || allFailed;
-
+		if (allFinished) {
+			hideDownloadProgressPopup();
+		}
 		if (allFinished && !showCompletionMessage) {
 			// Show completion message first
 			setShowCompletionMessage(true);
 
 			// Wait 3 seconds to show completion message, then close
 			const timer = setTimeout(() => {
-				hideDownloadProgressPopup();
 				setShowCompletionMessage(false);
 			}, 3000);
 
 			return () => clearTimeout(timer);
 		}
-	}, [activeDownloads, hideDownloadProgressPopup, showCompletionMessage]);
+	}, [activeDownloads, showCompletionMessage]);
 
 	// Ensure popup shows if there are active downloads, even if state is inconsistent
 	const hasActiveDownloads = activeDownloads.size > 0;

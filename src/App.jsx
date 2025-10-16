@@ -33,7 +33,7 @@ const AppContent = () => {
 	const { routes } = useWorkspaceMode();
 	const location = useLocation();
 	const {
-		galleryInfo: { showUploadProgressPopup },
+		galleryInfo: { showUploadProgressPopup, showDownloadProgressPopup },
 	} = useContext(Context);
 
 	// Global NotchDrop sync - keeps NotchDrop updated with meeting data across all routes
@@ -443,7 +443,7 @@ const AppContent = () => {
 			{/* Global Upload Progress Popup - persists across all routes */}
 			{showUploadProgressPopup && <UploadProgressPopup />}
 			{/* Global Download Progress Popup - persists across all routes */}
-			<DownloadProgressPopup />
+			{showDownloadProgressPopup && <DownloadProgressPopup />}
 			{/* Update Progress Indicator */}
 			{updateProgress && (
 				<div
