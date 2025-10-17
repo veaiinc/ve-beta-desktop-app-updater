@@ -140,6 +140,8 @@ struct GeneralSettings: View {
     @Default(.nonNotchHeightMode) var nonNotchHeightMode
     @Default(.notchHeight) var notchHeight
     @Default(.notchHeightMode) var notchHeightMode
+    @Default(.nonNotchWidth) var nonNotchWidth
+    @Default(.nonNotchWidthMode) var nonNotchWidthMode
     @Default(.showOnAllDisplays) var showOnAllDisplays
     @Default(.automaticallySwitchDisplay) var automaticallySwitchDisplay
     @Default(.enableGestures) var enableGestures
@@ -241,6 +243,40 @@ struct GeneralSettings: View {
                 }
             } header: {
                 Text("Notch Height")
+            }
+
+            Section {
+                Picker("Non-notch display width", selection: $nonNotchWidthMode) {
+                    Text("Match menubar width")
+                        .tag(WindowHeightMode.matchMenuBar)
+                    Text("Match real notch size")
+                        .tag(WindowHeightMode.matchRealNotchSize)
+                    Text("Custom width")
+                        .tag(WindowHeightMode.custom)
+                }
+                .onChange(of: nonNotchWidthMode) {
+                    switch nonNotchWidthMode {
+                    case .matchMenuBar:
+                        nonNotchWidth = 300
+                    case .matchRealNotchSize:
+                        nonNotchWidth = 300
+                    case .custom:
+                        nonNotchWidth = 300
+                    }
+                    NotificationCenter.default.post(
+                        name: Notification.Name.notchHeightChanged, object: nil)
+                }
+                if nonNotchWidthMode == .custom {
+                    Slider(value: $nonNotchWidth, in: 20...600, step: 1) {
+                        Text("Custom notch size - \(nonNotchWidth, specifier: "%.0f")")
+                    }
+                    .onChange(of: nonNotchWidth) {
+                        NotificationCenter.default.post(
+                            name: Notification.Name.notchHeightChanged, object: nil)
+                    }
+                }
+            } header: {
+                Text("Non-Notch Width")
             }
 
             NotchBehaviour()

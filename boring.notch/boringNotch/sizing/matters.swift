@@ -47,28 +47,47 @@ func getClosedNotchSize(screen: String? = nil) -> CGSize {
 
     // Check if the screen is available
     if let screen = selectedScreen {
-        // Calculate and set the exact width of the notch
-        if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
-           let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width
-        {
-            notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 4
-        }
-
         // Check if the Mac has a notch
         if screen.safeAreaInsets.top > 0 {
-            // This is a display WITH a notch - use notch height settings
+            // This is a display WITH a notch - use notch height and width settings
             notchHeight = Defaults[.notchHeight]
             if Defaults[.notchHeightMode] == .matchRealNotchSize {
                 notchHeight = screen.safeAreaInsets.top
             } else if Defaults[.notchHeightMode] == .matchMenuBar {
                 notchHeight = screen.frame.maxY - screen.visibleFrame.maxY
             }
+            
+            // Apply width settings for displays WITH a notch
+            notchWidth = Defaults[.notchWidth]
+            if Defaults[.notchWidthMode] == .matchRealNotchSize {
+                // Use actual notch width
+                if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
+                   let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width
+                {
+                    notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 4
+                }
+            } else if Defaults[.notchWidthMode] == .matchMenuBar {
+                // Use menubar width (full screen width minus safe area)
+                notchWidth = screen.frame.width - (screen.safeAreaInsets.left + screen.safeAreaInsets.right)
+            }
+            // For .custom mode, use the Defaults[.notchWidth] value directly
         } else {
-            // This is a display WITHOUT a notch - use non-notch height settings
+            // This is a display WITHOUT a notch - use non-notch height and width settings
             notchHeight = Defaults[.nonNotchHeight]
             if Defaults[.nonNotchHeightMode] == .matchMenuBar {
                 notchHeight = screen.frame.maxY - screen.visibleFrame.maxY
             }
+            
+            // Apply width settings for non-notch displays
+            notchWidth = Defaults[.nonNotchWidth]
+            if Defaults[.nonNotchWidthMode] == .matchMenuBar {
+                // Use menubar width (full screen width minus safe area)
+                notchWidth = screen.frame.width - (screen.safeAreaInsets.left + screen.safeAreaInsets.right)
+            } else if Defaults[.nonNotchWidthMode] == .matchRealNotchSize {
+                // Use a standard notch width for consistency
+                notchWidth = 360
+            }
+            // For .custom mode, use the Defaults[.nonNotchWidth] value directly
         }
     }
 

@@ -273,10 +273,9 @@ struct NotchBehaviourOnboardingView: View {
     @Default(.notchHeightMode) private var notchHeightMode
     @Default(.nonNotchHeight) private var nonNotchHeight
     @Default(.nonNotchHeightMode) private var nonNotchHeightMode
+    @Default(.nonNotchWidth) private var nonNotchWidth
+    @Default(.nonNotchWidthMode) private var nonNotchWidthMode
     @Default(.openNotchOnHover) private var openNotchOnHover
-    // Temporary width controls to match onboarding UI (not wired to Defaults yet)
-    @State private var nonNotchWidthMode: WindowHeightMode = .matchMenuBar
-    @State private var nonNotchWidth: CGFloat = 50
 
     var body: some View {
         GeometryReader { geo in
@@ -339,23 +338,23 @@ struct NotchBehaviourOnboardingView: View {
                 
                 Divider().opacity(0.15)
 
-                // row {
-                //     Text("Non-notch display width")
-                //     Spacer()
-                //     Picker("", selection: $nonNotchWidthMode) {
-                //         Text("Match menubar width").tag(WindowHeightMode.matchMenuBar)
-                //         Text("Match real notch size").tag(WindowHeightMode.matchRealNotchSize)
-                //         Text("Custom width").tag(WindowHeightMode.custom)
-                //     }
-                //     .labelsHidden()
-                //     .frame(width: 220)
-                // }
-                // if nonNotchWidthMode == .custom {
-                //     controlRow {
-                //         Text("Custom width size – \(nonNotchWidth, specifier: "%.0f")")
-                //         Slider(value: $nonNotchWidth, in: 20...200, step: 1)
-                //     }
-                // }
+                row {
+                    Text("Non-notch display width")
+                    Spacer()
+                    Picker("", selection: $nonNotchWidthMode) {
+                        Text("Match menubar width").tag(WindowHeightMode.matchMenuBar)
+                        Text("Match real notch size").tag(WindowHeightMode.matchRealNotchSize)
+                        Text("Custom width").tag(WindowHeightMode.custom)
+                    }
+                    .labelsHidden()
+                    .frame(width: 220)
+                }
+                if nonNotchWidthMode == .custom {
+                    controlRow {
+                        Text("Custom notch size – \(nonNotchWidth, specifier: "%.0f")")
+                        Slider(value: $nonNotchWidth, in: 20...600, step: 1)
+                    }
+                }
             }
             .padding(18)
             .background(Color.black.opacity(0.12))
