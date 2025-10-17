@@ -126,7 +126,7 @@ const stableRoutes = [
 						showChats={false}
 						showChatsButton={true}
 						showBrowser={true}
-						showResponseEditBtn={false}
+						showResponseEditBtn={true}
 					/>
 				</AuthWrapper>
 			</Suspense>

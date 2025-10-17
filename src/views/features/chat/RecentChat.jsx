@@ -24,8 +24,9 @@ import ChatHeader from '../../components/chat/ChatHeader';
 import { message } from '../../components/globalComponents/CustomToast';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import ChatRightBar from '../../components/chat/chatComponents/ChatRightBar';
-import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import Browser from '../../components/chat/chatComponents/Browser';
+import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';
+import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 
 const RecentChat = ({
 	isPublicChat = false,
@@ -72,7 +73,7 @@ const RecentChat = ({
 
 	const [info, setInfo] = useState({
 		chatLoading: false,
-		noteModalIsOpen: false,
+		chatToNoteLoopOn: false,
 		scrollExecuted: false,
 		renderingTwice: false,
 		showScrollButton: false,
@@ -533,18 +534,8 @@ const RecentChat = ({
 		[sessionId, agentType],
 	);
 
-	const handleNoteComponentModalClose = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			noteModalIsOpen: false,
-		}));
-	}, []);
-
 	const handleNoteComponentModalOpen = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			noteModalIsOpen: true,
-		}));
+		handleRightBarToggle({ open: true, activeRightBar: 'notes' });
 	}, []);
 
 	const smoothScrollToBottom = useCallback((type) => {
@@ -788,6 +779,13 @@ const RecentChat = ({
 		});
 	}, []);
 
+	const handleChatToNoteLoopClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			chatToNoteLoopOn: !prev?.chatToNoteLoopOn,
+		}));
+	}, []);
+
 	return (
 		<>
 			<div
@@ -813,6 +811,20 @@ const RecentChat = ({
 							showDeleteChat={showDeleteChat}
 							showChats={showChats}
 						/>
+					)}
+
+					{info?.activeRightBar === 'notes' && (
+						<div className="chat-to-note-link-container">
+							<div className="title">Link all chat to note</div>
+							<div
+								className={`link-icon-container ${
+									info?.chatToNoteLoopOn ? 'active' : ''
+								}`}
+								onClick={handleChatToNoteLoopClick}
+							>
+								{info?.chatToNoteLoopOn ? <LinkDarkSvg /> : <LinkLightSvg />}
+							</div>
+						</div>
 					)}
 
 					{/* chat body */}
@@ -1015,18 +1027,12 @@ const RecentChat = ({
 							activeRightBar={info?.activeRightBar}
 							handleRightBarToggle={handleRightBarToggle}
 							handleCloseCitationsModal={handleCloseCitationsModal}
+							chatToNoteLoopOn={info?.chatToNoteLoopOn}
+							sessionId={sessionId}
 						/>
 					)}
 				</div>
 			</div>
-
-			{info?.noteModalIsOpen && (
-				<NoteComponentModal
-					modalIsOpen={info?.noteModalIsOpen}
-					closeModal={handleNoteComponentModalClose}
-					sessionId={sessionId}
-				/>
-			)}
 		</>
 	);
 };
