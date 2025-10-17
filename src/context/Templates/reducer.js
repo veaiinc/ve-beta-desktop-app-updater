@@ -204,6 +204,10 @@ const actionHandlers = {
 			...action?.payload,
 		},
 	}),
+
+	// This reducer handles all streaming-related chat updates for each session.
+	// It maintains per-session chat state: messages, deep research progress, browser data, etc.
+	// { sessionId1 : {messages, recentChatInfo}, sessionId2 : {messages, recentChatInfo}}
 	HANDLE_STREAM_MESSAGE_CHUNK: (state, action) => {
 		let {
 			payload,
@@ -221,18 +225,25 @@ const actionHandlers = {
 			lastQuery,
 			chatBoxInfo,
 			chatInfo,
-			browserTabsInfo,
 			recentChatInfo,
 		} = action?.payload;
+
+		// Get existing messages for this session or an empty array if none
 		let messages = [...(state?.globalChatMessages?.[sessionId]?.messages || [])];
 
+		// =====================================================
+		// 🧩 CASE 1: Updating extra session-related info
+		// =====================================================
 		if (updateExtraInfo) {
+			// Get or create a container for session-specific data
 			let sessionIdData = state?.globalChatMessages?.[sessionId] || {};
 
+			// --- Chatbox Info Update (e.g., websearch, knowledge base mode)
 			if (chatBoxInfo) {
 				sessionIdData.chatBoxInfo = chatBoxInfo;
 			}
 
+			// --- If payload contains browser info (for live view / web browsing)
 			if (payload?.url_type === 'live_view' || payload?.browserMetadata) {
 				let browserData = sessionIdData?.browserData || {};
 				browserData = {
@@ -242,36 +253,33 @@ const actionHandlers = {
 				sessionIdData.browserData = browserData;
 			}
 
+			// --- Update recent chat metadata (currentPage, hasNextPage etc.)
 			if (recentChatInfo) {
 				sessionIdData.recentChatInfo = recentChatInfo;
 			}
 
-			if (browserTabsInfo) {
-				let browserData = sessionIdData?.browserData || {};
-				browserData = {
-					...browserData,
-					...browserTabsInfo,
-				};
-				sessionIdData.browserData = browserData;
-			}
-
+			// --- Store AI chat info (assistantId, agentType) ==> used for connecting to sockets like multiagent or knowledgeagent
 			if (chatInfo) {
 				sessionIdData.chatInfo = chatInfo;
 			}
 
+			// --- Update the latest streamed message
 			if (latestStreamMessage) {
 				sessionIdData.latestStreamMessage = latestStreamMessage;
 			}
 
+			// --- Remove latest stream message
 			if (removeLatestStreamMessage) {
 				sessionIdData.latestStreamMessage = null;
 				sessionIdData.lastQuery = null;
 			}
 
+			// --- Save the most recent query sent by user
 			if (lastQuery) {
 				sessionIdData.lastQuery = lastQuery;
 			}
 
+			// --- Remove all chat sessions except those with message arrays
 			if (removeChatSessions) {
 				let globalChatMessages = { ...state?.globalChatMessages };
 				globalChatMessages = Object.keys(globalChatMessages)?.reduce((acc, key) => {
@@ -283,23 +291,29 @@ const actionHandlers = {
 				return { ...state, globalChatMessages };
 			}
 
+			// --- Append or replace messages (depending on fetchMore flag)
 			if (recentChatMessages) {
 				if (fetchMore) {
+					// prepend older messages when fetching history
 					messages = recentChatMessages?.concat(messages);
 				} else {
+					// replace or merge when new recent chat arrives
 					messages = recentChatMessages?.concat(messages);
 				}
 				sessionIdData.messages = messages;
 			}
 
+			// --- Remove temporary loading message once the ai sends response
 			if (removeLoadingMessage) {
 				sessionIdData.loadingMessage = null;
 			}
 
+			// --- Stop streaming state after stream completion
 			if (removeStreaming) {
 				sessionIdData.isStreaming = false;
 			}
 
+			// --- Append intermediate text chunks to the ongoing loading message
 			if (payload?.hasOwnProperty('intermediate_response')) {
 				let loadingMessage = sessionIdData?.loadingMessage;
 				loadingMessage = loadingMessage || '';
@@ -307,6 +321,7 @@ const actionHandlers = {
 				sessionIdData.loadingMessage = loadingMessage;
 			}
 
+			// --- This contains moduleTemplateId, workflowTemplateId and it will be used in chatbox and it will be sent through payload for AI
 			if (chatPayload) {
 				sessionIdData.chatPayload = chatPayload;
 			}
@@ -320,11 +335,15 @@ const actionHandlers = {
 			};
 		}
 
+		// =====================================================
+		// 🧠 CASE 2: Stream handling for new or ongoing responses
+		// =====================================================
 		let requiredIndex = -1;
-		if (payload?.processing !== 'Normal Search') {
-			messages = messages?.filter((ele) => ele?.contentType !== 'loading');
-		}
 
+		// Remove temporary "loading" message
+		messages = messages?.filter((ele) => ele?.contentType !== 'loading');
+
+		// --- Find message that matches current stream chunkId (for incremental updates)
 		for (let i = messages?.length - 1; i >= 0; i--) {
 			if (messages?.[i]?.message_chunk_id === chunkId) {
 				requiredIndex = i;
@@ -332,39 +351,41 @@ const actionHandlers = {
 			}
 		}
 
+		// --- Info to store in the message session (thinking/memory metadata)
 		const info = {};
-		if (payload?.hasOwnProperty('memory_thinking')) {
-			info.memory_thinking = payload?.memory_thinking;
-		}
-
 		if (payload?.hasOwnProperty('open_browser')) {
 			info.open_browser = payload?.open_browser;
 		}
 
+		// =====================================================
+		// 🧩 CASE 2A: Update existing message with new stream data
+		// =====================================================
 		if (requiredIndex !== -1) {
 			const message = messages?.[requiredIndex];
 			let { processing, browserChainOfThought = {}, cot } = message;
 
+			// -----------------------------------------------------
+			// 📚 If this is a Deep Research session
+			// -----------------------------------------------------
 			if (processing === 'Deep Research') {
 				let deepResearch = message?.deepResearch || {};
 				let cot = deepResearch?.cot || [];
 				let sections = deepResearch?.sections || [];
 				let sections_refined = deepResearch?.sections_refined || [];
 
+				// Add new responded step to chain of thought
 				if (payload?.responded) {
-					cot?.push({
-						step: payload?.responded,
-					});
+					cot?.push({ step: payload?.responded });
 				}
+
+				// Merge intermediate step into last one
 				if (payload?.intermediate_step) {
 					let last_step = { ...(cot?.[cot?.length - 1] || {}) };
-					last_step = {
-						...(last_step || {}),
-						...(payload?.intermediate_step || {}),
-					};
+					last_step = { ...(last_step || {}), ...(payload?.intermediate_step || {}) };
 					cot[cot?.length - 1] = last_step;
 				}
 
+				// Add new step with citations
 				if (payload?.step) {
 					cot?.push({
 						step: payload?.step,
@@ -372,6 +393,7 @@ const actionHandlers = {
 					});
 				}
 
+				// Add section-level sub-queries
 				if (payload?.sub_queries) {
 					const sub_queries = (payload?.sub_queries || [])?.map((subQuery) => ({
 						sub_query: subQuery,
@@ -383,27 +405,23 @@ const actionHandlers = {
 					});
 				}
 
+				// Mark a section as compiling
 				if (payload?.compiling && payload?.section_id) {
 					sections = sections?.map((section) => {
 						if (section?.section_id === payload?.section_id) {
-							return {
-								...section,
-								compiling: payload?.compiling,
-							};
+							return { ...section, compiling: payload?.compiling };
 						}
 						return section;
 					});
 					sections_refined = sections_refined?.map((section) => {
 						if (section?.section_id === payload?.section_id) {
-							return {
-								...section,
-								compiling: payload?.compiling,
-							};
+							return { ...section, compiling: payload?.compiling };
 						}
 						return section;
 					});
 				}
 
+				// Add reading to a sub-query in a section
 				if (payload?.reading && payload?.reading?.sub_query && payload?.section_id) {
 					sections = sections?.map((section) => {
 						if (section?.section_id === payload?.section_id) {
@@ -411,22 +429,17 @@ const actionHandlers = {
 								if (subQuery?.sub_query === payload?.reading?.sub_query) {
 									const readings = [...(subQuery?.readings || [])];
 									readings?.push({ reading: payload?.reading });
-									return {
-										...subQuery,
-										readings,
-									};
+									return { ...subQuery, readings };
 								}
 								return subQuery;
 							});
-							return {
-								...section,
-								sub_queries,
-							};
+							return { ...section, sub_queries };
 						}
 						return section;
 					});
 				}
 
+				// Add refined sub-queries (post-processing)
 				if (payload?.refined_sub_queries) {
 					const refined_sub_queries = (payload?.refined_sub_queries || [])?.map(
 						(subQuery) => ({
@@ -435,11 +448,12 @@ const actionHandlers = {
 					);
 					sections_refined?.push({
 						section: payload?.section,
-						refined_sub_queries: refined_sub_queries,
+						refined_sub_queries,
 						section_id: payload?.section_id,
 					});
 				}
 
+				// Add readings to refined sub-queries
 				if (
 					payload?.reading &&
 					payload?.reading?.refined_sub_query &&
@@ -455,30 +469,21 @@ const actionHandlers = {
 									) {
 										const readings = [...(subQuery?.readings || [])];
 										readings?.push({ reading: payload?.reading });
-										return {
-											...subQuery,
-											readings,
-										};
+										return { ...subQuery, readings };
 									}
 									return subQuery;
 								},
 							);
-							return {
-								...section,
-								refined_sub_queries,
-							};
+							return { ...section, refined_sub_queries };
 						}
 						return section;
 					});
 				}
 
-				deepResearch = {
-					...deepResearch,
-					cot,
-					sections,
-					sections_refined,
-				};
+				// Reconstruct DeepResearch object
+				deepResearch = { ...deepResearch, cot, sections, sections_refined };
 
+				// Update the existing message with appended content
 				messages[requiredIndex] = {
 					...message,
 					...payload,
@@ -492,12 +497,20 @@ const actionHandlers = {
 					status: payload?.status,
 					response: payload?.response,
 				};
-			} else if (cot === 'chain_of_thought' || payload?.step || payload?.reading) {
+			}
+
+			// -----------------------------------------------------
+			// 🧩 If it's a Chain-of-Thought response
+			// -----------------------------------------------------
+			else if (cot === 'chain_of_thought' || payload?.step || payload?.reading) {
 				let chainOfThought = [...(message?.chainOfThought || [])];
 
+				// Add new thought step
 				if (payload?.step) {
 					chainOfThought?.push(payload);
-				} else if (payload?.reading && payload?.step_id) {
+				}
+				// Add readings under a specific step
+				else if (payload?.reading && payload?.step_id) {
 					chainOfThought = chainOfThought?.map((item) => {
 						if (item?.step_id === payload?.step_id) {
 							item.readings = [
@@ -519,24 +532,29 @@ const actionHandlers = {
 					status: payload?.status,
 					response: payload?.response,
 				};
-			} else {
+			}
+
+			// -----------------------------------------------------
+			// ⚙️ Normal message or browser tool plan or other than chainofThought or deepResearch
+			// -----------------------------------------------------
+			else {
 				const { toolType, planType } = payload;
 				let hasBrowserChainOfThought = false;
+
+				// If tool interaction (like browser click, link open)
 				if (toolType && toolType === 'tool') {
 					let browserTools = browserChainOfThought?.browserTools || [];
 					browserTools = [...browserTools, payload];
-					browserChainOfThought = {
-						...browserChainOfThought,
-						browserTools,
-					};
-					hasBrowserChainOfThought = true;
-				} else if (planType && planType === 'plan') {
-					browserChainOfThought = {
-						...browserChainOfThought,
-						browserPlan: payload,
-					};
+					browserChainOfThought = { ...browserChainOfThought, browserTools };
 					hasBrowserChainOfThought = true;
 				}
+				// If AI generated a "plan" (sequence of browser actions)
+				else if (planType && planType === 'plan') {
+					browserChainOfThought = { ...browserChainOfThought, browserPlan: payload };
+					hasBrowserChainOfThought = true;
+				}
+
+				// Update the message text progressively
 				messages[requiredIndex] = {
 					...message,
 					...payload,
@@ -548,11 +566,18 @@ const actionHandlers = {
 					response: payload?.response,
 				};
 			}
-		} else {
+		}
+
+		// =====================================================
+		// 🆕 CASE 2B: New message creation (no existing chunk found)
+		// =====================================================
+		else {
 			let chainOfThought = [];
 			if (payload?.cot === 'chain_of_thought' || payload?.step || payload?.plan) {
 				chainOfThought?.push(payload);
 			}
+
+			// Add new message object to the message list
 			messages?.push({
 				...payload,
 				type: 'AI',
@@ -565,6 +590,9 @@ const actionHandlers = {
 			});
 		}
 
+		// =====================================================
+		// ✅ Return the fully updated state
+		// =====================================================
 		return {
 			...state,
 			globalChatMessages: {
@@ -577,6 +605,7 @@ const actionHandlers = {
 			},
 		};
 	},
+
 	GET_LLM_MODELS_SUCCESS: (state, action) => ({
 		...state,
 		llmModels: action?.payload,
