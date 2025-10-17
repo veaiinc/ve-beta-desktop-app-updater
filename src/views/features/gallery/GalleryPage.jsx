@@ -3172,7 +3172,7 @@ const GalleryPage = () => {
 				);
 
 				if (selectedImage?.activeVersion?.givenFileName && galleryCredentials) {
-					const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/optimized/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
+					const imageURL = `${galleryCredentials.baseURL}/${tenantAlbums.tenant_id}/${galleryId}/thumnails-300w/${selectedImage.activeVersion.givenFileName}?Key-Pair-Id=${galleryCredentials['Key-Pair-Id']}&Signature=${galleryCredentials.Signature}&Policy=${galleryCredentials.Policy}`;
 
 					setInfo((prev) => ({
 						...prev,
@@ -5714,8 +5714,9 @@ const GalleryPage = () => {
 													{info?.imagesList?.docs && !info?.albumLoading
 														? info?.imagesList?.docs?.map(
 																(image, index) => {
+																	console.log('image', image);
 																	const params = `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
-																	const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+																	const src = `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_thumbnail_300w?.key}?${params}`;
 																	return (
 																		<div
 																			key={index}
@@ -5859,7 +5860,7 @@ const GalleryPage = () => {
 																		: `Key-Pair-Id=${galleryCredentials?.['Key-Pair-Id']}&Signature=${galleryCredentials?.Signature}&Policy=${galleryCredentials?.Policy}`;
 																const src = image?.isPlaceholderImg
 																	? ''
-																	: `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_optimized?.key}?${params}`;
+																	: `${galleryCredentials?.baseURL}/${image?.activeVersion?.s3_thumbnails_300w?.key}?${params}`;
 
 																const isSelected =
 																	info.selectedImages.includes(
