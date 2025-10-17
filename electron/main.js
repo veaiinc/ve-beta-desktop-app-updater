@@ -6384,7 +6384,21 @@ ipcMain.handle('process-image-batch', async (event, { files, settings }) => {
 						const workerPath = path.join(__dirname, 'imageProcessWorker.js');
 						const worker = new Worker(workerPath, {
 							workerData: { data: { ...fileData, settings } },
+							stderr: false, // Suppress Windows process termination errors
 						});
+
+						// Add timeout to prevent hanging workers
+						const workerTimeout = setTimeout(() => {
+							// Check if worker is still valid before terminating
+							if (worker && !worker.killed) {
+								worker.terminate().catch((err) => {
+									if (err.code !== 'ERR_INVALID_ARG_TYPE' && err.message !== 'The process "undefined" not found') {
+										log.warn('Worker timeout termination warning:', err.message);
+									}
+								});
+							}
+							resolve({ success: false, error: 'Worker timeout - image processing took too long' });
+						}, 30000); // 30 second timeout
 
 						// Prepare transfer list for ArrayBuffer transfer
 						const transferList = [];
@@ -6394,17 +6408,37 @@ ipcMain.handle('process-image-batch', async (event, { files, settings }) => {
 
 						worker.on('message', (result) => {
 							if (result.taskId === taskId) {
-								worker.terminate().catch(() => {});
+								clearTimeout(workerTimeout);
+								// Check if worker is still valid before terminating
+								if (worker && !worker.killed) {
+									worker.terminate().catch((err) => {
+										// Silently handle worker termination errors
+										// This is expected when workers are already terminated
+										if (err.code !== 'ERR_INVALID_ARG_TYPE' && err.message !== 'The process "undefined" not found') {
+											log.warn('Worker termination warning:', err.message);
+										}
+									});
+								}
 								resolve(result);
 							}
 						});
 
 						worker.on('error', (err) => {
-							worker.terminate().catch(() => {});
+							clearTimeout(workerTimeout);
+							// Check if worker is still valid before terminating
+							if (worker && !worker.killed) {
+								worker.terminate().catch((termErr) => {
+									// Silently handle worker termination errors
+									if (termErr.code !== 'ERR_INVALID_ARG_TYPE' && termErr.message !== 'The process "undefined" not found') {
+										log.warn('Worker termination warning:', termErr.message);
+									}
+								});
+							}
 							resolve({ success: false, error: `Worker error: ${err.message}` });
 						});
 
 						worker.on('exit', (code) => {
+							clearTimeout(workerTimeout);
 							if (code !== 0) {
 								resolve({
 									success: false,

@@ -160,14 +160,12 @@ class NotchDropService {
 			// Phase 7: Initialize wake word integration - DISABLED
 			try {
 				this.wakeWordIntegration = new WakeWordIntegration(this);
-				//Commenting out wake word integration for now
-				await this.wakeWordIntegration.start();
-				log.info('✅ Wake word integration initialized - "Hey Ve" detection active');
+				// Wake word integration is disabled for build - no need to start
+				log.info('ℹ️ Wake word integration disabled for build');
 			} catch (wakeWordError) {
-				log.warn('⚠️ Wake word integration failed to start:', wakeWordError.message);
+				log.warn('⚠️ Wake word integration failed to initialize:', wakeWordError.message);
 				// Continue without wake word - not critical for core functionality
 			}
-			log.info('ℹ️ Wake word integration disabled for build');
 
 			// Auto-open NotchDrop after initialization if enabled
 			if (this.autoOpenOnStartup) {
