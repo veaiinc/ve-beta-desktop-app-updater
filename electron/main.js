@@ -3579,12 +3579,15 @@ app.whenReady().then(async () => {
 	// 🎤 IPC: Start Mic Monitoring
 
 	// Initialize Dynamic Island with comprehensive error handling
-	// Create Dynamic Island for Intel Macs, Windows, and Linux (but not Apple Silicon Macs)
+	// DISABLED: Dynamic Island is disabled to use only Boring Notch
 	console.log(
 		'process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND ',
 		process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND,
 	);
-	if (process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || !isAppleSiliconMac) {
+	// Force disable Dynamic Island - use only Boring Notch
+	process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND = 'false';
+	if (false) {
+		// Always skip Dynamic Island creation
 		try {
 			log.info(
 				'Initializing Dynamic Island Helper for platform:',
