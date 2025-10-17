@@ -11,10 +11,24 @@ const loadSharp = () => {
 
 	try {
 		sharp = require('sharp');
+		// Test if Sharp is actually functional in production
+		if (process.env.NODE_ENV === 'production') {
+			try {
+				// Try to create a minimal Sharp instance to verify it works
+				const testBuffer = Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]); // Minimal JPEG header
+				sharp(testBuffer).metadata().catch(() => {
+					throw new Error('Sharp metadata extraction failed in production');
+				});
+			} catch (testError) {
+				log.error('Sharp production test failed:', testError.message);
+				throw new Error(`Sharp not functional in production: ${testError.message}`);
+			}
+		}
 		sharpLoaded = true;
 		return sharp;
 	} catch (error) {
-		console.warn('Sharp module not available:', error.message);
+		log.error('Sharp module not available:', error.message);
+		log.error('Sharp error details:', error);
 		return null;
 	}
 };
@@ -309,8 +323,13 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 	};
 
 	const fmt = detectFormat(buffer);
-	log.info(`extractImageMetadata: buffer=${buffer.length} bytes, detectedFormat=${fmt}`);
+	log.info(`extractImageMetadata: buffer=${buffer.length} bytes, detectedFormat=${fmt}, env=${process.env.NODE_ENV}`);
 	try {
+		// In production, add extra validation
+		if (process.env.NODE_ENV === 'production') {
+			log.info('Production mode: testing Sharp functionality...');
+		}
+		
 		const metadata = await sharpModule(buffer).metadata();
 		const { width, height, format } = metadata;
 
@@ -327,14 +346,18 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 			originalDateTime = Math.floor(Date.now() / 1000);
 		}
 
+		log.info(`extractImageMetadata: Sharp success - ${width}x${height}, format=${format}`);
 		return { success: true, width, height, format, originalDateTime };
 	} catch (err) {
-		log.warn('sharp metadata failed, attempting fallback parse:', err?.message || String(err));
+		log.warn('Sharp metadata failed, attempting fallback parse:', err?.message || String(err));
+		log.warn('Sharp error details:', err);
+		
 		let dims = null;
 		if (fmt === 'jpeg') dims = parseJpegDimensions(buffer);
 		else if (fmt === 'png') dims = parsePngDimensions(buffer);
 
 		if (dims && dims.width && dims.height) {
+			log.info(`extractImageMetadata: Fallback success - ${dims.width}x${dims.height}`);
 			return {
 				success: true,
 				width: dims.width,
@@ -361,7 +384,7 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 			height: null,
 			format: fmt,
 			originalDateTime: Math.floor(Date.now() / 1000),
-			error: 'Failed to extract image metadata',
+			error: `Failed to extract image metadata: ${err?.message || 'Unknown error'}`,
 		};
 	}
 };

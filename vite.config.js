@@ -4,10 +4,12 @@ import svgr from '@svgr/rollup';
 import electron from 'vite-plugin-electron/simple';
 import { copyFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { tmpdir } from 'os';
 import autoprefixer from 'autoprefixer';
 import cssnano from 'cssnano';
 
 export default defineConfig({
+    cacheDir: join(tmpdir(), 'vite-cache-ve-desktop-app'),
 	base: './',
 	plugins: [
 		react(),

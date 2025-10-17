@@ -32,16 +32,26 @@ async function uploadImage(
 		const originalExt = file.name.split('.').pop().toLowerCase() || 'jpg';
 		const fileName = customFileName || `${imageId.toHexString()}_${versionId}.${originalExt}`;
 
-		// ✅ Generate fileKey based on bucketType
+		// ✅ Generate fileKey based on bucketType and policy keyPrefix
 		let fileKey;
-		if (bucketType === 'optimized') {
-			fileKey = `${policy.keyPrefix}optimized/${fileName}`;
+		if (bucketType === 'originals') {
+			fileKey = `${policy.keyPrefix}${fileName}`;
+		} else if (bucketType === 'optimized') {
+			const prefix = policy.keyPrefix.endsWith('optimized/')
+				? policy.keyPrefix
+				: `${policy.keyPrefix}optimized/`;
+			fileKey = `${prefix}${fileName}`;
 		} else if (bucketType === 'thumbnails_300w') {
-			fileKey = `${policy.keyPrefix}thumbnails-300w/${fileName}`;
+			const prefix = policy.keyPrefix.endsWith('thumbnails-300w/')
+				? policy.keyPrefix
+				: `${policy.keyPrefix}thumbnails-300w/`;
+			fileKey = `${prefix}${fileName}`;
 		} else if (bucketType === 'thumbnails_100h') {
-			fileKey = `${policy.keyPrefix}thumbnails-100h/${fileName}`;
+			const prefix = policy.keyPrefix.endsWith('thumbnails-100h/')
+				? policy.keyPrefix
+				: `${policy.keyPrefix}thumbnails-100h/`;
+			fileKey = `${prefix}${fileName}`;
 		} else {
-			// 'originals'
 			fileKey = `${policy.keyPrefix}${fileName}`;
 		}
 

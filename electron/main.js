@@ -29,6 +29,23 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const { Worker } = require('worker_threads');
 const os = require('os');
+// In Windows dev environment, redirect userData and Chromium disk cache to temp to avoid OneDrive locks
+try {
+    const isWindowsDev = process.platform === 'win32' && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV?.trim() === 'development');
+    if (isWindowsDev) {
+        const tempBase = path.join(os.tmpdir(), 've-ai-gallery-dev');
+        const userDataPath = path.join(tempBase, 'userData');
+        const cachePath = path.join(tempBase, 'cache');
+        app.setPath('userData', userDataPath);
+        app.commandLine.appendSwitch('disk-cache-dir', cachePath);
+        // Optional: reduce cache-related failures
+        // app.commandLine.appendSwitch('disable-http-cache');
+        log.info('🔧 Windows dev: userData redirected to', userDataPath);
+        log.info('🔧 Windows dev: disk-cache-dir set to', cachePath);
+    }
+} catch (e) {
+    // Non-fatal
+}
 // const idleTracker = require('./services/idleTracker');
 // const meetingState = require('./services/meetingState');
 
