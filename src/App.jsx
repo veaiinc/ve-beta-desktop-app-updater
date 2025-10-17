@@ -17,8 +17,6 @@ import UploadProgressPopup from './views/components/globalComponents/UploadProgr
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
 import WindowChrome from './components/WindowChrome.jsx';
-import MemoryMonitor from './components/MemoryMonitor';
-import memoryManager from './utils/memoryManager';
 
 const parseIntervalMinutes = (value, fallback = 60) => {
 	const parsed = Number.parseInt(value, 10);
@@ -35,27 +33,12 @@ const AppContent = () => {
 	const { routes } = useWorkspaceMode();
 	const location = useLocation();
 
-	// 🚨 CRITICAL FIX: Initialize memory manager
-	useEffect(() => {
-		console.log('🚀 App initialized - Memory manager active');
-		console.log('Initial memory stats:', memoryManager.getStats());
-		
-		// Register cleanup for this component
-		memoryManager.registerCleanup(() => {
-			console.log('🧹 AppContent cleanup completed');
-		}, 'AppContent');
-		
-		return () => {
-			console.log('🧹 AppContent unmounting...');
-		};
-	}, []);
-
 	// Global NotchDrop sync - keeps NotchDrop updated with meeting data across all routes
 	useNotchDropSync();
-	
+
 	// Manage window width: 481px for login, 1366px after login
 	useLoginWindowResize();
-	
+
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	const [updateProgress, setUpdateProgress] = useState(null);
@@ -525,9 +508,6 @@ const AppContent = () => {
 					onDismiss={() => setIsUpdatePopupVisible(false)}
 				/>
 			)}
-			
-			{/* 🚨 CRITICAL FIX: Memory Monitor for debugging */}
-			<MemoryMonitor enabled={import.meta.env.DEV} />
 		</div>
 	);
 };
