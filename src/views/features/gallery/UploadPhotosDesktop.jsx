@@ -190,16 +190,19 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 	};
 
 	// --- Process Image with Sharp ---
-	const processSingleImage = async (originalFile) => {
+		const processSingleImage = async (originalFile) => {
 		try {
+			console.log(`Processing image: ${originalFile.name} (${originalFile.size} bytes)`);
 			const imageBuffer = await originalFile.arrayBuffer();
 			const uint8Array = new Uint8Array(imageBuffer);
 
+			console.log(`Image buffer size: ${imageBuffer.byteLength} bytes`);
 			const { metadata, width, height, format, originalDateTime } =
 				await window.electronApi.extractImageMetadata({
-					imageBuffer: Array.from(uint8Array),
+					imageBuffer: imageBuffer, // Send ArrayBuffer directly
 				});
 
+			console.log(`Metadata extracted: ${width}x${height}, format: ${format}`);
 			if (!width || !height) {
 				throw new Error('Unable to extract image dimensions');
 			}
@@ -214,8 +217,9 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 			const watermarkUrl = getWatermarkUrl();
 
 			// --- Process Optimized (WITH watermark) ---
+			console.log('Processing optimized version...');
 			const resultOptimized = await window.electronApi.processImageWithSharp({
-				imageBuffer: Array.from(uint8Array),
+				imageBuffer: imageBuffer, // Send ArrayBuffer directly
 				watermarkUrl: info.isWaterMarkApply ? watermarkUrl : null,
 				watermarkPosition: info.watermarkPosition,
 				scale: info.scaleWatermark,
@@ -226,7 +230,11 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 				forceJpeg: true,
 			});
 
-			if (!resultOptimized.success) throw new Error(resultOptimized.error);
+			if (!resultOptimized.success) {
+				console.error('Optimized processing failed:', resultOptimized.error);
+				throw new Error(resultOptimized.error);
+			}
+			console.log('Optimized processing completed');
 
 			processedBuffer = Uint8Array.from(atob(resultOptimized.processedImage), (c) =>
 				c.charCodeAt(0),
@@ -236,8 +244,9 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 			processedFile = new File([processedBuffer], processedFileName, { type: 'image/jpeg' });
 
 			// --- Process Thumbnail 300w (NO watermark) ---
+			console.log('Processing thumbnail 300w...');
 			const resultThumbnail = await window.electronApi.processImageWithSharp({
-				imageBuffer: Array.from(uint8Array),
+				imageBuffer: imageBuffer, // Send ArrayBuffer directly
 				watermarkUrl: null,
 				watermarkPosition: info.watermarkPosition,
 				scale: 0.15,
@@ -248,7 +257,11 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 				forceJpeg: true,
 			});
 
-			if (!resultThumbnail.success) throw new Error(resultThumbnail.error);
+			if (!resultThumbnail.success) {
+				console.error('Thumbnail 300w processing failed:', resultThumbnail.error);
+				throw new Error(resultThumbnail.error);
+			}
+			console.log('Thumbnail 300w processing completed');
 
 			thumbnailBuffer = Uint8Array.from(atob(resultThumbnail.processedImage), (c) =>
 				c.charCodeAt(0),
@@ -260,8 +273,9 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 			);
 
 			// --- Process Thumbnail 100h (NO watermark, cropped to 100px height) ---
+			console.log('Processing thumbnail 100h...');
 			const resultThumbnail100h = await window.electronApi.processImageWithSharp({
-				imageBuffer: Array.from(uint8Array),
+				imageBuffer: imageBuffer, // Send ArrayBuffer directly
 				watermarkUrl: null,
 				watermarkPosition: info.watermarkPosition,
 				scale: 0.15,
@@ -272,7 +286,11 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 				forceJpeg: true,
 			});
 
-			if (!resultThumbnail100h.success) throw new Error(resultThumbnail100h.error);
+			if (!resultThumbnail100h.success) {
+				console.error('Thumbnail 100h processing failed:', resultThumbnail100h.error);
+				throw new Error(resultThumbnail100h.error);
+			}
+			console.log('Thumbnail 100h processing completed');
 
 			thumbnail100hBuffer = Uint8Array.from(atob(resultThumbnail100h.processedImage), (c) =>
 				c.charCodeAt(0),
@@ -289,6 +307,7 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 				processingProgress: Math.round(((prev.processedCount + 1) / prev.totalCount) * 100),
 			}));
 
+			console.log(`Image processing completed successfully: ${originalFile.name}`);
 			return {
 				success: true,
 				processedFile,
@@ -304,7 +323,14 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 				thumbnail100hSize: thumbnail100hBuffer.length,
 			};
 		} catch (error) {
-			console.error('Failed to process:', originalFile.name, error);
+			console.error(`Failed to process image: ${originalFile.name}`, error);
+			console.error('Error details:', {
+				message: error.message,
+				stack: error.stack,
+				fileName: originalFile.name,
+				fileSize: originalFile.size,
+				fileType: originalFile.type
+			});
 			setInfo((prev) => ({
 				...prev,
 				uploadImages: {
@@ -312,10 +338,11 @@ const UploadPhotosDesktop = ({ open, closeModal, galleryId, albumId, tagId, onSt
 					[originalFile.name]: {
 						...prev.uploadImages[originalFile.name],
 						isFailed: true,
+						errorMessage: error.message,
 					},
 				},
 			}));
-			return { success: false, error };
+			return { success: false, error: error.message || 'Unknown processing error' };
 		}
 	};
 
