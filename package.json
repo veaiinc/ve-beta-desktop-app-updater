@@ -1,7 +1,7 @@
 {
 	"name": "ve-ai-gallery",
 	"description": "Ve AI Gallery",
-	"version": "1.1.8",
+	"version": "0.1.8",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -262,7 +262,9 @@
 				{
 					"from": "node_modules/sharp",
 					"to": "sharp",
-					"filter": ["**/*"]
+					"filter": [
+						"**/*"
+					]
 				}
 			]
 		},
