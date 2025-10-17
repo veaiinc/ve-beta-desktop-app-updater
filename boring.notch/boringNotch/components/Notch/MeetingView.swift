@@ -21,7 +21,7 @@ extension Date {
 
 // MARK: - Color Constants
 extension Color {
-    static let transcriptionAccent = Color(red: 0.47, green: 0.93, blue: 0.79)
+    static let transcriptionAccent = Color(red: 0.33, green: 0.44, blue: 0.97)
 }
 
 // MARK: - Persistent Storage Keys
@@ -595,7 +595,7 @@ struct MeetingView: View, WebSocketEventListener {
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(Color(red: 0.33, green: 0.44, blue: 0.97))
                 }
-                .frame(width: 500, height: 70, alignment: .bottomLeading)
+                .frame(width: 300, height: 70, alignment: .bottomLeading)
             } else {
                 Text("Start talking I am listening")
                     .font(.system(size: 18))
