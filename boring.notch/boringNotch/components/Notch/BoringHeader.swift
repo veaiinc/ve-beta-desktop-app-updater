@@ -65,7 +65,7 @@ struct BoringHeader: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: 24)
                                 .inset(by: 0.25)
-                                .stroke(.white, lineWidth: 0.5)
+                                .stroke(.white.opacity(0.2), lineWidth: 0.5)
                         )
                     }
                     // VE logo button (open app)

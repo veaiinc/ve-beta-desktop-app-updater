@@ -58,7 +58,7 @@ struct MeetingButtons: View, WebSocketEventListener {
                 } label: {
                     Label("Stop", systemImage: "stop.fill")
                     .labelStyle(.iconOnly)
-                    .foregroundColor(Color(red: 0.79, green: 0.28, blue: 0.29))
+                    .foregroundColor(.white)
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: 30)
