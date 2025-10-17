@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MeetingButtons: View, WebSocketEventListener {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
-    @State private var meetingIsLoading: Bool = false
     @State private var isPinging = false
     @State private var isAiToggleLoading = false
     
@@ -25,7 +24,7 @@ struct MeetingButtons: View, WebSocketEventListener {
         HStack(alignment: .center, spacing: 8){
             HStack(spacing: 0) {
                 // Pause/Resume button
-                if meetingIsLoading {
+                if coordinator.isMeetingLoading {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .scaleEffect(0.5)
@@ -114,38 +113,73 @@ struct MeetingButtons: View, WebSocketEventListener {
                     .stroke(.white.opacity(0.2), lineWidth: 0.5)
             )
             
-            if(coordinator.isAiEnabled){
-                ZStack {
-                    // Outer ping capsule
-                    Capsule()
-                        .fill(Color(red: 0.33, green: 0.44, blue: 0.97).opacity(0.9))
-                        .frame(width: 36, height: 20)
-                        .scaleEffect(x: isPinging ? 1.3 : 1.0, y: isPinging ? 1.4 : 1.0) // 🔹 Different X/Y scaling
-                        .opacity(isPinging ? 0 : 1)
-                        .animation(
-                            .easeOut(duration: 1.2)
-                            .repeatForever(autoreverses: false),
-                            value: isPinging
-                        )
-                    
-                    // Main capsule button
-                    Button(action: {
-                        toggleLiveIntelligence(false)
-                    }) {
-                        Text("AI")
-                            .font(Font.custom("General Sans Variable", size: 12)
-                                .weight(.medium))
-                            .foregroundColor(.white)
+            if coordinator.isMeetingStarted {
+                if(coordinator.isAiEnabled){
+                    ZStack {
+                        // Outer ping capsule
+                        Capsule()
+                            .fill(Color(red: 0.33, green: 0.44, blue: 0.97).opacity(0.9))
                             .frame(width: 36, height: 20)
-                            .multilineTextAlignment(.center) // ✅ centers text horizontally
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .background(
-                                Capsule()
-                                    .fill(Color(red: 0.33, green: 0.44, blue: 0.97))
+                            .scaleEffect(x: isPinging ? 1.3 : 1.0, y: isPinging ? 1.4 : 1.0) // 🔹 Different X/Y scaling
+                            .opacity(isPinging ? 0 : 1)
+                            .animation(
+                                .easeOut(duration: 1.2)
+                                .repeatForever(autoreverses: false),
+                                value: isPinging
                             )
-                            .contentShape(Capsule()) // ✅ ensures hit area matches shape
-                            .baselineOffset(-3.0)
+                        
+                        // Main capsule button
+                        Button(action: {
+                            toggleLiveIntelligence(false)
+                        }) {
+                            Text("AI")
+                                .font(Font.custom("General Sans Variable", size: 12)
+                                    .weight(.medium))
+                                .foregroundColor(.white)
+                                .frame(width: 36, height: 20)
+                                .multilineTextAlignment(.center) // ✅ centers text horizontally
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
+                                .background(
+                                    Capsule()
+                                        .fill(Color(red: 0.33, green: 0.44, blue: 0.97))
+                                )
+                                .contentShape(Capsule()) // ✅ ensures hit area matches shape
+                                .baselineOffset(-3.0)
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { isHovered in
+                            if isHovered {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                    }
+                    .onAppear {
+                        isPinging = true
+                    }
+                }else{
+                    Button(action: {
+                        toggleLiveIntelligence(true)
+                    }) {
+                        ZStack {
+                            // Capsule outline (3px border)
+                            Capsule()
+                                .stroke(
+                                    .white.opacity(0.2),
+                                    lineWidth: 3
+                                )
+                            
+                            // Centered text
+                            Text("AI")
+                                .font(Font.custom("General Sans Variable", size: 12)
+                                    .weight(.medium))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                                .baselineOffset(-3.0)
+                        }
+                        .frame(width: 36, height: 20)
                     }
                     .buttonStyle(.plain)
                     .onHover { isHovered in
@@ -156,40 +190,9 @@ struct MeetingButtons: View, WebSocketEventListener {
                         }
                     }
                 }
-                .onAppear {
-                    isPinging = true
-                }
-            }else{
-                Button(action: {
-                    toggleLiveIntelligence(true)
-                }) {
-                    ZStack {
-                        // Capsule outline (3px border)
-                        Capsule()
-                            .stroke(
-                                .white.opacity(0.2),
-                                lineWidth: 3
-                            )
-                        
-                        // Centered text
-                        Text("AI")
-                            .font(Font.custom("General Sans Variable", size: 12)
-                                .weight(.medium))
-                            .foregroundColor(.white)
-                            .lineLimit(1)
-                            .baselineOffset(-3.0)
-                    }
-                    .frame(width: 36, height: 20)
-                }
-                .buttonStyle(.plain)
-                .onHover { isHovered in
-                    if isHovered {
-                        NSCursor.pointingHand.push()
-                    } else {
-                        NSCursor.pop()
-                    }
-                }
             }
+            
+            
             
             
             
@@ -247,19 +250,17 @@ struct MeetingButtons: View, WebSocketEventListener {
     
     func onWebSocketEvent(_ event: WebSocketEvent) {
         switch event.type {
-        case .startMeeting:
-            meetingIsLoading = true
         case .meetingStarted:
-            BoringViewCoordinator.shared.meetingStart()
-            meetingIsLoading = false
+            coordinator.meetingStart()
+            coordinator.isMeetingLoading = false
         case .meetingPaused:
-            BoringViewCoordinator.shared.meetingPause()
+            coordinator.meetingPause()
         case .meetingResumed:
-            BoringViewCoordinator.shared.meetingResume()
+            coordinator.meetingResume()
         case .meetingStopped:
-            BoringViewCoordinator.shared.meetingStopAndReset()
+            coordinator.meetingStopAndReset()
         case .meetingStartError:
-            meetingIsLoading = false
+            coordinator.isMeetingLoading = false
         case .enabledAiIntelligence:
             coordinator.setAiEnabled(true)
             isAiToggleLoading = false

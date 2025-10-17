@@ -364,6 +364,10 @@ struct TabSelectionView: View {
                                 
                                 // Send START_MEETING message when Listen tab is clicked
                                 if tab.view == .meeting {
+                                    // Set loading state immediately if no meeting is ongoing
+                                    if !coordinator.isMeetingStarted {
+                                        coordinator.isMeetingLoading = true
+                                    }
                                     webSocketManager.sendEvent(type: .startMeeting)
                                 }
                                 

@@ -4676,9 +4676,6 @@ app.whenReady().then(async () => {
 		if (result.status === 'success') {
 			log.info('All permissions granted - starting meeting');
 			await handleNotchToMainWindowEvents({ action: 'startRecording' });
-
-			// Send success response to WebSocket client
-			websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
 			return { success: true };
 		}
 

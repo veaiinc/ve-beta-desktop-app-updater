@@ -332,6 +332,7 @@ class BoringViewCoordinator: ObservableObject {
     @Published var meetingIsPaused: Bool = true
     @Published var activeMeetingView: ActiveMeetingView = .transcription
     @Published var isAiEnabled: Bool = true
+    @Published var isMeetingLoading: Bool = false
 
     private var meetingStartDate: Date?
     private var meetingTickerTask: Task<Void, Never>?
