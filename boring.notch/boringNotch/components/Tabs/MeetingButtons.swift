@@ -148,6 +148,13 @@ struct MeetingButtons: View, WebSocketEventListener {
                             .baselineOffset(-3.0)
                     }
                     .buttonStyle(.plain)
+                    .onHover { isHovered in
+                        if isHovered {
+                            NSCursor.pointingHand.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
                 }
                 .onAppear {
                     isPinging = true
@@ -175,6 +182,13 @@ struct MeetingButtons: View, WebSocketEventListener {
                     .frame(width: 36, height: 20)
                 }
                 .buttonStyle(.plain)
+                .onHover { isHovered in
+                    if isHovered {
+                        NSCursor.pointingHand.push()
+                    } else {
+                        NSCursor.pop()
+                    }
+                }
             }
             
             
