@@ -272,7 +272,7 @@ const AIMessage = ({
 				visible={info?.replyElementStyles?.visible}
 				handleReplyElementClose={handleReplyElementClose}
 			/>
-
+			{/* This is used to show form, invoice and contract based on usedAgent */}
 			{info?.usedAgents?.length > 0 &&
 				messageData?.workflow_template_id &&
 				messageData?.module_template_id &&
@@ -304,13 +304,12 @@ const AIMessage = ({
 						<p>View Document</p>
 					</div>
 				))}
-
 			{messageData?.browserChainOfThought && !isSkipped ? (
 				<BrowserChainOfThought chainOfThought={messageData?.browserChainOfThought} />
 			) : (
 				''
 			)}
-
+			{/* This is regarding agent tools */}
 			{messageData?.tool_invocations?.length > 0 && !isSkipped ? (
 				<IntermediateSteps
 					steps={messageData?.tool_invocations}
@@ -319,10 +318,11 @@ const AIMessage = ({
 			) : (
 				''
 			)}
-
+			{/* This is used when user click on AskAi button in proactive Ai */}
 			{messageData?.moduleType === 'ai_suggestion_report' ? (
 				<AISuggestionsReportAiComponent data={messageData?.data} />
 			) : messageData?.widget_type === 'clarifyWidget' ? (
+				// Currently not using
 				<ClarifyWidget data={messageData?.data} sessionId={sessionId} />
 			) : (
 				<div className="markdown-container" ref={markdownContainerRef}>
@@ -340,9 +340,10 @@ const AIMessage = ({
 					)}
 				</div>
 			)}
-
+			{/* For showing errors from ai */}
 			{messageData?.status === 'error' && <ChatError error={messageData?.error} />}
 
+			{/* To show unintegraedApps for agent creation */}
 			{messageData?.unintegrated_apps?.length > 0 ? (
 				<UnintegratedAgentApps apps={messageData?.unintegrated_apps} />
 			) : (

@@ -43,14 +43,11 @@ struct SettingsView: View {
                 if extensionManager.installedExtensions
                     .contains(where: { $0.bundleIdentifier == hudExtension })
                 {
-                    NavigationLink(value: "HUD") {
-                        Label("HUDs", systemImage: "dial.medium.fill")
-                    }
+                NavigationLink(value: "HUD") {
+                    Label("HUDs", systemImage: "dial.medium.fill")
                 }
-                NavigationLink(value: "Battery") {
-                    Label("Battery", systemImage: "battery.100.bolt")
-                }
-                if extensionManager.installedExtensions
+            }
+            if extensionManager.installedExtensions
                     .contains(where: { $0.bundleIdentifier == downloadManagerExtension })
                 {
                     NavigationLink(value: "Downloads") {
@@ -86,8 +83,6 @@ struct SettingsView: View {
                     CalendarSettings()
                 case "HUD":
                     HUD()
-                case "Battery":
-                    Charge()
                 case "Downloads":
                     Downloads()
                 case "Shelf":
@@ -321,27 +316,6 @@ struct GeneralSettings: View {
         } header: {
             Text("Notch behavior")
         }
-    }
-}
-
-struct Charge: View {
-    var body: some View {
-        Form {
-            Section {
-                Defaults.Toggle("Show battery indicator", key: .showBatteryIndicator)
-                Defaults.Toggle(
-                    "Show power status notifications", key: .showPowerStatusNotifications)
-            } header: {
-                Text("General")
-            }
-            Section {
-                Defaults.Toggle("Show battery percentage", key: .showBatteryPercentage)
-                Defaults.Toggle("Show power status icons", key: .showPowerStatusIcons)
-            } header: {
-                Text("Battery Information")
-            }
-        }
-        .navigationTitle("Battery")
     }
 }
 
@@ -700,35 +674,35 @@ struct About: View {
 
                 UpdaterSettingsView(updater: updaterController.updater)
 
-                HStack(spacing: 30) {
-                    Spacer(minLength: 0)
-                    Button {
-                        NSWorkspace.shared.open(sponsorPage)
-                    } label: {
-                        VStack(spacing: 5) {
-                            Image(systemName: "cup.and.saucer.fill")
-                                .imageScale(.large)
-                            Text("Support Us")
-                                .foregroundStyle(.white)
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    Spacer(minLength: 0)
-                    Button {
-                        NSWorkspace.shared.open(productPage)
-                    } label: {
-                        VStack(spacing: 5) {
-                            Image("Github")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 18)
-                            Text("GitHub")
-                                .foregroundStyle(.white)
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    Spacer(minLength: 0)
-                }
+                // HStack(spacing: 30) {
+                //     Spacer(minLength: 0)
+                //     Button {
+                //         NSWorkspace.shared.open(sponsorPage)
+                //     } label: {
+                //         VStack(spacing: 5) {
+                //             Image(systemName: "cup.and.saucer.fill")
+                //                 .imageScale(.large)
+                //             Text("Support Us")
+                //                 .foregroundStyle(.white)
+                //         }
+                //         .contentShape(Rectangle())
+                //     }
+                //     Spacer(minLength: 0)
+                //     Button {
+                //         NSWorkspace.shared.open(productPage)
+                //     } label: {
+                //         VStack(spacing: 5) {
+                //             Image("Github")
+                //                 .resizable()
+                //                 .aspectRatio(contentMode: .fit)
+                //                 .frame(width: 18)
+                //             Text("GitHub")
+                //                 .foregroundStyle(.white)
+                //         }
+                //         .contentShape(Rectangle())
+                //     }
+                //     Spacer(minLength: 0)
+                // }
                 .buttonStyle(PlainButtonStyle())
             }
             VStack(spacing: 0) {
