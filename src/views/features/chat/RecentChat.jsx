@@ -47,7 +47,7 @@ const RecentChat = ({
 	showChatBox = true, // New prop to control ChatBox visibility
 	showRightBar = false,
 
-	// below props are for desktop app
+	// props for desktop app behavior
 	isDesktopApp = false,
 	handleDesktopAppPayload = null,
 }) => {
@@ -71,6 +71,7 @@ const RecentChat = ({
 	let agentType = searchParams?.get('agentType');
 	let assistantId = searchParams?.get('assistantId');
 
+	// State to store various chat UI info
 	const [info, setInfo] = useState({
 		chatLoading: false,
 		chatToNoteLoopOn: false,
@@ -89,9 +90,10 @@ const RecentChat = ({
 		activeRightBar: null,
 		rightBarWidth: 0,
 		ready: true,
-		isCompactMode: false, // Track if we're in compact chat mode from AskAI
+		isCompactMode: false, // Track if we're in compact chat mode from AskAI overlay
 	});
 
+	// Refs for chat elements and timers
 	const chatContentRef = useRef(null);
 	const userMessagesRefs = useRef({});
 	const agentTimeoutIdRef = useRef(null);
@@ -105,11 +107,12 @@ const RecentChat = ({
 
 	const browserData = globalChatMessages?.[sessionId]?.browserData;
 
-	// Handle compact mode from AskAI overlay
+	/**
+	 * Handle desktop app compact mode (e.g., AskAI overlay)
+	 * Resize main window if in compact mode on mount
+	 */
 	useEffect(() => {
-		// Check if we're in desktop app and might be in compact mode
 		if (isDesktopApp && window?.electronApi?.resizeMainWindow) {
-			// Get current window size to detect if we're in compact mode (571x626)
 			const checkCompactMode = async () => {
 				try {
 					const bounds = await window?.electronApi?.getWindowBounds?.();
@@ -127,7 +130,7 @@ const RecentChat = ({
 		}
 
 		return () => {
-			// Restore normal window size when leaving chat if we were in compact mode
+			// Restore normal window size when leaving chat
 			if (window?.electronApi?.resizeMainWindow) {
 				window.electronApi.resizeMainWindow({
 					dimensions: {
@@ -146,21 +149,28 @@ const RecentChat = ({
 		};
 	}, []);
 
+	/**
+	 * Handle window resize, cleanup timers, and reset chat context on unmount
+	 */
 	useEffect(() => {
 		window.addEventListener('resize', handleResizeWindow);
 		return () => {
 			window.removeEventListener('resize', handleResizeWindow);
+
+			// Clear user message timeout
 			if (currentUserMessageTimeoutRef.current) {
 				clearTimeout(currentUserMessageTimeoutRef.current);
 				currentUserMessageTimeoutRef.current = null;
 			}
 
 			setTimeout(() => {
+				// Clear user message refs
 				userMessagesRefs.current = {};
 				if (agentTimeoutIdRef.current) {
 					clearTimeout(agentTimeoutIdRef.current);
 					agentTimeoutIdRef.current = null;
 				}
+				// Reset chat context state
 				updateStateValues({
 					chatReplyData: null,
 					aiMessagesInfo: null,
@@ -168,6 +178,8 @@ const RecentChat = ({
 					currentChatData: null,
 				});
 			}, 0);
+
+			// Clear global chat messages if needed
 			handleGlobalChatMessages({
 				removeChatSessions: true,
 				updateExtraInfo: true,
@@ -175,6 +187,9 @@ const RecentChat = ({
 		};
 	}, []);
 
+	/**
+	 * Show or hide browser component based on globalChatMessages state
+	 */
 	useEffect(() => {
 		if (globalChatMessages?.[sessionId]?.open_browser) {
 			setInfo((prev) => {
@@ -198,6 +213,9 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages?.[sessionId]?.open_browser]);
 
+	/**
+	 * Track latest AI streaming message
+	 */
 	useEffect(() => {
 		const latestStreamMessage = globalChatMessages?.[sessionId]?.latestStreamMessage;
 		if (latestStreamMessage) {
@@ -208,6 +226,9 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages?.[sessionId]?.latestStreamMessage]);
 
+	/**
+	 * Update right bar width when active right bar changes or toggled
+	 */
 	useEffect(() => {
 		if (rightBarRef.current) {
 			setInfo((prev) => ({
@@ -217,6 +238,9 @@ const RecentChat = ({
 		}
 	}, [info?.rightBarOpen, info?.activeRightBar]);
 
+	/**
+	 * Handle opening document preview from latest streaming message
+	 */
 	useEffect(() => {
 		const { workflow_template_id, module_template_id } = info?.latestStreamMessage || {};
 		if (workflow_template_id && module_template_id && info?.showViewDocument) {
@@ -233,11 +257,14 @@ const RecentChat = ({
 		}
 	}, [info?.latestStreamMessage]);
 
+	/**
+	 * Layout effect to handle session rendering, loading state, and smooth transition
+	 */
 	useLayoutEffect(() => {
 		let timer = null;
 		if (sessionId) {
 			if (info?.renderingTwice) {
-				//clearing context state when rendering different session
+				// Clear AI messages and browser state for different session
 				updateStateValues({
 					aiMessagesInfo: null,
 					isBrowserScreenActive: false,
@@ -253,7 +280,7 @@ const RecentChat = ({
 							...prev,
 							ready: true,
 						})),
-					500, // delay in ms
+					500,
 				);
 
 				setInfo((prev) => ({
@@ -267,16 +294,17 @@ const RecentChat = ({
 				}));
 			}
 
+			// Clear pending timeouts
 			if (currentUserMessageTimeoutRef.current) {
 				clearTimeout(currentUserMessageTimeoutRef.current);
 				currentUserMessageTimeoutRef.current = null;
 			}
-
 			if (agentTimeoutIdRef.current) {
 				clearTimeout(agentTimeoutIdRef.current);
 				agentTimeoutIdRef.current = null;
 			}
 
+			// Fetch recent chat messages if not already loaded
 			if (!globalChatMessages?.[sessionId]?.messages) {
 				getRecentChatMessages({
 					sessionId,
@@ -301,6 +329,9 @@ const RecentChat = ({
 		};
 	}, [sessionId, fetchRecentChatMessages]);
 
+	/**
+	 * Update chat session agent type and assistantId if changed
+	 */
 	useEffect(() => {
 		if (
 			agentType &&
@@ -316,6 +347,9 @@ const RecentChat = ({
 		}
 	}, [sessionId, agentType, assistantId]);
 
+	/**
+	 * Scroll to last message if not already executed
+	 */
 	useLayoutEffect(() => {
 		if (!info?.scrollExecuted && globalChatMessages?.[sessionId]?.messages && info?.ready) {
 			requestAnimationFrame(() => {
@@ -329,6 +363,9 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages, info?.scrollExecuted, info?.ready]);
 
+	/**
+	 * Mark chat as not new once messages are loaded
+	 */
 	useEffect(() => {
 		globalChatMessagesRef.current = globalChatMessages;
 		if (!sessionId) return;
@@ -341,6 +378,10 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages, sessionId]);
 
+	/**
+	 * Handle initial recent chat data from storage
+	 * From context state, here this will store in globalchatmessages and making context state empty
+	 */
 	useEffect(() => {
 		if (recentChatStorage?.[sessionId]) {
 			const firstTimeApiCall = true;
@@ -356,6 +397,10 @@ const RecentChat = ({
 		}
 	}, [recentChatStorage?.[sessionId]]);
 
+	/**
+	 * Handle loading more chat data when fetching older messages
+	 * From context state, here this will store in globalchatmessages and making context state empty
+	 */
 	useEffect(() => {
 		if (moreRecentChatStorage?.[sessionId]) {
 			const firstTimeApiCall = false;
@@ -371,27 +416,26 @@ const RecentChat = ({
 		}
 	}, [moreRecentChatStorage?.[sessionId]]);
 
+	/**
+	 * Scroll button toggle based on distance from bottom
+	 */
 	const handleScroll = useCallback(() => {
 		if (!chatContentRef?.current) return;
 
-		//logic related to scroll button
 		const { scrollTop, scrollHeight, clientHeight } = chatContentRef.current;
 		const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
 		const isNearBottom = distanceFromBottom < 50;
 
 		if (isNearBottom && info?.showScrollButton) {
-			setInfo((prev) => ({
-				...prev,
-				showScrollButton: false,
-			}));
+			setInfo((prev) => ({ ...prev, showScrollButton: false }));
 		} else if (!isNearBottom && !info?.showScrollButton) {
-			setInfo((prev) => ({
-				...prev,
-				showScrollButton: true,
-			}));
+			setInfo((prev) => ({ ...prev, showScrollButton: true }));
 		}
 	}, [info?.showScrollButton]);
 
+	/**
+	 * Attach scroll listener to chat container
+	 */
 	useEffect(() => {
 		const chatContent = chatContentRef.current;
 		if (chatContent) {
@@ -402,6 +446,9 @@ const RecentChat = ({
 		}
 	}, [handleScroll]);
 
+	/**
+	 * Update right bar width on window resize
+	 */
 	const handleResizeWindow = useCallback(() => {
 		setInfo((prev) => {
 			if (!prev?.rightBarOpen) {
@@ -414,6 +461,10 @@ const RecentChat = ({
 		});
 	}, []);
 
+	/**
+	 * Process incoming chat messages and update context state
+	 * Here i will update recent messages data into required format and storing in globalchatmessages based on sessionId
+	 */
 	const recentChatHandler = useCallback(
 		(inComingData, fetchMore = false, firstTimeApiCall = false) => {
 			const { data = [], hasNextPage, currentPage } = inComingData ?? {};
@@ -422,6 +473,7 @@ const RecentChat = ({
 				workflowTemplateId: null,
 				moduleTemplateId: null,
 			};
+
 			for (let i = 0; i < data?.length; i++) {
 				const {
 					originalQuery = '',
@@ -443,6 +495,7 @@ const RecentChat = ({
 					conversationMessages,
 				} = data?.[i] || {};
 
+				// Skip knowledge agent responses if current agent type is different
 				if (
 					agentTypeFromResponse === 'knowledge_agent' &&
 					agentType !== 'knowledge_agent'
@@ -468,6 +521,7 @@ const RecentChat = ({
 						moduleTemplateId: moduleTemplateId || null,
 					};
 				}
+
 				let processing = null,
 					browserChainOfThought = null,
 					openBrowser = false,
@@ -548,6 +602,7 @@ const RecentChat = ({
 		[sessionId, agentType],
 	);
 
+	// This is used to open notes in chat
 	const handleNoteComponentModalOpen = useCallback(() => {
 		handleRightBarToggle({ open: true, activeRightBar: 'notes' });
 	}, []);
@@ -709,7 +764,7 @@ const RecentChat = ({
 		},
 		[globalChatMessages, sessionId],
 	);
-
+	// This will send message to socket
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
 			try {
@@ -772,6 +827,7 @@ const RecentChat = ({
 		[globalChatMessages, sessionId, updateStateValues, info?.citationsAiMessageIndex],
 	);
 
+	// This is used to open right bar in chat, currently it contains sources and notes
 	const handleRightBarToggle = useCallback(({ open = false, activeRightBar = null }) => {
 		setInfo((prev) => ({
 			...prev,
@@ -780,6 +836,8 @@ const RecentChat = ({
 		}));
 	}, []);
 
+	// Adjust chat container's bottom padding dynamically based on the chatbox height
+	// This ensures that messages at the bottom remain visible when the chatbox expands or resizes
 	const handleChatBoxHeight = useCallback((chatboxHeight) => {
 		setInfo((prev) => {
 			if (prev?.chatPaddingBottom === chatboxHeight - 31) {

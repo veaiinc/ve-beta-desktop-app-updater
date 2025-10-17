@@ -1013,6 +1013,7 @@ const ChatBox = ({
 		[info, currentPlan],
 	);
 
+	// This will check if there are any pending file uploads and gives warning when user tries to chat
 	const checkAllUploadLoadingStatus = useCallback(() => {
 		let uploadedImages = [...(uploadedImagesRef.current || [])];
 		let recentFiles = [...(recentFilesRef.current || [])];
