@@ -29,7 +29,12 @@ struct ContentView: View {
 
     @State private var gestureProgress: CGFloat = .zero
 
-    @State private var haptics: Bool = false
+            @State private var haptics: Bool = false
+            @State private var animatedWidth: CGFloat = 800
+            @State private var animatedHeight: CGFloat = 190
+            @State private var isWidthTransitioning: Bool = false
+            @State private var animatedTopCornerRadius: CGFloat = 19
+            @State private var animatedBottomCornerRadius: CGFloat = 24
 
     @Namespace var albumArtNamespace
 
@@ -44,9 +49,10 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: .top) {
             let isNotchOpen = vm.notchState == .open
+            // Use animated corner radius values
             let notchCornerRadii: (top: CGFloat, bottom: CGFloat) = {
-                if isNotchOpen && Defaults[.cornerRadiusScaling] {
-                    return (cornerRadiusInsets.opened.top, cornerRadiusInsets.opened.bottom)
+                if isNotchOpen {
+                    return (animatedTopCornerRadius, animatedBottomCornerRadius)
                 }
 
                 return (cornerRadiusInsets.closed.top, cornerRadiusInsets.closed.bottom)
@@ -76,6 +82,8 @@ struct ContentView: View {
                             bottomCornerRadius: notchCornerRadii.bottom
                         )
                         .drawingGroup()
+                        .animation(isWidthTransitioning ? .none : .default, value: animatedTopCornerRadius)
+                        .animation(isWidthTransitioning ? .none : .default, value: animatedBottomCornerRadius)
                     } else {
                         ClosedNotchShape(
                             topCornerRadius: notchCornerRadii.top,
@@ -129,8 +137,8 @@ struct ContentView: View {
                                 isHovering = hovering
                             }
 
-                            // Only close if mouse leaves and the notch is open, but not in meeting view and not locked
-                            if !hovering && vm.notchState == .open && coordinator.currentView != .meeting && !vm.isNotchLocked && !vm.isHoveringLockArea {
+                            // Only close if mouse leaves and the notch is open, but not locked
+                            if !hovering && vm.notchState == .open && !vm.isNotchLocked && !vm.isHoveringLockArea {
                                 vm.close()
                             }
                         }
@@ -205,13 +213,57 @@ struct ContentView: View {
             }
         }
         .padding(.bottom, 8)
-        .frame(maxWidth: openNotchSize.width, maxHeight: openNotchSize.height, alignment: .top)
+        .frame(maxWidth: animatedWidth, maxHeight: animatedHeight, alignment: .top)
         .shadow(
             color: ((vm.notchState == .open || isHovering) && Defaults[.enableShadow])
-                ? .black.opacity(0.2) : .clear, radius: Defaults[.cornerRadiusScaling] ? 6 : 4
+                ? .black.opacity(0.2) : .clear, 
+            radius: Defaults[.cornerRadiusScaling] ? 6 : 4
         )
+        .animation(.easeInOut(duration: 0.3), value: animatedWidth)
         .background(dragDetector)
         .environmentObject(vm)
+                .onAppear {
+                    // Initialize animated values
+                    let initialSize = getOpenNotchSize()
+                    animatedWidth = initialSize.width
+                    animatedHeight = initialSize.height
+                    animatedTopCornerRadius = cornerRadiusInsets.opened.top
+                    animatedBottomCornerRadius = cornerRadiusInsets.opened.bottom
+                }
+                .onChange(of: coordinator.currentView) { _, _ in
+                    // Animate only the frame changes smoothly, keep corner radius static
+                    let newSize = getOpenNotchSize()
+                    
+                    // Set transition state
+                    isWidthTransitioning = true
+                    
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        animatedWidth = newSize.width
+                        animatedHeight = newSize.height
+                        // Keep corner radius static during width transition
+                        animatedTopCornerRadius = cornerRadiusInsets.opened.top
+                        animatedBottomCornerRadius = cornerRadiusInsets.opened.bottom
+                    }
+                    
+                    // Reset transition state after animation completes
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        isWidthTransitioning = false
+                    }
+                }
+                .onChange(of: vm.notchState) { _, newState in
+                    // Animate corner radius for normal open/close transitions (not during width transitions)
+                    if !isWidthTransitioning {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            if newState == .open {
+                                animatedTopCornerRadius = cornerRadiusInsets.opened.top
+                                animatedBottomCornerRadius = cornerRadiusInsets.opened.bottom
+                            } else {
+                                animatedTopCornerRadius = cornerRadiusInsets.closed.top
+                                animatedBottomCornerRadius = cornerRadiusInsets.closed.bottom
+                            }
+                        }
+                    }
+                }
     }
 
     @ViewBuilder
@@ -493,8 +545,8 @@ struct ContentView: View {
                     isHovering = false
                 }
 
-                // Close the notch if it's open and battery popover is not active, but not in meeting view and not locked
-                if vm.notchState == .open && !vm.isBatteryPopoverActive && coordinator.currentView != .meeting && !vm.isNotchLocked && !vm.isHoveringLockArea {
+                // Close the notch if it's open and battery popover is not active, but not locked
+                if vm.notchState == .open && !vm.isBatteryPopoverActive && !vm.isNotchLocked && !vm.isHoveringLockArea {
                     vm.close()
                 }
             }
@@ -548,8 +600,8 @@ struct ContentView: View {
                     gestureProgress = .zero
                     isHovering = false
                 }
-                // Don't close the notch if we're in the meeting view or if locked
-                if coordinator.currentView != .meeting && !vm.isNotchLocked {
+                // Don't close the notch if locked
+                if !vm.isNotchLocked {
                     vm.close()
                 }
 
@@ -708,8 +760,8 @@ private struct FloatingLockButton: View {
             if hovering && vm.notchState == .closed {
                 withAnimation(.bouncy.speed(1.2)) { vm.open() }
             }
-            // Close when leaving if not locked and not in meeting
-            if !hovering && vm.notchState == .open && !vm.isNotchLocked && coordinator.currentView != .meeting {
+            // Close when leaving if not locked
+            if !hovering && vm.notchState == .open && !vm.isNotchLocked {
                 vm.close()
             }
         }

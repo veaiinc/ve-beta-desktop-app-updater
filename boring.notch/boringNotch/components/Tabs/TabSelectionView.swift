@@ -466,8 +466,9 @@ struct TabSelectionView: View, WebSocketEventListener {
                     )
                     
                     // Add MeetingButtons after the Home tab
-                    MeetingButtons()
-                }
+                       MeetingButtons()
+                
+            }
                 
             } else {
                 // Show all tabs normally
@@ -487,7 +488,11 @@ struct TabSelectionView: View, WebSocketEventListener {
                                         Task {
                                             await checkAndPauseMusic()
                                         }
-                                        webSocketManager.sendEvent(type: .startMeeting)
+                                        // Set loading state immediately if no meeting is ongoing
+                                    if !coordinator.isMeetingStarted {
+                                        coordinator.isMeetingLoading = true
+                                    }
+                                    webSocketManager.sendEvent(type: .startMeeting)
                                     }
                                     
                                     if tab.view == .meeting || tab.view == .ask {
@@ -539,6 +544,7 @@ struct TabSelectionView: View, WebSocketEventListener {
             break
         }
     }
+    
 }
 
 #Preview {

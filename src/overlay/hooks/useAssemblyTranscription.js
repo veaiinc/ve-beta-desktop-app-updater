@@ -18,7 +18,6 @@ const useAssemblyTranscription = ({
 	const [isPaused, setIsPaused] = useState(false);
 	const [timer, setTimer] = useState(0);
 	const [connectionStatus, setConnectionStatus] = useState('disconnected');
-
 	const websocketRef = useRef(null);
 	const audioContextRef = useRef(null);
 
@@ -462,6 +461,18 @@ const useAssemblyTranscription = ({
 								log('Successfully authenticated and connected to STT service');
 								connectionPromiseRef.current = null;
 								resolve(true);
+							} else if (
+								data.event === 'ai.disabled.true' ||
+								data.event === 'ai.enabled.true'
+							) {
+								if (window.electronApi.sendMessageToNotch) {
+									window.electronApi.sendMessageToNotch({
+										type:
+											data.event === 'ai.enabled.true'
+												? 'ENABLED_AI_INTELLIGENCE'
+												: 'DISABLED_AI_INTELLIGENCE',
+									});
+								}
 							} else if (data.type === 'transcription') {
 								if (data.text && data.text.trim()) {
 									const transcriptionData = {
@@ -551,6 +562,7 @@ const useAssemblyTranscription = ({
 			stopRecording,
 			isRecording,
 			attemptReconnect,
+			window?.electronApi?.sendMessageToNotch,
 		],
 	);
 
@@ -1162,6 +1174,14 @@ const useAssemblyTranscription = ({
 				// Then start audio capture
 				// log('Starting audio capture...');
 				await startAudioCapture();
+				if (window.electronApi) {
+					window.electronApi.sendMessageToNotch({
+						type: 'MEETING_STARTED',
+						data: {
+							message: 'Microphone access granted',
+						},
+					});
+				}
 			} catch (error) {
 				log(`Failed to start recording: ${error.message}`);
 				stopRecording({ meetingId });
@@ -1190,6 +1210,25 @@ const useAssemblyTranscription = ({
 			}
 		}
 	}, [isMuted, isRecording, isPaused, log, pauseTimer, resumeTimer]);
+
+	const toggleAiIntelligence = useCallback(
+		(isEnabled) => {
+			if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
+				return;
+			}
+
+			try {
+				websocketRef.current.send(
+					JSON.stringify({
+						type: isEnabled ? 'ai.enable' : 'ai.disable',
+					}),
+				);
+			} catch (error) {
+				log(`Error sending AI Intelligence toggle: ${error.message}`);
+			}
+		},
+		[log],
+	);
 
 	const pauseRecording = useCallback(() => {
 		if (!isRecording || isPaused) return;
@@ -1303,6 +1342,7 @@ const useAssemblyTranscription = ({
 		resumeRecording,
 		formatTime,
 		disconnect,
+		toggleAiIntelligence,
 	};
 };
 

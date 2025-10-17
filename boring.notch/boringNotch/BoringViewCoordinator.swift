@@ -55,6 +55,10 @@ class BoringViewCoordinator: ObservableObject {
         didSet {
             // Persist whenever it changes
             selectedTab = currentView
+            // Resize window when view changes
+            DispatchQueue.main.async {
+                self.resizeWindowForCurrentView()
+            }
         }
     }
 
@@ -101,6 +105,28 @@ class BoringViewCoordinator: ObservableObject {
     @Published var selectedScreen: String = NSScreen.main?.localizedName ?? "Unknown"
 
     @Published var optionKeyPressed: Bool = true
+    
+    // MARK: - Dynamic Width Management
+    
+    /// Returns the appropriate width for the current view
+    var currentViewWidth: CGFloat {
+        switch currentView {
+        case .meeting, .ask:
+            return 600  // Smaller width for meeting view
+        case .home, .shelf:
+            return 800  // Original width for home and shelf views
+        }
+    }
+    
+    /// Resizes the window when the view changes
+    func resizeWindowForCurrentView() {
+        let newSize = getOpenNotchSize()
+        NotificationCenter.default.post(
+            name: NSNotification.Name("ResizeWindowForViewChange"),
+            object: nil,
+            userInfo: ["newSize": newSize]
+        )
+    }
 
     private init() {
         selectedScreen = preferredScreen
@@ -111,6 +137,8 @@ class BoringViewCoordinator: ObservableObject {
         restoreMeetingState()
         // Restore active meeting view
         restoreActiveMeetingView()
+        // Restore AI enabled state
+        restoreAiEnabledState()
         
         // Setup notification observers
         setupNotificationObservers()
@@ -298,10 +326,13 @@ class BoringViewCoordinator: ObservableObject {
     @AppStorage("meetingIsPaused") var persistedMeetingIsPaused: Bool = true
     @AppStorage("meetingStartTimestamp") var persistedMeetingStartTimestamp: Double = 0
     @AppStorage("activeMeetingView") var persistedActiveMeetingView: String = "transcription"
+    @AppStorage("isAiEnabled") var persistedIsAiEnabled: Bool = true
 
     @Published var meetingElapsed: TimeInterval = 0
     @Published var meetingIsPaused: Bool = true
     @Published var activeMeetingView: ActiveMeetingView = .transcription
+    @Published var isAiEnabled: Bool = true
+    @Published var isMeetingLoading: Bool = false
 
     private var meetingStartDate: Date?
     private var meetingTickerTask: Task<Void, Never>?
@@ -341,7 +372,10 @@ class BoringViewCoordinator: ObservableObject {
             persistedMeetingStartTimestamp = Date().timeIntervalSince1970
             meetingIsPaused = false
             persistedMeetingIsPaused = false
-            print("🚀 Meeting started - Timer initialized")
+            // Set AI enabled to true by default for new meetings
+            isAiEnabled = true
+            persistedIsAiEnabled = true
+            print("🚀 Meeting started - Timer initialized, AI enabled by default")
         } else {
             // Already started: treat as resume without reset
             if meetingIsPaused {
@@ -480,10 +514,21 @@ class BoringViewCoordinator: ObservableObject {
         print("🔄 Active meeting view restored: \(activeMeetingView)")
     }
     
+    func restoreAiEnabledState() {
+        isAiEnabled = persistedIsAiEnabled
+        print("🔄 AI enabled state restored: \(isAiEnabled)")
+    }
+    
     func toggleActiveMeetingView() {
         activeMeetingView = activeMeetingView == .transcription ? .liveIntelligence : .transcription
         persistedActiveMeetingViewValue = activeMeetingView
         print("🔄 Active meeting view toggled to: \(activeMeetingView)")
+    }
+    
+    func setAiEnabled(_ enabled: Bool) {
+        isAiEnabled = enabled
+        persistedIsAiEnabled = enabled
+        print("🔄 AI enabled state set to: \(enabled)")
     }
 }
 

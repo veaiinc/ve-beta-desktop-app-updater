@@ -84,6 +84,10 @@
 		9A987A102C73CA8D005CA465 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 9A987A0F2C73CA8D005CA465 /* Collections */; };
 		9AB0C6BD2C73C9CB00F7CD30 /* NotchHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB0C6BB2C73C9CB00F7CD30 /* NotchHomeView.swift */; };
 		A966AEB72E9F7B5E0055C6C6 /* LucideIcons in Frameworks */ = {isa = PBXBuildFile; productRef = A966AEB62E9F7B5E0055C6C6 /* LucideIcons */; };
+		A98B29752EA21A5D00666830 /* LiveIntelligenceItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98B29742EA21A5D00666830 /* LiveIntelligenceItemView.swift */; };
+		A98B29772EA21A7500666830 /* TranscriptionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98B29762EA21A7500666830 /* TranscriptionItemView.swift */; };
+		A98B29792EA21AA300666830 /* Transcription.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98B29782EA21AA300666830 /* Transcription.swift */; };
+		A98B297D2EA21ADF00666830 /* LiveIntelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98B297C2EA21ADF00666830 /* LiveIntelligence.swift */; };
 		A9B8A6512E9E25180050577A /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8A6502E9E25180050577A /* WebSocketManager.swift */; };
 		A9B8A6532E9E28120050577A /* MeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8A6522E9E28120050577A /* MeetingView.swift */; };
 		A9B8A6552E9E3ABC0050577A /* MeetingButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8A6542E9E3AAB0050577A /* MeetingButtons.swift */; };
@@ -180,7 +184,7 @@
 		14C08BB52C8DE42D000F8AA0 /* CalendarManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarManager.swift; sourceTree = "<group>"; };
 		14C08BB82C8DE4B1000F8AA0 /* BoringCalendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoringCalendar.swift; sourceTree = "<group>"; };
 		14C08BC02C8E03AD000F8AA0 /* NSImage+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSImage+Extensions.swift"; sourceTree = "<group>"; };
-		14CEF4122C5CAED300855D72 /* boringNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = boringNotch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		14CEF4122C5CAED300855D72 /* boringNotch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = boringNotch.app; path = Ve.Ai.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		14CEF4152C5CAED300855D72 /* boringNotchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = boringNotchApp.swift; sourceTree = "<group>"; };
 		14CEF4172C5CAED300855D72 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		14CEF4192C5CAED400855D72 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -216,6 +220,10 @@
 		9A987A022C73CA66005CA465 /* DropItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DropItemView.swift; sourceTree = "<group>"; };
 		9A987A032C73CA66005CA465 /* NotchShelfView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotchShelfView.swift; sourceTree = "<group>"; };
 		9AB0C6BB2C73C9CB00F7CD30 /* NotchHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotchHomeView.swift; sourceTree = "<group>"; };
+		A98B29742EA21A5D00666830 /* LiveIntelligenceItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveIntelligenceItemView.swift; sourceTree = "<group>"; };
+		A98B29762EA21A7500666830 /* TranscriptionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionItemView.swift; sourceTree = "<group>"; };
+		A98B29782EA21AA300666830 /* Transcription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transcription.swift; sourceTree = "<group>"; };
+		A98B297C2EA21ADF00666830 /* LiveIntelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveIntelligence.swift; sourceTree = "<group>"; };
 		A9B8A6502E9E25180050577A /* WebSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketManager.swift; sourceTree = "<group>"; };
 		A9B8A6522E9E28120050577A /* MeetingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingView.swift; sourceTree = "<group>"; };
 		A9B8A6542E9E3AAB0050577A /* MeetingButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingButtons.swift; sourceTree = "<group>"; };
@@ -571,6 +579,10 @@
 			isa = PBXGroup;
 			children = (
 				A9B8A6522E9E28120050577A /* MeetingView.swift */,
+				A98B297C2EA21ADF00666830 /* LiveIntelligence.swift */,
+				A98B29782EA21AA300666830 /* Transcription.swift */,
+				A98B29762EA21A7500666830 /* TranscriptionItemView.swift */,
+				A98B29742EA21A5D00666830 /* LiveIntelligenceItemView.swift */,
 				1160F8D72DD98230006FBB94 /* NotchShape.swift */,
 				653CF4C42E9E6B9B004C43E5 /* ClosedNotchShape.swift */,
 				9A987A032C73CA66005CA465 /* NotchShelfView.swift */,
@@ -757,6 +769,7 @@
 				1160F8D82DD98230006FBB94 /* NotchShape.swift in Sources */,
 				14288DFE2C6E9A4700B9F80C /* BoringSystemTiles.swift in Sources */,
 				14C08BC12C8E03AD000F8AA0 /* NSImage+Extensions.swift in Sources */,
+				A98B29752EA21A5D00666830 /* LiveIntelligenceItemView.swift in Sources */,
 				B10A848A2C7BCC940088BFFC /* AirDropView.swift in Sources */,
 				149E0B9A2C737D40006418B1 /* WebcamView.swift in Sources */,
 				1471639A2C5D35FF0068B555 /* MusicManager.swift in Sources */,
@@ -775,6 +788,7 @@
 				B1C4489B2C97376A001F0858 /* TipStore.swift in Sources */,
 				1153BD912D986DB300979FB0 /* PlaybackState.swift in Sources */,
 				B1A78C822C8BA08100BD51B0 /* FullscreenMediaDetection.swift in Sources */,
+				A98B29772EA21A7500666830 /* TranscriptionItemView.swift in Sources */,
 				14E9FEAE2C7325770062E83F /* Button+Bouncing.swift in Sources */,
 				14D570C92C5F38890011E668 /* BoringViewModel.swift in Sources */,
 				14D570BC2C5E98EB0011E668 /* generic.swift in Sources */,
@@ -787,10 +801,12 @@
 				1443E7F32C609DCE0027C1FC /* matters.swift in Sources */,
 				11C5E3162DFE88510065821E /* SettingsView.swift in Sources */,
 				14D570D52C5F710B0011E668 /* constants.swift in Sources */,
+				A98B29792EA21AA300666830 /* Transcription.swift in Sources */,
 				B1628BA82CC40C4F003D8DF3 /* DragDropView.swift in Sources */,
 				1153BD932D986E4300979FB0 /* AppleMusicController.swift in Sources */,
 				11C5E3132DFE85970065821E /* SettingsWindowController.swift in Sources */,
 				9A987A0B2C73CA66005CA465 /* DropItem.swift in Sources */,
+				A98B297D2EA21ADF00666830 /* LiveIntelligence.swift in Sources */,
 				11CFC6652E09C7B300748C80 /* OnboardingFinishView.swift in Sources */,
 				507266DB2C908E2E00A2D00D /* HoverButton.swift in Sources */,
 				1471A8592C6281BD0058408D /* BoringNotchWindow.swift in Sources */,
@@ -992,7 +1008,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = "2.7-rc.3";
 				PRODUCT_BUNDLE_IDENTIFIER = theboringteam.boringnotch;
-				PRODUCT_NAME = "Ve.Ai";
+				PRODUCT_NAME = Ve.Ai;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = targeted;
@@ -1046,7 +1062,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = "2.7-rc.3";
 				PRODUCT_BUNDLE_IDENTIFIER = theboringteam.boringnotch;
-				PRODUCT_NAME = "Ve.Ai";
+				PRODUCT_NAME = Ve.Ai;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = targeted;
