@@ -19,6 +19,7 @@ const AIMessageRenderer = ({
 }) => {
 	return (
 		<div className="ai-message-renderer">
+			{/* Loading Message */}
 			{messageData?.contentType === 'loading' ? (
 				<AIMessageLoader />
 			) : (
@@ -27,10 +28,12 @@ const AIMessageRenderer = ({
 						<div className="error-message">Something went wrong. Please try again.</div>
 					) : (
 						<>
+							{/* Chain of Thought */}
 							{(messageData?.processing === 'Deep Research' ||
 								messageData?.chainOfThought?.length > 0) && (
 								<ChainOfThoughtWidget messageData={messageData} />
 							)}
+							{/* Actual AI response  */}
 							<AIMessage
 								text={messageData?.message}
 								messageId={messageData?.messageId}

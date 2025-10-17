@@ -250,7 +250,6 @@ const AgentDrawer = ({
 						customChatActions={true}
 						showUpgradeSubscriptionBtn={false}
 						sessionId={info?.sessionId}
-						animateChatBox={false}
 						placeholder="Guide me..."
 						showBottomTools={false}
 					/>

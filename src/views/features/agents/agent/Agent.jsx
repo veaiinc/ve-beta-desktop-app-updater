@@ -55,12 +55,7 @@ const Agent = () => {
 						</div>
 					) : (
 						<>
-							<RecentChat
-								isPreview={true}
-								sId={info?.sId}
-								animateChatBox={false}
-								showHeader={false}
-							/>
+							<RecentChat isPreview={true} sId={info?.sId} showHeader={false} />
 							<button className={s.collapseBtn} onClick={toggleDrawer}>
 								<LeftArrowSvg />
 							</button>

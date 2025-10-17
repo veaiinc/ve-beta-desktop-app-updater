@@ -79,7 +79,6 @@ const MeetBotWrapper = () => {
 							showCitationsButton={false}
 							// customChatBoxClick={handleCustomChatBoxClick}
 							sId={meetingId}
-							animateChatBox={true}
 							showHeader={false}
 						/>
 					</div>

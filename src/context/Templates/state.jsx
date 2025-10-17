@@ -127,7 +127,6 @@ export const intialState = {
 	aiQuestions: null,
 	proactiveAiData: null,
 	chatBoxSuggestions: null,
-	newChatSessionIds: [],
 	aiMessagesInfo: null,
 	proactiveInfoForChat: null,
 	isDirectSearchAgent: false,
@@ -2235,7 +2234,6 @@ export const TemplatesState = (props) => {
 		removeLoadingMessage = false,
 		chatPayload = null,
 		removeStreaming = false,
-		removeChatSession = false,
 		removeChatSessions = false,
 		latestStreamMessage = null,
 		removeLatestStreamMessage = false,
@@ -2243,7 +2241,6 @@ export const TemplatesState = (props) => {
 		chatBoxInfo = null,
 		chatInfo = null,
 		browserData = null,
-		browserTabsInfo = null,
 		recentChatInfo = null,
 	}) => {
 		try {
@@ -2259,7 +2256,6 @@ export const TemplatesState = (props) => {
 					removeLoadingMessage,
 					chatPayload,
 					removeStreaming,
-					removeChatSession,
 					removeChatSessions,
 					latestStreamMessage,
 					removeLatestStreamMessage,
@@ -2267,7 +2263,6 @@ export const TemplatesState = (props) => {
 					chatBoxInfo,
 					chatInfo,
 					browserData,
-					browserTabsInfo,
 					recentChatInfo,
 				},
 			});

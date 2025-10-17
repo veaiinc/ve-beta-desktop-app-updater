@@ -4,12 +4,9 @@
 	--font-size: 16px;
 	width: 100%;
 
-	// i am using letter-spacing only for Inter font, if it is not required, you can remove.
-	letter-spacing: -0.1px;
-
 	.span {
 		color: var(--primary-font);
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
 		line-height: 1.75;
@@ -31,7 +28,7 @@
 	.code {
 		font-size: inherit;
 		color: var(--primary-font);
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		line-height: calc(var(--font-size) * 1.75);
 		font-weight: 400;
 		background-color: var(--stroke);
@@ -53,7 +50,7 @@
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1.25); // 20px
 		font-weight: 600;
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		margin: calc(var(--font-size) * 1.25) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
 		line-height: 1.5;
 	}
@@ -62,7 +59,7 @@
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1.125); // 18px
 		font-weight: 600;
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		margin: calc(var(--font-size) * 1.25) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
 		line-height: 1.5;
 	}
@@ -71,7 +68,7 @@
 		color: var(--primary-font);
 		font-size: calc(var(--font-size) * 1.125);
 		font-weight: 600;
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		margin: calc(var(--font-size) * 1.25) 0 calc(var(--font-size) * 0.5) 0 !important; // 24px 0 8px 0
 		line-height: 1.5;
 	}
@@ -82,7 +79,7 @@
 		font-size: calc(var(--font-size) * 1);
 		line-height: 1.4;
 		font-weight: 600;
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		margin: calc(var(--font-size) * 1) 0 calc(var(--font-size) * 0.5) 0 !important; // 16px 0 8px 0
 	}
 	.h6 {
@@ -90,13 +87,13 @@
 		font-size: calc(var(--font-size) * 1);
 		line-height: 1.4;
 		font-weight: 600;
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		margin: calc(var(--font-size) * 1) 0 calc(var(--font-size) * 0.5) 0 !important; // 16px 0 8px 0
 	}
 
 	.p {
 		color: var(--primary-font);
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		font-size: calc(var(--font-size) * 1);
 		font-weight: 400;
 		line-height: 1.75;
@@ -110,7 +107,7 @@
 		line-height: 1.45;
 		background-color: var(--card-over-card);
 		border-radius: calc(var(--font-size) * 1);
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		margin: calc(var(--font-size) * 1) 0;
 
 		.code {
@@ -168,7 +165,7 @@
 
 	.li {
 		color: var(--primary-font);
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		font-weight: 400;
 		line-height: calc(var(--font-size) * 1.75); // 28px
 		font-size: calc(var(--font-size) * 1);
@@ -181,7 +178,7 @@
 	.strong {
 		color: var(--primary-font);
 		font-weight: 600;
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		line-height: 1.75;
 	}
 
@@ -225,7 +222,7 @@
 		font-size: inherit;
 		line-height: calc(var(--font-size) * 1.5);
 		font-weight: 400;
-		font-family: var(--chat-primary-font-family);
+		font-family: inherit;
 		text-decoration-line: underline;
 		vertical-align: baseline;
 		text-decoration-style: dotted;
@@ -304,7 +301,7 @@
 			.code-language {
 				font-size: 14px;
 				color: var(--primary-font);
-				font-family: var(--chat-primary-font-family);
+				font-family: inherit;
 				font-weight: 400;
 				line-height: 1.5;
 			}
@@ -377,7 +374,7 @@
 					font-size: calc(var(--font-size) * 0.875); /* 14px */
 					line-height: calc(var(--font-size) * 1.25); /* 20px */
 					font-weight: 400;
-					font-family: var(--chat-primary-font-family);
+					font-family: inherit;
 					padding: calc(var(--font-size) * 0.5) calc(var(--font-size) * 1.25); /* 8px 20px */
 				}
 

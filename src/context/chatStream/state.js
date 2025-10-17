@@ -19,7 +19,6 @@ export const ChatStreamState = () => {
 	const socketRefs = useRef({});
 	const socketsInfoRef = useRef({});
 	const inactivityTimeoutsRef = useRef({});
-	const currentSessionIdRef = useRef(null);
 	const fetchingAccessTokenRef = useRef(false);
 	const MAX_RETRY_ATTEMPTS = 6;
 
@@ -132,8 +131,6 @@ export const ChatStreamState = () => {
 				}
 			}
 
-			currentSessionIdRef.current = sessionId;
-
 			if (socketRefs.current[sessionId]) {
 				return;
 			}
@@ -195,7 +192,7 @@ export const ChatStreamState = () => {
 				resetInactivityTimeout(sessionId);
 				const { onMessageFunc } = socketsInfoRef.current[sessionId];
 				if (onMessageFunc) {
-					onMessageFunc(event, currentSessionIdRef.current);
+					onMessageFunc(event);
 				}
 			};
 		},
@@ -212,15 +209,10 @@ export const ChatStreamState = () => {
 		}
 	}, []);
 
-	const removeCurrentSessionId = useCallback(() => {
-		currentSessionIdRef.current = null;
-	}, []);
-
 	return {
 		...state,
 		createWebSocketConnection,
 		sendMessage,
 		closeWebSocketConnection,
-		removeCurrentSessionId,
 	};
 };
