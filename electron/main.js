@@ -4779,6 +4779,17 @@ app.whenReady().then(async () => {
 				log.info('✅ Main window opened/restored from BoringNotch VE logo click');
 				break;
 
+			case "ENABLE_AI_INTELLIGENCE":
+				log.info('🎯 ENABLE_AI_INTELLIGENCE message received from BoringNotch');
+				await handleNotchToMainWindowEvents({ action: 'enableAiIntelligence' });
+				log.info('✅ AI Intelligence enabled');
+				break;
+
+			case "DISABLE_AI_INTELLIGENCE":
+				log.info('🎯 DISABLE_AI_INTELLIGENCE message received from BoringNotch');
+				await handleNotchToMainWindowEvents({ action: 'disableAiIntelligence' });
+				log.info('✅ AI Intelligence disabled');
+				break;
 			default:
 				log.info('🎯 Unknown message received, skipping...');
 		}

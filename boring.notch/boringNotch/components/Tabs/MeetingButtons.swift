@@ -118,7 +118,7 @@ struct MeetingButtons: View, WebSocketEventListener {
                 ZStack {
                     // Outer ping capsule
                     Capsule()
-                        .fill(Color(red: 0.33, green: 0.44, blue: 0.97).opacity(0.8))
+                        .fill(Color(red: 0.33, green: 0.44, blue: 0.97).opacity(0.9))
                         .frame(width: 36, height: 20)
                         .scaleEffect(x: isPinging ? 1.3 : 1.0, y: isPinging ? 1.4 : 1.0) // 🔹 Different X/Y scaling
                         .opacity(isPinging ? 0 : 1)
@@ -245,8 +245,10 @@ struct MeetingButtons: View, WebSocketEventListener {
             BoringViewCoordinator.shared.meetingStopAndReset()
         case .meetingStartError:
             meetingIsLoading = false
+            isPinging = false
         case .enabledAiIntelligence:
             isAiEnabeled = true
+            isPinging = true
         case .disabledAiIntelligence:
             isAiEnabeled = false
         default:
