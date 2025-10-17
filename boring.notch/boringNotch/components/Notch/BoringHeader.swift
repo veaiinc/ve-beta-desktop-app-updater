@@ -87,6 +87,21 @@ struct BoringHeader: View {
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .overlay(alignment: .bottom) {
+                        if hoverVE {
+                            Text("Open app")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.8))
+                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                .offset(y: 28)
+                                .fixedSize(horizontal: true, vertical: true)
+                                .zIndex(2000)
+                                .allowsHitTesting(false)
+                        }
+                    }
 
                     // Stealth mode toggle (Glasses/Eye)
                     Button(action: {
@@ -126,6 +141,21 @@ struct BoringHeader: View {
                         }
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .overlay(alignment: .bottom) {
+                        if hoverStealth {
+                            Text(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.8))
+                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                .offset(y: 28)
+                                .fixedSize(horizontal: true, vertical: true)
+                                .zIndex(2000)
+                                .allowsHitTesting(false)
+                        }
+                    }
 
 //                    if Defaults[.showMirror] {
 //                        Button(action: {
@@ -175,6 +205,21 @@ struct BoringHeader: View {
                             }
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .overlay(alignment: .bottom) {
+                            if hoverSettings {
+                                Text("Settings")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.black.opacity(0.8))
+                                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                    .offset(y: 28)
+                                    .fixedSize(horizontal: true, vertical: true)
+                                    .zIndex(2000)
+                                    .allowsHitTesting(false)
+                            }
+                        }
                     }
                     
                     // Lock button moved to floating position in ContentView

@@ -2146,25 +2146,25 @@ function createWindow(restoreState = false) {
 	// If restoring state (user was logged in), use saved bounds or full default width (1366)
 	// If fresh start (not logged in), use login width (481px)
 	const isRestoringLoggedInState = restoreState && lastWindowState.windowBounds;
-	
+
 	// Get screen dimensions for centering
 	const { screen } = require('electron');
 	const primaryDisplay = screen.getPrimaryDisplay();
 	const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
-	
-	const loginBounds = { 
-		width: 481, 
-		height: 768, 
+
+	const loginBounds = {
+		width: 481,
+		height: 768,
 		x: Math.round((screenWidth - 481) / 2), // Center horizontally
-		y: Math.round((screenHeight - 768) / 2) // Center vertically
+		y: Math.round((screenHeight - 768) / 2), // Center vertically
 	};
-	const fullBounds = { 
-		width: 1366, 
-		height: 768, 
+	const fullBounds = {
+		width: 1366,
+		height: 768,
 		x: Math.round((screenWidth - 1366) / 2), // Center horizontally
-		y: Math.round((screenHeight - 768) / 2) // Center vertically
+		y: Math.round((screenHeight - 768) / 2), // Center vertically
 	};
-	
+
 	const windowBounds = isRestoringLoggedInState
 		? { ...fullBounds, ...lastWindowState.windowBounds }
 		: loginBounds;
@@ -2366,7 +2366,7 @@ function createWindow(restoreState = false) {
 			log.info('✅ User authenticated - hiding permission overlay if visible');
 			userAuthenticationStatus.isLoggedIn = true;
 			userAuthenticationStatus.shouldShowPermissionOverlay = false;
-			
+
 			// Note: Window resize is now handled by the React hook (useLoginWindowResize)
 			// This ensures smooth animation when transitioning from login to main app
 
@@ -2392,6 +2392,30 @@ function createWindow(restoreState = false) {
 			log.info('🔓 User not authenticated - permission overlay may be needed');
 			userAuthenticationStatus.isLoggedIn = false;
 			userAuthenticationStatus.shouldShowPermissionOverlay = true;
+
+			// Send authentication status update to Boring Notch via WebSocket
+			if (websocketService && websocketService.isServerRunning()) {
+				try {
+					const clientCount = websocketService.getClientCount();
+					log.info(
+						`🔌 WebSocket server is running with ${clientCount} connected clients`,
+					);
+
+					websocketService.broadcast({
+						type: 'AUTHENTICATION_STATUS',
+						data: { isAuthenticated: false },
+					});
+					log.info(
+						'✅ Authentication status (unauthorized) sent to Boring Notch via WebSocket',
+					);
+				} catch (error) {
+					log.error('❌ Failed to send unauthorized status to Boring Notch:', error);
+				}
+			} else {
+				log.warn(
+					'⚠️ WebSocket service not running or not available for unauthorized notification',
+				);
+			}
 		} else if (msg === 'loggedout') {
 			log.info('🔓 User logged out - updating auth status and notifying Dynamic Island');
 			userAuthenticationStatus.isLoggedIn = false;
@@ -2401,6 +2425,30 @@ function createWindow(restoreState = false) {
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
 				dynamicIslandWindow.webContents.send('user-logout');
 				log.info('✅ Logout notification sent to Dynamic Island');
+			}
+
+			// Send authentication status update to Boring Notch via WebSocket
+			if (websocketService && websocketService.isServerRunning()) {
+				try {
+					const clientCount = websocketService.getClientCount();
+					log.info(
+						`🔌 WebSocket server is running with ${clientCount} connected clients`,
+					);
+
+					websocketService.broadcast({
+						type: 'AUTHENTICATION_STATUS',
+						data: { isAuthenticated: false },
+					});
+					log.info(
+						'✅ Authentication status (logged out) sent to Boring Notch via WebSocket',
+					);
+				} catch (error) {
+					log.error('❌ Failed to send logout status to Boring Notch:', error);
+				}
+			} else {
+				log.warn(
+					'⚠️ WebSocket service not running or not available for logout notification',
+				);
 			}
 		}
 
@@ -4179,6 +4227,7 @@ app.whenReady().then(async () => {
 				getStatus: getContentProtectionStatus,
 				setStatus: setContentProtection,
 			});
+			boringNotchService.setWindowHelper(windowHelper);
 
 			// Initialize Boring Notch in background without blocking main window
 			try {
@@ -4647,6 +4696,21 @@ app.whenReady().then(async () => {
 		return { success: false, error: message };
 	}
 
+	// Helper function to get authentication token from renderer
+	async function getAuthToken() {
+		try {
+			// Try to get the token from the main window's localStorage
+			// This is a simplified approach - in a real app you might want to use IPC
+			const result = await mainWindow.webContents.executeJavaScript(`
+				localStorage.getItem('usertoken') || ''
+			`);
+			return result;
+		} catch (error) {
+			log.error('❌ Failed to get auth token:', error);
+			return '';
+		}
+	}
+
 	async function handleWebSocketMessage(prop) {
 		const { data, ws } = prop;
 
@@ -4693,6 +4757,19 @@ app.whenReady().then(async () => {
 				await handleNotchToMainWindowEvents({ action: 'stopRecording' });
 				// Send response back to the client that sent the STOP_MEETING message
 				websocketService.sendToClient(ws, { type: 'MEETING_STOPPED', data: {} });
+				break;
+
+			case 'REQUEST_AUTHENTICATION_STATUS':
+				log.info('🔐 REQUEST_AUTHENTICATION_STATUS message received from Boring Notch');
+				// Check authentication status and send response
+				const token = await getAuthToken();
+				const isAuthenticated = token && token.trim() !== '';
+
+				websocketService.sendToClient(ws, {
+					type: 'AUTHENTICATION_STATUS',
+					data: { isAuthenticated: isAuthenticated },
+				});
+				log.info(`✅ Authentication status sent to Boring Notch: ${isAuthenticated}`);
 				break;
 
 			case 'NAVIGATE_TO_MAIN_SCREEN':
@@ -5084,9 +5161,9 @@ app.whenReady().then(async () => {
 			const {
 				dimensions,
 				exitFullScreen,
-                animate = true,
-                duration = 300,
-                easing = 'easeInOutSmooth',
+				animate = true,
+				duration = 300,
+				easing = 'easeInOutSmooth',
 			} = data;
 			const workArea = screen.getPrimaryDisplay().workAreaSize;
 			const screenWidth = workArea.width,
@@ -5105,12 +5182,24 @@ app.whenReady().then(async () => {
 			}
 			if (dimensions?.x !== undefined) {
 				// Ensure window stays within screen bounds
-				const x = Math.max(0, Math.min(screenWidth - (targetDimensions.width || mainWindow.getBounds().width), dimensions.x));
+				const x = Math.max(
+					0,
+					Math.min(
+						screenWidth - (targetDimensions.width || mainWindow.getBounds().width),
+						dimensions.x,
+					),
+				);
 				targetDimensions.x = x;
 			}
 			if (dimensions?.y !== undefined) {
 				// Ensure window stays within screen bounds
-				const y = Math.max(0, Math.min(screenHeight - (targetDimensions.height || mainWindow.getBounds().height), dimensions.y));
+				const y = Math.max(
+					0,
+					Math.min(
+						screenHeight - (targetDimensions.height || mainWindow.getBounds().height),
+						dimensions.y,
+					),
+				);
 				targetDimensions.y = y;
 			}
 

@@ -374,6 +374,17 @@ struct TabSelectionView: View {
                                         }
                                     }
                                 }
+                                
+                                // Send message to Electron to show Ask AI window when Ask tab is clicked
+                                if tab.view == .ask {
+                                    print("🎯 TabSelectionView: Ask tab clicked - triggering Electron Ask AI window")
+                                    
+                                    // Send command to Electron via WebSocket to show Ask AI window
+                                    webSocketManager.sendEvent(type: .showAskAIWindow, data: [
+                                        "source": "boring-notch",
+                                        "timestamp": Int(Date().timeIntervalSince1970 * 1000)
+                                    ])
+                                }
                             }
                         }
                     )

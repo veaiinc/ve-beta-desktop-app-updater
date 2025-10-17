@@ -51,9 +51,29 @@ const useAuth = () => {
 			updateTokenExpiryState({ expiredTokenModal: true });
 			window.electronApi.sendMessageFrmVeApp('unauthorized');
 			channel.postMessage('reload');
+			// Send authentication status to Boring Notch via WebSocket
+			sendAuthenticationStatusToBoringNotch(false);
+		} else {
+			window.electronApi.sendMessageFrmVeApp('authorized');
+			// Send authentication status to Boring Notch via WebSocket
+			sendAuthenticationStatusToBoringNotch(true);
 		}
-		window.electronApi.sendMessageFrmVeApp('authorized');
 	};
+
+	const sendAuthenticationStatusToBoringNotch = useCallback(async (isAuthenticated) => {
+		try {
+			// Send authentication status to Boring Notch via WebSocket
+			await window.electronApi.websocketSendMessage({
+				type: 'AUTHENTICATION_STATUS',
+				data: {
+					isAuthenticated: isAuthenticated,
+				},
+			});
+			console.log('🔐 Authentication status sent to Boring Notch:', isAuthenticated);
+		} catch (error) {
+			console.error('❌ Failed to send authentication status to Boring Notch:', error);
+		}
+	}, []);
 
 	const checkUserAuthState = useCallback(() => {
 		const token = localStorage.getItem('usertoken');
@@ -64,6 +84,8 @@ const useAuth = () => {
 			if (currentPath !== '/' && !currentPath.startsWith('/verify-user')) {
 				window.location.replace('/');
 			}
+			// Send authentication status to Boring Notch
+			sendAuthenticationStatusToBoringNotch(false);
 			return false; // Return false to indicate no further processing needed
 		}
 
@@ -80,7 +102,7 @@ const useAuth = () => {
 		}
 
 		return true; // Always return true for authenticated users to allow getUserDetails
-	}, [navigate]);
+	}, [navigate, sendAuthenticationStatusToBoringNotch]);
 
 	const { authLoading } = info;
 	return { authLoading };

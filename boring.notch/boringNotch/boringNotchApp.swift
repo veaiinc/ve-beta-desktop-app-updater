@@ -355,10 +355,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func autoConnectWebSocketOnStartup() {
         print("🔌 AppDelegate: Setting up websocket auto-connection on app startup...")
         
-        // Wait 5 seconds after app launch to allow everything to initialize
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
-            print("🔌 AppDelegate: Auto-connecting to websocket...")
-            WebSocketManager.shared.connect()
+        // Connect immediately and also after a delay to ensure connection
+        print("🔌 AppDelegate: Auto-connecting to websocket immediately...")
+        WebSocketManager.shared.connect()
+        
+        // Also try again after a short delay to ensure connection is established
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            print("🔌 AppDelegate: Retrying websocket connection...")
+            if !WebSocketManager.shared.isConnected {
+                WebSocketManager.shared.connect()
+            }
         }
     }
     

@@ -12,7 +12,7 @@ import SwiftUI
 let downloadSneakSize: CGSize = .init(width: 65, height: 1)
 let batterySneakSize: CGSize = .init(width: 160, height: 1)
 
-let openNotchSize: CGSize = .init(width: 800, height: 190)
+let openNotchSize: CGSize = .init(width: 860, height: 198)
 
 /// Returns the dynamic open notch size based on the current view
 func getOpenNotchSize() -> CGSize {

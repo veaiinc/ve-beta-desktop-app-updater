@@ -632,4 +632,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	syncGlassModeState: (isEnabled) => {
 		ipcRenderer.invoke('sync-glass-mode-state', { enabled: isEnabled });
 	},
+
+	// WebSocket communication for Boring Notch
+	websocketSendMessage: (data) => ipcRenderer.invoke('websocket-send-message', data),
 });
