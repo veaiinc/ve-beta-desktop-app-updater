@@ -147,7 +147,9 @@ const RecentChat = ({
 	}, []);
 
 	useEffect(() => {
+		window.addEventListener('resize', handleResizeWindow);
 		return () => {
+			window.removeEventListener('resize', handleResizeWindow);
 			if (currentUserMessageTimeoutRef.current) {
 				clearTimeout(currentUserMessageTimeoutRef.current);
 				currentUserMessageTimeoutRef.current = null;
@@ -399,6 +401,18 @@ const RecentChat = ({
 			};
 		}
 	}, [handleScroll]);
+
+	const handleResizeWindow = useCallback(() => {
+		setInfo((prev) => {
+			if (!prev?.rightBarOpen) {
+				return prev;
+			}
+			return {
+				...prev,
+				rightBarWidth: rightBarRef.current?.clientWidth,
+			};
+		});
+	}, []);
 
 	const recentChatHandler = useCallback(
 		(inComingData, fetchMore = false, firstTimeApiCall = false) => {
