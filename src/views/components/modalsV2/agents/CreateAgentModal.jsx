@@ -99,7 +99,6 @@ const CreateAgentModal = ({ isOpen, closeModal, handleCreateNewAgent, loading })
 							customChatActions={true}
 							showUpgradeSubscriptionBtn={false}
 							sessionId={info?.sessionId}
-							animateChatBox={false}
 							placeholder="What should your agent help you with?"
 							showBottomTools={false}
 						/>

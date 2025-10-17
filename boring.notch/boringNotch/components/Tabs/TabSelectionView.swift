@@ -322,82 +322,227 @@ private struct ShelfTabIcon: View {
 }
 
 
-struct TabSelectionView: View {
+struct TabSelectionView: View, WebSocketEventListener {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @StateObject private var webSocketManager = WebSocketManager.shared
+    @ObservedObject private var musicManager = MusicManager.shared
     @Namespace var animation
+    @State var meetingLoading: Bool = false
+    @State private var wasMusicPlayingBeforeRecording: Bool = false
     
-    var body: some View {
+    // MARK: - Universal Music Control Functions
+    private func checkAndPauseMusic() async {
+        print("🎵 Checking for any music playing across all applications...")
         
-        // Show Home tab + MeetingButtons when meeting is active and in meeting view
-        if  coordinator.currentView == .meeting {
+        var musicWasPlaying = false
+        
+        // Method 1: Check the current active music controller
+        if musicManager.isPlaying {
+            print("🎵 Music detected via active controller (\(musicManager.bundleIdentifier ?? "unknown")) - pausing")
+            musicWasPlaying = true
+            musicManager.pause()
+        }
+        
+        // Method 2: Try universal NowPlaying controller for any app supporting Now Playing
+        if let nowPlayingController = createUniversalNowPlayingController() {
+            // Use MediaRemote to pause any currently playing media
+            print("🎵 Attempting universal pause via NowPlaying/MediaRemote")
+            await nowPlayingController.pause()
             
-            HStack(spacing:4){
-                // Show Home tab
-                TabItem(
-                    tab: tabs[0], // Home tab
-                    selected: false, // Never selected since we're in meeting view
-                    animation: animation,
-                    onTap: {
-                        withAnimation(.smooth) {
-                            coordinator.currentView = .home
-                        }
-                    }
-                )
-                
-                // Add MeetingButtons after the Home tab
-                   MeetingButtons()
+            // If we didn't detect music via the active controller, assume something might be playing
+            // and was paused by the universal controller
+            if !musicWasPlaying {
+                // We can't easily detect if music was actually playing via NowPlaying
+                // but we'll assume it was and set the flag to be safe
+                musicWasPlaying = true
+                print("🎵 Universal pause applied (assuming music was playing)")
+            }
+        }
+        
+        // Method 3: Try pausing common music apps directly via AppleScript
+        await pauseCommonMusicApps()
+        
+        wasMusicPlayingBeforeRecording = musicWasPlaying
+        print("🎵 Music pause check complete. Was playing: \(musicWasPlaying)")
+    }
+    
+    private func resumeMusicIfNeeded() async {
+        if wasMusicPlayingBeforeRecording {
+            print("🎵 Resuming music after recording stopped")
             
+            // Try to resume using the active controller first
+            musicManager.play()
+            
+            // Also try universal NowPlaying controller
+            if let nowPlayingController = createUniversalNowPlayingController() {
+                await nowPlayingController.play()
             }
             
-        } else {
-            // Show all tabs normally
-            HStack(spacing: 6) {
-                ForEach(tabs) { tab in
+            wasMusicPlayingBeforeRecording = false
+        }
+    }
+    
+    // MARK: - Universal Music Detection Helper
+    private func createUniversalNowPlayingController() -> NowPlayingController? {
+        // Create a NowPlayingController for universal music control
+        // This works with any app that supports Now Playing (most music apps)
+        return NowPlayingController()
+    }
+    
+    // MARK: - Common Music Apps Pause
+    private func pauseCommonMusicApps() async {
+        // List of common music app bundle identifiers
+        let commonMusicApps = [
+            "com.apple.Music",
+            "com.spotify.client", 
+            "com.google.Chrome", // YouTube Music in browser
+            "com.microsoft.edgemac", // YouTube Music in Edge
+            "org.mozilla.firefox", // YouTube Music in Firefox
+            "com.apple.Safari", // YouTube Music in Safari
+            "com.tidal.desktop",
+            "com.soundcloud.desktop",
+            "com.deezer.Deezer",
+            "com.amazon.music",
+            "com.pandora.desktop"
+        ]
+        
+        // Check which apps are running and try to pause them
+        let runningApps = NSWorkspace.shared.runningApplications
+        let runningMusicApps = runningApps.filter { app in
+            guard let bundleId = app.bundleIdentifier else { return false }
+            return commonMusicApps.contains(bundleId)
+        }
+        
+        for app in runningMusicApps {
+            if let bundleId = app.bundleIdentifier {
+                print("🎵 Found running music app: \(bundleId)")
+                await pauseAppIfPlaying(bundleId)
+            }
+        }
+    }
+    
+    private func pauseAppIfPlaying(_ bundleIdentifier: String) async {
+        // Use AppleScript to pause specific music apps
+        let script: String
+        
+        switch bundleIdentifier {
+        case "com.apple.Music":
+            script = "tell application \"Music\" to pause"
+        case "com.spotify.client":
+            script = "tell application \"Spotify\" to pause"
+        case "com.google.Chrome", "com.microsoft.edgemac", "org.mozilla.firefox", "com.apple.Safari":
+            // For browser-based music, we can't easily pause without knowing the specific tab
+            // This is a limitation, but the NowPlaying controller should handle most cases
+            return
+        default:
+            // For other apps, try a generic approach
+            script = "tell application \"\(bundleIdentifier)\" to pause"
+        }
+        
+        do {
+            try await AppleScriptHelper.executeVoid(script)
+            print("🎵 Successfully paused \(bundleIdentifier)")
+        } catch {
+            print("🎵 Failed to pause \(bundleIdentifier): \(error)")
+        }
+    }
+    
+    var body: some View {
+        Group {
+            // Show Home tab + MeetingButtons when meeting is active and in meeting view
+            if  coordinator.currentView == .meeting {
+                
+                HStack(spacing:4){
+                    // Show Home tab
                     TabItem(
-                        tab: tab,
-                        selected: coordinator.currentView == tab.view,
+                        tab: tabs[0], // Home tab
+                        selected: false, // Never selected since we're in meeting view
                         animation: animation,
                         onTap: {
                             withAnimation(.smooth) {
-                                coordinator.currentView = tab.view
-                                
-                                // Send START_MEETING message when Listen tab is clicked
-                                if tab.view == .meeting {
-                                    // Set loading state immediately if no meeting is ongoing
+                                coordinator.currentView = .home
+                            }
+                        }
+                    )
+                    
+                    // Add MeetingButtons after the Home tab
+                       MeetingButtons()
+                
+            }
+                
+            } else {
+                // Show all tabs normally
+                HStack(spacing: 6) {
+                    ForEach(tabs) { tab in
+                        TabItem(
+                            tab: tab,
+                            selected: coordinator.currentView == tab.view,
+                            animation: animation,
+                            onTap: {
+                                withAnimation(.smooth) {
+                                    coordinator.currentView = tab.view
+                                    
+                                    // Send START_MEETING message when Listen tab is clicked
+                                    if tab.view == .meeting {
+                                        // Check and pause music before starting recording
+                                        Task {
+                                            await checkAndPauseMusic()
+                                        }
+                                        // Set loading state immediately if no meeting is ongoing
                                     if !coordinator.isMeetingStarted {
                                         coordinator.isMeetingLoading = true
                                     }
                                     webSocketManager.sendEvent(type: .startMeeting)
-                                }
-                                
-                                if tab.view == .meeting || tab.view == .ask {
-                                    DispatchQueue.main.async {
-                                        if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
-                                            window.makeKeyAndOrderFront(nil)
+                                    }
+                                    
+                                    if tab.view == .meeting || tab.view == .ask {
+                                        DispatchQueue.main.async {
+                                            if let window = NSApplication.shared.windows.first(where: { $0 is BoringNotchWindow }) {
+                                                window.makeKeyAndOrderFront(nil)
+                                            }
                                         }
                                     }
-                                }
-                                
-                                // Send message to Electron to show Ask AI window when Ask tab is clicked
-                                if tab.view == .ask {
-                                    print("🎯 TabSelectionView: Ask tab clicked - triggering Electron Ask AI window")
                                     
-                                    // Send command to Electron via WebSocket to show Ask AI window
-                                    webSocketManager.sendEvent(type: .showAskAIWindow, data: [
-                                        "source": "boring-notch",
-                                        "timestamp": Int(Date().timeIntervalSince1970 * 1000)
-                                    ])
+                                    // Send message to Electron to show Ask AI window when Ask tab is clicked
+                                    if tab.view == .ask {
+                                        print("🎯 TabSelectionView: Ask tab clicked - triggering Electron Ask AI window")
+                                        
+                                        // Send command to Electron via WebSocket to show Ask AI window
+                                        webSocketManager.sendEvent(type: .showAskAIWindow, data: [
+                                            "source": "boring-notch",
+                                            "timestamp": Int(Date().timeIntervalSince1970 * 1000)
+                                        ])
+                                    }
                                 }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        
+        .onAppear {
+            // Register for WebSocket events to detect when recording stops
+            webSocketManager.addEventListener(self)
+        }
+        .onDisappear {
+            // Unregister from WebSocket events
+            webSocketManager.removeEventListener(self)
+        }
+    }
     
+    // MARK: - WebSocketEventListener Implementation
+    
+    func onWebSocketEvent(_ event: WebSocketEvent) {
+        switch event.type {
+        case .recordingStopped, .meetingStopped:
+            // Resume music when recording/meeting stops
+            Task {
+                await resumeMusicIfNeeded()
+            }
+        default:
+            break
+        }
     }
     
 }
