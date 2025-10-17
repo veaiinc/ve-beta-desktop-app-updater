@@ -641,7 +641,7 @@ const UploadProgressPopup = () => {
 			const resultThumbnail = await window.electronApi.processImageWithSharp({
 				imageBuffer: imageBuffer,
 				watermarkUrl: null,
-				resizeOptions: { width: 300 },
+				resizeOptions: { width: 500 },
 				quality: 70,
 				forceJpeg: true,
 				isWaterMarkApply: false,

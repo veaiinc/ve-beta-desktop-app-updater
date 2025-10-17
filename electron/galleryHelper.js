@@ -15,10 +15,12 @@ const loadSharp = () => {
 		if (process.env.NODE_ENV === 'production') {
 			try {
 				// Try to create a minimal Sharp instance to verify it works
-				const testBuffer = Buffer.from([0xFF, 0xD8, 0xFF, 0xE0]); // Minimal JPEG header
-				sharp(testBuffer).metadata().catch(() => {
-					throw new Error('Sharp metadata extraction failed in production');
-				});
+				const testBuffer = Buffer.from([0xff, 0xd8, 0xff, 0xe0]); // Minimal JPEG header
+				sharp(testBuffer)
+					.metadata()
+					.catch(() => {
+						throw new Error('Sharp metadata extraction failed in production');
+					});
 			} catch (testError) {
 				log.error('Sharp production test failed:', testError.message);
 				throw new Error(`Sharp not functional in production: ${testError.message}`);
@@ -60,9 +62,9 @@ const toNodeBuffer = (input) => {
 	// Fallback: try structured clone with JSON (may be slow, last resort)
 	try {
 		return Buffer.from(input);
- 	} catch (_) {
- 		return Buffer.alloc(0);
- 	}
+	} catch (_) {
+		return Buffer.alloc(0);
+	}
 };
 
 const axios = require('axios');
@@ -135,11 +137,13 @@ const processImageWithSharp = async (event, data) => {
 			opacity = 1,
 			isWaterMarkApply,
 			resizeOptions = { maxWidth: 1600 },
+			quality: providedQuality,
+			forceJpeg: _forceJpeg, // kept for API parity; we always output JPEG below
 		} = data;
 
 		const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2,097,152 — S3 limit
-		const MIN_WIDTH = 1200; // Don't go below this
-		const TARGET_QUALITY = 85; // Max allowed
+		const MIN_WIDTH = 1200; // Default minimum only for auto-scaling path
+		const TARGET_QUALITY = 85; // Fallback/default quality
 
 		const imageData = toNodeBuffer(imageBuffer);
 
@@ -148,13 +152,36 @@ const processImageWithSharp = async (event, data) => {
 			return { success: false, error: 'Invalid image metadata' };
 		}
 
-		// Start with largest allowed width
-		let currentWidth = Math.min(metadata.width, resizeOptions.maxWidth);
+		// Determine if explicit dimensions were provided (width/height/fit/position)
+		const explicitWidth =
+			typeof resizeOptions.width === 'number' && isFinite(resizeOptions.width)
+				? resizeOptions.width
+				: null;
+		const explicitHeight =
+			typeof resizeOptions.height === 'number' && isFinite(resizeOptions.height)
+				? resizeOptions.height
+				: null;
+		const hasExplicitDimensions = explicitWidth !== null || explicitHeight !== null;
+		const fitOption = resizeOptions.fit || (explicitHeight ? 'cover' : 'inside');
+		const positionOption = resizeOptions.position || 'center';
 
-		const processImage = async (width) => {
+		// Resolve quality: prefer provided, else fallback
+		const resolvedQuality = Math.max(
+			10,
+			Math.min(95, typeof providedQuality === 'number' ? providedQuality : TARGET_QUALITY),
+		);
+
+		// Helper to compose watermark and encode to JPEG with given dimensions
+		const processWithDimensions = async (width, height) => {
 			let img = sharpModule(imageData);
-			if (metadata.width > width) {
-				img = img.resize({ width, fit: 'inside', withoutEnlargement: true });
+			if (width || height) {
+				img = img.resize({
+					width: width || undefined,
+					height: height || undefined,
+					fit: fitOption,
+					position: positionOption,
+					withoutEnlargement: true,
+				});
 			}
 
 			// Apply watermark if needed
@@ -195,10 +222,10 @@ const processImageWithSharp = async (event, data) => {
 				]);
 			}
 
-			// ✅ Always use quality 85 — never higher
+			// ✅ Respect provided quality (fallback to TARGET_QUALITY)
 			return await img
 				.jpeg({
-					quality: TARGET_QUALITY,
+					quality: resolvedQuality,
 					chromaSubsampling: '4:4:4',
 					trellisQuantization: true,
 					optimizationMode: 3,
@@ -208,9 +235,33 @@ const processImageWithSharp = async (event, data) => {
 				.toBuffer();
 		};
 
+		// If explicit width/height provided, perform a single pass respecting them
+		if (hasExplicitDimensions) {
+			const buffer = await processWithDimensions(explicitWidth, explicitHeight);
+			return {
+				success: true,
+				processedImage: buffer.toString('base64'),
+				width:
+					explicitWidth ||
+					Math.floor((metadata.width * (explicitHeight || 0)) / (metadata.height || 1)) ||
+					metadata.width,
+				height:
+					explicitHeight ||
+					(explicitWidth
+						? Math.floor((metadata.height * explicitWidth) / metadata.width)
+						: metadata.height),
+				size: buffer.length,
+			};
+		}
+
+		// Auto-scaling path (legacy): Start with largest allowed width and iterate down if needed
+		let currentWidth = Math.min(metadata.width, resizeOptions.maxWidth || metadata.width);
+
+		const processAuto = async (width) => processWithDimensions(width, null);
+
 		// Try from currentWidth downward in steps
 		while (currentWidth >= MIN_WIDTH) {
-			const buffer = await processImage(currentWidth);
+			const buffer = await processAuto(currentWidth);
 
 			if (buffer.length <= MAX_SIZE_BYTES) {
 				return {
@@ -227,7 +278,7 @@ const processImageWithSharp = async (event, data) => {
 		}
 
 		// Final try at 1200px
-		const finalBuffer = await processImage(MIN_WIDTH);
+		const finalBuffer = await processAuto(MIN_WIDTH);
 		if (finalBuffer.length <= MAX_SIZE_BYTES) {
 			return {
 				success: true,
@@ -241,9 +292,7 @@ const processImageWithSharp = async (event, data) => {
 		// Still too big? This is rare — but possible with huge, complex images
 		return {
 			success: false,
-			error: `Image still exceeds 2MB (${Math.round(
-				finalBuffer.length / 1024,
-			)} KB) even at 1200px, quality 85`,
+			error: `Image still exceeds 2MB even at ${MIN_WIDTH}px, quality ${resolvedQuality}`,
 		};
 	} catch (error) {
 		log.error('Image processing error:', error);
@@ -283,10 +332,21 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 
 	// Lightweight magic-bytes format detection
 	const detectFormat = (buf) => {
-		if (buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return 'png';
+		if (buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])))
+			return 'png';
 		if (buf.slice(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return 'jpeg';
-		if (buf.slice(0, 4).toString('ascii') === 'RIFF' && buf.slice(8, 12).toString('ascii') === 'WEBP') return 'webp';
-		if (buf.slice(4, 12).toString('ascii') === 'ftypheic' || buf.slice(4, 12).toString('ascii') === 'ftypheif' || buf.slice(4, 12).toString('ascii') === 'ftypmif1' || buf.slice(4, 12).toString('ascii') === 'ftypheix') return 'heic';
+		if (
+			buf.slice(0, 4).toString('ascii') === 'RIFF' &&
+			buf.slice(8, 12).toString('ascii') === 'WEBP'
+		)
+			return 'webp';
+		if (
+			buf.slice(4, 12).toString('ascii') === 'ftypheic' ||
+			buf.slice(4, 12).toString('ascii') === 'ftypheif' ||
+			buf.slice(4, 12).toString('ascii') === 'ftypmif1' ||
+			buf.slice(4, 12).toString('ascii') === 'ftypheix'
+		)
+			return 'heic';
 		return 'unknown';
 	};
 
@@ -323,13 +383,15 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 	};
 
 	const fmt = detectFormat(buffer);
-	log.info(`extractImageMetadata: buffer=${buffer.length} bytes, detectedFormat=${fmt}, env=${process.env.NODE_ENV}`);
+	log.info(
+		`extractImageMetadata: buffer=${buffer.length} bytes, detectedFormat=${fmt}, env=${process.env.NODE_ENV}`,
+	);
 	try {
 		// In production, add extra validation
 		if (process.env.NODE_ENV === 'production') {
 			log.info('Production mode: testing Sharp functionality...');
 		}
-		
+
 		const metadata = await sharpModule(buffer).metadata();
 		const { width, height, format } = metadata;
 
@@ -351,7 +413,7 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 	} catch (err) {
 		log.warn('Sharp metadata failed, attempting fallback parse:', err?.message || String(err));
 		log.warn('Sharp error details:', err);
-		
+
 		let dims = null;
 		if (fmt === 'jpeg') dims = parseJpegDimensions(buffer);
 		else if (fmt === 'png') dims = parsePngDimensions(buffer);
@@ -517,12 +579,14 @@ const createZipFromUrls = async (
 			const safeName = sanitize(filename || 'unknown.jpg');
 			const filePath = path.join(tempDir, safeName);
 
-		if (!url) {
-			// ⚡ OPTIMIZATION: Use async file write
-			await fs.promises.writeFile(path.join(tempDir, `ERROR_${safeName}.txt`), 'No URL').catch(() => {});
-			errors.push({ file: safeName, error: 'No URL' });
-			return;
-		}
+			if (!url) {
+				// ⚡ OPTIMIZATION: Use async file write
+				await fs.promises
+					.writeFile(path.join(tempDir, `ERROR_${safeName}.txt`), 'No URL')
+					.catch(() => {});
+				errors.push({ file: safeName, error: 'No URL' });
+				return;
+			}
 
 			const MAX_RETRIES = 3;
 			for (let retry = 0; retry < MAX_RETRIES; retry++) {
@@ -552,15 +616,15 @@ const createZipFromUrls = async (
 						throw new Error(`Not an image: ${contentType}`);
 					}
 
-			const writer = fs.createWriteStream(filePath);
-			await streamToPromise(res.data, writer);
+					const writer = fs.createWriteStream(filePath);
+					await streamToPromise(res.data, writer);
 
-			// ⚡ OPTIMIZATION: Use async file operations
-			const stats = await fs.promises.stat(filePath);
-			if (stats.size === 0) {
-				await fs.promises.unlink(filePath);
-				throw new Error('Empty file');
-			}
+					// ⚡ OPTIMIZATION: Use async file operations
+					const stats = await fs.promises.stat(filePath);
+					if (stats.size === 0) {
+						await fs.promises.unlink(filePath);
+						throw new Error('Empty file');
+					}
 
 					downloadedFiles.push({ path: filePath, name: safeName });
 					completedDownloads++;
@@ -591,14 +655,16 @@ const createZipFromUrls = async (
 						? 'Timeout'
 						: err.message;
 
-				if (retry === MAX_RETRIES - 1) {
-					// ⚡ OPTIMIZATION: Use async file write
-					await fs.promises.writeFile(
-						path.join(tempDir, `ERROR_${safeName}.txt`),
-						`Download failed: ${errMsg}`,
-					).catch(() => {});
-					errors.push({ file: safeName, error: errMsg });
-				} else {
+					if (retry === MAX_RETRIES - 1) {
+						// ⚡ OPTIMIZATION: Use async file write
+						await fs.promises
+							.writeFile(
+								path.join(tempDir, `ERROR_${safeName}.txt`),
+								`Download failed: ${errMsg}`,
+							)
+							.catch(() => {});
+						errors.push({ file: safeName, error: errMsg });
+					} else {
 						const delay = Math.min(2000 * Math.pow(2, retry), 8000);
 						await new Promise((r) => setTimeout(r, delay));
 					}
@@ -646,20 +712,20 @@ const createZipFromUrls = async (
 
 		startNewArchive();
 
-	for (const { path: filePath, name } of downloadedFiles) {
-		// ⚡ OPTIMIZATION: Use async file stat
-		const fileSize = (await fs.promises.stat(filePath)).size;
-		if (currentSize > 0 && currentSize + fileSize > maxZipSize) {
-			await new Promise((resolve, reject) => {
-				archive.finalize();
-				output.on('close', resolve);
-				output.on('error', reject);
-			});
-			startNewArchive();
+		for (const { path: filePath, name } of downloadedFiles) {
+			// ⚡ OPTIMIZATION: Use async file stat
+			const fileSize = (await fs.promises.stat(filePath)).size;
+			if (currentSize > 0 && currentSize + fileSize > maxZipSize) {
+				await new Promise((resolve, reject) => {
+					archive.finalize();
+					output.on('close', resolve);
+					output.on('error', reject);
+				});
+				startNewArchive();
+			}
+			archive.file(filePath, { name });
+			currentSize += fileSize;
 		}
-		archive.file(filePath, { name });
-		currentSize += fileSize;
-	}
 
 		await new Promise((resolve, reject) => {
 			archive.finalize();
