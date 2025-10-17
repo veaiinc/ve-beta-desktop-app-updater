@@ -10,16 +10,19 @@ import SwiftUI
 struct MeetingButtons: View, WebSocketEventListener {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @State private var meetingIsLoading: Bool = false
+    @State private var isPinging = false
+    @State private var isAiEnabeled:Bool = true
     
     // Optional callbacks for parent integration
     var onPauseToggle: ((Bool) -> Void)? = nil
     var onStop: (() -> Void)? = nil
-
+    
     // Tick every second to refresh elapsed label
-//    private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-
+    //    private let tick = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
     var body: some View {
-            
+        
+        HStack(alignment: .center, spacing: 8){
             HStack(spacing: 0) {
                 // Pause/Resume button
                 if meetingIsLoading {
@@ -47,7 +50,7 @@ struct MeetingButtons: View, WebSocketEventListener {
                         }
                     }
                 }
-               
+                
                 
                 Divider()
                     .frame(height: 24)
@@ -57,8 +60,8 @@ struct MeetingButtons: View, WebSocketEventListener {
                     stopTimer()
                 } label: {
                     Label("Stop", systemImage: "stop.fill")
-                    .labelStyle(.iconOnly)
-                    .foregroundColor(.white)
+                        .labelStyle(.iconOnly)
+                        .foregroundColor(.white)
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: 30)
@@ -71,46 +74,114 @@ struct MeetingButtons: View, WebSocketEventListener {
                         NSCursor.pop()
                     }
                 }
-            
                 
-//                Button {
-//                    coordinator.toggleActiveMeetingView()
-//                } label: {
-//                    Text(coordinator.activeMeetingView == .transcription ? "SHOW LIVE INTELLIGENCE" : "SHOW TRANSCRIPTION")
-//                        .font(.system(size: 9, weight: .medium))
-//                        .foregroundStyle(.white)
-//                        .lineLimit(1)
-//                        .fixedSize(horizontal: true, vertical: false)
-//                }
-//                .buttonStyle(.plain)
-//                .padding(.horizontal, 8)
-//                .padding(.vertical, 2)
-//                .frame(height: 24)
-//                .background(Color.clear)
-//                .cornerRadius(24)
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 24)
-//                        .inset(by: 0.25)
-//                        .stroke(.white.opacity(0.2), lineWidth: 0.5)
-//                )
-//                .help(coordinator.activeMeetingView == .transcription ? "Switch to Live Intelligence" : "Switch to Transcription")
-//                .onHover { isHovered in
-//                    if isHovered {
-//                        NSCursor.pointingHand.push()
-//                    } else {
-//                        NSCursor.pop()
-//                    }
-//                }
+                
+                //                Button {
+                //                    coordinator.toggleActiveMeetingView()
+                //                } label: {
+                //                    Text(coordinator.activeMeetingView == .transcription ? "SHOW LIVE INTELLIGENCE" : "SHOW TRANSCRIPTION")
+                //                        .font(.system(size: 9, weight: .medium))
+                //                        .foregroundStyle(.white)
+                //                        .lineLimit(1)
+                //                        .fixedSize(horizontal: true, vertical: false)
+                //                }
+                //                .buttonStyle(.plain)
+                //                .padding(.horizontal, 8)
+                //                .padding(.vertical, 2)
+                //                .frame(height: 24)
+                //                .background(Color.clear)
+                //                .cornerRadius(24)
+                //                .overlay(
+                //                    RoundedRectangle(cornerRadius: 24)
+                //                        .inset(by: 0.25)
+                //                        .stroke(.white.opacity(0.2), lineWidth: 0.5)
+                //                )
+                //                .help(coordinator.activeMeetingView == .transcription ? "Switch to Live Intelligence" : "Switch to Transcription")
+                //                .onHover { isHovered in
+                //                    if isHovered {
+                //                        NSCursor.pointingHand.push()
+                //                    } else {
+                //                        NSCursor.pop()
+                //                    }
+                //                }
+                
+            }
+            .cornerRadius(12)
+            .frame(height: 24)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .inset(by: 0.25)
+                    .stroke(.white.opacity(0.2), lineWidth: 0.5)
+            )
             
-        }
-        .cornerRadius(12)
-        .frame(height: 24)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .inset(by: 0.25)
-                .stroke(.white.opacity(0.2), lineWidth: 0.5)
-        )
-        .onAppear {
+            if(isAiEnabeled){
+                ZStack {
+                    // Outer ping capsule
+                    Capsule()
+                        .fill(Color(red: 0.33, green: 0.44, blue: 0.97).opacity(0.8))
+                        .frame(width: 36, height: 20)
+                        .scaleEffect(x: isPinging ? 1.3 : 1.0, y: isPinging ? 1.4 : 1.0) // 🔹 Different X/Y scaling
+                        .opacity(isPinging ? 0 : 1)
+                        .animation(
+                            .easeOut(duration: 1.2)
+                            .repeatForever(autoreverses: false),
+                            value: isPinging
+                        )
+                    
+                    // Main capsule button
+                    Button(action: {
+                        toggleLiveIntelligence(false)
+                    }) {
+                        Text("AI")
+                            .font(Font.custom("General Sans Variable", size: 12)
+                                .weight(.medium))
+                            .foregroundColor(.white)
+                            .frame(width: 36, height: 20)
+                            .multilineTextAlignment(.center) // ✅ centers text horizontally
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .background(
+                                Capsule()
+                                    .fill(Color(red: 0.33, green: 0.44, blue: 0.97))
+                            )
+                            .contentShape(Capsule()) // ✅ ensures hit area matches shape
+                            .baselineOffset(-3.0)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .onAppear {
+                    isPinging = true
+                }
+            }else{
+                Button(action: {
+                    toggleLiveIntelligence(true)
+                }) {
+                    ZStack {
+                        // Capsule outline (3px border)
+                        Capsule()
+                            .stroke(
+                                .white.opacity(0.2),
+                                lineWidth: 3
+                            )
+                        
+                        // Centered text
+                        Text("AI")
+                            .font(Font.custom("General Sans Variable", size: 12)
+                                .weight(.medium))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                            .baselineOffset(-3.0)
+                    }
+                    .frame(width: 36, height: 20)
+                }
+                .buttonStyle(.plain)
+            }
+            
+            
+            
+            
+            
+        } .onAppear {
             // Listen to websocket events
             WebSocketManager.shared.addEventListener(self)
         }
@@ -119,9 +190,9 @@ struct MeetingButtons: View, WebSocketEventListener {
         }
         .animation(.default, value: coordinator.meetingIsPaused)
     }
-
+    
     // MARK: - Actions (outgoing)
-
+    
     private func togglePause() {
         if coordinator.meetingIsPaused {
             // Resume
@@ -134,18 +205,31 @@ struct MeetingButtons: View, WebSocketEventListener {
         }
         onPauseToggle?(coordinator.meetingIsPaused)
     }
-
+    
     private func stopTimer() {
         WebSocketManager.shared.sendEvent(type: .stopMeeting, data: ["source": "meeting_buttons"])
-
+        
         // Reset coordinator timer
         coordinator.meetingStopAndReset()
-
+        
         onStop?()
     }
-
+    
+    private func toggleLiveIntelligence(_ value: Bool) {
+        if value == isAiEnabeled{
+            return
+        }
+        
+        if value == true{
+            WebSocketManager.shared.sendEvent(type: .enableAiIntelligence, data: ["source": "meeting_buttons"])
+        }else {
+            WebSocketManager.shared.sendEvent(type: .disableAiIntelligence, data: ["source": "meeting_buttons"])
+        }
+      
+    }
+    
     // MARK: - WebSocketEventListener (incoming)
-
+    
     func onWebSocketEvent(_ event: WebSocketEvent) {
         switch event.type {
         case .startMeeting:
@@ -161,11 +245,15 @@ struct MeetingButtons: View, WebSocketEventListener {
             BoringViewCoordinator.shared.meetingStopAndReset()
         case .meetingStartError:
             meetingIsLoading = false
+        case .enabledAiIntelligence:
+            isAiEnabeled = true
+        case .disabledAiIntelligence:
+            isAiEnabeled = false
         default:
             break
         }
     }
-
+    
 }
 
 #Preview {
