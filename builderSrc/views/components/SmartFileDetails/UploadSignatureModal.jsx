@@ -59,9 +59,10 @@ const UploadSignature = ({ open, closeModal, uploadSignatureFunc, changelocalWor
 			const result = await uploadSignatureFunc({ type: 'image' });
 			if (result?.[0]) {
 				const { signedUrl } = result?.[1];
+				const signedUSEastUrl = signedUrl?.replace('ap.assets.ve.ai', 'us.assets.ve.ai');
 				const paylaod = {
 					dataURL,
-					signedUrl,
+					signedUrl: signedUSEastUrl,
 					userType: 'tennantuser',
 				};
 				response = await uploadContractSignature(paylaod);
