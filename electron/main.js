@@ -710,6 +710,16 @@ process.on('unhandledRejection', (reason, promise) => {
 	// Don't exit the process, just log the error
 });
 
+// V8 Engine Memory Management Fixes
+if (process.env.NODE_ENV === 'production') {
+	// Force garbage collection more frequently to prevent V8 crashes
+	setInterval(() => {
+		if (global.gc) {
+			global.gc();
+		}
+	}, 30000); // Every 30 seconds
+}
+
 autoUpdater.on('checking-for-update', () => {
 	log.info('🔍 Checking for updates...');
 	if (currentUpdateContext === UpdateTriggerContext.BACKGROUND) {
