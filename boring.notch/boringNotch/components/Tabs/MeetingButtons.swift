@@ -267,7 +267,6 @@ struct MeetingButtons: View, WebSocketEventListener {
         case .disabledAiIntelligence:
             coordinator.setAiEnabled(false)
             isAiToggleLoading = false
-            isPinging = false
             
         default:
             break

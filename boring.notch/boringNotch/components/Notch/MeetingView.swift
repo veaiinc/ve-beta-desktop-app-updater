@@ -46,7 +46,7 @@ struct MeetingView: View, WebSocketEventListener {
     @State private var transcriptions: [Transcription] = []
     @State private var liveIntelligenceData: [LiveIntelligence] = []
     @State private var meetingError: String? = nil
-    @State private var meetingLoading: Bool = true
+    @State private var meetingLoading: Bool = false
     
     // Webcam functionality
     @StateObject private var webcamManager = WebcamManager.shared
@@ -237,6 +237,7 @@ struct MeetingView: View, WebSocketEventListener {
         
         // Set meeting as active
         isMeetingActive = true
+        meetingLoading = false
         
         // Load any existing transcriptions from storage
         transcriptions = storedTranscriptions
@@ -289,6 +290,7 @@ struct MeetingView: View, WebSocketEventListener {
     }
     
     private func handleStartMeeting(_ event: WebSocketEvent) {
+        meetingLoading = true
         print("🚀 Start meeting request with data: \(event.data)")
         // Handle start meeting request
     }
@@ -536,8 +538,19 @@ struct MeetingView: View, WebSocketEventListener {
         VStack(alignment: .leading, spacing: 10) {
             if meetingError != nil {
                 Text(meetingError ?? "")
-            }
-            else{
+            } else if meetingLoading {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Starting meet with")
+                        .font(Font.custom("General Sans Variable", size: 20))
+                        .foregroundColor(.white)
+                        .frame(width: 197, alignment: .leading)
+
+                    Text("Live Intelligence")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(Color(red: 0.33, green: 0.44, blue: 0.97))
+                }
+                .frame(width: 500, height: 70, alignment: .bottomLeading)
+            } else{
                 if coordinator.activeMeetingView == .transcription {
                     if transcriptions.isEmpty {
                         emptyStateView
@@ -585,12 +598,10 @@ struct MeetingView: View, WebSocketEventListener {
     @ViewBuilder
     private var emptyStateView: some View {
         VStack(spacing: 8) {
-            Image(systemName: "mic.slash")
-                .font(.system(size: 24))
-                .foregroundColor(.gray)
-            Text("No transcriptions yet")
-                .font(Font.custom("General Sans Variable", size: 14))
-                .foregroundColor(.gray)
+            Text("Start talking I am listening")
+                .font(.system(size: 18))
+                .italic()
+                .foregroundColor(.white.opacity(0.5))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
