@@ -122,7 +122,7 @@ const ChatBox = ({
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
+		aiSetup: { updateAiChatSessions, aiChatSessions, updateAiSetupState, showVoiceWidget },
 		profileInfo: { tenantSettinsData },
 	} = useContext(Context);
 
@@ -131,7 +131,6 @@ const ChatBox = ({
 		chatSessionId: null,
 		uploadedImages: uploadedImages,
 		chatLoading: false,
-		voiceIntegration: false,
 		isRecentFileOpen: false,
 		recentFiles: [],
 		isLLMModelOpen: false,
@@ -171,6 +170,9 @@ const ChatBox = ({
 		}
 	}, []);
 
+	// Adjust the bottom padding of the chat container whenever the chat input box expands or shrinks.
+	// This ensures that the last chat message remains visible and is not hidden behind the chat input area.
+	// The padding value dynamically matches the current height of the chatbox.
 	useEffect(() => {
 		if (chatBoxWrapperRef.current && chatbarContainerRef.current && getChatBoxHeight) {
 			const totalChatboxHeight =
@@ -187,6 +189,7 @@ const ChatBox = ({
 		chatReplyData,
 	]);
 
+	// Here i am storing the speech transcription when user uses mic btn
 	useEffect(() => {
 		if (speechTranscription?.length > 0) {
 			let text = '';
@@ -201,6 +204,7 @@ const ChatBox = ({
 		}
 	}, [speechTranscription]);
 
+	// i am storing all the info in globalchatmessages context. This will update the local state wrt context state
 	useEffect(() => {
 		const sessionData = globalChatMessages?.[info?.chatSessionId],
 			isStreaming = sessionData?.isStreaming || false,
@@ -279,6 +283,7 @@ const ChatBox = ({
 		}
 	}, [globalChatMessages, info?.chatSessionId]);
 
+	// This will handle chat text to send to socket. eg : when user click on meeting intelligence - Ask Ai or Need help
 	useEffect(() => {
 		if (
 			activePromptForChat &&
@@ -300,6 +305,7 @@ const ChatBox = ({
 		}
 	}, [activePromptForChat, info?.chatSessionId]);
 
+	// This will add text to textarea of chatbox
 	useEffect(() => {
 		if (activeInputForChat) {
 			setInfo((prev) => ({
@@ -349,6 +355,9 @@ const ChatBox = ({
 		}
 	}, [userEditedQuery, info?.chatLoading]);
 
+	// This useEffect handles cases where the user sends a chat message from another page.
+	// After navigating to the chat page, it ensures that the pending payload (activePayloadForChat)
+	// is sent to the socket connection.
 	useEffect(() => {
 		if (activePayloadForChat && info?.chatSessionId) {
 			if (info?.chatLoading) {
@@ -374,11 +383,14 @@ const ChatBox = ({
 		}
 	}, [activePayloadForChat, info?.chatSessionId]);
 
+	// Each chatbox require unique sessionId, that should be sent through props
 	useEffect(() => {
 		const chatSessionId = sessionId || ObjectID()?.toString();
 		setInfo((prev) => ({ ...prev, chatSessionId }));
 	}, [sessionId]);
 
+	// For a new sessionId, if chatBoxInfo (e.g., webSearch, knowledgeBaseSearch, etc.)
+	// is not yet defined in globalChatMessages, this effect initializes or updates it accordingly.
 	useEffect(() => {
 		if (info?.chatSessionId && !globalChatMessages?.[info?.chatSessionId]?.chatBoxInfo) {
 			handleGlobalChatMessages({
@@ -389,21 +401,7 @@ const ChatBox = ({
 		}
 	}, [info?.chatSessionId]);
 
-	useEffect(() => {
-		const newVoiceIntegration = voiceIntegrationData?.shouldConnect || false;
-
-		// Don't set voiceIntegration to true during transcription
-		// This prevents the chat interface from being hidden
-		if (isTranscribing && newVoiceIntegration) {
-			return;
-		}
-
-		setInfo((prev) => ({
-			...prev,
-			voiceIntegration: newVoiceIntegration,
-		}));
-	}, [voiceIntegrationData, isTranscribing]);
-
+	// This is used to expand user uploaded images in chatbox
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
 			file.preview = await getBase64(file.originFileObj);
@@ -412,6 +410,7 @@ const ChatBox = ({
 		setPreviewOpen(true);
 	};
 
+	// This will show recent files uploaded in current workspace
 	const handleRecentFileClick = (file) => {
 		let udpatedData = [...(recentFilesRef?.current || [])];
 		const isFileAlreadyPresent = recentFilesRef?.current?.some((ele) => ele?._id === file?._id);
@@ -432,6 +431,7 @@ const ChatBox = ({
 		}
 	};
 
+	// This will remove recent file added to chatbox
 	const handleRemoveFileFromRecentFileClick = (file) => {
 		const updatedRecentFiles = recentFilesRef?.current?.filter(
 			(ele) => ele?._id !== file?._id || ele?.uniqueId !== file?.uniqueId,
@@ -447,6 +447,7 @@ const ChatBox = ({
 		}));
 	};
 
+	// This will generate payload, that will be sent to socket
 	const handleSendMessageFunc = useCallback(
 		async (e, click = null, query = null, externalImages = null) => {
 			if (e?.key === 'Enter' || click) {
@@ -758,6 +759,7 @@ const ChatBox = ({
 		[handleWorkflowSlugSelection],
 	);
 
+	// Used for image uploading
 	const handleGlobalImageProcessing = useCallback(
 		async (file) => {
 			const uploadBatchId = ObjectID()?.toString();
@@ -836,13 +838,14 @@ const ChatBox = ({
 		[info, uploadedImagesRef?.current, recentFilesRef?.current],
 	);
 
+	// This will check if image is upload or not
 	const checkIndividualImageUploadedStatusFunc = useCallback(
 		async (fileData, uploadBatchId) => {
 			let isImage = fileData?.type?.includes('image');
 			let uploadedImages, recentFiles, requiredFileIndex;
 
 			let uploadedCount = 0,
-				maxAttempts = 90,
+				maxAttempts = 45,
 				errorCount = 0,
 				successCount = 0;
 
@@ -952,6 +955,7 @@ const ChatBox = ({
 		[info, recentFilesRef?.current, uploadedImagesRef?.current],
 	);
 
+	// This will start uploading file
 	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
 			const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
@@ -1091,6 +1095,11 @@ const ChatBox = ({
 					return;
 				}
 
+				if (showVoiceWidget) {
+					message.error('Please disable voice widget to use mic');
+					return;
+				}
+
 				if (isTranscribing) {
 					handleTranscriptionSocketDisconnect();
 				} else {
@@ -1121,6 +1130,7 @@ const ChatBox = ({
 			handleConnect,
 			handleTranscriptionSocketDisconnect,
 			handleTranscriptionMessageFunc,
+			showVoiceWidget,
 		],
 	);
 
@@ -1153,6 +1163,7 @@ const ChatBox = ({
 		[handleFileAttachmentChange],
 	);
 
+	// onChange event callback for textarea. This will upadate textarea height
 	const handleTextAreaChange = (e, queryValue = '') => {
 		isTypingRef.current = true;
 		const textArea = textAreaRef?.current;
@@ -1183,6 +1194,7 @@ const ChatBox = ({
 		}));
 	};
 
+	// On sending message to socket this will clear textarea
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
 		if (textArea) {
@@ -1215,6 +1227,7 @@ const ChatBox = ({
 		}
 	};
 
+	// This will handle deep search btn click
 	const handleDeepSearchClick = (e) => {
 		let chatBoxData = info?.chatBoxInfo;
 
@@ -1277,10 +1290,15 @@ const ChatBox = ({
 	const handleVoiceAgentClick = useCallback(
 		(e) => {
 			e?.stopPropagation();
+
+			if (isTranscribing) {
+				message.error('Disable mic transcription to use voice widget');
+				return;
+			}
 			// Show the global voice widget and trigger auto-connect
 			updateAiSetupState({ showVoiceWidget: true });
 		},
-		[updateAiSetupState],
+		[updateAiSetupState, isTranscribing],
 	);
 
 	const handleStopCurrentChatStream = useCallback(() => {
@@ -1569,7 +1587,6 @@ const ChatBox = ({
 										if (info?.chatQuery?.trim()?.length > 0) {
 											handleSendBtnClick(e);
 										} else {
-											if (info?.voiceIntegration) return;
 											handleVoiceAgentClick(e);
 										}
 									}}
