@@ -47,9 +47,14 @@ enum WebSocketEventType: String, CaseIterable {
     
     // Custom Events
     case custom = "CUSTOM"
+    case showAskAIWindow = "SHOW_ASK_AI_WINDOW"
     
     // Boring Notch Messages (from Electron)
     case boringNotchMessage = "BORING_NOTCH_MESSAGE"
+    
+    // Authentication Events
+    case authenticationStatus = "AUTHENTICATION_STATUS"
+    case requestAuthenticationStatus = "REQUEST_AUTHENTICATION_STATUS"
 }
 
 // MARK: - Event Data Models
@@ -126,6 +131,16 @@ class WebSocketManager: ObservableObject {
         
         // Send ping to test connection
         sendPing()
+        
+        // Request authentication status after connection is established
+        // Request immediately and also after a delay to ensure we get the status
+        self.requestAuthenticationStatus()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.requestAuthenticationStatus()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            self.requestAuthenticationStatus()
+        }
     }
     
     func disconnect() {
@@ -271,6 +286,24 @@ class WebSocketManager: ObservableObject {
             meetingStatus = "Pausing Meeting..."
         case .resumeMeeting:
             meetingStatus = "Resuming Meeting..."
+        case .authenticationStatus:
+            // Handle authentication status update from Electron
+            if let isAuthenticated = event.data["isAuthenticated"] as? Bool {
+                print("🔐 Authentication status received: \(isAuthenticated)")
+                // Update the BoringViewModel authentication state
+                DispatchQueue.main.async {
+                    // We'll need to access the BoringViewModel instance
+                    // This will be handled by the app delegate or view model
+                    NotificationCenter.default.post(
+                        name: NSNotification.Name("AuthenticationStatusUpdate"),
+                        object: nil,
+                        userInfo: ["isAuthenticated": isAuthenticated]
+                    )
+                    print("🔐 Authentication status notification posted: \(isAuthenticated)")
+                }
+            } else {
+                print("⚠️ Authentication status received but isAuthenticated value is invalid")
+            }
         default:
             break
         }
@@ -291,6 +324,12 @@ class WebSocketManager: ObservableObject {
                 }
             }
         }
+    }
+    
+    private func requestAuthenticationStatus() {
+        // Send a request to Electron to get the current authentication status
+        sendEvent(type: .requestAuthenticationStatus, data: [:])
+        print("🔐 Requested authentication status from Electron")
     }
     
     private func updateConnectionStatus(_ status: String, isConnected: Bool) {
