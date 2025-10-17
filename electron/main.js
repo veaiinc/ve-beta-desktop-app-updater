@@ -170,9 +170,12 @@ try {
 	// Non-fatal; continue without switches
 }
 
-// Import NotchDrop service
-const NotchDropService = require('./services/notchDropService');
+// Import Boring Notch service
+const BoringNotchService = require('./services/boringNotchService');
 const { handleError } = require('@apollo/client/link/http/parseAndCheckHttpResponse');
+
+// Import WebSocket service
+const websocketService = require('./services/websocketService');
 
 const imageProcessingLimit = pLimit(safeLimit); // Max 4 concurrent workers
 
@@ -323,7 +326,7 @@ let transcriptionDetectionTimer = null;
 let isTranscriptionDetectionActive = false;
 let isTranscriptionBasedAreYouThereShown = false;
 
-let notchDropService = null;
+let boringNotchService = null;
 
 // Auto-updater setup
 autoUpdater.logger = log;
@@ -621,8 +624,8 @@ const toggleContentProtection = () => {
 		}
 	});
 
-	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
-		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	if (boringNotchService && typeof boringNotchService.updateStealthModeState === 'function') {
+		boringNotchService.updateStealthModeState(isContentProtectionEnabled);
 	}
 
 	return isContentProtectionEnabled;
@@ -652,8 +655,8 @@ const setContentProtection = (enabled) => {
 		} (main window excluded)`,
 	);
 
-	if (notchDropService && typeof notchDropService.updateStealthModeState === 'function') {
-		notchDropService.updateStealthModeState(isContentProtectionEnabled);
+	if (boringNotchService && typeof boringNotchService.updateStealthModeState === 'function') {
+		boringNotchService.updateStealthModeState(isContentProtectionEnabled);
 	}
 	return isContentProtectionEnabled;
 };
@@ -864,7 +867,7 @@ async function showNotification(title, body) {
 	}
 
 	// Send notification to SwiftUI NotchDrop
-	if (notchDropService && notchDropService.isInitialized) {
+	if (boringNotchService && boringNotchService.isInitialized) {
 		try {
 			const notificationData = {
 				title: title || 'Alert',
@@ -872,7 +875,7 @@ async function showNotification(title, body) {
 				type: 'meeting',
 				timestamp: new Date().toISOString(),
 			};
-			const result = await notchDropService.sendMessageToSwiftUI(
+			const result = await boringNotchService.sendMessageToSwiftUI(
 				JSON.stringify({
 					action: 'showNotification',
 					data: notificationData,
@@ -1051,6 +1054,49 @@ ipcMain.handle('restart-app', async () => {
 		return await Promise.race([restartPromise, timeoutPromise]);
 	} catch (error) {
 		log.error('❌ Restart app failed:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+// WebSocket IPC Handlers
+ipcMain.handle('websocket-get-status', async () => {
+	try {
+		if (!websocketService.isServerRunning()) {
+			return { success: false, error: 'WebSocket service not running' };
+		}
+
+		const status = websocketService.getStatus();
+		return { success: true, data: status };
+	} catch (error) {
+		log.error('❌ Failed to get WebSocket status:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+ipcMain.handle('websocket-send-message', async (event, data) => {
+	try {
+		if (!websocketService.isServerRunning()) {
+			return { success: false, error: 'WebSocket service not running' };
+		}
+
+		websocketService.broadcast(data);
+		return { success: true };
+	} catch (error) {
+		log.error('❌ Failed to send WebSocket message:', error);
+		return { success: false, error: error.message };
+	}
+});
+
+ipcMain.handle('websocket-get-client-count', async () => {
+	try {
+		if (!websocketService.isServerRunning()) {
+			return { success: false, error: 'WebSocket service not running' };
+		}
+
+		const clientCount = websocketService.getClientCount();
+		return { success: true, data: { clientCount } };
+	} catch (error) {
+		log.error('❌ Failed to get WebSocket client count:', error);
 		return { success: false, error: error.message };
 	}
 });
@@ -1525,19 +1571,19 @@ function createMenuBar() {
 				},
 			],
 		},
-		// Insert NotchDrop menu only on macOS
+		// Insert Boring Notch menu only on macOS
 		...(isMac
 			? [
 					{
-						label: 'Notch',
+						label: 'Boring Notch',
 						submenu: [
 							{
-								label: 'Toggle Notch',
+								label: 'Toggle Boring Notch',
 								accelerator: 'CmdOrCtrl+Shift+M',
 								click: async () => {
 									try {
-										if (notchDropService) {
-											const result = await notchDropService.toggle();
+										if (boringNotchService) {
+											const result = await boringNotchService.toggle();
 											if (result) {
 												log.info('✅ NotchDrop toggled from menu');
 												updateMenuBarState();
@@ -1557,7 +1603,7 @@ function createMenuBar() {
 							{
 								label: 'Status',
 								enabled: false,
-								id: 'notchdrop-status',
+								id: 'boring-notch-status',
 							},
 							{
 								type: 'separator',
@@ -1568,9 +1614,9 @@ function createMenuBar() {
 								checked: true,
 								click: async (menuItem) => {
 									try {
-										if (notchDropService) {
+										if (boringNotchService) {
 											const result =
-												await notchDropService.setAutoOpenOnStartup(
+												await boringNotchService.setAutoOpenOnStartup(
 													menuItem.checked,
 												);
 											if (result) {
@@ -1596,17 +1642,12 @@ function createMenuBar() {
 								label: 'Show Selection History',
 								click: async () => {
 									try {
-										if (notchDropService) {
-											const result = notchDropService.showSelectionHistoryInterface();
-											if (!result) {
-												await dialog.showMessageBox({
-													type: 'info',
-													title: 'Selection History',
-													message:
-														'Selection history is only available when the Selection Assistant is running.',
-												});
-											}
-										}
+										await dialog.showMessageBox({
+											type: 'info',
+											title: 'Selection History',
+											message:
+												'Selection history is not available. This feature requires NotchDrop addon which is not currently enabled.',
+										});
 									} catch (error) {
 										log.error('❌ Failed to show selection history:', error);
 									}
@@ -1616,35 +1657,12 @@ function createMenuBar() {
 								label: 'Clear Selection History…',
 								click: async () => {
 									try {
-										if (!notchDropService) {
-											return;
-										}
-
-										const confirmation = await dialog.showMessageBox({
-											type: 'warning',
+										await dialog.showMessageBox({
+											type: 'info',
 											title: 'Clear Selection History',
 											message:
-												'This will permanently delete all captured selections.',
-											detail:
-												'Selections are stored locally and encrypted. Clearing history cannot be undone.',
-											buttons: ['Clear History', 'Cancel'],
-											defaultId: 1,
-											cancelId: 1,
+												'Selection history is not available. This feature requires NotchDrop addon which is not currently enabled.',
 										});
-
-										if (confirmation.response !== 0) {
-											return;
-										}
-
-										const result = notchDropService.clearSelectionHistory();
-										if (!result) {
-											await dialog.showMessageBox({
-												type: 'info',
-												title: 'Selection History',
-												message:
-													'No selection history was cleared. The Selection Assistant may not be running.',
-											});
-										}
 									} catch (error) {
 										log.error('❌ Failed to clear selection history:', error);
 									}
@@ -1657,18 +1675,12 @@ function createMenuBar() {
 								label: 'Open Accessibility Settings…',
 								click: async () => {
 									try {
-										if (notchDropService) {
-											const result =
-												notchDropService.requestSelectionPermissionPrompt();
-											if (!result) {
-												await dialog.showMessageBox({
-													type: 'info',
-													title: 'Accessibility Permissions',
-													message:
-														'Please open System Settings → Privacy & Security → Accessibility and enable Ve AI.',
-												});
-											}
-										}
+										await dialog.showMessageBox({
+											type: 'info',
+											title: 'Accessibility Permissions',
+											message:
+												'Selection Assistant is not available. This feature requires NotchDrop addon which is not currently enabled.',
+										});
 									} catch (error) {
 										log.error(
 											'❌ Failed to request selection assistant permission:',
@@ -2044,25 +2056,25 @@ function createMenuBar() {
 	}, 2000); // Wait for NotchDrop service to initialize
 }
 
-// Set up listeners for NotchDrop status changes to update menu
-function setupNotchDropMenuUpdates() {
-	if (!notchDropService) return;
+// Set up listeners for Boring Notch status changes to update menu
+function setupBoringNotchMenuUpdates() {
+	if (!boringNotchService) return;
 
 	// Listen for status changes from NotchDrop service
 	// Since the service emits events to the renderer, we'll listen for IPC messages
 	// that indicate status changes and update the menu accordingly
 
 	// Listen for NotchDrop service events to update menu
-	if (notchDropService.notchDropAddon) {
-		notchDropService.notchDropAddon.on('statusChanged', (status) => {
+	if (boringNotchService.notchDropAddon) {
+		boringNotchService.notchDropAddon.on('statusChanged', (status) => {
 			updateMenuBarState();
 		});
 
-		notchDropService.notchDropAddon.on('itemAdded', () => {
+		boringNotchService.notchDropAddon.on('itemAdded', () => {
 			updateMenuBarState();
 		});
 
-		notchDropService.notchDropAddon.on('itemRemoved', () => {
+		boringNotchService.notchDropAddon.on('itemRemoved', () => {
 			updateMenuBarState();
 		});
 	}
@@ -2074,18 +2086,18 @@ function updateMenuBarState() {
 		const menu = Menu.getApplicationMenu();
 		if (!menu) return;
 
-		const notchDropMenu = menu.getMenuItemById('notchdrop-status');
-		if (notchDropMenu && notchDropService) {
-			const isVisible = notchDropService.isVisible();
-			const status = notchDropService.getStatus();
-			const autoOpen = notchDropService.getAutoOpenOnStartup();
+		const boringNotchMenu = menu.getMenuItemById('boring-notch-status');
+		if (boringNotchMenu && boringNotchService) {
+			const isVisible = boringNotchService.isVisible();
+			const status = boringNotchService.getStatus();
+			const autoOpen = boringNotchService.getAutoOpenOnStartup();
 
 			// Update status label
-			notchDropMenu.label = `Status: ${status} (${isVisible ? 'Visible' : 'Hidden'})`;
+			boringNotchMenu.label = `Status: ${status} (${isVisible ? 'Visible' : 'Hidden'})`;
 
 			// Update auto-open checkbox
 			const autoOpenMenu = menu.items
-				.find((item) => item.label === 'NotchDrop')
+				.find((item) => item.label === 'Boring Notch')
 				?.submenu?.items.find((item) => item.label === 'Auto-open on Startup');
 			if (autoOpenMenu) {
 				autoOpenMenu.checked = autoOpen;
@@ -2133,25 +2145,25 @@ function createWindow(restoreState = false) {
 	// If restoring state (user was logged in), use saved bounds or full default width (1366)
 	// If fresh start (not logged in), use login width (481px)
 	const isRestoringLoggedInState = restoreState && lastWindowState.windowBounds;
-	
+
 	// Get screen dimensions for centering
 	const { screen } = require('electron');
 	const primaryDisplay = screen.getPrimaryDisplay();
 	const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
-	
-	const loginBounds = { 
-		width: 481, 
-		height: 768, 
+
+	const loginBounds = {
+		width: 481,
+		height: 768,
 		x: Math.round((screenWidth - 481) / 2), // Center horizontally
-		y: Math.round((screenHeight - 768) / 2) // Center vertically
+		y: Math.round((screenHeight - 768) / 2), // Center vertically
 	};
-	const fullBounds = { 
-		width: 1366, 
-		height: 768, 
+	const fullBounds = {
+		width: 1366,
+		height: 768,
 		x: Math.round((screenWidth - 1366) / 2), // Center horizontally
-		y: Math.round((screenHeight - 768) / 2) // Center vertically
+		y: Math.round((screenHeight - 768) / 2), // Center vertically
 	};
-	
+
 	const windowBounds = isRestoringLoggedInState
 		? { ...fullBounds, ...lastWindowState.windowBounds }
 		: loginBounds;
@@ -2206,6 +2218,59 @@ function createWindow(restoreState = false) {
 
 	mainWindow.setWindowButtonVisibility(false);
 
+	// Add event listeners for voice agent control from boring.notch
+	mainWindow.webContents.on('did-finish-load', () => {
+		// Inject event listeners for voice agent control
+		mainWindow.webContents.executeJavaScript(`
+			// Listen for voice agent disconnect events
+			window.addEventListener('notchdrop-disconnect-voice', (event) => {
+				console.log('🔌 Received voice disconnect event from boring.notch:', event.detail);
+				
+				// Try to find and click disconnect buttons
+				const disconnectButtons = document.querySelectorAll('.cancel-button, [class*="disconnect"], [class*="close"]');
+				if (disconnectButtons.length > 0) {
+					console.log('🔌 Found disconnect button, clicking...');
+					disconnectButtons[0].click();
+				}
+				
+				// Hide voice agent UI
+				const voiceContainers = document.querySelectorAll('.voiceContainer');
+				voiceContainers.forEach(container => {
+					container.style.display = 'none';
+				});
+				
+				// Dispatch to voice integration hooks
+				const voiceDisconnectEvent = new CustomEvent('voice-agent-disconnect', {
+					detail: { source: 'boring-notch' }
+				});
+				window.dispatchEvent(voiceDisconnectEvent);
+			});
+			
+			// Listen for voice agent mute toggle events
+			window.addEventListener('notchdrop-toggle-mute', (event) => {
+				console.log('🎤 Received voice mute toggle event from boring.notch:', event.detail);
+				
+				// Try to find and click mute buttons
+				const muteButtons = document.querySelectorAll('.mute-button, [class*="mute"]');
+				if (muteButtons.length > 0) {
+					console.log('🎤 Found mute button, clicking...');
+					muteButtons[0].click();
+				}
+				
+				// Dispatch to voice integration hooks
+				const voiceMuteEvent = new CustomEvent('voice-agent-mute-toggle', {
+					detail: { 
+						source: 'boring-notch',
+						isMuted: event.detail.isMuted
+					}
+				});
+				window.dispatchEvent(voiceMuteEvent);
+			});
+			
+			console.log('✅ Voice agent event listeners added to main window');
+		`);
+	});
+
 	// Add window resize constraint validation
 	mainWindow.on('resize', () => {
 		const bounds = mainWindow.getBounds();
@@ -2223,8 +2288,8 @@ function createWindow(restoreState = false) {
 		}
 	});
 
-	if (notchDropService) {
-		notchDropService.setMainWindow(mainWindow);
+	if (boringNotchService) {
+		boringNotchService.setMainWindow(mainWindow);
 	}
 
 	// Add focus event handler to show permission overlay if needed
@@ -2300,7 +2365,7 @@ function createWindow(restoreState = false) {
 			log.info('✅ User authenticated - hiding permission overlay if visible');
 			userAuthenticationStatus.isLoggedIn = true;
 			userAuthenticationStatus.shouldShowPermissionOverlay = false;
-			
+
 			// Note: Window resize is now handled by the React hook (useLoginWindowResize)
 			// This ensures smooth animation when transitioning from login to main app
 
@@ -2326,6 +2391,30 @@ function createWindow(restoreState = false) {
 			log.info('🔓 User not authenticated - permission overlay may be needed');
 			userAuthenticationStatus.isLoggedIn = false;
 			userAuthenticationStatus.shouldShowPermissionOverlay = true;
+
+			// Send authentication status update to Boring Notch via WebSocket
+			if (websocketService && websocketService.isServerRunning()) {
+				try {
+					const clientCount = websocketService.getClientCount();
+					log.info(
+						`🔌 WebSocket server is running with ${clientCount} connected clients`,
+					);
+
+					websocketService.broadcast({
+						type: 'AUTHENTICATION_STATUS',
+						data: { isAuthenticated: false },
+					});
+					log.info(
+						'✅ Authentication status (unauthorized) sent to Boring Notch via WebSocket',
+					);
+				} catch (error) {
+					log.error('❌ Failed to send unauthorized status to Boring Notch:', error);
+				}
+			} else {
+				log.warn(
+					'⚠️ WebSocket service not running or not available for unauthorized notification',
+				);
+			}
 		} else if (msg === 'loggedout') {
 			log.info('🔓 User logged out - updating auth status and notifying Dynamic Island');
 			userAuthenticationStatus.isLoggedIn = false;
@@ -2336,12 +2425,36 @@ function createWindow(restoreState = false) {
 				dynamicIslandWindow.webContents.send('user-logout');
 				log.info('✅ Logout notification sent to Dynamic Island');
 			}
+
+			// Send authentication status update to Boring Notch via WebSocket
+			if (websocketService && websocketService.isServerRunning()) {
+				try {
+					const clientCount = websocketService.getClientCount();
+					log.info(
+						`🔌 WebSocket server is running with ${clientCount} connected clients`,
+					);
+
+					websocketService.broadcast({
+						type: 'AUTHENTICATION_STATUS',
+						data: { isAuthenticated: false },
+					});
+					log.info(
+						'✅ Authentication status (logged out) sent to Boring Notch via WebSocket',
+					);
+				} catch (error) {
+					log.error('❌ Failed to send logout status to Boring Notch:', error);
+				}
+			} else {
+				log.warn(
+					'⚠️ WebSocket service not running or not available for logout notification',
+				);
+			}
 		}
 
 		// Send the same message to Swift UI if NotchDrop service is available
-		if (notchDropService && notchDropService.isInitialized) {
+		if (boringNotchService && boringNotchService.isInitialized) {
 			try {
-				const result = await notchDropService.sendMessageToSwiftUI(msg);
+				const result = await boringNotchService.sendMessageToSwiftUI(msg);
 				// if (result.success) {
 				// 	log.info('✅ Message sent to Swift UI successfully');
 				// } else {
@@ -3247,14 +3360,30 @@ app.whenReady().then(async () => {
 	// 🎨 Force dark theme - prevents system theme changes from affecting app colors
 	nativeTheme.themeSource = 'dark';
 
-	// ⚡ CRITICAL MEMORY LEAK FIX: Add periodic garbage collection
+	// 🚨 CRITICAL MEMORY LEAK FIX: Enhanced garbage collection with cleanup
 	const memoryCleanupInterval = setInterval(() => {
 		const memUsage = process.memoryUsage();
 		const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
 
-		// Force garbage collection if memory exceeds 300MB (lowered from 500MB)
-		if (heapUsedMB > 300) {
-			log.warn(`⚠️ High memory usage: ${heapUsedMB}MB - forcing garbage collection...`);
+		// 🚨 CRITICAL FIX: More aggressive memory management
+		if (heapUsedMB > 200) {
+			// Lowered threshold for earlier intervention
+			log.warn(`⚠️ High memory usage: ${heapUsedMB}MB - forcing cleanup...`);
+
+			// 🚨 CRITICAL FIX: Clean up unused IPC handlers
+			try {
+				// Remove unused IPC handlers to prevent accumulation
+				const allHandlers = ipcMain.listenerCount('*');
+				if (allHandlers > 50) {
+					// If too many handlers
+					log.warn(`⚠️ Too many IPC handlers: ${allHandlers} - cleaning up...`);
+					// Note: We can't easily remove specific handlers, but we can log this
+				}
+			} catch (error) {
+				log.warn('Error checking IPC handlers:', error);
+			}
+
+			// Force garbage collection
 			if (global.gc) {
 				global.gc();
 				const afterGC = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
@@ -3265,7 +3394,7 @@ app.whenReady().then(async () => {
 				);
 			}
 		}
-	}, 10000); // Check every 10 seconds
+	}, 15000); // Check every 15 seconds (less frequent to reduce overhead)
 
 	// ⚡ OPTIMIZED: Less aggressive watchdog (was checking every 5s for 30s hang)
 	let lastHeartbeat = Date.now();
@@ -3450,12 +3579,15 @@ app.whenReady().then(async () => {
 	// 🎤 IPC: Start Mic Monitoring
 
 	// Initialize Dynamic Island with comprehensive error handling
-	// Create Dynamic Island for Intel Macs, Windows, and Linux (but not Apple Silicon Macs)
+	// DISABLED: Dynamic Island is disabled to use only Boring Notch
 	console.log(
 		'process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND ',
 		process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND,
 	);
-	if (process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || !isAppleSiliconMac) {
+	// Force disable Dynamic Island - use only Boring Notch
+	process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND = 'false';
+	if (false) {
+		// Always skip Dynamic Island creation
 		try {
 			log.info(
 				'Initializing Dynamic Island Helper for platform:',
@@ -3482,6 +3614,65 @@ app.whenReady().then(async () => {
 	try {
 		createWindow();
 		log.info('✅ Main window created successfully');
+
+		// Initialize WebSocket service
+		log.info('🌐 Initializing WebSocket service...');
+		try {
+			// Set up event listeners for WebSocket service
+			websocketService.on('serverStarted', (data) => {
+				log.info(`✅ WebSocket server started on port ${data.port}`);
+			});
+
+			websocketService.on('serverError', (error) => {
+				log.error('❌ WebSocket server error:', error);
+			});
+
+			websocketService.on('clientConnected', (data) => {
+				log.info(`🔗 WebSocket client connected: ${data.clientId}`);
+			});
+
+			websocketService.on('clientDisconnected', (data) => {
+				log.info(`🔌 WebSocket client disconnected: ${data.clientId}`);
+			});
+
+			websocketService.on('message', (data) => {
+				log.info(`📨 WebSocket message received from ${data.clientId}:`, data.data);
+
+				// Handle START_MEETING message from notch
+				if (data.data && typeof data.data === 'object') {
+					handleWebSocketMessage(data);
+
+					// log.info(
+					// 	'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
+					// );
+
+					// // Wait 3 seconds then send MEETING_STARTED response
+					// setTimeout(() => {
+					// 	const responseMessage = {
+					// 		type: 'MEETING_STARTED',
+					// 		data: {},
+					// 	};
+
+					// 	// Send response back to the client that sent the START_MEETING message
+					// 	websocketService.sendToClient(data.ws, responseMessage);
+					// 	log.info('✅ MEETING_STARTED response sent to notch');
+					// }, 3000);
+				}
+
+				// Emit the message event for other parts of the app to handle
+				// This is where you can add your custom logic to process incoming messages
+			});
+
+			websocketService.on('messageError', (data) => {
+				log.error(`❌ WebSocket message error from ${data.clientId}:`, data.error);
+			});
+
+			// Start the WebSocket server on port 8080
+			websocketService.start(8080);
+			log.info('✅ WebSocket service initialized successfully');
+		} catch (error) {
+			log.error('❌ Failed to initialize WebSocket service:', error);
+		}
 
 		// Keep system from aggressively throttling while UI is active
 		let psbId = -1;
@@ -4024,57 +4215,57 @@ app.whenReady().then(async () => {
 
 	// Permission overlay is now shown by default above, so we don't need conditional checking
 
-	// Initialize NotchDrop asynchronously to prevent blocking main window
-	const initializeNotchDropAsync = async () => {
-		if (isAppleSiliconMac) {
-			// log.info('Initializing NotchDrop service for Apple Silicon Mac (async)');
-			notchDropService = new NotchDropService();
-			notchDropService.setMainWindow(mainWindow);
-			notchDropService.setMainWindowFactory((restoreState = false) =>
+	// Initialize Boring Notch asynchronously to prevent blocking main window
+	const initializeBoringNotchAsync = async () => {
+		if (isAppleSiliconMac || isIntelMac) {
+			// log.info('Initializing Boring Notch service for Mac (async)');
+			boringNotchService = new BoringNotchService();
+			boringNotchService.setMainWindow(mainWindow);
+			boringNotchService.setMainWindowFactory((restoreState = false) =>
 				createWindow(restoreState),
 			);
-			notchDropService.setStealthModeController({
+			boringNotchService.setStealthModeController({
 				toggle: toggleContentProtection,
 				getStatus: getContentProtectionStatus,
 				setStatus: setContentProtection,
 			});
+			boringNotchService.setWindowHelper(windowHelper);
 
-			// Initialize NotchDrop in background without blocking main window
+			// Initialize Boring Notch in background without blocking main window
 			try {
-				// Add timeout to prevent hanging during NotchDrop initialization
-				const notchDropInitTimeout = new Promise((_, reject) =>
-					setTimeout(() => reject(new Error('NotchDrop initialization timeout')), 20000),
+				// Add timeout to prevent hanging during Boring Notch initialization
+				const boringNotchInitTimeout = new Promise((_, reject) =>
+					setTimeout(
+						() => reject(new Error('Boring Notch initialization timeout')),
+						20000,
+					),
 				);
 
-				await Promise.race([notchDropService.initialize(), notchDropInitTimeout]);
-				// log.info('✅ NotchDrop service initialized successfully');
+				await Promise.race([boringNotchService.initialize(), boringNotchInitTimeout]);
+				// log.info('✅ Boring Notch service initialized successfully');
 			} catch (error) {
-				log.error('❌ NotchDrop service initialization failed:', error);
+				log.error('❌ Boring Notch service initialization failed:', error);
 				// Clean up any partial initialization
-				if (notchDropService) {
+				if (boringNotchService) {
 					try {
-						notchDropService.cleanup();
+						boringNotchService.cleanup();
 					} catch (cleanupError) {
-						log.error('❌ Error cleaning up NotchDrop service:', cleanupError);
+						log.error('❌ Error cleaning up Boring Notch service:', cleanupError);
 					}
-					notchDropService = null;
+					boringNotchService = null;
 				}
-				// Continue without NotchDrop - app should still work
+				// Continue without Boring Notch - app should still work
 			}
-		} else if (isIntelMac) {
-			log.info(
-				'Skipping NotchDrop initialization on Intel Mac (using Dynamic Island instead)',
-			);
 		} else {
 			log.info(
-				'Skipping NotchDrop initialization on non-Mac platform (using Dynamic Island instead)',
+				'Skipping Boring Notch initialization on non-Mac platform (using Dynamic Island instead)',
 			);
 		}
 	};
 
-	// Start NotchDrop initialization in background (non-blocking)
-	initializeNotchDropAsync().catch((error) => {
-		log.error('❌ NotchDrop async initialization failed:', error);
+	// Start Boring Notch initialization in background (non-blocking)
+	initializeBoringNotchAsync().catch((error) => {
+		log.error('❌ Boring Notch async initialization failed:', error);
 	});
 
 	await new Promise((resolve) => setTimeout(resolve, 1500)); // Give bridge time to initialize
@@ -4082,9 +4273,9 @@ app.whenReady().then(async () => {
 	// Phase 5: Validate system readiness
 	setTimeout(() => {
 		// Test NotchDrop service readiness
-		if (notchDropService && notchDropService.isInitialized) {
+		if (boringNotchService && boringNotchService.isInitialized) {
 			try {
-				const status = notchDropService.getStatus();
+				const status = boringNotchService.getStatus();
 				// log.info('✅ NotchDrop service status check:', status);
 			} catch (error) {
 				log.warn('⚠️ NotchDrop service status check failed:', error.message);
@@ -4098,7 +4289,7 @@ app.whenReady().then(async () => {
 				services: {
 					windowHelper: !!windowHelper,
 					dynamicIslandHelper: !!dynamicIslandHelper,
-					notchDropService: !!notchDropService,
+					boringNotchService: !!boringNotchService,
 				},
 			});
 		}
@@ -4188,27 +4379,27 @@ app.whenReady().then(async () => {
 		}
 	}
 
-process.on('swift-ui-submit-chat', async (data = {}) => {
-	const shouldCaptureScreenshot =
-		data?.source === 'notchdrop-swift-ui' && data?.updateObject?.type === 'chat';
+	process.on('swift-ui-submit-chat', async (data = {}) => {
+		const shouldCaptureScreenshot =
+			data?.source === 'notchdrop-swift-ui' && data?.updateObject?.type === 'chat';
 
-	if (shouldCaptureScreenshot) {
-		const screenshot = await capturePrimaryScreenDataURL();
-		if (screenshot) {
-			data.imagesArray = [screenshot];
-			const existingPayload = data.updateObject.payload || {};
-			data.updateObject.payload = {
-				...existingPayload,
-				imagesArray: [screenshot],
-			};
+		if (shouldCaptureScreenshot) {
+			const screenshot = await capturePrimaryScreenDataURL();
+			if (screenshot) {
+				data.imagesArray = [screenshot];
+				const existingPayload = data.updateObject.payload || {};
+				data.updateObject.payload = {
+					...existingPayload,
+					imagesArray: [screenshot],
+				};
+			}
 		}
-	}
 
-	// try {
-	// 	// if (!windowHelper) {
-	// 	// 	log.error('windowHelper not available for AskAI forwarding');
-	// 	// 	return;
-	// 	// }
+		// try {
+		// 	// if (!windowHelper) {
+		// 	// 	log.error('windowHelper not available for AskAI forwarding');
+		// 	// 	return;
+		// 	// }
 
 		// 	// let askAIWindow = windowHelper?.getAskAIWindow();
 		// 	// if (!askAIWindow || askAIWindow.isDestroyed()) {
@@ -4335,6 +4526,155 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 		}
 	});
 
+	// Helper function to get authentication token from renderer
+	async function getAuthToken() {
+		try {
+			// Try to get the token from the main window's localStorage
+			// This is a simplified approach - in a real app you might want to use IPC
+			const result = await mainWindow.webContents.executeJavaScript(`
+				localStorage.getItem('usertoken') || ''
+			`);
+			return result;
+		} catch (error) {
+			log.error('❌ Failed to get auth token:', error);
+			return '';
+		}
+	}
+
+	async function handleWebSocketMessage(prop) {
+		const { data, ws } = prop;
+		// if (data.type === 'START_MEETING') {
+		// 	log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+		// 	// Send response back to the client that sent the START_MEETING message
+		// 	await handleNotchToMainWindowEvents({ action: 'startRecording' });
+		// 	websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		// } else if (data.type === 'NAVIGATE_TO_MAIN_SCREEN') {
+		// 	log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
+		// 	// Show and focus main window, optionally navigate to specific path
+		// 	await handleNotchToMainWindowEvents({ path: data.path || null });
+		// 	log.info('✅ Main window opened/restored from BoringNotch VE logo click');
+		// }
+		// // switch(data.type) {
+		// // 	case 'START_MEETING':
+		// // 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
+		// // 		// Send response back to the client that sent the START_MEETING message
+		// // 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+		// // 		break;
+
+		switch (data.type) {
+			case 'START_MEETING':
+				log.info(
+					'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
+				);
+				await handleNotchToMainWindowEvents({ action: 'startRecording' });
+				// Send response back to the client that sent the START_MEETING message
+				websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+				break;
+
+			case 'PAUSE_MEETING':
+				log.info(
+					'🎯 PAUSE_MEETING message received, scheduling MEETING_PAUSED response...',
+				);
+				// Send response back to the client that sent the PAUSE_MEETING message
+				await handleNotchToMainWindowEvents({ action: 'pauseRecording' });
+
+				websocketService.sendToClient(ws, { type: 'MEETING_PAUSED', data: {} });
+				break;
+
+			case 'RESUME_MEETING':
+				log.info(
+					'🎯 RESUME_MEETING message received, scheduling MEETING_RESUMED response...',
+				);
+				await handleNotchToMainWindowEvents({ action: 'resumeRecording' });
+
+				// Send response back to the client that sent the RESUME_MEETING message
+				websocketService.sendToClient(ws, { type: 'MEETING_RESUMED', data: {} });
+				break;
+
+			case 'STOP_MEETING':
+				log.info(
+					'🎯 STOP_MEETING message received, scheduling MEETING_STOPPED response...',
+				);
+				await handleNotchToMainWindowEvents({ action: 'stopRecording' });
+				// Send response back to the client that sent the STOP_MEETING message
+				websocketService.sendToClient(ws, { type: 'MEETING_STOPPED', data: {} });
+				break;
+
+			case 'REQUEST_AUTHENTICATION_STATUS':
+				log.info('🔐 REQUEST_AUTHENTICATION_STATUS message received from Boring Notch');
+				// Check authentication status and send response
+				const token = await getAuthToken();
+				const isAuthenticated = token && token.trim() !== '';
+
+				websocketService.sendToClient(ws, {
+					type: 'AUTHENTICATION_STATUS',
+					data: { isAuthenticated: isAuthenticated },
+				});
+				log.info(`✅ Authentication status sent to Boring Notch: ${isAuthenticated}`);
+				break;
+
+			case 'NAVIGATE_TO_MAIN_SCREEN':
+				log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
+				// Show and focus main window, optionally navigate to specific path
+				await handleNotchToMainWindowEvents({ path: data.path || null });
+				log.info('✅ Main window opened/restored from BoringNotch VE logo click');
+				break;
+
+			default:
+				log.info('🎯 Unknown message received, skipping...');
+		}
+	}
+
+	ipcMain.handle('send-transcription-data-to-notch', async (event, transcriptionData) => {
+		try {
+			// Ensure transcriptionData is an array
+			const transcriptionsArray = Array.isArray(transcriptionData)
+				? transcriptionData
+				: [transcriptionData];
+
+			// Send the transcription array to BoringNotch via WebSocket
+			websocketService.broadcast({
+				type: 'TRANSCRIPTION_UPDATE',
+				data: { transcriptions: transcriptionsArray },
+			});
+
+			log.info(
+				`📝 Sent ${transcriptionsArray.length} transcriptions to BoringNotch via WebSocket`,
+			);
+			return { success: true };
+		} catch (error) {
+			log.error('Error sending transcription data to Notch:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('send-live-intelligence-data-to-notch', async (event, liveIntelligenceData) => {
+		try {
+			// Check if this is an array replacement or individual item
+			if (Array.isArray(liveIntelligenceData)) {
+				// Send array replacement
+				websocketService.broadcast({
+					type: 'LIVE_INTELLIGENCE_UPDATE',
+					data: { liveIntelligenceArray: liveIntelligenceData },
+				});
+				log.info(
+					`🧠 Sent ${liveIntelligenceData.length} live intelligence items to BoringNotch via WebSocket (array replacement)`,
+				);
+			} else {
+				// Send individual item (legacy support)
+				websocketService.broadcast({
+					type: 'LIVE_INTELLIGENCE_UPDATE',
+					data: liveIntelligenceData,
+				});
+				log.info('🧠 Sent individual live intelligence item to BoringNotch via WebSocket');
+			}
+			return { success: true };
+		} catch (error) {
+			log.error('Error sending live intelligence data to Notch:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
 	async function handleNotchToMainWindowEvents(data) {
 		try {
 			// Check if main window exists and is not destroyed
@@ -4348,6 +4688,10 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 				// 	log.info('Main window navigated in background mode to:', data?.path);
 				// } else {
 				// Normal mode - show and focus the window
+				// Restore if minimized
+				if (mainWindow.isMinimized()) {
+					mainWindow.restore();
+				}
 				mainWindow.show();
 				mainWindow.focus();
 				mainWindow.webContents.send('notchdrop-to-main-window-event', data);
@@ -4475,8 +4819,8 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 		}
 	}
 
-	// Set up NotchDrop status change listener to update menu
-	setupNotchDropMenuUpdates();
+	// Set up Boring Notch status change listener to update menu
+	setupBoringNotchMenuUpdates();
 
 	// macOS dock icon click handler to reopen main window
 	if (isMacRuntime) {
@@ -4502,24 +4846,24 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	});
 
 	if (isAppleSiliconMac) {
-		// Register global shortcut to toggle NotchDrop visibility (Cmd+Shift+M)
-		const toggleNotchDropShortcutRegistered = globalShortcut.register(
+		// Register global shortcut to toggle Boring Notch visibility (Cmd+Shift+M)
+		const toggleBoringNotchShortcutRegistered = globalShortcut.register(
 			'CommandOrControl+Shift+M',
 			() => {
-				if (!notchDropService || !notchDropService.isInitialized) {
+				if (!boringNotchService || !boringNotchService.isInitialized) {
 					log.warn('⚠️ Cmd+Shift+M pressed but NotchDrop service is unavailable');
 					return;
 				}
 
-				const success = notchDropService.toggle();
+				const success = boringNotchService.toggle();
 				if (!success) {
 					log.warn('⚠️ Failed to toggle NotchDrop via Cmd+Shift+M global shortcut');
 				}
 			},
 		);
 
-		if (!toggleNotchDropShortcutRegistered) {
-			log.warn('⚠️ Unable to register Cmd+Shift+M global shortcut for NotchDrop');
+		if (!toggleBoringNotchShortcutRegistered) {
+			log.warn('⚠️ Unable to register Cmd+Shift+M global shortcut for Boring Notch');
 		}
 	}
 
@@ -4658,9 +5002,9 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 			const {
 				dimensions,
 				exitFullScreen,
-                animate = true,
-                duration = 300,
-                easing = 'easeInOutSmooth',
+				animate = true,
+				duration = 300,
+				easing = 'easeInOutSmooth',
 			} = data;
 			const workArea = screen.getPrimaryDisplay().workAreaSize;
 			const screenWidth = workArea.width,
@@ -4679,12 +5023,24 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 			}
 			if (dimensions?.x !== undefined) {
 				// Ensure window stays within screen bounds
-				const x = Math.max(0, Math.min(screenWidth - (targetDimensions.width || mainWindow.getBounds().width), dimensions.x));
+				const x = Math.max(
+					0,
+					Math.min(
+						screenWidth - (targetDimensions.width || mainWindow.getBounds().width),
+						dimensions.x,
+					),
+				);
 				targetDimensions.x = x;
 			}
 			if (dimensions?.y !== undefined) {
 				// Ensure window stays within screen bounds
-				const y = Math.max(0, Math.min(screenHeight - (targetDimensions.height || mainWindow.getBounds().height), dimensions.y));
+				const y = Math.max(
+					0,
+					Math.min(
+						screenHeight - (targetDimensions.height || mainWindow.getBounds().height),
+						dimensions.y,
+					),
+				);
 				targetDimensions.y = y;
 			}
 
@@ -5383,39 +5739,39 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 		}
 	});
 
-	// Register NotchDrop IPC handlers
+	// Register Boring Notch IPC handlers (using NotchDrop API for compatibility)
 	ipcMain.handle('notchdrop-enable', async () => {
 		try {
-			if (!notchDropService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
+			if (!boringNotchService) {
+				return { success: false, error: 'Boring Notch service not initialized' };
 			}
-			const result = notchDropService.enable();
+			const result = boringNotchService.enable();
 			return { success: result };
 		} catch (error) {
-			log.error('Error enabling NotchDrop:', error);
+			log.error('Error enabling Boring Notch:', error);
 			return { success: false, error: error.message };
 		}
 	});
 
 	ipcMain.handle('notchdrop-disable', async () => {
 		try {
-			if (!notchDropService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
+			if (!boringNotchService) {
+				return { success: false, error: 'Boring Notch service not initialized' };
 			}
-			const result = notchDropService.disable();
+			const result = boringNotchService.disable();
 			return { success: result };
 		} catch (error) {
-			log.error('Error disabling NotchDrop:', error);
+			log.error('Error disabling Boring Notch:', error);
 			return { success: false, error: error.message };
 		}
 	});
 
 	ipcMain.handle('notchdrop-toggle', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.toggle();
+			const result = boringNotchService.toggle();
 			return { success: result };
 		} catch (error) {
 			log.error('Error toggling NotchDrop:', error);
@@ -5425,14 +5781,14 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	ipcMain.handle('notchdrop-is-visible', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return {
 					success: false,
 					visible: false,
 					error: 'NotchDrop service not initialized',
 				};
 			}
-			const visible = notchDropService.isVisible();
+			const visible = boringNotchService.isVisible();
 			return { success: true, visible };
 		} catch (error) {
 			log.error('Error checking NotchDrop visibility:', error);
@@ -5442,10 +5798,10 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	ipcMain.handle('notchdrop-set-status', async (event, status) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.setStatus(status);
+			const result = boringNotchService.setStatus(status);
 			return { success: result };
 		} catch (error) {
 			log.error('Error setting NotchDrop status:', error);
@@ -5455,14 +5811,14 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	ipcMain.handle('notchdrop-get-status', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return {
 					success: false,
 					status: 'closed',
 					error: 'NotchDrop service not initialized',
 				};
 			}
-			const status = notchDropService.getStatus();
+			const status = boringNotchService.getStatus();
 			return { success: true, status };
 		} catch (error) {
 			log.error('Error getting NotchDrop status:', error);
@@ -5472,10 +5828,10 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	ipcMain.handle('notchdrop-handle-files', async (event, filePaths) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.handleDroppedFiles(filePaths);
+			const result = boringNotchService.handleDroppedFiles(filePaths);
 			return { success: result };
 		} catch (error) {
 			log.error('Error handling dropped files:', error);
@@ -5486,10 +5842,10 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	// Auto-open settings
 	ipcMain.handle('notchdrop-set-auto-open', async (event, enabled) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.setAutoOpenOnStartup(enabled);
+			const result = boringNotchService.setAutoOpenOnStartup(enabled);
 			return { success: result };
 		} catch (error) {
 			log.error('Error setting auto-open setting:', error);
@@ -5499,14 +5855,14 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	ipcMain.handle('notchdrop-get-auto-open', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return {
 					success: false,
 					enabled: true,
 					error: 'NotchDrop service not initialized',
 				};
 			}
-			const enabled = notchDropService.getAutoOpenOnStartup();
+			const enabled = boringNotchService.getAutoOpenOnStartup();
 			return { success: true, enabled };
 		} catch (error) {
 			log.error('Error getting auto-open setting:', error);
@@ -5514,74 +5870,42 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 		}
 	});
 
-	// Selection Assistant IPC handlers
+	// Selection Assistant IPC handlers - DISABLED (NotchDrop addon not in use)
 	ipcMain.handle('selection-assistant:get-history', async () => {
-		try {
-			if (!notchDropService || !notchDropService.isInitialized) {
-				return {
-					success: false,
-					history: [],
-					error: 'NotchDrop service not initialized',
-				};
-			}
-			const history = notchDropService.getSelectionHistory();
-			return { success: true, history };
-		} catch (error) {
-			log.error('Error getting selection history:', error);
-			return { success: false, history: [], error: error.message };
-		}
+		return {
+			success: false,
+			history: [],
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	ipcMain.handle('selection-assistant:clear-history', async () => {
-		try {
-			if (!notchDropService || !notchDropService.isInitialized) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-			const result = notchDropService.clearSelectionHistory();
-			return { success: result };
-		} catch (error) {
-			log.error('Error clearing selection history:', error);
-			return { success: false, error: error.message };
-		}
+		return {
+			success: false,
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	ipcMain.handle('selection-assistant:show-history', async () => {
-		try {
-			if (!notchDropService || !notchDropService.isInitialized) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-			const result = notchDropService.showSelectionHistoryInterface();
-			return { success: result };
-		} catch (error) {
-			log.error('Error showing selection history interface:', error);
-			return { success: false, error: error.message };
-		}
+		return {
+			success: false,
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	ipcMain.handle('selection-assistant:request-permission', async () => {
-		try {
-			if (!notchDropService) {
-				return { success: false, error: 'NotchDrop service not initialized' };
-			}
-			const result = notchDropService.requestSelectionPermissionPrompt();
-			return { success: result };
-		} catch (error) {
-			log.error('Error requesting selection assistant permission:', error);
-			return { success: false, error: error.message };
-		}
+		return {
+			success: false,
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	ipcMain.handle('selection-assistant:is-permission-granted', async () => {
-		try {
-			if (!notchDropService) {
-				return { success: false, granted: false, error: 'NotchDrop service not initialized' };
-			}
-			const granted = notchDropService.isSelectionPermissionGranted();
-			return { success: true, granted };
-		} catch (error) {
-			log.error('Error getting selection assistant permission state:', error);
-			return { success: false, granted: false, error: error.message };
-		}
+		return {
+			success: false,
+			granted: false,
+			error: 'Selection Assistant not available. NotchDrop addon is not enabled.',
+		};
 	});
 
 	// Swift action handlers for overlay integration
@@ -5589,11 +5913,11 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	try {
 		ipcMain.handle('swift:action', async (event, action, data) => {
 			try {
-				if (!notchDropService) {
+				if (!boringNotchService) {
 					return { success: false, error: 'NotchDrop service not initialized' };
 				}
 				// log.info('🎯 Swift action received in main.js:', action, data);
-				const result = await notchDropService.handleSwiftAction(action, data);
+				const result = await boringNotchService.handleSwiftAction(action, data);
 				return result;
 			} catch (error) {
 				log.error('Error handling Swift action:', error);
@@ -5616,10 +5940,10 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	safeRegisterSwiftHandler('swift:triggerOverlayRecording', async (event, data) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = await notchDropService.handleSwiftAction(
+			const result = await boringNotchService.handleSwiftAction(
 				'triggerOverlayRecording',
 				data,
 			);
@@ -5632,10 +5956,10 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	safeRegisterSwiftHandler('swift:triggerOverlayToggleLiveIntelligence', async (event, data) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = await notchDropService.handleSwiftAction(
+			const result = await boringNotchService.handleSwiftAction(
 				'triggerOverlayToggleLiveIntelligence',
 				data,
 			);
@@ -5660,10 +5984,10 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	// Additional NotchDrop IPC handlers for UI integration
 	ipcMain.handle('notchdrop-set-haptic-feedback', async (event, enabled) => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
-			const result = notchDropService.setHapticFeedback(enabled);
+			const result = boringNotchService.setHapticFeedback(enabled);
 			return { success: result };
 		} catch (error) {
 			log.error('Error setting haptic feedback:', error);
@@ -5673,14 +5997,14 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 	ipcMain.handle('notchdrop-get-haptic-feedback', async () => {
 		try {
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return {
 					success: false,
 					enabled: true,
 					error: 'NotchDrop service not initialized',
 				};
 			}
-			const enabled = notchDropService.getHapticFeedback();
+			const enabled = boringNotchService.getHapticFeedback();
 			return { success: true, enabled };
 		} catch (error) {
 			log.error('Error getting haptic feedback:', error);
@@ -5747,8 +6071,8 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
 		try {
 			// log.info('Updating NotchDrop voice status:', status);
-			if (notchDropService) {
-				await notchDropService.updateVoiceStatus(status);
+			if (boringNotchService) {
+				await boringNotchService.updateVoiceStatus(status);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -5762,8 +6086,8 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	ipcMain.handle('notchdrop-update-voice-connection-state', async (event, status) => {
 		try {
 			// log.info('Updating NotchDrop voice connection state:', status);
-			if (notchDropService) {
-				await notchDropService.updateVoiceConnectionState(status);
+			if (boringNotchService) {
+				await boringNotchService.updateVoiceConnectionStatus(status);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -5776,8 +6100,8 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	// Add voice message to NotchDrop (legacy - preserved for audio functionality)
 	ipcMain.handle('notchdrop-add-voice-message', async (event, messageData) => {
 		try {
-			if (notchDropService) {
-				await notchDropService.addVoiceMessage(messageData);
+			if (boringNotchService) {
+				await boringNotchService.addVoiceMessage(messageData);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -5792,16 +6116,16 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 		try {
 			log.info('📤 Sending general message to NotchDrop:', messageData.type || 'unknown');
 
-			if (!notchDropService) {
+			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not available' };
 			}
 
-			if (!notchDropService.isInitialized) {
+			if (!boringNotchService.isInitialized) {
 				return { success: false, error: 'NotchDrop service not initialized' };
 			}
 
 			// Use the general message method
-			const result = await notchDropService.sendMessage(messageData);
+			const result = await boringNotchService.sendMessage(messageData);
 			return result;
 		} catch (error) {
 			log.error('❌ Error sending general message to NotchDrop:', error);
@@ -5813,8 +6137,8 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	ipcMain.handle('notchdrop-update-voice-mute-state', async (event, isMuted) => {
 		try {
 			// log.info('Updating NotchDrop voice mute state:', isMuted);
-			if (notchDropService) {
-				await notchDropService.updateVoiceMuteState(isMuted);
+			if (boringNotchService) {
+				await boringNotchService.updateVoiceMuteState(isMuted);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -5823,6 +6147,213 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 			return { success: false, error: error.message };
 		}
 	});
+
+	// Voice agent activation handler for Ask AI
+	ipcMain.handle('notchdrop-activate-voice-agent', async (event, data) => {
+		try {
+			log.info('🎤 Activating voice agent from Ask AI');
+			if (boringNotchService) {
+				await boringNotchService.activateVoiceAgent();
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error activating voice agent:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Direct voice control handlers from boring.notch
+	ipcMain.handle('boring-notch-voice-mute', async (event, isMuted) => {
+		try {
+			log.info('🎤 Direct voice mute command from boring.notch:', isMuted);
+			if (boringNotchService) {
+				await boringNotchService.handleDirectVoiceMute(isMuted);
+				return { success: true };
+			}
+			return { success: false, error: 'Boring Notch service not available' };
+		} catch (error) {
+			log.error('Error handling direct voice mute:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	ipcMain.handle('boring-notch-voice-disconnect', async (event) => {
+		try {
+			log.info('🔌 Direct voice disconnect command from boring.notch');
+			if (boringNotchService) {
+				await boringNotchService.handleDirectVoiceDisconnect();
+				return { success: true };
+			}
+			return { success: false, error: 'Boring Notch service not available' };
+		} catch (error) {
+			log.error('Error handling direct voice disconnect:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Voice agent disconnect handler
+	ipcMain.handle('notchdrop-disconnect-voice-agent', async (event, data) => {
+		try {
+			log.info('🔌 Disconnecting voice agent from Ask AI');
+			if (boringNotchService) {
+				await boringNotchService.disconnectVoiceAgent();
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error disconnecting voice agent:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Voice agent mute toggle handler
+	ipcMain.handle('notchdrop-toggle-voice-mute', async (event, isMuted) => {
+		try {
+			log.info('🎤 Toggling voice mute from Ask AI:', isMuted);
+			if (boringNotchService) {
+				await boringNotchService.toggleVoiceMute(isMuted);
+				return { success: true };
+			}
+			return { success: false, error: 'NotchDrop service not available' };
+		} catch (error) {
+			log.error('Error toggling voice mute:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Listen for system notifications from boring.notch app
+	const { Notification } = require('electron');
+
+	// Handle notifications from boring.notch app
+	app.on('ready', () => {
+		// Listen for system notifications
+		Notification.on('click', (notification) => {
+			if (notification.title === 'BoringNotch Voice Control') {
+				const userInfo = notification.userInfo;
+				if (userInfo && userInfo.source === 'boring-notch') {
+					handleBoringNotchNotification(userInfo);
+				}
+			}
+		});
+	});
+
+	// Handle boring.notch notifications
+	async function handleBoringNotchNotification(userInfo) {
+		try {
+			const action = userInfo.action;
+			log.info('📱 Received boring.notch notification:', action);
+
+			switch (action) {
+				case 'disconnect_voice_agent':
+					log.info('🔌 Disconnecting voice agent from boring.notch notification');
+					// Call the actual voice agent disconnect
+					await disconnectVoiceAgentFromMainWindow();
+					break;
+
+				case 'toggle_voice_mute':
+					const isMuted = userInfo.isMuted;
+					log.info('🎤 Toggling voice mute from boring.notch notification:', isMuted);
+					// Call the actual voice agent mute toggle
+					await toggleVoiceMuteInMainWindow(isMuted);
+					break;
+
+				default:
+					log.warn('⚠️ Unknown boring.notch notification action:', action);
+			}
+		} catch (error) {
+			log.error('❌ Error handling boring.notch notification:', error);
+		}
+	}
+
+	// Disconnect voice agent from main window
+	async function disconnectVoiceAgentFromMainWindow() {
+		try {
+			const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+				const title = window.getTitle();
+				return (
+					!title.includes('Overlay') &&
+					!title.includes('Dynamic Island') &&
+					!title.includes('Ask AI')
+				);
+			});
+
+			if (mainWindow) {
+				await mainWindow.webContents.executeJavaScript(`
+                // Dispatch disconnect event to trigger voice agent disconnect
+                const disconnectEvent = new CustomEvent('notchdrop-disconnect-voice', {
+                    detail: {
+                        source: 'boring-notch',
+                        timestamp: Date.now(),
+                        action: 'disconnect_voice_agent'
+                    }
+                });
+                window.dispatchEvent(disconnectEvent);
+                
+                // Also try to find and click disconnect buttons
+                const disconnectButtons = document.querySelectorAll('.cancel-button, [class*="disconnect"], [class*="close"]');
+                if (disconnectButtons.length > 0) {
+                    disconnectButtons[0].click();
+                }
+                
+                // Hide voice agent UI
+                const voiceContainers = document.querySelectorAll('.voiceContainer');
+                voiceContainers.forEach(container => {
+                    container.style.display = 'none';
+                });
+                
+                '{ "success": true, "method": "boring-notch disconnect" }';
+            `);
+				log.info('🔌 Voice agent disconnect triggered from main window');
+			} else {
+				log.warn('⚠️ Main window not found for voice agent disconnect');
+			}
+		} catch (error) {
+			log.error('❌ Error disconnecting voice agent from main window:', error);
+		}
+	}
+
+	// Toggle voice mute in main window
+	async function toggleVoiceMuteInMainWindow(isMuted) {
+		try {
+			const mainWindow = BrowserWindow.getAllWindows().find((window) => {
+				const title = window.getTitle();
+				return (
+					!title.includes('Overlay') &&
+					!title.includes('Dynamic Island') &&
+					!title.includes('Ask AI')
+				);
+			});
+
+			if (mainWindow) {
+				await mainWindow.webContents.executeJavaScript(`
+                // Dispatch mute toggle event
+                const muteEvent = new CustomEvent('notchdrop-toggle-mute', {
+                    detail: {
+                        source: 'boring-notch',
+                        timestamp: Date.now(),
+                        isMuted: ${isMuted},
+                        action: 'toggle_voice_mute'
+                    }
+                });
+                window.dispatchEvent(muteEvent);
+                
+                // Also try to find and click mute buttons
+                const muteButtons = document.querySelectorAll('.mute-button, [class*="mute"]');
+                if (muteButtons.length > 0) {
+                    muteButtons[0].click();
+                }
+                
+                '{ "success": true, "method": "boring-notch mute toggle" }';
+            `);
+				log.info('🎤 Voice mute toggle triggered from main window:', isMuted);
+			} else {
+				log.warn('⚠️ Main window not found for voice mute toggle');
+			}
+		} catch (error) {
+			log.error('❌ Error toggling voice mute in main window:', error);
+		}
+	}
 
 	// File system APIs for audio storage
 	const fs = require('fs').promises;
@@ -6462,9 +6993,9 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 
 				// 🔒 SYNC NOTCH LOCK STATE WITH RECORDING STATE
 				// This ensures the notch stays locked during recording for transcription display
-				if (notchDropService && notchDropService.isInitialized) {
+				if (boringNotchService && boringNotchService.isInitialized) {
 					const isPaused = state.isPaused || false;
-					await notchDropService.handleExternalRecordingStateChange(
+					await boringNotchService.handleExternalRecordingStateChange(
 						state.isRecording,
 						isPaused,
 					);
@@ -6482,9 +7013,9 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	ipcMain.handle('overlay-send-transcription-data', async (event, transcriptionData) => {
 		try {
 			// Forward transcription data to NotchDrop service if available
-			if (notchDropService && notchDropService.isInitialized) {
+			if (boringNotchService && boringNotchService.isInitialized) {
 				try {
-					const result = await notchDropService.addTranscriptionData(transcriptionData);
+					const result = await boringNotchService.addTranscriptionData(transcriptionData);
 					if (result) {
 						console.log('✅ Transcription data sent to NotchDrop service successfully');
 					} else {
@@ -6512,8 +7043,8 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	// Handle transcription data for NotchDrop (following voice message pattern)
 	ipcMain.handle('notchdrop-add-transcription-data', async (event, transcriptionData) => {
 		try {
-			if (notchDropService && notchDropService.isInitialized) {
-				await notchDropService.addTranscriptionData(transcriptionData);
+			if (boringNotchService && boringNotchService.isInitialized) {
+				await boringNotchService.addTranscriptionData(transcriptionData);
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
@@ -6526,13 +7057,37 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	// Handle clearing live intelligence data in NotchDrop
 	ipcMain.handle('notchdrop-clear-live-intelligence-data', async (event) => {
 		try {
-			if (notchDropService && notchDropService.isInitialized) {
-				await notchDropService.clearLiveIntelligenceData();
+			if (boringNotchService && boringNotchService.isInitialized) {
+				await boringNotchService.clearLiveIntelligenceData();
 				return { success: true };
 			}
 			return { success: false, error: 'NotchDrop service not available' };
 		} catch (error) {
 			log.error('Error clearing live intelligence data in NotchDrop:', error);
+			return { success: false, error: error.message };
+		}
+	});
+
+	// Debug handler for Boring Notch troubleshooting
+	ipcMain.handle('boring-notch-debug-info', async () => {
+		try {
+			if (boringNotchService) {
+				const debugInfo = boringNotchService.getDebugInfo();
+				log.info('🔍 Boring Notch debug info requested:', debugInfo);
+				return { success: true, debugInfo };
+			}
+			return {
+				success: false,
+				error: 'Boring Notch service not initialized',
+				debugInfo: {
+					isInitialized: false,
+					processPlatform: process.platform,
+					nodeEnv: process.env.NODE_ENV,
+					serviceExists: !!boringNotchService,
+				},
+			};
+		} catch (error) {
+			log.error('Error getting Boring Notch debug info:', error);
 			return { success: false, error: error.message };
 		}
 	});
@@ -6928,8 +7483,10 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 	});
 
 	// Register gallery IPC handlers from galleryUtils
-	// Enhanced image processing with batching
+	// 🚨 CRITICAL FIX: Enhanced image processing with proper worker cleanup
 	ipcMain.handle('process-image-batch', async (event, { files, settings }) => {
+		const activeWorkers = new Set(); // Track active workers for cleanup
+
 		try {
 			const results = [];
 			const batchSize = 2; // Process 2 images at a time to prevent overwhelming
@@ -6945,25 +7502,37 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 								workerData: { data: { ...fileData, settings } },
 							});
 
+							// 🚨 CRITICAL FIX: Track worker for cleanup
+							activeWorkers.add(worker);
+
 							// Prepare transfer list for ArrayBuffer transfer
 							const transferList = [];
 							if (fileData.imageBuffer instanceof ArrayBuffer) {
 								transferList.push(fileData.imageBuffer);
 							}
 
+							// 🚨 CRITICAL FIX: Enhanced worker cleanup
+							const cleanupWorker = () => {
+								activeWorkers.delete(worker);
+								worker.terminate().catch((err) => {
+									log.warn('Error terminating worker:', err);
+								});
+							};
+
 							worker.on('message', (result) => {
 								if (result.taskId === taskId) {
-									worker.terminate().catch(() => {});
+									cleanupWorker();
 									resolve(result);
 								}
 							});
 
 							worker.on('error', (err) => {
-								worker.terminate().catch(() => {});
+								cleanupWorker();
 								resolve({ success: false, error: `Worker error: ${err.message}` });
 							});
 
 							worker.on('exit', (code) => {
+								cleanupWorker();
 								if (code !== 0) {
 									resolve({
 										success: false,
@@ -6999,6 +7568,16 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 		} catch (error) {
 			log.error('Batch processing error:', error);
 			return { success: false, error: error.message };
+		} finally {
+			// 🚨 CRITICAL FIX: Clean up any remaining workers
+			activeWorkers.forEach((worker) => {
+				try {
+					worker.terminate();
+				} catch (err) {
+					log.warn('Error terminating remaining worker:', err);
+				}
+			});
+			activeWorkers.clear();
 		}
 	});
 
@@ -7396,8 +7975,8 @@ process.on('swift-ui-submit-chat', async (data = {}) => {
 // Replace entire transcription list in NotchDrop
 ipcMain.handle('notchdrop-replace-transcriptions', async (event, messages) => {
 	try {
-		if (notchDropService && notchDropService.isInitialized) {
-			const ok = await notchDropService.replaceTranscriptions(messages || []);
+		if (boringNotchService && boringNotchService.isInitialized) {
+			const ok = await boringNotchService.replaceTranscriptions(messages || []);
 			return { success: ok };
 		}
 		return { success: false, error: 'NotchDrop service not available' };
@@ -7407,12 +7986,28 @@ ipcMain.handle('notchdrop-replace-transcriptions', async (event, messages) => {
 	}
 });
 
+// Replace entire live intelligence data array in NotchDrop
+ipcMain.handle('notchdrop-replace-live-intelligence-data', async (event, liveIntelligenceArray) => {
+	try {
+		if (boringNotchService && boringNotchService.isInitialized) {
+			const ok = await boringNotchService.replaceLiveIntelligenceData(
+				liveIntelligenceArray || [],
+			);
+			return { success: ok };
+		}
+		return { success: false, error: 'NotchDrop service not available' };
+	} catch (error) {
+		log.error('Error replacing live intelligence data in NotchDrop:', error);
+		return { success: false, error: error.message };
+	}
+});
+
 // Overlay requests a specific panel mode during recording
 // mode: 'transcription' | 'live-intel'
 ipcMain.handle('overlay-set-panel-mode', async (event, mode) => {
 	try {
-		if (notchDropService && notchDropService.isInitialized) {
-			const ok = await notchDropService.setRecordingPanelMode(mode);
+		if (boringNotchService && boringNotchService.isInitialized) {
+			const ok = await boringNotchService.setRecordingPanelMode(mode);
 			return { success: ok };
 		}
 		return { success: false, error: 'NotchDrop service not available' };
@@ -7426,9 +8021,9 @@ ipcMain.handle('overlay-set-panel-mode', async (event, mode) => {
 ipcMain.handle('overlay-send-live-intelligence-data', async (event, liveIntelligenceData) => {
 	try {
 		// Forward live intelligence data to NotchDrop service if available
-		if (notchDropService && notchDropService.isInitialized) {
+		if (boringNotchService && boringNotchService.isInitialized) {
 			try {
-				const result = await notchDropService.sendLiveIntelligenceData(
+				const result = await boringNotchService.sendLiveIntelligenceData(
 					liveIntelligenceData,
 				);
 				if (result) {
@@ -7457,12 +8052,23 @@ ipcMain.handle('overlay-send-live-intelligence-data', async (event, liveIntellig
 
 // Handle app quit properly - but allow updates to proceed
 
-app.on('before-quit', (event) => {
+app.on('before-quit', async (event) => {
 	isQuitting = true;
 	// Only prevent quit if update is not in progress
 	if (!isUpdateInProgress) {
 		// Prevent default quit behavior to allow cleanup
 		event.preventDefault();
+
+		// Terminate boring.notch app before cleanup
+		if (boringNotchService) {
+			try {
+				log.info('🛑 Terminating boring.notch app before Electron quit...');
+				await boringNotchService.terminate();
+			} catch (error) {
+				log.error('❌ Error terminating boring.notch app:', error);
+			}
+		}
+
 		// Clean up all windows and processes
 		handleCleanupAndQuit();
 	} else {
@@ -7472,7 +8078,7 @@ app.on('before-quit', (event) => {
 });
 
 // CRITICAL: Add cleanup for watchdog and process monitor
-app.on('will-quit', (event) => {
+app.on('will-quit', async (event) => {
 	try {
 		// Clear watchdog interval
 		if (typeof watchdogInterval !== 'undefined') {
@@ -7500,9 +8106,16 @@ app.on('will-quit', (event) => {
 			cleanupMeetingSubscription = null;
 		}
 
-		// Clean up NotchDrop service
-		if (notchDropService) {
-			notchDropService.cleanup();
+		// Clean up Boring Notch service
+		if (boringNotchService) {
+			try {
+				// Terminate the boring.notch app first, then cleanup
+				await boringNotchService.terminate();
+			} catch (error) {
+				log.error('❌ Error terminating Boring Notch service:', error);
+				// Still try to cleanup even if termination fails
+				boringNotchService.cleanup();
+			}
 		}
 
 		log.info('🧹 App cleanup completed');
@@ -7562,6 +8175,23 @@ const handleCleanupAndQuit = () => {
 		} catch (error) {
 			log.error('Error cleaning up bridge:', error);
 		}
+	}
+
+	// Cleanup WebSocket service
+	try {
+		if (websocketService.isServerRunning()) {
+			log.info('🔄 Stopping WebSocket service...');
+			websocketService
+				.stop()
+				.then(() => {
+					log.info('✅ WebSocket service stopped successfully');
+				})
+				.catch((error) => {
+					log.error('❌ Error stopping WebSocket service:', error);
+				});
+		}
+	} catch (error) {
+		log.error('Error cleaning up WebSocket service:', error);
 	}
 
 	cleanupAndQuit({

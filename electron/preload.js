@@ -483,6 +483,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		handleFiles: (filePaths) => ipcRenderer.invoke('notchdrop-handle-files', filePaths),
 		setAutoOpen: (enabled) => ipcRenderer.invoke('notchdrop-set-auto-open', enabled),
 		getAutoOpen: () => ipcRenderer.invoke('notchdrop-get-auto-open'),
+		getDebugInfo: () => ipcRenderer.invoke('boring-notch-debug-info'),
 		setHapticFeedback: (enabled) =>
 			ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
 		getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
@@ -495,6 +496,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
 		addVoiceMessage: (messageData) =>
 			ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
+		activateVoiceAgent: (data) => ipcRenderer.invoke('notchdrop-activate-voice-agent', data),
+		disconnectVoiceAgent: (data) =>
+			ipcRenderer.invoke('notchdrop-disconnect-voice-agent', data),
+		toggleVoiceMute: (isMuted) => ipcRenderer.invoke('notchdrop-toggle-voice-mute', isMuted),
 		// GENERAL PURPOSE MESSAGE SYSTEM
 		sendMessage: (messageData) => ipcRenderer.invoke('notchdrop-send-message', messageData),
 		// New NotchDropLatest APIs
@@ -505,6 +510,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Replace entire transcription list in NotchDrop
 		replaceTranscriptions: (messages) =>
 			ipcRenderer.invoke('notchdrop-replace-transcriptions', messages),
+		// Replace entire live intelligence data array in NotchDrop
+		replaceLiveIntelligenceData: (liveIntelligenceArray) =>
+			ipcRenderer.invoke('notchdrop-replace-live-intelligence-data', liveIntelligenceArray),
 		// Clear live intelligence data in NotchDrop
 		clearLiveIntelligenceData: () =>
 			ipcRenderer.invoke('notchdrop-clear-live-intelligence-data'),
@@ -522,10 +530,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		getHistory: () => ipcRenderer.invoke('selection-assistant:get-history'),
 		clearHistory: () => ipcRenderer.invoke('selection-assistant:clear-history'),
 		showHistory: () => ipcRenderer.invoke('selection-assistant:show-history'),
-		requestPermission: () =>
-			ipcRenderer.invoke('selection-assistant:request-permission'),
-		isPermissionGranted: () =>
-			ipcRenderer.invoke('selection-assistant:is-permission-granted'),
+		requestPermission: () => ipcRenderer.invoke('selection-assistant:request-permission'),
+		isPermissionGranted: () => ipcRenderer.invoke('selection-assistant:is-permission-granted'),
 		onSelectionCaptured: (callback) => {
 			ipcRenderer.on('selection-assistant:captured', (event, data) => {
 				callback(data);
@@ -573,6 +579,11 @@ contextBridge.exposeInMainWorld('electronApi', {
 	onNotchdropToMainWindowEvent: (callback) =>
 		ipcRenderer.on('notchdrop-to-main-window-event', (_, data) => callback(data)),
 
+	sendTranscriptionDataToNotch: (data) =>
+		ipcRenderer.invoke('send-transcription-data-to-notch', data),
+	sendLiveIntelligenceDataToNotch: (data) =>
+		ipcRenderer.invoke('send-live-intelligence-data-to-notch', data),
+
 	removeNotchdropToMainWindowEventListener: () => {
 		ipcRenderer.removeAllListeners('notchdrop-to-main-window-event');
 	},
@@ -619,4 +630,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	syncGlassModeState: (isEnabled) => {
 		ipcRenderer.invoke('sync-glass-mode-state', { enabled: isEnabled });
 	},
+
+	// WebSocket communication for Boring Notch
+	websocketSendMessage: (data) => ipcRenderer.invoke('websocket-send-message', data),
 });

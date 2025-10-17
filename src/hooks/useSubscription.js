@@ -171,6 +171,7 @@ const useSubscription = () => {
 	}, [currentPlan, navigate]); // Add navigate to dependencies
 
 	const cleanupTimers = useCallback(() => {
+		// 🚨 CRITICAL FIX: Comprehensive timer cleanup
 		if (timerRef.current.timer) {
 			clearTimeout(timerRef.current.timer);
 			timerRef.current.timer = null;
@@ -179,7 +180,17 @@ const useSubscription = () => {
 			clearInterval(timerRef.current.interval);
 			timerRef.current.interval = null;
 		}
+		
+		// 🚨 CRITICAL FIX: Clear all possible timer references
+		timerRef.current = { timer: null, interval: null };
 	}, []);
+	
+	// 🚨 CRITICAL FIX: Add cleanup on unmount
+	useEffect(() => {
+		return () => {
+			cleanupTimers();
+		};
+	}, [cleanupTimers]);
 };
 
 export default useSubscription;

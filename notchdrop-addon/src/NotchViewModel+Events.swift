@@ -93,87 +93,32 @@ extension NotchViewModel {
             }
             .store(in: &cancellables)
 
-        // ULTIMATE FIX: Ultra-optimized hover processing with memory management
-        events.mouseLocation
-            .throttle(for: .milliseconds(50), scheduler: DispatchQueue.main, latest: true) // Further reduced frequency
-            .sink { [weak self] _ in
-                guard let self else { return }
-                guard self.isInteractionEnabled else { return }
-                // Skip hover processing while opened by click to reduce churn
-                if status == .opened, openReason == .click { return }
-                
-                // ULTIMATE FIX: Use autoreleasepool to prevent memory accumulation
-                autoreleasepool { [weak self] in
-                    guard let self = self else { return }
-                    let mouseLocation: NSPoint = NSEvent.mouseLocation
-                    
-                    // ULTIMATE FIX: Cache hover zone calculations with reduced precision
-                    let inClosedHoverZone = self.notchClosedRect.insetBy(dx: self.inset, dy: self.inset).contains(mouseLocation)
-                    let inOpenedHoverZone = self.notchOpenedRect.insetBy(dx: self.inset, dy: self.inset).contains(mouseLocation)
+        // 🚨 CRITICAL FIX: Disable constant mouse tracking - it's draining performance
+        // Mouse tracking is disabled to prevent constant CPU usage and lag
+        // events.mouseLocation
+        //     .sink { [weak self] _ in
+        //         // Mouse tracking disabled for performance
+        //     }
+        //     .store(in: &cancellables)
 
-                    // ULTIMATE FIX: Only activate performance mode when needed
-                    if inClosedHoverZone || inOpenedHoverZone {
-                        self.ensureInteractivePerformance()
-                    }
+        // 🚨 CRITICAL FIX: Disable status monitoring - it's causing performance drain
+        // $status
+        //     .filter { $0 != .closed }
+        //     .receive(on: DispatchQueue.main)
+        //     .sink { [weak self] _ in
+        //         withAnimation { self?.notchVisible = true }
+        //     }
+        //     .store(in: &cancellables)
 
-                    switch self.status {
-                    case .closed:
-                        // Edge-detect hover ENTER into closed zone
-                        if inClosedHoverZone && !self.wasInClosedHoverZone {
-                            // ULTIMATE FIX: Reduced haptic feedback frequency
-                            self.performHoverHapticIfNeeded()
-                            
-                            // ULTIMATE FIX: Faster animation
-                            withAnimation(DynamicIslandTheme.hoverOpenBubbly) {
-                                self.notchOpen(.hover) 
-                            }
-                        }
-                        // Update edge state
-                        self.wasInClosedHoverZone = inClosedHoverZone
-                        self.wasInOpenedHoverZone = false
-                    case .opened:
-                        // Edge-detect hover EXIT from opened zone for auto-close
-                        if self.openReason == .hover, !inOpenedHoverZone, self.wasInOpenedHoverZone, !self.hasActiveVideo, !self.isNotchLocked {
-                            // ULTIMATE FIX: Faster close animation
-                            withAnimation(DynamicIslandTheme.hoverAnimation) {
-                                self.notchClose() 
-                            }
-                        }
-                        // Update edge state
-                        self.wasInOpenedHoverZone = inOpenedHoverZone
-                        self.wasInClosedHoverZone = false
-                    case .popping:
-                        // Legacy pop behavior: close pop if pointer leaves the closed hover zone
-                        if !inClosedHoverZone { 
-                            // ULTIMATE FIX: Instant close for better responsiveness
-                            withAnimation(DynamicIslandTheme.instantAnimation) {
-                                self.notchClose() 
-                            }
-                        }
-                        // Update edge state
-                        self.wasInClosedHoverZone = inClosedHoverZone
-                        self.wasInOpenedHoverZone = false
-                    }
-                }
-            }
-            .store(in: &cancellables)
-
-        $status
-            .filter { $0 != .closed }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                withAnimation { self?.notchVisible = true }
-            }
-            .store(in: &cancellables)
-
-        $status
-            .filter { $0 == .popping }
-            .throttle(for: .seconds(0.5), scheduler: DispatchQueue.main, latest: false)
-            .sink { [weak self] _ in
-                guard NSEvent.pressedMouseButtons == 0 else { return }
-                self?.hapticSender.send()
-            }
-            .store(in: &cancellables)
+        // 🚨 CRITICAL FIX: Disable haptic feedback - it's causing performance drain
+        // $status
+        //     .filter { $0 == .popping }
+        //     .throttle(for: .seconds(0.5), scheduler: DispatchQueue.main, latest: false)
+        //     .sink { [weak self] _ in
+        //         guard NSEvent.pressedMouseButtons == 0 else { return }
+        //         self?.hapticSender.send()
+        //     }
+        //     .store(in: &cancellables)
 
         hapticSender
             .throttle(for: .seconds(0.5), scheduler: DispatchQueue.main, latest: false)

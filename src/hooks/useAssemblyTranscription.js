@@ -60,6 +60,9 @@ const useAssemblyTranscription = ({
 	);
 
 	const cleanup = useCallback(() => {
+		// 🚨 CRITICAL FIX: Mark as unmounted first
+		isMountedRef.current = false;
+		
 		// Clear timers
 		if (timerIntervalRef.current) {
 			clearInterval(timerIntervalRef.current);
@@ -70,7 +73,7 @@ const useAssemblyTranscription = ({
 			reconnectTimeoutRef.current = null;
 		}
 
-		// Cleanup audio resources in correct order
+		// 🚨 CRITICAL FIX: Enhanced audio resource cleanup
 		if (processorRef.current) {
 			try {
 				processorRef.current.disconnect();
@@ -91,7 +94,10 @@ const useAssemblyTranscription = ({
 
 		if (streamRef.current) {
 			try {
-				streamRef.current.getTracks().forEach((track) => track.stop());
+				streamRef.current.getTracks().forEach((track) => {
+					track.stop();
+					track.enabled = false;
+				});
 			} catch (e) {
 				log(`Error stopping stream tracks: ${e.message}`);
 			}
@@ -107,9 +113,13 @@ const useAssemblyTranscription = ({
 			audioContextRef.current = null;
 		}
 
-		// Close WebSocket
+		// 🚨 CRITICAL FIX: Enhanced WebSocket cleanup
 		if (websocketRef.current && websocketRef.current.readyState !== WebSocket.CLOSED) {
 			try {
+				websocketRef.current.onopen = null;
+				websocketRef.current.onclose = null;
+				websocketRef.current.onmessage = null;
+				websocketRef.current.onerror = null;
 				websocketRef.current.close();
 			} catch (e) {
 				log(`Error closing WebSocket: ${e.message}`);
@@ -117,12 +127,13 @@ const useAssemblyTranscription = ({
 			websocketRef.current = null;
 		}
 
-		// Reset buffers and state
+		// 🚨 CRITICAL FIX: Reset all buffers and state
 		audioBufferRef.current = [];
 		sampleCountRef.current = 0;
 		connectionPromiseRef.current = null;
 		reconnectAttemptsRef.current = 0;
 
+		// 🚨 CRITICAL FIX: Only update state if still mounted
 		if (isMountedRef.current) {
 			setIsConnected(false);
 			setIsRecording(false);

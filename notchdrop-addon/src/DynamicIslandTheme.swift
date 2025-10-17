@@ -18,23 +18,14 @@ enum DynamicIslandTheme {
     static let recordingExpandedHeight: CGFloat = 160
     static let recordingBottomRadius: CGFloat = 8
     
-    // PERFORMANCE OPTIMIZED: Ultra-smooth and professional animations
-    static let expansionDuration: Double = 0.2     // Faster, more responsive
-    static let hoverDuration: Double = 0.08        // Snappier hover response
-    static let springDuration: Double = 0.28       // Open/close spring duration
+    // 🚨 CRITICAL FIX: Ultra-optimized animations for maximum performance
+    static let expansionDuration: Double = 0.15    // Even faster for responsiveness
+    static let hoverDuration: Double = 0.05        // Minimal hover response time
+    static let springDuration: Double = 0.2        // Faster spring duration
     
-    // PERFORMANCE OPTIMIZED: Professional animation curves with reduced complexity
-    static let expansionAnimation: Animation = .spring(
-        response: springDuration,
-        dampingFraction: 0.8,   // Less bounce for smoother performance
-        blendDuration: 0.06     // Reduced blend duration
-    )
-    
-    static let hoverAnimation: Animation = .spring(
-        response: hoverDuration,
-        dampingFraction: 0.95,  // Higher damping for stability
-        blendDuration: 0.03     // Minimal blend duration
-    )
+    // 🚨 CRITICAL FIX: Simplified animations for better performance
+    static let expansionAnimation: Animation = .easeInOut(duration: expansionDuration)
+    static let hoverAnimation: Animation = .easeInOut(duration: hoverDuration)
     
     static let bounceAnimation: Animation = .spring(
         response: 0.2,          // Faster engage
