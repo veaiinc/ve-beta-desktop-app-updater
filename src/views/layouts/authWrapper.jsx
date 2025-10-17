@@ -83,7 +83,7 @@ const AuthWrapper = ({
 			if (windowWidth > 1200) {
 				return;
 			}
-			const width = windowWidth + (sidebarState?.open ? 256 : -256);
+			const width = windowWidth + (sidebarState?.open ? 280 : -280);
 
 			if (window?.electronApi?.resizeMainWindow) {
 				window.electronApi.resizeMainWindow({
@@ -173,7 +173,7 @@ const AuthWrapper = ({
 					style={{
 						...outerContainerStyle,
 						paddingLeft:
-							isSidebarOpen && !isSidebarOverlay && !hideSidebar ? '256px' : '0',
+							isSidebarOpen && !isSidebarOverlay && !hideSidebar ? '280px' : '0',
 					}}
 					className="auth-wrapper-container"
 				>

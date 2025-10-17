@@ -160,7 +160,9 @@ const AskAIApp = () => {
 					duration: 300,
 					easing: 'easeInOutCubic',
 				});
-				console.log('📐 AskAI: Resized main window to compact chat view (571x626) with smooth animation');
+				console.log(
+					'📐 AskAI: Resized main window to compact chat view (571x626) with smooth animation',
+				);
 			}
 
 			// Reset to a fresh session so input isn't blocked by prior stream state
@@ -184,7 +186,6 @@ const AskAIApp = () => {
 					showScrollButton={false}
 					smoothScrollToBottom={null}
 					onChatQueryChange={null}
-					animateChatBox={true}
 					sessionId={info?.sessionId}
 					handleBrowserButtonClick={null}
 					showBrowserButton={false}
