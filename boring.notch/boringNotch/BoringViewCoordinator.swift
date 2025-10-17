@@ -137,6 +137,8 @@ class BoringViewCoordinator: ObservableObject {
         restoreMeetingState()
         // Restore active meeting view
         restoreActiveMeetingView()
+        // Restore AI enabled state
+        restoreAiEnabledState()
         
         // Setup notification observers
         setupNotificationObservers()
@@ -324,10 +326,12 @@ class BoringViewCoordinator: ObservableObject {
     @AppStorage("meetingIsPaused") var persistedMeetingIsPaused: Bool = true
     @AppStorage("meetingStartTimestamp") var persistedMeetingStartTimestamp: Double = 0
     @AppStorage("activeMeetingView") var persistedActiveMeetingView: String = "transcription"
+    @AppStorage("isAiEnabled") var persistedIsAiEnabled: Bool = true
 
     @Published var meetingElapsed: TimeInterval = 0
     @Published var meetingIsPaused: Bool = true
     @Published var activeMeetingView: ActiveMeetingView = .transcription
+    @Published var isAiEnabled: Bool = true
 
     private var meetingStartDate: Date?
     private var meetingTickerTask: Task<Void, Never>?
@@ -367,7 +371,10 @@ class BoringViewCoordinator: ObservableObject {
             persistedMeetingStartTimestamp = Date().timeIntervalSince1970
             meetingIsPaused = false
             persistedMeetingIsPaused = false
-            print("🚀 Meeting started - Timer initialized")
+            // Set AI enabled to true by default for new meetings
+            isAiEnabled = true
+            persistedIsAiEnabled = true
+            print("🚀 Meeting started - Timer initialized, AI enabled by default")
         } else {
             // Already started: treat as resume without reset
             if meetingIsPaused {
@@ -506,10 +513,21 @@ class BoringViewCoordinator: ObservableObject {
         print("🔄 Active meeting view restored: \(activeMeetingView)")
     }
     
+    func restoreAiEnabledState() {
+        isAiEnabled = persistedIsAiEnabled
+        print("🔄 AI enabled state restored: \(isAiEnabled)")
+    }
+    
     func toggleActiveMeetingView() {
         activeMeetingView = activeMeetingView == .transcription ? .liveIntelligence : .transcription
         persistedActiveMeetingViewValue = activeMeetingView
         print("🔄 Active meeting view toggled to: \(activeMeetingView)")
+    }
+    
+    func setAiEnabled(_ enabled: Bool) {
+        isAiEnabled = enabled
+        persistedIsAiEnabled = enabled
+        print("🔄 AI enabled state set to: \(enabled)")
     }
 }
 

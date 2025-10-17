@@ -11,7 +11,7 @@ struct MeetingButtons: View, WebSocketEventListener {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @State private var meetingIsLoading: Bool = false
     @State private var isPinging = false
-    @State private var isAiEnabeled:Bool = true
+    @State private var isAiToggleLoading = false
     
     // Optional callbacks for parent integration
     var onPauseToggle: ((Bool) -> Void)? = nil
@@ -114,7 +114,7 @@ struct MeetingButtons: View, WebSocketEventListener {
                     .stroke(.white.opacity(0.2), lineWidth: 0.5)
             )
             
-            if(isAiEnabeled){
+            if(coordinator.isAiEnabled){
                 ZStack {
                     // Outer ping capsule
                     Capsule()
@@ -216,16 +216,17 @@ struct MeetingButtons: View, WebSocketEventListener {
     }
     
     private func toggleLiveIntelligence(_ value: Bool) {
-        if value == isAiEnabeled{
+        if isAiToggleLoading == true {
             return
         }
+        isAiToggleLoading = true
         
         if value == true{
             WebSocketManager.shared.sendEvent(type: .enableAiIntelligence, data: ["source": "meeting_buttons"])
         }else {
             WebSocketManager.shared.sendEvent(type: .disableAiIntelligence, data: ["source": "meeting_buttons"])
         }
-      
+        
     }
     
     // MARK: - WebSocketEventListener (incoming)
@@ -245,12 +246,15 @@ struct MeetingButtons: View, WebSocketEventListener {
             BoringViewCoordinator.shared.meetingStopAndReset()
         case .meetingStartError:
             meetingIsLoading = false
-            isPinging = false
         case .enabledAiIntelligence:
-            isAiEnabeled = true
+            coordinator.setAiEnabled(true)
+            isAiToggleLoading = false
             isPinging = true
         case .disabledAiIntelligence:
-            isAiEnabeled = false
+            coordinator.setAiEnabled(false)
+            isAiToggleLoading = false
+            isPinging = false
+            
         default:
             break
         }
