@@ -359,7 +359,7 @@ const ChatBox = ({
 	// After navigating to the chat page, it ensures that the pending payload (activePayloadForChat)
 	// is sent to the socket connection.
 	useEffect(() => {
-		if (activePayloadForChat && info?.chatSessionId && handleSendWebsocketMessage) {
+		if (activePayloadForChat && info?.chatSessionId) {
 			if (info?.chatLoading) {
 				updateStateValues({ activePayloadForChat: null });
 				message.error('Please wait, AI is already generating a response');
