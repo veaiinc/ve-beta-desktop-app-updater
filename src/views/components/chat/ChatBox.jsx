@@ -359,7 +359,7 @@ const ChatBox = ({
 	// After navigating to the chat page, it ensures that the pending payload (activePayloadForChat)
 	// is sent to the socket connection.
 	useEffect(() => {
-		if (activePayloadForChat && info?.chatSessionId) {
+		if (activePayloadForChat && info?.chatSessionId && handleSendWebsocketMessage) {
 			if (info?.chatLoading) {
 				updateStateValues({ activePayloadForChat: null });
 				message.error('Please wait, AI is already generating a response');
@@ -1293,7 +1293,7 @@ const ChatBox = ({
 			e?.stopPropagation();
 
 			console.log('🎤 Voice agent button clicked in Ask AI');
-			
+
 			try {
 				// For desktop app (Ask AI), directly trigger voice agent connection
 				if (isDesktopApp) {
@@ -1303,18 +1303,18 @@ const ChatBox = ({
 						await window.electronApi.notchdrop.activateVoiceAgent();
 						return;
 					}
-					
+
 					// Method 2: Dispatch custom event to trigger voice agent
 					console.log('🎤 Dispatching voice agent activation event...');
 					const voiceEvent = new CustomEvent('notchdrop-voice-activate', {
-						detail: { 
-							source: 'askai-microphone', 
+						detail: {
+							source: 'askai-microphone',
 							timestamp: Date.now(),
-							autoStart: true
-						}
+							autoStart: true,
+						},
 					});
 					window.dispatchEvent(voiceEvent);
-					
+
 					// Method 3: Try to find and activate existing voice agent
 					setTimeout(() => {
 						const voiceContainers = document.querySelectorAll('.voiceContainer');
@@ -1323,8 +1323,10 @@ const ChatBox = ({
 							voiceContainers[0].style.display = 'block';
 							voiceContainers[0].style.opacity = '1';
 							voiceContainers[0].style.visibility = 'visible';
-							
-							const micButtons = voiceContainers[0].querySelectorAll('.action-button, [class*="mic"]');
+
+							const micButtons = voiceContainers[0].querySelectorAll(
+								'.action-button, [class*="mic"]',
+							);
 							if (micButtons.length > 0) {
 								micButtons[0].click();
 							}
@@ -1627,9 +1629,17 @@ const ChatBox = ({
 									}}
 								>
 									{info?.chatQuery?.trim()?.length > 0 ? (
-										<ArrowUp className="voice-wave-icon" width={16} height={16} />
+										<ArrowUp
+											className="voice-wave-icon"
+											width={16}
+											height={16}
+										/>
 									) : (
-										<VoiceAgentSvg className="voice-wave-icon" width={18} height={18} />
+										<VoiceAgentSvg
+											className="voice-wave-icon"
+											width={18}
+											height={18}
+										/>
 									)}
 								</div>
 							) : (
