@@ -153,7 +153,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		try {
 			// Check if analytics data already exists
 			const [success, data] = await getMeetingAnalytics(meetingId);
-			
+
 			if (success && data) {
 				console.log('Analytics data already exists, not showing loading state');
 				setInfo((prev) => ({ ...prev, summaryInProgress: false }));
@@ -591,16 +591,16 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const checkAndGenerateAnalytics = useCallback(async () => {
 		try {
 			console.log('Checking if analytics already exist for meeting:', meetingId);
-			
+
 			// First, try to fetch existing analytics data
 			const [success, data] = await getMeetingAnalytics(meetingId);
-			
+
 			if (success && data) {
 				console.log('Analytics data already exists for meeting:', meetingId);
 				// Analytics already exist, no need to generate
 				return;
 			}
-			
+
 			// If no analytics data exists, then generate it
 			console.log('No analytics data found, generating analytics for meeting:', meetingId);
 			generateMeetingAnalytics();
@@ -966,7 +966,6 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 										customChatActions={true}
 										showUpgradeSubscriptionBtn={false}
 										sessionId={sessionId}
-										animateChatBox={false}
 										placeholder="Ask anything about the meeting"
 										showBottomTools={false}
 									/>

@@ -19,8 +19,8 @@ export const ChatStreamState = () => {
 	const socketRefs = useRef({});
 	const socketsInfoRef = useRef({});
 	const inactivityTimeoutsRef = useRef({});
-	const currentSessionIdRef = useRef(null);
 	const fetchingAccessTokenRef = useRef(false);
+	const sendMessageTimeoutsRef = useRef({});
 	const MAX_RETRY_ATTEMPTS = 6;
 
 	// Helper function to reset the inactivity timer
@@ -45,7 +45,7 @@ export const ChatStreamState = () => {
 				...(onMessageFunc && { onMessageFunc }),
 				isPublicChat,
 			};
-			console.log(sessionId, socketRefs.current[sessionId], 'socketRefs.current[sessionId]');
+
 			return new Promise((resolve, reject) => {
 				let attempts = 0;
 
@@ -77,7 +77,7 @@ export const ChatStreamState = () => {
 							agentType,
 							isPublicChat,
 						});
-						setTimeout(attemptSend, delay);
+						sendMessageTimeoutsRef.current[sessionId] = setTimeout(attemptSend, delay);
 						attempts++;
 						return;
 					}
@@ -86,7 +86,7 @@ export const ChatStreamState = () => {
 					if (socketRefs.current[sessionId].readyState === WebSocket.CONNECTING) {
 						console.log('Connection not ready, waiting...');
 						const delay = Math.min(1000 * 2 ** attempts, 30000);
-						setTimeout(attemptSend, delay);
+						sendMessageTimeoutsRef.current[sessionId] = setTimeout(attemptSend, delay);
 						attempts++;
 						return;
 					}
@@ -96,6 +96,9 @@ export const ChatStreamState = () => {
 						try {
 							socketRefs.current[sessionId].send(JSON.stringify(data));
 							resetInactivityTimeout(sessionId);
+							if (sendMessageTimeoutsRef.current[sessionId]) {
+								delete sendMessageTimeoutsRef.current[sessionId];
+							}
 							resolve();
 						} catch (error) {
 							reject(error);
@@ -132,13 +135,9 @@ export const ChatStreamState = () => {
 				}
 			}
 
-			currentSessionIdRef.current = sessionId;
-
 			if (socketRefs.current[sessionId]) {
 				return;
 			}
-
-			console.log(sessionId, 'sessionId');
 
 			const agent = agentTypeMap[agentType] || 'multi_agent_chat_streaming';
 
@@ -172,6 +171,11 @@ export const ChatStreamState = () => {
 			socketRefs.current[sessionId].onclose = () => {
 				console.log('Disconnected from WebSocket server', sessionId);
 
+				if (sendMessageTimeoutsRef.current[sessionId]) {
+					clearTimeout(sendMessageTimeoutsRef.current[sessionId]);
+					delete sendMessageTimeoutsRef.current[sessionId];
+				}
+
 				if (inactivityTimeoutsRef.current[sessionId]) {
 					clearTimeout(inactivityTimeoutsRef.current[sessionId]);
 					delete inactivityTimeoutsRef.current[sessionId];
@@ -195,7 +199,7 @@ export const ChatStreamState = () => {
 				resetInactivityTimeout(sessionId);
 				const { onMessageFunc } = socketsInfoRef.current[sessionId];
 				if (onMessageFunc) {
-					onMessageFunc(event, currentSessionIdRef.current);
+					onMessageFunc(event);
 				}
 			};
 		},
@@ -212,8 +216,22 @@ export const ChatStreamState = () => {
 		}
 	}, []);
 
-	const removeCurrentSessionId = useCallback(() => {
-		currentSessionIdRef.current = null;
+	const socketConnectionState = useCallback((sessionId) => {
+		if (
+			socketRefs.current[sessionId] &&
+			socketRefs.current[sessionId].readyState === WebSocket.OPEN
+		) {
+			return true;
+		} else {
+			return false;
+		}
+	}, []);
+
+	const stopSendingMessage = useCallback((sessionId) => {
+		if (sendMessageTimeoutsRef.current[sessionId]) {
+			clearTimeout(sendMessageTimeoutsRef.current[sessionId]);
+			delete sendMessageTimeoutsRef.current[sessionId];
+		}
 	}, []);
 
 	return {
@@ -221,6 +239,7 @@ export const ChatStreamState = () => {
 		createWebSocketConnection,
 		sendMessage,
 		closeWebSocketConnection,
-		removeCurrentSessionId,
+		socketConnectionState,
+		stopSendingMessage,
 	};
 };

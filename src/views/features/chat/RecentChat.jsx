@@ -1,4 +1,4 @@
-import React, {
+import {
 	memo,
 	useCallback,
 	useState,
@@ -22,23 +22,22 @@ import { FetchMoreLoaderComp } from '../../../helpers';
 import AIMessageRenderer from '../../components/chat/AIMessageRenderer';
 import ChatHeader from '../../components/chat/ChatHeader';
 import { message } from '../../components/globalComponents/CustomToast';
-import ChatHistory from '../../components/sidebar/chatHistory/ChatHistory';
-import { ReactComponent as DoubleRightArrowSvg } from '../../../assets/svg/tasks/doubleRightArrow.svg';
 import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
 import ChatRightBar from '../../components/chat/chatComponents/ChatRightBar';
-import NoteComponentModal from '../../components/notes/NoteComponentModal';
 import Browser from '../../components/chat/chatComponents/Browser';
+import { ReactComponent as LinkLightSvg } from '../../../assets/svg/notes/loop-light.svg';
+import { ReactComponent as LinkDarkSvg } from '../../../assets/svg/notes/loop-dark.svg';
 
 const RecentChat = ({
 	isPublicChat = false,
 	isPreview = false,
 	sId = null,
+	propsAgentType = null,
+	propsAssistantId = null,
 	autoFocus = true,
 	customChatBoxClick = null,
 	showCitationsButton = false,
 	showDeleteChat = false,
-	animateChatBox = true,
-	showChatHistory = false,
 	showChats = false,
 	showHeader = true,
 	showBrowser = false,
@@ -46,11 +45,9 @@ const RecentChat = ({
 	showMicBtn = true,
 	showRecentFiles = true,
 	showResponseEditBtn = true,
-	fetchRecentChatMessages = true,
-	showChatBox = true, // New prop to control ChatBox visibility
 	showRightBar = false,
 
-	// below props are for desktop app
+	// props for desktop app behavior
 	isDesktopApp = false,
 	handleDesktopAppPayload = null,
 }) => {
@@ -63,11 +60,10 @@ const RecentChat = ({
 			moreRecentChatStorage,
 			handleGlobalChatMessages,
 			updateChatLoadingSessions,
-			newChatSessionIds,
 			getFollowUpQueries,
 		},
 		aiSetup: { updateAiChatSessions },
-		chatStream: { sendMessage, closeWebSocketConnection, removeCurrentSessionId },
+		chatStream: { sendMessage },
 	} = useContext(Context);
 
 	let { sessionId } = useParams();
@@ -75,77 +71,50 @@ const RecentChat = ({
 	let agentType = searchParams?.get('agentType');
 	let assistantId = searchParams?.get('assistantId');
 
-	const [info, setInfo] = useState(() => {
-		let isChatHistoryClosed = false;
-		try {
-			const stored = localStorage.getItem('chatHistorySidebarClosed');
-			if (stored) {
-				const parsed = JSON.parse(stored);
-				if (typeof parsed === 'boolean') {
-					isChatHistoryClosed = parsed;
-				}
-			}
-		} catch (e) {
-			isChatHistoryClosed = false;
-		}
-
-		return {
-			position: { x: window?.innerWidth / 2 - 900, y: 0 },
-			chatSessionId: null,
-			uploadedImages: [],
-			chatLoading: false,
-			voiceIntegration: false,
-			noteModalIsOpen: false,
-			page: 1,
-			currentPage: true,
-			scrollExecuted: false,
-			latestStreamMesage: null,
-			activeAIMessageIndex: null,
-			activeAIMessageId: null,
-			activeUserMessageIndex: null,
-			renderingTwice: false,
-			initialRendering: false,
-			previousAgentType: null,
-			showScrollButton: false,
-			showViewDocument: false,
-			deleteChatSessionLoading: false,
-			isNewChat: true,
-			currentUserMessageIndex: null,
-			// getFollowUpQueries: false,
-			chatQuery: '',
-			citationsAiMessageIndex: null,
-			isMobileView: false,
-			isChatHistoryClosed,
-			openBrowser: false,
-			browserDataAvailable: false,
-			chatPaddingBottom: 70,
-			rightBarOpen: false,
-			activeRightBar: null,
-			rightBarWidth: 0,
-			isCompactMode: false, // Track if we're in compact chat mode from AskAI
-		};
+	// State to store various chat UI info
+	const [info, setInfo] = useState({
+		chatLoading: false,
+		chatToNoteLoopOn: false,
+		scrollExecuted: false,
+		renderingTwice: false,
+		showScrollButton: false,
+		showViewDocument: false,
+		isNewChat: true,
+		currentUserMessageIndex: null,
+		latestStreamMessage: null,
+		citationsAiMessageIndex: null,
+		openBrowser: false,
+		browserDataAvailable: false,
+		chatPaddingBottom: 70,
+		rightBarOpen: false,
+		activeRightBar: null,
+		rightBarWidth: 0,
+		ready: true,
+		isCompactMode: false, // Track if we're in compact chat mode from AskAI overlay
 	});
 
+	// Refs for chat elements and timers
 	const chatContentRef = useRef(null);
 	const userMessagesRefs = useRef({});
 	const agentTimeoutIdRef = useRef(null);
 	const navigate = useNavigate();
 	const location = useLocation();
-	const newChatSessionIdsRef = useRef(newChatSessionIds);
 	const globalChatMessagesRef = useRef(globalChatMessages);
 	const currentUserMessageTimeoutRef = useRef(null);
-	const followUpQueryTimeoutRef = useRef(null);
 	const rightBarRef = useRef(null);
 
 	sessionId = isPreview ? sId : sessionId;
+	agentType = isPreview ? propsAgentType : agentType;
+	assistantId = isPreview ? propsAssistantId : assistantId;
 
 	const browserData = globalChatMessages?.[sessionId]?.browserData;
 
-	// Handle compact mode from AskAI overlay
+	/**
+	 * Handle desktop app compact mode (e.g., AskAI overlay)
+	 * Resize main window if in compact mode on mount
+	 */
 	useEffect(() => {
-		// Check if we're in desktop app and might be in compact mode
 		if (isDesktopApp && window?.electronApi?.resizeMainWindow) {
-			// Get current window size to detect if we're in compact mode (571x626)
 			const checkCompactMode = async () => {
 				try {
 					const bounds = await window?.electronApi?.getWindowBounds?.();
@@ -163,7 +132,7 @@ const RecentChat = ({
 		}
 
 		return () => {
-			// Restore normal window size when leaving chat if we were in compact mode
+			// Restore normal window size when leaving chat
 			if (window?.electronApi?.resizeMainWindow) {
 				window.electronApi.resizeMainWindow({
 					dimensions: {
@@ -175,65 +144,54 @@ const RecentChat = ({
 					duration: 300,
 					easing: 'easeOutCubic',
 				});
-				console.log('📐 RecentChat: Restored normal window size on unmount (1366x768) with smooth animation');
+				console.log(
+					'📐 RecentChat: Restored normal window size on unmount (1366x768) with smooth animation',
+				);
 			}
 		};
 	}, []);
 
-	// Save whenever it changes
+	/**
+	 * Handle window resize, cleanup timers, and reset chat context on unmount
+	 */
 	useEffect(() => {
-		localStorage.setItem('chatHistorySidebarClosed', JSON.stringify(info.isChatHistoryClosed));
-	}, [info.isChatHistoryClosed]);
-
-	useEffect(() => {
+		window.addEventListener('resize', handleResizeWindow);
 		return () => {
+			window.removeEventListener('resize', handleResizeWindow);
+
+			// Clear user message timeout
 			if (currentUserMessageTimeoutRef.current) {
 				clearTimeout(currentUserMessageTimeoutRef.current);
 				currentUserMessageTimeoutRef.current = null;
 			}
 
 			setTimeout(() => {
+				// Clear user message refs
 				userMessagesRefs.current = {};
-				if (followUpQueryTimeoutRef.current) {
-					clearTimeout(followUpQueryTimeoutRef.current);
-					followUpQueryTimeoutRef.current = null;
-				}
 				if (agentTimeoutIdRef.current) {
 					clearTimeout(agentTimeoutIdRef.current);
 					agentTimeoutIdRef.current = null;
 				}
+				// Reset chat context state
 				updateStateValues({
-					moreRecentChatStorage: null,
-					recentChatStorage: null,
-					chatPayload: {
-						workflowTemplateId: null,
-						moduleTemplateId: null,
-					},
 					chatReplyData: null,
 					aiMessagesInfo: null,
 					isBrowserScreenActive: false,
+					currentChatData: null,
 				});
 			}, 0);
 
-			const sessionIdsToClose = newChatSessionIdsRef?.current?.filter(
-				(id) => !globalChatMessagesRef?.current?.[id]?.isStreaming,
-			);
-			if (sessionIdsToClose?.length > 0) {
-				closeWebSocketConnection(sessionIdsToClose);
-			}
+			// Clear global chat messages if needed
 			handleGlobalChatMessages({
 				removeChatSessions: true,
 				updateExtraInfo: true,
 			});
-			removeCurrentSessionId();
-			updateStateValues({
-				newChatSessionIds: [],
-				currentSessionId: null,
-				currentChatData: null,
-			});
 		};
 	}, []);
 
+	/**
+	 * Show or hide browser component based on globalChatMessages state
+	 */
 	useEffect(() => {
 		if (globalChatMessages?.[sessionId]?.open_browser) {
 			setInfo((prev) => {
@@ -257,6 +215,22 @@ const RecentChat = ({
 		}
 	}, [globalChatMessages?.[sessionId]?.open_browser]);
 
+	/**
+	 * Track latest AI streaming message
+	 */
+	useEffect(() => {
+		const latestStreamMessage = globalChatMessages?.[sessionId]?.latestStreamMessage;
+		if (latestStreamMessage) {
+			setInfo((prev) => ({
+				...prev,
+				latestStreamMessage,
+			}));
+		}
+	}, [globalChatMessages?.[sessionId]?.latestStreamMessage]);
+
+	/**
+	 * Update right bar width when active right bar changes or toggled
+	 */
 	useEffect(() => {
 		if (rightBarRef.current) {
 			setInfo((prev) => ({
@@ -266,31 +240,11 @@ const RecentChat = ({
 		}
 	}, [info?.rightBarOpen, info?.activeRightBar]);
 
-	// useEffect(() => {
-	// 	if (info?.getFollowUpQueries) {
-	// 		if (agentType !== 'knowledge_agent' && info?.chatQuery?.trim()?.length === 0) {
-	// 			followUpQueryTimeoutRef.current = setTimeout(() => {
-	// 				getFollowUpQueries(sessionId, info?.latestStreamMesage?.message_id);
-	// 			}, 5000);
-	// 		}
-	// 		setInfo((prev) => ({
-	// 			...prev,
-	// 			getFollowUpQueries: false,
-	// 		}));
-	// 	}
-	// }, [info?.getFollowUpQueries]);
-
+	/**
+	 * Handle opening document preview from latest streaming message
+	 */
 	useEffect(() => {
-		if (info?.chatQuery?.trim()?.length > 0) {
-			if (followUpQueryTimeoutRef.current) {
-				clearTimeout(followUpQueryTimeoutRef.current);
-				followUpQueryTimeoutRef.current = null;
-			}
-		}
-	}, [info?.chatQuery]);
-
-	useEffect(() => {
-		const { workflow_template_id, module_template_id } = info?.latestStreamMesage || {};
+		const { workflow_template_id, module_template_id } = info?.latestStreamMessage || {};
 		if (workflow_template_id && module_template_id && info?.showViewDocument) {
 			updateStateValues({
 				documentPreviewIds: {
@@ -300,24 +254,37 @@ const RecentChat = ({
 			});
 			setInfo((prev) => ({
 				...prev,
-				latestStreamMesage: null,
+				latestStreamMessage: null,
 			}));
 		}
-	}, [info?.latestStreamMesage]);
+	}, [info?.latestStreamMessage]);
 
-	useEffect(() => {
+	/**
+	 * Layout effect to handle session rendering, loading state, and smooth transition
+	 */
+	useLayoutEffect(() => {
+		let timer = null;
 		if (sessionId) {
 			if (info?.renderingTwice) {
-				//clearing context state when rendering different session
+				// Clear AI messages and browser state for different session
 				updateStateValues({
-					chatPayload: {
-						workflowTemplateId: null,
-						moduleTemplateId: null,
-					},
 					aiMessagesInfo: null,
 					isBrowserScreenActive: false,
 				});
 				userMessagesRefs.current = {};
+
+				// Delay showing previous chat messages for a smoother transition.
+				// This ensures the chat area briefly appears blank when revisiting a session,
+				// since old messages are preserved and not cleared from state.
+				timer = setTimeout(
+					() =>
+						setInfo((prev) => ({
+							...prev,
+							ready: true,
+						})),
+					500,
+				);
+
 				setInfo((prev) => ({
 					...prev,
 					scrollExecuted: false,
@@ -325,19 +292,22 @@ const RecentChat = ({
 					rightBarOpen: false,
 					activeRightBar: null,
 					rightBarWidth: 0,
+					ready: false,
 				}));
 			}
+
+			// Clear pending timeouts
 			if (currentUserMessageTimeoutRef.current) {
 				clearTimeout(currentUserMessageTimeoutRef.current);
 				currentUserMessageTimeoutRef.current = null;
 			}
-
 			if (agentTimeoutIdRef.current) {
 				clearTimeout(agentTimeoutIdRef.current);
 				agentTimeoutIdRef.current = null;
 			}
 
-			if (!globalChatMessages?.[sessionId]?.open_browser && fetchRecentChatMessages) {
+			// Fetch recent chat messages if not already loaded
+			if (!globalChatMessages?.[sessionId]?.messages) {
 				getRecentChatMessages({
 					sessionId,
 					page: 1,
@@ -347,36 +317,23 @@ const RecentChat = ({
 				});
 			}
 
-			const sessionIdsToClose = newChatSessionIds?.filter(
-				(id) => !globalChatMessages?.[id]?.isStreaming,
-			);
-			const sessionIdsStillOpen = newChatSessionIds?.filter(
-				(id) => globalChatMessages?.[id]?.isStreaming,
-			);
-			if (sessionIdsToClose?.length > 0) {
-				closeWebSocketConnection(sessionIdsToClose);
-			}
-			newChatSessionIdsRef.current = [...sessionIdsStillOpen, sessionId];
-
-			handleGlobalChatMessages({
-				sessionId,
-				removeChatSessions: true,
-				updateExtraInfo: true,
-			});
-
 			setInfo((prev) => ({
 				...prev,
 				chatLoading: true,
-				chatSessionId: sessionId,
 				renderingTwice: true,
 			}));
-			updateStateValues({
-				currentSessionId: sessionId,
-				newChatSessionIds: newChatSessionIdsRef.current,
-			});
 		}
-	}, [sessionId, fetchRecentChatMessages]);
 
+		return () => {
+			if (timer) {
+				clearTimeout(timer);
+			}
+		};
+	}, [sessionId]);
+
+	/**
+	 * Update chat session agent type and assistantId if changed
+	 */
 	useEffect(() => {
 		if (
 			agentType &&
@@ -392,8 +349,11 @@ const RecentChat = ({
 		}
 	}, [sessionId, agentType, assistantId]);
 
+	/**
+	 * Scroll to last message if not already executed
+	 */
 	useLayoutEffect(() => {
-		if (!info?.scrollExecuted && globalChatMessages?.[sessionId]?.messages) {
+		if (!info?.scrollExecuted && globalChatMessages?.[sessionId]?.messages && info?.ready) {
 			requestAnimationFrame(() => {
 				smoothScrollToLastMessage('instant');
 			});
@@ -403,8 +363,11 @@ const RecentChat = ({
 				scrollExecuted: true,
 			}));
 		}
-	}, [globalChatMessages, sessionId]);
+	}, [globalChatMessages, info?.scrollExecuted, info?.ready]);
 
+	/**
+	 * Mark chat as not new once messages are loaded
+	 */
 	useEffect(() => {
 		globalChatMessagesRef.current = globalChatMessages;
 		if (!sessionId) return;
@@ -415,71 +378,16 @@ const RecentChat = ({
 				isNewChat: false,
 			}));
 		}
-
-		// const container = chatContentRef.current;
-		// if (!container) return;
-		// const visibleUserMessagesSet = new Set();
-
-		// const observer = new IntersectionObserver(
-		// 	(entries) => {
-		// 		entries?.forEach((entry) => {
-		// 			const bounding = entry?.boundingClientRect;
-		// 			const rootBounds = entry?.rootBounds;
-
-		// 			// Check if it is entering the top half
-		// 			if (entry?.isIntersecting) {
-		// 				visibleUserMessagesSet?.add(entry?.target);
-		// 			} else {
-		// 				// If it scrolled past the top (i.e. fully out of view and above)
-		// 				const isAboveTop = bounding?.bottom < rootBounds?.top;
-
-		// 				if (isAboveTop) {
-		// 					visibleUserMessagesSet?.add(entry?.target);
-		// 				} else {
-		// 					visibleUserMessagesSet?.delete(entry?.target);
-		// 				}
-		// 			}
-		// 		});
-
-		// 		const visibleUserMessages = [...visibleUserMessagesSet]?.map(
-		// 			(m) => m?.dataset?.index,
-		// 		);
-		// 		if (visibleUserMessages?.length > 0) {
-		// 			const activeUserMessageIndex = Number(
-		// 				visibleUserMessages?.[visibleUserMessages?.length - 1],
-		// 			);
-		// 			const activeAIMessageIndex = activeUserMessageIndex + 1;
-		// 			setInfo((prev) => ({
-		// 				...prev,
-		// 				activeUserMessageIndex,
-		// 				activeAIMessageIndex,
-		// 			}));
-		// 		}
-		// 	},
-		// 	{
-		// 		root: container,
-		// 		rootMargin: '-10% 0px -50% 0px',
-		// 		threshold: 0,
-		// 	},
-		// );
-
-		// // Observe each user message element
-		// Object?.values(userMessagesRefs.current)?.forEach((el) => {
-		// 	observer.observe(el);
-		// });
-		// return () => {
-		// 	visibleUserMessagesSet?.clear();
-		// 	observer.disconnect();
-		// };
 	}, [globalChatMessages, sessionId]);
 
+	/**
+	 * Handle initial recent chat data from storage
+	 * From context state, here this will store in globalchatmessages and making context state empty
+	 */
 	useEffect(() => {
 		if (recentChatStorage?.[sessionId]) {
 			const firstTimeApiCall = true;
 			recentChatHandler(recentChatStorage?.[sessionId], false, firstTimeApiCall);
-			// updateStateValues({
-			// 	recentChatStorage: null,
-			// });
 			getRecentChatMessages({
 				sessionId,
 				page: 1,
@@ -491,13 +399,14 @@ const RecentChat = ({
 		}
 	}, [recentChatStorage?.[sessionId]]);
 
+	/**
+	 * Handle loading more chat data when fetching older messages
+	 * From context state, here this will store in globalchatmessages and making context state empty
+	 */
 	useEffect(() => {
 		if (moreRecentChatStorage?.[sessionId]) {
 			const firstTimeApiCall = false;
 			recentChatHandler(moreRecentChatStorage?.[sessionId], true, firstTimeApiCall);
-			// updateStateValues({
-			// 	moreRecentChatStorage: null,
-			// });
 			getRecentChatMessages({
 				sessionId,
 				page: 1,
@@ -509,41 +418,26 @@ const RecentChat = ({
 		}
 	}, [moreRecentChatStorage?.[sessionId]]);
 
-	const handleChatHistoryToggle = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			isChatHistoryClosed: !prev?.isChatHistoryClosed,
-		}));
-	}, []);
-
-	const handleChatQueryChange = useCallback((query) => {
-		setInfo((prev) => ({
-			...prev,
-			chatQuery: query,
-		}));
-	}, []);
-
+	/**
+	 * Scroll button toggle based on distance from bottom
+	 */
 	const handleScroll = useCallback(() => {
 		if (!chatContentRef?.current) return;
 
-		//logic related to scroll button
 		const { scrollTop, scrollHeight, clientHeight } = chatContentRef.current;
 		const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
 		const isNearBottom = distanceFromBottom < 50;
 
 		if (isNearBottom && info?.showScrollButton) {
-			setInfo((prev) => ({
-				...prev,
-				showScrollButton: false,
-			}));
+			setInfo((prev) => ({ ...prev, showScrollButton: false }));
 		} else if (!isNearBottom && !info?.showScrollButton) {
-			setInfo((prev) => ({
-				...prev,
-				showScrollButton: true,
-			}));
+			setInfo((prev) => ({ ...prev, showScrollButton: true }));
 		}
 	}, [info?.showScrollButton]);
 
+	/**
+	 * Attach scroll listener to chat container
+	 */
 	useEffect(() => {
 		const chatContent = chatContentRef.current;
 		if (chatContent) {
@@ -554,6 +448,25 @@ const RecentChat = ({
 		}
 	}, [handleScroll]);
 
+	/**
+	 * Update right bar width on window resize
+	 */
+	const handleResizeWindow = useCallback(() => {
+		setInfo((prev) => {
+			if (!prev?.rightBarOpen) {
+				return prev;
+			}
+			return {
+				...prev,
+				rightBarWidth: rightBarRef.current?.clientWidth,
+			};
+		});
+	}, []);
+
+	/**
+	 * Process incoming chat messages and update context state
+	 * Here i will update recent messages data into required format and storing in globalchatmessages based on sessionId
+	 */
 	const recentChatHandler = useCallback(
 		(inComingData, fetchMore = false, firstTimeApiCall = false) => {
 			const { data = [], hasNextPage, currentPage } = inComingData ?? {};
@@ -562,6 +475,7 @@ const RecentChat = ({
 				workflowTemplateId: null,
 				moduleTemplateId: null,
 			};
+
 			for (let i = 0; i < data?.length; i++) {
 				const {
 					originalQuery = '',
@@ -583,6 +497,7 @@ const RecentChat = ({
 					conversationMessages,
 				} = data?.[i] || {};
 
+				// Skip knowledge agent responses if current agent type is different
 				if (
 					agentTypeFromResponse === 'knowledge_agent' &&
 					agentType !== 'knowledge_agent'
@@ -608,6 +523,7 @@ const RecentChat = ({
 						moduleTemplateId: moduleTemplateId || null,
 					};
 				}
+
 				let processing = null,
 					browserChainOfThought = null,
 					openBrowser = false,
@@ -673,7 +589,6 @@ const RecentChat = ({
 
 			const recentChatInfo = { hasNextPage, currentPage };
 
-			// if (messages?.length > 0) {
 			handleGlobalChatMessages({
 				sessionId,
 				fetchMore,
@@ -683,49 +598,36 @@ const RecentChat = ({
 				...(chatPayload?.moduleTemplateId &&
 					chatPayload?.workflowTemplateId && { chatPayload }),
 			});
-			// }
 
-			setInfo((prev) => ({ ...prev, chatLoading: false, hasNextPage, currentPage }));
+			setInfo((prev) => ({ ...prev, chatLoading: false }));
 		},
 		[sessionId, agentType],
 	);
 
-	const handleNoteComponentModalClose = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			noteModalIsOpen: false,
-		}));
-	}, []);
-
+	// This is used to open notes in chat
 	const handleNoteComponentModalOpen = useCallback(() => {
-		setInfo((prev) => ({
-			...prev,
-			noteModalIsOpen: true,
-		}));
+		handleRightBarToggle({ open: true, activeRightBar: 'notes' });
 	}, []);
 
-	const smoothScrollToBottom = useCallback(
-		(type) => {
-			const scrollElement = chatContentRef?.current;
-			if (!scrollElement) return;
+	const smoothScrollToBottom = useCallback((type) => {
+		const scrollElement = chatContentRef?.current;
+		if (!scrollElement) return;
 
-			const scrollToPosition = (position) => {
-				scrollElement?.scrollTo({
-					top: position,
-					behavior: type === 'instant' ? 'auto' : 'smooth',
-				});
-			};
+		const scrollToPosition = (position) => {
+			scrollElement?.scrollTo({
+				top: position,
+				behavior: type === 'instant' ? 'auto' : 'smooth',
+			});
+		};
 
-			if (type === 'custom') {
-				const scrollHeight = scrollElement.scrollHeight;
-				const scrollOffset = 100;
-				scrollToPosition(scrollHeight - scrollOffset);
-			} else {
-				scrollToPosition(scrollElement?.scrollHeight);
-			}
-		},
-		[chatContentRef?.current, info?.initialRendering],
-	);
+		if (type === 'custom') {
+			const scrollHeight = scrollElement.scrollHeight;
+			const scrollOffset = 100;
+			scrollToPosition(scrollHeight - scrollOffset);
+		} else {
+			scrollToPosition(scrollElement?.scrollHeight);
+		}
+	}, []);
 
 	const smoothScrollToLastMessage = useCallback((scrollBehavior = 'smooth') => {
 		const scrollElement = chatContentRef?.current;
@@ -798,7 +700,7 @@ const RecentChat = ({
 
 	// stream chat
 	const onMessageFunc = useCallback(
-		(event, currentSessionId) => {
+		(event) => {
 			let { data = '' } = event || {};
 			data = JSON?.parse(data);
 
@@ -807,12 +709,7 @@ const RecentChat = ({
 			}
 
 			if (data?.stream_end) {
-				if (sessionId !== currentSessionId) {
-					closeWebSocketConnection([sessionId]);
-					updateChatLoadingSessions({ sessionId, isStreaming: false, isNotSeen: true });
-				} else {
-					updateChatLoadingSessions({ sessionId, removeSessionId: true });
-				}
+				updateChatLoadingSessions({ sessionId, isStreaming: false, isNotSeen: true });
 
 				if (data?.agent_id) {
 					agentTimeoutIdRef.current = setTimeout(() => {
@@ -845,14 +742,6 @@ const RecentChat = ({
 					};
 					updateAiChatSessions(payload);
 				}
-				setInfo((prev) => ({
-					...prev,
-					latestStreamMesage: data,
-					// ...(sessionId === currentSessionId &&
-					// 	!data?.used_agents?.includes('custom_agents_manager_agent') && {
-					// 		getFollowUpQueries: true,
-					// 	}),
-				}));
 			}
 			const { message_chunk_id, url_type, browserMetadata } = data;
 
@@ -872,16 +761,12 @@ const RecentChat = ({
 					chunkId: message_chunk_id,
 					sessionId,
 					updateExtraInfo: false,
-					...(data?.stream_end &&
-						sessionId !== currentSessionId && {
-							removeChatSession: true,
-						}),
 				});
 			}
 		},
 		[globalChatMessages, sessionId],
 	);
-
+	// This will send message to socket
 	const handleSendWebsocketMessage = useCallback(
 		async (data, lastQuery) => {
 			try {
@@ -944,6 +829,7 @@ const RecentChat = ({
 		[globalChatMessages, sessionId, updateStateValues, info?.citationsAiMessageIndex],
 	);
 
+	// This is used to open right bar in chat, currently it contains sources and notes
 	const handleRightBarToggle = useCallback(({ open = false, activeRightBar = null }) => {
 		setInfo((prev) => ({
 			...prev,
@@ -952,6 +838,8 @@ const RecentChat = ({
 		}));
 	}, []);
 
+	// Adjust chat container's bottom padding dynamically based on the chatbox height
+	// This ensures that messages at the bottom remain visible when the chatbox expands or resizes
 	const handleChatBoxHeight = useCallback((chatboxHeight) => {
 		setInfo((prev) => {
 			if (prev?.chatPaddingBottom === chatboxHeight - 31) {
@@ -965,6 +853,13 @@ const RecentChat = ({
 		});
 	}, []);
 
+	const handleChatToNoteLoopClick = useCallback(() => {
+		setInfo((prev) => ({
+			...prev,
+			chatToNoteLoopOn: !prev?.chatToNoteLoopOn,
+		}));
+	}, []);
+
 	return (
 		<>
 			<div
@@ -975,31 +870,6 @@ const RecentChat = ({
 					}),
 				}}
 			>
-				{showChatHistory && !info?.isMobileView && (
-					<div
-						className={`chat-history-wrapper${
-							info?.isChatHistoryClosed ? ' closed' : ''
-						}`}
-					>
-						<div
-							className={`chat-history-toggle-btn${
-								info?.isChatHistoryClosed ? ' closed' : ''
-							}`}
-							onClick={handleChatHistoryToggle}
-						>
-							<DoubleRightArrowSvg
-								className="chat-history-toggle-btn__icon"
-								style={{
-									transform: info?.isChatHistoryClosed
-										? 'none'
-										: 'rotate(180deg)',
-								}}
-							/>
-						</div>
-						<ChatHistory isClosed={info?.isChatHistoryClosed} />
-					</div>
-				)}
-
 				<div
 					className="chat-container"
 					style={{
@@ -1017,6 +887,20 @@ const RecentChat = ({
 						/>
 					)}
 
+					{info?.activeRightBar === 'notes' && (
+						<div className="chat-to-note-link-container">
+							<div className="title">Link all chat to note</div>
+							<div
+								className={`link-icon-container ${
+									info?.chatToNoteLoopOn ? 'active' : ''
+								}`}
+								onClick={handleChatToNoteLoopClick}
+							>
+								{info?.chatToNoteLoopOn ? <LinkDarkSvg /> : <LinkLightSvg />}
+							</div>
+						</div>
+					)}
+
 					{/* chat body */}
 					<div className="chatBodyWrapper">
 						<div
@@ -1024,192 +908,164 @@ const RecentChat = ({
 							ref={chatContentRef}
 							id="scrollableDiv"
 						>
-							<InfiniteScroll
-								dataLength={globalChatMessages?.[sessionId]?.messages?.length || 0}
-								next={fetchMoreData}
-								hasMore={
-									globalChatMessages?.[sessionId]?.recentChatInfo?.hasNextPage ||
-									false
-								}
-								loader={<FetchMoreLoaderComp />}
-								scrollableTarget="scrollableDiv"
-								inverse={true}
-								style={{
-									overflow: 'unset',
-								}}
-							>
-								<div
-									className="chatContent"
-									style={{ paddingBottom: `${info?.chatPaddingBottom}px` }}
+							{info?.ready && (
+								<InfiniteScroll
+									dataLength={
+										globalChatMessages?.[sessionId]?.messages?.length || 0
+									}
+									next={fetchMoreData}
+									hasMore={
+										globalChatMessages?.[sessionId]?.recentChatInfo
+											?.hasNextPage || false
+									}
+									loader={<FetchMoreLoaderComp />}
+									scrollableTarget="scrollableDiv"
+									inverse={true}
+									style={{
+										overflow: 'unset',
+									}}
 								>
-									{(globalChatMessages?.[sessionId]?.messages || [])?.map(
-										(chat, index) =>
-											chat?.content ? (
-												<Fragment key={index}>{chat?.content}</Fragment>
-											) : (
-												<div
-													key={index}
-													className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
-													style={{
-														minHeight:
-															index ===
-															globalChatMessages?.[sessionId]
-																?.messages?.length -
-																1
-																? `${
-																		chatContentRef?.current
-																			?.clientHeight - 160
-																  }px`
-																: 'auto',
-													}}
-												>
-													<div className="message-content">
-														{chat?.type?.toLowerCase() === 'ai' ? (
-															<div
-																className="content"
-																style={{
-																	...(info?.currentUserMessageIndex !==
-																		null && {
-																		opacity:
+									<div
+										className="chatContent"
+										style={{ paddingBottom: `${info?.chatPaddingBottom}px` }}
+									>
+										{(globalChatMessages?.[sessionId]?.messages || [])?.map(
+											(chat, index) =>
+												chat?.content ? (
+													<Fragment key={index}>{chat?.content}</Fragment>
+												) : (
+													<div
+														key={index}
+														className={`chat-message ${chat?.type?.toLowerCase()}-message chat-${index}`}
+														style={{
+															minHeight:
+																index ===
+																globalChatMessages?.[sessionId]
+																	?.messages?.length -
+																	1
+																	? `${
+																			chatContentRef?.current
+																				?.clientHeight - 160
+																	  }px`
+																	: 'auto',
+														}}
+													>
+														<div className="message-content">
+															{chat?.type?.toLowerCase() === 'ai' ? (
+																<div
+																	className="content"
+																	style={{
+																		...(info?.currentUserMessageIndex !==
+																			null && {
+																			opacity:
+																				index ===
+																				info?.currentUserMessageIndex +
+																					1
+																					? 1
+																					: 0.6,
+																		}),
+																	}}
+																	data-message-id={
+																		chat?.messageId
+																	}
+																	data-index={index}
+																>
+																	<AIMessageRenderer
+																		messageData={chat}
+																		handleNoteComponentModalOpen={
+																			handleNoteComponentModalOpen
+																		}
+																		handleViewDocument={
+																			handleViewDocument
+																		}
+																		showViewDocument={
+																			info?.showViewDocument
+																		}
+																		isPublicChat={isPublicChat}
+																		handleSourcesClick={
+																			handleSourcesClick
+																		}
+																		messageIndex={index}
+																		showCitationsButton={
+																			showCitationsButton
+																		}
+																		isLastMessage={
 																			index ===
-																			info?.currentUserMessageIndex +
+																			globalChatMessages?.[
+																				sessionId
+																			]?.messages?.length -
 																				1
-																				? 1
-																				: 0.6,
-																	}),
-																}}
-																// style={{
-																// 	opacity:
-																// 		index ===
-																// 		info?.activeAIMessageIndex
-																// 			? 1
-																// 			: 0.6,
-																// }}
-																// ref={(el) => {
-																// 	if (
-																// 		el &&
-																// 		!aiMessagesRef.current.includes(
-																// 			el,
-																// 		)
-																// 	) {
-																// 		aiMessagesRef?.current?.push(
-																// 			el,
-																// 		);
-																// 	}
-																// }}
-																data-message-id={chat?.messageId}
-																data-index={index}
-															>
-																<AIMessageRenderer
-																	messageData={chat}
-																	handleNoteComponentModalOpen={
-																		handleNoteComponentModalOpen
-																	}
-																	handleViewDocument={
-																		handleViewDocument
-																	}
-																	showViewDocument={
-																		info?.showViewDocument
-																	}
-																	isPublicChat={isPublicChat}
-																	handleSourcesClick={
-																		handleSourcesClick
-																	}
-																	messageIndex={index}
-																	showCitationsButton={
-																		showCitationsButton
-																	}
-																	isLastMessage={
-																		index ===
-																		globalChatMessages?.[
-																			sessionId
-																		]?.messages?.length -
-																			1
-																	}
-																	sessionId={sessionId}
-																	showResponseEditBtn={
-																		showResponseEditBtn
-																	}
-																/>
-															</div>
-														) : (
-															<div
-																ref={(el) => {
-																	if (
-																		el &&
-																		!userMessagesRefs.current?.[
-																			index
-																		]
-																	) {
-																		userMessagesRefs.current[
-																			index
-																		] = el;
-																	}
-																}}
-																data-index={index}
-																key={index}
-																// style={{
-																// 	opacity:
-																// 		index ===
-																// 		info?.activeUserMessageIndex
-																// 			? 1
-																// 			: 0.6,
-																// }}
-
-																style={{
-																	...(info?.currentUserMessageIndex !==
-																		null && {
-																		opacity:
-																			index ===
-																			info?.currentUserMessageIndex
-																				? 1
-																				: 0.6,
-																	}),
-																}}
-															>
-																<UserMessageRenderer
-																	messageData={chat}
-																/>
-															</div>
-														)}
+																		}
+																		sessionId={sessionId}
+																		showResponseEditBtn={
+																			showResponseEditBtn
+																		}
+																	/>
+																</div>
+															) : (
+																<div
+																	ref={(el) => {
+																		if (
+																			el &&
+																			!userMessagesRefs
+																				.current?.[index]
+																		) {
+																			userMessagesRefs.current[
+																				index
+																			] = el;
+																		}
+																	}}
+																	data-index={index}
+																	key={index}
+																	style={{
+																		...(info?.currentUserMessageIndex !==
+																			null && {
+																			opacity:
+																				index ===
+																				info?.currentUserMessageIndex
+																					? 1
+																					: 0.6,
+																		}),
+																	}}
+																>
+																	<UserMessageRenderer
+																		messageData={chat}
+																	/>
+																</div>
+															)}
+														</div>
 													</div>
-												</div>
-											),
-									)}
-								</div>
-							</InfiniteScroll>
+												),
+										)}
+									</div>
+								</InfiniteScroll>
+							)}
 						</div>
-						{showChatBox && (
-							<div className="chatBoxWrapper">
-								<ChatBox
-									isPublicChat={isPublicChat}
-									handleSendWebsocketMessage={handleSendWebsocketMessage}
-									hideDeepResearch={agentType === 'search_agent'}
-									autoFocus={autoFocus}
-									customChatBoxClick={customChatBoxClick}
-									showScrollButton={info?.showScrollButton}
-									smoothScrollToBottom={smoothScrollToBottom}
-									onChatQueryChange={handleChatQueryChange}
-									animateChatBox={animateChatBox}
-									sessionId={sessionId}
-									handleBrowserButtonClick={handleBrowserButtonClick}
-									showBrowserButton={
-										!info?.openBrowser && info?.browserDataAvailable
-									}
-									browserImage={
-										globalChatMessages?.[sessionId]?.browserData
-											?.browserMetadata?.signedUrl
-									}
-									showBottomTools={showBottomTools}
-									showMicBtn={showMicBtn}
-									showRecentFiles={showRecentFiles}
-									isDesktopApp={isDesktopApp}
-									handleDesktopAppPayload={handleDesktopAppPayload}
-									handleChatBoxHeight={handleChatBoxHeight}
-									getChatBoxHeight={true}
-								/>
-							</div>
-						)}
+						<div className="chatBoxWrapper">
+							<ChatBox
+								isPublicChat={isPublicChat}
+								handleSendWebsocketMessage={handleSendWebsocketMessage}
+								hideDeepResearch={agentType === 'search_agent'}
+								autoFocus={autoFocus}
+								customChatBoxClick={customChatBoxClick}
+								showScrollButton={info?.showScrollButton}
+								smoothScrollToBottom={smoothScrollToBottom}
+								sessionId={sessionId}
+								handleBrowserButtonClick={handleBrowserButtonClick}
+								showBrowserButton={!info?.openBrowser && info?.browserDataAvailable}
+								browserImage={
+									globalChatMessages?.[sessionId]?.browserData?.browserMetadata
+										?.signedUrl
+								}
+								showBottomTools={showBottomTools}
+								showMicBtn={showMicBtn}
+								showRecentFiles={showRecentFiles}
+								isDesktopApp={isDesktopApp}
+								handleDesktopAppPayload={handleDesktopAppPayload}
+								handleChatBoxHeight={handleChatBoxHeight}
+								getChatBoxHeight={true}
+							/>
+						</div>
 					</div>
 
 					<div className="ve-mistake-text">
@@ -1241,18 +1097,12 @@ const RecentChat = ({
 							activeRightBar={info?.activeRightBar}
 							handleRightBarToggle={handleRightBarToggle}
 							handleCloseCitationsModal={handleCloseCitationsModal}
+							chatToNoteLoopOn={info?.chatToNoteLoopOn}
+							sessionId={sessionId}
 						/>
 					)}
 				</div>
 			</div>
-
-			{info?.noteModalIsOpen && (
-				<NoteComponentModal
-					modalIsOpen={info?.noteModalIsOpen}
-					closeModal={handleNoteComponentModalClose}
-					sessionId={sessionId}
-				/>
-			)}
 		</>
 	);
 };

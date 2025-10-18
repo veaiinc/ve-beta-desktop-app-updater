@@ -21,7 +21,7 @@ import ObjectID from 'bson-objectid';
 import { useLocation, useParams } from 'react-router-dom';
 import { checkDevices, getBase64, getLocationsDetails } from '../../../helpers';
 import WorkflowSlugSelector from '../calendar/WorkflowSlugSelector';
-import { Image, Spin, Upload } from 'antd';
+import { Image, Spin } from 'antd';
 import { message } from '../globalComponents/CustomToast';
 // import ChatBoxPlaceholder from './ChatBoxPlaceholder';
 import { fileTypeIcons } from '../../../helpers';
@@ -45,37 +45,11 @@ const moduleHelper = {
 	note: 'notes',
 };
 
-const integrationsOptions = {
-	meeting: 'Meeting',
-	notion: 'Notion',
-	'q&a': 'Q & A',
-	website: 'Website',
-};
-
-const modulesOptions = {
-	calendar: 'Calendar',
-	tasks: 'Tasks',
-	// storage: 'Storage',
-	// gallery: 'Gallery',
-	clients: 'Clients',
-};
-
-const chatboxPlaceholders = [
-	'Start typing or use @ to mention a source.',
-	'Summarize all emails from today',
-	'Schedule a meeting for next week',
-	'Draft and send a follow-up email',
-	'Deep research "latest industry trends" with sources',
-	'Generate a professional-looking form in seconds',
-	'Search across Gmail, Drive, and Notion for "invoice"',
-];
-
 const initialChatBoxInfo = {
 	deepResearch: false,
 	webSearch: true,
 	workspaceSearch: true,
 	ask: true,
-	goals: false,
 	selectedLLMModel: null,
 	build: false,
 	deepSearch: false,
@@ -89,23 +63,18 @@ Dont change this otherwise chat functionality will break.
 */
 const ChatBox = ({
 	onSend,
-	aiChatLoading,
-	handleAiUploadImage,
 	customChatActions = false,
 	uploadedImages = [],
 	handleSendWebsocketMessage,
 	isPublicChat = false,
 	autoFocus = true,
-	animatePlaceholder = false,
 	customChatBoxClick = null,
 	showScrollButton = false,
 	smoothScrollToBottom = null,
 	onChatQueryChange = null,
 	isBuildEnbled = true,
 	showUpgradeSubscriptionBtn = true,
-	animateChatBox = true,
 	sessionId = null,
-	getSuggestions = false,
 	placeholder = 'What would you like to do?',
 	showBrowserButton = false,
 	handleBrowserButtonClick = null,
@@ -126,11 +95,6 @@ const ChatBox = ({
 	const { workspaceMode } = useWorkspaceMode();
 
 	const textAreaRef = useRef(null);
-	const textAreaWrapperRef = useRef(null);
-	const suggestionsTimeoutRef = useRef(null);
-	const suggestionRef = useRef(null);
-	const chatSessionIdRef = useRef(null);
-	const previousChatQueryRef = useRef('');
 	const {
 		templates: {
 			globalChatMessages,
@@ -154,41 +118,24 @@ const ChatBox = ({
 			isBrowserScreenActive,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
-		chatStream: { createWebSocketConnection },
+		chatStream: { createWebSocketConnection, socketConnectionState, stopSendingMessage },
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
-		aiSetup: { voiceIntegrationData, updateAiChatSessions, aiChatSessions, updateAiSetupState },
+		aiSetup: { updateAiChatSessions, aiChatSessions, updateAiSetupState, showVoiceWidget },
 		profileInfo: { tenantSettinsData },
 	} = useContext(Context);
 
 	const [info, setInfo] = useState({
-		bigToolbarIsOpen: false,
 		chatQuery: '',
-		widgetQuery: '',
-		position: { x: window?.innerWidth / 2 - 900, y: 0 },
-		addQuickAction: false,
 		chatSessionId: null,
 		uploadedImages: uploadedImages,
 		chatLoading: false,
-		showFullPage: true,
-		voiceIntegration: false,
-		noteModalIsOpen: false,
-		citationsModalIsOpen: false,
-		filtersEnabled: false,
 		isRecentFileOpen: false,
-		isIntegrationsDropdownOpen: false,
-		isModulesDropdownOpen: false,
 		recentFiles: [],
-		isVoiceMuted: false,
 		isLLMModelOpen: false,
-		searchTypeOpenForReason: false,
-		activePlaceholderIndex: 0,
 		openUpgradeModal: false,
-		askTooltipOpen: false,
 		chatBoxInfo: initialChatBoxInfo,
-		chatboxMinimized: true,
-		chatBoxContainerHeight: 60,
 		stopLoading: false,
 		chatSocketConnectionAttempted: false,
 	});
@@ -211,7 +158,6 @@ const ChatBox = ({
 
 	const uploadedImagesRef = useRef(info?.uploadedImages || []);
 	const recentFilesRef = useRef(info?.recentFiles || []);
-	// const showPlaceholder = info?.chatQuery?.length === 0 && info?.widgetQuery?.length === 0;
 	const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
 		totalCreditsLimit =
 			typeof currentPlan?.totalAiCreditLimit === 'number'
@@ -222,35 +168,11 @@ const ChatBox = ({
 		if (!currentPlan) {
 			getCurrentSubscriptionPlan();
 		}
-		// document.addEventListener('click', handleWindowClick);
-		return () => {
-			// document.removeEventListener('click', handleWindowClick);
-			if (chatSessionIdRef.current) {
-				closeWebSocketConnection(chatSessionIdRef.current);
-			}
-
-			if (suggestionsTimeoutRef.current) {
-				clearTimeout(suggestionsTimeoutRef.current);
-			}
-		};
 	}, []);
 
-	useEffect(() => {
-		if (!animateChatBox) return;
-		setInfo((prev) => {
-			const height = info?.chatboxMinimized
-				? '60px'
-				: `${Math.min(textAreaRef?.current?.scrollHeight, 200) + 58 + 28}px`;
-			if (height === prev?.chatBoxContainerHeight) {
-				return prev;
-			}
-			return {
-				...prev,
-				chatBoxContainerHeight: height,
-			};
-		});
-	}, [info?.chatboxMinimized]);
-
+	// Adjust the bottom padding of the chat container whenever the chat input box expands or shrinks.
+	// This ensures that the last chat message remains visible and is not hidden behind the chat input area.
+	// The padding value dynamically matches the current height of the chatbox.
 	useEffect(() => {
 		if (chatBoxWrapperRef.current && chatbarContainerRef.current && getChatBoxHeight) {
 			const totalChatboxHeight =
@@ -267,6 +189,7 @@ const ChatBox = ({
 		chatReplyData,
 	]);
 
+	// Here i am storing the speech transcription when user uses mic btn
 	useEffect(() => {
 		if (speechTranscription?.length > 0) {
 			let text = '';
@@ -281,6 +204,7 @@ const ChatBox = ({
 		}
 	}, [speechTranscription]);
 
+	// i am storing all the info in globalchatmessages context. This will update the local state wrt context state
 	useEffect(() => {
 		const sessionData = globalChatMessages?.[info?.chatSessionId],
 			isStreaming = sessionData?.isStreaming || false,
@@ -289,7 +213,6 @@ const ChatBox = ({
 
 		if (sessionData?.chatBoxInfo) {
 			const deepResearch = sessionData?.chatBoxInfo?.deepResearch;
-			const goals = sessionData?.chatBoxInfo?.goals;
 			const webSearch = sessionData?.chatBoxInfo?.webSearch;
 			const workspaceSearch = sessionData?.chatBoxInfo?.workspaceSearch;
 			const ask = sessionData?.chatBoxInfo?.ask;
@@ -298,7 +221,6 @@ const ChatBox = ({
 			const deepSearch = sessionData?.chatBoxInfo?.deepSearch;
 			if (
 				info?.chatBoxInfo?.deepResearch !== deepResearch ||
-				info?.chatBoxInfo?.goals !== goals ||
 				info?.chatBoxInfo?.webSearch !== webSearch ||
 				info?.chatBoxInfo?.workspaceSearch !== workspaceSearch ||
 				info?.chatBoxInfo?.ask !== ask ||
@@ -340,7 +262,6 @@ const ChatBox = ({
 				let chatBoxData = info?.chatBoxInfo;
 				chatBoxData = {
 					...chatBoxData,
-					goals: false,
 					deepResearch: false,
 					ask: true,
 					build: false,
@@ -362,6 +283,7 @@ const ChatBox = ({
 		}
 	}, [globalChatMessages, info?.chatSessionId]);
 
+	// This will handle chat text to send to socket. eg : when user click on meeting intelligence - Ask Ai or Need help
 	useEffect(() => {
 		if (
 			activePromptForChat &&
@@ -383,6 +305,7 @@ const ChatBox = ({
 		}
 	}, [activePromptForChat, info?.chatSessionId]);
 
+	// This will add text to textarea of chatbox
 	useEffect(() => {
 		if (activeInputForChat) {
 			setInfo((prev) => ({
@@ -392,26 +315,6 @@ const ChatBox = ({
 			updateStateValues({ activeInputForChat: null });
 		}
 	}, [activeInputForChat]);
-
-	// useEffect(() => {
-	// 	if (showPlaceholder && animatePlaceholder) {
-	// 		placeholderIntervalId.current = setInterval(() => {
-	// 			setInfo((prev) => {
-	// 				const nextIndex =
-	// 					prev?.activePlaceholderIndex === chatboxPlaceholders?.length - 1
-	// 						? 0
-	// 						: prev?.activePlaceholderIndex + 1;
-	// 				return {
-	// 					...prev,
-	// 					activePlaceholderIndex: nextIndex,
-	// 				};
-	// 			});
-	// 		}, 3000);
-	// 	}
-	// 	return () => {
-	// 		clearInterval(placeholderIntervalId.current);
-	// 	};
-	// }, [showPlaceholder]);
 
 	//below useeffect is for getting suggestions
 	useEffect(() => {
@@ -430,68 +333,7 @@ const ChatBox = ({
 			createWebSocketConnection({ sessionId: info?.chatSessionId, isPublicChat, agentType });
 			setInfo((prev) => ({ ...prev, chatSocketConnectionAttempted: true }));
 		}
-
-		if (
-			info?.chatQuery?.length > 0 &&
-			info?.chatSessionId &&
-			getSuggestions &&
-			!info?.chatQuery?.includes('\n')
-		) {
-			const previousChatQuery = previousChatQueryRef.current?.trim().replace(/\n/g, '');
-			const currentChatQuery = info?.chatQuery?.trim()?.replace(/\n/g, '');
-			if (previousChatQuery === currentChatQuery) {
-				return;
-			}
-			previousChatQueryRef.current = info?.chatQuery;
-			if (suggestionsTimeoutRef.current) {
-				clearTimeout(suggestionsTimeoutRef.current);
-			}
-			suggestionsTimeoutRef.current = setTimeout(() => {
-				sendMessage({
-					sessionId: info?.chatSessionId,
-					query: info?.chatQuery,
-					onMessageFunc: handleSuggestionsMessageFunc,
-				});
-				suggestionsTimeoutRef.current = null;
-			}, 400);
-		}
 	}, [info?.chatQuery]);
-
-	// //below useeffect is for getting suggestions
-	// useEffect(() => {
-	// 	if (info?.showSuggestion) {
-	// 		let height = 0;
-	// 		if (suggestionRef?.current && textAreaRef?.current) {
-	// 			height = Math.max(
-	// 				suggestionRef?.current?.scrollHeight,
-	// 				textAreaRef?.current?.scrollHeight,
-	// 			);
-	// 			height = Math.min(height, 200);
-	// 			height = Math.max(height, 30);
-	// 		}
-	// 		if (suggestionRef?.current) {
-	// 			suggestionRef.current.style.height = `${height}px`;
-	// 		}
-	// 		if (textAreaRef?.current) {
-	// 			textAreaRef.current.style.height = `${height}px`;
-	// 		}
-	// 		if (textAreaWrapperRef?.current) {
-	// 			textAreaWrapperRef.current.style.height = `${height}px`;
-	// 		}
-	// 		setInfo((prev) => ({ ...prev, chatBoxContainerHeight: `${height + 58 + 28}px` }));
-	// 	}
-	// }, [info?.showSuggestion]);
-
-	//below useeffect is for getting suggestions
-	useEffect(() => {
-		if (info?.chatQuery && info?.suggestion) {
-			if (info?.suggestion?.startsWith(info?.chatQuery)) {
-				setInfo((prev) => ({ ...prev, showSuggestion: true }));
-			} else {
-				setInfo((prev) => ({ ...prev, showSuggestion: false }));
-			}
-		}
-	}, [info?.chatQuery, info?.suggestion]);
 
 	useEffect(() => {
 		if (galleryFile) {
@@ -513,6 +355,9 @@ const ChatBox = ({
 		}
 	}, [userEditedQuery, info?.chatLoading]);
 
+	// This useEffect handles cases where the user sends a chat message from another page.
+	// After navigating to the chat page, it ensures that the pending payload (activePayloadForChat)
+	// is sent to the socket connection.
 	useEffect(() => {
 		if (activePayloadForChat && info?.chatSessionId) {
 			if (info?.chatLoading) {
@@ -538,20 +383,14 @@ const ChatBox = ({
 		}
 	}, [activePayloadForChat, info?.chatSessionId]);
 
-	// useEffect(() => {
-	// 	if (currentSessionId) {
-	// 		setInfo((prev) => ({ ...prev, chatSessionId: currentSessionId }));
-	// 	} else {
-	// 		updateStateValues({ currentSessionId: ObjectID()?.toString() });
-	// 	}
-	// }, [currentSessionId]);
-
+	// Each chatbox require unique sessionId, that should be sent through props
 	useEffect(() => {
 		const chatSessionId = sessionId || ObjectID()?.toString();
 		setInfo((prev) => ({ ...prev, chatSessionId }));
-		chatSessionIdRef.current = chatSessionId;
 	}, [sessionId]);
 
+	// For a new sessionId, if chatBoxInfo (e.g., webSearch, knowledgeBaseSearch, etc.)
+	// is not yet defined in globalChatMessages, this effect initializes or updates it accordingly.
 	useEffect(() => {
 		if (info?.chatSessionId && !globalChatMessages?.[info?.chatSessionId]?.chatBoxInfo) {
 			handleGlobalChatMessages({
@@ -562,42 +401,7 @@ const ChatBox = ({
 		}
 	}, [info?.chatSessionId]);
 
-	useEffect(() => {
-		if (!textAreaRef?.current) return;
-
-		if (!info?.chatboxMinimized) {
-			// Focus only if not already focused
-			if (document.activeElement !== textAreaRef.current) {
-				textAreaRef.current.focus();
-			}
-		}
-	}, [info?.chatboxMinimized]);
-
-	useEffect(() => {
-		const newVoiceIntegration = voiceIntegrationData?.shouldConnect || false;
-
-		// Don't set voiceIntegration to true during transcription
-		// This prevents the chat interface from being hidden
-		if (isTranscribing && newVoiceIntegration) {
-			return;
-		}
-
-		setInfo((prev) => ({
-			...prev,
-			voiceIntegration: newVoiceIntegration,
-		}));
-	}, [voiceIntegrationData, isTranscribing]);
-
-	const handleSuggestionsMessageFunc = (event) => {
-		const data = JSON.parse(event?.data || {});
-		if (data?.suggestion) {
-			setInfo((prev) => ({
-				...prev,
-				suggestion: data?.suggestion,
-			}));
-		}
-	};
-
+	// This is used to expand user uploaded images in chatbox
 	const handlePreview = async (file) => {
 		if (!file.url && !file.preview) {
 			file.preview = await getBase64(file.originFileObj);
@@ -606,82 +410,7 @@ const ChatBox = ({
 		setPreviewOpen(true);
 	};
 
-	// const handleWindowClick = useCallback(() => {
-	// 	if (!animateChatBox) return;
-	// 	setInfo((prev) => {
-	// 		if (prev?.chatboxMinimized) {
-	// 			return prev;
-	// 		}
-	// 		return {
-	// 			...prev,
-	// 			chatboxMinimized: true,
-	// 		};
-	// 	});
-	// }, [animateChatBox]);
-	const handleGoalsClick = () => {
-		let chatBoxData = info?.chatBoxInfo;
-
-		if (chatBoxData?.goals) {
-			return;
-		}
-
-		chatBoxData = {
-			...chatBoxData,
-			goals: true,
-			ask: false,
-			deepResearch: false,
-			build: false,
-			deepSearch: false,
-		};
-
-		handleGlobalChatMessages({
-			sessionId: info?.chatSessionId,
-			chatBoxInfo: chatBoxData,
-			updateExtraInfo: true,
-		});
-	};
-	const handleDeepResearchClick = () => {
-		if (recentFilesRef.current?.length > 0 || uploadedImagesRef.current?.length > 0) {
-			return;
-		}
-
-		let chatBoxData = info?.chatBoxInfo;
-
-		if (isPublicChat) {
-			if (chatBoxData?.webSearch) {
-				chatBoxData = {
-					...chatBoxData,
-					webSearch: false,
-					deepResearch: !chatBoxData?.deepResearch,
-				};
-				handleGlobalChatMessages({
-					sessionId: info?.chatSessionId,
-					chatBoxInfo: chatBoxData,
-					updateExtraInfo: true,
-				});
-				return;
-			}
-		}
-
-		if (chatBoxData?.deepResearch) {
-			return;
-		}
-
-		chatBoxData = {
-			...chatBoxData,
-			deepResearch: true,
-			ask: false,
-			goals: false,
-			build: false,
-		};
-
-		handleGlobalChatMessages({
-			sessionId: info?.chatSessionId,
-			chatBoxInfo: chatBoxData,
-			updateExtraInfo: true,
-		});
-	};
-
+	// This will show recent files uploaded in current workspace
 	const handleRecentFileClick = (file) => {
 		let udpatedData = [...(recentFilesRef?.current || [])];
 		const isFileAlreadyPresent = recentFilesRef?.current?.some((ele) => ele?._id === file?._id);
@@ -702,6 +431,7 @@ const ChatBox = ({
 		}
 	};
 
+	// This will remove recent file added to chatbox
 	const handleRemoveFileFromRecentFileClick = (file) => {
 		const updatedRecentFiles = recentFilesRef?.current?.filter(
 			(ele) => ele?._id !== file?._id || ele?.uniqueId !== file?.uniqueId,
@@ -717,6 +447,7 @@ const ChatBox = ({
 		}));
 	};
 
+	// This will generate payload, that will be sent to socket
 	const handleSendMessageFunc = useCallback(
 		async (e, click = null, query = null, externalImages = null) => {
 			if (e?.key === 'Enter' || click) {
@@ -736,7 +467,7 @@ const ChatBox = ({
 					}
 				}
 
-				if (aiChatLoading || info?.chatLoading) {
+				if (info?.chatLoading) {
 					return message.error('Please wait for the AI response');
 				}
 
@@ -916,9 +647,6 @@ const ChatBox = ({
 						uploadedImages: [],
 						chatQuery: '',
 						recentFiles: [],
-						chatboxMinimized: true,
-						suggestion: null,
-						showSuggestion: false,
 					}));
 					uploadedImagesRef.current = [];
 					recentFilesRef.current = [];
@@ -962,7 +690,6 @@ const ChatBox = ({
 			}
 		},
 		[
-			aiChatLoading,
 			onSend,
 			customChatActions,
 			info,
@@ -1032,6 +759,7 @@ const ChatBox = ({
 		[handleWorkflowSlugSelection],
 	);
 
+	// Used for image uploading
 	const handleGlobalImageProcessing = useCallback(
 		async (file) => {
 			const uploadBatchId = ObjectID()?.toString();
@@ -1110,13 +838,14 @@ const ChatBox = ({
 		[info, uploadedImagesRef?.current, recentFilesRef?.current],
 	);
 
+	// This will check if image is upload or not
 	const checkIndividualImageUploadedStatusFunc = useCallback(
 		async (fileData, uploadBatchId) => {
 			let isImage = fileData?.type?.includes('image');
 			let uploadedImages, recentFiles, requiredFileIndex;
 
 			let uploadedCount = 0,
-				maxAttempts = 90,
+				maxAttempts = 45,
 				errorCount = 0,
 				successCount = 0;
 
@@ -1226,6 +955,7 @@ const ChatBox = ({
 		[info, recentFilesRef?.current, uploadedImagesRef?.current],
 	);
 
+	// This will start uploading file
 	const handleFileAttachmentChange = useCallback(
 		async ({ file }) => {
 			const totalCreditsUsed = currentPlan?.totalAiCreditUsed || 0,
@@ -1280,15 +1010,10 @@ const ChatBox = ({
 				recentFiles,
 			}));
 		},
-		[
-			handleAiUploadImage,
-			info,
-			recentFilesRef?.current,
-			uploadedImagesRef?.current,
-			currentPlan,
-		],
+		[info, currentPlan],
 	);
 
+	// This will check if there are any pending file uploads and gives warning when user tries to chat
 	const checkAllUploadLoadingStatus = useCallback(() => {
 		let uploadedImages = [...(uploadedImagesRef.current || [])];
 		let recentFiles = [...(recentFilesRef.current || [])];
@@ -1371,6 +1096,11 @@ const ChatBox = ({
 					return;
 				}
 
+				if (showVoiceWidget) {
+					message.error('Please disable voice widget to use mic');
+					return;
+				}
+
 				if (isTranscribing) {
 					handleTranscriptionSocketDisconnect();
 				} else {
@@ -1401,6 +1131,7 @@ const ChatBox = ({
 			handleConnect,
 			handleTranscriptionSocketDisconnect,
 			handleTranscriptionMessageFunc,
+			showVoiceWidget,
 		],
 	);
 
@@ -1412,35 +1143,6 @@ const ChatBox = ({
 
 	const handleTextAreaKeyDown = (e) => {
 		handleSendMessageFunc?.(e);
-		if (e?.key === 'Tab') {
-			e?.preventDefault();
-			e?.stopPropagation();
-			setInfo((prev) => {
-				if (
-					prev?.suggestion &&
-					prev?.chatQuery?.length > 0 &&
-					prev?.suggestion?.startsWith(prev?.chatQuery)
-				) {
-					previousChatQueryRef.current = prev?.suggestion;
-					return {
-						...prev,
-						chatQuery: prev?.suggestion,
-						suggestion: null,
-						showSuggestion: false,
-					};
-				}
-				return prev;
-			});
-		}
-	};
-
-	const handleTextAreaFocus = () => {
-		// Clear suggestions when text field is focused
-		setInfo((prev) => ({
-			...prev,
-			suggestion: null,
-			showSuggestion: false,
-		}));
 	};
 
 	const handleTextAreaPaste = useCallback(
@@ -1462,11 +1164,10 @@ const ChatBox = ({
 		[handleFileAttachmentChange],
 	);
 
+	// onChange event callback for textarea. This will upadate textarea height
 	const handleTextAreaChange = (e, queryValue = '') => {
 		isTypingRef.current = true;
 		const textArea = textAreaRef?.current;
-		// const textAreaWrapper = textAreaWrapperRef?.current;
-		// const suggestionContainer = suggestionRef?.current;
 		const query = e?.target?.value ?? queryValue;
 		const lastChar = query?.trim()?.slice(-1);
 
@@ -1475,22 +1176,8 @@ const ChatBox = ({
 		if (textArea) {
 			textArea.style.height = 'auto';
 			textAreaHeight = textArea?.scrollHeight;
-			// if (suggestionContainer) {
-			// 	const suggestionContainerHeight = suggestionContainer?.scrollHeight;
-			// 	if (textAreaHeight < suggestionContainerHeight) {
-			// 		textAreaHeight = suggestionContainerHeight;
-			// 	}
-			// }
-			// textAreaHeight = Math.min(textAreaHeight, 200);
 			textArea.style.height = textAreaHeight + 'px';
 		}
-
-		// if (textAreaWrapper) {
-		// 	textAreaWrapper.style.height = textAreaHeight + 'px';
-		// }
-		// if (suggestionContainer) {
-		// 	suggestionContainer.style.height = textAreaHeight + 'px';
-		// }
 
 		let isRecentFileOpen = false;
 		if (lastChar === '@') {
@@ -1505,23 +1192,15 @@ const ChatBox = ({
 			...prev,
 			chatQuery: query,
 			isRecentFileOpen,
-			chatBoxContainerHeight: textAreaHeight + 58 + 28 + 'px',
 		}));
 	};
 
+	// On sending message to socket this will clear textarea
 	const clearTextArea = () => {
 		const textArea = textAreaRef?.current;
-		// const textAreaWrapper = textAreaWrapperRef?.current;
-		// const suggestionContainer = suggestionRef?.current;
 		if (textArea) {
 			textArea.style.height = '30px'; // Reset to initial min-height
 		}
-		// if (textAreaWrapper) {
-		// 	textAreaWrapper.style.height = '30px';
-		// }
-		// if (suggestionContainer) {
-		// 	suggestionContainer.style.height = '30px';
-		// }
 	};
 
 	const handleBuildClick = () => {
@@ -1534,7 +1213,6 @@ const ChatBox = ({
 			build: true,
 			ask: false,
 			deepResearch: false,
-			goals: false,
 			deepSearch: false,
 		};
 		handleGlobalChatMessages({
@@ -1544,63 +1222,13 @@ const ChatBox = ({
 		});
 	};
 
-	// const handleSearchTypeChangeForReason = (type, value) => {
-	// 	const reason = { ...chatInfo?.reason, [type]: value };
-	// 	let deepResearch = chatInfo?.deepResearch;
-
-	// 	if (reason?.webSearch === false && reason?.workspaceSearch === false) {
-	// 		deepResearch = false;
-	// 	} else {
-	// 		deepResearch = true;
-	// 	}
-
-	// 	updateStateValues({
-	// 		chatInfo: {
-	// 			...chatInfo,
-	// 			reason,
-	// 			deepResearch,
-	// 			ask: deepResearch ? false : true,
-	// 			build: false,
-	// 		},
-	// 	});
-	// };
-
 	const handleChatBoxClick = (e) => {
-		// if (animateChatBox) {
-		// 	e?.stopPropagation();
-		// 	if (info?.chatboxMinimized) {
-		// 		setInfo((prev) => ({
-		// 			...prev,
-		// 			chatboxMinimized: false,
-		// 		}));
-		// 	}
-		// }
 		if (customChatBoxClick) {
 			customChatBoxClick?.(e);
 		}
 	};
 
-	const handleAskClick = () => {
-		let chatBoxData = info?.chatBoxInfo;
-		if (chatBoxData?.ask) {
-			return;
-		}
-
-		chatBoxData = {
-			...chatBoxData,
-			ask: true,
-			deepResearch: false,
-			goals: false,
-			build: false,
-			deepSearch: false,
-		};
-		handleGlobalChatMessages({
-			sessionId: info?.chatSessionId,
-			chatBoxInfo: chatBoxData,
-			updateExtraInfo: true,
-		});
-	};
-
+	// This will handle deep search btn click
 	const handleDeepSearchClick = (e) => {
 		let chatBoxData = info?.chatBoxInfo;
 
@@ -1609,7 +1237,6 @@ const ChatBox = ({
 			deepSearch: !chatBoxData?.deepSearch,
 			ask: false,
 			deepResearch: false,
-			goals: false,
 			build: false,
 		};
 		handleGlobalChatMessages({
@@ -1626,7 +1253,6 @@ const ChatBox = ({
 			...chatBoxData,
 			ask: false,
 			deepResearch: false,
-			goals: false,
 			build: false,
 			[key]: value,
 		};
@@ -1654,14 +1280,6 @@ const ChatBox = ({
 		setInfo((prev) => ({ ...prev, openUpgradeModal: false }));
 	}, []);
 
-	const handleAskTooltipClick = useCallback((e) => {
-		e?.stopPropagation();
-		setInfo((prev) => ({
-			...prev,
-			askTooltipOpen: true,
-		}));
-	}, []);
-
 	const handleScrollButtonClick = useCallback(
 		(e) => {
 			e?.stopPropagation();
@@ -1673,10 +1291,15 @@ const ChatBox = ({
 	const handleVoiceAgentClick = useCallback(
 		(e) => {
 			e?.stopPropagation();
+
+			if (isTranscribing) {
+				message.error('Disable mic transcription to use voice widget');
+				return;
+			}
 			// Show the global voice widget and trigger auto-connect
 			updateAiSetupState({ showVoiceWidget: true });
 		},
-		[updateAiSetupState],
+		[updateAiSetupState, isTranscribing],
 	);
 
 	const handleStopCurrentChatStream = useCallback(() => {
@@ -1686,8 +1309,25 @@ const ChatBox = ({
 		try {
 			const payload = { action: 'stop' };
 			if (handleSendWebsocketMessage) {
-				// Keep arguments consistent with other usages in this component
-				handleSendWebsocketMessage(payload, '');
+				// Here i am checking if socket is connected or not
+				const socketConnected = socketConnectionState(info?.chatSessionId);
+				if (socketConnected) {
+					// If connected send action : stop to socket
+					handleSendWebsocketMessage(payload, '');
+				} else {
+					// If not connected, dont send message to socket, handle status : 'cancelled' manually from frontend
+					// below function will stop sending message to ai through socket
+					stopSendingMessage(info?.chatSessionId);
+
+					// Here i am setting stream end true, so that user can chat again
+					const message_chunk_id = ObjectID()?.toString();
+					handleGlobalChatMessages({
+						payload: { stream_end: true, status: 'cancelled' },
+						chunkId: message_chunk_id,
+						sessionId,
+						updateExtraInfo: false,
+					});
+				}
 			} else {
 				// Fallback (avoid if possible): do not close connection unless no sender is available
 				// handleStopChatStream();
@@ -1696,7 +1336,13 @@ const ChatBox = ({
 			console.error('Failed to send stop action:', error);
 			setInfo((prev) => ({ ...prev, stopLoading: false }));
 		}
-	}, [handleSendWebsocketMessage, info?.chatSessionId, info?.chatLoading, info?.stopLoading]);
+	}, [
+		handleSendWebsocketMessage,
+		info?.chatSessionId,
+		info?.chatLoading,
+		info?.stopLoading,
+		handleGlobalChatMessages,
+	]);
 
 	return (
 		<div className="chatBoxParentWrapper" ref={chatBoxWrapperRef} onClick={handleChatBoxClick}>
@@ -1763,14 +1409,7 @@ const ChatBox = ({
 					</div>
 				)}
 			</div>
-			<div
-				className="chatInputContainer"
-				// style={{
-				// 	...(animateChatBox && {
-				// 		height: info?.chatBoxContainerHeight,
-				// 	}),
-				// }}
-			>
+			<div className="chatInputContainer">
 				{chatReplyData && (
 					<div className="chat-reply-data">
 						<div className="reply-icon"></div>
@@ -1890,22 +1529,7 @@ const ChatBox = ({
 						)}
 					</div>
 					<div className="chat-input-container">
-						<div
-							className="textAreaWrapper"
-							//  ref={textAreaWrapperRef}
-						>
-							<div
-								className="suggestion-container"
-								ref={suggestionRef}
-								style={{
-									display:
-										info?.showSuggestion && info?.chatQuery?.length > 0
-											? 'block'
-											: 'none',
-								}}
-							>
-								{info?.suggestion}
-							</div>
+						<div className="textAreaWrapper">
 							<div className="textarea-container">
 								<textarea
 									type="text"
@@ -1913,30 +1537,14 @@ const ChatBox = ({
 									onChange={handleTextAreaChange}
 									autoFocus={autoFocus}
 									onKeyDown={handleTextAreaKeyDown}
-									onFocus={handleTextAreaFocus}
 									className={`textArea ${isTranscribing ? 'transcribing' : ''}`}
 									rows={1}
 									ref={textAreaRef}
 									onPaste={handleTextAreaPaste}
 									placeholder={
-										isTranscribing
-											? 'Listening... Speak now'
-											: !animatePlaceholder
-											? placeholder
-											: ''
+										isTranscribing ? 'Listening... Speak now' : placeholder
 									}
 								/>
-
-								{/* {isTranscribing && (
-									<div className="transcription-indicator">
-										<canvas
-											ref={canvasRef}
-											className="audio-visualizer"
-											width="200"
-											height="50"
-										/>
-									</div>
-								)} */}
 							</div>
 						</div>
 					</div>
@@ -2003,7 +1611,6 @@ const ChatBox = ({
 										if (info?.chatQuery?.trim()?.length > 0) {
 											handleSendBtnClick(e);
 										} else {
-											if (info?.voiceIntegration) return;
 											handleVoiceAgentClick(e);
 										}
 									}}
@@ -2097,94 +1704,3 @@ const ChatBox = ({
 };
 
 export default memo(ChatBox);
-
-{
-	/* <div className="combined-chat-options">
-															{!isPublicChat && showBottomTools && (
-																<Tooltip
-																	title={
-																		<div className="chatbox-icon-tooltip-container ask-option-tooltip-container">
-																			<BulbSvg />
-																			Ask Ai
-																		</div>
-																	}
-																	color="transparent"
-																	arrow={false}
-																	rootClassName="chatbox-tooltip"
-																>
-																	<div
-																		className={`chat-box-icon-container ${
-																			info?.chatBoxInfo?.ask
-																				? 'active'
-																				: ''
-																		}`}
-																		onClick={handleAskClick}
-																	>
-																		<div className="chat-icon">
-																			<div
-																				className="text-wrapper  ask-text-wrapper"
-																				style={{
-																					padding: '7px',
-																				}}
-																			>
-																				<div className="bulb-icon">
-																					<BulbSvg
-																						style={{
-																							width: '20px',
-																							height: '20px',
-																						}}
-																					/>
-																				</div>
-																				<div className="icon-text ask-icon-text">
-																					Ask
-																				</div>
-																				<AskTooltip
-																					open={
-																						info?.askTooltipOpen
-																					}
-																					onOpenChange={(
-																						value,
-																					) => {
-																						setInfo(
-																							(
-																								prev,
-																							) => ({
-																								...prev,
-																								askTooltipOpen:
-																									value,
-																							}),
-																						);
-																					}}
-																				>
-																					<div
-																						className={`icon-arrow-wrapper ${
-																							info
-																								?.chatBoxInfo
-																								?.ask
-																								? 'icon-arrow-wrapper-active'
-																								: ''
-																						}`}
-																						onClick={(
-																							e,
-																						) =>
-																							handleAskTooltipClick(
-																								e,
-																							)
-																						}
-																					>
-																						<div className="icon-arrow">
-																							<ArrowDownSvg
-																								fill={
-																									'var(--primary-font)'
-																								}
-																							/>
-																						</div>
-																					</div>
-																				</AskTooltip>
-																			</div>
-																		</div>
-																	</div>
-																</Tooltip>
-															)}
-														</div> */
-}

@@ -40,10 +40,8 @@
 		position: relative;
 
 		/* Compact ChatBox styles */
-		.chatBoxWrapper {
-			display: block !important;
-			margin: 0;
-			padding: 0;
+		.chatBoxParentWrapper {
+			width: 95%;
 		}
 
 		.chatInputContainer {
