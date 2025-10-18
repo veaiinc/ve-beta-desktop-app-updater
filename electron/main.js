@@ -604,7 +604,7 @@ const handleMeetingStateChangeForUpdates = ({ isInMeeting }) => {
 	}
 };
 
-const toggleContentProtection = () => {
+const toggleContentProtection = async () => {
 	isContentProtectionEnabled = !isContentProtectionEnabled;
 
 	// Apply to all windows including main window
@@ -622,6 +622,25 @@ const toggleContentProtection = () => {
 		boringNotchService.updateStealthModeState(isContentProtectionEnabled);
 	}
 
+	// Send stealth mode update to Boring Notch for synchronization
+	if (boringNotchService && boringNotchService.isInitialized) {
+		try {
+			log.info(`🥷 Sending stealth mode update to Boring Notch: ${isContentProtectionEnabled ? 'ENABLED' : 'DISABLED'}`);
+			const stealthMessage = {
+				type: 'update_stealth_mode',
+				isEnabled: isContentProtectionEnabled,
+				timestamp: Date.now(),
+				source: 'electron'
+			};
+			const result = await boringNotchService.sendMessageToSwiftUI(stealthMessage);
+			log.info('🥷 Stealth mode message result:', result);
+		} catch (error) {
+			log.error('❌ Error sending stealth mode update to Boring Notch:', error);
+		}
+	} else {
+		log.warn('⚠️ Boring Notch service not available for stealth mode synchronization');
+	}
+
 	return isContentProtectionEnabled;
 };
 
@@ -629,7 +648,7 @@ const getContentProtectionStatus = () => {
 	return isContentProtectionEnabled;
 };
 
-const setContentProtection = (enabled) => {
+const setContentProtection = async (enabled) => {
 	isContentProtectionEnabled = enabled;
 
 	BrowserWindow.getAllWindows().forEach((window) => {
@@ -646,6 +665,25 @@ const setContentProtection = (enabled) => {
 
 	if (boringNotchService && typeof boringNotchService.updateStealthModeState === 'function') {
 		boringNotchService.updateStealthModeState(isContentProtectionEnabled);
+	}
+
+	// Send stealth mode update to Boring Notch for synchronization
+	if (boringNotchService && boringNotchService.isInitialized) {
+		try {
+			log.info(`🥷 Sending stealth mode update to Boring Notch: ${isContentProtectionEnabled ? 'ENABLED' : 'DISABLED'}`);
+			const stealthMessage = {
+				type: 'update_stealth_mode',
+				isEnabled: isContentProtectionEnabled,
+				timestamp: Date.now(),
+				source: 'electron'
+			};
+			const result = await boringNotchService.sendMessageToSwiftUI(stealthMessage);
+			log.info('🥷 Stealth mode message result:', result);
+		} catch (error) {
+			log.error('❌ Error sending stealth mode update to Boring Notch:', error);
+		}
+	} else {
+		log.warn('⚠️ Boring Notch service not available for stealth mode synchronization');
 	}
 	return isContentProtectionEnabled;
 };

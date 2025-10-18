@@ -500,6 +500,26 @@ class BoringViewModel: NSObject, ObservableObject {
         withAnimation(.easeInOut(duration: 0.2)) {
             isStealthModeEnabled.toggle()
         }
+        
+        // Send stealth mode change to Electron via WebSocket for synchronization
+        let stealthData: [String: Any] = [
+            "type": "electron_stealth_mode",
+            "isEnabled": isStealthModeEnabled,
+            "timestamp": Int(Date().timeIntervalSince1970 * 1000),
+            "source": "boring-notch"
+        ]
+        
+        // Send via WebSocket
+        WebSocketManager.shared.sendEvent(type: .custom, data: stealthData)
+        print("🥷 BoringViewModel: Sent stealth mode change via WebSocket: \(isStealthModeEnabled)")
+    }
+    
+    func setStealthMode(_ isEnabled: Bool) {
+        print("🥷 BoringViewModel: Setting stealth mode to: \(isEnabled)")
+        withAnimation(.easeInOut(duration: 0.2)) {
+            isStealthModeEnabled = isEnabled
+        }
+        print("🥷 BoringViewModel: Stealth mode state updated to: \(isStealthModeEnabled)")
     }
     
     // MARK: - Lock Notch

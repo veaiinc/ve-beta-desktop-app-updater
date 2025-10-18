@@ -431,6 +431,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                                             self.vm.addVoiceMessage(message)
                                         }
                                     }
+                                case "update_stealth_mode":
+                                    if let isEnabled = event.data["isEnabled"] as? Bool {
+                                        print("🌐 AppDelegate: Updating stealth mode from WebSocket: \(isEnabled)")
+                                        print("🌐 AppDelegate: Event data: \(event.data)")
+                                        DispatchQueue.main.async { [weak self] in
+                                            guard let self = self else { return }
+                                            // Find the appropriate view model and update stealth mode
+                                            if Defaults[.showOnAllDisplays] {
+                                                if let mainScreen = NSScreen.main,
+                                                   let viewModel = self.viewModels[mainScreen] {
+                                                    print("🌐 AppDelegate: Setting stealth mode on main screen view model: \(isEnabled)")
+                                                    viewModel.setStealthMode(isEnabled)
+                                                }
+                                            } else {
+                                                print("🌐 AppDelegate: Setting stealth mode on main view model: \(isEnabled)")
+                                                self.vm.setStealthMode(isEnabled)
+                                            }
+                                        }
+                                    } else {
+                                        print("🌐 AppDelegate: Could not extract isEnabled from stealth mode event data: \(event.data)")
+                                    }
                                 default:
                                     print("🌐 AppDelegate: Unknown message type: \(messageType)")
                                 }
@@ -620,6 +641,41 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 {"type": "electron_voice_disconnect", "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
                 """
                 print(electronCommand)
+
+            case "electron_stealth_mode":
+                print("🥷 AppDelegate: Received electron_stealth_mode command from boring.notch")
+                if let isEnabled = jsonObject["isEnabled"] as? Bool {
+                    // Update local UI state
+                    if Defaults[.showOnAllDisplays] {
+                        if let mainScreen = NSScreen.main,
+                           let viewModel = viewModels[mainScreen] {
+                            viewModel.setStealthMode(isEnabled)
+                        }
+                    } else {
+                        vm.setStealthMode(isEnabled)
+                    }
+                    
+                    // Send the command to Electron via stdout for synchronization
+                    let command = """
+                    {"type": "electron_stealth_mode", "isEnabled": \(isEnabled), "timestamp": \(Int(Date().timeIntervalSince1970 * 1000)), "source": "boring-notch"}
+                    """
+                    print(command)
+                    fflush(stdout)
+                }
+
+            case "update_stealth_mode":
+                print("🥷 AppDelegate: Updating stealth mode from Electron")
+                if let isEnabled = jsonObject["isEnabled"] as? Bool {
+                    // Find the appropriate view model and update stealth mode
+                    if Defaults[.showOnAllDisplays] {
+                        if let mainScreen = NSScreen.main,
+                           let viewModel = viewModels[mainScreen] {
+                            viewModel.setStealthMode(isEnabled)
+                        }
+                    } else {
+                        vm.setStealthMode(isEnabled)
+                    }
+                }
 
             default:
                 print("⚠️ AppDelegate: Unknown message type: \(messageType)")
