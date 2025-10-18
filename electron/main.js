@@ -607,17 +607,12 @@ const handleMeetingStateChangeForUpdates = ({ isInMeeting }) => {
 const toggleContentProtection = () => {
 	isContentProtectionEnabled = !isContentProtectionEnabled;
 
-	// Apply to all windows except main window - keep main window always visible
+	// Apply to all windows including main window
 	const allWindows = BrowserWindow.getAllWindows();
 	let protectedCount = 0;
 
 	allWindows.forEach((window) => {
 		if (!window.isDestroyed()) {
-			// Skip main window - keep it always visible
-			if (window === mainWindow) {
-				return;
-			}
-
 			window.setContentProtection(isContentProtectionEnabled);
 			protectedCount++;
 		}
@@ -639,11 +634,6 @@ const setContentProtection = (enabled) => {
 
 	BrowserWindow.getAllWindows().forEach((window) => {
 		if (!window.isDestroyed()) {
-			// Skip main window - keep it always visible
-			if (window === mainWindow) {
-				return;
-			}
-
 			window.setContentProtection(isContentProtectionEnabled);
 		}
 	});
@@ -651,7 +641,7 @@ const setContentProtection = (enabled) => {
 	log.info(
 		`🔒 Content protection set to: ${
 			isContentProtectionEnabled ? 'ON' : 'OFF'
-		} (main window excluded)`,
+		} (all windows including main window)`,
 	);
 
 	if (boringNotchService && typeof boringNotchService.updateStealthModeState === 'function') {
@@ -663,11 +653,6 @@ const setContentProtection = (enabled) => {
 // Function to apply content protection to a newly created window
 const applyContentProtectionToWindow = (window) => {
 	if (window && !window.isDestroyed()) {
-		// Skip main window - keep it always visible
-		if (window === mainWindow) {
-			return;
-		}
-
 		window.setContentProtection(isContentProtectionEnabled);
 	}
 };
