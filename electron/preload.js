@@ -534,6 +534,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 	sendLiveIntelligenceDataToNotch: (data) =>
 		ipcRenderer.invoke('send-live-intelligence-data-to-notch', data),
 
+	sendMessageToNotch: (data) => ipcRenderer.invoke('websocket-send-message', data),
+
 	removeNotchdropToMainWindowEventListener: () => {
 		ipcRenderer.removeAllListeners('notchdrop-to-main-window-event');
 	},

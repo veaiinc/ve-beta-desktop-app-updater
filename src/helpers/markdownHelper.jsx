@@ -9,7 +9,7 @@ import { ReactComponent as LinkArrowSvg } from '../assets/svg/sidebar/arrowuprig
 import Context from '../context/context';
 import { Image, Tooltip } from 'antd';
 import { CitationsTooltip } from '../views/components/modalsV2/chat/CitationsTooltip';
-import Plotly from '../views/components/chat/chatComponents/Plotly';
+// import Plotly from '../views/components/chat/chatComponents/Plotly';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -145,48 +145,6 @@ const codeColorTheme = {
 		whiteSpace: 'normal',
 	},
 };
-
-// const rehypeCITPlugin = () => {
-// 	return (tree) => {
-// 		const visit = (node) => {
-// 			if (!node || typeof node !== 'object') return;
-
-// 			if (node?.type === 'text' && node?.value) {
-// 				const regex = /(\[C\d+\])/g;
-// 				const matches = node?.value?.match(regex);
-// 				if (!matches) return;
-
-// 				// Create a new node instead of modifying in place
-// 				const newNode = {
-// 					type: 'element',
-// 					tagName: 'span',
-// 					properties: node?.properties || {},
-// 					children: node?.value?.split(regex)?.map((part) => {
-// 						if (regex?.test(part)) {
-// 							return {
-// 								type: 'element',
-// 								tagName: 'span',
-// 								properties: {
-// 									citationId: part?.slice(1, -1),
-// 								},
-// 								children: [{ type: 'text', value: 'Citation' }],
-// 							};
-// 						}
-// 						return { type: 'text', value: part };
-// 					}),
-// 				};
-
-// 				Object.assign(node, newNode);
-// 			}
-
-// 			if (node?.children && Array?.isArray(node?.children)) {
-// 				node?.children?.forEach(visit);
-// 			}
-// 		};
-
-// 		visit(tree);
-// 	};
-// };
 
 const rehypeCITPlugin = () => {
 	return (tree) => {
@@ -485,9 +443,9 @@ const createCustomComponents = (citationsRef, markdownRef, plotsRef) => ({
 			</code>
 		);
 	},
-	plotly: ({ attachmentid, ...props }) => {
-		return <Plotly attachmentId={attachmentid} plotly={plotsRef.current} />;
-	},
+	// plotly: ({ attachmentid, ...props }) => {
+	// 	return <Plotly attachmentId={attachmentid} plotly={plotsRef.current} />;
+	// },
 });
 //use remaarkMath for math equations
 const remarkPlugins = [remarkGfm];

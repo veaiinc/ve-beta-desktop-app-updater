@@ -119,9 +119,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func createBoringNotchWindow(for screen: NSScreen, with viewModel: BoringViewModel)
         -> NSWindow
     {
+        let dynamicSize = getOpenNotchSize()
         let window = BoringNotchWindow(
             contentRect: NSRect(
-                x: 0, y: 0, width: openNotchSize.width, height: openNotchSize.height),
+                x: 0, y: 0, width: dynamicSize.width, height: dynamicSize.height),
             styleMask: [.borderless, .nonactivatingPanel, .utilityWindow, .hudWindow],
             backing: .buffered,
             defer: false
@@ -154,10 +155,69 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.alphaValue = 1
         }
     }
+    
+    @objc private func handleWindowResizeNotification(_ notification: Notification) {
+        guard let newSize = notification.userInfo?["newSize"] as? CGSize else { return }
+        
+        // Resize all existing windows
+        for (screen, window) in windows {
+            let screenFrame = screen.frame
+            
+            // Calculate centered position at the top of the screen
+            let newX = screenFrame.origin.x + (screenFrame.width / 2) - (newSize.width / 2)
+            let newY = screenFrame.origin.y + screenFrame.height - newSize.height
+            
+            let newFrame = NSRect(
+                x: newX,
+                y: newY,
+                width: newSize.width,
+                height: newSize.height
+            )
+            
+            // Animate the resize and reposition
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.3
+                context.allowsImplicitAnimation = true
+                window.animator().setFrame(newFrame, display: true)
+            }
+        }
+        
+        // Also resize the main window if it exists
+        if let window = window {
+            let screen = window.screen ?? NSScreen.main!
+            let screenFrame = screen.frame
+            
+            // Calculate centered position at the top of the screen
+            let newX = screenFrame.origin.x + (screenFrame.width / 2) - (newSize.width / 2)
+            let newY = screenFrame.origin.y + screenFrame.height - newSize.height
+            
+            let newFrame = NSRect(
+                x: newX,
+                y: newY,
+                width: newSize.width,
+                height: newSize.height
+            )
+            
+            // Animate the resize and reposition
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.3
+                context.allowsImplicitAnimation = true
+                window.animator().setFrame(newFrame, display: true)
+            }
+        }
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
 
         coordinator.setupWorkersNotificationObservers()
+        
+        // Listen for window resize notifications
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleWindowResizeNotification),
+            name: NSNotification.Name("ResizeWindowForViewChange"),
+            object: nil
+        )
 
         NotificationCenter.default.addObserver(
             self,

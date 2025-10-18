@@ -1,8 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react';
 import useWorkspaceMode from './useWorkspaceMode';
 import { getConfig } from '../services/index.js';
-// 🚨 CRITICAL FIX: Import memory manager
-import memoryManager from '../utils/memoryManager';
 
 const agentTypeMap = {
 	search_agent: 'search_agent_streaming',
@@ -24,7 +22,7 @@ const useChatStream = () => {
 	useEffect(() => {
 		return () => {
 			isMountedRef.current = false;
-			
+
 			// Close WebSocket connection
 			if (socketRef.current) {
 				try {
@@ -34,13 +32,13 @@ const useChatStream = () => {
 				}
 				socketRef.current = null;
 			}
-			
+
 			// Clear timeout
 			if (inactivityTimeoutRef.current) {
 				clearTimeout(inactivityTimeoutRef.current);
 				inactivityTimeoutRef.current = null;
 			}
-			
+
 			// Clear all refs
 			currentSessionIdRef.current = null;
 			messageHandlerRef.current = null;
@@ -61,9 +59,6 @@ const useChatStream = () => {
 				socketRef.current.close();
 			}
 		}, 5 * 60 * 1000); // 5 minutes in milliseconds
-		
-		// 🚨 CRITICAL FIX: Track timeout in memory manager
-		memoryManager.trackTimer(inactivityTimeoutRef.current, 'inactivity-timeout');
 	}, []);
 
 	const sendMessage = useCallback(
@@ -123,12 +118,12 @@ const useChatStream = () => {
 			if (!sessionId && !isPublicChat) {
 				return;
 			}
-			
+
 			// 🚨 CRITICAL FIX: Check if component is still mounted
 			if (!isMountedRef.current) {
 				return;
 			}
-			
+
 			currentSessionIdRef.current = sessionId;
 			messageHandlerRef.current = onMessageFunc;
 			isPublicChatRef.current = isPublicChat;
@@ -169,9 +164,6 @@ const useChatStream = () => {
 			}
 
 			socketRef.current = new WebSocket(baseUrl);
-			
-			// 🚨 CRITICAL FIX: Track WebSocket connection in memory manager
-			memoryManager.trackConnection(socketRef.current, 'chat-websocket');
 
 			socketRef.current.onopen = () => {
 				if (!isMountedRef.current) {
@@ -198,7 +190,7 @@ const useChatStream = () => {
 					onMessageFunc(event);
 				}
 			};
-			
+
 			socketRef.current.onerror = (error) => {
 				if (!isMountedRef.current) return;
 				console.error('WebSocket error:', error);
