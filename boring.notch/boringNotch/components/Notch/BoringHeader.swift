@@ -56,7 +56,7 @@ struct BoringHeader: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 12, height: 12)
-                                .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                                .foregroundColor(Color(red: 0.33, green: 0.44, blue: 0.97))
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
