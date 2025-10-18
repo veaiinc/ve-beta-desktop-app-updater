@@ -291,6 +291,9 @@ class BoringNotchService {
 		try {
 			const websocketService = require('./websocketService');
 			if (websocketService.isServerRunning()) {
+				const clientCount = websocketService.getClientCount();
+				log.info(`📱 WebSocket server is running with ${clientCount} clients connected`);
+				
 				websocketService.broadcast({
 					type: 'BORING_NOTCH_MESSAGE',
 					data: data,
@@ -321,6 +324,14 @@ class BoringNotchService {
 					if (messageData.data.type === 'SHOW_ASK_AI_WINDOW') {
 						log.info('🎯 Received SHOW_ASK_AI_WINDOW event from boring.notch');
 						this.handleShowAskAIWindow();
+					}
+					// Handle custom events (like stealth mode)
+					else if (messageData.data.type === 'CUSTOM' && messageData.data.data) {
+						const customData = messageData.data.data;
+						if (customData.type === 'electron_stealth_mode') {
+							log.info('🥷 Received stealth mode event from boring.notch via WebSocket:', customData.isEnabled);
+							this.handleDirectStealthMode(customData.isEnabled);
+						}
 					}
 					// Handle legacy stdout format (if any)
 					else if (typeof messageData.data === 'string') {
@@ -424,10 +435,20 @@ class BoringNotchService {
 
 	// Compatibility methods to maintain interface with existing code
 	async sendMessageToSwiftUI(message) {
-		log.info('📤 Message to Boring Notch (placeholder):', message);
-		// Since we're launching a separate app, we can't directly send messages
-		// This could be implemented using inter-process communication if needed
-		return { success: true, message: 'Message logged (Boring Notch is separate app)' };
+		try {
+			log.info('📤 Sending message to Boring Notch via WebSocket:', message);
+			
+			// Convert message to string if it's an object
+			const messageString = typeof message === 'string' ? message : JSON.stringify(message);
+			
+			// Use WebSocket to send message to Boring Notch app
+			this.sendWebSocketMessage(messageString);
+			
+			return { success: true, message: 'Message sent to Boring Notch via WebSocket' };
+		} catch (error) {
+			log.error('❌ Error sending message to Boring Notch:', error);
+			return { success: false, error: error.message };
+		}
 	}
 
 	enable() {
@@ -678,6 +699,9 @@ class BoringNotchService {
 			} else if (message.type === 'show_ask_ai_window') {
 				log.info('🎯 Received show Ask AI window command from boring.notch');
 				this.handleShowAskAIWindow();
+			} else if (message.type === 'electron_stealth_mode') {
+				log.info('🥷 Received stealth mode command from boring.notch:', message.isEnabled);
+				this.handleDirectStealthMode(message.isEnabled);
 			}
 		} catch (error) {
 			// Not a JSON message, ignore it
@@ -834,6 +858,23 @@ class BoringNotchService {
 			}
 		} catch (error) {
 			log.error('❌ Error handling direct voice disconnect:', error);
+		}
+	}
+
+	// Handle direct stealth mode command
+	async handleDirectStealthMode(isEnabled) {
+		try {
+			log.info('🥷 Handling direct stealth mode command:', isEnabled);
+
+			// Use the stealth mode controller to set stealth mode
+			if (this.stealthModeController && this.stealthModeController.setStatus) {
+				await this.stealthModeController.setStatus(isEnabled);
+				log.info('✅ Stealth mode synchronized from Boring Notch:', isEnabled);
+			} else {
+				log.warn('⚠️ Stealth mode controller not available');
+			}
+		} catch (error) {
+			log.error('❌ Error handling direct stealth mode command:', error);
 		}
 	}
 
