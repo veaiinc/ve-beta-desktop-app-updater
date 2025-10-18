@@ -155,7 +155,6 @@ const ChatLeftBarComponent = ({ children }) => {
 						customChatBoxClick={handleChatActive}
 						sId={info?.sessionId}
 						showCitationsButton={false}
-						animateChatBox={false}
 					/>
 				</div>
 			</div>

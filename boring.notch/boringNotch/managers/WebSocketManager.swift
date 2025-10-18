@@ -18,12 +18,17 @@ enum WebSocketEventType: String, CaseIterable {
     case pauseMeeting = "PAUSE_MEETING"
     case resumeMeeting = "RESUME_MEETING"
     case navigateToMainScreen = "NAVIGATE_TO_MAIN_SCREEN"
+    case enableAiIntelligence = "ENABLE_AI_INTELLIGENCE"
+    case disableAiIntelligence = "DISABLE_AI_INTELLIGENCE"
     
     // Meeting Status Events (responses from main.js)
     case meetingStarted = "MEETING_STARTED"
     case meetingStopped = "MEETING_STOPPED"
     case meetingPaused = "MEETING_PAUSED"
     case meetingResumed = "MEETING_RESUMED"
+    case meetingStartError = "MEETING_START_ERROR"
+    case enabledAiIntelligence = "ENABLED_AI_INTELLIGENCE"
+    case disabledAiIntelligence = "DISABLED_AI_INTELLIGENCE"
     
     // Meeting Data Events
     case transcriptionUpdate = "TRANSCRIPTION_UPDATE"

@@ -65,7 +65,7 @@ struct BoringHeader: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: 24)
                                 .inset(by: 0.25)
-                                .stroke(.white, lineWidth: 0.5)
+                                .stroke(.white.opacity(0.2), lineWidth: 0.5)
                         )
                     }
                     // VE logo button (open app)
@@ -157,43 +157,28 @@ struct BoringHeader: View {
                         }
                     }
 
-                    if Defaults[.showMirror] {
-                        Button(action: {
-                            vm.toggleCameraPreview()
-                        }) {
-                            HStack(spacing: 4) {
-                                ZStack() {
-                                    Image(systemName: "web.camera")
-                                        .foregroundColor(.white)
-                                        .font(.system(size: 12, weight: .semibold))
-                                }
-                                .frame(width: 13, height: 13)
-                            }
-                            .padding(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                            .frame(width: 32, height: 32)
-                            .background(hoverMirror ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
-                            .cornerRadius(32)
-                            .onHover { hover in
-                                hoverMirror = hover
-                            }
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .overlay(alignment: .bottom) {
-                            if hoverMirror {
-                                Text("Mirror")
-                                    .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.black.opacity(0.8))
-                                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                                    .offset(y: 28)
-                                    .fixedSize(horizontal: true, vertical: true)
-                                    .zIndex(2000)
-                                    .allowsHitTesting(false)
-                            }
-                        }
-                    }
+//                    if Defaults[.showMirror] {
+//                        Button(action: {
+//                            vm.toggleCameraPreview()
+//                        }) {
+//                            HStack(spacing: 4) {
+//                                ZStack() {
+//                                    Image(systemName: "web.camera")
+//                                        .foregroundColor(.white)
+//                                        .font(.system(size: 12, weight: .semibold))
+//                                }
+//                                .frame(width: 13, height: 13)
+//                            }
+//                            .padding(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+//                            .frame(width: 32, height: 32)
+//                            .background(hoverMirror ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
+//                            .cornerRadius(32)
+//                            .onHover { hover in
+//                                hoverMirror = hover
+//                            }
+//                        }
+//                        .buttonStyle(PlainButtonStyle())
+//                    }
                     if Defaults[.settingsIconInNotch] {
                         Button(action: {
                             SettingsWindowController.shared.showWindow()

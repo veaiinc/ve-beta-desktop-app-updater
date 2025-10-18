@@ -78,7 +78,6 @@ const NotesWrapper = () => {
 								showCitationsButton={false}
 								// customChatBoxClick={handleCustomChatBoxClick}
 								sId={sessionId}
-								animateChatBox={true}
 							/>
 						</div>
 						<div

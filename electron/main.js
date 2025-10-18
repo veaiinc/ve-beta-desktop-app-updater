@@ -311,7 +311,6 @@ let lastWindowState = {
 // Authentication state management
 let userAuthenticationStatus = {
 	isLoggedIn: false,
-	shouldShowPermissionOverlay: true, // Show by default until we know auth status
 };
 
 // Recording timer variables for Are You There functionality
@@ -608,17 +607,12 @@ const handleMeetingStateChangeForUpdates = ({ isInMeeting }) => {
 const toggleContentProtection = () => {
 	isContentProtectionEnabled = !isContentProtectionEnabled;
 
-	// Apply to all windows except main window - keep main window always visible
+	// Apply to all windows including main window
 	const allWindows = BrowserWindow.getAllWindows();
 	let protectedCount = 0;
 
 	allWindows.forEach((window) => {
 		if (!window.isDestroyed()) {
-			// Skip main window - keep it always visible
-			if (window === mainWindow) {
-				return;
-			}
-
 			window.setContentProtection(isContentProtectionEnabled);
 			protectedCount++;
 		}
@@ -640,11 +634,6 @@ const setContentProtection = (enabled) => {
 
 	BrowserWindow.getAllWindows().forEach((window) => {
 		if (!window.isDestroyed()) {
-			// Skip main window - keep it always visible
-			if (window === mainWindow) {
-				return;
-			}
-
 			window.setContentProtection(isContentProtectionEnabled);
 		}
 	});
@@ -652,7 +641,7 @@ const setContentProtection = (enabled) => {
 	log.info(
 		`🔒 Content protection set to: ${
 			isContentProtectionEnabled ? 'ON' : 'OFF'
-		} (main window excluded)`,
+		} (all windows including main window)`,
 	);
 
 	if (boringNotchService && typeof boringNotchService.updateStealthModeState === 'function') {
@@ -664,11 +653,6 @@ const setContentProtection = (enabled) => {
 // Function to apply content protection to a newly created window
 const applyContentProtectionToWindow = (window) => {
 	if (window && !window.isDestroyed()) {
-		// Skip main window - keep it always visible
-		if (window === mainWindow) {
-			return;
-		}
-
 		window.setContentProtection(isContentProtectionEnabled);
 	}
 };
@@ -709,6 +693,16 @@ process.on('unhandledRejection', (reason, promise) => {
 	log.error('Unhandled Rejection at:', promise, 'reason:', reason);
 	// Don't exit the process, just log the error
 });
+
+// V8 Engine Memory Management Fixes
+if (process.env.NODE_ENV === 'production') {
+	// Force garbage collection more frequently to prevent V8 crashes
+	setInterval(() => {
+		if (global.gc) {
+			global.gc();
+		}
+	}, 30000); // Every 30 seconds
+}
 
 autoUpdater.on('checking-for-update', () => {
 	log.info('🔍 Checking for updates...');
@@ -1080,6 +1074,7 @@ ipcMain.handle('websocket-send-message', async (event, data) => {
 		}
 
 		websocketService.broadcast(data);
+		log.info('WebSocket message sent: ', data?.type);
 		return { success: true };
 	} catch (error) {
 		log.error('❌ Failed to send WebSocket message:', error);
@@ -1764,24 +1759,6 @@ function createMenuBar() {
 							},
 						},
 						{
-							label: 'Permission Window (permission.html)',
-							accelerator: 'CmdOrCtrl+Shift+k',
-							click: () => {
-								try {
-									const permissionWindow = windowHelper?.getPermissionWindow();
-									if (permissionWindow && !permissionWindow.isDestroyed()) {
-										permissionWindow.webContents.openDevTools({
-											mode: 'detach',
-										});
-									} else {
-										log.warn('Permission window not available for dev tools');
-									}
-								} catch (error) {
-									log.error('Error toggling Permission window dev tools:', error);
-								}
-							},
-						},
-						{
 							label: 'Ask AI Window (askai.html)',
 							accelerator: 'CmdOrCtrl+Shift+A',
 							click: () => {
@@ -2292,30 +2269,10 @@ function createWindow(restoreState = false) {
 		boringNotchService.setMainWindow(mainWindow);
 	}
 
-	// Add focus event handler to show permission overlay if needed
 	mainWindow.on('focus', async () => {
 		log.info('Main window focused');
 		// Emit focus event to renderer
 		mainWindow.webContents.send('window-focus');
-
-		// Check if permissions are missing and show overlay if needed
-		try {
-			const permissionsGranted = await checkAllPermissions();
-			if (!permissionsGranted.allGranted) {
-				log.info(
-					'🔍 Main window focused but permissions missing, showing permission overlay',
-				);
-				setTimeout(() => {
-					try {
-						// windowHelper?.showPermissionWindow();
-					} catch (error) {
-						log.error('❌ Error showing permission overlay on focus:', error);
-					}
-				}, 500);
-			}
-		} catch (error) {
-			log.error('❌ Error checking permissions on window focus:', error);
-		}
 	});
 
 	if (bridge) {
@@ -2362,63 +2319,17 @@ function createWindow(restoreState = false) {
 
 		// Handle authentication status messages
 		if (msg === 'authorized') {
-			log.info('✅ User authenticated - hiding permission overlay if visible');
+			log.info('✅ User authenticated');
 			userAuthenticationStatus.isLoggedIn = true;
-			userAuthenticationStatus.shouldShowPermissionOverlay = false;
-
+			
 			// Note: Window resize is now handled by the React hook (useLoginWindowResize)
 			// This ensures smooth animation when transitioning from login to main app
-
-			// Check if user has completed onboarding (show overlay only once)
-			try {
-				const completed = hasCompletedOnboarding();
-
-				if (!completed) {
-					log.info('🆕 First time login - showing permission overlay');
-					// Show permission overlay after a short delay
-					setTimeout(() => {
-						windowHelper?.showPermissionWindow();
-					}, 500);
-				} else {
-					log.info(
-						'✅ User has completed onboarding - skipping overlay (will never show again)',
-					);
-				}
-			} catch (e) {
-				log.error('❌ Error checking onboarding status post-login:', e);
-			}
 		} else if (msg === 'unauthorized') {
-			log.info('🔓 User not authenticated - permission overlay may be needed');
+			log.info('🔓 User not authenticated');
 			userAuthenticationStatus.isLoggedIn = false;
-			userAuthenticationStatus.shouldShowPermissionOverlay = true;
-
-			// Send authentication status update to Boring Notch via WebSocket
-			if (websocketService && websocketService.isServerRunning()) {
-				try {
-					const clientCount = websocketService.getClientCount();
-					log.info(
-						`🔌 WebSocket server is running with ${clientCount} connected clients`,
-					);
-
-					websocketService.broadcast({
-						type: 'AUTHENTICATION_STATUS',
-						data: { isAuthenticated: false },
-					});
-					log.info(
-						'✅ Authentication status (unauthorized) sent to Boring Notch via WebSocket',
-					);
-				} catch (error) {
-					log.error('❌ Failed to send unauthorized status to Boring Notch:', error);
-				}
-			} else {
-				log.warn(
-					'⚠️ WebSocket service not running or not available for unauthorized notification',
-				);
-			}
 		} else if (msg === 'loggedout') {
 			log.info('🔓 User logged out - updating auth status and notifying Dynamic Island');
 			userAuthenticationStatus.isLoggedIn = false;
-			userAuthenticationStatus.shouldShowPermissionOverlay = true;
 
 			const dynamicIslandWindow = dynamicIslandHelper?.dynamicIslandWindow;
 			if (dynamicIslandWindow && !dynamicIslandWindow.isDestroyed()) {
@@ -3164,7 +3075,6 @@ async function checkUserAuthenticationStatus() {
 		`);
 
 		userAuthenticationStatus.isLoggedIn = isAuthenticated;
-		userAuthenticationStatus.shouldShowPermissionOverlay = !isAuthenticated;
 
 		log.info(
 			`🔐 Authentication check result: ${
@@ -3176,122 +3086,10 @@ async function checkUserAuthenticationStatus() {
 		log.error('❌ Error checking user authentication status:', error);
 		// Default to not authenticated on error
 		userAuthenticationStatus.isLoggedIn = false;
-		userAuthenticationStatus.shouldShowPermissionOverlay = true;
 		return false;
 	}
 }
 
-// Helper functions for onboarding completion tracking
-function hasCompletedOnboarding() {
-	try {
-		const configPath = path.join(app.getPath('userData'), 'config.json');
-
-		if (!fs.existsSync(configPath)) {
-			log.info('📋 No config file found - user has not completed onboarding');
-			return false;
-		}
-
-		const configData = fs.readFileSync(configPath, 'utf8');
-		const config = JSON.parse(configData);
-		const completed = config.onboardingCompleted === true;
-
-		log.info(`📋 Onboarding status: ${completed ? 'COMPLETED ✅' : 'NOT COMPLETED ❌'}`);
-		return completed;
-	} catch (error) {
-		log.error('❌ Error checking onboarding status:', error);
-		return false; // If error, show overlay (safe default)
-	}
-}
-
-function markOnboardingCompleted() {
-	try {
-		const userDataPath = app.getPath('userData');
-		const configPath = path.join(userDataPath, 'config.json');
-
-		log.info('💾 Marking onboarding as completed...');
-		log.info('📁 User data path:', userDataPath);
-		log.info('📄 Config file path:', configPath);
-
-		// Ensure directory exists
-		if (!fs.existsSync(userDataPath)) {
-			fs.mkdirSync(userDataPath, { recursive: true });
-			log.info('✅ Created user data directory');
-		}
-
-		// Read existing config or create new
-		let config = {};
-		if (fs.existsSync(configPath)) {
-			try {
-				const configData = fs.readFileSync(configPath, 'utf8');
-				config = JSON.parse(configData);
-				log.info('📖 Read existing config:', config);
-			} catch (error) {
-				log.error('❌ Error reading existing config, will create new:', error);
-			}
-		}
-
-		// Set the flag
-		config.onboardingCompleted = true;
-
-		// Write to disk
-		fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-		log.info('✅ Onboarding marked as completed!');
-		log.info('💾 Config saved:', config);
-
-		// Verify it was written
-		if (fs.existsSync(configPath)) {
-			const verification = fs.readFileSync(configPath, 'utf8');
-			log.info('✅ VERIFIED: Config file exists and contains:', verification);
-			return true;
-		} else {
-			log.error('❌ FAILED: Config file was not created!');
-			return false;
-		}
-	} catch (error) {
-		log.error('❌ Error marking onboarding as completed:', error);
-		log.error('❌ Stack trace:', error.stack);
-		return false;
-	}
-}
-
-// Function to check all required permissions
-async function checkAllPermissions() {
-	try {
-		const results = {
-			microphone: false,
-			screen: false,
-			camera: false,
-			allGranted: false,
-		};
-
-		// Check microphone permission
-		if (isMacRuntime) {
-			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
-			results.microphone = micStatus === 'granted';
-
-			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
-			results.screen = screenStatus === 'granted';
-
-			const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
-			results.camera = cameraStatus === 'granted';
-		} else {
-			// On non-macOS platforms, assume permissions are handled by system
-			results.microphone = true;
-			results.screen = true;
-			results.camera = true;
-		}
-
-		// All permissions must be granted (for macOS) or we're on non-macOS
-		results.allGranted = results.microphone && results.camera;
-		// Note: screen is optional for now, only require mic and screen
-
-		log.info('🔍 Permission check results:', results);
-		return results;
-	} catch (error) {
-		log.error('❌ Error checking all permissions:', error);
-		return { allGranted: false, microphone: false, screen: false, camera: false };
-	}
-}
 
 // App lifecycle
 app.whenReady().then(async () => {
@@ -3847,52 +3645,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Microphone permission check handler - REGISTERED EARLY to avoid timing issues
-	log.info('📋 Registering microphone permission check handler EARLY');
-	ipcMain.handle('check-microphone-permission', async () => {
-		log.info('🎤 Microphone permission check handler called');
-		try {
-			if (isMacRuntime) {
-				const microphoneStatus = systemPreferences.getMediaAccessStatus('microphone');
-				log.info(
-					'🎤 Microphone permission check:',
-					microphoneStatus,
-					'granted:',
-					microphoneStatus === 'granted',
-				);
-
-				return {
-					success: true,
-					permission: microphoneStatus,
-					hasPermission: microphoneStatus === 'granted',
-					message:
-						microphoneStatus === 'granted'
-							? 'Microphone access granted'
-							: microphoneStatus === 'denied'
-							? 'Microphone access denied'
-							: microphoneStatus === 'not-determined'
-							? 'Microphone permission not yet determined'
-							: 'Microphone access restricted',
-				};
-			} else {
-				// For non-macOS platforms, assume permission is available
-				return {
-					success: true,
-					permission: 'granted',
-					hasPermission: true,
-					message: 'Microphone access available',
-				};
-			}
-		} catch (error) {
-			log.error('Error checking microphone permission:', error);
-			return {
-				success: false,
-				error: error.message,
-				hasPermission: false,
-				permission: 'error',
-			};
-		}
-	});
 
 	createTray(); // Create system tray for Windows
 	createMenuBar();
@@ -3901,33 +3653,6 @@ app.whenReady().then(async () => {
 	windowHelper.registerGlobalShortcuts(mainWindow);
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
 
-	// Check authentication status and show permission overlay only for unauthenticated users
-	setTimeout(async () => {
-		try {
-			const isAuthenticated = await checkUserAuthenticationStatus();
-
-			if (!isAuthenticated) {
-				// windowHelper.showPermissionWindow();
-				log.info('📋 Permission overlay shown for unauthenticated user');
-			} else {
-				// If already authenticated, check if user has completed onboarding
-				const completed = hasCompletedOnboarding();
-
-				if (!completed) {
-					log.info('🆕 First time user - showing permission overlay');
-					windowHelper?.showPermissionWindow();
-				} else {
-					log.info(
-						'✅ User has completed onboarding - skipping overlay (will never show again)',
-					);
-				}
-			}
-		} catch (error) {
-			log.error('❌ Error checking authentication or showing permission overlay:', error);
-			// Show overlay on error to be safe
-			// windowHelper.showPermissionWindow();
-		}
-	}, 2000); // Delay to ensure main window is ready
 
 	// Subscribe all windows to bridge when they're created (ADD THIS)
 	if (bridge && windowHelper) {
@@ -4067,76 +3792,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Register Permission window IPC handlers
-	ipcMain.handle('toggle-permission-window', async () => {
-		try {
-			windowHelper?.togglePermissionWindow();
-			return { success: true };
-		} catch (error) {
-			log.error('Error toggling Permission window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('show-permission-window', async () => {
-		try {
-			windowHelper?.showPermissionWindow();
-			return { success: true };
-		} catch (error) {
-			log.error('Error showing Permission window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('hide-permission-window', async () => {
-		try {
-			log.info('🔒 Hide permission window called - marking onboarding as completed');
-			windowHelper?.hidePermissionWindow();
-
-			// Mark that user has completed onboarding - THIS IS KEY!
-			const marked = markOnboardingCompleted();
-
-			if (marked) {
-				log.info('✅ Onboarding marked as completed - overlay will NEVER show again');
-			} else {
-				log.error('❌ Failed to mark onboarding as completed - overlay may show again!');
-			}
-
-			return { success: true, onboardingMarked: marked };
-		} catch (error) {
-			log.error('❌ Error hiding Permission window:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	// IPC handler to check and show permission overlay based on auth status
-	ipcMain.handle('check-auth-and-show-permission-overlay', async () => {
-		try {
-			const isAuthenticated = await checkUserAuthenticationStatus();
-
-			if (!isAuthenticated) {
-				// windowHelper?.showPermissionWindow();
-				// log.info('📋 Permission overlay shown after auth check');
-				return { success: true, shown: true, authenticated: false };
-			} else {
-				// log.info('👤 User is authenticated - permission overlay not needed');
-				return { success: true, shown: false, authenticated: true };
-			}
-		} catch (error) {
-			log.error('❌ Error checking auth and showing permission overlay:', error);
-			return { success: false, error: error.message };
-		}
-	});
-
-	ipcMain.handle('is-permission-window-visible', async () => {
-		try {
-			const isVisible = windowHelper?.isPermissionWindowVisible();
-			return { success: true, isVisible };
-		} catch (error) {
-			log.error('Error checking Permission window visibility:', error);
-			return { success: false, error: error.message };
-		}
-	});
 
 	// Handler to hide all windows (overlay and ask AI)
 	ipcMain.handle('hide-all-windows', async () => {
@@ -4213,7 +3868,6 @@ app.whenReady().then(async () => {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
 
-	// Permission overlay is now shown by default above, so we don't need conditional checking
 
 	// Initialize Boring Notch asynchronously to prevent blocking main window
 	const initializeBoringNotchAsync = async () => {
@@ -4526,6 +4180,175 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	// Helper function to open system settings for specific permissions
+	const openSystemSettingsForPermission = async (permissionType) => {
+		const platform = process.platform;
+
+		try {
+			if (platform === 'darwin') {
+				let settingsUrl = '';
+				switch (permissionType) {
+					case 'microphone':
+						settingsUrl =
+							'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone';
+						break;
+					case 'screen':
+						settingsUrl =
+							'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture';
+						break;
+					default:
+						settingsUrl = 'x-apple.systempreferences:';
+				}
+
+				await shell.openExternal(settingsUrl);
+				log.info(`🔧 Opened ${permissionType} settings in System Preferences`);
+				return { success: true, platform: 'macOS' };
+			} else if (platform === 'win32') {
+				let settingsCommand = '';
+				switch (permissionType) {
+					case 'microphone':
+						settingsCommand = 'start ms-settings:privacy-microphone';
+						break;
+					case 'screen':
+						settingsCommand = 'start ms-settings:privacy';
+						break;
+					default:
+						settingsCommand = 'start ms-settings:';
+				}
+
+				exec(settingsCommand, (error) => {
+					if (error) {
+						log.error(`Failed to open Windows ${permissionType} settings:`, error);
+					}
+				});
+				return { success: true, platform: 'Windows' };
+			} else {
+				log.warn('Unsupported platform for system settings:', platform);
+				return { success: false, error: 'Unsupported platform' };
+			}
+		} catch (err) {
+			log.error(`❌ Error opening ${permissionType} settings:`, err);
+			return { success: false, error: err.message };
+		}
+	};
+
+	async function checkPermissions() {
+		try {
+			log.info('🔍 Starting permission checks...');
+
+			// Check microphone permission and request if needed
+			log.info('🔍 Checking microphone permission...');
+			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
+			log.info('🔍 Microphone permission status:', micStatus);
+
+			let micPermission = micStatus === 'granted';
+
+			if (micStatus !== 'granted') {
+				log.info('🔍 Requesting microphone permission...');
+				try {
+					micPermission = await systemPreferences.askForMediaAccess('microphone');
+					log.info('🔍 Microphone permission request result:', micPermission);
+
+					// If still not granted, open system settings
+					if (!micPermission) {
+						log.info('🔧 Opening microphone settings in System Preferences...');
+						await openSystemSettingsForPermission('microphone');
+					}
+				} catch (error) {
+					log.error('🔍 Error requesting microphone permission:', error);
+					micPermission = false;
+					// Open system settings as fallback
+					await openSystemSettingsForPermission('microphone');
+				}
+			}
+
+			if (!micPermission) {
+				return {
+					status: 'permission_denied',
+					message:
+						'Microphone permission not granted. Please allow microphone access in System Settings.',
+					settingsOpened: true,
+				};
+			}
+
+			// Check screen permission and request if needed
+			log.info('🔍 Checking screen permission...');
+			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
+			log.info('🔍 Screen permission status:', screenStatus);
+
+			let screenPermission = screenStatus === 'granted';
+
+			if (screenStatus !== 'granted') {
+				log.info('🔍 Requesting screen permission...');
+				try {
+					screenPermission = await systemPreferences.askForMediaAccess('screen');
+					log.info('🔍 Screen permission request result:', screenPermission);
+
+					// If still not granted, open system settings
+					if (!screenPermission) {
+						log.info('🔧 Opening screen recording settings in System Preferences...');
+						await openSystemSettingsForPermission('screen');
+					}
+				} catch (error) {
+					log.error('🔍 Error requesting screen permission:', error);
+					screenPermission = false;
+					// Open system settings as fallback
+					await openSystemSettingsForPermission('screen');
+				}
+			}
+
+			if (!screenPermission) {
+				return {
+					status: 'permission_denied',
+					message:
+						'Screen permission not granted. Please allow screen recording access in System Settings.',
+					settingsOpened: true,
+				};
+			}
+
+			log.info('🔍 All permissions granted successfully');
+			return {
+				status: 'success',
+				microphone: micPermission,
+				screen: screenPermission,
+				message: 'All permissions granted',
+			};
+		} catch (err) {
+			log.error('🔍 Error in checkPermissions:', err);
+			return {
+				status: 'error',
+				message: err.message,
+			};
+		}
+	}
+
+	async function checkPermissionsAndStartMeeting(ws) {
+		log.info('🚀 checkPermissionsAndStartMeeting function called');
+		const result = await checkPermissions();
+		log.info('checkPermissionsAndStartMeeting result', result);
+
+		let message = '';
+
+		if (result.status === 'success') {
+			log.info('All permissions granted - starting meeting');
+			await handleNotchToMainWindowEvents({ action: 'startRecording' });
+			return { success: true };
+		}
+
+		if (result.status === 'permission_denied') {
+			message = result.message || 'Permissions not granted';
+		} else if (result.status === 'no_hardware') {
+			message = 'No microphone detected on this system';
+		} else if (result.status === 'error') {
+			message = 'Error checking permissions: ' + result.message;
+		}
+
+		log.info('checkPermissionsAndStartMeeting message', message);
+
+		websocketService.sendToClient(ws, { type: 'MEETING_START_ERROR', data: { message } });
+		return { success: false, error: message };
+	}
+
 	// Helper function to get authentication token from renderer
 	async function getAuthToken() {
 		try {
@@ -4543,32 +4366,21 @@ app.whenReady().then(async () => {
 
 	async function handleWebSocketMessage(prop) {
 		const { data, ws } = prop;
-		// if (data.type === 'START_MEETING') {
-		// 	log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-		// 	// Send response back to the client that sent the START_MEETING message
-		// 	await handleNotchToMainWindowEvents({ action: 'startRecording' });
-		// 	websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		// } else if (data.type === 'NAVIGATE_TO_MAIN_SCREEN') {
-		// 	log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
-		// 	// Show and focus main window, optionally navigate to specific path
-		// 	await handleNotchToMainWindowEvents({ path: data.path || null });
-		// 	log.info('✅ Main window opened/restored from BoringNotch VE logo click');
-		// }
-		// // switch(data.type) {
-		// // 	case 'START_MEETING':
-		// // 		log.info('🎯 START_MEETING message received, scheduling MEETING_STARTED response...');
-		// // 		// Send response back to the client that sent the START_MEETING message
-		// // 		websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
-		// // 		break;
 
 		switch (data.type) {
 			case 'START_MEETING':
 				log.info(
 					'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
 				);
-				await handleNotchToMainWindowEvents({ action: 'startRecording' });
-				// Send response back to the client that sent the START_MEETING message
-				websocketService.sendToClient(ws, { type: 'MEETING_STARTED', data: {} });
+				try {
+					await checkPermissionsAndStartMeeting(ws);
+				} catch (error) {
+					log.error('Error in checkPermissionsAndStartMeeting:', error);
+					websocketService.sendToClient(ws, {
+						type: 'MEETING_START_ERROR',
+						data: { message: 'Internal error: ' + error.message },
+					});
+				}
 				break;
 
 			case 'PAUSE_MEETING':
@@ -4620,6 +4432,17 @@ app.whenReady().then(async () => {
 				log.info('✅ Main window opened/restored from BoringNotch VE logo click');
 				break;
 
+			case "ENABLE_AI_INTELLIGENCE":
+				log.info('🎯 ENABLE_AI_INTELLIGENCE message received from BoringNotch');
+				await handleNotchToMainWindowEvents({ action: 'enableAiIntelligence' });
+				log.info('✅ AI Intelligence enabled');
+				break;
+
+			case "DISABLE_AI_INTELLIGENCE":
+				log.info('🎯 DISABLE_AI_INTELLIGENCE message received from BoringNotch');
+				await handleNotchToMainWindowEvents({ action: 'disableAiIntelligence' });
+				log.info('✅ AI Intelligence disabled');
+				break;
 			default:
 				log.info('🎯 Unknown message received, skipping...');
 		}
@@ -5242,259 +5065,7 @@ app.whenReady().then(async () => {
 		}
 	});
 
-	// Check camera permission status handler
-	ipcMain.handle('check-camera-permission', async () => {
-		try {
-			if (isMacRuntime) {
-				const cameraStatus = systemPreferences.getMediaAccessStatus('camera');
-				log.info(
-					'📷 Camera permission check:',
-					cameraStatus,
-					'granted:',
-					cameraStatus === 'granted',
-				);
 
-				return {
-					success: true,
-					permission: cameraStatus,
-					hasPermission: cameraStatus === 'granted',
-					message:
-						cameraStatus === 'granted'
-							? 'Camera access granted'
-							: cameraStatus === 'denied'
-							? 'Camera access denied'
-							: cameraStatus === 'not-determined'
-							? 'Camera permission not yet determined'
-							: 'Camera access restricted',
-				};
-			} else {
-				// For non-macOS platforms, assume permission is available
-				return {
-					success: true,
-					permission: 'granted',
-					hasPermission: true,
-					message: 'Camera access available',
-				};
-			}
-		} catch (error) {
-			log.error('Error checking camera permission:', error);
-			return {
-				success: false,
-				error: error.message,
-				hasPermission: false,
-				permission: 'error',
-			};
-		}
-	});
-
-	// Check media permission status handler (Media Library)
-	ipcMain.handle('check-media-permission', async () => {
-		try {
-			if (isMacRuntime && permissions) {
-				// Use electron-mac-permissions for proper Media Library access
-				const mediaStatus = permissions.getAuthStatus('media');
-				log.info(
-					'🎵 Media Library permission check:',
-					mediaStatus,
-					'granted:',
-					mediaStatus === 'authorized',
-				);
-
-				return {
-					success: true,
-					permission:
-						mediaStatus === 'authorized'
-							? 'granted'
-							: mediaStatus === 'denied'
-							? 'denied'
-							: 'not-determined',
-					hasPermission: mediaStatus === 'authorized',
-					message:
-						mediaStatus === 'authorized'
-							? 'Media Library access granted'
-							: mediaStatus === 'denied'
-							? 'Media Library access denied'
-							: 'Media Library permission not yet determined',
-				};
-			} else {
-				// For non-macOS platforms or when electron-mac-permissions not available
-				return {
-					success: false,
-					error: 'Media permission check requires electron-mac-permissions on macOS',
-					hasPermission: false,
-					permission: 'not-determined',
-				};
-			}
-		} catch (error) {
-			log.error('Error checking media permission:', error);
-			return {
-				success: false,
-				error: error.message,
-				hasPermission: false,
-				permission: 'error',
-			};
-		}
-	});
-
-	// Check calendar permission status handler
-	ipcMain.handle('check-calendar-permission', async () => {
-		try {
-			if (isMacRuntime && permissions) {
-				// Use electron-mac-permissions for proper Calendar access (EventKit)
-				const calendarStatus = permissions.getAuthStatus('calendar');
-				log.info(
-					'📅 Calendar permission check:',
-					calendarStatus,
-					'granted:',
-					calendarStatus === 'authorized',
-				);
-
-				return {
-					success: true,
-					permission:
-						calendarStatus === 'authorized'
-							? 'granted'
-							: calendarStatus === 'denied'
-							? 'denied'
-							: 'not-determined',
-					hasPermission: calendarStatus === 'authorized',
-					message:
-						calendarStatus === 'authorized'
-							? 'Calendar access granted'
-							: calendarStatus === 'denied'
-							? 'Calendar access denied'
-							: 'Calendar permission not yet determined',
-				};
-			} else {
-				// For non-macOS platforms or when electron-mac-permissions not available
-				return {
-					success: false,
-					error: 'Calendar permission check requires electron-mac-permissions on macOS',
-					hasPermission: false,
-					permission: 'not-determined',
-				};
-			}
-		} catch (error) {
-			log.error('Error checking calendar permission:', error);
-			return {
-				success: false,
-				error: error.message,
-				hasPermission: false,
-				permission: 'error',
-			};
-		}
-	});
-
-	// Request media permission handler (Media Library)
-	ipcMain.handle('request-media-permission', async () => {
-		try {
-			if (isMacRuntime && permissions) {
-				log.info('🎵 Requesting Media Library permission...');
-				const granted = await permissions.askForMediaAccess();
-				log.info('🎵 Media Library permission request result:', granted);
-
-				return {
-					success: true,
-					permission: granted ? 'granted' : 'denied',
-					hasPermission: granted,
-					message: granted
-						? 'Media Library access granted'
-						: 'Media Library access denied',
-				};
-			} else {
-				log.warn(
-					'🎵 Media Library permission request not available - electron-mac-permissions required',
-				);
-				return {
-					success: false,
-					error: 'Media Library permission request requires electron-mac-permissions package',
-					hasPermission: false,
-					permission: 'not-determined',
-				};
-			}
-		} catch (error) {
-			log.error('Error requesting media permission:', error);
-			return {
-				success: false,
-				error: error.message,
-				hasPermission: false,
-				permission: 'error',
-			};
-		}
-	});
-
-	// Request calendar permission handler
-	ipcMain.handle('request-calendar-permission', async () => {
-		try {
-			if (isMacRuntime && permissions) {
-				log.info('📅 Requesting Calendar permission...');
-				const granted = await permissions.askForCalendarAccess();
-				log.info('📅 Calendar permission request result:', granted);
-
-				return {
-					success: true,
-					permission: granted ? 'granted' : 'denied',
-					hasPermission: granted,
-					message: granted ? 'Calendar access granted' : 'Calendar access denied',
-				};
-			} else {
-				log.warn(
-					'📅 Calendar permission request not available - electron-mac-permissions required',
-				);
-				return {
-					success: false,
-					error: 'Calendar permission request requires electron-mac-permissions package',
-					hasPermission: false,
-					permission: 'not-determined',
-				};
-			}
-		} catch (error) {
-			log.error('Error requesting calendar permission:', error);
-			return {
-				success: false,
-				error: error.message,
-				hasPermission: false,
-				permission: 'error',
-			};
-		}
-	});
-
-	// Debug permission handler - for troubleshooting
-	ipcMain.handle('debug-permissions', async () => {
-		try {
-			const debugInfo = {
-				platform: process.platform,
-				isMacRuntime,
-				permissions: {},
-			};
-
-			if (isMacRuntime) {
-				debugInfo.permissions = {
-					microphone: systemPreferences.getMediaAccessStatus('microphone'),
-					screen: systemPreferences.getMediaAccessStatus('screen'),
-					camera: systemPreferences.getMediaAccessStatus('camera'),
-				};
-			} else {
-				debugInfo.permissions = {
-					microphone: 'granted (non-macOS)',
-					screen: 'granted (non-macOS)',
-					camera: 'granted (non-macOS)',
-				};
-			}
-
-			log.info('🔍 Debug permissions info:', debugInfo);
-			return {
-				success: true,
-				debugInfo,
-			};
-		} catch (error) {
-			log.error('Error in debug permissions:', error);
-			return {
-				success: false,
-				error: error.message,
-			};
-		}
-	});
 
 	// Handle chat mode activation to ensure input field can receive focus
 	ipcMain.handle('dynamic-island-chat-mode', async (event, isChatMode) => {
@@ -7870,8 +7441,6 @@ app.whenReady().then(async () => {
 				window = windowHelper?.getOverlayWindow();
 			} else if (targetWindow === 'askAI') {
 				window = windowHelper?.getAskAIWindow();
-			} else if (targetWindow === 'permission') {
-				window = windowHelper?.getPermissionWindow();
 			} else if (targetWindow === 'areYouThere') {
 				window = windowHelper?.getAreYouThereWindow();
 			} else if (targetWindow === 'dynamicIsland') {

@@ -160,6 +160,7 @@ const GlobalMeetingHelper = () => {
 		toggleMute,
 		// formatTime,
 		startRecording,
+		toggleAiIntelligence,
 	} = useAssemblyTranscription({
 		onTranscriptionUpdate: updateTranscriptionHelper,
 		onLiveIntelligenceResponse: updateLiveIntelligenceDataHelper,
@@ -567,6 +568,14 @@ const GlobalMeetingHelper = () => {
 					console.log('📊 Dynamic Island: Getting recording state...');
 					// Send current state back to Dynamic Island
 					sendRecordingStateUpdate();
+					break;
+				case 'enableAiIntelligence':
+					console.log('🔍 Dynamic Island: Enabling AI Intelligence...');
+					toggleAiIntelligence(true);
+					break;
+				case 'disableAiIntelligence':
+					console.log('🔍 Dynamic Island: Disabling AI Intelligence...');
+					toggleAiIntelligence(false);
 					break;
 				default:
 					console.warn('❓ Unknown Dynamic Island command:', event.action);

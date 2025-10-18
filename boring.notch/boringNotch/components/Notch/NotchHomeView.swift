@@ -149,9 +149,56 @@ struct MusicPlayerView: View {
     let showShuffleAndRepeat: Bool
 
     var body: some View {
-        HStack {
-            AlbumArtView(vm: vm, albumArtNamespace: albumArtNamespace).padding(.all, 5)
-            MusicControlsView(showShuffleAndRepeat: showShuffleAndRepeat).drawingGroup().compositingGroup()
+        ZStack(alignment: .center) {
+            // Album art as full background
+            AlbumArtBackgroundView(vm: vm, albumArtNamespace: albumArtNamespace)
+            
+            // Enhanced gradient overlay for better text readability
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.black.opacity(0.8),
+                    Color.black.opacity(0.3),
+                    Color.black.opacity(0.2),
+                    Color.black.opacity(0.3),
+                    Color.black.opacity(0.9)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            
+            // Music controls overlaid on top
+            MusicControlsView(showShuffleAndRepeat: showShuffleAndRepeat)
+                .drawingGroup()
+                .compositingGroup()
+        }
+        .clipShape(RoundedRectangle(cornerRadius: Defaults[.cornerRadiusScaling] ? 13 : 4))
+    }
+}
+
+// MARK: - Album Art Background Component
+struct AlbumArtBackgroundView: View {
+    @ObservedObject var musicManager = MusicManager.shared
+    @ObservedObject var vm: BoringViewModel
+    let albumArtNamespace: Namespace.ID
+
+    var body: some View {
+        ZStack {
+            // Constrained height background album art
+            Image(nsImage: musicManager.albumArt)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(maxWidth: .infinity, maxHeight: 120) // Reduced height from infinity to 120
+                .clipped()
+                .matchedGeometryEffect(id: "albumArt", in: albumArtNamespace)
+            
+            // Subtle overlay for when not playing
+            if !musicManager.isPlaying {
+                Color.black.opacity(0.3)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            musicManager.openMusicApp()
         }
     }
 }
@@ -259,40 +306,50 @@ struct MusicControlsView: View {
     let showShuffleAndRepeat: Bool
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .center, spacing: 8) {
             songInfoAndSlider
             playbackControls
         }
         .buttonStyle(PlainButtonStyle())
-        .frame(minWidth: Defaults[.showMirror] && Defaults[.showCalendar] ? 140 : 180)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 
     private var songInfoAndSlider: some View {
         GeometryReader { geo in
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .center, spacing: 8) {
                 songInfo(width: geo.size.width)
                 musicSlider
             }
         }
-        .padding(.top, 10)
-        .padding(.leading, 5)
     }
 
     private func songInfo(width: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 4) {
+            // Song Title - Smaller, more readable size
             MarqueeText(
-                $musicManager.songTitle, font: .headline, nsFont: .headline, textColor: .white,
-                frameWidth: width)
-            MarqueeText(
-                $musicManager.artistName,
-                font: .headline,
-                nsFont: .headline,
-                textColor: Defaults[.playerColorTinting]
-                    ? Color(nsColor: musicManager.avgColor)
-                        .ensureMinimumBrightness(factor: 0.6) : .gray,
+                $musicManager.songTitle, 
+                font: .headline, 
+                nsFont: .headline, 
+                textColor: .white,
                 frameWidth: width
             )
-            .fontWeight(.medium)
+            .fontWeight(.semibold)
+            .shadow(color: .black.opacity(0.9), radius: 4, x: 0, y: 2)
+            
+            // Artist Name - Even smaller for hierarchy
+            MarqueeText(
+                $musicManager.artistName,
+                font: .body,
+                nsFont: .body,
+                textColor: Defaults[.playerColorTinting]
+                    ? Color(nsColor: musicManager.avgColor)
+                        .ensureMinimumBrightness(factor: 0.9) : .white.opacity(0.8),
+                frameWidth: width
+            )
+            .fontWeight(.regular)
+            .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 1)
         }
     }
 
@@ -323,24 +380,32 @@ struct MusicControlsView: View {
             if showShuffleAndRepeat {
                 HoverButton(
                     icon: "shuffle", iconColor: musicManager.isShuffled ? .red : .white,
-                    scale: .medium
+                    scale: .small
                 ) {
                     MusicManager.shared.toggleShuffle()
                 }
+                .shadow(color: .black.opacity(0.8), radius: 3, x: 0, y: 1)
             }
             HoverButton(icon: "backward.fill", scale: .medium) {
                 MusicManager.shared.previousTrack()
             }
-            HoverButton(icon: musicManager.isPlaying ? "pause.fill" : "play.fill", scale: .large) {
+            .shadow(color: .black.opacity(0.8), radius: 3, x: 0, y: 1)
+            
+            HoverButton(icon: musicManager.isPlaying ? "pause.fill" : "play.fill", scale: .medium) {
                 MusicManager.shared.togglePlay()
             }
+            .shadow(color: .black.opacity(0.8), radius: 4, x: 0, y: 2)
+            
             HoverButton(icon: "forward.fill", scale: .medium) {
                 MusicManager.shared.nextTrack()
             }
+            .shadow(color: .black.opacity(0.8), radius: 3, x: 0, y: 1)
+            
             if showShuffleAndRepeat {
-                HoverButton(icon: repeatIcon, iconColor: repeatIconColor, scale: .medium) {
+                HoverButton(icon: repeatIcon, iconColor: repeatIconColor, scale: .small) {
                     MusicManager.shared.toggleRepeat()
                 }
+                .shadow(color: .black.opacity(0.8), radius: 3, x: 0, y: 1)
             }
         }
         .frame(maxWidth: .infinity, alignment: .center)
@@ -657,7 +722,7 @@ struct MusicSliderView: View {
                 color: Defaults[.sliderColor] == SliderColorEnum.albumArt
                     ? Color(
                         nsColor: color
-                    ).ensureMinimumBrightness(factor: 0.8)
+                    ).ensureMinimumBrightness(factor: 0.9)
                     : Defaults[.sliderColor] == SliderColorEnum.accent ? .accentColor : .white,
                 dragging: $dragging,
                 lastDragged: $lastDragged,
@@ -666,16 +731,17 @@ struct MusicSliderView: View {
             .frame(height: 10, alignment: .center)
             HStack {
                 Text(timeString(from: sliderValue))
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 1)
                 Spacer()
                 Text(timeString(from: duration))
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.9), radius: 3, x: 0, y: 1)
             }
-            .fontWeight(.medium)
-            .foregroundColor(
-                Defaults[.playerColorTinting]
-                    ? Color(nsColor: color)
-                        .ensureMinimumBrightness(factor: 0.6) : .gray
-            )
-            .font(.caption)
         }
         .onChange(of: currentDate) {
             sliderValue = currentElapsedTime

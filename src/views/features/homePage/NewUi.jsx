@@ -624,10 +624,8 @@ const NewUi = ({ handleActiveChatChange }) => {
 														}
 														customChatActions={true}
 														autoFocus={false}
-														animatePlaceholder={false}
 														showUpgradeSubscriptionBtn={false}
 														onChatQueryChange={handleChatQueryChange}
-														animateChatBox={true}
 													/>
 													{/* <Suggestions
 													chatQuery={info?.chatQuery}
@@ -676,9 +674,7 @@ const NewUi = ({ handleActiveChatChange }) => {
 															}
 															customChatActions={true}
 															autoFocus={false}
-															animatePlaceholder={false}
 															showUpgradeSubscriptionBtn={false}
-															animateChatBox={true}
 														/>
 													</div>
 												</>

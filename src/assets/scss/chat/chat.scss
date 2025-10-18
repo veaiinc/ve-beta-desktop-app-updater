@@ -8,6 +8,55 @@
 	position: relative;
 	box-sizing: border-box;
 
+	.chat-to-note-link-container {
+		display: flex;
+		justify-content: space-between;
+		width: 100%;
+		padding: 12px 20px;
+		gap: 24px;
+		background-color: var(--card-over-card-hover);
+
+		.title {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--primary-font, #f2f2f3);
+			text-align: center;
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 500;
+			line-height: normal;
+		}
+		.link-icon-container {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 32px;
+			padding: 6px 14px;
+			gap: 6px;
+			border-radius: 24px;
+			background: var(--popup, #202123);
+			cursor: pointer;
+			transition: 100ms ease-in-out;
+
+			svg {
+				path {
+					stroke: var(--primary-font) !important;
+				}
+			}
+		}
+
+		.link-icon-container.active {
+			background-color: var(--primary-button);
+			svg {
+				path {
+					stroke: var(--primary-button-font) !important;
+				}
+			}
+		}
+	}
+
 	.chat-history-wrapper {
 		width: 250px;
 		flex-shrink: 0;

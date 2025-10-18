@@ -123,9 +123,10 @@ const stableRoutes = [
 					<RecentChat
 						showDeleteChat={true}
 						showRightBar={true}
-						showChats={true}
+						showChats={false}
 						showChatsButton={true}
 						showBrowser={true}
+						showResponseEditBtn={false}
 					/>
 				</AuthWrapper>
 			</Suspense>
