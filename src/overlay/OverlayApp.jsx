@@ -495,7 +495,8 @@ const OverlayApp = () => {
 
 		sessionIdRef.current = null;
 
-		stopRecording({ meetingId: info?.meetingData?._id });
+		// Stop recording and wait for cleanup to complete
+		await stopRecording({ meetingId: info?.meetingData?._id });
 
 		// Generate meeting analytics when meeting ends (only if not already exists)
 		if (currentMeetingId) {
@@ -504,30 +505,33 @@ const OverlayApp = () => {
 					'OverlayApp: Checking if analytics already exist for ended meeting:',
 					currentMeetingId,
 				);
-				
+
 				// First, check if analytics data already exists
 				const [success, data] = await getMeetingAnalytics(currentMeetingId);
-				
+
 				if (success && data) {
 					console.log('OverlayApp: Analytics data already exists, skipping generation');
-					return;
-				}
-				
-				console.log(
-					'OverlayApp: No analytics data found, generating analytics for ended meeting:',
-					currentMeetingId,
-				);
-				const result = await audioStorageService.generateMeetingAnalytics(currentMeetingId);
-				if (result.success) {
-					console.log('OverlayApp: Successfully generated meeting analytics');
+					// Continue to cleanup - DO NOT RETURN
 				} else {
-					console.error(
-						'OverlayApp: Failed to generate meeting analytics:',
-						result.error,
+					console.log(
+						'OverlayApp: No analytics data found, generating analytics for ended meeting:',
+						currentMeetingId,
 					);
+					const result = await audioStorageService.generateMeetingAnalytics(
+						currentMeetingId,
+					);
+					if (result.success) {
+						console.log('OverlayApp: Successfully generated meeting analytics');
+					} else {
+						console.error(
+							'OverlayApp: Failed to generate meeting analytics:',
+							result.error,
+						);
+					}
 				}
 			} catch (error) {
 				console.error('OverlayApp: Error generating meeting analytics:', error);
+				// Continue to cleanup even if analytics fail
 			}
 		}
 

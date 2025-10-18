@@ -44,6 +44,7 @@ const useAssemblyTranscription = ({
 	const muteRef = useRef(false);
 	const maxReconnectAttempts = 3;
 	const meetingIdRef = useRef(null);
+	const isCleaningUpRef = useRef(false);
 
 	useEffect(() => {
 		isMountedRef.current = true;
@@ -120,121 +121,149 @@ const useAssemblyTranscription = ({
 	}, []);
 
 	const cleanup = useCallback(async () => {
-		// Clear timers first and foremost
-		if (timerIntervalRef.current) {
-			clearInterval(timerIntervalRef.current);
-			timerIntervalRef.current = null;
-		}
-		if (reconnectTimeoutRef.current) {
-			clearTimeout(reconnectTimeoutRef.current);
-			reconnectTimeoutRef.current = null;
+		// Prevent concurrent cleanup calls
+		if (isCleaningUpRef.current) {
+			log('Cleanup already in progress, skipping duplicate call');
+			return;
 		}
 
-		// Cleanup mic audio resources
-		if (micProcessorRef.current) {
-			try {
-				micProcessorRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting mic processor: ${e.message}`);
+		isCleaningUpRef.current = true;
+		log('Starting cleanup...');
+
+		try {
+			// Clear timers first
+			if (timerIntervalRef.current) {
+				clearInterval(timerIntervalRef.current);
+				timerIntervalRef.current = null;
 			}
-			micProcessorRef.current = null;
-		}
-
-		if (micSourceRef.current) {
-			try {
-				micSourceRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting mic source: ${e.message}`);
+			if (reconnectTimeoutRef.current) {
+				clearTimeout(reconnectTimeoutRef.current);
+				reconnectTimeoutRef.current = null;
 			}
-			micSourceRef.current = null;
-		}
 
-		if (micStreamRef.current) {
-			try {
-				micStreamRef.current.getTracks().forEach((track) => track.stop());
-			} catch (e) {
-				log(`Error stopping mic stream tracks: ${e.message}`);
-			}
-			micStreamRef.current = null;
-		}
-
-		// Cleanup screen audio resources
-		if (screenProcessorRef.current) {
-			try {
-				screenProcessorRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting screen processor: ${e.message}`);
-			}
-			screenProcessorRef.current = null;
-		}
-
-		if (screenSourceRef.current) {
-			try {
-				screenSourceRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting screen source: ${e.message}`);
-			}
-			screenSourceRef.current = null;
-		}
-
-		if (screenStreamRef.current) {
-			try {
-				screenStreamRef.current.getTracks().forEach((track) => track.stop());
-			} catch (e) {
-				log(`Error stopping screen stream tracks: ${e.message}`);
-			}
-			screenStreamRef.current = null;
-		}
-
-		// Close audio context
-		if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-			try {
-				audioContextRef.current.close();
-			} catch (e) {
-				log(`Error closing audio context: ${e.message}`);
-			}
-			audioContextRef.current = null;
-		}
-
-		// Close WebSocket
-		if (websocketRef.current && websocketRef.current.readyState !== WebSocket.CLOSED) {
-			try {
-				websocketRef.current.close();
-			} catch (e) {
-				log(`Error closing WebSocket: ${e.message}`);
-			}
-			websocketRef.current = null;
-		}
-
-		// Reset buffers and state
-		micBufferRef.current = [];
-		micSampleCountRef.current = 0;
-		screenBufferRef.current = [];
-		screenSampleCountRef.current = 0;
-		connectionPromiseRef.current = null;
-		connectionParamsRef.current = null;
-		reconnectAttemptsRef.current = 0;
-
-		if (meetingIdRef.current) {
-			const meetingId = meetingIdRef.current;
-			setTimeout(() => {
-				if (window?.electronApi?.navigateMainWindow) {
-					window?.electronApi?.navigateMainWindow({
-						path: `/meet/${meetingId}?type=in_app_meeting&history=true`,
-					});
+			// Cleanup mic audio resources
+			if (micProcessorRef.current) {
+				try {
+					micProcessorRef.current.disconnect();
+					micProcessorRef.current.onaudioprocess = null;
+				} catch (e) {
+					log(`Error disconnecting mic processor: ${e.message}`);
 				}
-			}, 2000);
-			meetingIdRef.current = null;
-		}
+				micProcessorRef.current = null;
+			}
 
-		// Reset all timer-related state
-		if (isMountedRef.current) {
-			setIsConnected(false);
-			setIsRecording(false);
-			setIsPaused(false);
-			setIsMuted(false);
-			setTimer(0);
-			updateStatus('Disconnected', 'disconnected');
+			if (micSourceRef.current) {
+				try {
+					micSourceRef.current.disconnect();
+				} catch (e) {
+					log(`Error disconnecting mic source: ${e.message}`);
+				}
+				micSourceRef.current = null;
+			}
+
+			if (micStreamRef.current) {
+				try {
+					log('Stopping mic stream tracks...');
+					micStreamRef.current.getTracks().forEach((track) => {
+						track.stop();
+						log(`Mic track stopped: ${track.kind}, state: ${track.readyState}`);
+					});
+				} catch (e) {
+					log(`Error stopping mic stream tracks: ${e.message}`);
+				}
+				micStreamRef.current = null;
+			}
+
+			// Cleanup screen audio resources
+			if (screenProcessorRef.current) {
+				try {
+					screenProcessorRef.current.disconnect();
+					screenProcessorRef.current.onaudioprocess = null;
+				} catch (e) {
+					log(`Error disconnecting screen processor: ${e.message}`);
+				}
+				screenProcessorRef.current = null;
+			}
+
+			if (screenSourceRef.current) {
+				try {
+					screenSourceRef.current.disconnect();
+				} catch (e) {
+					log(`Error disconnecting screen source: ${e.message}`);
+				}
+				screenSourceRef.current = null;
+			}
+
+			if (screenStreamRef.current) {
+				try {
+					log('Stopping screen stream tracks...');
+					screenStreamRef.current.getTracks().forEach((track) => {
+						track.stop();
+						log(`Screen track stopped: ${track.kind}, state: ${track.readyState}`);
+					});
+				} catch (e) {
+					log(`Error stopping screen stream tracks: ${e.message}`);
+				}
+				screenStreamRef.current = null;
+			}
+
+			// Close audio context and AWAIT it
+			if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+				try {
+					log('Closing audio context...');
+					await audioContextRef.current.close(); // ✅ AWAIT
+					log('Audio context closed successfully');
+				} catch (e) {
+					log(`Error closing audio context: ${e.message}`);
+				}
+				audioContextRef.current = null;
+			}
+
+			// Close WebSocket
+			if (websocketRef.current && websocketRef.current.readyState !== WebSocket.CLOSED) {
+				try {
+					websocketRef.current.close();
+				} catch (e) {
+					log(`Error closing WebSocket: ${e.message}`);
+				}
+				websocketRef.current = null;
+			}
+
+			// Reset buffers and state
+			micBufferRef.current = [];
+			micSampleCountRef.current = 0;
+			screenBufferRef.current = [];
+			screenSampleCountRef.current = 0;
+			connectionPromiseRef.current = null;
+			connectionParamsRef.current = null;
+			reconnectAttemptsRef.current = 0;
+
+			if (meetingIdRef.current) {
+				const meetingId = meetingIdRef.current;
+				setTimeout(() => {
+					if (window?.electronApi?.navigateMainWindow) {
+						window?.electronApi?.navigateMainWindow({
+							path: `/meet/${meetingId}?type=in_app_meeting&history=true`,
+						});
+					}
+				}, 2000);
+				meetingIdRef.current = null;
+			}
+
+			// Reset all timer-related state
+			if (isMountedRef.current) {
+				setIsConnected(false);
+				setIsRecording(false);
+				setIsPaused(false);
+				setIsMuted(false);
+				setTimer(0);
+				updateStatus('Disconnected', 'disconnected');
+			}
+
+			log('Cleanup completed successfully');
+		} finally {
+			// Always reset guard flag
+			isCleaningUpRef.current = false;
 		}
 	}, [log, updateStatus, initializeMeetingSummary]);
 
@@ -266,7 +295,7 @@ const useAssemblyTranscription = ({
 	}, [isConnected]);
 
 	const stopRecording = useCallback(
-		({ meetingId } = {}) => {
+		async ({ meetingId } = {}) => {
 			if (!isMountedRef.current) return;
 
 			log('Stopping recording...');
@@ -274,85 +303,11 @@ const useAssemblyTranscription = ({
 			setIsRecording(false);
 			setIsPaused(false);
 
-			// Stop timer using new function
+			// Stop timer
 			stopTimer();
 
-			// Disconnect mic audio nodes
-			if (micProcessorRef.current) {
-				try {
-					micProcessorRef.current.disconnect();
-					micProcessorRef.current.onaudioprocess = null;
-				} catch (e) {
-					log(`Error disconnecting mic processor: ${e.message}`);
-				}
-				micProcessorRef.current = null;
-			}
-
-			if (micSourceRef.current) {
-				try {
-					micSourceRef.current.disconnect();
-				} catch (e) {
-					log(`Error disconnecting mic source: ${e.message}`);
-				}
-				micSourceRef.current = null;
-			}
-
-			// Disconnect screen audio nodes
-			if (screenProcessorRef.current) {
-				try {
-					screenProcessorRef.current.disconnect();
-					screenProcessorRef.current.onaudioprocess = null;
-				} catch (e) {
-					log(`Error disconnecting screen processor: ${e.message}`);
-				}
-				screenProcessorRef.current = null;
-			}
-
-			if (screenSourceRef.current) {
-				try {
-					screenSourceRef.current.disconnect();
-				} catch (e) {
-					log(`Error disconnecting screen source: ${e.message}`);
-				}
-				screenSourceRef.current = null;
-			}
-
-			// Stop mic stream tracks
-			if (micStreamRef.current) {
-				try {
-					micStreamRef.current.getTracks().forEach((track) => track.stop());
-				} catch (e) {
-					log(`Error stopping mic stream tracks: ${e.message}`);
-				}
-				micStreamRef.current = null;
-			}
-
-			// Stop screen stream tracks
-			if (screenStreamRef.current) {
-				try {
-					screenStreamRef.current.getTracks().forEach((track) => track.stop());
-				} catch (e) {
-					log(`Error stopping screen stream tracks: ${e.message}`);
-				}
-				screenStreamRef.current = null;
-			}
-
-			// Close audio context last
-			if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-				try {
-					audioContextRef.current.close();
-				} catch (e) {
-					log(`Error closing audio context: ${e.message}`);
-				}
-				audioContextRef.current = null;
-			}
-
-			// Reset buffers
-			micBufferRef.current = [];
-			micSampleCountRef.current = 0;
-			screenBufferRef.current = [];
-			screenSampleCountRef.current = 0;
-			cleanup();
+			// ✅ Delegate all cleanup to the cleanup function
+			await cleanup();
 
 			// Notify NotchDrop about the state change
 			if (window.electronApi?.notchDrop?.onOverlayStateChange) {
@@ -1143,6 +1098,12 @@ const useAssemblyTranscription = ({
 					const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 					permissionGranted = true;
 					log('Microphone access granted', stream);
+
+					// ✅ STOP the permission test stream immediately to prevent macOS indicator leak
+					stream.getTracks().forEach((track) => {
+						track.stop();
+						log(`Permission test track stopped: ${track.kind}`);
+					});
 				} catch (err) {
 					log('Microphone permission denied or unavailable.', err);
 				}
