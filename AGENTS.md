@@ -83,7 +83,7 @@
     -   `electron/features/` (Zustand slices; currently `meeting/index.js`)
     -   `electron/wakeWordService.js` + `electron/wakeWord/` (Python wake-word integration)
 -   **HTML Entrypoints (Vite):**
-    -   `index.html`, `overlay.html`, `askAI.html`, `dynamic-island.html`, `areYouThere.html`, `permission.html`, `error-fallback.html`
+    -   `index.html`, `overlay.html`, `askAI.html`, `dynamic-island.html`, `areYouThere.html`, `error-fallback.html`
 -   **Swift/Native addon (SwiftUI + ObjC + Node‑API):**
     -   `notchdrop-addon/` (see README + docs inside)
         -   Node wrapper: `notchdrop-addon/index.js`
@@ -101,7 +101,6 @@
     -   `src/notch/components/DynamicIslandUI.jsx`
     -   `src/overlay/` (recording overlay React app)
     -   `src/askAI/` (Ask AI floating window UI)
-    -   `src/permission/` (Permission overlay React app)
     -   `src/areYouThere/` (React UI + styles) + `areYouThere.html`
     -   `src/store/store.js` (`@zubridge` hooks, grabs `electronApi.getStoreActions`)
     -   `src/views/features/meetBot/` + related feature folders (renderer uses zubridge dispatch)
@@ -129,7 +128,6 @@
     -   Overlay controls: `overlay-start-recording`, `overlay-stop-recording`, `overlay-pause-recording`, `overlay-resume-recording`, `overlay-toggle-live-intelligence`, `overlay-get-recording-state`, `overlay-recording-state-changed`, `overlay-state-update`, `overlay-set-panel-mode`, `overlay-send-transcription-data`, `overlay-send-live-intelligence-data`, `overlay-command`, `notchdrop-add-transcription-data`, `hide-overlay-window`
     -   Dynamic Island & voice: `dynamic-island-expand|collapse|toggle|show|hide|focus|force-show`, `dynamic-island-chat-mode`, `dynamic-island-set-mouse-events`, `dynamic-island-state`, `dynamic-island-start-recording-from-modal`, chat relay via `send-chat-message-to-askai`, `dynamic-island-voice-connect|disconnect|status`, `dynamic-island-set-microphone-access`, notifications via `dynamic-island-show-notification`/`dynamic-island-notification`, events `overlay-state-changed`, `voice-status-changed`, `trigger-voice-mode`, `force-focus`
     -   Ask AI window: `toggle-askAI-window`, `show-askAI-window`, `is-askAI-window-visible`, `update-askAI-dimensions`, `askAI-get-position`, `askAI-move-to`, `set-askAI-ignore-mouse-events`, `set-askAI-input-focus`, `get-askAI-input-focus`, `show-askAI-chatbox`, `show-askAI-response`, events `askAI-show-chatbox`, `askAI-show-response`, `receive-tab-content`, renderer messaging via `send-chat-message-to-askai`
-    -   Permission window: `toggle-permission-window`, `show-permission-window`, `hide-permission-window`, `is-permission-window-visible`, `check-auth-and-show-permission-overlay`, granular `check/request` helpers for microphone, screen, camera, media, and calendar, plus `open-system-settings`, `debug-permissions`
     -   NotchDrop: `notchdrop-enable|disable|toggle`, `notchdrop-is-visible`, `notchdrop-set-status`, `notchdrop-get-status`, `notchdrop-handle-files`, `notchdrop-set-auto-open|get-auto-open`, `notchdrop-set-haptic-feedback|get-haptic-feedback`, `update-notchdrop-menu`, `notchdrop-open-airdrop|open-share|open-file|delete-file`, `notchdrop-send-message`, `notchdrop-replace-transcriptions`, `notchdrop-clear-live-intelligence-data`, `notchdrop:triggerOverlay*`
     -   WebSocket bridge (boring.notch): `websocket-get-status`, `websocket-get-client-count`, `websocket-send-message`; `electron/services/websocketService.js` hosts `ws://localhost:8080` and handles `START_MEETING` → `MEETING_STARTED` handshake messages.
     -   Selection Assistant: `selection-assistant:get-history`, `selection-assistant:clear-history`, `selection-assistant:show-history`, `selection-assistant:request-permission`, `selection-assistant:is-permission-granted`; events `selection-assistant:captured`, `selection-assistant:permission`
