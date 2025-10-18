@@ -298,25 +298,25 @@ struct NotchBehaviourOnboardingView: View {
                 .frame(maxWidth: .infinity, alignment: .top)
 
             VStack(spacing: 0) {
-                row {
-                    Text("Notch display height")
-                    Spacer()
-                    Picker("", selection: $notchHeightMode) {
-                        Text("Match real notch size").tag(WindowHeightMode.matchRealNotchSize)
-                        Text("Match menubar height").tag(WindowHeightMode.matchMenuBar)
-                        Text("Custom height").tag(WindowHeightMode.custom)
-                    }
-                    .labelsHidden()
-                    .frame(width: 220)
-                }
-                if notchHeightMode == .custom {
-                    controlRow {
-                        Text("Custom notch size – \(notchHeight, specifier: "%.0f")")
-                        Slider(value: $notchHeight, in: 15...45, step: 1)
-                    }
-                }
+                // row {
+                //     Text("Notch display height")
+                //     Spacer()
+                //     Picker("", selection: $notchHeightMode) {
+                //         Text("Match real notch size").tag(WindowHeightMode.matchRealNotchSize)
+                //         Text("Match menubar height").tag(WindowHeightMode.matchMenuBar)
+                //         Text("Custom height").tag(WindowHeightMode.custom)
+                //     }
+                //     .labelsHidden()
+                //     .frame(width: 220)
+                // }
+                // if notchHeightMode == .custom {
+                //     controlRow {
+                //         Text("Custom notch size – \(notchHeight, specifier: "%.0f")")
+                //         Slider(value: $notchHeight, in: 15...45, step: 1)
+                //     }
+                // }
 
-                Divider().opacity(0.15)
+                // Divider().opacity(0.15)
 
                 row {
                     Text("Non-notch display height")
