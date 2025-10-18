@@ -320,7 +320,7 @@ const GlobalMeetingHelper = () => {
 			},
 		});
 
-		stopRecording({ meetingId: info?.meetingData?._id });
+		await stopRecording({ meetingId: info?.meetingData?._id });
 
 		// Generate meeting analytics when meeting ends (only if not already exists)
 		if (currentMeetingId) {
