@@ -19,17 +19,19 @@ struct EmailParser {
                 continue
             }
             
-            let parts = msgString.split(separator: "|||", maxSplits: 4)
-            guard parts.count == 5 else {
-                print("⚠️ Item \(i): Invalid format, skipping...")
+            // ✅ Now 6 parts: msgId, subject, senderName, senderAddress, date, isRead
+            let parts = msgString.split(separator: "|||", maxSplits: 5)
+            guard parts.count == 6 else {
+                print("⚠️ Item \(i): Invalid format (expected 6 parts, got \(parts.count)), skipping...")
                 continue
             }
             
             let idString = String(parts[0])
             let subject = String(parts[1])
-            let sender = String(parts[2])
-            let dateString = String(parts[3])
-            let isRead = String(parts[4]).lowercased() == "true"
+            let senderName = String(parts[2])
+            let senderAddress = String(parts[3]) // ✅ New field
+            let dateString = String(parts[4])
+            let isRead = String(parts[5]).lowercased() == "true"
             
             guard !idString.isEmpty else {
                 print("⚠️ Item \(i): Empty ID, skipping...")
@@ -44,8 +46,8 @@ struct EmailParser {
             let item = EmailItem(
                 appleScriptID: idString,
                 subject: subject,
-                senderName: sender,
-                senderAddress: nil,
+                senderName: senderName,
+                senderAddress: senderAddress.isEmpty ? nil : senderAddress, // ✅ Use real address
                 preview: nil,
                 receivedDate: dateReceived,
                 isRead: isRead,
@@ -53,7 +55,7 @@ struct EmailParser {
                 messageIDHeader: nil
             )
             items.append(item)
-            print("✅ Parsed email \(i): ID='\(idString)' Subject='\(subject.prefix(50))'")
+            print("✅ Parsed email \(i): ID='\(idString)' Subject='\(subject.prefix(50))' Address='\(senderAddress)'")
         }
         
         print("📈 Successfully parsed \(items.count) emails out of \(count) items")

@@ -2,7 +2,7 @@ import Foundation
 
 struct EmailItem: Identifiable, Equatable {
     let id = UUID()
-    let appleScriptID: String          // ✅ Must be String
+    let appleScriptID: String
     let subject: String
     let senderName: String
     let senderAddress: String?
@@ -13,19 +13,24 @@ struct EmailItem: Identifiable, Equatable {
     let messageIDHeader: String?
 }
 
+// MARK: - Computed Properties
 extension EmailItem {
-    var displaySender: String {
-        if !senderName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return senderName
-        }
-        return senderAddress ?? "Unknown Sender"
-    }
-    
     var displayPreview: String {
-        if let preview, !preview.isEmpty {
+        if let preview = preview, !preview.isEmpty {
             return preview
         }
-        return subject.isEmpty ? "No subject" : subject
+        return subject
+    }
+    
+    var photoURL: URL? {
+        let seed: String
+        if let addr = senderAddress, !addr.isEmpty {
+            seed = addr
+        } else {
+            seed = senderName.isEmpty ? "user" : senderName
+        }
+        
+        let safeSeed = seed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "user"
+        return URL(string: "https://api.dicebear.com/7.x/avataaars/svg?seed=\(safeSeed)")
     }
 }
-

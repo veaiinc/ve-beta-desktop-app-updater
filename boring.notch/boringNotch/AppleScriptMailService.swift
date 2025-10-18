@@ -188,6 +188,22 @@ final class AppleScriptMailService: MailService {
                         set msgSender to ""
                     end try
                     
+                    -- ✅ EXTRACT CLEAN EMAIL ADDRESS
+                    try
+                        set senderFull to sender of m
+                        if senderFull contains "<" and senderFull contains ">" then
+                            set AppleScript's text item delimiters to "<"
+                            set temp to text items of senderFull
+                            set AppleScript's text item delimiters to ">"
+                            set addrParts to text items of (item 2 of temp)
+                            set senderAddress to item 1 of addrParts
+                        else
+                            set senderAddress to senderFull
+                        end if
+                    on error
+                        set senderAddress to ""
+                    end try
+                    
                     try
                         set msgDate to date received of m
                         set y to year of msgDate
@@ -207,8 +223,8 @@ final class AppleScriptMailService: MailService {
                         set msgIsRead to false
                     end try
                     
-                    -- ✅ DELIMITED STRING - GUARANTEED TO WORK
-                    set msgString to msgId & "|||" & msgSubject & "|||" & msgSender & "|||" & msgDateISO & "|||" & (msgIsRead as string)
+                    -- ✅ DELIMITED STRING WITH SENDER EMAIL (6 fields now)
+                    set msgString to msgId & "|||" & msgSubject & "|||" & msgSender & "|||" & senderAddress & "|||" & msgDateISO & "|||" & (msgIsRead as string)
                     copy msgString to end of outputList
                 end repeat
                 

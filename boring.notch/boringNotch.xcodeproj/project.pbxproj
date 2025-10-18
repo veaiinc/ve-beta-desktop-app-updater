@@ -212,7 +212,6 @@
 		14E9FEA92C70BF610062E83F /* DownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadView.swift; sourceTree = "<group>"; };
 		14E9FEAD2C7325770062E83F /* Button+Bouncing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Button+Bouncing.swift"; sourceTree = "<group>"; };
 		14FC6E4F2C7DED5600C7BEA5 /* DataTypes+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataTypes+Extensions.swift"; sourceTree = "<group>"; };
-		411AC78B2EA41FB100654DA4 /* Untitled.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Untitled.swift; sourceTree = "<group>"; };
 		41F102A52EA3FFAC007FEB58 /* EmailItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailItem.swift; sourceTree = "<group>"; };
 		41F102A72EA3FFAE007FEB58 /* MailService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailService.swift; sourceTree = "<group>"; };
 		41F102A92EA3FFB0007FEB58 /* helpers/AppleScriptHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = helpers/AppleScriptHelper.swift; sourceTree = "<group>"; };
@@ -458,7 +457,6 @@
 				41F102A72EA3FFAE007FEB58 /* MailService.swift */,
 				41F102A92EA3FFB0007FEB58 /* helpers/AppleScriptHelper.swift */,
 				41F102AB2EA3FFB3007FEB58 /* EmailParser.swift */,
-				411AC78B2EA41FB100654DA4 /* Untitled.swift */,
 				41F102AD2EA3FFBE007FEB58 /* AppleScriptMailService.swift */,
 				41F102AF2EA3FFBF007FEB58 /* EmailViewModel.swift */,
 				41F102B52EA40042007FEB58 /* ScriptExecutor.swift */,
