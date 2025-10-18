@@ -2241,7 +2241,6 @@ export const TemplatesState = (props) => {
 		chatBoxInfo = null,
 		chatInfo = null,
 		browserData = null,
-		browserTabsInfo = null,
 		recentChatInfo = null,
 	}) => {
 		try {
@@ -2264,7 +2263,6 @@ export const TemplatesState = (props) => {
 					chatBoxInfo,
 					chatInfo,
 					browserData,
-					browserTabsInfo,
 					recentChatInfo,
 				},
 			});
