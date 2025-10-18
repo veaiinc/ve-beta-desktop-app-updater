@@ -1378,6 +1378,8 @@ struct DynamicIslandContentView: View {
                         set currentURL to URL of current tab of window 1
                         set currentTitle to name of current tab of window 1
                         return currentURL & "|||" & currentTitle
+                    on error
+                        return ""
                     end try
                 end if
             end tell
@@ -1391,6 +1393,8 @@ struct DynamicIslandContentView: View {
                         set currentURL to URL of active tab of window 1
                         set currentTitle to title of active tab of window 1
                         return currentURL & "|||" & currentTitle
+                    on error
+                        return ""
                     end try
                 end if
             end tell
