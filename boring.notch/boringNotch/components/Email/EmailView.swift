@@ -6,20 +6,20 @@ struct EmailView: View {
     var body: some View {
         VStack(spacing: 8) {
             // Header
-            HStack {
-                Text("Inbox")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(.white)
-                Spacer()
-                Button {
-                    Task { await viewModel.fetch() }
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .foregroundColor(.white.opacity(0.9))
-                }
-                .buttonStyle(.plain)
-            }
-            .padding(.horizontal, 8)
+//            HStack {
+//                Text("Inbox")
+//                    .font(.system(size: 13, weight: .semibold))
+//                    .foregroundColor(.white)
+//                Spacer()
+//                Button {
+//                    Task { await viewModel.fetch() }
+//                } label: {
+//                    Image(systemName: "arrow.clockwise")
+//                        .foregroundColor(.white.opacity(0.9))
+//                }
+//                .buttonStyle(.plain)
+//            }
+//            .padding(.horizontal, 8)
             
             // Error message
             if let error = viewModel.errorMessage {
