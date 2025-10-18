@@ -88,50 +88,41 @@ final class AppleScriptMailService: MailService {
     func openEmail(_ email: EmailItem) async throws {
         print("📧 [MAIL] Opening email: \(email.subject) with ID: \(email.appleScriptID)")
         
-        let script: String
-        if email.appleScriptID.hasPrefix("message://") {
-            // Open by URL
-            script = """
-            tell application id "com.apple.mail"
-                activate
-                delay 0.5
-                try
-                    open location "\(email.appleScriptID)"
-                    return true
-                on error err
-                    log "URL open failed: " & err
-                    return false
-                end try
-            end tell
-            """
-        } else if email.appleScriptID.hasPrefix("index_") {
-            // Open by index
-            let indexStr = email.appleScriptID.replacingOccurrences(of: "index_", with: "")
-            guard let index = Int(indexStr) else {
-                throw MailServiceError.messageNotFound
-            }
-            script = """
-            tell application id "com.apple.mail"
-                activate
-                delay 0.5
-                try
-                    set allMsgs to messages of inbox
-                    if (count of allMsgs) ≥ \(index) then
-                        set theMsg to item \(index) of allMsgs
-                        open theMsg
-                        return true
-                    else
-                        return false
-                    end if
-                on error err
-                    log "Index open failed: " & err
-                    return false
-                end try
-            end tell
-            """
-        } else {
+        // Extract index from "msg_1", "msg_2", etc.
+        guard email.appleScriptID.hasPrefix("msg_"),
+              let indexStr = email.appleScriptID.split(separator: "_").last,
+              let index = Int(indexStr),
+              index > 0 else {
             throw MailServiceError.messageNotFound
         }
+        
+        let script = """
+        tell application id "com.apple.mail"
+            activate
+            delay 0.5
+            
+            try
+                -- Ensure inbox is loaded
+                set allMsgs to messages of inbox
+                set msgCount to count of allMsgs
+                
+                if msgCount ≥ \(index) then
+                    set theMsg to item \(index) of allMsgs
+                    open theMsg
+                    try
+                        tell message viewer 1 to set selected messages to {theMsg}
+                    end try
+                    return true
+                else
+                    log "Index \(index) out of range (total: " & msgCount & ")"
+                    return false
+                end if
+            on error err
+                log "Open by index failed: " & err
+                return false
+            end try
+        end tell
+        """
         
         let result: NSAppleEventDescriptor? = try await executeOnBackgroundQueue {
             return try AppleScriptHelper.execute(script)
