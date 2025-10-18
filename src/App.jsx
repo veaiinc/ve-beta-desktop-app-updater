@@ -17,8 +17,6 @@ import UploadProgressPopup from './views/components/globalComponents/UploadProgr
 import DownloadProgressPopup from './views/components/globalComponents/DownloadProgressPopup/DownloadProgressPopup';
 import UpdateReadyPopup from './views/components/globalComponents/UpdateReadyPopup/UpdateReadyPopup';
 import WindowChrome from './components/WindowChrome.jsx';
-import MemoryMonitor from './components/MemoryMonitor';
-import memoryManager from './utils/memoryManager';
 
 const parseIntervalMinutes = (value, fallback = 60) => {
 	const parsed = Number.parseInt(value, 10);
@@ -35,27 +33,12 @@ const AppContent = () => {
 	const { routes } = useWorkspaceMode();
 	const location = useLocation();
 
-	// 🚨 CRITICAL FIX: Initialize memory manager
-	useEffect(() => {
-		console.log('🚀 App initialized - Memory manager active');
-		console.log('Initial memory stats:', memoryManager.getStats());
-		
-		// Register cleanup for this component
-		memoryManager.registerCleanup(() => {
-			console.log('🧹 AppContent cleanup completed');
-		}, 'AppContent');
-		
-		return () => {
-			console.log('🧹 AppContent unmounting...');
-		};
-	}, []);
-
 	// Global NotchDrop sync - keeps NotchDrop updated with meeting data across all routes
 	useNotchDropSync();
-	
+
 	// Manage window width: 481px for login, 1366px after login
 	useLoginWindowResize();
-	
+
 	const [updateStatus, setUpdateStatus] = useState(null);
 	const [isUpdatePopupVisible, setIsUpdatePopupVisible] = useState(false);
 	const [updateProgress, setUpdateProgress] = useState(null);
@@ -358,49 +341,6 @@ const AppContent = () => {
 
 			{showWindowChrome && <WindowChrome />}
 
-			{/* Test Permission Overlay Button - Remove in production */}
-			{/* {process.env.NODE_ENV === 'development' && (
-				<button
-					onClick={() => window.electronApi?.permission?.showWindow()}
-					style={{
-						position: 'fixed',
-						top: '20px',
-						left: '20px',
-						background: '#42e09b',
-						color: '#121212',
-						border: 'none',
-						padding: '12px 24px',
-						borderRadius: '8px',
-						cursor: 'pointer',
-						fontSize: '14px',
-						fontWeight: '600',
-						zIndex: 9999,
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-					}}
-				>
-					Test Permission Overlay
-				</button>
-			)}   */}
-			{/* <button
-					onClick={() => window.electronApi?.permission?.showWindow()}
-					style={{
-						position: 'fixed',
-						top: '20px',
-						left: '20px',
-						background: '#42e09b',
-						color: '#121212',
-						border: 'none',
-						padding: '12px 24px',
-						borderRadius: '8px',
-						cursor: 'pointer',
-						fontSize: '14px',
-						fontWeight: '600',
-						zIndex: 9999,
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-					}}
-				>
-					Test Permission Overlay
-				</button> */}
 
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
@@ -525,9 +465,6 @@ const AppContent = () => {
 					onDismiss={() => setIsUpdatePopupVisible(false)}
 				/>
 			)}
-			
-			{/* 🚨 CRITICAL FIX: Memory Monitor for debugging */}
-			<MemoryMonitor enabled={import.meta.env.DEV} />
 		</div>
 	);
 };

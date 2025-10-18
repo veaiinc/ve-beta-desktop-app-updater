@@ -5,8 +5,7 @@ import Context from '../../../../context/context';
 import { FetchMoreLoaderComp } from '../../../../helpers';
 import InfiniteScroll from '../../../components/globalComponents/InfiniteScroll';
 import moment from 'moment';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-// import ObjectID from 'bson-objectid';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Spinner from '../../loaders/Spinner';
 import ObjectID from 'bson-objectid';
 
@@ -24,6 +23,7 @@ const reset = true;
 
 const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) => {
 	const navigate = useNavigate();
+	const { sessionId } = useParams();
 	const [searchParams] = useSearchParams();
 	const {
 		aiSetup: {
@@ -35,23 +35,12 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 		templates: {
 			refetchChatHistoryList,
 			updateStateValues,
-			currentSessionId,
 			currentChatData,
 			chatLoadingSessions,
 			updateChatLoadingSessions,
 		},
 		subscriptionInfo: { currentPlan },
 	} = useContext(Context);
-	// const previousSearchQuery = useRef('');
-	// const [searchQuery, setSearchQuery] = useState('');
-
-	// const debouncedSearch = useCallback(
-	// 	debounce((query) => {
-	// 		previousSearchQuery.current = query;
-	// 		getAiChatSessions(page, limit, append, query);
-	// 	}, 500),
-	// 	[],
-	// );
 
 	useEffect(() => {
 		const filterAgentType = aiChatSessionsFilters?.agentType ?? 'multi_agent';
@@ -60,28 +49,22 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 		if (!aiChatSessions || aiChatSessions?.getData || filterAgentType !== paramsAgentType) {
 			fetchChats();
 		}
-		// const timeoutId = setTimeout(() => {
-		// 	if (!searchQuery) {
-		// 		getAiChatSessions(page, limit, append);
-		// 	} else {
-		// 		debouncedSearch(searchQuery);
-		// 	}
-		// }, 0);
-
-		// return () => {
-		// 	clearTimeout(timeoutId);
-		// 	debouncedSearch.cancel();
-		// };
 	}, []);
 
 	useEffect(() => {
-		if (currentSessionId) {
-			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === currentSessionId);
+		if (sessionId) {
+			const index = aiChatSessions?.data?.findIndex((chat) => chat?._id === sessionId);
 			if (typeof index === 'number' && index !== -1) {
 				updateStateValues({ currentChatData: aiChatSessions?.data[index] });
 			}
 		}
-	}, [currentSessionId, aiChatSessions]);
+	}, [sessionId, aiChatSessions]);
+
+	useEffect(() => {
+		if (chatLoadingSessions?.[sessionId]?.isNotSeen) {
+			updateChatLoadingSessions({ sessionId, removeSessionId: true });
+		}
+	}, [sessionId, chatLoadingSessions]);
 
 	useEffect(() => {
 		if (refetchChatHistoryList) {
@@ -117,11 +100,7 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 
 	const handleChatNavigation = useCallback(
 		(chat) => {
-			if (currentSessionId === chat?._id) return;
-
-			if (chatLoadingSessions?.[chat?._id]?.isNotSeen) {
-				updateChatLoadingSessions({ sessionId: chat?._id, removeSessionId: true });
-			}
+			if (sessionId === chat?._id) return;
 
 			// Close mobile dropdown when chat is selected
 			if (onChatSelect) {
@@ -136,7 +115,7 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 				navigate(`/chat/${chat?._id}`);
 			}
 		},
-		[currentSessionId, updateChatLoadingSessions, onChatSelect],
+		[sessionId, onChatSelect],
 	);
 
 	const getChatDateGroup = useCallback((timestamp) => {
@@ -194,14 +173,7 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 							</div>
 						))}
 					</div>
-				) : emptyChatsState ? (
-					// <div className="empty-state">
-					// 	<button className="create-chat-btn" onClick={handleCreateChat}>
-					// 		Create New Chat
-					// 	</button>
-					// </div>
-					null
-				) : (
+				) : emptyChatsState ? null : ( // </div> // 	</button> // 		Create New Chat // 	<button className="create-chat-btn" onClick={handleCreateChat}> // <div className="empty-state">
 					<InfiniteScroll
 						dataLength={chats?.length || 0}
 						next={fetchMoreChats}
@@ -244,7 +216,7 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 									)}
 									<div
 										className={`chat-containers ${
-											currentSessionId === chat?._id ? 'active-chat' : ''
+											sessionId === chat?._id ? 'active-chat' : ''
 										}`}
 										onClick={() => handleChatNavigation(chat)}
 									>
@@ -261,7 +233,7 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 										</div>
 										{(chatLoadingSessions?.[chat?._id]?.isStreaming ||
 											chatLoadingSessions?.[chat?._id]?.isNotSeen) &&
-											chat?._id !== currentSessionId && (
+											chat?._id !== sessionId && (
 												<div className="loader-container">
 													{chatLoadingSessions?.[chat?._id]
 														?.isStreaming && (

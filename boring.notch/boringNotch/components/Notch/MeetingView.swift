@@ -9,6 +9,7 @@ import SwiftUI
 import Foundation
 import Defaults
 import AVFoundation
+import LucideIcons
 
 // MARK: - Date Extension
 extension Date {
@@ -20,7 +21,7 @@ extension Date {
 
 // MARK: - Color Constants
 extension Color {
-    static let transcriptionAccent = Color(red: 0.47, green: 0.93, blue: 0.79)
+    static let transcriptionAccent = Color(red: 0.33, green: 0.44, blue: 0.97)
 }
 
 // MARK: - Persistent Storage Keys
@@ -32,107 +33,10 @@ extension Defaults.Keys {
 }
 
 // MARK: - Transcription Data Model
-struct Transcription: Identifiable, Codable, Defaults.Serializable, Equatable {
-    let id: String
-    let text: String
-    let source: String
-    let timestamp: String
-    let confidence: Double?
-    let words: [Word]?
-    
-    struct Word: Codable, Defaults.Serializable, Equatable {
-        let word: String
-        let start: Double
-        let end: Double
-        let confidence: Double
-    }
-    
-    // Computed property for formatted timestamp
-    var formattedTime: String {
-        // Parse timestamp and format as HH:mm in local timezone
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        formatter.timeZone = TimeZone(abbreviation: "UTC") // Input is UTC
-        
-        if let date = formatter.date(from: timestamp) {
-            let timeFormatter = DateFormatter()
-            timeFormatter.dateFormat = "HH:mm"
-            timeFormatter.timeZone = TimeZone.current // Display in local timezone
-            let formattedTime = timeFormatter.string(from: date)
-            print("🕐 SwiftUI Timestamp: \(timestamp) -> \(formattedTime) (Local)")
-            return formattedTime
-        }
-        
-        // Fallback: try parsing without milliseconds
-        let fallbackFormatter = DateFormatter()
-        fallbackFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-        fallbackFormatter.timeZone = TimeZone(abbreviation: "UTC")
-        
-        if let date = fallbackFormatter.date(from: timestamp) {
-            let timeFormatter = DateFormatter()
-            timeFormatter.dateFormat = "HH:mm"
-            timeFormatter.timeZone = TimeZone.current
-            let formattedTime = timeFormatter.string(from: date)
-            print("🕐 SwiftUI Timestamp (fallback): \(timestamp) -> \(formattedTime) (Local)")
-            return formattedTime
-        }
-        
-        print("❌ SwiftUI Timestamp parsing failed for: \(timestamp)")
-        return "00:00"
-    }
-    
-    // Computed property for speaker name
-    var speakerName: String {
-        return source == "mic" ? "YOU" : "SPEAKER"
-    }
-}
+
 
 // MARK: - Live Intelligence Data Model
-struct LiveIntelligence: Identifiable, Codable, Defaults.Serializable, Equatable {
-    let id: String
-    let text: String
-    let source: String
-    let timestamp: String
-    let confidence: Double?
-    let type: String
-    let metadata: [String: String]?
-    
-    // Computed property for formatted timestamp
-    var formattedTime: String {
-        // Parse timestamp and format as HH:mm in local timezone
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        formatter.timeZone = TimeZone(abbreviation: "UTC") // Input is UTC
-        
-        if let date = formatter.date(from: timestamp) {
-            let timeFormatter = DateFormatter()
-            timeFormatter.dateFormat = "HH:mm"
-            timeFormatter.timeZone = TimeZone.current // Display in local timezone
-            let formattedTime = timeFormatter.string(from: date)
-            return formattedTime
-        }
-        
-        // Fallback: try parsing without milliseconds
-        let fallbackFormatter = DateFormatter()
-        fallbackFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-        fallbackFormatter.timeZone = TimeZone(abbreviation: "UTC")
-        
-        if let date = fallbackFormatter.date(from: timestamp) {
-            let timeFormatter = DateFormatter()
-            timeFormatter.dateFormat = "HH:mm"
-            timeFormatter.timeZone = TimeZone.current
-            let formattedTime = timeFormatter.string(from: date)
-            return formattedTime
-        }
-        
-        return "00:00"
-    }
-    
-    // Computed property for source name
-    var sourceName: String {
-        return "AI AGENT"
-    }
-}
+
 
 struct MeetingView: View, WebSocketEventListener {
     @StateObject private var webSocketManager = WebSocketManager.shared
@@ -141,6 +45,7 @@ struct MeetingView: View, WebSocketEventListener {
     @State private var eventHistory: [WebSocketEvent] = []
     @State private var transcriptions: [Transcription] = []
     @State private var liveIntelligenceData: [LiveIntelligence] = []
+    @State private var meetingError: String? = nil
     
     // Webcam functionality
     @StateObject private var webcamManager = WebcamManager.shared
@@ -216,7 +121,17 @@ struct MeetingView: View, WebSocketEventListener {
         }) {
             webcamSquare
         }
-        .aspectRatio(1, contentMode: .fit)
+        //        .aspectRatio(1, contentMode: .fill)
+        .buttonStyle(.plain)
+        .padding(0)
+        .frame(width: 92, height: 92, alignment: .center)
+        .background(.white.opacity(0.08))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(.white.opacity(0.1), lineWidth: 0.5)
+            
+        )
     }
     
     @ViewBuilder
@@ -238,13 +153,22 @@ struct MeetingView: View, WebSocketEventListener {
     
     @ViewBuilder
     private var webcamIcon: some View {
-        VStack {
-            Image(systemName: webcamManager.authorizationStatus == .denied ? "exclamationmark.triangle" : "web.camera")
-                .font(.largeTitle)
+        VStack(alignment: .center, spacing: 8) {
+            let webCamIcon = NSImage.image(lucideId: "webcam")
+            let exclamationIcon = NSImage.image(lucideId: "triangle-alert")
+            Image(
+                nsImage: webcamManager.authorizationStatus == .denied ? exclamationIcon! : webCamIcon!
+            ).renderingMode(.template)
+                .frame(width: 20,height: 20)
+                .foregroundColor(webcamManager.authorizationStatus == .denied ? .orange : .white)
+            Text("WEBCAM")
+                .font(Font.custom("General Sans Variable", size: 10)
+                    .weight(.medium)
+                )
                 .foregroundColor(.white)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(.black.opacity(0.2))
     }
     
     // MARK: - WebSocketEventListener
@@ -288,6 +212,8 @@ struct MeetingView: View, WebSocketEventListener {
                 handleAreYouThereContinue(event)
             case .areYouThereStop:
                 handleAreYouThereStop(event)
+            case .meetingStartError:
+                handleMeetingStartError(event)
             default:
                 print("📨 Unhandled event type: \(event.type.rawValue)")
             }
@@ -310,6 +236,7 @@ struct MeetingView: View, WebSocketEventListener {
         
         // Set meeting as active
         isMeetingActive = true
+        coordinator.isMeetingLoading = false
         
         // Load any existing transcriptions from storage
         transcriptions = storedTranscriptions
@@ -363,7 +290,7 @@ struct MeetingView: View, WebSocketEventListener {
     
     private func handleStartMeeting(_ event: WebSocketEvent) {
         print("🚀 Start meeting request with data: \(event.data)")
-        // Handle start meeting request
+        // Handle start meeting request - loading state is now set in TabSelectionView
     }
     
     private func handleStopMeeting(_ event: WebSocketEvent) {
@@ -379,6 +306,10 @@ struct MeetingView: View, WebSocketEventListener {
     private func handleResumeMeeting(_ event: WebSocketEvent) {
         print("▶️ Resume meeting request with data: \(event.data)")
         // Handle resume meeting request
+    }
+    
+    private func handleMeetingStartError(_ event: WebSocketEvent) {
+        meetingError = event.data["message"] as? String ?? "Unknown error"
     }
     
     private func handleTranscriptionUpdate(_ event: WebSocketEvent) {
@@ -598,87 +529,31 @@ struct MeetingView: View, WebSocketEventListener {
         meetingData.removeAll()
     }
     
-    // MARK: - Test Methods
-    
-    private func testTranscriptionFlow() {
-        print("🧪 Testing transcription flow with sample data")
-        
-        // Create sample transcription data with long text to test auto-scroll
-        let now = Date()
-        let sampleTranscriptions = [
-            [
-                "id": "test_1",
-                "text": "Hello, this is a test transcription from the microphone. This is a longer text to test the auto-scrolling functionality when text content changes.",
-                "source": "mic",
-                "timestamp": now.iso8601String,
-                "confidence": 0.95
-            ],
-            [
-                "id": "test_2",
-                "text": "This is another test transcription from the screen capture. This text is also quite long to demonstrate how the auto-scroll works when the transcription content gets updated with more text.",
-                "source": "screen",
-                "timestamp": now.iso8601String,
-                "confidence": 0.88
-            ],
-            [
-                "id": "test_3",
-                "text": "And here's a third transcription to test the array replacement. This is a very long transcription that should trigger auto-scroll when it gets updated with additional content, demonstrating the improved auto-scrolling behavior for long texts.",
-                "source": "mic",
-                "timestamp": now.iso8601String,
-                "confidence": 0.92
-            ]
-        ]
-        
-        // Simulate receiving a transcription update event
-        let testEvent = WebSocketEvent(
-            id: UUID(),
-            type: .transcriptionUpdate,
-            data: ["transcriptions": sampleTranscriptions],
-            timestamp: Date(),
-            rawMessage: "test"
-        )
-        
-        // Process the test event
-        handleTranscriptionUpdate(testEvent)
-        
-        // Simulate a text update after 2 seconds to test auto-scroll on content change
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            print("🧪 Simulating text update for auto-scroll test")
-            var updatedTranscriptions = sampleTranscriptions
-            updatedTranscriptions[2]["text"] = "And here's a third transcription to test the array replacement. This is a very long transcription that should trigger auto-scroll when it gets updated with additional content, demonstrating the improved auto-scrolling behavior for long texts. This is additional text that was added to test the auto-scroll functionality when the content of an existing transcription changes."
-            
-            let updateEvent = WebSocketEvent(
-                id: UUID(),
-                type: .transcriptionUpdate,
-                data: ["transcriptions": updatedTranscriptions],
-                timestamp: Date(),
-                rawMessage: "test_update"
-            )
-            
-            self.handleTranscriptionUpdate(updateEvent)
-        }
-    }
-    
     // MARK: - View Helper Methods
     
     @ViewBuilder
     private func transcriptionScrollContent(proxy: ScrollViewProxy) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            if coordinator.activeMeetingView == .transcription {
-                if transcriptions.isEmpty {
-                    emptyStateView
-                } else {
-                    transcriptionListView
-                    bottomSpacer
-                }
+            if meetingError != nil {
+                Text(meetingError ?? "")
             } else {
-                if liveIntelligenceData.isEmpty {
-                    liveIntelligenceEmptyStateView
+                if coordinator.activeMeetingView == .transcription {
+                    if transcriptions.isEmpty {
+                        emptyStateView
+                    } else {
+                        transcriptionListView
+                        bottomSpacer
+                    }
                 } else {
-                    liveIntelligenceListView
-                    bottomSpacer
+                    if liveIntelligenceData.isEmpty {
+                        liveIntelligenceEmptyStateView
+                    } else {
+                        liveIntelligenceListView
+                        bottomSpacer
+                    }
                 }
             }
+            
         }
         .padding()
         // Simpler dependencies help the type checker
@@ -709,12 +584,24 @@ struct MeetingView: View, WebSocketEventListener {
     @ViewBuilder
     private var emptyStateView: some View {
         VStack(spacing: 8) {
-            Image(systemName: "mic.slash")
-                .font(.system(size: 24))
-                .foregroundColor(.gray)
-            Text("No transcriptions yet")
-                .font(Font.custom("General Sans Variable", size: 14))
-                .foregroundColor(.gray)
+            if coordinator.isMeetingLoading {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Starting meet with")
+                        .font(Font.custom("General Sans Variable", size: 20))
+                        .foregroundColor(.white)
+                        .frame(width: 197, alignment: .leading)
+
+                    Text("Live Intelligence")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(Color(red: 0.33, green: 0.44, blue: 0.97))
+                }
+                .frame(width: 300, height: 70, alignment: .bottomLeading)
+            } else {
+                Text("Start talking I am listening")
+                    .font(.system(size: 18))
+                    .italic()
+                    .foregroundColor(.white.opacity(0.5))
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
@@ -781,7 +668,7 @@ struct MeetingView: View, WebSocketEventListener {
         if isRequestingAuthorization {
             return
         }
-
+        
         switch webcamManager.authorizationStatus {
         case .authorized:
             if webcamManager.isSessionRunning {
@@ -791,35 +678,35 @@ struct MeetingView: View, WebSocketEventListener {
                 webcamManager.startSession()
                 isWebcamVisible = true
             }
-
+            
         case .denied, .restricted:
             DispatchQueue.main.async {
                 NSApp.setActivationPolicy(.regular)
                 NSApp.activate(ignoringOtherApps: true)
-
+                
                 let alert = NSAlert()
                 alert.messageText = "Camera Access Required"
                 alert.informativeText = "Please allow camera access in System Settings."
                 alert.addButton(withTitle: "Open Settings")
                 alert.addButton(withTitle: "Cancel")
-
+                
                 if alert.runModal() == .alertFirstButtonReturn {
                     if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera") {
                         NSWorkspace.shared.open(url)
                     }
                 }
-
+                
                 NSApp.setActivationPolicy(.accessory)
                 NSApp.deactivate()
             }
-
+            
         case .notDetermined:
             isRequestingAuthorization = true
             webcamManager.checkAndRequestVideoAuthorization()
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 self.isRequestingAuthorization = false
             }
-
+            
         default:
             break
         }
@@ -839,163 +726,8 @@ struct MeetingView: View, WebSocketEventListener {
         )
     }
     
-    private func getStatusColor() -> Color {
-        switch webSocketManager.meetingStatus {
-        case "Meeting Started":
-            return .green
-        case "Meeting Stopped":
-            return .red
-        case "Meeting Paused":
-            return .orange
-        case "Meeting Resumed":
-            return .green
-        case "Starting Meeting...":
-            return .blue
-        case "Stopping Meeting...":
-            return .orange
-        case "Pausing Meeting...":
-            return .yellow
-        case "Resuming Meeting...":
-            return .blue
-        default:
-            return .primary
-        }
-    }
 }
 
-struct TranscriptionItemView: View {
-    let transcription: Transcription
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            header
-            textBody
-        }
-        .frame(maxWidth: .infinity)
-        .id(transcription.id)
-    }
-    
-    @ViewBuilder
-    private var header: some View {
-        HStack(spacing: 10) {
-            Text(transcription.speakerName)
-                .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
-                .foregroundColor(.transcriptionAccent)
-            
-            Divider()
-            
-            HStack(spacing: 5) {
-                Image(systemName: "clock")
-                    .font(.system(size: 10))
-                    .foregroundColor(.transcriptionAccent)
-                
-                Text(transcription.formattedTime)
-                    .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
-                    .foregroundColor(.transcriptionAccent)
-            }
-            
-            Spacer()
-        }
-        .padding(0)
-    }
-    
-    @ViewBuilder
-    private var textBody: some View {
-        Text(transcription.text)
-            .font(Font.custom("General Sans Variable", size: 14).weight(.medium))
-            .lineSpacing(5)
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
 
-struct LiveIntelligenceItemView: View {
-    let liveIntelligence: LiveIntelligence
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            header
-            textBody
-        }
-        .frame(maxWidth: .infinity)
-        .id(liveIntelligence.id)
-    }
-    
-    @ViewBuilder
-    private var header: some View {
-        HStack(spacing: 10) {
-            Text(liveIntelligence.sourceName)
-                .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
-                .foregroundColor(.orange)
-            
-            Divider()
-            
-            HStack(spacing: 5) {
-                Image(systemName: "brain.head.profile")
-                    .font(.system(size: 10))
-                    .foregroundColor(.orange)
-                
-                Text(liveIntelligence.formattedTime)
-                    .font(Font.custom("General Sans Variable", size: 10).weight(.semibold))
-                    .foregroundColor(.orange)
-            }
-            
-            Spacer()
-        }
-        .padding(0)
-    }
-    
-    @ViewBuilder
-    private var textBody: some View {
-        Text(liveIntelligence.text)
-            .font(Font.custom("General Sans Variable", size: 14).weight(.medium))
-            .lineSpacing(5)
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
 
-struct EventBubble: View {
-    let event: WebSocketEvent
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(event.type.rawValue)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.blue)
-                
-                Spacer()
-                
-                Text(formatTimestamp(event.timestamp))
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-            
-            if !event.data.isEmpty {
-                Text(formatEventData(event.data))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(8)
-    }
-    
-    private func formatTimestamp(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
-    
-    private func formatEventData(_ data: [String: Any]) -> String {
-        let keyValuePairs = data.compactMap { key, value in
-            "\(key): \(value)"
-        }
-        return keyValuePairs.joined(separator: ", ")
-    }
-}
+

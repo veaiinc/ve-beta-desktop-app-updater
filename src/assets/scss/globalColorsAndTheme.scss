@@ -4,7 +4,8 @@
 	/* font families */
 	--primary-font-family: 'GeneralSans';
 	--secondary-font-family: 'Manrope';
-	--chat-primary-font-family: 'Inter';
+	--chat-primary-font-family: ui-sans-serif, -apple-system, system-ui, Segoe UI, Helvetica,
+		Apple Color Emoji, Arial, sans-serif, Segoe UI Emoji, Segoe UI Symbol, 'Inter';
 	--tertiary-font-family: 'LibreCaslonDisplay';
 	--geist-mono-font-family: 'Geist Mono';
 
@@ -44,7 +45,7 @@
 	/* navbar colors - SOLID backgrounds */
 	--navbar: #141415; /* #202123 */
 	--right-bar: #18191b; /* #171819 */
-	--svg-color:  rgb(12, 12, 12);
+	--svg-color: rgb(12, 12, 12);
 
 	/* ai color code */
 	--ai-color-code: linear-gradient(
