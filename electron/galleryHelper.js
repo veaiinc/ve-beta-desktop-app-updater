@@ -25,9 +25,12 @@ const loadSharp = () => {
 					log.info('✅ Sharp production test passed');
 				}).catch((testError) => {
 					log.warn('⚠️ Sharp production test failed:', testError.message);
+					// If test fails, mark Sharp as unavailable
+					sharp = null;
 				});
 			} catch (testError) {
 				log.warn('⚠️ Sharp production test failed:', testError.message);
+				sharp = null;
 			}
 		}
 		
@@ -48,8 +51,38 @@ const loadSharp = () => {
 				if (require('fs').existsSync(sharpPath)) {
 					log.info('🔧 Attempting to load Sharp from extraResources...');
 					sharp = require(path.join(sharpPath, 'index.js'));
+					
+					// Test the loaded Sharp module
+					try {
+						const testBuffer = Buffer.from([
+							0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x01, 0x00, 0x48,
+							0x00, 0x48, 0x00, 0x00, 0xff, 0xd9
+						]);
+						sharp(testBuffer).metadata().then(() => {
+							log.info('✅ Sharp extraResources test passed');
+						}).catch((testError) => {
+							log.warn('⚠️ Sharp extraResources test failed:', testError.message);
+							sharp = null;
+						});
+					} catch (testError) {
+						log.warn('⚠️ Sharp extraResources test failed:', testError.message);
+						sharp = null;
+					}
+					
 					sharpLoaded = true;
 					return sharp;
+				}
+				
+				// Try loading from @img directory
+				const imgPath = path.join(appPath, '@img');
+				if (require('fs').existsSync(imgPath)) {
+					log.info('🔧 Attempting to load Sharp from @img directory...');
+					const sharpWinPath = path.join(imgPath, 'sharp-win32-x64', 'index.js');
+					if (require('fs').existsSync(sharpWinPath)) {
+						sharp = require(sharpWinPath);
+						sharpLoaded = true;
+						return sharp;
+					}
 				}
 			} catch (altError) {
 				log.warn('⚠️ Alternative Sharp loading failed:', altError.message);
@@ -352,26 +385,36 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 					format = 'png';
 				} else if (signature[0] === 0x47 && signature[1] === 0x49 && signature[2] === 0x46) {
 					format = 'gif';
+				} else if (signature[0] === 0x52 && signature[1] === 0x49 && signature[2] === 0x46 && signature[3] === 0x46) {
+					format = 'webp';
 				}
 			}
 			
-			// Try basic dimension parsing for JPEG
-			if (format === 'jpeg') {
-				try {
-					const dims = parseJpegDimensions(buffer);
-					if (dims && dims.width && dims.height) {
-						log.info(`✅ Windows fallback success - ${dims.width}x${dims.height}`);
-						return {
-							success: true,
-							width: dims.width,
-							height: dims.height,
-							format: format,
-							originalDateTime: Math.floor(Date.now() / 1000),
-						};
-					}
-				} catch (fallbackError) {
-					log.warn('⚠️ Windows fallback parsing failed:', fallbackError.message);
+			// Try basic dimension parsing for different formats
+			try {
+				let dims = null;
+				if (format === 'jpeg') {
+					dims = parseJpegDimensions(buffer);
+				} else if (format === 'png') {
+					dims = parsePngDimensions(buffer);
+				} else if (format === 'gif') {
+					dims = parseGifDimensions(buffer);
+				} else if (format === 'webp') {
+					dims = parseWebpDimensions(buffer);
 				}
+				
+				if (dims && dims.width && dims.height) {
+					log.info(`✅ Windows fallback success - ${dims.width}x${dims.height} (${format})`);
+					return {
+						success: true,
+						width: dims.width,
+						height: dims.height,
+						format: format,
+						originalDateTime: Math.floor(Date.now() / 1000),
+					};
+				}
+			} catch (fallbackError) {
+				log.warn('⚠️ Windows fallback parsing failed:', fallbackError.message);
 			}
 		}
 		
@@ -448,6 +491,43 @@ const extractImageMetadata = async (event, { imageBuffer }) => {
 			const width = buf.readUInt32BE(16);
 			const height = buf.readUInt32BE(20);
 			return { width, height };
+		}
+		return null;
+	};
+
+	const parseGifDimensions = (buf) => {
+		// GIF header: 6 bytes signature + 7 bytes screen descriptor
+		if (buf.length >= 13) {
+			const width = buf.readUInt16LE(6);
+			const height = buf.readUInt16LE(8);
+			return { width, height };
+		}
+		return null;
+	};
+
+	const parseWebpDimensions = (buf) => {
+		// WebP format: 4 bytes signature + 4 bytes size + 4 bytes type + 4 bytes width + 4 bytes height
+		if (buf.length >= 20) {
+			// Check for VP8/VP8L/VP8X chunk
+			if (buf[12] === 0x56 && buf[13] === 0x50 && buf[14] === 0x38) {
+				// VP8 chunk
+				if (buf[15] === 0x20) {
+					// VP8L (lossless)
+					const width = (buf.readUInt32LE(21) & 0x3fffffff) + 1;
+					const height = ((buf.readUInt32LE(21) >> 30) | (buf.readUInt32LE(25) << 2)) + 1;
+					return { width, height };
+				} else if (buf[15] === 0x20) {
+					// VP8 (lossy) - dimensions are in the frame header
+					const width = buf.readUInt16LE(26) & 0x3fff;
+					const height = buf.readUInt16LE(28) & 0x3fff;
+					return { width, height };
+				}
+			} else if (buf[12] === 0x56 && buf[13] === 0x50 && buf[14] === 0x38 && buf[15] === 0x58) {
+				// VP8X chunk - extended format
+				const width = buf.readUIntLE(24, 3) + 1;
+				const height = buf.readUIntLE(27, 3) + 1;
+				return { width, height };
+			}
 		}
 		return null;
 	};
