@@ -16,36 +16,36 @@ import SwiftUIIntrospect
 struct ContentView: View {
     @EnvironmentObject var vm: BoringViewModel
     @ObservedObject var webcamManager = WebcamManager.shared
-
+    
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @ObservedObject var musicManager = MusicManager.shared
     @ObservedObject var batteryModel = BatteryStatusViewModel.shared
-
+    
     @State private var isHovering: Bool = false
     @State private var hoverWorkItem: DispatchWorkItem?
     @State private var debounceWorkItem: DispatchWorkItem?
-
+    
     @State private var isHoverStateChanging: Bool = false
-
+    
     @State private var gestureProgress: CGFloat = .zero
-
-            @State private var haptics: Bool = false
-            @State private var animatedWidth: CGFloat = 800
-            @State private var animatedHeight: CGFloat = 190
-            @State private var isWidthTransitioning: Bool = false
-            @State private var animatedTopCornerRadius: CGFloat = 19
-            @State private var animatedBottomCornerRadius: CGFloat = 24
-
+    
+    @State private var haptics: Bool = false
+    @State private var animatedWidth: CGFloat = 800
+    @State private var animatedHeight: CGFloat = 190
+    @State private var isWidthTransitioning: Bool = false
+    @State private var animatedTopCornerRadius: CGFloat = 19
+    @State private var animatedBottomCornerRadius: CGFloat = 24
+    
     @Namespace var albumArtNamespace
-
+    
     @Default(.useMusicVisualizer) var useMusicVisualizer
-
+    
     @Default(.showNotHumanFace) var showNotHumanFace
     @Default(.useModernCloseAnimation) var useModernCloseAnimation
-
+    
     private let extendedHoverPadding: CGFloat = 30
     private let zeroHeightHoverPadding: CGFloat = 10
-
+    
     var body: some View {
         ZStack(alignment: .top) {
             let isNotchOpen = vm.notchState == .open
@@ -54,18 +54,18 @@ struct ContentView: View {
                 if isNotchOpen {
                     return (animatedTopCornerRadius, animatedBottomCornerRadius)
                 }
-
+                
                 return (cornerRadiusInsets.closed.top, cornerRadiusInsets.closed.bottom)
             }()
-
+            
             let mainLayout = NotchLayout()
                 .frame(alignment: .top)
                 .padding(
                     .horizontal,
                     isNotchOpen
-                        ? Defaults[.cornerRadiusScaling]
-                            ? (cornerRadiusInsets.opened.top) : (cornerRadiusInsets.opened.bottom)
-                        : cornerRadiusInsets.closed.bottom
+                    ? Defaults[.cornerRadiusScaling]
+                    ? (cornerRadiusInsets.opened.top) : (cornerRadiusInsets.opened.bottom)
+                    : cornerRadiusInsets.closed.bottom
                 )
                 .padding([.horizontal, .bottom], isNotchOpen ? 12 : 0)
                 .background {
@@ -95,19 +95,19 @@ struct ContentView: View {
                 .padding(
                     .bottom,
                     isNotchOpen && Defaults[.extendHoverArea]
-                        ? 0
-                        : (vm.effectiveClosedNotchHeight == 0)
-                            ? zeroHeightHoverPadding
-                            : 0
+                    ? 0
+                    : (vm.effectiveClosedNotchHeight == 0)
+                    ? zeroHeightHoverPadding
+                    : 0
                 )
                 .preferredColorScheme(.dark)
-
+            
             mainLayout
                 .conditionalModifier(!useModernCloseAnimation) { view in
                     let hoverAnimationAnimation = Animation.bouncy.speed(1.2)
                     let notchStateAnimation = Animation.spring.speed(1.2)
                     return
-                        view
+                    view
                         .animation(vm.isAuthenticated ? hoverAnimationAnimation : .none, value: isHovering)
                         .animation(notchStateAnimation, value: vm.notchState)
                         .animation(.smooth, value: gestureProgress)
@@ -132,11 +132,11 @@ struct ContentView: View {
                             if (vm.notchState == .closed) && Defaults[.enableHaptics] {
                                 haptics.toggle()
                             }
-
+                            
                             withAnimation(vm.animation) {
                                 isHovering = hovering
                             }
-
+                            
                             // Only close if mouse leaves and the notch is open, but not locked
                             if !hovering && vm.notchState == .open && !vm.isNotchLocked && !vm.isHoveringLockArea {
                                 vm.close()
@@ -187,16 +187,16 @@ struct ContentView: View {
                         SettingsWindowController.shared.showWindow()
                     }
                     .keyboardShortcut(KeyEquivalent(","), modifiers: .command)
-//                    Button("Edit") { // Doesnt work....
-//                        let dn = DynamicNotch(content: EditPanelView())
-//                        dn.toggle()
-//                    }
-//                    #if DEBUG
-//                    .disabled(false)
-//                    #else
-//                    .disabled(true)
-//                    #endif
-//                    .keyboardShortcut("E", modifiers: .command)
+                    //                    Button("Edit") { // Doesnt work....
+                    //                        let dn = DynamicNotch(content: EditPanelView())
+                    //                        dn.toggle()
+                    //                    }
+                    //                    #if DEBUG
+                    //                    .disabled(false)
+                    //                    #else
+                    //                    .disabled(true)
+                    //                    #endif
+                    //                    .keyboardShortcut("E", modifiers: .command)
                 }
             // Floating lock button at bottom-right of the notch
             if vm.notchState == .open {
@@ -216,56 +216,56 @@ struct ContentView: View {
         .frame(maxWidth: animatedWidth, maxHeight: animatedHeight, alignment: .top)
         .shadow(
             color: ((vm.notchState == .open || isHovering) && Defaults[.enableShadow])
-                ? .black.opacity(0.2) : .clear, 
+            ? .black.opacity(0.2) : .clear,
             radius: Defaults[.cornerRadiusScaling] ? 6 : 4
         )
         .animation(.easeInOut(duration: 0.3), value: animatedWidth)
         .background(dragDetector)
         .environmentObject(vm)
-                .onAppear {
-                    // Initialize animated values
-                    let initialSize = getOpenNotchSize()
-                    animatedWidth = initialSize.width
-                    animatedHeight = initialSize.height
-                    animatedTopCornerRadius = cornerRadiusInsets.opened.top
-                    animatedBottomCornerRadius = cornerRadiusInsets.opened.bottom
-                }
-                .onChange(of: coordinator.currentView) { _, _ in
-                    // Animate only the frame changes smoothly, keep corner radius static
-                    let newSize = getOpenNotchSize()
-                    
-                    // Set transition state
-                    isWidthTransitioning = true
-                    
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        animatedWidth = newSize.width
-                        animatedHeight = newSize.height
-                        // Keep corner radius static during width transition
+        .onAppear {
+            // Initialize animated values
+            let initialSize = getOpenNotchSize()
+            animatedWidth = initialSize.width
+            animatedHeight = initialSize.height
+            animatedTopCornerRadius = cornerRadiusInsets.opened.top
+            animatedBottomCornerRadius = cornerRadiusInsets.opened.bottom
+        }
+        .onChange(of: coordinator.currentView) { _, _ in
+            // Animate only the frame changes smoothly, keep corner radius static
+            let newSize = getOpenNotchSize()
+            
+            // Set transition state
+            isWidthTransitioning = true
+            
+            withAnimation(.easeInOut(duration: 0.3)) {
+                animatedWidth = newSize.width
+                animatedHeight = newSize.height
+                // Keep corner radius static during width transition
+                animatedTopCornerRadius = cornerRadiusInsets.opened.top
+                animatedBottomCornerRadius = cornerRadiusInsets.opened.bottom
+            }
+            
+            // Reset transition state after animation completes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isWidthTransitioning = false
+            }
+        }
+        .onChange(of: vm.notchState) { _, newState in
+            // Animate corner radius for normal open/close transitions (not during width transitions)
+            if !isWidthTransitioning {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    if newState == .open {
                         animatedTopCornerRadius = cornerRadiusInsets.opened.top
                         animatedBottomCornerRadius = cornerRadiusInsets.opened.bottom
-                    }
-                    
-                    // Reset transition state after animation completes
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        isWidthTransitioning = false
+                    } else {
+                        animatedTopCornerRadius = cornerRadiusInsets.closed.top
+                        animatedBottomCornerRadius = cornerRadiusInsets.closed.bottom
                     }
                 }
-                .onChange(of: vm.notchState) { _, newState in
-                    // Animate corner radius for normal open/close transitions (not during width transitions)
-                    if !isWidthTransitioning {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            if newState == .open {
-                                animatedTopCornerRadius = cornerRadiusInsets.opened.top
-                                animatedBottomCornerRadius = cornerRadiusInsets.opened.bottom
-                            } else {
-                                animatedTopCornerRadius = cornerRadiusInsets.closed.top
-                                animatedBottomCornerRadius = cornerRadiusInsets.closed.bottom
-                            }
-                        }
-                    }
-                }
+            }
+        }
     }
-
+    
     @ViewBuilder
     func NotchLayout() -> some View {
         VStack(alignment: .leading, spacing: vm.notchState == .open ? 26 : 0) {
@@ -290,11 +290,11 @@ struct ContentView: View {
                                     .font(.subheadline)
                                     .foregroundStyle(.white)
                             }
-
+                            
                             Rectangle()
                                 .fill(.black)
                                 .frame(width: vm.closedNotchSize.width + 10)
-
+                            
                             HStack {
                                 BoringBatteryView(
                                     batteryWidth: 30,
@@ -308,56 +308,56 @@ struct ContentView: View {
                             .frame(width: 76, alignment: .trailing)
                         }
                         .frame(height: vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0), alignment: .center)
-                      } else if coordinator.sneakPeek.show && Defaults[.inlineHUD] && (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) {
-                          InlineHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, icon: $coordinator.sneakPeek.icon, hoverAnimation: $isHovering, gestureProgress: $gestureProgress)
-                              .transition(.opacity)
-                      } else if (!coordinator.expandingView.show || coordinator.expandingView.type == .music) && vm.notchState == .closed && (musicManager.isPlaying || !musicManager.isPlayerIdle) && coordinator.musicLiveActivityEnabled && !vm.hideOnClosed {
-                          MusicLiveActivity()
-                      } else if !coordinator.expandingView.show && vm.notchState == .closed && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace] && !vm.hideOnClosed  {
-                          BoringFaceAnimation().animation(.interactiveSpring, value: musicManager.isPlayerIdle)
-                      } else if vm.notchState == .open {
-                          BoringHeader()
-                              .padding(.top, 4)
-                              .frame(height: max(24, vm.effectiveClosedNotchHeight))
-                              .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
-                              .animation(.spring(response: 1, dampingFraction: 1, blendDuration: 0.8), value: vm.notchState)
-                       } else {
-                           ClosedNotchContentView()
-                               .frame(width: vm.closedNotchSize.width - 20, height: vm.effectiveClosedNotchHeight)
-                               .background(Color.clear)
-                       }
-
-                      if coordinator.sneakPeek.show {
-                          if (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) && !Defaults[.inlineHUD] {
-                              SystemEventIndicatorModifier(eventType: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, icon: $coordinator.sneakPeek.icon, sendEventBack: { _ in
-                                  //
-                              })
-                              .padding(.bottom, 10)
-                              .padding(.leading, 4)
-                              .padding(.trailing, 8)
-                          }
-                          // Old sneak peek music
-                          else if coordinator.sneakPeek.type == .music {
-                              if vm.notchState == .closed && !vm.hideOnClosed && Defaults[.sneakPeekStyles] == .standard {
-                                  HStack(alignment: .center) {
-                                      Image(systemName: "music.note")
-                                      GeometryReader { geo in
-                                          MarqueeText(.constant(musicManager.songTitle + " - " + musicManager.artistName),  textColor: Defaults[.playerColorTinting] ? Color(nsColor: musicManager.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray, minDuration: 1, frameWidth: geo.size.width)
-                                      }
-                                  }
-                                  .foregroundStyle(.gray)
-                                  .padding(.bottom, 10)
-                              }
-                          }
-                      }
-                  }
-              }
-              .conditionalModifier((coordinator.sneakPeek.show && (coordinator.sneakPeek.type == .music) && vm.notchState == .closed && !vm.hideOnClosed && Defaults[.sneakPeekStyles] == .standard) || (coordinator.sneakPeek.show && (coordinator.sneakPeek.type != .music) && (vm.notchState == .closed))) { view in
-                  view
-                      .fixedSize()
-              }
-              .zIndex(2)
-
+                    } else if coordinator.sneakPeek.show && Defaults[.inlineHUD] && (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) {
+                        InlineHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, icon: $coordinator.sneakPeek.icon, hoverAnimation: $isHovering, gestureProgress: $gestureProgress)
+                            .transition(.opacity)
+                    } else if (!coordinator.expandingView.show || coordinator.expandingView.type == .music) && vm.notchState == .closed && (musicManager.isPlaying || !musicManager.isPlayerIdle) && coordinator.musicLiveActivityEnabled && !vm.hideOnClosed {
+                        MusicLiveActivity().frame(width: vm.closedNotchSize.width - 20, height: vm.effectiveClosedNotchHeight)
+                    } else if !coordinator.expandingView.show && vm.notchState == .closed && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace] && !vm.hideOnClosed  {
+                        BoringFaceAnimation().animation(.interactiveSpring, value: musicManager.isPlayerIdle)
+                    } else if vm.notchState == .open {
+                        BoringHeader()
+                            .padding(.top, 4)
+                            .frame(height: max(24, vm.effectiveClosedNotchHeight))
+                            .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
+                            .animation(.spring(response: 1, dampingFraction: 1, blendDuration: 0.8), value: vm.notchState)
+                    } else {
+                        ClosedNotchContentView()
+                            .frame(width: vm.closedNotchSize.width - 20, height: vm.effectiveClosedNotchHeight)
+                            .background(Color.clear)
+                    }
+                    
+                    if coordinator.sneakPeek.show {
+                        if (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) && !Defaults[.inlineHUD] {
+                            SystemEventIndicatorModifier(eventType: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, icon: $coordinator.sneakPeek.icon, sendEventBack: { _ in
+                                //
+                            })
+                            .padding(.bottom, 10)
+                            .padding(.leading, 4)
+                            .padding(.trailing, 8)
+                        }
+                        // Old sneak peek music
+                        else if coordinator.sneakPeek.type == .music {
+                            if vm.notchState == .closed && !vm.hideOnClosed && Defaults[.sneakPeekStyles] == .standard {
+                                HStack(alignment: .center) {
+                                    Image(systemName: "music.note")
+                                    GeometryReader { geo in
+                                        MarqueeText(.constant(musicManager.songTitle + " - " + musicManager.artistName),  textColor: Defaults[.playerColorTinting] ? Color(nsColor: musicManager.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray, minDuration: 1, frameWidth: geo.size.width)
+                                    }
+                                }
+                                .foregroundStyle(.gray)
+                                .padding(.bottom, 10)
+                            }
+                        }
+                    }
+                }
+            }
+            .conditionalModifier((coordinator.sneakPeek.show && (coordinator.sneakPeek.type == .music) && vm.notchState == .closed && !vm.hideOnClosed && Defaults[.sneakPeekStyles] == .standard) || (coordinator.sneakPeek.show && (coordinator.sneakPeek.type != .music) && (vm.notchState == .closed))) { view in
+                view
+                    .fixedSize()
+            }
+            .zIndex(2)
+            
             ZStack {
                 if vm.notchState == .open && vm.isAuthenticated {
                     switch coordinator.currentView {
@@ -367,8 +367,8 @@ struct ContentView: View {
                         NotchShelfView()
                     case .meeting:
                         MeetingView()
-            case .ask:
-                NotchHomeView(albumArtNamespace: albumArtNamespace)
+                    case .ask:
+                        NotchHomeView(albumArtNamespace: albumArtNamespace)
                     }
                 }
             }
@@ -378,7 +378,7 @@ struct ContentView: View {
             .opacity((coordinator.currentView == .meeting) ? 1 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress * 2), 0.8) : 1))
         }
     }
-
+    
     @ViewBuilder
     func BoringFaceAnimation() -> some View {
         HStack {
@@ -395,17 +395,21 @@ struct ContentView: View {
             }
         }.frame(height: vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0), alignment: .center)
     }
-
+    
     @ViewBuilder
     func MusicLiveActivity() -> some View {
-        CircularMusicThumbnail()
-            .frame(
-                width: max(0, vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0)),
-                height: max(0, vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0)),
-                alignment: .center
-            )
+        HStack{
+            CircularMusicThumbnail()
+                .frame(
+                    width: max(0, vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0)),
+                    height: max(0, vm.effectiveClosedNotchHeight + (isHovering ? 8 : 0)),
+                    alignment: .center
+                )
+            Spacer()
+        }
+        
     }
-
+    
     // MARK: - Circular Music Thumbnail (compact style)
     @ViewBuilder
     private func CircularMusicThumbnail() -> some View {
@@ -421,7 +425,7 @@ struct ContentView: View {
                     Circle()
                         .stroke(Color.white.opacity(0.12), lineWidth: 1)
                 )
-
+            
             // Title + artist centered
             VStack(spacing: 2) {
                 Text(musicManager.songTitle.isEmpty ? "Not Playing" : musicManager.songTitle)
@@ -438,7 +442,7 @@ struct ContentView: View {
             .padding(.horizontal, 8)
             .multilineTextAlignment(.center)
             .shadow(color: .black.opacity(0.6), radius: 2, x: 0, y: 1)
-
+            
             // Small translucent play/pause chip at the top
             VStack {
                 let symbolName = musicManager.isPlaying ? "pause" : "play"
@@ -457,7 +461,7 @@ struct ContentView: View {
         .contentShape(Circle())
         .matchedGeometryEffect(id: "albumArt", in: albumArtNamespace)
     }
-
+    
     @ViewBuilder
     var dragDetector: some View {
         if Defaults[.boringShelf] {
@@ -475,7 +479,7 @@ struct ContentView: View {
                             vm.dropEvent = false
                             return
                         }
-
+                        
                         vm.dropEvent = false
                         // Don't close if locked
                         if !vm.isNotchLocked {
@@ -487,49 +491,49 @@ struct ContentView: View {
             EmptyView()
         }
     }
-
+    
     private func doOpen() {
         withAnimation(.bouncy.speed(1.2)) {
             vm.open()
         }
     }
-
+    
     // MARK: - Hover Management
-
+    
     /// Handle hover state changes with debouncing
     private func handleHover(_ hovering: Bool) {
         // Don't process events if we're already transitioning
         if isHoverStateChanging { return }
-
+        
         // Cancel any pending tasks
         hoverWorkItem?.cancel()
         hoverWorkItem = nil
         debounceWorkItem?.cancel()
         debounceWorkItem = nil
-
+        
         if hovering {
             // Handle mouse enter
             withAnimation(.bouncy.speed(1.2)) {
                 isHovering = true
             }
-
+            
             // Only provide haptic feedback if notch is closed
             if vm.notchState == .closed && Defaults[.enableHaptics] {
                 haptics.toggle()
             }
-
+            
             // Don't open notch if there's a sneak peek showing
             if coordinator.sneakPeek.show {
                 return
             }
-
+            
             // Delay opening the notch
             let task = DispatchWorkItem {
                 // ContentView is a struct, so we don't use weak self here
                 guard vm.notchState == .closed, isHovering else { return }
                 doOpen()
             }
-
+            
             hoverWorkItem = task
             DispatchQueue.main.asyncAfter(
                 deadline: .now() + Defaults[.minimumHoverDuration],
@@ -539,39 +543,39 @@ struct ContentView: View {
             // Handle mouse exit with debounce to prevent flickering
             let debounce = DispatchWorkItem {
                 // ContentView is a struct, so we don't use weak self here
-
+                
                 // Update visual state
                 withAnimation(.bouncy.speed(1.2)) {
                     isHovering = false
                 }
-
+                
                 // Close the notch if it's open and battery popover is not active, but not locked
                 if vm.notchState == .open && !vm.isBatteryPopoverActive && !vm.isNotchLocked && !vm.isHoveringLockArea {
                     vm.close()
                 }
             }
-
+            
             debounceWorkItem = debounce
             // Add a small delay to debounce rapid mouse movements
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: debounce)
         }
     }
-
+    
     // MARK: - Gesture Handling
-
+    
     private func handleDownGesture(translation: CGFloat, phase: NSEvent.Phase) {
         guard vm.notchState == .closed else { return }
-
+        
         withAnimation(.smooth) {
             gestureProgress = (translation / Defaults[.gestureSensitivity]) * 20
         }
-
+        
         if phase == .ended {
             withAnimation(.smooth) {
                 gestureProgress = .zero
             }
         }
-
+        
         if translation > Defaults[.gestureSensitivity] {
             if Defaults[.enableHaptics] {
                 haptics.toggle()
@@ -582,19 +586,19 @@ struct ContentView: View {
             doOpen()
         }
     }
-
+    
     private func handleUpGesture(translation: CGFloat, phase: NSEvent.Phase) {
         if vm.notchState == .open && !vm.isHoveringCalendar {
             withAnimation(.smooth) {
                 gestureProgress = (translation / Defaults[.gestureSensitivity]) * -20
             }
-
+            
             if phase == .ended {
                 withAnimation(.smooth) {
                     gestureProgress = .zero
                 }
             }
-
+            
             if translation > Defaults[.gestureSensitivity] {
                 withAnimation(.smooth) {
                     gestureProgress = .zero
@@ -604,7 +608,7 @@ struct ContentView: View {
                 if !vm.isNotchLocked {
                     vm.close()
                 }
-
+                
                 if Defaults[.enableHaptics] {
                     haptics.toggle()
                 }
@@ -711,7 +715,7 @@ private struct FloatingLockButton: View {
     @EnvironmentObject var vm: BoringViewModel
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @State private var isHovering = false
-
+    
     var body: some View {
         Button(action: {
             vm.toggleNotchLock()
@@ -722,7 +726,7 @@ private struct FloatingLockButton: View {
             ZStack {
                 Circle()
                     .fill(vm.isNotchLocked ? Color.white.opacity(0.25) : Color.white.opacity(isHovering ? 0.1 : 0.05))
-                #if canImport(AppKit)
+#if canImport(AppKit)
                 Group {
                     if vm.isNotchLocked {
                         if let lockIcon = NSImage.image(lucideId: "lock") {
@@ -735,16 +739,16 @@ private struct FloatingLockButton: View {
                     }
                 }
                 .frame(width: 13, height: 13)
-                #endif
+#endif
             }
             .frame(width: 32, height: 32)
             .overlay(
                 RoundedRectangle(cornerRadius: 32)
                     .inset(by: 0.25)
                     .stroke(
-                        vm.isNotchLocked 
-                            ? Color.white.opacity(0.5) 
-                            : Color.white.opacity(isHovering ? 0.3 : 0.15), 
+                        vm.isNotchLocked
+                        ? Color.white.opacity(0.5)
+                        : Color.white.opacity(isHovering ? 0.3 : 0.15),
                         lineWidth: vm.isNotchLocked ? 1.0 : 0.5
                     )
             )
@@ -772,15 +776,15 @@ private struct FloatingLockButton: View {
 struct FullScreenDropDelegate: DropDelegate {
     @Binding var isTargeted: Bool
     let onDrop: () -> Void
-
+    
     func dropEntered(info _: DropInfo) {
         isTargeted = true
     }
-
+    
     func dropExited(info _: DropInfo) {
         isTargeted = false
     }
-
+    
     func performDrop(info _: DropInfo) -> Bool {
         isTargeted = false
         onDrop()
