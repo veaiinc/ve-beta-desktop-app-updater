@@ -24,8 +24,7 @@ struct TabModel: Identifiable {
 }
 
 let tabs = [
-    TabModel(label: "Home", displayStyle: .homeIcon, view: .home),
-    TabModel(label: "Shelf", displayStyle: .shelfIcon, view: .shelf),
+    TabModel(label: "Shelf", displayStyle: .textLabel("Tray"), view: .shelf),
     TabModel(label: "Listen", displayStyle: .textLabel("Listen"), view: .meeting),
     TabModel(label: "Ask", displayStyle: .textLabel("Ask"), view: .ask)
 ]
@@ -262,6 +261,8 @@ private struct HomeTabIcon: View {
 }
 
 // New custom Shelf icon, scaled to match 14x14 canvas like HomeTabIcon
+// Commented out since we're now using text "tray" instead of the icon
+/*
 private struct ShelfTabIcon: View {
     let strokeColor: Color
     
@@ -320,6 +321,7 @@ private struct ShelfTabIcon: View {
         .frame(width: 14, height: 14)
     }
 }
+*/
 
 
 struct TabSelectionView: View, WebSocketEventListener {
@@ -454,20 +456,8 @@ struct TabSelectionView: View, WebSocketEventListener {
             if  coordinator.currentView == .meeting {
                 
                 HStack(spacing:4){
-                    // Show Home tab
-                    TabItem(
-                        tab: tabs[0], // Home tab
-                        selected: false, // Never selected since we're in meeting view
-                        animation: animation,
-                        onTap: {
-                            withAnimation(.smooth) {
-                                coordinator.currentView = .home
-                            }
-                        }
-                    )
-                    
-                    // Add MeetingButtons after the Home tab
-                       MeetingButtons()
+                    // Add MeetingButtons
+                    MeetingButtons()
                 
             }
                 
