@@ -81,6 +81,16 @@ extension Defaults.Keys {
     )
     static let nonNotchHeight = Key<CGFloat>("nonNotchHeight", default: 32)
     static let notchHeight = Key<CGFloat>("notchHeight", default: 32)
+    static let nonNotchWidth = Key<CGFloat>("nonNotchWidth", default: 300)
+    static let nonNotchWidthMode = Key<WindowHeightMode>(
+        "nonNotchWidthMode",
+        default: WindowHeightMode.custom
+    )
+    static let notchWidth = Key<CGFloat>("notchWidth", default: 300)
+    static let notchWidthMode = Key<WindowHeightMode>(
+        "notchWidthMode",
+        default: WindowHeightMode.custom
+    )
         //static let openLastTabByDefault = Key<Bool>("openLastTabByDefault", default: false)
     
         // MARK: Appearance

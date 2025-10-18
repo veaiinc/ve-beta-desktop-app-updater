@@ -334,6 +334,7 @@ private struct ShelfTabIcon: View {
 
 
 struct TabSelectionView: View, WebSocketEventListener {
+    @EnvironmentObject var vm: BoringViewModel
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @StateObject private var webSocketManager = WebSocketManager.shared
     @ObservedObject private var musicManager = MusicManager.shared
@@ -501,6 +502,11 @@ struct TabSelectionView: View, WebSocketEventListener {
                                         }
                                         // Set loading state immediately if no meeting is ongoing
                                     if !coordinator.isMeetingStarted {
+                                        
+                                        if vm.isNotchLocked != true {
+                                            vm.toggleNotchLock()
+                                        }
+                                        
                                         coordinator.isMeetingLoading = true
                                     }
                                     webSocketManager.sendEvent(type: .startMeeting)

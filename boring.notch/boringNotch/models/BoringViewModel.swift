@@ -136,6 +136,14 @@ class BoringViewModel: NSObject, ObservableObject {
             name: NSNotification.Name("AuthenticationStatusUpdate"),
             object: nil
         )
+        
+        // Listen for notch size changes (height and width settings)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleNotchSizeChanged),
+            name: Notification.Name.notchHeightChanged,
+            object: nil
+        )
     }
     
     @objc private func handleAuthenticationStatusUpdate(_ notification: Notification) {
@@ -164,6 +172,23 @@ class BoringViewModel: NSObject, ObservableObject {
                     self.hideOnClosed = true
                 }
             }
+        }
+    }
+    
+    @objc private func handleNotchSizeChanged() {
+        print("📏 BoringViewModel: Notch size settings changed, updating size...")
+        DispatchQueue.main.async {
+            // Update the closed notch size with new settings
+            let newClosedSize = getClosedNotchSize(screen: self.screen)
+            self.closedNotchSize = newClosedSize
+            
+            // If the notch is currently closed, update the current size too
+            if self.notchState == .closed {
+                withAnimation(.smooth) {
+                    self.notchSize = newClosedSize
+                }
+            }
+            print("📏 BoringViewModel: Updated notch size to \(newClosedSize)")
         }
     }
     
@@ -475,6 +500,26 @@ class BoringViewModel: NSObject, ObservableObject {
         withAnimation(.easeInOut(duration: 0.2)) {
             isStealthModeEnabled.toggle()
         }
+        
+        // Send stealth mode change to Electron via WebSocket for synchronization
+        let stealthData: [String: Any] = [
+            "type": "electron_stealth_mode",
+            "isEnabled": isStealthModeEnabled,
+            "timestamp": Int(Date().timeIntervalSince1970 * 1000),
+            "source": "boring-notch"
+        ]
+        
+        // Send via WebSocket
+        WebSocketManager.shared.sendEvent(type: .custom, data: stealthData)
+        print("🥷 BoringViewModel: Sent stealth mode change via WebSocket: \(isStealthModeEnabled)")
+    }
+    
+    func setStealthMode(_ isEnabled: Bool) {
+        print("🥷 BoringViewModel: Setting stealth mode to: \(isEnabled)")
+        withAnimation(.easeInOut(duration: 0.2)) {
+            isStealthModeEnabled = isEnabled
+        }
+        print("🥷 BoringViewModel: Stealth mode state updated to: \(isStealthModeEnabled)")
     }
     
     // MARK: - Lock Notch
