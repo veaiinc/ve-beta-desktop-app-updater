@@ -118,7 +118,7 @@ const ChatBox = ({
 			isBrowserScreenActive,
 		},
 		chatBoxSuggestionsSocket: { sendMessage, closeWebSocketConnection },
-		chatStream: { createWebSocketConnection },
+		chatStream: { createWebSocketConnection, socketConnectionState, stopSendingMessage },
 		subscriptionInfo: { currentPlan, getCurrentSubscriptionPlan },
 		calendarInfo: { updateCalendarState },
 		tasks: { updateTaskState },
@@ -1309,8 +1309,25 @@ const ChatBox = ({
 		try {
 			const payload = { action: 'stop' };
 			if (handleSendWebsocketMessage) {
-				// Keep arguments consistent with other usages in this component
-				handleSendWebsocketMessage(payload, '');
+				// Here i am checking if socket is connected or not
+				const socketConnected = socketConnectionState(info?.chatSessionId);
+				if (socketConnected) {
+					// If connected send action : stop to socket
+					handleSendWebsocketMessage(payload, '');
+				} else {
+					// If not connected, dont send message to socket, handle status : 'cancelled' manually from frontend
+					// below function will stop sending message to ai through socket
+					stopSendingMessage(info?.chatSessionId);
+
+					// Here i am setting stream end true, so that user can chat again
+					const message_chunk_id = ObjectID()?.toString();
+					handleGlobalChatMessages({
+						payload: { stream_end: true, status: 'cancelled' },
+						chunkId: message_chunk_id,
+						sessionId,
+						updateExtraInfo: false,
+					});
+				}
 			} else {
 				// Fallback (avoid if possible): do not close connection unless no sender is available
 				// handleStopChatStream();
@@ -1319,7 +1336,13 @@ const ChatBox = ({
 			console.error('Failed to send stop action:', error);
 			setInfo((prev) => ({ ...prev, stopLoading: false }));
 		}
-	}, [handleSendWebsocketMessage, info?.chatSessionId, info?.chatLoading, info?.stopLoading]);
+	}, [
+		handleSendWebsocketMessage,
+		info?.chatSessionId,
+		info?.chatLoading,
+		info?.stopLoading,
+		handleGlobalChatMessages,
+	]);
 
 	return (
 		<div className="chatBoxParentWrapper" ref={chatBoxWrapperRef} onClick={handleChatBoxClick}>
