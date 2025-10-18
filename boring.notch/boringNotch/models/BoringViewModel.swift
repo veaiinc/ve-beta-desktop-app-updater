@@ -136,6 +136,14 @@ class BoringViewModel: NSObject, ObservableObject {
             name: NSNotification.Name("AuthenticationStatusUpdate"),
             object: nil
         )
+        
+        // Listen for notch size changes (height and width settings)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleNotchSizeChanged),
+            name: Notification.Name.notchHeightChanged,
+            object: nil
+        )
     }
     
     @objc private func handleAuthenticationStatusUpdate(_ notification: Notification) {
@@ -164,6 +172,23 @@ class BoringViewModel: NSObject, ObservableObject {
                     self.hideOnClosed = true
                 }
             }
+        }
+    }
+    
+    @objc private func handleNotchSizeChanged() {
+        print("📏 BoringViewModel: Notch size settings changed, updating size...")
+        DispatchQueue.main.async {
+            // Update the closed notch size with new settings
+            let newClosedSize = getClosedNotchSize(screen: self.screen)
+            self.closedNotchSize = newClosedSize
+            
+            // If the notch is currently closed, update the current size too
+            if self.notchState == .closed {
+                withAnimation(.smooth) {
+                    self.notchSize = newClosedSize
+                }
+            }
+            print("📏 BoringViewModel: Updated notch size to \(newClosedSize)")
         }
     }
     
