@@ -87,6 +87,7 @@ This is because we want to avoid re-rendering the component when the state chang
 and useRef does not cause re-rendering when the state changes and it always gives the latest value of the state.
 Dont change this otherwise chat functionality will break.
 */
+// Chatbox
 const ChatBox = ({
 	onSend,
 	aiChatLoading,

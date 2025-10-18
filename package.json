@@ -7,8 +7,9 @@
 	"author": "Ve AI",
 	"repository": "https://github.com/veaiinc/ve-beta-desktop-app-updater.git",
 	"scripts": {
-		"postinstall": "electron-builder install-app-deps && npm run clean:sharp",
+		"postinstall": "electron-builder install-app-deps && npm run clean:sharp && npm run ensure-sharp-binaries",
 		"clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); console.log('🔧 Ensuring Sharp package structure for all platforms...'); if (fs.existsSync(nodeModulesPath)) { const requiredDirs = ['sharp-darwin-arm64', 'sharp-darwin-x64', 'sharp-libvips-darwin-arm64', 'sharp-libvips-darwin-x64', 'sharp-linux-arm', 'sharp-linux-arm64', 'sharp-linux-x64', 'sharp-libvips-linux-arm', 'sharp-libvips-linux-arm64', 'sharp-libvips-linux-x64', 'sharp-win32-ia32', 'sharp-win32-x64', 'sharp-libvips-win32-ia32', 'sharp-libvips-win32-x64']; requiredDirs.forEach(dir => { const dirPath = path.join(nodeModulesPath, dir); if (!fs.existsSync(dirPath)) { fs.mkdirSync(dirPath, { recursive: true }); fs.writeFileSync(path.join(dirPath, '.gitkeep'), ''); console.log('✅ Created missing directory:', dir); } else { console.log('✅ Directory exists:', dir); } }); console.log('🎉 All Sharp directories ensured for cross-platform builds'); } else { console.log('📁 @img directory not found'); }\"",
+		"ensure-sharp-binaries": "node -e \"const fs = require('fs'); const path = require('path'); const sharpPath = path.join(__dirname, 'node_modules', 'sharp'); console.log('🔧 Ensuring Sharp binaries are available...'); if (fs.existsSync(sharpPath)) { try { const sharp = require('sharp'); console.log('✅ Sharp module loaded successfully'); console.log('Sharp version:', sharp.versions); } catch (error) { console.log('❌ Sharp module failed to load:', error.message); if (process.platform === 'win32') { console.log('🔧 Attempting to rebuild Sharp for Windows...'); const { execSync } = require('child_process'); try { execSync('npm rebuild sharp --platform=win32 --arch=x64', { stdio: 'inherit' }); console.log('✅ Sharp rebuild completed'); } catch (rebuildError) { console.log('❌ Sharp rebuild failed:', rebuildError.message); } } } } else { console.log('❌ Sharp module not found'); }\"",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
 		"dev": "cross-env NODE_ENV=development npm run clean:build:dev && vite --mode electron -- --js-flags=\"--expose-gc\"",
 		"dev:mac:entitled": "npm run clean:build:cross && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null && open \"dist/mac-arm64/Ve AI Gallery.app\"",
@@ -21,6 +22,7 @@
 		"rebuild:native:win": "electron-rebuild -f -w sharp",
 		"package:win": "npm run build:win && electron-builder --win",
 		"package:win:rebuild": "npm run rebuild:native:win && npm run package:win",
+		"fix:windows-sharp": "node scripts/fix-windows-sharp.js",
 		"package:win:portable": "npm run build:win && electron-builder --win --config.win.target=portable",
 		"package:all": "npm run clean:build:cross && npm run build && electron-builder -mw",
 		"build:analyze": "npm run clean:build:cross && npm run build && npx vite-bundle-analyzer build",
@@ -252,7 +254,18 @@
 			"asarUnpack": [
 				"**/node_modules/sharp/**/*",
 				"**/node_modules/@img/sharp-win32*/**/*",
-				"**/node_modules/@img/sharp-libvips-win32*/**/*"
+				"**/node_modules/@img/sharp-libvips-win32*/**/*",
+				"**/node_modules/sharp/build/**/*",
+				"**/node_modules/sharp/vendor/**/*"
+			],
+			"extraResources": [
+				{
+					"from": "node_modules/sharp",
+					"to": "sharp",
+					"filter": [
+						"**/*"
+					]
+				}
 			]
 		},
 		"linux": {
