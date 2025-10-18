@@ -21,7 +21,7 @@ struct ContentView: View {
     @ObservedObject var musicManager = MusicManager.shared
     @ObservedObject var batteryModel = BatteryStatusViewModel.shared
 
-    @State private var isHovering: Bool = false
+    @State private var isHovering: Bool = true
     @State private var hoverWorkItem: DispatchWorkItem?
     @State private var debounceWorkItem: DispatchWorkItem?
 
@@ -363,6 +363,8 @@ struct ContentView: View {
                     switch coordinator.currentView {
                     case .home:
                         NotchHomeView(albumArtNamespace: albumArtNamespace)
+                    case .email:
+                        EmailView()
                     case .shelf:
                         NotchShelfView()
                     case .meeting:
