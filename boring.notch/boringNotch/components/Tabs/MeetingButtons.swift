@@ -38,7 +38,8 @@ struct MeetingButtons: View, WebSocketEventListener {
                               systemImage: coordinator.meetingIsPaused ? "play.fill" : "pause.fill")
                         .labelStyle(.iconOnly)
                         .foregroundColor(.white)
-                    }
+                        .frame(width: 30, height: 24)
+                        .contentShape(Rectangle())                    }
                     .buttonStyle(.plain)
                     .frame(maxWidth: 30)
                     .frame(height: 24)
@@ -63,6 +64,8 @@ struct MeetingButtons: View, WebSocketEventListener {
                     Label("Stop", systemImage: "stop.fill")
                         .labelStyle(.iconOnly)
                         .foregroundColor(.white)
+                        .frame(width: 30, height: 24)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: 30)
