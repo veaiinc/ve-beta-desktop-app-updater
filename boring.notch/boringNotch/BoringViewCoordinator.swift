@@ -134,7 +134,7 @@ class BoringViewCoordinator: ObservableObject {
         selectedScreen = preferredScreen
         notifier = TheBoringWorkerNotifier()
         // Always start with home tab, don't restore last selected tab
-        currentView = .email
+        currentView = .home
         // Restore meeting state
         restoreMeetingState()
         // Restore active meeting view
@@ -534,4 +534,3 @@ class BoringViewCoordinator: ObservableObject {
         print("🔄 AI enabled state set to: \(enabled)")
     }
 }
-
