@@ -11,6 +11,8 @@ struct MeetingButtons: View, WebSocketEventListener {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @State private var isPinging = false
     @State private var isAiToggleLoading = false
+    @State private var isHoveringEnabeldAiButton: Bool = false
+    @State private var isHoveringDisabledAiButton: Bool = false
     
     // Optional callbacks for parent integration
     var onPauseToggle: ((Bool) -> Void)? = nil
@@ -36,7 +38,8 @@ struct MeetingButtons: View, WebSocketEventListener {
                               systemImage: coordinator.meetingIsPaused ? "play.fill" : "pause.fill")
                         .labelStyle(.iconOnly)
                         .foregroundColor(.white)
-                    }
+                        .frame(width: 30, height: 24)
+                        .contentShape(Rectangle())                    }
                     .buttonStyle(.plain)
                     .frame(maxWidth: 30)
                     .frame(height: 24)
@@ -61,6 +64,8 @@ struct MeetingButtons: View, WebSocketEventListener {
                     Label("Stop", systemImage: "stop.fill")
                         .labelStyle(.iconOnly)
                         .foregroundColor(.white)
+                        .frame(width: 30, height: 24)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .frame(maxWidth: 30)
@@ -154,6 +159,22 @@ struct MeetingButtons: View, WebSocketEventListener {
                             } else {
                                 NSCursor.pop()
                             }
+                            isHoveringEnabeldAiButton = isHovered
+                        }
+                    }
+                    .overlay(alignment: .bottom) {
+                        if isHoveringEnabeldAiButton {
+                            Text("Meeting intelligence is on")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.8))
+                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                .offset(y: 28)
+                                .fixedSize(horizontal: true, vertical: true)
+                                .zIndex(2000)
+                                .allowsHitTesting(false)
                         }
                     }
                     .onAppear {
@@ -187,6 +208,22 @@ struct MeetingButtons: View, WebSocketEventListener {
                             NSCursor.pointingHand.push()
                         } else {
                             NSCursor.pop()
+                        }
+                        isHoveringDisabledAiButton = isHovered
+                    }
+                    .overlay(alignment: .bottom) {
+                        if isHoveringDisabledAiButton {
+                            Text("Meeting intelligence is off")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.8))
+                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                .offset(y: 28)
+                                .fixedSize(horizontal: true, vertical: true)
+                                .zIndex(2000)
+                                .allowsHitTesting(false)
                         }
                     }
                 }
