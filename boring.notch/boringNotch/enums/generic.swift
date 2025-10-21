@@ -26,6 +26,7 @@ public enum NotchState {
 
 public enum NotchViews {
     case home
+    case email
     case shelf
     case meeting
     case ask
