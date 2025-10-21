@@ -20,7 +20,7 @@ struct EmailView: View {
                         // Loading placeholders
                         ForEach(0..<4, id: \.self) { _ in
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(red: 0.32, green: 0.59, blue: 0.89).opacity(0.2))
+                                .fill(Color.white.opacity(0.1))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
@@ -45,8 +45,8 @@ struct EmailView: View {
             }
             
             // Labels row
-//            LabelRow()
-//                .padding(.top, 2) // slight separation from cards
+            LabelRow()
+                .padding(.top, 2) // slight separation from cards
         }
         .onAppear {
             // Record user activity and use smart fetch
@@ -71,7 +71,7 @@ private struct EmailRow: View {
         ZStack(alignment: .topLeading) {
             // Background
             RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(Color(red: 0.32, green: 0.59, blue: 0.89).opacity(0.2))
+                .fill(Color.white.opacity(0.1))
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .stroke(Color.white.opacity(0.06), lineWidth: 0.5) // subtle inner stroke
