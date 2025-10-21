@@ -319,7 +319,7 @@ struct ContentView: View {
                         BoringHeader()
                             .padding(.top, 4)
                             .frame(height: max(24, vm.effectiveClosedNotchHeight))
-                            .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
+                            .blur(radius: (coordinator.currentView == .meeting || vm.isNotchLocked) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
                             .animation(.spring(response: 1, dampingFraction: 1, blendDuration: 0.8), value: vm.notchState)
                     } else {
                         ClosedNotchContentView()
@@ -374,7 +374,7 @@ struct ContentView: View {
             }
             .zIndex(1)
             .allowsHitTesting(vm.notchState == .open)
-            .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
+            .blur(radius: (coordinator.currentView == .meeting || vm.isNotchLocked) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
             .opacity((coordinator.currentView == .meeting) ? 1 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress * 2), 0.8) : 1))
         }
     }
