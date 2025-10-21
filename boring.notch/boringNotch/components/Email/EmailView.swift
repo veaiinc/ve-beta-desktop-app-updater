@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EmailView: View {
-    @StateObject private var viewModel = EmailViewModel()
+    @EnvironmentObject var viewModel: EmailViewModel
     
     var body: some View {
         VStack(spacing: 8) {
@@ -12,7 +12,7 @@ struct EmailView: View {
 //                    .foregroundColor(.white)
 //                Spacer()
 //                Button {
-//                    Task { await viewModel.fetch() }
+//                    Task { await viewModel.fetch(force: true) }
 //                } label: {
 //                    Image(systemName: "arrow.clockwise")
 //                        .foregroundColor(.white.opacity(0.9))
@@ -46,6 +46,8 @@ struct EmailView: View {
                             EmailRow(email: email)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
+                                    // Record user activity when interacting with emails
+                                    viewModel.recordUserActivity()
                                     Task { await viewModel.open(email) }
                                 }
                         }
@@ -58,7 +60,9 @@ struct EmailView: View {
             LabelRow()
         }
         .onAppear {
-            Task { await viewModel.fetch() }
+            // Record user activity and use smart fetch
+            viewModel.recordUserActivity()
+            Task { await viewModel.fetchIfNeeded() }
         }
         .frame(maxWidth: .infinity)
     }

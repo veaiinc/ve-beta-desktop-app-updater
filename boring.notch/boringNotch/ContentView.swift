@@ -187,16 +187,6 @@ struct ContentView: View {
                         SettingsWindowController.shared.showWindow()
                     }
                     .keyboardShortcut(KeyEquivalent(","), modifiers: .command)
-                    //                    Button("Edit") { // Doesnt work....
-                    //                        let dn = DynamicNotch(content: EditPanelView())
-                    //                        dn.toggle()
-                    //                    }
-                    //                    #if DEBUG
-                    //                    .disabled(false)
-                    //                    #else
-                    //                    .disabled(true)
-                    //                    #endif
-                    //                    .keyboardShortcut("E", modifiers: .command)
                 }
             // Floating lock button at bottom-right of the notch
             if vm.notchState == .open {
@@ -365,6 +355,7 @@ struct ContentView: View {
                         NotchHomeView(albumArtNamespace: albumArtNamespace)
                     case .email:
                         EmailView()
+                            .environmentObject(vm.emailViewModel)
                     case .shelf:
                         NotchShelfView()
                     case .meeting:
@@ -801,3 +792,4 @@ struct FullScreenDropDelegate: DropDelegate {
         .environmentObject(vm)
         .frame(width: vm.notchSize.width, height: vm.notchSize.height)
 }
+
