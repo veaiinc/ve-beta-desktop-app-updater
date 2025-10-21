@@ -68,6 +68,7 @@
 		14E9FEAA2C70BF610062E83F /* DownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E9FEA92C70BF610062E83F /* DownloadView.swift */; };
 		14E9FEAE2C7325770062E83F /* Button+Bouncing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E9FEAD2C7325770062E83F /* Button+Bouncing.swift */; };
 		14FC6E502C7DED5600C7BEA5 /* DataTypes+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6E4F2C7DED5600C7BEA5 /* DataTypes+Extensions.swift */; };
+		418C84D62EA7940300B7E442 /* ProfilePictureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418C84D52EA7940300B7E442 /* ProfilePictureService.swift */; };
 		41F102A62EA3FFAC007FEB58 /* EmailItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F102A52EA3FFAC007FEB58 /* EmailItem.swift */; };
 		41F102A82EA3FFAE007FEB58 /* MailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F102A72EA3FFAE007FEB58 /* MailService.swift */; };
 		41F102AA2EA3FFB0007FEB58 /* helpers/AppleScriptHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F102A92EA3FFB0007FEB58 /* helpers/AppleScriptHelper.swift */; };
@@ -212,6 +213,7 @@
 		14E9FEA92C70BF610062E83F /* DownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadView.swift; sourceTree = "<group>"; };
 		14E9FEAD2C7325770062E83F /* Button+Bouncing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Button+Bouncing.swift"; sourceTree = "<group>"; };
 		14FC6E4F2C7DED5600C7BEA5 /* DataTypes+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataTypes+Extensions.swift"; sourceTree = "<group>"; };
+		418C84D52EA7940300B7E442 /* ProfilePictureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureService.swift; sourceTree = "<group>"; };
 		41F102A52EA3FFAC007FEB58 /* EmailItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailItem.swift; sourceTree = "<group>"; };
 		41F102A72EA3FFAE007FEB58 /* MailService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailService.swift; sourceTree = "<group>"; };
 		41F102A92EA3FFB0007FEB58 /* helpers/AppleScriptHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = helpers/AppleScriptHelper.swift; sourceTree = "<group>"; };
@@ -460,6 +462,7 @@
 				41F102AD2EA3FFBE007FEB58 /* AppleScriptMailService.swift */,
 				41F102AF2EA3FFBF007FEB58 /* EmailViewModel.swift */,
 				41F102B52EA40042007FEB58 /* ScriptExecutor.swift */,
+				418C84D52EA7940300B7E442 /* ProfilePictureService.swift */,
 			);
 			path = boringNotch;
 			sourceTree = "<group>";
@@ -809,6 +812,7 @@
 				B172AAC02C95DA0B001623F1 /* InlineHUD.swift in Sources */,
 				A9B8A6512E9E25180050577A /* WebSocketManager.swift in Sources */,
 				14E9FEAA2C70BF610062E83F /* DownloadView.swift in Sources */,
+				418C84D62EA7940300B7E442 /* ProfilePictureService.swift in Sources */,
 				41F102B62EA40042007FEB58 /* ScriptExecutor.swift in Sources */,
 				41F102A82EA3FFAE007FEB58 /* MailService.swift in Sources */,
 				B1B112912C6A572100093D8F /* EditPanelView.swift in Sources */,

@@ -19,19 +19,20 @@ struct EmailParser {
                 continue
             }
             
-            // ✅ Now 6 parts: msgId, subject, senderName, senderAddress, date, isRead
-            let parts = msgString.split(separator: "|||", maxSplits: 5)
-            guard parts.count == 6 else {
-                print("⚠️ Item \(i): Invalid format (expected 6 parts, got \(parts.count)), skipping...")
+            // ✅ Handle both 6-part (old format) and 7-part (new format with profile pictures)
+            let parts = msgString.split(separator: "|||", maxSplits: 6)
+            guard parts.count >= 6 else {
+                print("⚠️ Item \(i): Invalid format (expected at least 6 parts, got \(parts.count)), skipping...")
                 continue
             }
             
             let idString = String(parts[0])
             let subject = String(parts[1])
             let senderName = String(parts[2])
-            let senderAddress = String(parts[3]) // ✅ New field
+            let senderAddress = String(parts[3])
             let dateString = String(parts[4])
             let isRead = String(parts[5]).lowercased() == "true"
+            let profilePictureDataString = parts.count >= 7 ? String(parts[6]) : "" // ✅ Handle missing profile picture data
             
             guard !idString.isEmpty else {
                 print("⚠️ Item \(i): Empty ID, skipping...")
@@ -43,16 +44,29 @@ struct EmailParser {
                 dateReceived = parsed
             }
             
+            // ✅ Parse profile picture data from AppleScript
+            var profilePictureData: Data? = nil
+            if !profilePictureDataString.isEmpty && profilePictureDataString != "" {
+                // AppleScript returns image data as base64 or raw data
+                // Try to parse as base64 first, then as raw data
+                if let data = Data(base64Encoded: profilePictureDataString) {
+                    profilePictureData = data
+                } else if let data = profilePictureDataString.data(using: .utf8) {
+                    profilePictureData = data
+                }
+            }
+            
             let item = EmailItem(
                 appleScriptID: idString,
                 subject: subject,
                 senderName: senderName,
-                senderAddress: senderAddress.isEmpty ? nil : senderAddress, // ✅ Use real address
+                senderAddress: senderAddress.isEmpty ? nil : senderAddress,
                 preview: nil,
                 receivedDate: dateReceived,
                 isRead: isRead,
                 mailboxName: "Inbox",
-                messageIDHeader: nil
+                messageIDHeader: nil,
+                profilePictureData: profilePictureData // ✅ Include profile picture data
             )
             items.append(item)
             print("✅ Parsed email \(i): ID='\(idString)' Subject='\(subject.prefix(50))' Address='\(senderAddress)'")
