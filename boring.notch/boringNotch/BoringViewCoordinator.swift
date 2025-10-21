@@ -113,6 +113,8 @@ class BoringViewCoordinator: ObservableObject {
         switch currentView {
         case .meeting, .ask:
             return 600  // Smaller width for meeting view
+        case .email:
+            return 750
         case .home, .shelf:
             return 800  // Original width for home and shelf views
         }
@@ -482,6 +484,7 @@ class BoringViewCoordinator: ObservableObject {
             selectedTabRaw = {
                 switch newValue {
                 case .home: return "home"
+                case .email: return "email"
                 case .shelf: return "shelf"
                 case .meeting: return "meeting"
                 case .ask: return "ask"
@@ -531,4 +534,3 @@ class BoringViewCoordinator: ObservableObject {
         print("🔄 AI enabled state set to: \(enabled)")
     }
 }
-
