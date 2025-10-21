@@ -23,5 +23,7 @@ enum MailServiceError: Error, LocalizedError, Equatable {
 protocol MailService {
     func fetchRecentEmails(limit: Int) async throws -> [EmailItem]
     func openEmail(_ email: EmailItem) async throws
+    func fetchLabels() async throws -> [String]
+    func fetchEmailsForLabel(_ label: String, limit: Int) async throws -> [EmailItem]
 }
 

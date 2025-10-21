@@ -7,6 +7,11 @@ final class EmailViewModel: ObservableObject {
     @Published private(set) var isLoading: Bool = false
     @Published var errorMessage: String?
     
+    // MARK: - Label Management
+    @Published private(set) var availableLabels: [String] = []
+    @Published private(set) var selectedLabel: String? = nil
+    @Published private(set) var isLabelsLoading: Bool = false
+    
     // MARK: - Smart caching and refresh tracking
     @Published private(set) var lastFetchedAt: Date?
     @Published private(set) var lastUserActivityAt: Date?
@@ -140,6 +145,99 @@ final class EmailViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Label Management
+    
+    /// Fetch available labels/mailboxes from Mail.app
+    func fetchLabels() async {
+        print("🏷️ [VIEWMODEL] Fetching labels...")
+        isLabelsLoading = true
+        errorMessage = nil
+        
+        do {
+            // First, run debug to see what's happening
+            if let mailService = service as? AppleScriptMailService {
+                try await mailService.debugMessageCounts()
+            }
+            
+            let labels = try await fetchLabelsInBackground()
+            self.availableLabels = labels
+            print("✅ [VIEWMODEL] Labels fetched: \(labels.count) labels")
+            
+            // Additional debugging
+            if labels.isEmpty {
+                print("⚠️ [VIEWMODEL] No labels found - this might mean:")
+                print("   - All mailboxes are empty")
+                print("   - AppleScript message counting failed")
+                print("   - Mail.app has no mailboxes")
+            } else {
+                print("🏷️ [VIEWMODEL] Found labels with emails:")
+                for label in labels {
+                    print("   - '\(label)'")
+                }
+            }
+        } catch let e as MailServiceError {
+            self.errorMessage = e.localizedDescription
+            print("❌ [VIEWMODEL] Failed to fetch labels: \(e.localizedDescription)")
+        } catch {
+            self.errorMessage = MailServiceError.unknown.localizedDescription
+            print("❌ [VIEWMODEL] Failed to fetch labels: Unknown error")
+        }
+        
+        isLabelsLoading = false
+    }
+    
+    /// Select a label and fetch emails for that label
+    func selectLabel(_ label: String) async {
+        print("🏷️ [VIEWMODEL] Selecting label: \(label)")
+        
+        // Don't refetch if already selected
+        guard selectedLabel != label else {
+            print("🏷️ [VIEWMODEL] Label already selected, skipping")
+            return
+        }
+        
+        selectedLabel = label
+        
+        // Clear current emails and fetch new ones for the selected label
+        emails = []
+        
+        do {
+            await fetch(force: true)
+            
+            // If no emails found, show a helpful message
+            if emails.isEmpty {
+                print("🏷️ [VIEWMODEL] No emails found for label '\(label)'")
+                // You could set a user-friendly error message here
+                // self.errorMessage = "No emails found in '\(label)'"
+            }
+        } catch {
+            print("🏷️ [VIEWMODEL] Error fetching emails for label '\(label)': \(error)")
+        }
+    }
+    
+    /// Clear label selection and return to inbox
+    func clearLabelSelection() async {
+        print("🏷️ [VIEWMODEL] Clearing label selection")
+        selectedLabel = nil
+        
+        // Clear current emails and fetch inbox emails
+        emails = []
+        await fetch(force: true)
+    }
+    
+    /// Check if a label is currently selected
+    var isLabelSelected: Bool {
+        return selectedLabel != nil
+    }
+    
+    /// Get the display name for the current selection
+    var currentSelectionDisplayName: String {
+        if let label = selectedLabel {
+            return label
+        }
+        return "Inbox"
+    }
+    
     // MARK: - Cache and Smart Refresh Logic
     
     /// Check if cached data is still valid
@@ -189,9 +287,24 @@ final class EmailViewModel: ObservableObject {
     private func fetchEmailsInBackground() async throws -> [EmailItem] {
         let service = self.service
         let limit = self.limit
+        let selectedLabel = self.selectedLabel
         
         return try await Task.detached(priority: .userInitiated) {
-            try await service.fetchRecentEmails(limit: limit)
+            if let label = selectedLabel {
+                // Fetch emails for specific label
+                return try await service.fetchEmailsForLabel(label, limit: limit)
+            } else {
+                // Fetch emails from inbox
+                return try await service.fetchRecentEmails(limit: limit)
+            }
+        }.value
+    }
+    
+    private func fetchLabelsInBackground() async throws -> [String] {
+        let service = self.service
+        
+        return try await Task.detached(priority: .userInitiated) {
+            try await service.fetchLabels()
         }.value
     }
     

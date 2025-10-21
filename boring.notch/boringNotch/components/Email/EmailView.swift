@@ -45,13 +45,16 @@ struct EmailView: View {
             }
             
             // Labels row
-            LabelRow()
+            LabelRow(viewModel: viewModel)
                 .padding(.top, 2) // slight separation from cards
         }
         .onAppear {
             // Record user activity and use smart fetch
             viewModel.recordUserActivity()
-            Task { await viewModel.fetchIfNeeded() }
+            Task { 
+                await viewModel.fetchIfNeeded()
+                await viewModel.fetchLabels()
+            }
         }
         .frame(maxWidth: .infinity)
     }
@@ -326,31 +329,130 @@ private struct MonogramAvatar: View {
 }
 
 private struct LabelRow: View {
-    let labels = [
-        "Actioned", "To respond", "FYI", "Comment", "Notification",
-        "Awaiting reply", "Risks", "Suggestions", "Opportunity"
-    ]
+    @ObservedObject var viewModel: EmailViewModel
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
-                ForEach(labels, id: \.self) { label in
-                    Text(label)
-                        .font(.caption)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 7)
-                        .background(Color.white.opacity(0.12))
-                        .foregroundColor(.white)
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule().stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                // Inbox button (always available)
+                InboxButton(viewModel: viewModel)
+                
+                // Dynamic labels from Mail.app
+                if viewModel.isLabelsLoading {
+                    // Placeholder labels that match the exact styling of real labels
+                    ForEach(0..<4, id: \.self) { _ in
+                        PlaceholderLabelButton()
+                    }
+                } else if viewModel.availableLabels.isEmpty {
+                    // No labels with emails found
+                    HStack(spacing: 4) {
+                        Image(systemName: "folder.badge.minus")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Text("No labels with emails found")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
+                } else {
+                    // Available labels
+                    ForEach(viewModel.availableLabels, id: \.self) { label in
+                        LabelButton(
+                            label: label,
+                            isSelected: viewModel.selectedLabel == label,
+                            viewModel: viewModel
                         )
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.horizontal, 12)
             .padding(.vertical, 2) // a little vertical air for the labels strip
         }
+    }
+}
+
+private struct InboxButton: View {
+    @ObservedObject var viewModel: EmailViewModel
+    
+    var body: some View {
+        Button(action: {
+            Task { await viewModel.clearLabelSelection() }
+        }) {
+            Text("Inbox")
+                .font(.caption)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(
+                    viewModel.selectedLabel == nil 
+                        ? Color.white.opacity(0.25) 
+                        : Color.white.opacity(0.12)
+                )
+                .foregroundColor(.white)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule().stroke(
+                        viewModel.selectedLabel == nil 
+                            ? Color.white.opacity(0.4) 
+                            : Color.white.opacity(0.2), 
+                        lineWidth: viewModel.selectedLabel == nil ? 1.0 : 0.5
+                    )
+                )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+private struct LabelButton: View {
+    let label: String
+    let isSelected: Bool
+    @ObservedObject var viewModel: EmailViewModel
+    
+    var body: some View {
+        Button(action: {
+            Task { await viewModel.selectLabel(label) }
+        }) {
+            Text(label)
+                .font(.caption)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(
+                    isSelected 
+                        ? Color.white.opacity(0.25) 
+                        : Color.white.opacity(0.12)
+                )
+                .foregroundColor(.white)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule().stroke(
+                        isSelected 
+                            ? Color.white.opacity(0.4) 
+                            : Color.white.opacity(0.2), 
+                        lineWidth: isSelected ? 1.0 : 0.5
+                    )
+                )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+private struct PlaceholderLabelButton: View {
+    var body: some View {
+        HStack() {}
+            .frame(width: 60, height: 13)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(Color.white.opacity(0.12))
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule().stroke(
+                    Color.white.opacity(0.2), 
+                    lineWidth: 0.5
+                )
+            )
+            .redacted(reason: .placeholder)
     }
 }
 

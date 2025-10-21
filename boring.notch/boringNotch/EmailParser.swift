@@ -13,6 +13,12 @@ struct EmailParser {
         let count = list.numberOfItems
         print("📊 Processing \(count) email items...")
         
+        // Handle empty list case to prevent range error
+        guard count > 0 else {
+            print("📊 No email items to process")
+            return []
+        }
+        
         for i in 1...count {
             guard let msgString = list.atIndex(i)?.stringValue else {
                 print("⚠️ Item \(i): Not a string, skipping...")
