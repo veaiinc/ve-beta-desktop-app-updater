@@ -111,9 +111,9 @@ class BoringViewCoordinator: ObservableObject {
     /// Returns the appropriate width for the current view
     var currentViewWidth: CGFloat {
         switch currentView {
-        case .meeting, .ask:
+        case .meeting:
             return 600  // Smaller width for meeting view
-        case .home, .shelf:
+        case .home, .shelf, .ask:
             return 800  // Original width for home and shelf views
         }
     }
