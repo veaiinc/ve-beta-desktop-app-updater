@@ -32,6 +32,7 @@ const ChatHeader = ({
 			deleteChatSession,
 			globalChatMessages,
 			updatechatSessionFavourite,
+			sidebarState,
 		},
 		aiSetup: { aiChatSessions, updateStateValues, updateAiChatSessions },
 	} = useContext(Context);
@@ -270,7 +271,8 @@ const ChatHeader = ({
 					<div className={s.leftContainer}>
 						{location?.pathname?.includes('/chat') && (
 							<div
-								style={{ cursor: 'pointer', color: 'var(--primary-font)' }}
+								className={s.backButton}
+								style={{ marginLeft: sidebarState?.open ? '0px' : '250px' }}
 								onClick={() => navigate(-1)}
 							>
 								<BackSvg />
