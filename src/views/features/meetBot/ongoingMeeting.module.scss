@@ -31,15 +31,17 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			width: 20px;
-			height: 20px;
+			width: 32px;
+			height: 32px;
 			background-color: transparent;
 			border: none;
 			cursor: pointer;
-			padding: 4px;
+			padding: 6px 8px;
+			margin-right: 12px;
 			color: var(--primary-font);
 			cursor: pointer;
 			-webkit-app-region: no-drag;
+			transition: transform 0.2s ease;
 		}
 
 		.ongoingMeetingHeaderButtonClose {
