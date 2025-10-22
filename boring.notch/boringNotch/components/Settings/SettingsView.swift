@@ -594,6 +594,10 @@ struct CalendarSettings: View {
     var body: some View {
         Form {
             Defaults.Toggle("Show calendar", key: .showCalendar)
+                .onChange(of: showCalendar) {
+                    NotificationCenter.default.post(
+                        name: Notification.Name.showCalendarChanged, object: nil)
+                }
             Defaults.Toggle("Hide completed reminders", key: .hideCompletedReminders)
             Section(header: Text("Calendars")) {
                 if calendarManager.calendarAuthorizationStatus != .fullAccess {

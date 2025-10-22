@@ -2367,7 +2367,7 @@ function createWindow(restoreState = false) {
 		if (msg === 'authorized') {
 			log.info('✅ User authenticated');
 			userAuthenticationStatus.isLoggedIn = true;
-			
+
 			// Note: Window resize is now handled by the React hook (useLoginWindowResize)
 			// This ensures smooth animation when transitioning from login to main app
 		} else if (msg === 'unauthorized') {
@@ -3136,7 +3136,6 @@ async function checkUserAuthenticationStatus() {
 	}
 }
 
-
 // App lifecycle
 app.whenReady().then(async () => {
 	log.info('🚀 App is ready - starting initialization...');
@@ -3691,14 +3690,12 @@ app.whenReady().then(async () => {
 		}
 	});
 
-
 	createTray(); // Create system tray for Windows
 	createMenuBar();
 
 	windowHelper = new WindowHelper(applyContentProtectionToWindow);
 	windowHelper.registerGlobalShortcuts(mainWindow);
 	windowHelper.setDynamicIslandHelper(dynamicIslandHelper);
-
 
 	// Subscribe all windows to bridge when they're created (ADD THIS)
 	if (bridge && windowHelper) {
@@ -3838,7 +3835,6 @@ app.whenReady().then(async () => {
 		}
 	});
 
-
 	// Handler to hide all windows (overlay and ask AI)
 	ipcMain.handle('hide-all-windows', async () => {
 		try {
@@ -3913,7 +3909,6 @@ app.whenReady().then(async () => {
 	} catch (error) {
 		log.error('❌ Error pre-creating overlay window:', error);
 	}
-
 
 	// Initialize Boring Notch asynchronously to prevent blocking main window
 	const initializeBoringNotchAsync = async () => {
@@ -5061,6 +5056,7 @@ app.whenReady().then(async () => {
 				mainWindow.focus();
 				mainWindow.webContents.send('navigate-to', data);
 				log.info('Main window navigated to:', data?.path);
+				log.info('🧭 [DEBUG] Sent navigate-to event with data:', data);
 				// }
 				return { success: true };
 			} else {
@@ -5110,8 +5106,6 @@ app.whenReady().then(async () => {
 			return { success: false, error: error.message };
 		}
 	});
-
-
 
 	// Handle chat mode activation to ensure input field can receive focus
 	ipcMain.handle('dynamic-island-chat-mode', async (event, isChatMode) => {

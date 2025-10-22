@@ -499,7 +499,10 @@ struct TabSelectionView: View, WebSocketEventListener {
                                         
                                         coordinator.isMeetingLoading = true
                                     }
-                                    webSocketManager.sendEvent(type: .startMeeting)
+                                    
+                                    // Check workspace suspension before starting meeting
+                                    // This will either navigate to pricing page if suspended or start the meeting
+                                    vm.checkWorkspaceSuspensionAndStartMeeting()
                                     }
                                     
                                     if tab.view == .meeting || tab.view == .ask {
@@ -547,11 +550,57 @@ struct TabSelectionView: View, WebSocketEventListener {
             Task {
                 await resumeMusicIfNeeded()
             }
+        case .workspaceModeResponse:
+            // Handle workspace mode response
+            if let data = event.data as? [String: Any],
+               let mode = data["mode"] as? String {
+                vm.handleWorkspaceModeResponse(mode)
+            } else {
+                // If no mode data, assume not suspended and start meeting
+                vm.handleWorkspaceModeResponse(nil)
+            }
+        case .updateUIState:
+            // Handle UI state update from Electron
+            let data = event.data
+            if let state = data["state"] as? String {
+                if state == "home" {
+                    // Update coordinator to show home view
+                    DispatchQueue.main.async {
+                        coordinator.currentView = .home
+                        coordinator.isMeetingLoading = false
+                        coordinator.isMeetingStarted = false
+                    }
+                }
+            }   
+        case .boringNotchMessage:
+            // Handle BORING_NOTCH_MESSAGE from Electron (wrapped messages)
+            let data = event.data
+            if let messageType = data["type"] as? String,
+               messageType == "UPDATE_UI_STATE" {
+                if let messageData = data["data"] as? [String: Any],
+                   let state = messageData["state"] as? String {
+                    if state == "home" {
+                        // Send a test message back to Electron to confirm WebSocket is working
+                        WebSocketManager.shared.sendEvent(type: .testMessage, data: ["message": "UI state update received"])
+                        
+                        // Update coordinator to show home view
+                        DispatchQueue.main.async {
+                            
+                            coordinator.currentView = .home
+                            coordinator.isMeetingLoading = false
+                            coordinator.isMeetingStarted = false
+                            
+                            // Force UI update by triggering objectWillChange
+                            coordinator.objectWillChange.send()
+
+                        }
+                    }
+                }
+            }
         default:
             break
         }
     }
-    
 }
 
 #Preview {

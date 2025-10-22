@@ -408,6 +408,41 @@ class BoringViewModel: NSObject, ObservableObject {
         }
     }
     
+    // MARK: - Workspace Suspension Check
+    func checkWorkspaceSuspensionAndStartMeeting() {
+        print("🔍 [DEBUG] Checking workspace suspension before starting meeting...")
+        
+        // Send a message to Electron to check workspace mode
+        WebSocketManager.shared.sendEvent(type: .checkWorkspaceMode, data: [:])
+        print("🔍 [DEBUG] Sent CHECK_WORKSPACE_MODE event to Electron")
+    }
+    
+    func handleWorkspaceModeResponse(_ mode: String?) {
+        print("🔍 [DEBUG] Received workspace mode response: \(mode ?? "nil")")
+        
+        if mode == "suspended" {
+            print("🚫 [DEBUG] Workspace is suspended, navigating to pricing page")
+            
+            // Immediately update UI to home state when workspace is suspended
+            DispatchQueue.main.async {
+                print("🚫 [DEBUG] Updating Boring Notch UI to home state due to suspended workspace")
+                self.coordinator.currentView = .home
+                self.coordinator.isMeetingLoading = false
+                self.coordinator.isMeetingStarted = false
+                print("🚫 [DEBUG] Boring Notch UI updated to home state")
+            }
+            
+            // Navigate to pricing page
+            WebSocketManager.shared.sendEvent(type: .navigateToMainScreen, data: ["path": "/settings/pricing"])
+            print("🚫 [DEBUG] Sent NAVIGATE_TO_MAIN_SCREEN event with path: /settings/pricing")
+        } else {
+            print("✅ [DEBUG] Workspace is not suspended, starting meeting")
+            // Start the meeting
+            WebSocketManager.shared.sendEvent(type: .startMeeting, data: [:])
+            print("✅ [DEBUG] Sent START_MEETING event")
+        }
+    }
+    
     func startLoginAnimationSequence() {
         // Reset animation state
         showHelloAnimation = true

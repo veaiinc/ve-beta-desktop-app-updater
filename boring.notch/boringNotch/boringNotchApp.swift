@@ -874,6 +874,7 @@ extension Notification.Name {
     static let notchHeightChanged = Notification.Name("NotchHeightChanged")
     static let showOnAllDisplaysChanged = Notification.Name("showOnAllDisplaysChanged")
     static let automaticallySwitchDisplayChanged = Notification.Name("automaticallySwitchDisplayChanged")
+    static let showCalendarChanged = Notification.Name("showCalendarChanged")
 }
 
 extension CGRect: @retroactive Hashable {

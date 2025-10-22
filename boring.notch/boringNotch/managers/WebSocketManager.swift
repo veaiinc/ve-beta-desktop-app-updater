@@ -18,6 +18,7 @@ enum WebSocketEventType: String, CaseIterable {
     case pauseMeeting = "PAUSE_MEETING"
     case resumeMeeting = "RESUME_MEETING"
     case navigateToMainScreen = "NAVIGATE_TO_MAIN_SCREEN"
+    case checkWorkspaceMode = "CHECK_WORKSPACE_MODE"
     case enableAiIntelligence = "ENABLE_AI_INTELLIGENCE"
     case disableAiIntelligence = "DISABLE_AI_INTELLIGENCE"
     
@@ -27,6 +28,10 @@ enum WebSocketEventType: String, CaseIterable {
     case meetingPaused = "MEETING_PAUSED"
     case meetingResumed = "MEETING_RESUMED"
     case meetingStartError = "MEETING_START_ERROR"
+    case workspaceModeResponse = "WORKSPACE_MODE_RESPONSE"
+    case updateUIState = "UPDATE_UI_STATE"
+    case boringNotchMessage = "BORING_NOTCH_MESSAGE"
+    case testMessage = "TEST_MESSAGE"
     case enabledAiIntelligence = "ENABLED_AI_INTELLIGENCE"
     case disabledAiIntelligence = "DISABLED_AI_INTELLIGENCE"
     
@@ -54,8 +59,6 @@ enum WebSocketEventType: String, CaseIterable {
     case custom = "CUSTOM"
     case showAskAIWindow = "SHOW_ASK_AI_WINDOW"
     
-    // Boring Notch Messages (from Electron)
-    case boringNotchMessage = "BORING_NOTCH_MESSAGE"
     
     // Authentication Events
     case authenticationStatus = "AUTHENTICATION_STATUS"

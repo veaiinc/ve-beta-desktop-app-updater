@@ -1,22 +1,22 @@
-import { lazy, Suspense } from 'react';
+// import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 import BlockPage from '../views/features/landingScreen/blockPage/BlockPage';
 import AuthWrapper from '../views/layouts/authWrapper';
 import SuspenseFallback from '../views/components/globalComponents/SuspenseFallback';
 
 // Lazy load the pricing page (must be a component, not a string)
-const PricingPage = lazy(() => import('../views/features/pricingPlans/pricingPage'));
+import PricingPage from '../views/features/pricingPlans/pricingPage';
 
 const suspendedRoute = [
 	// Allow access to pricing page for suspended users
 	{
 		path: '/settings/pricing',
 		element: (
-			<Suspense fallback={<SuspenseFallback />}>
-				<AuthWrapper title={'Pricing'}>
-					<PricingPage />
-				</AuthWrapper>
-			</Suspense>
+			// <Suspense fallback={<SuspenseFallback />}>
+			<AuthWrapper title={'Pricing'}>
+				<PricingPage />
+			</AuthWrapper>
+			// </Suspense>
 		),
 	},
 	// Block all other routes for suspended users

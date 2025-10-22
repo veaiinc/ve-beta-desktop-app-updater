@@ -620,6 +620,7 @@ struct NotchHomeView: View {
     @EnvironmentObject var vm: BoringViewModel
     @ObservedObject var webcamManager = WebcamManager.shared
     @ObservedObject var coordinator = BoringViewCoordinator.shared
+    @Default(.showCalendar) var showCalendar: Bool
     let albumArtNamespace: Namespace.ID
 
     var body: some View {
@@ -636,7 +637,7 @@ struct NotchHomeView: View {
     }
     
     private var showShuffleAndRepeat: Bool {
-        !(shouldShowCamera && Defaults[.showCalendar]) && Defaults[.showShuffleAndRepeat]
+        !(shouldShowCamera && showCalendar) && Defaults[.showShuffleAndRepeat]
     }
 
     private var mainContent: some View {

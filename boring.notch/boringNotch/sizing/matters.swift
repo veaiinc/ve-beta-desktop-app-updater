@@ -17,7 +17,7 @@ let openNotchSize: CGSize = .init(width: 860, height: 198)
 /// Returns the dynamic open notch size based on the current view
 func getOpenNotchSize() -> CGSize {
     let coordinator = BoringViewCoordinator.shared
-    return CGSize(width: coordinator.currentViewWidth, height: 190)
+    return CGSize(width: coordinator.currentViewWidth, height: 205)
 }
 let cornerRadiusInsets: (opened: (top: CGFloat, bottom: CGFloat), closed: (top: CGFloat, bottom: CGFloat)) = (opened: (top: 19, bottom: 24), closed: (top: 6, bottom: 14))
 
