@@ -130,8 +130,9 @@ const RecentChat = ({
 		}
 
 		return () => {
-			// Restore normal window size when leaving chat
-			if (window?.electronApi?.resizeMainWindow) {
+			// Only restore normal window size when leaving chat if not in preview mode
+			// Preview mode (e.g., in OngoingMeeting) should not override window sizing
+			if (!isPreview && window?.electronApi?.resizeMainWindow) {
 				window.electronApi.resizeMainWindow({
 					dimensions: {
 						width: 1366,
@@ -144,6 +145,10 @@ const RecentChat = ({
 				});
 				console.log(
 					'📐 RecentChat: Restored normal window size on unmount (1366x768) with smooth animation',
+				);
+			} else if (isPreview) {
+				console.log(
+					'📐 RecentChat: Skipping window resize on unmount (preview mode - letting parent handle sizing)',
 				);
 			}
 		};

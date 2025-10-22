@@ -31,5 +31,15 @@
 	<array>
 		<dict/>
 	</array>
+    <key>com.apple.security.app-sandbox</key>
+        <true/>
+        <key>com.apple.security.temporary-exception.apple-events</key>
+        <array>
+            <string>com.apple.mail</string>
+        </array>
+        <key>com.apple.security.files.user-selected.read-write</key>
+        <true/>
+        <key>NSAppleEventsUsageDescription</key>
+        <string>This app needs to access Mail to fetch and display your emails.</string>
 </dict>
 </plist>

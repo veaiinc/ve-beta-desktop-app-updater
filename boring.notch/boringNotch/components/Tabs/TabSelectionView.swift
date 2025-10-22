@@ -12,6 +12,7 @@ import LucideIcons
 enum TabDisplayStyle {
     case homeIcon
     case shelfIcon
+    case emailIcon
     case systemSymbol(name: String)
     case textLabel(String)
 }
@@ -24,6 +25,7 @@ struct TabModel: Identifiable {
 }
 
 let tabs = [
+    TabModel(label: "Email", displayStyle: .emailIcon, view: .email),
     TabModel(label: "Shelf", displayStyle: .textLabel("Tray"), view: .shelf),
     TabModel(label: "Listen", displayStyle: .textLabel("Listen"), view: .meeting),
     TabModel(label: "Ask", displayStyle: .textLabel("Ask"), view: .ask)
@@ -97,6 +99,15 @@ private struct TabContentView: View {
             #if canImport(AppKit)
             if let houseIcon = NSImage.image(lucideId: "house") {
                 Image(nsImage: houseIcon)
+                    .renderingMode(.template)
+                    .foregroundColor(iconColor)
+                    .frame(width: 13, height: 13)
+            }
+            #endif
+        case .emailIcon:
+            #if canImport(AppKit)
+            if let emailIcon = NSImage.image(lucideId: "mail") {
+                Image(nsImage: emailIcon)
                     .renderingMode(.template)
                     .foregroundColor(iconColor)
                     .frame(width: 13, height: 13)

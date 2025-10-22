@@ -185,16 +185,6 @@ struct ContentView: View {
                         SettingsWindowController.shared.showWindow()
                     }
                     .keyboardShortcut(KeyEquivalent(","), modifiers: .command)
-                    //                    Button("Edit") { // Doesnt work....
-                    //                        let dn = DynamicNotch(content: EditPanelView())
-                    //                        dn.toggle()
-                    //                    }
-                    //                    #if DEBUG
-                    //                    .disabled(false)
-                    //                    #else
-                    //                    .disabled(true)
-                    //                    #endif
-                    //                    .keyboardShortcut("E", modifiers: .command)
                 }
             // Floating lock button at bottom-right of the notch
             if vm.notchState == .open {
@@ -317,7 +307,7 @@ struct ContentView: View {
                         BoringHeader()
                             .padding(.top, 4)
                             .frame(height: max(24, vm.effectiveClosedNotchHeight))
-                            .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
+                            .blur(radius: (coordinator.currentView == .meeting || vm.isNotchLocked) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
                             .animation(.spring(response: 1, dampingFraction: 1, blendDuration: 0.8), value: vm.notchState)
                     } else {
                         ClosedNotchContentView()
@@ -361,6 +351,9 @@ struct ContentView: View {
                     switch coordinator.currentView {
                     case .home:
                         NotchHomeView(albumArtNamespace: albumArtNamespace)
+                    case .email:
+                        EmailView()
+                            .environmentObject(vm.emailViewModel)
                     case .shelf:
                         NotchShelfView()
                     case .meeting:
@@ -372,7 +365,7 @@ struct ContentView: View {
             }
             .zIndex(1)
             .allowsHitTesting(vm.notchState == .open)
-            .blur(radius: (coordinator.currentView == .meeting) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
+            .blur(radius: (coordinator.currentView == .meeting || vm.isNotchLocked) ? 0 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0))
             .opacity((coordinator.currentView == .meeting) ? 1 : (abs(gestureProgress) > 0.3 ? min(abs(gestureProgress * 2), 0.8) : 1))
         }
     }
@@ -797,3 +790,4 @@ struct FullScreenDropDelegate: DropDelegate {
         .environmentObject(vm)
         .frame(width: vm.notchSize.width, height: vm.notchSize.height)
 }
+
