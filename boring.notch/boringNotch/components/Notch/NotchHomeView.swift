@@ -620,6 +620,7 @@ struct NotchHomeView: View {
     @EnvironmentObject var vm: BoringViewModel
     @ObservedObject var webcamManager = WebcamManager.shared
     @ObservedObject var coordinator = BoringViewCoordinator.shared
+    @Default(.showCalendar) var showCalendar: Bool
     let albumArtNamespace: Namespace.ID
 
     var body: some View {
@@ -636,7 +637,7 @@ struct NotchHomeView: View {
     }
     
     private var showShuffleAndRepeat: Bool {
-        !(shouldShowCamera && Defaults[.showCalendar]) && Defaults[.showShuffleAndRepeat]
+        !(shouldShowCamera && showCalendar) && Defaults[.showShuffleAndRepeat]
     }
 
     private var mainContent: some View {
@@ -647,27 +648,29 @@ struct NotchHomeView: View {
                     .transition(.opacity.combined(with: .scale))
             } else {
                 // Show normal content (calendar | centered shortcuts | music at end)
-                HStack(alignment: .center, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
-                            if Defaults[.showCalendar] {
+                HStack(alignment: .center, spacing: (shouldShowCamera && showCalendar) ? 10 : 15) {
+                    if showCalendar {
                         CalendarView()
                             .frame(width: shouldShowCamera ? 170 : 215)
                             .onHover { isHovering in
                                 vm.isHoveringCalendar = isHovering
                             }
                             .environmentObject(vm)
+                        
+                        Spacer(minLength: 12)
                     }
 
-                    Spacer(minLength: 12)
-
-            ShortcutListCard(
-                rows: [
-                    .init(title: "Open VE", leftKey: "⌘", rightKey: "."),
-                    .init(title: "Notch", leftKey: "⌘", rightKey: "E"),
-                    .init(title: "Ask Ve", leftKey: "⌘", rightKey: "↩︎"),
-                ]
-            )
-            .frame(width: 220, height: 108)
-
+                    ShortcutListCard(
+                        rows: [
+                            .init(title: "Open VE", leftKey: "⌘", rightKey: "."),
+                            .init(title: "Notch", leftKey: "⌘", rightKey: "E"),
+                            .init(title: "Ask Ve", leftKey: "⌘", rightKey: "↩︎"),
+                        ]
+                    )
+                    .frame(
+                        width: showCalendar ? 220 : 300, // Expand when calendar is hidden
+                        height: 108
+                    )
 
                     if shouldShowCamera {
                         CameraPreviewView(webcamManager: webcamManager)
@@ -676,8 +679,8 @@ struct NotchHomeView: View {
                             .blur(radius: vm.notchState == .closed ? 20 : 0)
                     }
 
-            MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
-                .frame(maxWidth: 330) // compact music at end
+                    MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
+                        .frame(maxWidth: showCalendar ? 330 : 400) // Expand when calendar is hidden
                 }
                 .transition(.opacity.combined(with: .scale))
             }

@@ -901,8 +901,6 @@ class BoringNotchService {
 	// Handle direct voice mute command
 	async handleDirectVoiceMute(isMuted) {
 		try {
-			log.info('🎤 Handling direct voice mute command:', isMuted);
-
 			// Dispatch mute event to main window to control the actual voice agent
 			if (this.mainWindow) {
 				const result = await this.mainWindow.webContents.executeJavaScript(`
