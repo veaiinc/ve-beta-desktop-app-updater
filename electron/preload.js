@@ -43,12 +43,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 		}
 	},
 	repositionDynamicIsland: () => ipcRenderer.invoke('reposition-dynamic-island'),
-	openSystemSettings: () => ipcRenderer.invoke('open-system-settings'),
-	openCameraSettings: () => ipcRenderer.invoke('open-camera-settings'),
-	openMicrophoneSettings: () => ipcRenderer.invoke('open-microphone-settings'),
-	openScreenRecordingSettings: () => ipcRenderer.invoke('open-screen-recording-settings'),
-	openMediaSettings: () => ipcRenderer.invoke('open-media-settings'),
-	openCalendarSettings: () => ipcRenderer.invoke('open-calendar-settings'),
 
 	onUpdateStatus: (callback) => {
 		ipcRenderer.on('update-status', (event, data) => {
@@ -240,12 +234,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.removeAllListeners('askAI-show-response');
 		},
 
-		// Camera permission API
-		camera: {
-			checkPermission: () => ipcRenderer.invoke('check-camera-permission'),
-			requestPermission: () => ipcRenderer.invoke('request-camera-permission'),
-			showPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
-		},
 		removeTabContentListener: () => {
 			ipcRenderer.removeAllListeners('receive-tab-content');
 		},
@@ -293,36 +281,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.invoke('get-transcription-detection-state'),
 	},
 
-	// Permission window APIs
-	permission: {
-		toggleWindow: () => ipcRenderer.invoke('toggle-permission-window'),
-		showWindow: () => ipcRenderer.invoke('show-permission-window'),
-		hideWindow: () => ipcRenderer.invoke('hide-permission-window'),
-		isWindowVisible: () => ipcRenderer.invoke('is-permission-window-visible'),
-		closeWindow: () => ipcRenderer.invoke('hide-permission-window'),
-		checkAuthAndShowOverlay: () => ipcRenderer.invoke('check-auth-and-show-permission-overlay'),
-		// Permission checking and requesting
-		checkMicrophonePermission: () => ipcRenderer.invoke('check-microphone-permission'),
-		requestMicrophonePermission: () => ipcRenderer.invoke('request-microphone-permission'),
-		showMicrophonePermissionHelp: () => ipcRenderer.invoke('show-microphone-permission-help'),
-		checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
-		requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
-		showScreenPermissionHelp: () => ipcRenderer.invoke('show-screen-recording-permission-help'),
-		// Camera permission APIs
-		checkCameraPermission: () => ipcRenderer.invoke('check-camera-permission'),
-		requestCameraPermission: () => ipcRenderer.invoke('request-camera-permission'),
-		showCameraPermissionHelp: () => ipcRenderer.invoke('show-camera-permission-help'),
-		// Media permission APIs
-		checkMediaPermission: () => ipcRenderer.invoke('check-media-permission'),
-		requestMediaPermission: () => ipcRenderer.invoke('request-media-permission'),
-		// Calendar permission APIs
-		checkCalendarPermission: () => ipcRenderer.invoke('check-calendar-permission'),
-		requestCalendarPermission: () => ipcRenderer.invoke('request-calendar-permission'),
-		// System settings opener
-		openSystemSettings: (section) => ipcRenderer.invoke('open-system-settings', section),
-		// Debug permissions
-		debugPermissions: () => ipcRenderer.invoke('debug-permissions'),
-	},
 
 	// Home icon click handler (cross-platform)
 	home: {
@@ -341,11 +299,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 	// Mouse event handling for click-through behavior
 	setIgnoreMouseEvents: (ignore) => ipcRenderer.invoke('set-ignore-mouse-events', ignore),
 
-	// Microphone permission APIs
-	microphone: {
-		checkPermission: () => ipcRenderer.invoke('check-microphone-permission'),
-		requestPermission: () => ipcRenderer.invoke('request-microphone-permission'),
-	},
 
 	// Wake word APIs
 	// wakeWord: {
@@ -382,9 +335,6 @@ contextBridge.exposeInMainWorld('electronApi', {
 	removeDownloadProgressListener: () => {
 		ipcRenderer.removeAllListeners('download-progress');
 	},
-	checkScreenPermission: () => ipcRenderer.invoke('check-screen-recording-permission'),
-	requestScreenPermission: () => ipcRenderer.invoke('request-screen-recording-permission'),
-	showScreenPermissionHelp: () => ipcRenderer.invoke('show-screen-recording-permission-help'),
 	desktop: {
 		// ✅ This is the key addition
 		captureScreen: () => ipcRenderer.invoke('desktop:capture-screen'),
@@ -483,6 +433,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 		handleFiles: (filePaths) => ipcRenderer.invoke('notchdrop-handle-files', filePaths),
 		setAutoOpen: (enabled) => ipcRenderer.invoke('notchdrop-set-auto-open', enabled),
 		getAutoOpen: () => ipcRenderer.invoke('notchdrop-get-auto-open'),
+		getDebugInfo: () => ipcRenderer.invoke('boring-notch-debug-info'),
 		setHapticFeedback: (enabled) =>
 			ipcRenderer.invoke('notchdrop-set-haptic-feedback', enabled),
 		getHapticFeedback: () => ipcRenderer.invoke('notchdrop-get-haptic-feedback'),
@@ -495,6 +446,10 @@ contextBridge.exposeInMainWorld('electronApi', {
 			ipcRenderer.invoke('notchdrop-update-voice-mute-state', isMuted),
 		addVoiceMessage: (messageData) =>
 			ipcRenderer.invoke('notchdrop-add-voice-message', messageData),
+		activateVoiceAgent: (data) => ipcRenderer.invoke('notchdrop-activate-voice-agent', data),
+		disconnectVoiceAgent: (data) =>
+			ipcRenderer.invoke('notchdrop-disconnect-voice-agent', data),
+		toggleVoiceMute: (isMuted) => ipcRenderer.invoke('notchdrop-toggle-voice-mute', isMuted),
 		// GENERAL PURPOSE MESSAGE SYSTEM
 		sendMessage: (messageData) => ipcRenderer.invoke('notchdrop-send-message', messageData),
 		// New NotchDropLatest APIs
@@ -505,6 +460,9 @@ contextBridge.exposeInMainWorld('electronApi', {
 		// Replace entire transcription list in NotchDrop
 		replaceTranscriptions: (messages) =>
 			ipcRenderer.invoke('notchdrop-replace-transcriptions', messages),
+		// Replace entire live intelligence data array in NotchDrop
+		replaceLiveIntelligenceData: (liveIntelligenceArray) =>
+			ipcRenderer.invoke('notchdrop-replace-live-intelligence-data', liveIntelligenceArray),
 		// Clear live intelligence data in NotchDrop
 		clearLiveIntelligenceData: () =>
 			ipcRenderer.invoke('notchdrop-clear-live-intelligence-data'),
@@ -522,10 +480,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		getHistory: () => ipcRenderer.invoke('selection-assistant:get-history'),
 		clearHistory: () => ipcRenderer.invoke('selection-assistant:clear-history'),
 		showHistory: () => ipcRenderer.invoke('selection-assistant:show-history'),
-		requestPermission: () =>
-			ipcRenderer.invoke('selection-assistant:request-permission'),
-		isPermissionGranted: () =>
-			ipcRenderer.invoke('selection-assistant:is-permission-granted'),
+		requestPermission: () => ipcRenderer.invoke('selection-assistant:request-permission'),
+		isPermissionGranted: () => ipcRenderer.invoke('selection-assistant:is-permission-granted'),
 		onSelectionCaptured: (callback) => {
 			ipcRenderer.on('selection-assistant:captured', (event, data) => {
 				callback(data);
@@ -573,6 +529,13 @@ contextBridge.exposeInMainWorld('electronApi', {
 	onNotchdropToMainWindowEvent: (callback) =>
 		ipcRenderer.on('notchdrop-to-main-window-event', (_, data) => callback(data)),
 
+	sendTranscriptionDataToNotch: (data) =>
+		ipcRenderer.invoke('send-transcription-data-to-notch', data),
+	sendLiveIntelligenceDataToNotch: (data) =>
+		ipcRenderer.invoke('send-live-intelligence-data-to-notch', data),
+
+	sendMessageToNotch: (data) => ipcRenderer.invoke('websocket-send-message', data),
+
 	removeNotchdropToMainWindowEventListener: () => {
 		ipcRenderer.removeAllListeners('notchdrop-to-main-window-event');
 	},
@@ -619,4 +582,7 @@ contextBridge.exposeInMainWorld('electronApi', {
 	syncGlassModeState: (isEnabled) => {
 		ipcRenderer.invoke('sync-glass-mode-state', { enabled: isEnabled });
 	},
+
+	// WebSocket communication for Boring Notch
+	websocketSendMessage: (data) => ipcRenderer.invoke('websocket-send-message', data),
 });

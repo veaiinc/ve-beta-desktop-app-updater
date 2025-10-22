@@ -122,10 +122,10 @@ struct NotchView: View {
             .scaleEffect(1)
             .zIndex(1)
             
-            // ULTIMATE FIX: Lazy-loaded opened state to prevent initial stuttering
+            // 🚨 CRITICAL FIX: Simplified view hierarchy - no LazyVStack overhead
             Group {
                 if vm.status == .opened {
-                    LazyVStack(spacing: vm.spacing) {
+                    VStack(spacing: vm.spacing) {
                         // Header is not part of the JS Dynamic Island design; keep for non-normal modes
                         if vm.contentType != .normal {
                             NotchHeaderView(vm: vm)
@@ -138,30 +138,30 @@ struct NotchView: View {
                     .zIndex(1)
                 }
             }
-            .transition(
-                .asymmetric(
-                    // ULTIMATE FIX: Optimized transition animations for smoothness
-                    insertion: .scale(scale: 0.95, anchor: .center)
-                        .combined(with: .opacity)
-                        .animation(DynamicIslandTheme.bounceAnimation),
-                    // ULTIMATE FIX: Instant close for better responsiveness
-                    removal: .scale(scale: 0.98, anchor: .center)
-                        .combined(with: .opacity)
-                        .animation(DynamicIslandTheme.instantAnimation)
-                )
-            )
+            // 🚨 CRITICAL FIX: Disable transitions - they're causing lag
+            // .transition(
+            //     .asymmetric(
+            //         insertion: .scale(scale: 0.95, anchor: .center)
+            //             .combined(with: .opacity)
+            //             .animation(DynamicIslandTheme.bounceAnimation),
+            //         removal: .scale(scale: 0.98, anchor: .center)
+            //             .combined(with: .opacity)
+            //             .animation(DynamicIslandTheme.instantAnimation)
+            //     )
+            // )
         }
 		.background(dragDetector)
 		.opacity(isQuitting ? 0 : 1)
 		.onAppear {
 			print("🎯 NotchView appeared, drag detector should be active")
-			// ULTIMATE FIX: Pre-warm animations to prevent stuttering
-			DispatchQueue.main.async {
-				let _ = DynamicIslandTheme.expansionAnimation
-				let _ = DynamicIslandTheme.hoverAnimation
-			}
+			// 🚨 CRITICAL FIX: Disable pre-warming - it's causing overhead
+			// DispatchQueue.main.async {
+			//     let _ = DynamicIslandTheme.expansionAnimation
+			//     let _ = DynamicIslandTheme.hoverAnimation
+			// }
 		}
-		.animation(.easeInOut(duration: 0.1), value: isQuitting) // ULTIMATE FIX: Faster animation
+		// 🚨 CRITICAL FIX: Disable animations - they're causing lag
+		// .animation(.easeInOut(duration: 0.1), value: isQuitting)
         .contextMenu {
 			Button(action: {
 				withAnimation(.easeInOut(duration: 0.1)) { // ULTIMATE FIX: Faster animation
@@ -175,9 +175,8 @@ struct NotchView: View {
                 Label("Quit Notch", systemImage: "xmark.circle.fill")
             }
         }
-        // ULTIMATE FIX: Optimized animation complexity
-        .animation(DynamicIslandTheme.expansionAnimation, value: vm.status)
-        .animation(DynamicIslandTheme.smoothEaseInOut, value: vm.isRecording) // Smooth recording state transition
+        // 🚨 CRITICAL FIX: Disable animations - they're causing lag
+        // .animation(.easeInOut(duration: 0.1), value: vm.status)
         .preferredColorScheme(.dark)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
@@ -242,10 +241,10 @@ var notch: some View {
             notchBackgroundMaskGroup
         }
         .onHover { hovering in
-            withAnimation(hovering ? DynamicIslandTheme.sideBounceKick : DynamicIslandTheme.sideBounceReturn) {
-                hoverGlow = hovering ? 1.0 : 0.0
-                isHoveringNotch = hovering
-            }
+            // 🚨 CRITICAL FIX: Disable hover animations - they're causing lag
+            // Hover animations disabled for performance
+            // hoverGlow = hovering ? 1.0 : 0.0
+            // isHoveringNotch = hovering
         }
     }
 
@@ -362,17 +361,16 @@ var notch: some View {
             }
         }
         
+        // 🚨 CRITICAL FIX: Disable audio visualizer animation completely - it's causing lag
         private func startAnimation() {
-            stopAnimation() // Clean up any existing timer
-            animationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-                phase += 0.1
-                if phase > .pi * 2 { phase = 0 }
-            }
+            // 🚨 CRITICAL FIX: Do nothing - audio visualizer is disabled to prevent lag
+            return
         }
         
+        // 🚨 CRITICAL FIX: Disable audio visualizer animation completely - it's causing lag
         private func stopAnimation() {
-            animationTimer?.invalidate()
-            animationTimer = nil
+            // 🚨 CRITICAL FIX: Do nothing - audio visualizer is disabled to prevent lag
+            return
         }
     }
     
@@ -494,19 +492,16 @@ var notch: some View {
             }
         }
         
+        // 🚨 CRITICAL FIX: Disable wave animation completely - it's causing lag
         private func startWave() {
-            stopWave()
-            // PERFORMANCE FIX: Reduced timer frequency for better performance
-            waveTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 20.0, repeats: true) { _ in // 20fps instead of 30fps
-                phase += 0.15 // Reduced phase increment for smoother animation
-                if phase > .pi * 2 { phase = 0 }
-            }
+            // 🚨 CRITICAL FIX: Do nothing - wave animation is disabled to prevent lag
+            return
         }
         
+        // 🚨 CRITICAL FIX: Disable wave animation completely - it's causing lag
         private func stopWave() {
-            waveTimer?.invalidate()
-            waveTimer = nil
-            phase = 0
+            // 🚨 CRITICAL FIX: Do nothing - wave animation is disabled to prevent lag
+            return
         }
         
         private func updateWave(active: Bool) {
@@ -673,7 +668,7 @@ struct NotchBaseView<BackgroundMask: View>: View {
                 height: notchSize.height
             )
             .scaleEffect(1.0)
-            .animation(DynamicIslandTheme.hoverAnimation, value: vm.status)
+            // 🚨 CRITICAL FIX: Remove redundant animation
             .overlay(innerShadowOverlay)
             // .overlay(whiteBorderOverlay)
             .shadow(

@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "0.4.62",
+	"version": "10.0.6",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -12,13 +12,15 @@
 		"install-python-deps": "cd electron/wakeWord && (python -m pip install -r requirements.txt || python3 -m pip install -r requirements.txt || py -m pip install -r requirements.txt)",
 		"setup:hey-ve": "node scripts/setup-hey-ve.js",
 		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
-		"dev": "npm run build:notchdrop:all && cross-env NODE_ENV=development npm run clean:build:dev && vite -- --js-flags=\"--expose-gc\"",
+		"dev": "npm run build:boring-notch:clean && cross-env NODE_ENV=development VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false npm run clean:build:dev && vite -- --js-flags=\"--expose-gc --max-old-space-size=4096 --optimize-for-size\"",
+		"dev:full": "npm run build:boring-notch:clean && npm run dev",
+		"dev:with-boring-notch": "npm run build:boring-notch:clean && npm run dev",
 		"dev:mac:entitled": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null && open \"dist/mac-arm64/Ve AI.app\"",
 		"clean:build:dev": "rimraf dist-electron build",
 		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
 		"dev:win:no-clean": "set NODE_ENV=development && vite",
-		"build": "npm run build:notchdrop:all && npm run bundle:python-runtime && cross-env NODE_ENV=production node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
-		"build:win": "npm run bundle:python-runtime && set NODE_ENV=production && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
+		"build": "npm run build:boring-notch:clean && npm run bundle:python-runtime && cross-env NODE_ENV=production VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false node --max-old-space-size=12288 --expose-gc --optimize-for-size node_modules/vite/bin/vite.js build --mode production",
+		"build:win": "npm run build:boring-notch:clean && npm run bundle:python-runtime && set NODE_ENV=production && set VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
 		"bundle:python-runtime": "node scripts/bundle-python-runtime.js",
 		"package": "npm run clean:build:cross && npm run build && electron-builder",
 		"package:win": "npm run build:win && electron-builder --win",
@@ -30,12 +32,11 @@
 		"delete-maps:win": "del /q .\\build\\static\\js\\*.map && del /q .\\build\\static\\css\\*.map",
 		"delete-maps:cross": "rimraf ./build/static/js/*.map ./build/static/css/*.map",
 		"format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|md|vue)\"",
-		"package:mac": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && electron-builder --mac -- --js-flags=\"--expose-gc\"",
-		"build:notchdrop:native": "node scripts/build-notchdrop-native.js",
-		"build:notchdrop:ui": "cd notchdrop-addon && npm run build:ui",
-		"build:notchdrop:all": "npm run build:notchdrop:native && npm run build:notchdrop:ui",
-		"package:mac:app:unsigned": "npm run clean:build:cross && npm run build && npm run build:notchdrop:ui && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
-		"package:mac:app:unsigned:both": "npm run clean:build:cross && npm run build && npm run build:notchdrop:ui && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir -a x64,arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
+		"package:mac": "npm run clean:build:cross && npm run build && electron-builder --mac -- --js-flags=\"--expose-gc\"",
+		"build:boring-notch": "node scripts/build-boring-notch.js",
+		"build:boring-notch:clean": "cd boring.notch && rm -rf build && rm -rf DerivedData && node ../scripts/build-boring-notch.js",
+		"package:mac:app:unsigned": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
+		"package:mac:app:unsigned:both": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir -a x64,arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
 		"package:linux": "npm run clean:build:cross && npm run build && electron-builder --linux",
 		"publish:mac": "npm run clean:build:cross && npm run build && electron-builder --mac --publish=always",
 		"publish:win": "npm run clean:build:cross && npm run build && electron-builder --win --publish=always",
@@ -45,15 +46,14 @@
 		"test:watch": "vitest watch",
 		"test:ui": "vitest --ui",
 		"test:coverage": "vitest run --coverage",
-		"test:dmg": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test-${arch}.${ext}' -c.directories.output='dist/test'",
-		"dmg:test": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test.${ext}' -c.directories.output='dist'",
+		"test:dmg": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test-${arch}.${ext}' -c.directories.output='dist/test'",
+		"dmg:test": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test.${ext}' -c.directories.output='dist'",
 		"clean:build": "rm -rf dist-electron && rm -rf build && rm -rf dist",
 		"clean:build:win": "if exist dist-electron rmdir /s /q dist-electron && if exist build rmdir /s /q build && if exist dist rmdir /s /q dist",
 		"clean:build:cross": "rimraf dist-electron build dist",
-		"rebuild:native:mac": "electron-builder install-app-deps && npx electron-rebuild -f -w notchdrop-addon",
-		"validate:notchdrop": "node scripts/validate-notchdrop.js",
+		"rebuild:native:mac": "electron-builder install-app-deps",
 		"test:performance": "node scripts/performance-test.js",
-		"release:dmg": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && electron-builder --mac --publish always",
+		"release:dmg": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && electron-builder --mac --publish always",
 		"release:auto": "bash scripts/release-dmg.sh"
 	},
 	"dependencies": {
@@ -104,7 +104,7 @@
 		"masonry-layout": "^4.2.2",
 		"mitt": "^3.0.1",
 		"moment": "^2.30.1",
-		"notchdrop-addon": "file:./notchdrop-addon",
+		"notchdrop-addon": "file:notchdrop-addon",
 		"p-limit": "^3.1.0",
 		"randomatic": "^3.1.1",
 		"rc-slider": "^10.6.2",
@@ -151,6 +151,7 @@
 		"validator": "^13.12.0",
 		"vite-plugin-electron": "^0.29.0",
 		"web-vitals": "^2.1.4",
+		"ws": "^8.18.3",
 		"zustand": "^5.0.8"
 	},
 	"build": {
@@ -169,14 +170,9 @@
 			"build/**",
 			"dist-electron/**",
 			"node_modules/**",
-			"notchdrop-addon/**",
-			"!notchdrop-addon/.build/**",
-			"!notchdrop-addon/src/**",
-			"!notchdrop-addon/build_swift/**",
-			"!notchdrop-addon/node_modules/**",
-			"!node_modules/notchdrop-addon/.build/**",
-			"!node_modules/notchdrop-addon/src/**",
-			"!node_modules/notchdrop-addon/build_swift/**",
+			"boring.notch/**",
+			"!boring.notch/build/**",
+			"!boring.notch/DerivedData/**",
 			"!node_modules/.cache/**",
 			"!node_modules/**/*.map",
 			"!node_modules/**/*.d.ts",
@@ -221,53 +217,37 @@
 			"category": "public.app-category.business",
 			"type": "distribution",
 			"gatekeeperAssess": false,
+			"identity": "VE AI PRIVATE LIMITED (47J296MPWB)",
 			"entitlements": "entitlements/entitlements.mac.plist",
 			"entitlementsInherit": "entitlements/entitlements.mac.plist",
 			"hardenedRuntime": true,
-			"notarize": false,
+			"notarize": true,
 			"asar": true,
 			"asarUnpack": [
-				"resources/**",
 				"**/node_modules/sharp/**/*",
 				"**/node_modules/@img/sharp-darwin*/**/*",
 				"**/node_modules/@img/sharp-libvips-darwin*/**/*",
-				"**/node_modules/notchdrop-addon/**/*.node",
-				"**/node_modules/notchdrop-addon/bin/**/*",
+				"**/node_modules/active-win/**/*",
+				"**/node_modules/electron-mac-permissions/**/*",
 				"**/Electron Framework.framework/**/*"
+			],
+			"signIgnore": [
+				"Lottie.framework",
+				"LottieUI.framework",
+				"Sparkle.framework",
+				"MediaRemoteAdapter.framework",
+				".*Lottie\\.framework.*",
+				".*LottieUI\\.framework.*",
+				".*Sparkle\\.framework.*",
+				".*MediaRemoteAdapter\\.framework.*"
 			],
 			"extraResources": [
 				{
-					"from": "notchdrop-addon/build/Release",
-					"to": "notchdrop-addon/build/Release",
+					"from": "boring.notch/build/boringNotch.app",
+					"to": "boringNotch.app",
 					"filter": [
 						"**/*"
 					]
-				},
-				{
-					"from": "notchdrop-addon/bin",
-					"to": "notchdrop-addon/bin",
-					"filter": [
-						"**/*"
-					]
-				},
-				{
-					"from": "notchdrop-addon/dist",
-					"to": "notchdrop-addon/dist",
-					"filter": [
-						"**/*"
-					]
-				},
-				{
-					"from": "notchdrop-addon/index.js",
-					"to": "notchdrop-addon/index.js"
-				},
-				{
-					"from": "notchdrop-addon/swift-js-bridge.js",
-					"to": "notchdrop-addon/swift-js-bridge.js"
-				},
-				{
-					"from": "notchdrop-addon/ui-bridge.js",
-					"to": "notchdrop-addon/ui-bridge.js"
 				},
 				{
 					"from": "electron/wakeWord",

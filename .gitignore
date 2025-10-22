@@ -69,4 +69,63 @@ CLAUDE.md
 
 .vscode
 
+# Boring Notch build artifacts and generated files
+boring.notch/build/
+boring.notch/DerivedData/
+boring.notch/.build/
+boring.notch/*.xcworkspace/xcuserdata/
+boring.notch/*.xcodeproj/xcuserdata/
+boring.notch/*.xcodeproj/project.xcworkspace/xcuserdata/
+boring.notch/*.xcodeproj/xcshareddata/
+boring.notch/*.xcodeproj/project.xcworkspace/xcshareddata/
+
+# Xcode build artifacts
+boring.notch/**/Debug/
+boring.notch/**/Release/
+boring.notch/**/build/
+boring.notch/**/DerivedData/
+boring.notch/**/*.app
+boring.notch/**/*.dSYM/
+boring.notch/**/*.framework/
+boring.notch/**/*.a
+boring.notch/**/*.o
+boring.notch/**/*.dylib
+
+# Swift Package Manager
+boring.notch/.swiftpm/
+boring.notch/Package.resolved
+boring.notch/.build/
+boring.notch/build/
+
+# Xcode user-specific files
+boring.notch/**/xcuserdata/
+boring.notch/**/project.xcworkspace/xcuserdata/
+boring.notch/**/xcshareddata/
+
+# Archive and distribution files
+boring.notch/**/*.ipa
+boring.notch/**/*.dmg
+boring.notch/**/*.pkg
+boring.notch/**/*.zip
+boring.notch/**/*.tar.gz
+
+# Code signing
+boring.notch/**/*.p12
+boring.notch/**/*.mobileprovision
+boring.notch/**/*.entitlements
+boring.notch/**/embedded.mobileprovision
+
+# Sparkle updater artifacts
+boring.notch/updater/*.dmg
+boring.notch/updater/*.zip
+boring.notch/updater/*.tar.gz
+boring.notch/updater/*.appcast.xml.bak
+boring.notch/updater/ed25519_private_key
+
+# Temporary files
+boring.notch/**/*.tmp
+boring.notch/**/*.temp
+boring.notch/**/*.log
+boring.notch/**/*.cache
+
 boring.notch/build
