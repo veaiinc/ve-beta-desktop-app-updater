@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
+import audioStorageService from '../../services/audioStorageService';
+import { useDispatch } from '@zubridge/electron';
+import { storeActions } from '../../store/store';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
@@ -12,6 +15,7 @@ const useAssemblyTranscription = ({
 	const {
 		notes: { initializeMeetingSummary },
 	} = useContext(Context);
+	const dispatch = useDispatch();
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
@@ -240,13 +244,32 @@ const useAssemblyTranscription = ({
 
 			if (meetingIdRef.current) {
 				const meetingId = meetingIdRef.current;
-				setTimeout(() => {
-					if (window?.electronApi?.navigateMainWindow) {
-						window?.electronApi?.navigateMainWindow({
-							path: `/meet/${meetingId}?type=in_app_meeting&history=true`,
-						});
-					}
-				}, 2000);
+
+				// Set preparing summary state in store
+				dispatch({
+					type: storeActions.meeting.SET_PREPARING_SUMMARY,
+					payload: true,
+				});
+
+				try {
+					// Generate analytics before navigating to the Meet page
+					await audioStorageService.generateMeetingAnalytics(meetingId);
+				} catch (e) {
+					// Non-fatal; proceed to navigate and Meet page will handle fallback
+				}
+
+				if (window?.electronApi?.navigateMainWindow) {
+					window?.electronApi?.navigateMainWindow({
+						path: `/meet/${meetingId}?type=in_app_meeting&history=true&analyticsPreGenerated=true`,
+					});
+				}
+
+				// Clear preparing summary state after navigation
+				dispatch({
+					type: storeActions.meeting.SET_PREPARING_SUMMARY,
+					payload: false,
+				});
+
 				meetingIdRef.current = null;
 			}
 

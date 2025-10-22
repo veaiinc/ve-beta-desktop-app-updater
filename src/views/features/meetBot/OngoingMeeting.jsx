@@ -56,6 +56,9 @@ const OngoingMeeting = memo(() => {
 	// Use global NotchDrop sync hook
 	const { hasActiveMeeting } = useNotchDropSync();
 
+	// Get preparingSummary state from store
+	const { preparingSummary } = useStore((state) => state.meeting) || {};
+
 	const [info, setInfo] = useState({
 		showingTranscripts: false,
 		chatOpen: false,
@@ -412,14 +415,16 @@ const OngoingMeeting = memo(() => {
 					<X size={16} />
 				</button> */}
 				{info.isResponseSelected && (
-				<button
-					className={s.ongoingMeetingHeaderButton}
-					onClick={() => info.chatOpen ? toggleChat(false) : handleOpenChatResponse(true)}
-					style={{ transform: info.chatOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-				>
-					<ChevronRight size={24} />
-				</button>
-			)}
+					<button
+						className={s.ongoingMeetingHeaderButton}
+						onClick={() =>
+							info.chatOpen ? toggleChat(false) : handleOpenChatResponse(true)
+						}
+						style={{ transform: info.chatOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+					>
+						<ChevronRight size={24} />
+					</button>
+				)}
 			</div>
 			<div className={s.ongoingMeetingContentWrapper}>
 				<div className={s.ongoingMeetingContainer}>
@@ -497,9 +502,18 @@ const OngoingMeeting = memo(() => {
 						)}
 					</div>
 					<div className={s.ongoingMeetingFooter}>
-						<button className={s.newChatButton} onClick={() => navigate(`/new-chat`)}>
-							<Plus size={16} /> New Chat
-						</button>
+						{preparingSummary ? (
+							<div className={s.preparingSummaryText}>
+								Preparing meeting summary...
+							</div>
+						) : (
+							<button
+								className={s.newChatButton}
+								onClick={() => navigate(`/new-chat`)}
+							>
+								<Plus size={16} /> New Chat
+							</button>
+						)}
 					</div>
 				</div>
 				{info.chatOpen && sessionId && (
