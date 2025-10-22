@@ -18,7 +18,10 @@ const TranscriptionTabs = ({
 	allSuggestions,
 	type = null,
 	hasAudioRecording = false,
+	hasSummaryError = false,
 }) => {
+	// Show Summary tab even when there's an error - it will display "No Summary" content
+
 	return (
 		<div className={s.meetingTabContainer}>
 			<div className={s.meetingTabLeft}>
@@ -32,7 +35,7 @@ const TranscriptionTabs = ({
 						Summary
 					</button>
 				)}
-				{history && (
+				{history && !hasSummaryError && (
 					<button
 						className={
 							s.meetingTabButton +
@@ -58,7 +61,7 @@ const TranscriptionTabs = ({
 					</button>
 				)} */}
 
-				{history && (
+				{history && !hasSummaryError && (
 					<button
 						className={
 							s.meetingTabButton + ' ' + (activeTab === 'all' ? s.activeTab : '')

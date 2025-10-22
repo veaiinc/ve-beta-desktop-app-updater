@@ -292,8 +292,7 @@ class BoringNotchService {
 			const websocketService = require('./websocketService');
 			if (websocketService.isServerRunning()) {
 				const clientCount = websocketService.getClientCount();
-				log.info(`📱 WebSocket server is running with ${clientCount} clients connected`);
-				
+
 				websocketService.broadcast({
 					type: 'BORING_NOTCH_MESSAGE',
 					data: data,
@@ -316,20 +315,28 @@ class BoringNotchService {
 
 			// Listen for WebSocket messages
 			websocketService.on('message', (messageData) => {
-				log.info('📱 Received WebSocket message from boring.notch:', messageData);
-
 				// Check if this is a message from boring.notch app
 				if (messageData.data) {
 					// Handle WebSocket event format from boring.notch
 					if (messageData.data.type === 'SHOW_ASK_AI_WINDOW') {
 						log.info('🎯 Received SHOW_ASK_AI_WINDOW event from boring.notch');
 						this.handleShowAskAIWindow();
+					} else if (messageData.data.type === 'NAVIGATE_TO_MAIN_SCREEN') {
+						this.handleNavigateToMainScreen(messageData.data.data?.path);
+					} else if (messageData.data.type === 'CHECK_WORKSPACE_MODE') {
+						this.handleCheckWorkspaceMode();
+					} else if (messageData.data.type === 'UPDATE_UI_STATE') {
+						this.handleUpdateUIState(messageData.data.data?.state);
+					} else if (messageData.data.type === 'TEST_MESSAGE') {
+						log.info(
+							'🧭 [DEBUG] Received TEST_MESSAGE from boring.notch:',
+							messageData.data.data?.message,
+						);
 					}
 					// Handle custom events (like stealth mode)
 					else if (messageData.data.type === 'CUSTOM' && messageData.data.data) {
 						const customData = messageData.data.data;
 						if (customData.type === 'electron_stealth_mode') {
-							log.info('🥷 Received stealth mode event from boring.notch via WebSocket:', customData.isEnabled);
 							this.handleDirectStealthMode(customData.isEnabled);
 						}
 					}
@@ -437,13 +444,13 @@ class BoringNotchService {
 	async sendMessageToSwiftUI(message) {
 		try {
 			log.info('📤 Sending message to Boring Notch via WebSocket:', message);
-			
+
 			// Convert message to string if it's an object
 			const messageString = typeof message === 'string' ? message : JSON.stringify(message);
-			
+
 			// Use WebSocket to send message to Boring Notch app
 			this.sendWebSocketMessage(messageString);
-			
+
 			return { success: true, message: 'Message sent to Boring Notch via WebSocket' };
 		} catch (error) {
 			log.error('❌ Error sending message to Boring Notch:', error);
@@ -708,11 +715,192 @@ class BoringNotchService {
 		}
 	}
 
+	// Handle navigation to main screen with workspace suspension check
+	async handleNavigateToMainScreen(targetPath) {
+		try {
+			// Special handling for Meeting AI click: decide based on workspace suspension
+			if (typeof targetPath === 'string' && targetPath === 'MEETING_AI_CLICK') {
+				await this.handleMeetingAIClick().catch((error) => {
+					log.error('❌ Error handling Meeting AI click:', error);
+				});
+			} else {
+				this.navigateMainWindow(targetPath);
+			}
+		} catch (error) {
+			log.error('❌ Error handling Boring Notch main window navigation request:', error);
+		}
+	}
+
+	// Handle workspace mode check request
+	async handleCheckWorkspaceMode() {
+		try {
+			const windowInstance = this.mainWindow;
+			if (!windowInstance || windowInstance.isDestroyed()) {
+				log.warn('⚠️ No main window available for workspace mode check');
+				// Send response indicating no window available
+				this.sendWorkspaceModeResponse(null);
+				return;
+			}
+
+			const wc = windowInstance.webContents;
+			// Ask renderer for workspaceMode from localStorage; returns null if unavailable
+			const result = await wc.executeJavaScript(
+				`(function(){ try { return localStorage.getItem('workspaceMode') || null; } catch(e) { return null; } })();`,
+				true,
+			);
+
+			const mode = typeof result === 'string' ? result : null;
+			log.info('🔍 [DEBUG] Workspace mode from localStorage:', mode);
+
+			// Send the workspace mode response back to Boring Notch
+			this.sendWorkspaceModeResponse(mode);
+		} catch (error) {
+			log.error('❌ Error checking workspace mode:', error);
+			// Send null response on error
+			this.sendWorkspaceModeResponse(null);
+		}
+	}
+
+	// Send workspace mode response to Boring Notch
+	sendWorkspaceModeResponse(mode) {
+		try {
+			const websocketService = require('./websocketService');
+			if (websocketService.isServerRunning()) {
+				const responseData = {
+					type: 'WORKSPACE_MODE_RESPONSE',
+					data: { mode: mode },
+					timestamp: Date.now(),
+					source: 'electron',
+				};
+				websocketService.broadcast(responseData);
+			} else {
+				log.warn('⚠️ WebSocket service not running, cannot send workspace mode response');
+			}
+		} catch (error) {
+			log.error('❌ Failed to send workspace mode response:', error);
+		}
+	}
+
+	// Decide Meeting AI behavior based on renderer workspaceMode in localStorage
+	async handleMeetingAIClick() {
+		try {
+			const windowInstance = this.mainWindow;
+			if (!windowInstance || windowInstance.isDestroyed()) {
+				log.warn('⚠️ No main window available for Meeting AI handling');
+				// Fallback: just try to start meeting overlay
+				this.triggerOverlayRecording();
+				return { success: false, reason: 'no-window' };
+			}
+
+			const wc = windowInstance.webContents;
+			// Ask renderer for workspaceMode from localStorage; returns null if unavailable
+			const result = await wc.executeJavaScript(
+				`(function(){ try { return localStorage.getItem('workspaceMode') || null; } catch(e) { return null; } })();`,
+				true,
+			);
+
+			const mode = typeof result === 'string' ? result : null;
+			log.info('🧭 Renderer workspaceMode from localStorage:', mode);
+
+			if (mode === 'suspended') {
+				// Navigate to pricing page
+				this.navigateMainWindow('/settings/pricing');
+				return { success: true, action: 'navigate-pricing' };
+			}
+
+			// Otherwise, start the meeting via overlay integration
+			this.triggerOverlayRecording();
+			return { success: true, action: 'start-meeting' };
+		} catch (error) {
+			log.error('❌ Error in handleMeetingAIClick:', error);
+			// Fallback: try to start meeting anyway
+			this.triggerOverlayRecording();
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Navigate main window to specified path
+	navigateMainWindow(path) {
+		try {
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				// Directly navigate to the pricing page like in NotchContentView
+				this.mainWindow.webContents.send('navigate-to', { path: path });
+				// If navigating to pricing page, also update Boring Notch UI to show home state
+				if (path === '/settings/pricing') {
+					// Update UI state immediately and also with a delay as fallback
+					this.updateBoringNotchUIState('home');
+					setTimeout(() => {
+						this.updateBoringNotchUIState('home');
+					}, 100);
+					setTimeout(() => {
+						this.updateBoringNotchUIState('home');
+					}, 500);
+				}
+			} else {
+				log.warn('⚠️ Cannot navigate: main window not available');
+			}
+		} catch (error) {
+			log.error('❌ Error navigating main window:', error);
+		}
+	}
+
+	// Update Boring Notch UI state
+	updateBoringNotchUIState(state) {
+		try {
+			// Check WebSocket service status first
+			const websocketService = require('./websocketService');
+			if (!websocketService.isServerRunning()) {
+				log.warn('⚠️ WebSocket service not running, cannot send UI state update');
+				return;
+			}
+
+			const clientCount = websocketService.getClientCount();
+
+			if (clientCount === 0) {
+				log.warn('⚠️ No WebSocket clients connected, cannot send UI state update');
+				return;
+			}
+
+			// Send message to Boring Notch to update its UI state
+			// The sendWebSocketMessage function will wrap this in BORING_NOTCH_MESSAGE
+			const uiStateData = {
+				type: 'UPDATE_UI_STATE',
+				data: { state: state },
+				timestamp: Date.now(),
+				source: 'electron',
+			};
+			this.sendWebSocketMessage(uiStateData);
+		} catch (error) {
+			log.error('❌ Error updating Boring Notch UI state:', error);
+		}
+	}
+
+	// Handle UI state update from Boring Notch
+	handleUpdateUIState(state) {
+		try {
+			log.info('🧭 [DEBUG] Handling UI state update from Boring Notch:', state);
+			// This is a response from Boring Notch confirming the UI state change
+			// No additional action needed as the UI state is managed by Boring Notch
+		} catch (error) {
+			log.error('❌ Error handling UI state update:', error);
+		}
+	}
+
+	// Trigger overlay recording
+	triggerOverlayRecording() {
+		try {
+			// Send message to main process to start overlay recording
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				this.mainWindow.webContents.send('overlay-start-recording');
+			}
+		} catch (error) {
+			log.error('❌ Error triggering overlay recording:', error);
+		}
+	}
+
 	// Handle direct voice mute command
 	async handleDirectVoiceMute(isMuted) {
 		try {
-			log.info('🎤 Handling direct voice mute command:', isMuted);
-
 			// Dispatch mute event to main window to control the actual voice agent
 			if (this.mainWindow) {
 				const result = await this.mainWindow.webContents.executeJavaScript(`
