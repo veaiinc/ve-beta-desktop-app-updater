@@ -68,6 +68,31 @@ struct BoringHeader: View {
                                 .stroke(.white.opacity(0.2), lineWidth: 0.5)
                         )
                     }
+                    
+                    // Home icon
+                    Button(action: {
+                        withAnimation(.smooth) {
+                            coordinator.currentView = .home
+                        }
+                    }) {
+                        HStack(alignment: .center, spacing: 4) {
+                            #if canImport(AppKit)
+                            if let layoutIcon = NSImage.image(lucideId: "layout-panel-left") {
+                                Image(nsImage: layoutIcon)
+                                    .renderingMode(.template)
+                                    .foregroundColor(.white)
+                                    .frame(width: 16, height: 16)
+                            }
+                            #endif
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .frame(width: 32, height: 32, alignment: .center)
+                        .background(coordinator.currentView == .home ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
+                        .cornerRadius(32)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
                     // VE logo button (open app)
                     Button(action: {
                         // Send message to Electron to open main window
@@ -103,59 +128,6 @@ struct BoringHeader: View {
                         }
                     }
 
-                    // Stealth mode toggle (Glasses/Eye)
-                    Button(action: {
-                        vm.toggleStealthMode()
-                    }) {
-                        HStack(alignment: .center, spacing: 4) {
-                            ZStack() {
-                                #if canImport(AppKit)
-                                if vm.isStealthModeEnabled {
-                                    // Eye icon when stealth mode is ON
-                                    if let eyeIcon = NSImage.image(lucideId: "eye") {
-                                        Image(nsImage: eyeIcon)
-                                            .renderingMode(.template)
-                                            .foregroundColor(.white)
-                                            .frame(width: 13, height: 13)
-                                    }
-                                } else {
-                                    // Hat with glasses icon when stealth mode is OFF (default)
-                                    if let hatGlassesIcon = NSImage.image(lucideId: "hat-glasses") {
-                                        Image(nsImage: hatGlassesIcon)
-                                            .renderingMode(.template)
-                                            .foregroundColor(.white)
-                                            .frame(width: 13, height: 13)
-                                    }
-                                }
-                                #endif
-                            }
-                            .frame(width: 13, height: 13)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 6)
-                        .frame(width: 32, height: 32, alignment: .center)
-                        .background(hoverStealth ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
-                        .cornerRadius(32)
-                        .onHover { hover in
-                            hoverStealth = hover
-                        }
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .overlay(alignment: .bottom) {
-                        if hoverStealth {
-                            Text(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.black.opacity(0.8))
-                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                                .offset(y: 28)
-                                .fixedSize(horizontal: true, vertical: true)
-                                .zIndex(2000)
-                                .allowsHitTesting(false)
-                        }
-                    }
 
 //                    if Defaults[.showMirror] {
 //                        Button(action: {
@@ -179,48 +151,6 @@ struct BoringHeader: View {
 //                        }
 //                        .buttonStyle(PlainButtonStyle())
 //                    }
-                    if Defaults[.settingsIconInNotch] {
-                        Button(action: {
-                            SettingsWindowController.shared.showWindow()
-                        }) {
-                            HStack(spacing: 4) {
-                                ZStack() {
-                                    #if canImport(AppKit)
-                                    if let settingsIcon = NSImage.image(lucideId: "settings") {
-                                        Image(nsImage: settingsIcon)
-                                            .renderingMode(.template)
-                                            .foregroundColor(.white)
-                                            .frame(width: 13, height: 13)
-                                    }
-                                    #endif
-                                }
-                                .frame(width: 13, height: 13)
-                            }
-                            .padding(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                            .frame(width: 32, height: 32)
-                            .background(hoverSettings ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
-                            .cornerRadius(32)
-                            .onHover { hover in
-                                hoverSettings = hover
-                            }
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .overlay(alignment: .bottom) {
-                            if hoverSettings {
-                                Text("Settings")
-                                    .font(.system(size: 11, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.black.opacity(0.8))
-                                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                                    .offset(y: 28)
-                                    .fixedSize(horizontal: true, vertical: true)
-                                    .zIndex(2000)
-                                    .allowsHitTesting(false)
-                            }
-                        }
-                    }
                     
                     // Lock button moved to floating position in ContentView
                     

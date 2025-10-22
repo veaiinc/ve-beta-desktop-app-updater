@@ -489,50 +489,50 @@ private struct Keycap: View {
 }
 
 // MARK: - Figma-style Shortcut List Card (3 rows)
-private struct ShortcutListCard: View {
-    struct Row {
-        let title: String
-        let leftKey: String
-        let rightKey: String
-    }
+// private struct ShortcutListCard: View {
+//     struct Row {
+//         let title: String
+//         let leftKey: String
+//         let rightKey: String
+//     }
 
-    let rows: [Row]
+//     let rows: [Row]
 
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.white.opacity(0.1))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                )
+//     var body: some View {
+//         ZStack {
+//             RoundedRectangle(cornerRadius: 14, style: .continuous)
+//                 .fill(Color.white.opacity(0.1))
+//                 .overlay(
+//                     RoundedRectangle(cornerRadius: 14, style: .continuous)
+//                         .stroke(Color.white.opacity(0.12), lineWidth: 1)
+//                 )
 
-            Grid(horizontalSpacing: 12, verticalSpacing: 10) {
-                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
-                    GridRow(alignment: .center) {
-                        Text(row.title)
-                            .foregroundColor(.white)
-                            .lineLimit(1)
-                            .frame(height: 24, alignment: .leading)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .gridColumnAlignment(.leading)
+//             Grid(horizontalSpacing: 12, verticalSpacing: 10) {
+//                 ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+//                     GridRow(alignment: .center) {
+//                         Text(row.title)
+//                             .foregroundColor(.white)
+//                             .lineLimit(1)
+//                             .frame(height: 24, alignment: .leading)
+//                             .frame(maxWidth: .infinity, alignment: .leading)
+//                             .gridColumnAlignment(.leading)
 
-                        // Flexible spacer column to push keys to the far right
-                        Color.clear
-                            .frame(maxWidth: .infinity, maxHeight: 1)
+//                         // Flexible spacer column to push keys to the far right
+//                         Color.clear
+//                             .frame(maxWidth: .infinity, maxHeight: 1)
 
-                        smallKeycap(row.leftKey)
-                            .gridColumnAlignment(.trailing)
+//                         smallKeycap(row.leftKey)
+//                             .gridColumnAlignment(.trailing)
 
-                        smallKeycap(row.rightKey)
-                            .gridColumnAlignment(.trailing)
-                    }
-                }
-            }
-            .padding(12)
-        }
-    }
-}
+//                         smallKeycap(row.rightKey)
+//                             .gridColumnAlignment(.trailing)
+//                     }
+//                 }
+//             }
+//             .padding(12)
+//         }
+//     }
+// }
 
 private struct ShortcutRow: View {
     let title: String
@@ -646,38 +646,112 @@ struct NotchHomeView: View {
                 VoiceInterfaceView(vm: vm)
                     .transition(.opacity.combined(with: .scale))
             } else {
-                // Show normal content (calendar | centered shortcuts | music at end)
-                HStack(alignment: .center, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
-                            if Defaults[.showCalendar] {
+                // Show normal content (music | calendar | talk with ai - all equal width)
+                HStack(alignment: .center, spacing: 12) {
+                    // Music Player - equal width
+                    MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 108)
+
+                    // Calendar - equal width
+                    if Defaults[.showCalendar] {
                         CalendarView()
-                            .frame(width: shouldShowCamera ? 170 : 215)
+                            .frame(maxWidth: .infinity)
+                            // .frame(height: 108)
+                            // .background(.ultraThinMaterial)
+                            .cornerRadius(12)
                             .onHover { isHovering in
                                 vm.isHoveringCalendar = isHovering
                             }
                             .environmentObject(vm)
                     }
 
-                    Spacer(minLength: 12)
+                    // Talk with AI - equal width
+                    VStack(spacing: 8) {
+                        // Talk with AI button
+                        Button(action: {
+                            withAnimation(.smooth) {
+                                vm.showVoiceInterface = true
+                            }
+                        }) {
+                            HStack(spacing: 8) {
+                                Text("Talk with AI")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.white)
+                                
+                                Image(systemName: "waveform")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(.white)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                          .frame(minWidth: 255, maxWidth: 255, maxHeight: .infinity, alignment: .center)
+.background(Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25))
 
-            ShortcutListCard(
-                rows: [
-                    .init(title: "Open VE", leftKey: "⌘", rightKey: "."),
-                    .init(title: "Notch", leftKey: "⌘", rightKey: "E"),
-                    .init(title: "Ask Ve", leftKey: "⌘", rightKey: "↩︎"),
-                ]
-            )
-            .frame(width: 220, height: 108)
-
-
-                    if shouldShowCamera {
-                        CameraPreviewView(webcamManager: webcamManager)
-                            .scaledToFit()
-                            .opacity(vm.notchState == .closed ? 0 : 1)
-                            .blur(radius: vm.notchState == .closed ? 20 : 0)
+.cornerRadius(100)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        // Stealth and Settings icons below
+                        HStack(spacing: 8) {
+                            // Stealth mode toggle
+                            Button(action: {
+                                vm.toggleStealthMode()
+                            }) {
+                                HStack(alignment: .center, spacing: 4) {
+                                    #if canImport(AppKit)
+                                    if vm.isStealthModeEnabled {
+                                        // Eye icon when stealth mode is ON
+                                        if let eyeIcon = NSImage.image(lucideId: "eye") {
+                                            Image(nsImage: eyeIcon)
+                                                .renderingMode(.template)
+                                                .foregroundColor(.white)
+                                                .frame(width: 13, height: 13)
+                                        }
+                                    } else {
+                                        // Hat with glasses icon when stealth mode is OFF (default)
+                                        if let hatGlassesIcon = NSImage.image(lucideId: "hat-glasses") {
+                                            Image(nsImage: hatGlassesIcon)
+                                                .renderingMode(.template)
+                                                .foregroundColor(.white)
+                                                .frame(width: 13, height: 13)
+                                        }
+                                    }
+                                    #endif
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .frame(width: 32, height: 32, alignment: .center)
+                               .background(Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25))
+                                .cornerRadius(16)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            // Settings icon
+                            Button(action: {
+                                SettingsWindowController.shared.showWindow()
+                            }) {
+                                HStack(alignment: .center, spacing: 4) {
+                                    #if canImport(AppKit)
+                                    if let settingsIcon = NSImage.image(lucideId: "settings") {
+                                        Image(nsImage: settingsIcon)
+                                            .renderingMode(.template)
+                                            .foregroundColor(.white)
+                                            .frame(width: 13, height: 13)
+                                    }
+                                    #endif
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .frame(width: 32, height: 32, alignment: .center)
+                                .background(Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25))
+                                .cornerRadius(16)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
                     }
-
-            MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
-                .frame(maxWidth: 330) // compact music at end
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 108)
                 }
                 .transition(.opacity.combined(with: .scale))
             }

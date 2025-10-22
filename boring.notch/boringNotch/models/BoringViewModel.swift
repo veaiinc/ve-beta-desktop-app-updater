@@ -88,6 +88,9 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var aiResponseIntensity: CGFloat = 0.0 // Wave animation intensity (0.0 → 1.0)
     @Published var effectiveAnimationIntensity: CGFloat = 0.0 // Combined AI + real-time audio intensity
     
+    // MARK: - New: Shared Email State
+    let emailViewModel = EmailViewModel()
+    
     deinit {
         destroy()
     }
@@ -95,6 +98,9 @@ class BoringViewModel: NSObject, ObservableObject {
     func destroy() {
         cancellables.forEach { $0.cancel() }
         cancellables.removeAll()
+        
+        // Stop email auto refresh
+        emailViewModel.stopAutoRefresh()
         
         // Clean up notification observers
         NotificationCenter.default.removeObserver(self)
@@ -118,6 +124,9 @@ class BoringViewModel: NSObject, ObservableObject {
         
         setupDetectorObserver()
         setupNotificationObservers()
+        
+        // Start email auto refresh every 15 minutes
+        emailViewModel.startAutoRefresh(intervalMinutes: 15)
     }
     
     private func setupNotificationObservers() {

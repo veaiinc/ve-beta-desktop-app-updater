@@ -312,7 +312,6 @@ const OngoingMeeting = memo(() => {
 	// }, [activeMeetingId]);
 
 	const toggleChat = (open) => {
-		console.log('toggleChat', open, info.chatOpen);
 		if (open === info.chatOpen) {
 			return;
 		}
@@ -320,8 +319,8 @@ const OngoingMeeting = memo(() => {
 		if (open) {
 			newWidth = info?.dimentions?.width + CHAT_WIDTH;
 		} else {
-			newWidth = info?.dimentions?.width - CHAT_WIDTH;
-			newWidth = newWidth < 522 ? 522 : newWidth;
+			// When closing chat, reset to original meeting dimensions (522px width)
+			newWidth = 522;
 		}
 		window?.electronApi?.resizeMainWindow({
 			dimensions: {
@@ -413,13 +412,14 @@ const OngoingMeeting = memo(() => {
 					<X size={16} />
 				</button> */}
 				{info.isResponseSelected && (
-					<button
-						className={s.ongoingMeetingHeaderButton}
-						onClick={() => handleOpenChatResponse(true)}
-					>
-						<ChevronRight size={16} />
-					</button>
-				)}
+				<button
+					className={s.ongoingMeetingHeaderButton}
+					onClick={() => info.chatOpen ? toggleChat(false) : handleOpenChatResponse(true)}
+					style={{ transform: info.chatOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+				>
+					<ChevronRight size={24} />
+				</button>
+			)}
 			</div>
 			<div className={s.ongoingMeetingContentWrapper}>
 				<div className={s.ongoingMeetingContainer}>
@@ -506,12 +506,12 @@ const OngoingMeeting = memo(() => {
 					<div className={s.recentChatWrapper}>
 						<div className={s.recentChatHeader}>
 							<div className={s.recentChatHeaderTitle}>AI Response</div>
-							<button
+							{/* <button
 								className={s.recentChatHeaderButton}
 								onClick={() => toggleChat(false)}
 							>
 								<X size={16} />
-							</button>
+							</button> */}
 						</div>
 						<div className={s.recentChatContent}>
 							<RecentChat

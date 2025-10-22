@@ -12,6 +12,7 @@ import LucideIcons
 enum TabDisplayStyle {
     case homeIcon
     case shelfIcon
+    case emailIcon
     case systemSymbol(name: String)
     case textLabel(String)
 }
@@ -24,8 +25,8 @@ struct TabModel: Identifiable {
 }
 
 let tabs = [
-    TabModel(label: "Home", displayStyle: .homeIcon, view: .home),
-    TabModel(label: "Shelf", displayStyle: .shelfIcon, view: .shelf),
+    TabModel(label: "Email", displayStyle: .emailIcon, view: .email),
+    TabModel(label: "Shelf", displayStyle: .textLabel("Tray"), view: .shelf),
     TabModel(label: "Listen", displayStyle: .textLabel("Listen"), view: .meeting),
     TabModel(label: "Ask", displayStyle: .textLabel("Ask"), view: .ask)
 ]
@@ -98,6 +99,15 @@ private struct TabContentView: View {
             #if canImport(AppKit)
             if let houseIcon = NSImage.image(lucideId: "house") {
                 Image(nsImage: houseIcon)
+                    .renderingMode(.template)
+                    .foregroundColor(iconColor)
+                    .frame(width: 13, height: 13)
+            }
+            #endif
+        case .emailIcon:
+            #if canImport(AppKit)
+            if let emailIcon = NSImage.image(lucideId: "mail") {
+                Image(nsImage: emailIcon)
                     .renderingMode(.template)
                     .foregroundColor(iconColor)
                     .frame(width: 13, height: 13)
@@ -262,6 +272,8 @@ private struct HomeTabIcon: View {
 }
 
 // New custom Shelf icon, scaled to match 14x14 canvas like HomeTabIcon
+// Commented out since we're now using text "tray" instead of the icon
+/*
 private struct ShelfTabIcon: View {
     let strokeColor: Color
     
@@ -320,6 +332,7 @@ private struct ShelfTabIcon: View {
         .frame(width: 14, height: 14)
     }
 }
+*/
 
 
 struct TabSelectionView: View, WebSocketEventListener {
@@ -454,20 +467,8 @@ struct TabSelectionView: View, WebSocketEventListener {
             if  coordinator.currentView == .meeting {
                 
                 HStack(spacing:4){
-                    // Show Home tab
-                    TabItem(
-                        tab: tabs[0], // Home tab
-                        selected: false, // Never selected since we're in meeting view
-                        animation: animation,
-                        onTap: {
-                            withAnimation(.smooth) {
-                                coordinator.currentView = .home
-                            }
-                        }
-                    )
-                    
-                    // Add MeetingButtons after the Home tab
-                       MeetingButtons()
+                    // Add MeetingButtons
+                    MeetingButtons()
                 
             }
                 
