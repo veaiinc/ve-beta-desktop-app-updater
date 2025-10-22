@@ -622,6 +622,10 @@ struct NotchHomeView: View {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @Default(.showCalendar) var showCalendar: Bool
     let albumArtNamespace: Namespace.ID
+    
+    // Hover states for tooltips
+    @State private var isStealthButtonHovered: Bool = false
+    @State private var isSettingsButtonHovered: Bool = false
 
     var body: some View {
         Group {
@@ -727,6 +731,26 @@ struct NotchHomeView: View {
                                 .cornerRadius(16)
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .overlay(alignment: .leading) {
+                                if isStealthButtonHovered {
+                                    Text(vm.isStealthModeEnabled ? "Disable stealth mode" : "Enable stealth mode")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(x: -130)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isStealthButtonHovered = hovering
+                                }
+                            }
                             
                             // Settings icon
                             Button(action: {
@@ -749,6 +773,26 @@ struct NotchHomeView: View {
                                 .cornerRadius(16)
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .overlay(alignment: .trailing) {
+                                if isSettingsButtonHovered {
+                                    Text("Settings")
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.8))
+                                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                        .offset(x: 67)
+                                        .fixedSize(horizontal: true, vertical: true)
+                                        .zIndex(2000)
+                                        .allowsHitTesting(false)
+                                }
+                            }
+                            .onHover { hovering in
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isSettingsButtonHovered = hovering
+                                }
+                            }
                         }
                     }
                     .frame(maxWidth: .infinity)
