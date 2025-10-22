@@ -3469,10 +3469,10 @@
         }
       }
     },
-    "AI" : {
+    "Adjust how the notch responds and appears on different displays. Customize height, width, and interaction behavior to match your design preference." : {
 
     },
-    "Adjust how the notch responds and appears on different displays. Customize height, width, and interaction behavior to match your design preference." : {
+    "AI" : {
 
     },
     "AI insights will appear here during your meeting" : {
@@ -5229,6 +5229,7 @@
       }
     },
     "Battery" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5371,6 +5372,7 @@
       }
     },
     "Battery Information" : {
+      "extractionState" : "stale",
       "localizations" : {
         "af" : {
           "stringUnit" : {
@@ -9009,6 +9011,9 @@
           }
         }
       }
+    },
+    "Custom width" : {
+
     },
     "Customize in Settings" : {
       "extractionState" : "stale",
@@ -13647,6 +13652,7 @@
       }
     },
     "GitHub" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18682,6 +18688,12 @@
           }
         }
       }
+    },
+    "Meeting intelligence is off" : {
+
+    },
+    "Meeting intelligence is on" : {
+
     },
     "Mic %@" : {
       "localizations" : {
@@ -28379,6 +28391,7 @@
       }
     },
     "Support Us" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
