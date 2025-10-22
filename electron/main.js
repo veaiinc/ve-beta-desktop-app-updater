@@ -625,12 +625,16 @@ const toggleContentProtection = async () => {
 	// Send stealth mode update to Boring Notch for synchronization
 	if (boringNotchService && boringNotchService.isInitialized) {
 		try {
-			log.info(`🥷 Sending stealth mode update to Boring Notch: ${isContentProtectionEnabled ? 'ENABLED' : 'DISABLED'}`);
+			log.info(
+				`🥷 Sending stealth mode update to Boring Notch: ${
+					isContentProtectionEnabled ? 'ENABLED' : 'DISABLED'
+				}`,
+			);
 			const stealthMessage = {
 				type: 'update_stealth_mode',
 				isEnabled: isContentProtectionEnabled,
 				timestamp: Date.now(),
-				source: 'electron'
+				source: 'electron',
 			};
 			const result = await boringNotchService.sendMessageToSwiftUI(stealthMessage);
 			log.info('🥷 Stealth mode message result:', result);
@@ -670,12 +674,16 @@ const setContentProtection = async (enabled) => {
 	// Send stealth mode update to Boring Notch for synchronization
 	if (boringNotchService && boringNotchService.isInitialized) {
 		try {
-			log.info(`🥷 Sending stealth mode update to Boring Notch: ${isContentProtectionEnabled ? 'ENABLED' : 'DISABLED'}`);
+			log.info(
+				`🥷 Sending stealth mode update to Boring Notch: ${
+					isContentProtectionEnabled ? 'ENABLED' : 'DISABLED'
+				}`,
+			);
 			const stealthMessage = {
 				type: 'update_stealth_mode',
 				isEnabled: isContentProtectionEnabled,
 				timestamp: Date.now(),
-				source: 'electron'
+				source: 'electron',
 			};
 			const result = await boringNotchService.sendMessageToSwiftUI(stealthMessage);
 			log.info('🥷 Stealth mode message result:', result);
@@ -4470,13 +4478,13 @@ app.whenReady().then(async () => {
 				log.info('✅ Main window opened/restored from BoringNotch VE logo click');
 				break;
 
-			case "ENABLE_AI_INTELLIGENCE":
+			case 'ENABLE_AI_INTELLIGENCE':
 				log.info('🎯 ENABLE_AI_INTELLIGENCE message received from BoringNotch');
 				await handleNotchToMainWindowEvents({ action: 'enableAiIntelligence' });
 				log.info('✅ AI Intelligence enabled');
 				break;
 
-			case "DISABLE_AI_INTELLIGENCE":
+			case 'DISABLE_AI_INTELLIGENCE':
 				log.info('🎯 DISABLE_AI_INTELLIGENCE message received from BoringNotch');
 				await handleNotchToMainWindowEvents({ action: 'disableAiIntelligence' });
 				log.info('✅ AI Intelligence disabled');
@@ -6871,13 +6879,21 @@ app.whenReady().then(async () => {
 			// Stop the Are You There timer
 			stopAreYouThereTimer();
 
-			// Stop the recording by sending stop command to overlay
-			const overlayWindow = windowHelper?.getOverlayWindow();
-			if (overlayWindow) {
-				overlayWindow.webContents.send('overlay-command', {
-					action: 'stopRecording',
+			// Stop the recording by sending stop command to main window (GlobalMeetingHelper)
+			await handleNotchToMainWindowEvents({ action: 'stopRecording' });
+			log.info(
+				'✅ Sent stopRecording command to main window from Are You There auto-timeout',
+			);
+
+			// Send MEETING_STOPPED to Boring Notch via WebSocket
+			if (websocketService && websocketService.isServerRunning()) {
+				websocketService.broadcast({
+					type: 'MEETING_STOPPED',
+					data: {},
 				});
-				log.info('Sent stopRecording command to overlay window');
+				log.info('✅ Sent MEETING_STOPPED to Boring Notch from Are You There auto-timeout');
+			} else {
+				log.warn('⚠️ WebSocket service not available for MEETING_STOPPED broadcast');
 			}
 
 			// Close the Are You There window
@@ -6923,13 +6939,19 @@ app.whenReady().then(async () => {
 			// Stop the Are You There timer
 			stopAreYouThereTimer();
 
-			// Stop the recording by sending stop command to overlay
-			const overlayWindow = windowHelper?.getOverlayWindow();
-			if (overlayWindow) {
-				overlayWindow.webContents.send('overlay-command', {
-					action: 'stopRecording',
+			// Stop the recording by sending stop command to main window (GlobalMeetingHelper)
+			await handleNotchToMainWindowEvents({ action: 'stopRecording' });
+			log.info('✅ Sent stopRecording command to main window from Are You There');
+
+			// Send MEETING_STOPPED to Boring Notch via WebSocket
+			if (websocketService && websocketService.isServerRunning()) {
+				websocketService.broadcast({
+					type: 'MEETING_STOPPED',
+					data: {},
 				});
-				log.info('Sent stopRecording command to overlay window');
+				log.info('✅ Sent MEETING_STOPPED to Boring Notch from Are You There end session');
+			} else {
+				log.warn('⚠️ WebSocket service not available for MEETING_STOPPED broadcast');
 			}
 
 			// Close the Are You There window
@@ -6982,13 +7004,23 @@ app.whenReady().then(async () => {
 			// Stop the transcription detection timer
 			stopTranscriptionDetectionTimer();
 
-			// Stop the recording by sending stop command to overlay
-			const overlayWindow = windowHelper?.getOverlayWindow();
-			if (overlayWindow) {
-				overlayWindow.webContents.send('overlay-command', {
-					action: 'stopRecording',
+			// Stop the recording by sending stop command to main window (GlobalMeetingHelper)
+			await handleNotchToMainWindowEvents({ action: 'stopRecording' });
+			log.info(
+				'✅ Sent stopRecording command to main window from Are You There transcription auto-timeout',
+			);
+
+			// Send MEETING_STOPPED to Boring Notch via WebSocket
+			if (websocketService && websocketService.isServerRunning()) {
+				websocketService.broadcast({
+					type: 'MEETING_STOPPED',
+					data: {},
 				});
-				log.info('Sent stopRecording command to overlay window');
+				log.info(
+					'✅ Sent MEETING_STOPPED to Boring Notch from Are You There transcription auto-timeout',
+				);
+			} else {
+				log.warn('⚠️ WebSocket service not available for MEETING_STOPPED broadcast');
 			}
 
 			// Close the Are You There window
@@ -7034,13 +7066,23 @@ app.whenReady().then(async () => {
 			// Stop the transcription detection timer
 			stopTranscriptionDetectionTimer();
 
-			// Stop the recording by sending stop command to overlay
-			const overlayWindow = windowHelper?.getOverlayWindow();
-			if (overlayWindow) {
-				overlayWindow.webContents.send('overlay-command', {
-					action: 'stopRecording',
+			// Stop the recording by sending stop command to main window (GlobalMeetingHelper)
+			await handleNotchToMainWindowEvents({ action: 'stopRecording' });
+			log.info(
+				'✅ Sent stopRecording command to main window from Are You There transcription end',
+			);
+
+			// Send MEETING_STOPPED to Boring Notch via WebSocket
+			if (websocketService && websocketService.isServerRunning()) {
+				websocketService.broadcast({
+					type: 'MEETING_STOPPED',
+					data: {},
 				});
-				log.info('Sent stopRecording command to overlay window');
+				log.info(
+					'✅ Sent MEETING_STOPPED to Boring Notch from Are You There transcription end',
+				);
+			} else {
+				log.warn('⚠️ WebSocket service not available for MEETING_STOPPED broadcast');
 			}
 
 			// Close the Are You There window
