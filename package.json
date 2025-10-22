@@ -1,382 +1,382 @@
 {
-	"name": "VEAI",
-	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "10.0.7",
-	"private": true,
-	"main": "dist-electron/main.js",
-	"author": "Ve AI",
-	"repository": "https://github.com/veaiinc/ve-desktop-app-updater",
-	"scripts": {
-		"postinstall": "electron-builder install-app-deps && npm run rebuild:native:mac && npm run clean:sharp && npm run setup:hey-ve",
-		"clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); console.log('🔧 Ensuring Sharp package structure for all platforms...'); if (fs.existsSync(nodeModulesPath)) { const requiredDirs = ['sharp-darwin-arm64', 'sharp-darwin-x64', 'sharp-libvips-darwin-arm64', 'sharp-libvips-darwin-x64', 'sharp-linux-arm', 'sharp-linux-arm64', 'sharp-linux-x64', 'sharp-libvips-linux-arm', 'sharp-libvips-linux-arm64', 'sharp-libvips-linux-x64', 'sharp-win32-ia32', 'sharp-win32-x64', 'sharp-libvips-win32-ia32', 'sharp-libvips-win32-x64']; requiredDirs.forEach(dir => { const dirPath = path.join(nodeModulesPath, dir); if (!fs.existsSync(dirPath)) { fs.mkdirSync(dirPath, { recursive: true }); fs.writeFileSync(path.join(dirPath, '.gitkeep'), ''); console.log('✅ Created missing directory:', dir); } else { console.log('✅ Directory exists:', dir); } }); console.log('🎉 All Sharp directories ensured for cross-platform builds'); } else { console.log('📁 @img directory not found'); }\"",
-		"install-python-deps": "cd electron/wakeWord && (python -m pip install -r requirements.txt || python3 -m pip install -r requirements.txt || py -m pip install -r requirements.txt)",
-		"setup:hey-ve": "node scripts/setup-hey-ve.js",
-		"postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
-		"dev": "npm run build:boring-notch:clean && cross-env NODE_ENV=development VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false npm run clean:build:dev && vite -- --js-flags=\"--expose-gc --max-old-space-size=4096 --optimize-for-size\"",
-		"dev:full": "npm run build:boring-notch:clean && npm run dev",
-		"dev:with-boring-notch": "npm run build:boring-notch:clean && npm run dev",
-		"dev:mac:entitled": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null && open \"dist/mac-arm64/Ve AI.app\"",
-		"clean:build:dev": "rimraf dist-electron build",
-		"dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
-		"dev:win:no-clean": "set NODE_ENV=development && vite",
-		"build": "npm run build:boring-notch:clean && npm run bundle:python-runtime && cross-env NODE_ENV=production VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false node --max-old-space-size=12288 --expose-gc --optimize-for-size node_modules/vite/bin/vite.js build --mode production",
-		"build:win": "npm run build:boring-notch:clean && npm run bundle:python-runtime && set NODE_ENV=production && set VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
-		"bundle:python-runtime": "node scripts/bundle-python-runtime.js",
-		"package": "npm run clean:build:cross && npm run build && electron-builder",
-		"package:win": "npm run build:win && electron-builder --win",
-		"package:win:unsigned": "npm run build:win && electron-builder --win --config.win.signAndEditExecutable=false",
-		"package:all": "npm run clean:build:cross && npm run build && electron-builder -mw",
-		"build:analyze": "npm run clean:build:cross && npm run build && npx vite-bundle-analyzer build",
-		"preview": "vite preview",
-		"delete-maps": "rm ./build/static/js/*.map && rm ./build/static/css/*.map",
-		"delete-maps:win": "del /q .\\build\\static\\js\\*.map && del /q .\\build\\static\\css\\*.map",
-		"delete-maps:cross": "rimraf ./build/static/js/*.map ./build/static/css/*.map",
-		"format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|md|vue)\"",
-		"package:mac": "npm run clean:build:cross && npm run build && electron-builder --mac -- --js-flags=\"--expose-gc\"",
-		"build:boring-notch": "node scripts/build-boring-notch.js",
-		"build:boring-notch:clean": "cd boring.notch && rm -rf build && rm -rf DerivedData && node ../scripts/build-boring-notch.js",
-		"package:mac:app:unsigned": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
-		"package:mac:app:unsigned:both": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir -a x64,arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
-		"package:linux": "npm run clean:build:cross && npm run build && electron-builder --linux",
-		"publish:mac": "npm run clean:build:cross && npm run build && electron-builder --mac --publish=always",
-		"publish:win": "npm run clean:build:cross && npm run build && electron-builder --win --publish=always",
-		"publish:linux": "npm run clean:build:cross && npm run build && electron-builder --linux --publish=always",
-		"publish:all": "npm run clean:build:cross && npm run build && electron-builder --mac --win --linux --publish=always",
-		"test": "vitest",
-		"test:watch": "vitest watch",
-		"test:ui": "vitest --ui",
-		"test:coverage": "vitest run --coverage",
-		"test:dmg": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test-${arch}.${ext}' -c.directories.output='dist/test'",
-		"dmg:test": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test.${ext}' -c.directories.output='dist'",
-		"clean:build": "rm -rf dist-electron && rm -rf build && rm -rf dist",
-		"clean:build:win": "if exist dist-electron rmdir /s /q dist-electron && if exist build rmdir /s /q build && if exist dist rmdir /s /q dist",
-		"clean:build:cross": "rimraf dist-electron build dist",
-		"rebuild:native:mac": "electron-builder install-app-deps",
-		"test:performance": "node scripts/performance-test.js",
-		"release:dmg": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && electron-builder --mac --publish always",
-		"release:auto": "bash scripts/release-dmg.sh",
-		"package:mac:release": "bash scripts/package-mac-release.sh"
-	},
-	"dependencies": {
-		"@apollo/client": "^3.13.5",
-		"@blocknote/core": "0.30.0",
-		"@blocknote/mantine": "0.30.0",
-		"@blocknote/react": "0.30.0",
-		"@dnd-kit/core": "^6.3.1",
-		"@dnd-kit/sortable": "^10.0.0",
-		"@dnd-kit/utilities": "^3.2.2",
-		"@emnapi/runtime": "^1.4.5",
-		"@emoji-mart/data": "^1.2.1",
-		"@emoji-mart/react": "^1.1.1",
-		"@gsap/react": "^2.1.2",
-		"@intercom/messenger-js-sdk": "^0.0.14",
-		"@livekit/components-react": "^2.8.1",
-		"@livekit/krisp-noise-filter": "^0.2.16",
-		"@xyflow/react": "^12.3.6",
-		"@zubridge/electron": "^2.0.0",
-		"active-win": "^8.2.1",
-		"antd": "^5.24.5",
-		"archiver": "^7.0.1",
-		"axios": "^1.11.0",
-		"bson-objectid": "^2.0.4",
-		"cross-spawn": "^7.0.6",
-		"currency-symbol-map": "^5.1.0",
-		"dayjs": "^1.11.13",
-		"dotenv": "^17.2.2",
-		"electron-log": "^5.4.2",
-		"electron-mac-permissions": "^2.2.2",
-		"electron-updater": "^6.6.2",
-		"emoji-mart": "^5.6.0",
-		"exif-reader": "^2.0.2",
-		"firebase": "^12.1.0",
-		"fs-extra": "^11.3.1",
-		"google-fonts-complete": "^2.2.3",
-		"graphql": "^15.10.1",
-		"gsap": "^3.13.0",
-		"history": "^5.3.0",
-		"image-focus": "^1.2.1",
-		"jodit-react": "^4.1.2",
-		"js-cookie": "^3.0.5",
-		"jwt-decode": "^3.1.2",
-		"katex": "^0.16.21",
-		"livekit-client": "^2.8.1",
-		"lodash": "^4.17.21",
-		"lucide-react": "^0.541.0",
-		"masonry-layout": "^4.2.2",
-		"mitt": "^3.0.1",
-		"moment": "^2.30.1",
-		"notchdrop-addon": "file:./notchdrop-addon",
-		"p-limit": "^3.1.0",
-		"randomatic": "^3.1.1",
-		"rc-slider": "^10.6.2",
-		"re-resizable": "^6.11.2",
-		"react": "^18.3.1",
-		"react-app": "^1.1.2",
-		"react-beautiful-dnd": "^13.1.1",
-		"react-big-calendar": "^1.15.0",
-		"react-bootstrap": "^2.10.2",
-		"react-color": "^2.19.3",
-		"react-color-palette": "^7.3.0",
-		"react-confetti": "^6.2.2",
-		"react-datepicker": "^7.2.0",
-		"react-dom": "^18.3.1",
-		"react-draggable": "^4.4.6",
-		"react-dropzone": "^14.2.3",
-		"react-easy-crop": "^5.1.0",
-		"react-helmet": "^6.1.0",
-		"react-infinite-scroll-component": "^6.1.0",
-		"react-intersection-observer": "^9.14.0",
-		"react-loading-skeleton": "^3.4.0",
-		"react-markdown": "^9.0.1",
-		"react-modal": "^3.16.1",
-		"react-phone-number-input": "^3.4.3",
-		"react-player": "^2.16.0",
-		"react-qr-code": "^2.0.15",
-		"react-resizable": "^3.0.5",
-		"react-responsive-masonry": "^2.3.0",
-		"react-router-dom": "^6.30.1",
-		"react-select": "^5.8.0",
-		"react-signature-canvas": "^1.0.6",
-		"react-syntax-highlighter": "^15.6.1",
-		"recharts": "^2.15.2",
-		"rehype-katex": "^7.0.1",
-		"rehype-raw": "^7.0.0",
-		"remark-gfm": "^4.0.0",
-		"remark-math": "^6.0.0",
-		"rgb-hex": "^4.1.0",
-		"scrollmagic": "^2.0.8",
-		"sharp": "^0.34.3",
-		"slugify": "^1.6.6",
-		"to-words": "^4.6.0",
-		"unsplash-js": "^7.0.19",
-		"validator": "^13.12.0",
-		"vite-plugin-electron": "^0.29.0",
-		"web-vitals": "^2.1.4",
-		"ws": "^8.18.3",
-		"zustand": "^5.0.8"
-	},
-	"build": {
-		"npmRebuild": false,
-		"appId": "com.veai.dashboard",
-		"productName": "Ve AI",
-		"protocols": [
-			{
-				"name": "VEAI Protocol",
-				"schemes": [
-					"veai"
-				]
-			}
-		],
-		"files": [
-			"build/**",
-			"dist-electron/**",
-			"node_modules/**",
-			"boring.notch/**",
-			"!boring.notch/build/**",
-			"!boring.notch/DerivedData/**",
-			"!node_modules/.cache/**",
-			"!node_modules/**/*.map",
-			"!node_modules/**/*.d.ts",
-			"!node_modules/**/test/**",
-			"!node_modules/**/tests/**",
-			"!node_modules/**/docs/**",
-			"!node_modules/**/examples/**",
-			"package.json",
-			"entitlements/**"
-		],
-		"directories": {
-			"buildResources": "assets",
-			"output": "dist"
-		},
-		"publish": {
-			"provider": "github",
-			"owner": "veaiinc",
-			"repo": "ve-desktop-app-updater",
-			"private": false,
-			"releaseType": "release",
-			"publishAutoUpdate": true
-		},
-		"mac": {
-			"target": [
-				{
-					"target": "dmg",
-					"arch": [
-						"arm64",
-						"x64"
-					]
-				},
-				{
-					"target": "zip",
-					"arch": [
-						"arm64",
-						"x64"
-					]
-				}
-			],
-			"icon": "./electron/assets/app-logo.icns",
-			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
-			"category": "public.app-category.business",
-			"type": "distribution",
-			"gatekeeperAssess": false,
-			"identity": "VE AI PRIVATE LIMITED (47J296MPWB)",
-			"entitlements": "entitlements/entitlements.mac.plist",
-			"entitlementsInherit": "entitlements/entitlements.mac.plist",
-			"hardenedRuntime": true,
-			"notarize": true,
-			"asar": true,
-			"asarUnpack": [
-				"**/node_modules/sharp/**/*",
-				"**/node_modules/@img/sharp-darwin*/**/*",
-				"**/node_modules/@img/sharp-libvips-darwin*/**/*",
-				"**/node_modules/notchdrop-addon/**/*",
-				"**/node_modules/active-win/**/*",
-				"**/node_modules/electron-mac-permissions/**/*",
-				"**/Electron Framework.framework/**/*"
-			],
-			"signIgnore": [
-				"Lottie.framework",
-				"LottieUI.framework",
-				"Sparkle.framework",
-				"MediaRemoteAdapter.framework",
-				".*Lottie\\.framework.*",
-				".*LottieUI\\.framework.*",
-				".*Sparkle\\.framework.*",
-				".*MediaRemoteAdapter\\.framework.*"
-			],
-			"extraResources": [
-				{
-					"from": "boring.notch/build/boringNotch.app",
-					"to": "boringNotch.app",
-					"filter": [
-						"**/*"
-					]
-				},
-				{
-					"from": "electron/wakeWord",
-					"to": "electron/wakeWord",
-					"filter": [
-						"**/*.onnx",
-						"**/*.py",
-						"requirements.txt"
-					]
-				}
-			],
-			"extendInfo": {
-				"NSMicrophoneUsageDescription": "Please give us access to your microphone",
-				"NSCameraUsageDescription": "Please give us access to your camera",
-				"NSCameraUseContinuityCameraDeviceType": true,
-				"NSScreenCaptureUsageDescription": "We need permission to capture your screen so you can ask AI questions about what you see.",
-				"NSCalendarsUsageDescription": "Ve AI needs access to your calendar to show upcoming events in the notch area, helping you stay organized while you work.",
-				"NSAppleEventsUsageDescription": "Ve AI needs to control other apps (Spotify/Safari) to read now playing info for media controls.",
-				"NSAccessibilityUsageDescription": "Ve AI uses Accessibility permissions to detect selected text and display the Selection Assistant popup. Your selections stay encrypted on this device.",
-				"com.apple.security.device.audio-input": true,
-				"com.apple.security.device.camera": true
-			}
-		},
-		"win": {
-			"target": [
-				{
-					"target": "nsis",
-					"arch": [
-						"x64"
-					]
-				},
-				{
-					"target": "portable",
-					"arch": [
-						"x64"
-					]
-				}
-			],
-			"icon": "./electron/assets/app-logo.ico",
-			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
-			"requestedExecutionLevel": "asInvoker",
-			"verifyUpdateCodeSignature": false,
-			"signAndEditExecutable": false,
-			"asar": true,
-			"asarUnpack": [
-				"**/node_modules/sharp/**/*",
-				"**/node_modules/@img/sharp-win32*/**/*",
-				"**/node_modules/@img/sharp-libvips-win32*/**/*"
-			]
-		},
-		"linux": {
-			"target": [
-				{
-					"target": "AppImage",
-					"arch": [
-						"x64"
-					]
-				}
-			],
-			"icon": "./electron/assets/app-logo.png",
-			"artifactName": "Ve.AI-${arch}-${os}.${ext}",
-			"asar": true,
-			"asarUnpack": [
-				"**/node_modules/sharp/**/*",
-				"**/node_modules/@img/sharp-linux*/**/*",
-				"**/node_modules/@img/sharp-libvips-linux*/**/*"
-			]
-		}
-	},
-	"eslintConfig": {
-		"extends": [
-			"react-app",
-			"react-app/jest",
-			"plugin:prettier/recommended"
-		]
-	},
-	"prettier": {
-		"printWidth": 100,
-		"trailingComma": "all",
-		"tabWidth": 4,
-		"semi": true,
-		"singleQuote": true,
-		"useTabs": true
-	},
-	"browserslist": {
-		"production": [
-			">0.2%",
-			"not dead",
-			"not op_mini all"
-		],
-		"development": [
-			"last 1 chrome version",
-			"last 1 firefox version",
-			"last 1 safari version"
-		]
-	},
-	"devDependencies": {
-		"@electron/notarize": "^2.5.0",
-		"@electron/osx-sign": "^1.3.3",
-		"@eslint/js": "^9.27.0",
-		"@svgr/rollup": "^8.1.0",
-		"@testing-library/jest-dom": "^6.6.3",
-		"@testing-library/react": "^16.3.0",
-		"@vitejs/plugin-react": "^4.4.1",
-		"@vitest/ui": "^3.2.4",
-		"autoprefixer": "^10.4.21",
-		"chokidar": "^4.0.3",
-		"cross-env": "^10.0.0",
-		"css-loader": "^7.1.2",
-		"cssnano": "^7.0.7",
-		"electron": "^37.2.0",
-		"electron-builder": "^26.0.12",
-		"electron-icon-builder": "^2.0.1",
-		"eslint": "^9.27.0",
-		"eslint-config-prettier": "^6.15.0",
-		"eslint-plugin-prettier": "^3.2.0",
-		"eslint-plugin-react": "^7.37.5",
-		"globals": "^16.1.0",
-		"jsdom": "^26.1.0",
-		"msw": "^2.11.1",
-		"prettier": "^2.2.1",
-		"rimraf": "^6.0.1",
-		"sass": "^1.77.5",
-		"sass-loader": "^16.0.5",
-		"style-loader": "^4.0.0",
-		"vite": "^6.3.5",
-		"vite-bundle-visualizer": "^1.2.1",
-		"vitest": "^3.2.4"
-	}
+  "name": "VEAI",
+  "description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
+  "version": "10.0.7",
+  "private": true,
+  "main": "dist-electron/main.js",
+  "author": "Ve AI",
+  "repository": "https://github.com/veaiinc/ve-desktop-app-updater",
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps && npm run rebuild:native:mac && npm run clean:sharp && npm run setup:hey-ve",
+    "clean:sharp": "node -e \"const fs = require('fs'); const path = require('path'); const nodeModulesPath = path.join(__dirname, 'node_modules', '@img'); console.log('🔧 Ensuring Sharp package structure for all platforms...'); if (fs.existsSync(nodeModulesPath)) { const requiredDirs = ['sharp-darwin-arm64', 'sharp-darwin-x64', 'sharp-libvips-darwin-arm64', 'sharp-libvips-darwin-x64', 'sharp-linux-arm', 'sharp-linux-arm64', 'sharp-linux-x64', 'sharp-libvips-linux-arm', 'sharp-libvips-linux-arm64', 'sharp-libvips-linux-x64', 'sharp-win32-ia32', 'sharp-win32-x64', 'sharp-libvips-win32-ia32', 'sharp-libvips-win32-x64']; requiredDirs.forEach(dir => { const dirPath = path.join(nodeModulesPath, dir); if (!fs.existsSync(dirPath)) { fs.mkdirSync(dirPath, { recursive: true }); fs.writeFileSync(path.join(dirPath, '.gitkeep'), ''); console.log('✅ Created missing directory:', dir); } else { console.log('✅ Directory exists:', dir); } }); console.log('🎉 All Sharp directories ensured for cross-platform builds'); } else { console.log('📁 @img directory not found'); }\"",
+    "install-python-deps": "cd electron/wakeWord && (python -m pip install -r requirements.txt || python3 -m pip install -r requirements.txt || py -m pip install -r requirements.txt)",
+    "setup:hey-ve": "node scripts/setup-hey-ve.js",
+    "postinstall:win": "npm rebuild sharp --platform=win32 --arch=x64",
+    "dev": "npm run build:boring-notch:clean && cross-env NODE_ENV=development VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false npm run clean:build:dev && vite -- --js-flags=\"--expose-gc --max-old-space-size=4096 --optimize-for-size\"",
+    "dev:full": "npm run build:boring-notch:clean && npm run dev",
+    "dev:with-boring-notch": "npm run build:boring-notch:clean && npm run dev",
+    "dev:mac:entitled": "npm run clean:build:cross && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null && open \"dist/mac-arm64/Ve AI.app\"",
+    "clean:build:dev": "rimraf dist-electron build",
+    "dev:win": "set NODE_ENV=development && npm run clean:build:win && vite",
+    "dev:win:no-clean": "set NODE_ENV=development && vite",
+    "build": "npm run build:boring-notch:clean && npm run bundle:python-runtime && cross-env NODE_ENV=production VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false node --max-old-space-size=12288 --expose-gc --optimize-for-size node_modules/vite/bin/vite.js build --mode production",
+    "build:win": "npm run build:boring-notch:clean && npm run bundle:python-runtime && set NODE_ENV=production && set VITE_ELECTRON_SHOW_DYNAMIC_ISLAND=false && node --max-old-space-size=12288 node_modules/vite/bin/vite.js build --mode production",
+    "bundle:python-runtime": "node scripts/bundle-python-runtime.js",
+    "package": "npm run clean:build:cross && npm run build && electron-builder",
+    "package:win": "npm run build:win && electron-builder --win",
+    "package:win:unsigned": "npm run build:win && electron-builder --win --config.win.signAndEditExecutable=false",
+    "package:all": "npm run clean:build:cross && npm run build && electron-builder -mw",
+    "build:analyze": "npm run clean:build:cross && npm run build && npx vite-bundle-analyzer build",
+    "preview": "vite preview",
+    "delete-maps": "rm ./build/static/js/*.map && rm ./build/static/css/*.map",
+    "delete-maps:win": "del /q .\\build\\static\\js\\*.map && del /q .\\build\\static\\css\\*.map",
+    "delete-maps:cross": "rimraf ./build/static/js/*.map ./build/static/css/*.map",
+    "format": "prettier --write \"**/*.+(js|jsx|json|yml|yaml|css|md|vue)\"",
+    "package:mac": "npm run clean:build:cross && npm run build && electron-builder --mac -- --js-flags=\"--expose-gc\"",
+    "build:boring-notch": "node scripts/build-boring-notch.js",
+    "build:boring-notch:clean": "cd boring.notch && rm -rf build && rm -rf DerivedData && node ../scripts/build-boring-notch.js",
+    "package:mac:app:unsigned": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
+    "package:mac:app:unsigned:both": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir -a x64,arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false",
+    "package:linux": "npm run clean:build:cross && npm run build && electron-builder --linux",
+    "publish:mac": "npm run clean:build:cross && npm run build && electron-builder --mac --publish=always",
+    "publish:win": "npm run clean:build:cross && npm run build && electron-builder --win --publish=always",
+    "publish:linux": "npm run clean:build:cross && npm run build && electron-builder --linux --publish=always",
+    "publish:all": "npm run clean:build:cross && npm run build && electron-builder --mac --win --linux --publish=always",
+    "test": "vitest",
+    "test:watch": "vitest watch",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:dmg": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test-${arch}.${ext}' -c.directories.output='dist/test'",
+    "dmg:test": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64 -c.mac.identity=null -c.mac.hardenedRuntime=false -c.mac.notarize=false -c.mac.artifactName='Ve.AI-Test.${ext}' -c.directories.output='dist'",
+    "clean:build": "rm -rf dist-electron && rm -rf build && rm -rf dist",
+    "clean:build:win": "if exist dist-electron rmdir /s /q dist-electron && if exist build rmdir /s /q build && if exist dist rmdir /s /q dist",
+    "clean:build:cross": "rimraf dist-electron build dist",
+    "rebuild:native:mac": "electron-builder install-app-deps",
+    "test:performance": "node scripts/performance-test.js",
+    "release:dmg": "npm run clean:build:cross && npm run build:boring-notch:clean && npm run build && npm run rebuild:native:mac && electron-builder --mac --publish always",
+    "release:auto": "bash scripts/release-dmg.sh",
+    "package:mac:release": "bash scripts/package-mac-release.sh"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.13.5",
+    "@blocknote/core": "0.30.0",
+    "@blocknote/mantine": "0.30.0",
+    "@blocknote/react": "0.30.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@emnapi/runtime": "^1.4.5",
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
+    "@gsap/react": "^2.1.2",
+    "@intercom/messenger-js-sdk": "^0.0.14",
+    "@livekit/components-react": "^2.8.1",
+    "@livekit/krisp-noise-filter": "^0.2.16",
+    "@xyflow/react": "^12.3.6",
+    "@zubridge/electron": "^2.0.0",
+    "active-win": "^8.2.1",
+    "antd": "^5.24.5",
+    "archiver": "^7.0.1",
+    "axios": "^1.11.0",
+    "bson-objectid": "^2.0.4",
+    "cross-spawn": "^7.0.6",
+    "currency-symbol-map": "^5.1.0",
+    "dayjs": "^1.11.13",
+    "dotenv": "^17.2.2",
+    "electron-log": "^5.4.2",
+    "electron-mac-permissions": "^2.2.2",
+    "electron-updater": "^6.6.2",
+    "emoji-mart": "^5.6.0",
+    "exif-reader": "^2.0.2",
+    "firebase": "^12.1.0",
+    "fs-extra": "^11.3.1",
+    "google-fonts-complete": "^2.2.3",
+    "graphql": "^15.10.1",
+    "gsap": "^3.13.0",
+    "history": "^5.3.0",
+    "image-focus": "^1.2.1",
+    "jodit-react": "^4.1.2",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^3.1.2",
+    "katex": "^0.16.21",
+    "livekit-client": "^2.8.1",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.541.0",
+    "masonry-layout": "^4.2.2",
+    "mitt": "^3.0.1",
+    "moment": "^2.30.1",
+    "notchdrop-addon": "file:./notchdrop-addon",
+    "p-limit": "^3.1.0",
+    "randomatic": "^3.1.1",
+    "rc-slider": "^10.6.2",
+    "re-resizable": "^6.11.2",
+    "react": "^18.3.1",
+    "react-app": "^1.1.2",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-big-calendar": "^1.15.0",
+    "react-bootstrap": "^2.10.2",
+    "react-color": "^2.19.3",
+    "react-color-palette": "^7.3.0",
+    "react-confetti": "^6.2.2",
+    "react-datepicker": "^7.2.0",
+    "react-dom": "^18.3.1",
+    "react-draggable": "^4.4.6",
+    "react-dropzone": "^14.2.3",
+    "react-easy-crop": "^5.1.0",
+    "react-helmet": "^6.1.0",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-intersection-observer": "^9.14.0",
+    "react-loading-skeleton": "^3.4.0",
+    "react-markdown": "^9.0.1",
+    "react-modal": "^3.16.1",
+    "react-phone-number-input": "^3.4.3",
+    "react-player": "^2.16.0",
+    "react-qr-code": "^2.0.15",
+    "react-resizable": "^3.0.5",
+    "react-responsive-masonry": "^2.3.0",
+    "react-router-dom": "^6.30.1",
+    "react-select": "^5.8.0",
+    "react-signature-canvas": "^1.0.6",
+    "react-syntax-highlighter": "^15.6.1",
+    "recharts": "^2.15.2",
+    "rehype-katex": "^7.0.1",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-math": "^6.0.0",
+    "rgb-hex": "^4.1.0",
+    "scrollmagic": "^2.0.8",
+    "sharp": "^0.34.3",
+    "slugify": "^1.6.6",
+    "to-words": "^4.6.0",
+    "unsplash-js": "^7.0.19",
+    "validator": "^13.12.0",
+    "vite-plugin-electron": "^0.29.0",
+    "web-vitals": "^2.1.4",
+    "ws": "^8.18.3",
+    "zustand": "^5.0.8"
+  },
+  "build": {
+    "npmRebuild": false,
+    "appId": "com.veai.dashboard",
+    "productName": "Ve AI",
+    "protocols": [
+      {
+        "name": "VEAI Protocol",
+        "schemes": [
+          "veai"
+        ]
+      }
+    ],
+    "files": [
+      "build/**",
+      "dist-electron/**",
+      "node_modules/**",
+      "boring.notch/**",
+      "!boring.notch/build/**",
+      "!boring.notch/DerivedData/**",
+      "!node_modules/.cache/**",
+      "!node_modules/**/*.map",
+      "!node_modules/**/*.d.ts",
+      "!node_modules/**/test/**",
+      "!node_modules/**/tests/**",
+      "!node_modules/**/docs/**",
+      "!node_modules/**/examples/**",
+      "package.json",
+      "entitlements/**"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "veaiinc",
+      "repo": "ve-desktop-app-updater",
+      "private": false,
+      "releaseType": "release",
+      "publishAutoUpdate": true
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "icon": "./electron/assets/app-logo.icns",
+      "artifactName": "Ve.AI-${arch}-${os}.${ext}",
+      "category": "public.app-category.business",
+      "type": "distribution",
+      "gatekeeperAssess": false,
+      "identity": "VE AI PRIVATE LIMITED (47J296MPWB)",
+      "entitlements": "entitlements/entitlements.mac.plist",
+      "entitlementsInherit": "entitlements/entitlements.mac.plist",
+      "hardenedRuntime": true,
+      "notarize": true,
+      "asar": true,
+      "asarUnpack": [
+        "**/node_modules/sharp/**/*",
+        "**/node_modules/@img/sharp-darwin*/**/*",
+        "**/node_modules/@img/sharp-libvips-darwin*/**/*",
+        "**/node_modules/notchdrop-addon/**/*",
+        "**/node_modules/active-win/**/*",
+        "**/node_modules/electron-mac-permissions/**/*",
+        "**/Electron Framework.framework/**/*"
+      ],
+      "signIgnore": [
+        "Lottie.framework",
+        "LottieUI.framework",
+        "Sparkle.framework",
+        "MediaRemoteAdapter.framework",
+        ".*Lottie\\.framework.*",
+        ".*LottieUI\\.framework.*",
+        ".*Sparkle\\.framework.*",
+        ".*MediaRemoteAdapter\\.framework.*"
+      ],
+      "extraResources": [
+        {
+          "from": "boring.notch/build/boringNotch.app",
+          "to": "boringNotch.app",
+          "filter": [
+            "**/*"
+          ]
+        },
+        {
+          "from": "electron/wakeWord",
+          "to": "electron/wakeWord",
+          "filter": [
+            "**/*.onnx",
+            "**/*.py",
+            "requirements.txt"
+          ]
+        }
+      ],
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "Please give us access to your microphone",
+        "NSCameraUsageDescription": "Please give us access to your camera",
+        "NSCameraUseContinuityCameraDeviceType": true,
+        "NSScreenCaptureUsageDescription": "We need permission to capture your screen so you can ask AI questions about what you see.",
+        "NSCalendarsUsageDescription": "Ve AI needs access to your calendar to show upcoming events in the notch area, helping you stay organized while you work.",
+        "NSAppleEventsUsageDescription": "Ve AI needs to control other apps (Spotify/Safari) to read now playing info for media controls.",
+        "NSAccessibilityUsageDescription": "Ve AI uses Accessibility permissions to detect selected text and display the Selection Assistant popup. Your selections stay encrypted on this device.",
+        "com.apple.security.device.audio-input": true,
+        "com.apple.security.device.camera": true
+      }
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "./electron/assets/app-logo.ico",
+      "artifactName": "Ve.AI-${arch}-${os}.${ext}",
+      "requestedExecutionLevel": "asInvoker",
+      "verifyUpdateCodeSignature": false,
+      "signAndEditExecutable": false,
+      "asar": true,
+      "asarUnpack": [
+        "**/node_modules/sharp/**/*",
+        "**/node_modules/@img/sharp-win32*/**/*",
+        "**/node_modules/@img/sharp-libvips-win32*/**/*"
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "./electron/assets/app-logo.png",
+      "artifactName": "Ve.AI-${arch}-${os}.${ext}",
+      "asar": true,
+      "asarUnpack": [
+        "**/node_modules/sharp/**/*",
+        "**/node_modules/@img/sharp-linux*/**/*",
+        "**/node_modules/@img/sharp-libvips-linux*/**/*"
+      ]
+    }
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest",
+      "plugin:prettier/recommended"
+    ]
+  },
+  "prettier": {
+    "printWidth": 100,
+    "trailingComma": "all",
+    "tabWidth": 4,
+    "semi": true,
+    "singleQuote": true,
+    "useTabs": true
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@electron/notarize": "^2.5.0",
+    "@electron/osx-sign": "^1.3.3",
+    "@eslint/js": "^9.27.0",
+    "@svgr/rollup": "^8.1.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@vitejs/plugin-react": "^4.4.1",
+    "@vitest/ui": "^3.2.4",
+    "autoprefixer": "^10.4.21",
+    "chokidar": "^4.0.3",
+    "cross-env": "^10.0.0",
+    "css-loader": "^7.1.2",
+    "cssnano": "^7.0.7",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12",
+    "electron-icon-builder": "^2.0.1",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.2.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.1.0",
+    "jsdom": "^26.1.0",
+    "msw": "^2.11.1",
+    "prettier": "^2.2.1",
+    "rimraf": "^6.0.1",
+    "sass": "^1.77.5",
+    "sass-loader": "^16.0.5",
+    "style-loader": "^4.0.0",
+    "vite": "^6.3.5",
+    "vite-bundle-visualizer": "^1.2.1",
+    "vitest": "^3.2.4"
+  }
 }
