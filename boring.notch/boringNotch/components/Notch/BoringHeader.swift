@@ -15,6 +15,7 @@ struct BoringHeader: View {
     @ObservedObject var coordinator = BoringViewCoordinator.shared
     @StateObject var tvm = TrayDrop.shared
     @State private var hoverVE = false
+    @State private var hoverHome = false
     @State private var hoverStealth = false
     @State private var hoverMirror = false
     @State private var hoverSettings = false
@@ -45,28 +46,51 @@ struct BoringHeader: View {
             HStack(spacing: 4) {
                 if vm.notchState == .open {
                     if coordinator.isMeetingStarted {
-                        HStack(spacing: 4) {
-                            Text(coordinator.formattedMeetingTime())
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                                .fixedSize(horizontal: true, vertical: false)
+                        Button(action: {
+                            // Only navigate if not already in meeting tab
+                            if coordinator.currentView != .meeting {
+                                withAnimation(.smooth) {
+                                    coordinator.currentView = .meeting
+                                    // Lock the notch to keep it open when navigating to meeting tab
+                                    if vm.isNotchLocked != true {
+                                        vm.toggleNotchLock()
+                                    }
+                                }
+                            }
+                        }) {
+                            HStack(spacing: 4) {
+                                Text(coordinator.formattedMeetingTime())
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
 
-                            Image(systemName: "waveform")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 12, height: 12)
-                                .foregroundColor(Color(red: 0.33, green: 0.44, blue: 0.97))
+                                Image(systemName: "waveform")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 12, height: 12)
+                                    .foregroundColor(Color(red: 0.33, green: 0.44, blue: 0.97))
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .frame(height: 24)
+                            .cornerRadius(24)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 24)
+                                    .inset(by: 0.25)
+                                    .stroke(.white.opacity(0.2), lineWidth: 0.5)
+                            )
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .frame(height: 24)
-                        .cornerRadius(24)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 24)
-                                .inset(by: 0.25)
-                                .stroke(.white.opacity(0.2), lineWidth: 0.5)
-                        )
+                        .buttonStyle(.plain)
+                        .onHover { isHovered in
+                            // Only show pointer cursor if not already in meeting tab
+                            if isHovered && coordinator.currentView != .meeting {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                        .disabled(coordinator.currentView == .meeting)
                     }
                     
                     // Home icon
@@ -88,10 +112,28 @@ struct BoringHeader: View {
                         .padding(.horizontal, 16)
                         .padding(.vertical, 6)
                         .frame(width: 32, height: 32, alignment: .center)
-                        .background(coordinator.currentView == .home ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear)
+                        .background(hoverHome ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : (coordinator.currentView == .home ? Color(red: 1, green: 1, blue: 1).opacity(0.15) : Color.clear))
                         .cornerRadius(32)
+                        .onHover { hover in
+                            hoverHome = hover
+                        }
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .overlay(alignment: .bottom) {
+                        if hoverHome {
+                            Text("Widgets")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.8))
+                                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                                .offset(y: 28)
+                                .fixedSize(horizontal: true, vertical: true)
+                                .zIndex(2000)
+                                .allowsHitTesting(false)
+                        }
+                    }
                     
                     // VE logo button (open app)
                     Button(action: {
@@ -121,7 +163,7 @@ struct BoringHeader: View {
                                 .padding(.vertical, 4)
                                 .background(Color.black.opacity(0.8))
                                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                                .offset(y: 28)
+                                .offset(x: -10, y: 28)
                                 .fixedSize(horizontal: true, vertical: true)
                                 .zIndex(2000)
                                 .allowsHitTesting(false)

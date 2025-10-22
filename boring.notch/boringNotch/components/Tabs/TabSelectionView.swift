@@ -25,9 +25,9 @@ struct TabModel: Identifiable {
 }
 
 let tabs = [
-    TabModel(label: "Email", displayStyle: .emailIcon, view: .email),
-    TabModel(label: "Shelf", displayStyle: .textLabel("Tray"), view: .shelf),
     TabModel(label: "Listen", displayStyle: .textLabel("Listen"), view: .meeting),
+    TabModel(label: "Email", displayStyle: .textLabel("Mail"), view: .email),
+    TabModel(label: "Shelf", displayStyle: .textLabel("Tray"), view: .shelf),
     TabModel(label: "Ask", displayStyle: .textLabel("Ask"), view: .ask)
 ]
 
