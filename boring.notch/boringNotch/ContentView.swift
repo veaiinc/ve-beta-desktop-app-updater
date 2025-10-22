@@ -69,11 +69,9 @@ struct ContentView: View {
                 )
                 .padding([.horizontal, .bottom], isNotchOpen ? 12 : 0)
                 .background {
-                    if isNotchOpen {
-                        Rectangle().fill(Material.regularMaterial)
-                    } else {
-                        Color.black
-                    }
+                    Rectangle()
+                        .fill(Color.black.opacity(0.1))
+                        .background(.ultraThinMaterial)
                 }
                 .mask {
                     if isNotchOpen {
