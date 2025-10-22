@@ -7,7 +7,7 @@ import Spinner from '../../components/loaders/Spinner';
 import ClockSvg from '../meetBot/clock.svg';
 import DownSvg from '../../../assets/svg/activity/DownSvg';
 
-const MeetSummary = ({ meetingId, handleActionClick }) => {
+const MeetSummary = ({ meetingId, handleActionClick, onErrorStateChange }) => {
 	const {
 		notes: { getMeetingAnalytics },
 		templates: { updateStateValues },
@@ -59,6 +59,13 @@ const MeetSummary = ({ meetingId, handleActionClick }) => {
 	useEffect(() => {
 		fetchMeetingAnalytics();
 	}, [meetingId]);
+
+	// Notify parent about error state changes
+	useEffect(() => {
+		if (onErrorStateChange) {
+			onErrorStateChange(!!error);
+		}
+	}, [error, onErrorStateChange]);
 
 	// Process analytics data for display
 	const processAnalyticsData = () => {

@@ -503,9 +503,7 @@ const OngoingMeeting = memo(() => {
 					</div>
 					<div className={s.ongoingMeetingFooter}>
 						{preparingSummary ? (
-							<div className={s.preparingSummaryText}>
-								Preparing meeting summary...
-							</div>
+							<ProgressBar />
 						) : (
 							<button
 								className={s.newChatButton}
@@ -589,6 +587,85 @@ const TranscriptPanel = ({ transcripts = [] }) => {
 				</div>
 			)}
 			<div ref={bottomRef} />
+		</div>
+	);
+};
+
+/**
+ * ProgressBar Component
+ *
+ * Features:
+ * - Fills from 0% to 90% over 30 seconds
+ * - Completes to 100% when API response is received (preparingSummary becomes false)
+ * - Shows "Preparing meeting summary..." during progress
+ * - Shows "Meeting summary ready!" when complete
+ * - Uses primary color for the progress bar fill
+ */
+const ProgressBar = () => {
+	const [progress, setProgress] = useState(0);
+	const [isComplete, setIsComplete] = useState(false);
+	const intervalRef = useRef(null);
+	const startTimeRef = useRef(null);
+
+	// Get preparingSummary from store to detect API completion
+	const { preparingSummary } = useStore((state) => state.meeting) || {};
+
+	useEffect(() => {
+		// Start the progress animation
+		startTimeRef.current = Date.now();
+		const duration = 30000; // 30 seconds
+		const targetProgress = 90; // 90%
+
+		intervalRef.current = setInterval(() => {
+			const elapsed = Date.now() - startTimeRef.current;
+			const currentProgress = Math.min((elapsed / duration) * targetProgress, targetProgress);
+
+			setProgress(currentProgress);
+
+			if (currentProgress >= targetProgress) {
+				clearInterval(intervalRef.current);
+			}
+		}, 50); // Update every 50ms for smooth animation
+
+		return () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+			}
+		};
+	}, []);
+
+	// Listen for API response completion via store changes
+	useEffect(() => {
+		// When preparingSummary becomes false, complete the progress bar
+		if (!preparingSummary && progress >= 90 && !isComplete) {
+			setProgress(100);
+			setIsComplete(true);
+		}
+	}, [preparingSummary, progress, isComplete]);
+
+	// Fallback: Complete after 30 seconds if API doesn't respond
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			if (progress >= 90 && !isComplete) {
+				setProgress(100);
+				setIsComplete(true);
+			}
+		}, 30000);
+
+		return () => clearTimeout(timeout);
+	}, [progress, isComplete]);
+
+	// The progress bar will automatically complete when preparingSummary becomes false
+	// No additional integration needed - it listens to the store state
+
+	return (
+		<div className={s.progressBarContainer}>
+			<div className={s.progressBar}>
+				<div className={s.progressBarFill} style={{ width: `${progress}%` }} />
+			</div>
+			<div className={s.progressBarText}>
+				{isComplete ? 'Meeting summary ready!' : 'Preparing meeting summary...'}
+			</div>
 		</div>
 	);
 };

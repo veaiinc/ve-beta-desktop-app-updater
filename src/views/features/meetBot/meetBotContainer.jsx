@@ -184,7 +184,21 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [meetingId]);
 	const [isLoadingMeetingDetails, setIsLoadingMeetingDetails] = useState(false);
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
+	const [hasSummaryError, setHasSummaryError] = useState(false);
 	const location = useLocation();
+
+	// Handle summary error state changes
+	const handleSummaryErrorChange = useCallback(
+		(hasError) => {
+			setHasSummaryError(hasError);
+			// Don't redirect - let user stay on Summary tab to see "No Summary" content
+			// Only redirect from Analytics and Meeting Intelligence tabs
+			if (hasError && (activeTab === 'analytics' || activeTab === 'all')) {
+				setActiveTab('summary');
+			}
+		},
+		[activeTab],
+	);
 
 	// Convert hashmap to categorized arrays for UI
 	const categorizeLiveIntelligenceData = useCallback((hashmap) => {
@@ -774,6 +788,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 								history={history}
 								allSuggestions={info?.allSuggestions}
 								type={type}
+								hasSummaryError={hasSummaryError}
 							/>
 						)}
 					</div>
@@ -882,6 +897,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 							activeTab={activeTab}
 							meetingId={meetingId}
 							handleActionClick={handleActionClick}
+							onErrorStateChange={handleSummaryErrorChange}
 						/>
 					)}
 					{showTranscriptTabs && activeTab === 'analytics' && (
