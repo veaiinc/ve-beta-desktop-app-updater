@@ -10,11 +10,13 @@ import { useStore, storeActions } from '../../../store/store';
 import { useDispatch } from '@zubridge/electron';
 import { message } from '../../components/globalComponents/CustomToast';
 import Spinner from '../../components/loaders/Spinner';
+import InfiniteScroll from '../../components/globalComponents/InfiniteScroll';
+import { FetchMoreLoaderComp } from '../../../helpers';
 
 
 
 // Upcoming Meetings List Component
-const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, getMeetingStatus }) => {
+const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, getMeetingStatus, hasMore, fetchMore, loading }) => {
 	// Group meetings by date (same as past meetings)
 	const groupMeetingsByDate = (meetings) => {
 		const grouped = {};
@@ -43,51 +45,53 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 	};
 
 	const formatTime = (dateTime) => {
-		return moment(dateTime).format('h:mm A');
+		const time = moment(dateTime).format('h:mm A');
+		const date = moment(dateTime).format('Do MMM');
+		return `${time} ${date}`;
 	};
 
-	const getParticipantsDisplay = (meeting) => {
-		let participants = [];
+	// const getParticipantsDisplay = (meeting) => {
+	// 	let participants = [];
 
-		// Collect all participants
-		if (meeting.participants && meeting.participants.length > 0) {
-			participants = meeting.participants;
-		} else if (meeting.attendees && meeting.attendees.length > 0) {
-			participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
-		} else if (meeting.organizer?.name) {
-			participants = [meeting.organizer.name];
-		}
+	// 	// Collect all participants
+	// 	if (meeting.participants && meeting.participants.length > 0) {
+	// 		participants = meeting.participants;
+	// 	} else if (meeting.attendees && meeting.attendees.length > 0) {
+	// 		participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
+	// 	} else if (meeting.organizer?.name) {
+	// 		participants = [meeting.organizer.name];
+	// 	}
 
-		if (participants.length === 0) {
-			return <span className="no-participants">No participants</span>;
-		}
+	// 	if (participants.length === 0) {
+	// 		return <span className="no-participants">No participants</span>;
+	// 	}
 
-		// Show first participant name, then +count for others
-		const firstParticipant = participants[0];
-		const remainingCount = participants.length - 1;
+	// 	// Show first participant name, then +count for others
+	// 	const firstParticipant = participants[0];
+	// 	const remainingCount = participants.length - 1;
 
-		return (
-			<div className="participants-display">
-				<span className="first-participant">{firstParticipant}</span>
-				{remainingCount > 0 && (
-					<div className="participant-count-container">
-						<span className="participant-count">+{remainingCount}</span>
-						<div className="participants-popup">
-							<div className="popup-header">Attendees</div>
-							<div className="popup-separator"></div>
-							<div className="popup-list">
-								{participants.map((participant, index) => (
-									<div key={index} className="popup-participant">
-										<span className="participant-email">{participant}</span>
-									</div>
-								))}
-							</div>
-						</div>
-					</div>
-				)}
-			</div>
-		);
-	};
+	// 	return (
+	// 		<div className="participants-display">
+	// 			<span className="first-participant">{firstParticipant}</span>
+	// 			{remainingCount > 0 && (
+	// 				<div className="participant-count-container">
+	// 					<span className="participant-count">+{remainingCount}</span>
+	// 					<div className="participants-popup">
+	// 						<div className="popup-header">Attendees</div>
+	// 						<div className="popup-separator"></div>
+	// 						<div className="popup-list">
+	// 							{participants.map((participant, index) => (
+	// 								<div key={index} className="popup-participant">
+	// 									<span className="participant-email">{participant}</span>
+	// 								</div>
+	// 							))}
+	// 						</div>
+	// 					</div>
+	// 				</div>
+	// 			)}
+	// 		</div>
+	// 	);
+	// };
 
 	const groupedMeetings = groupMeetingsByDate(meetings);
 
@@ -98,62 +102,71 @@ const UpcomingMeetingsList = ({ meetings, onMeetingClick, creatingMeetingId, get
 
 	return (
 		<div className='upcoming-meetings-list'>
-			{sortedDateKeys.map((date) => (
-				<div key={date} className='meetings-group'>
-					<div className='meetings-group-title'>{date}</div>
-					{groupedMeetings[date].map((meeting) => {
-						const status = getMeetingStatus(meeting);
-						const isCreating = creatingMeetingId === meeting._id;
-						const isClickable = status === 'Now' || status === 'Starting soon';
+			<InfiniteScroll
+				dataLength={meetings.length}
+				next={fetchMore}
+				hasMore={hasMore}
+				loader={<FetchMoreLoaderComp text="" />}
+				scrollThreshold={0.8}
+				scrollableTarget="meetingsListContainer"
+			>
+				{sortedDateKeys.map((date) => (
+					<div key={date} className='meetings-group'>
+						<div className='meetings-group-title'>{date}</div>
+						{groupedMeetings[date].map((meeting) => {
+							const status = getMeetingStatus(meeting);
+							const isCreating = creatingMeetingId === meeting._id;
+							const isClickable = status === 'Now' || status === 'Starting soon';
 
-						return (
-							<div
-								key={meeting._id}
-								className={`card-meet-bot-list-item upcoming ${isCreating ? 'creating' : ''} ${!isClickable ? 'non-clickable' : ''}`}
-								onClick={() => {
-									if (isCreating || !isClickable) return;
-									onMeetingClick(meeting);
-								}}
-							>
-								<div className='card-meet-bot-list-item-header'>
-									<div className='card-meet-bot-list-item-title'>{meeting.title}</div>
-									<div className='card-meet-bot-list-item-time'>{formatTime(meeting.startDateTime)}</div>
-								</div>
-								<div className='card-meet-bot-list-item-description'>
-									{getParticipantsDisplay(meeting)}
-								</div>
-								{status && (
-									<div className='card-meet-bot-list-item-status'>
-										{isCreating ? (
-											<>
-												<Spinner width="12px" height="12px" color="white" borderTopColor="transparent" borderWidth={2} />
-												Creating...
-											</>
-										) : (
-											status
-										)}
+							return (
+								<div
+									key={meeting._id}
+									className={`card-meet-bot-list-item upcoming ${isCreating ? 'creating' : ''} ${!isClickable ? 'non-clickable' : ''}`}
+									onClick={() => {
+										if (isCreating || !isClickable) return;
+										onMeetingClick(meeting);
+									}}
+								>
+									<div className='card-meet-bot-list-item-header'>
+										<div className='card-meet-bot-list-item-title'>{meeting.title}</div>
+										<div className='card-meet-bot-list-item-time'>{formatTime(meeting.startDateTime)} </div>
 									</div>
-								)}
-							</div>
-						);
-					})}
-				</div>
-			))}
-
-			{meetings.length === 0 && (
-				<div className='card-meet-empty-state'>
-					<div className='card-meet-empty-title'>No upcoming meetings</div>
-					<div className='card-meet-empty-description'>
-						Your upcoming meetings will appear here
+									{/* <div className='card-meet-bot-list-item-description'>
+										{getParticipantsDisplay(meeting)}
+									</div> */}
+									{status && (
+										<div className='card-meet-bot-list-item-status'>
+											{isCreating ? (
+												<>
+													<Spinner width="12px" height="12px" color="white" borderTopColor="transparent" borderWidth={2} />
+													Creating...
+												</>
+											) : (
+												status
+											)}
+										</div>
+									)}
+								</div>
+							);
+						})}
 					</div>
-				</div>
-			)}
+				))}
+
+				{meetings.length === 0 && !loading && (
+					<div className='card-meet-empty-state'>
+						<div className='card-meet-empty-title'>No upcoming meetings</div>
+						<div className='card-meet-empty-description'>
+							Your upcoming meetings will appear here
+						</div>
+					</div>
+				)}
+			</InfiniteScroll>
 		</div>
 	);
 };
 
 // Past Meetings List Component
-const PastMeetingsList = ({ meetings, onMeetingClick }) => {
+const PastMeetingsList = ({ meetings, onMeetingClick, hasMore, fetchMore, loading }) => {
 	// Group meetings by date
 	const groupMeetingsByDate = (meetings) => {
 		const grouped = {};
@@ -173,85 +186,96 @@ const PastMeetingsList = ({ meetings, onMeetingClick }) => {
 	};
 
 	const formatTime = (timestamp) => {
-		return moment.unix(timestamp).format('h:mm A');
+		const time = moment.unix(timestamp).format('h:mm A');
+		const date = moment.unix(timestamp).format('Do MMM');
+		return <span className='card-meet-bot-list-item-time'>{time} &nbsp; {date}</span>;
 	};
 
-	const getParticipantsDisplay = (meeting) => {
-		let participants = [];
+	// const getParticipantsDisplay = (meeting) => {
+	// 	let participants = [];
 
-		// Collect all participants
-		if (meeting.participants && meeting.participants.length > 0) {
-			participants = meeting.participants;
-		} else if (meeting.attendees && meeting.attendees.length > 0) {
-			participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
-		} else if (meeting.createdBy?.name) {
-			participants = [meeting.createdBy.name];
-		}
+	// 	// Collect all participants
+	// 	if (meeting.participants && meeting.participants.length > 0) {
+	// 		participants = meeting.participants;
+	// 	} else if (meeting.attendees && meeting.attendees.length > 0) {
+	// 		participants = meeting.attendees.map(attendee => attendee.email || attendee.name);
+	// 	} else if (meeting.createdBy?.name) {
+	// 		participants = [meeting.createdBy.name];
+	// 	}
 
-		if (participants.length === 0) {
-			return <span className="no-participants">No participants</span>;
-		}
+	// 	if (participants.length === 0) {
+	// 		return <span className="no-participants">No participants</span>;
+	// 	}
 
-		// Show first participant name, then +count for others
-		const firstParticipant = participants[0];
-		const remainingCount = participants.length - 1;
+	// 	// Show first participant name, then +count for others
+	// 	const firstParticipant = participants[0];
+	// 	const remainingCount = participants.length - 1;
 
-		return (
-			<div className="participants-display">
-				<span className="first-participant">{firstParticipant}</span>
-				{remainingCount > 0 && (
-					<div className="participant-count-container">
-						<span className="participant-count">+{remainingCount}</span>
-						<div className="participants-popup">
-							<div className="popup-header">Attendees</div>
-							<div className="popup-separator"></div>
-							<div className="popup-list">
-								{participants.map((participant, index) => (
-									<div key={index} className="popup-participant">
-										<span className="participant-email">{participant}</span>
-									</div>
-								))}
-							</div>
-						</div>
-					</div>
-				)}
-			</div>
-		);
-	};
+	// 	return (
+	// 		<div className="participants-display">
+	// 			<span className="first-participant">{firstParticipant}</span>
+	// 			{remainingCount > 0 && (
+	// 				<div className="participant-count-container">
+	// 					<span className="participant-count">+{remainingCount}</span>
+	// 					<div className="participants-popup">
+	// 						<div className="popup-header">Attendees</div>
+	// 						<div className="popup-separator"></div>
+	// 						<div className="popup-list">
+	// 							{participants.map((participant, index) => (
+	// 								<div key={index} className="popup-participant">
+	// 									<span className="participant-email">{participant}</span>
+	// 								</div>
+	// 							))}
+	// 						</div>
+	// 					</div>
+	// 				</div>
+	// 			)}
+	// 		</div>
+	// 	);
+	// };
 
 	const groupedMeetings = groupMeetingsByDate(meetings);
 
 	return (
 		<div className='past-meetings-list'>
-			{Object.keys(groupedMeetings).map((date) => (
-				<div key={date} className='meetings-group'>
-					<div className='meetings-group-title'>{date}</div>
-					{groupedMeetings[date].map((meeting) => (
-						<div
-							key={meeting._id}
-							className='card-meet-bot-list-item past'
-							onClick={() => onMeetingClick(meeting)}
-						>
-							<div className='card-meet-bot-list-item-header'>
-								<div className='card-meet-bot-list-item-title'>{meeting.title}</div>
-								<div className='card-meet-bot-list-item-time'>{formatTime(meeting.createdAt)}</div>
+			<InfiniteScroll
+				dataLength={meetings.length}
+				next={fetchMore}
+				hasMore={hasMore}
+				loader={<FetchMoreLoaderComp text="" />}
+				scrollThreshold={0.8}
+				scrollableTarget="meetingsListContainer"
+			>
+				{Object.keys(groupedMeetings).map((date) => (
+					<div key={date} className='meetings-group'>
+						<div className='meetings-group-title'>{date}</div>
+						{groupedMeetings[date].map((meeting) => (
+							<div
+								key={meeting._id}
+								className='card-meet-bot-list-item past'
+								onClick={() => onMeetingClick(meeting)}
+							>
+								<div className='card-meet-bot-list-item-header'>
+									<div className='card-meet-bot-list-item-title'>{meeting.title}</div>
+									<div className='card-meet-bot-list-item-time'>{formatTime(meeting.createdAt)}</div>
+								</div>
+								{/* <div className='card-meet-bot-list-item-description'>
+									{getParticipantsDisplay(meeting)}
+								</div> */}
 							</div>
-							<div className='card-meet-bot-list-item-description'>
-								{getParticipantsDisplay(meeting)}
-							</div>
-						</div>
-					))}
-				</div>
-			))}
-
-			{meetings.length === 0 && (
-				<div className='card-meet-empty-state'>
-					<div className='card-meet-empty-title'>No past meetings</div>
-					<div className='card-meet-empty-description'>
-						Your completed meetings will appear here
+						))}
 					</div>
-				</div>
-			)}
+				))}
+
+				{meetings.length === 0 && !loading && (
+					<div className='card-meet-empty-state'>
+						<div className='card-meet-empty-title'>No past meetings</div>
+						<div className='card-meet-empty-description'>
+							Your completed meetings will appear here
+						</div>
+					</div>
+				)}
+			</InfiniteScroll>
 		</div>
 	);
 };
@@ -280,15 +304,19 @@ const CardMeetBot = () => {
 	const { pastMeetings, activeMeetingId, upcomingMeetings } =
 		useStore((state) => state.meeting) || {};
 
+
+
 	// Get meetings based on active tab
 	const meetings = useMemo(() => {
 		if (info.activeTab === 'upcoming') {
 			const upcomingData = upcomingMeetings?.data || [];
 			const pastData = pastMeetings?.data || [];
 
+
+
 			// Filter out past meetings (endDateTime <= now) and meetings that have already been created
 			const now = moment.utc();
-			return upcomingData.filter((meeting) => {
+			const filteredMeetings = upcomingData.filter((meeting) => {
 				// Filter out meetings that have already ended
 				if (meeting.endDateTime) {
 					const endTime = moment.utc(meeting.endDateTime);
@@ -319,11 +347,17 @@ const CardMeetBot = () => {
 						);
 					}
 
+
+
 					return titleMatch && timeMatch;
 				});
 
 				return !hasBeenCreated;
 			});
+
+
+
+			return filteredMeetings;
 		}
 		return pastMeetings?.data || [];
 	}, [info.activeTab, pastMeetings?.data, upcomingMeetings?.data, currentTime]);
@@ -336,17 +370,19 @@ const CardMeetBot = () => {
 	}, [info.activeTab, pastMeetings?.data, upcomingMeetings?.data]);
 
 	const hasNextPage = useMemo(() => {
-		if (info.activeTab === 'upcoming') {
-			return upcomingMeetings?.hasNextPage || false;
-		}
-		return pastMeetings?.hasNextPage || false;
+		const result = info.activeTab === 'upcoming'
+			? upcomingMeetings?.hasNextPage || false
+			: pastMeetings?.hasNextPage || false;
+
+		return result;
 	}, [info.activeTab, pastMeetings?.hasNextPage, upcomingMeetings?.hasNextPage]);
 
 	const nextPage = useMemo(() => {
-		if (info.activeTab === 'upcoming') {
-			return upcomingMeetings?.nextPage || 1;
-		}
-		return pastMeetings?.nextPage || 1;
+		const result = info.activeTab === 'upcoming'
+			? upcomingMeetings?.nextPage || 1
+			: pastMeetings?.nextPage || 1;
+
+		return result;
 	}, [info.activeTab, pastMeetings?.nextPage, upcomingMeetings?.nextPage]);
 
 	const totalDocs = useMemo(() => {
@@ -401,9 +437,9 @@ const CardMeetBot = () => {
 
 					payload = {
 						data: mergedData,
-						hasNextPage: data.hasNextPage,
-						nextPage: data.nextPage,
-						totalDocs: data.totalDocs,
+						hasNextPage: data?.hasNextPage || false,
+						nextPage: data?.nextPage || 1,
+						totalDocs: data?.totalDocs || 0,
 						append: params.append || false,
 					};
 				}
@@ -434,7 +470,6 @@ const CardMeetBot = () => {
 				let payload = {};
 
 				if (result[0]) {
-					console.log('result==>handleGetUpcomingMeetings', result);
 
 					const data = result[1];
 					const currentPageMeetingsList = data?.data || [];
@@ -465,9 +500,9 @@ const CardMeetBot = () => {
 
 					payload = {
 						data: mergedData,
-						hasNextPage: data.hasNextPage,
-						nextPage: data.nextPage,
-						totalDocs: data.totalDocs,
+						hasNextPage: data?.hasNextPage || false,
+						nextPage: data?.nextPage || 1,
+						totalDocs: data?.totalDocs || 0,
 						append: params.append || false,
 					};
 				}
@@ -484,6 +519,19 @@ const CardMeetBot = () => {
 		},
 		[getAllCalendarEventsForMeetings, dispatch, upcomingMeetings?.data],
 	);
+
+	// Fetch more functions for infinite scroll
+	const fetchMoreUpcomingMeetings = useCallback(() => {
+		if (hasNextPage && !info.apiFetching) {
+			handleGetUpcomingMeetings({ page: nextPage, limit: 10, append: true });
+		}
+	}, [hasNextPage, info.apiFetching, nextPage, handleGetUpcomingMeetings]);
+
+	const fetchMorePastMeetings = useCallback(() => {
+		if (hasNextPage && !info.apiFetching) {
+			handleGetExistingBots({ page: nextPage, limit: 10, append: true });
+		}
+	}, [hasNextPage, info.apiFetching, nextPage, handleGetExistingBots]);
 
 	// Load existing bots when component mounts
 	useEffect(() => {
@@ -724,21 +772,21 @@ const CardMeetBot = () => {
 									className={`card-meet-tab-item ${info.activeTab === 'upcoming' ? 'active' : ''}`}
 									onClick={() => handleTabChange('upcoming')}
 								>
-									<div className='card-meet-tab-indicator'></div>
+									{/* <div className='card-meet-tab-indicator'></div> */}
 									<div className='card-meet-tab-item-title'>Upcoming</div>
-									<div className='card-meet-tab-item-count'>{upcomingMeetings?.data?.length || 0}</div>
+									<div className='card-meet-tab-item-count'>{upcomingMeetings?.totalDocs || 0}</div>
 								</div>
 								<div
 									className={`card-meet-tab-item ${info.activeTab === 'past' ? 'active' : ''}`}
 									onClick={() => handleTabChange('past')}
 								>
-									<div className='card-meet-tab-indicator'></div>
+									{/* <div className='card-meet-tab-indicator'></div> */}
 									<div className='card-meet-tab-item-title'>Past</div>
-									<div className='card-meet-tab-item-count'>{pastMeetings?.data?.length || 0}</div>
+									<div className='card-meet-tab-item-count'>{pastMeetings?.totalDocs || 0}</div>
 								</div>
 							</div>
 
-							<div className='card-meet-bot-list'>
+							<div className='card-meet-bot-list' id="meetingsListContainer">
 								{loadingMeetings ? (
 									<div className='card-meet-loading'>
 										<Spinner width="20px" height="20px" color="var(--primary-button)" />
@@ -752,6 +800,9 @@ const CardMeetBot = () => {
 											onMeetingClick={handleCreateMeetingFromUpcoming}
 											creatingMeetingId={info.creatingMeetingId}
 											getMeetingStatus={getMeetingStatus}
+											hasMore={hasNextPage}
+											fetchMore={fetchMoreUpcomingMeetings}
+											loading={info.apiFetching}
 										/>
 									) : (
 										<div className='card-meet-empty-state'>
@@ -773,6 +824,9 @@ const CardMeetBot = () => {
 													navigate(`/meet/${meeting?._id}?type=${meeting?.transcriptionSource}&history=true`);
 												}
 											}}
+											hasMore={hasNextPage}
+											fetchMore={fetchMorePastMeetings}
+											loading={info.apiFetching}
 										/>
 									) : (
 										<div className='card-meet-empty-state'>

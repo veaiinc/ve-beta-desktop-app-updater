@@ -1,4 +1,3 @@
-
 // main.js
 // TODO: PERFORMANCE - This file is 5097 lines and handles too many responsibilities
 // TODO: PERFORMANCE - Break into modular services: WindowService, IPCService, NotificationService, etc.
