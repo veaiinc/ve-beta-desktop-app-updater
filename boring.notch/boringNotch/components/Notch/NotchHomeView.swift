@@ -694,6 +694,13 @@ struct NotchHomeView: View {
 .background(Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25))
 
 .cornerRadius(100)
+.overlay(
+RoundedRectangle(cornerRadius: 100)
+.inset(by: 0.3)
+.stroke(.white.opacity(0.1), lineWidth: 0.6)
+
+)
+// .blur(radius: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
                         
@@ -729,6 +736,12 @@ struct NotchHomeView: View {
                                 .frame(width: 42, height: 42, alignment: .center)
                                .background(Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25))
                                 .cornerRadius(21)
+                                .overlay(
+RoundedRectangle(cornerRadius: 100)
+.inset(by: 0.3)
+.stroke(.white.opacity(0.1), lineWidth: 0.6)
+
+)
                             }
                             .buttonStyle(PlainButtonStyle())
                             .overlay(alignment: .leading) {
@@ -771,6 +784,12 @@ struct NotchHomeView: View {
                                 .frame(width: 42, height: 42, alignment: .center)
                                 .background(Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25))
                                 .cornerRadius(21)
+                            .overlay(
+RoundedRectangle(cornerRadius: 100)
+.inset(by: 0.3)
+.stroke(.white.opacity(0.1), lineWidth: 0.6)
+
+)
                             }
                             .buttonStyle(PlainButtonStyle())
                             .overlay(alignment: .trailing) {
