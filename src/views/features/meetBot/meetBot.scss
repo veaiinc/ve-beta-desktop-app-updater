@@ -1335,6 +1335,8 @@
 		gap: 24px;
 		margin-bottom: 24px;
 		padding: 0 4px;
+		max-width: 500px;
+		width: 100%;
 
 		.card-meet-tab-item {
 			display: flex;
@@ -1342,10 +1344,13 @@
 			gap: 8px;
 			cursor: pointer;
 			position: relative;
-			padding: 8px 0;
+			padding: 6px 12px;
+			border-radius: 100px;
+
 			transition: all 0.2s ease;
 
 			&.active {
+				background: rgba(255, 255, 255, 0.1);
 				.card-meet-tab-item-title {
 					color: var(--primary-font, #f2f2f3);
 					font-weight: 600;
@@ -1535,7 +1540,8 @@
 			display: flex;
 			align-items: center;
 			gap: 6px;
-			background: var(--primary-button, #79ecc9);
+			// background: var(--primary-button, #79ecc9);
+			background: var(--primary-button-h, #ffffff);
 			color: var(--font-primary-color, #121212);
 			padding: 4px 8px;
 			border-radius: 6px;
@@ -1578,7 +1584,8 @@
 			align-items: center;
 			gap: 8px;
 			border-radius: 24px;
-			background: var(--primary-button, #79ecc9);
+			background: var(--primary-button-h, #ffffff);
+			// background: var(--primary-button, #79ecc9);
 			color: var(--font-primary-color, #121212);
 			font-family: var(--primary-font-family);
 			font-size: 14px;
