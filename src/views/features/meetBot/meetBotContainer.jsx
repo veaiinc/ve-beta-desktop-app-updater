@@ -92,6 +92,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	const history = searchParams.get('history') === 'true' ? true : false;
 	const chat = searchParams.get('chat') === 'true' ? true : false;
 	const transcription = searchParams.get('transcription') === 'true' ? true : false;
+	const analyticsPreGenerated =
+		searchParams.get('analyticsPreGenerated') === 'true' ? true : false;
 	const useAssemblyAI =
 		searchParams.get('useAssemblyAI') === 'true' ||
 		(type === 'in_app_meeting' && searchParams.get('useAssemblyAI') !== 'false');
@@ -139,14 +141,15 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 		if (
 			summaryInProgress &&
 			summaryInProgress.length > 0 &&
-			summaryInProgress.includes(meetingId)
+			summaryInProgress.includes(meetingId) &&
+			!analyticsPreGenerated
 		) {
-			// Only show loading if we don't already have analytics data
+			// Only show loading if we don't already have analytics data and analytics weren't pre-generated
 			checkIfShouldShowLoading();
 		} else {
 			setInfo((prev) => ({ ...prev, summaryInProgress: false }));
 		}
-	}, [JSON.stringify(summaryInProgress), meetingId]);
+	}, [JSON.stringify(summaryInProgress), meetingId, analyticsPreGenerated]);
 
 	// Check if we should show loading state based on existing analytics data
 	const checkIfShouldShowLoading = useCallback(async () => {
@@ -155,10 +158,8 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			const [success, data] = await getMeetingAnalytics(meetingId);
 
 			if (success && data) {
-				console.log('Analytics data already exists, not showing loading state');
 				setInfo((prev) => ({ ...prev, summaryInProgress: false }));
 			} else {
-				console.log('No analytics data found, showing loading state');
 				setInfo((prev) => ({ ...prev, summaryInProgress: true }));
 			}
 		} catch (error) {
@@ -167,12 +168,10 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 			setInfo((prev) => ({ ...prev, summaryInProgress: true }));
 		}
 	}, [meetingId, getMeetingAnalytics]);
-	console.log('info', info);
 
 	// Generate meeting analytics (without audio recording)
 	const generateMeetingAnalytics = useCallback(async () => {
 		try {
-			console.log('Generating meeting analytics for meeting:', meetingId);
 			const result = await audioStorageService.generateMeetingAnalytics(meetingId);
 			if (result.success) {
 				console.log('Successfully generated meeting analytics');
@@ -185,7 +184,21 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [meetingId]);
 	const [isLoadingMeetingDetails, setIsLoadingMeetingDetails] = useState(false);
 	const [meetingNotFound, setMeetingNotFound] = useState(false);
+	const [hasSummaryError, setHasSummaryError] = useState(false);
 	const location = useLocation();
+
+	// Handle summary error state changes
+	const handleSummaryErrorChange = useCallback(
+		(hasError) => {
+			setHasSummaryError(hasError);
+			// Don't redirect - let user stay on Summary tab to see "No Summary" content
+			// Only redirect from Analytics and Meeting Intelligence tabs
+			if (hasError && (activeTab === 'analytics' || activeTab === 'all')) {
+				setActiveTab('summary');
+			}
+		},
+		[activeTab],
+	);
 
 	// Convert hashmap to categorized arrays for UI
 	const categorizeLiveIntelligenceData = useCallback((hashmap) => {
@@ -412,7 +425,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				setIsLoadingMeetingDetails(false);
 			});
 		}
-	}, [meetingId]);
+	}, []);
 
 	// Check if meeting was not found after loading
 	useEffect(() => {
@@ -423,15 +436,21 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	useEffect(() => {
 		if (createBotInfo && meetingId === createBotInfo?._id) {
-			if (!valuesInitializedRef.current) {
-				valuesInitializedRef.current = true;
-				setInfo((prev) => ({
-					...prev,
+			// Always update the title when createBotInfo changes, but only initialize other values once
+			setInfo((prev) => ({
+				...prev,
+				meetingTitle: createBotInfo?.title,
+				// Only set these values if they haven't been initialized yet
+				...(prev.meetingTitle === '' && {
 					botJoined: createBotInfo?.status === 'live',
 					botJoinedTime: createBotInfo?.botJoinedAt,
 					meetingPlatform: createBotInfo?.meetingPlatform,
-					meetingTitle: createBotInfo?.title,
-				}));
+				}),
+			}));
+
+			// Mark as initialized after first update
+			if (!valuesInitializedRef.current) {
+				valuesInitializedRef.current = true;
 			}
 		}
 	}, [createBotInfo]);
@@ -578,31 +597,27 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 	}, [activeTab]);
 
 	// Generate meeting analytics when meeting ends (when history becomes true)
-	// Only generate if analytics data doesn't already exist
+	// Only generate if analytics data doesn't already exist and wasn't pre-generated
 	useEffect(() => {
 		// When history becomes true, it means the meeting has ended and we're viewing history
-		if (history === true && meetingId) {
+		if (history === true && meetingId && !analyticsPreGenerated) {
 			// Check if analytics data already exists before generating
 			checkAndGenerateAnalytics();
 		}
-	}, [history, meetingId]);
+	}, [history, meetingId, analyticsPreGenerated]);
 
 	// Check if analytics data exists and only generate if needed
 	const checkAndGenerateAnalytics = useCallback(async () => {
 		try {
-			console.log('Checking if analytics already exist for meeting:', meetingId);
-
 			// First, try to fetch existing analytics data
 			const [success, data] = await getMeetingAnalytics(meetingId);
 
 			if (success && data) {
-				console.log('Analytics data already exists for meeting:', meetingId);
 				// Analytics already exist, no need to generate
 				return;
 			}
 
 			// If no analytics data exists, then generate it
-			console.log('No analytics data found, generating analytics for meeting:', meetingId);
 			generateMeetingAnalytics();
 		} catch (error) {
 			console.error('Error checking analytics data:', error);
@@ -779,6 +794,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 								history={history}
 								allSuggestions={info?.allSuggestions}
 								type={type}
+								hasSummaryError={hasSummaryError}
 							/>
 						)}
 					</div>
@@ -887,6 +903,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 							activeTab={activeTab}
 							meetingId={meetingId}
 							handleActionClick={handleActionClick}
+							onErrorStateChange={handleSummaryErrorChange}
 						/>
 					)}
 					{showTranscriptTabs && activeTab === 'analytics' && (

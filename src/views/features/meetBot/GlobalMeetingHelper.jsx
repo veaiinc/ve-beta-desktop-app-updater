@@ -160,6 +160,7 @@ const GlobalMeetingHelper = () => {
 		toggleMute,
 		// formatTime,
 		startRecording,
+		toggleAiIntelligence,
 	} = useAssemblyTranscription({
 		onTranscriptionUpdate: updateTranscriptionHelper,
 		onLiveIntelligenceResponse: updateLiveIntelligenceDataHelper,
@@ -283,6 +284,20 @@ const GlobalMeetingHelper = () => {
 		}
 	};
 
+	useEffect(() => {
+		if (activeMeetingDetails?.transcriptions) {
+			window.electronApi.sendTranscriptionDataToNotch(activeMeetingDetails?.transcriptions);
+		}
+	}, [activeMeetingDetails?.transcriptions]);
+
+	useEffect(() => {
+		if (activeMeetingDetails?.liveIntelligenceData) {
+			window.electronApi.sendLiveIntelligenceDataToNotch(
+				activeMeetingDetails?.liveIntelligenceData?.allThreads,
+			);
+		}
+	}, [activeMeetingDetails?.liveIntelligenceData]);
+
 	const handleStopTranscription = async () => {
 		// Set stopping flag to prevent further processing
 		isStoppingRef.current = true;
@@ -305,7 +320,7 @@ const GlobalMeetingHelper = () => {
 			},
 		});
 
-		stopRecording({ meetingId: info?.meetingData?._id });
+		await stopRecording({ meetingId: info?.meetingData?._id });
 
 		// Generate meeting analytics when meeting ends (only if not already exists)
 		if (currentMeetingId) {
@@ -553,6 +568,14 @@ const GlobalMeetingHelper = () => {
 					console.log('📊 Dynamic Island: Getting recording state...');
 					// Send current state back to Dynamic Island
 					sendRecordingStateUpdate();
+					break;
+				case 'enableAiIntelligence':
+					console.log('🔍 Dynamic Island: Enabling AI Intelligence...');
+					toggleAiIntelligence(true);
+					break;
+				case 'disableAiIntelligence':
+					console.log('🔍 Dynamic Island: Disabling AI Intelligence...');
+					toggleAiIntelligence(false);
 					break;
 				default:
 					console.warn('❓ Unknown Dynamic Island command:', event.action);

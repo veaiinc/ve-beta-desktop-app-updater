@@ -1296,6 +1296,66 @@ action: 'toggle_microphone_mute'
 		}
 	}
 
+	// Replace entire live intelligence data array in NotchDrop
+	async replaceLiveIntelligenceData(liveIntelligenceArray) {
+		try {
+			if (!this.isInitialized) {
+				log.warn('NotchDrop not initialized, cannot replace live intelligence data');
+				return false;
+			}
+
+			// Console log the live intelligence data replacement in NotchDrop service
+			console.log(
+				'🧠 NotchDrop Service: Replacing live intelligence data with',
+				liveIntelligenceArray?.length || 0,
+				'items',
+			);
+
+			// Send to Swift via native addon
+			if (this.notchDropAddon && this.notchDropAddon.replaceLiveIntelligenceData) {
+				// Convert array to the format expected by Swift
+				const formattedData = (liveIntelligenceArray || []).map((item) => ({
+					sender: 'ai-agent',
+					content: item.prompt || item.text || '',
+					isFromAgent: true,
+					timestamp: item.timestamp || item.created_at || new Date().toISOString(),
+					confidence: item.confidence,
+					type: 'live-intelligence',
+					metadata: item,
+				}));
+
+				this.notchDropAddon.replaceLiveIntelligenceData(formattedData);
+				console.log('✅ Live intelligence data array replaced in NotchDrop native addon');
+			} else {
+				console.warn('⚠️ replaceLiveIntelligenceData method not available on addon');
+			}
+
+			// Also send via WebSocket to BoringNotch for consistency
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				try {
+					await this.mainWindow.webContents.executeJavaScript(`
+						if (window.electronApi && window.electronApi.sendLiveIntelligenceDataToNotch) {
+							window.electronApi.sendLiveIntelligenceDataToNotch(${JSON.stringify(liveIntelligenceArray)});
+						}
+					`);
+					console.log(
+						'✅ Live intelligence data array sent to BoringNotch via WebSocket',
+					);
+				} catch (wsError) {
+					console.warn(
+						'⚠️ Failed to send live intelligence data to BoringNotch via WebSocket:',
+						wsError,
+					);
+				}
+			}
+
+			return true;
+		} catch (error) {
+			console.error('❌ Error replacing live intelligence data in NotchDrop:', error);
+			return false;
+		}
+	}
+
 	// Clear live intelligence data in NotchDrop
 	async clearLiveIntelligenceData() {
 		try {

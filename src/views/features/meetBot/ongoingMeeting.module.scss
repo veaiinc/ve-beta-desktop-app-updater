@@ -31,15 +31,17 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			width: 20px;
-			height: 20px;
+			width: 32px;
+			height: 32px;
 			background-color: transparent;
 			border: none;
 			cursor: pointer;
-			padding: 4px;
+			padding: 6px 8px;
+			margin-right: 12px;
 			color: var(--primary-font);
 			cursor: pointer;
 			-webkit-app-region: no-drag;
+			transition: transform 0.2s ease;
 		}
 
 		.ongoingMeetingHeaderButtonClose {
@@ -226,6 +228,58 @@
 					letter-spacing: -0.24px;
 					background-color: transparent;
 					cursor: pointer;
+				}
+
+				.preparingSummaryText {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					height: 24px;
+					padding: 4px 8px;
+					color: var(--primary-button);
+					font-family: var(--primary-font-family);
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					letter-spacing: -0.24px;
+					opacity: 0.8;
+				}
+
+				.progressBarContainer {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					gap: 8px;
+					width: 100%;
+					max-width: 200px;
+				}
+
+				.progressBar {
+					width: 100%;
+					height: 4px;
+					background-color: rgba(255, 255, 255, 0.1);
+					border-radius: 2px;
+					overflow: hidden;
+				}
+
+				.progressBarFill {
+					height: 100%;
+					background-color: var(--primary-button);
+					border-radius: 2px;
+					transition: width 0.1s ease-out;
+				}
+
+				.progressBarText {
+					color: var(--primary-button);
+					font-family: var(--primary-font-family);
+					font-size: 11px;
+					font-style: normal;
+					font-weight: 500;
+					line-height: normal;
+					letter-spacing: -0.22px;
+					opacity: 0.8;
+					text-align: center;
 				}
 			}
 		}

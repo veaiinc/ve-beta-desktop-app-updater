@@ -7,7 +7,7 @@
 ## Purpose
 
 -   **Working playbook for Electron.js and SwiftUI tasks in this repo.**
--   Covers run/build, where to change code, IPC patterns, native addon (Swift/ObjC/Node‑API) integration, NotchDrop, troubleshooting, checklists, commands, and debugging tips.
+-   Covers run/build, where to change code, IPC patterns, native addon (Swift/ObjC/Node‑API) integration, NotchDrop, Boring Notch companion app, troubleshooting, checklists, commands, and debugging tips.
 -   All instructions here apply to agents (Codex, Claude, Cursor, etc) and human contributors alike.
 
 ---
@@ -21,8 +21,11 @@
 -   **Build native addon (macOS)**:  
     `cd notchdrop-addon && npm run build`  
     Alt: `cd notchdrop-addon && sh build.sh`
+-   **Build Boring Notch shell (macOS)**:  
+    `npm run build:boring-notch` (requires Xcode; use `npm run build:boring-notch:clean` to wipe `build/` + `DerivedData` first)  
+    Automatically no-ops on non-macOS hosts.
 -   **Development run**:
-    -   Terminal A: `npm run dev` (builds NotchDrop native+UI, starts Vite, outputs `dist-electron/`)
+    -   Terminal A: `npm run dev` (runs `build:boring-notch:clean`, rebuilds NotchDrop native+UI, starts Vite, outputs `dist-electron/`)
 -   **Windows dev variants**:  
     `npm run dev:win`, `npm run dev:win:no-clean`
 -   **If the addon fails to load (preferred fix):**  
@@ -66,9 +69,11 @@
     -   `electron/notificationHelper.js`
     -   `electron/windowsCompatibility.js`
     -   `electron/services/notchDropService.js`
+    -   `electron/services/boringNotchService.js`
     -   `electron/services/ipcThrottleService.js`
     -   `electron/services/idleTracker.js`
     -   `electron/services/meetingState.js`
+    -   `electron/services/websocketService.js`
     -   `electron/overlayWindowHelper.js`
     -   `electron/galleryHelper.js` (Sharp/watermark pipeline + ZIP download helper)
     -   `electron/imageProcessWorker.js` (worker thread for Sharp processing)
@@ -78,7 +83,7 @@
     -   `electron/features/` (Zustand slices; currently `meeting/index.js`)
     -   `electron/wakeWordService.js` + `electron/wakeWord/` (Python wake-word integration)
 -   **HTML Entrypoints (Vite):**
-    -   `index.html`, `overlay.html`, `askAI.html`, `dynamic-island.html`, `areYouThere.html`, `permission.html`, `error-fallback.html`
+    -   `index.html`, `overlay.html`, `askAI.html`, `dynamic-island.html`, `areYouThere.html`, `error-fallback.html`
 -   **Swift/Native addon (SwiftUI + ObjC + Node‑API):**
     -   `notchdrop-addon/` (see README + docs inside)
         -   Node wrapper: `notchdrop-addon/index.js`
@@ -86,11 +91,16 @@
         -   Native sources: `notchdrop-addon/src/` (e.g., `NotchContentView.swift`, `NotchDropCore.swift`, `notchdrop_addon.mm`, `NotchDropBridge.m`)
         -   Obj-C header: `notchdrop-addon/include/NotchDropBridge.h`
         -   Selection assistant: `SelectionAssistantManager.swift`, `SelectionAssistantViews.swift`, `SelectionMonitor.swift`, `SelectionHistoryStore.swift`
+    -   `boring.notch/` (Boring Notch SwiftUI companion app)
+        -   Xcode project: `boring.notch/boringNotch.xcodeproj`
+        -   Build artifacts consumed by Electron: `boring.notch/build/boringNotch.app`
+        -   Upstream docs: `boring.notch/README.md`
+        -   Settings + Sparkle updater UI: `boring.notch/boringNotch/components/Settings/SoftwareUpdater.swift`, `boring.notch/boringNotch/components/Settings/SettingsWindowController.swift`
+        -   Sparkle feed & signing config: `boring.notch/updater/appcast.xml`, `boring.notch/boringNotch/Info.plist`
 -   **React Windows & Feature Modules**
     -   `src/notch/components/DynamicIslandUI.jsx`
     -   `src/overlay/` (recording overlay React app)
     -   `src/askAI/` (Ask AI floating window UI)
-    -   `src/permission/` (Permission overlay React app)
     -   `src/areYouThere/` (React UI + styles) + `areYouThere.html`
     -   `src/store/store.js` (`@zubridge` hooks, grabs `electronApi.getStoreActions`)
     -   `src/views/features/meetBot/` + related feature folders (renderer uses zubridge dispatch)
@@ -98,6 +108,7 @@
 -   **Reference docs:**
     -   `CLAUDE.md`, `cursor.md`, `QWEN.md`, `anywhere_cursor_selection.md`, `docs/*.md`, `swift-watcher.config.js`
 -   **Automation scripts:**
+    -   `scripts/build-boring-notch.js` (xcodebuild wrapper for `boring.notch`)
     -   `scripts/build-notchdrop-native.js` (native build helper)
     -   `scripts/bundle-python-runtime.js` (packages Hey Ve runtime helpers)
     -   `scripts/setup-hey-ve.js` (postinstall wake-word setup)
@@ -117,8 +128,8 @@
     -   Overlay controls: `overlay-start-recording`, `overlay-stop-recording`, `overlay-pause-recording`, `overlay-resume-recording`, `overlay-toggle-live-intelligence`, `overlay-get-recording-state`, `overlay-recording-state-changed`, `overlay-state-update`, `overlay-set-panel-mode`, `overlay-send-transcription-data`, `overlay-send-live-intelligence-data`, `overlay-command`, `notchdrop-add-transcription-data`, `hide-overlay-window`
     -   Dynamic Island & voice: `dynamic-island-expand|collapse|toggle|show|hide|focus|force-show`, `dynamic-island-chat-mode`, `dynamic-island-set-mouse-events`, `dynamic-island-state`, `dynamic-island-start-recording-from-modal`, chat relay via `send-chat-message-to-askai`, `dynamic-island-voice-connect|disconnect|status`, `dynamic-island-set-microphone-access`, notifications via `dynamic-island-show-notification`/`dynamic-island-notification`, events `overlay-state-changed`, `voice-status-changed`, `trigger-voice-mode`, `force-focus`
     -   Ask AI window: `toggle-askAI-window`, `show-askAI-window`, `is-askAI-window-visible`, `update-askAI-dimensions`, `askAI-get-position`, `askAI-move-to`, `set-askAI-ignore-mouse-events`, `set-askAI-input-focus`, `get-askAI-input-focus`, `show-askAI-chatbox`, `show-askAI-response`, events `askAI-show-chatbox`, `askAI-show-response`, `receive-tab-content`, renderer messaging via `send-chat-message-to-askai`
-    -   Permission window: `toggle-permission-window`, `show-permission-window`, `hide-permission-window`, `is-permission-window-visible`, `check-auth-and-show-permission-overlay`, granular `check/request` helpers for microphone, screen, camera, media, and calendar, plus `open-system-settings`, `debug-permissions`
     -   NotchDrop: `notchdrop-enable|disable|toggle`, `notchdrop-is-visible`, `notchdrop-set-status`, `notchdrop-get-status`, `notchdrop-handle-files`, `notchdrop-set-auto-open|get-auto-open`, `notchdrop-set-haptic-feedback|get-haptic-feedback`, `update-notchdrop-menu`, `notchdrop-open-airdrop|open-share|open-file|delete-file`, `notchdrop-send-message`, `notchdrop-replace-transcriptions`, `notchdrop-clear-live-intelligence-data`, `notchdrop:triggerOverlay*`
+    -   WebSocket bridge (boring.notch): `websocket-get-status`, `websocket-get-client-count`, `websocket-send-message`; `electron/services/websocketService.js` hosts `ws://localhost:8080` and handles `START_MEETING` → `MEETING_STARTED` handshake messages.
     -   Selection Assistant: `selection-assistant:get-history`, `selection-assistant:clear-history`, `selection-assistant:show-history`, `selection-assistant:request-permission`, `selection-assistant:is-permission-granted`; events `selection-assistant:captured`, `selection-assistant:permission`
     -   Swift bridge: `swift:action`, `swift:triggerOverlayRecording`, `swift:triggerOverlayToggleLiveIntelligence`, process events `swift-ui-trigger-overlay-recording*`, `pre-create-overlay-window`
     -   Are You There: `are-you-there-continue-meeting|auto-continue-meeting|stop-meeting|pause-meeting-intelligence|end-session|are-you-there-get-recording-time|are-you-there-check-recording-state`, window events `are-you-there-show-command|are-you-there-close-command`, plus transcription detection `update-transcription-activity`, `are-you-there-continue-transcription|stop-transcription-monitoring|pause-transcription-monitoring|end-transcription-session`, `get-transcription-detection-state`
@@ -157,7 +168,7 @@ Emitted from native layer, handled by `electron/services/notchDropService.js`:
 
 ### Objective
 
-Integrate **NotchDrop** (Swift/SwiftUI) as an optional native module for macOS. Uses an Objective-C++ bridge (Node.js NAPI). Platform-safe: macOS loads NotchDrop, Windows/Linux skip gracefully.
+Integrate **NotchDrop** (Swift/SwiftUI) as an optional native module for macOS. Uses an Objective-C++ bridge (Node.js NAPI). Platform-safe: macOS loads NotchDrop, Windows/Linux skip gracefully. The repo also embeds the open-source **Boring Notch** companion app, launched as a separate process when available.
 
 ### Directory Structure
 
@@ -208,6 +219,16 @@ Note: See the NotchDrop events list above for emitted events from the native lay
 -   **Objective-C**: Wraps and exposes Swift to Node.js via `node-addon-api`.
 -   **Node.js Addon**: Exposes event-based API, only loaded on macOS in Electron main.
 -   **Voice bridge**: `electron/notchDropVoiceIntegration.js` keeps Swift voice events aligned with Dynamic Island / renderer voice IPC.
+
+### Boring Notch Companion App
+
+-   `electron/services/boringNotchService.js` launches the bundled `boring.notch` macOS app and exposes the same API surface as `NotchDropService` for compatibility.
+-   Build the shell with `npm run build:boring-notch` (macOS + Xcode 16 required); `npm run build:boring-notch:clean` wipes `build/` + `DerivedData`. `npm run dev` runs the clean build before Vite so the `.app` lives at `boring.notch/build/boringNotch.app`.
+-   The WebSocket bridge (`electron/services/websocketService.js`) listens on `ws://localhost:8080`. Incoming `START_MEETING` messages trigger `handleNotchToMainWindowEvents({ action: 'startRecording' })`; Electron responds with `MEETING_STARTED`.
+-   Keep the handshake payloads in sync with `boring.notch/boringNotch/ContentView.swift` (`WebSocketManager`). Document new message types here when you extend the protocol.
+-   Sparkle auto-updates bootstrap through `SPUStandardUpdaterController` in `boring.notch/boringNotch/boringNotchApp.swift`; feed URL and ed25519 key live beside the macOS Info.plist (`SUFeedURL`, `SUPublicEDKey`).
+-   The update UI (`CheckForUpdatesView`, `UpdaterSettingsView`) is defined in `boring.notch/boringNotch/components/Settings/SoftwareUpdater.swift` and wired via `SettingsWindowController.shared.setUpdaterController`.
+-   When publishing a refreshed `boringNotch.app`, update `boring.notch/updater/appcast.xml` with the new version, DMG URL, length, and Sparkle signature so menu-driven updates stay in sync.
 
 ---
 
@@ -428,6 +449,350 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
 
 ---
 
+## 🏗️ Architecture Analysis & Clean Code Recommendations
+
+### Current Architecture Overview
+
+The codebase consists of two main components with complex inter-process communication:
+
+1. **`boring.notch/`** - SwiftUI macOS companion app with sophisticated UI and state management
+2. **`electron/`** - Main Electron application with extensive IPC and native integration
+
+### Communication Architecture
+
+#### Primary Communication Channels:
+
+-   **WebSocket Bridge** (`ws://localhost:8080`): Real-time bidirectional communication
+-   **stdin/stdout**: Direct process communication for commands and status
+-   **IPC Channels**: 50+ Electron internal channels for overlay, voice, window management
+
+#### Data Flow Patterns:
+
+```
+Electron Main Process ↔ WebSocket Server ↔ SwiftUI App
+                    ↕
+              IPC Channels
+                    ↕
+            Electron Renderer
+```
+
+### Critical Architecture Issues Identified
+
+#### 1. **Single Responsibility Violations**
+
+-   **`main.js`**: 8000+ lines handling multiple concerns (windows, IPC, services, business logic)
+-   **Mixed Concerns**: Window management, IPC, services, and business logic in single files
+-   **Tight Coupling**: Direct dependencies between unrelated modules
+
+#### 2. **Communication Complexity**
+
+-   **Multiple Protocols**: WebSocket + stdin/stdout + IPC creates unnecessary complexity
+-   **Message Duplication**: Same data sent through multiple channels
+-   **Inconsistent Error Handling**: Different error handling patterns across communication layers
+
+#### 3. **State Management Issues**
+
+-   **Scattered State**: State spread across multiple managers and coordinators
+-   **Race Conditions**: Async operations without proper synchronization
+-   **Memory Leaks**: Potential retain cycles in Combine publishers
+
+#### 4. **Code Quality Issues**
+
+-   **Deep Nesting**: Complex conditional logic in UI components
+-   **Magic Numbers**: Hardcoded values throughout the codebase
+-   **Inconsistent Naming**: Mixed naming conventions across Swift/JS
+
+### Recommended Architecture Improvements
+
+#### 1. **Electron Main Process Restructuring**
+
+```
+electron/
+├── services/
+│   ├── WindowService.js          # Focused window management
+│   ├── IPCService.js             # Centralized IPC handling
+│   ├── CommunicationService.js   # WebSocket/stdin management
+│   └── NotificationService.js    # System notifications
+├── managers/
+│   ├── StateManager.js           # Centralized state management
+│   ├── EventManager.js           # Event coordination
+│   └── ConfigManager.js          # Configuration management
+└── main.js                       # Simplified entry point
+```
+
+#### 2. **SwiftUI App Organization**
+
+```
+boringNotch/
+├── Core/
+│   ├── StateManager.swift        # Centralized app state
+│   ├── CommunicationManager.swift # WebSocket/stdin handling
+│   └── ConfigManager.swift       # App configuration
+├── Features/
+│   ├── Voice/                    # Voice interface module
+│   ├── Music/                    # Music integration module
+│   └── Meeting/                  # Meeting functionality module
+└── UI/
+    ├── Views/                    # SwiftUI views
+    └── Components/               # Reusable UI components
+```
+
+#### 3. **Unified Communication Protocol**
+
+```typescript
+interface CommunicationMessage {
+	id: string;
+	type: 'AUTHENTICATION' | 'VOICE' | 'MEETING' | 'UI' | 'SYSTEM';
+	action: string;
+	payload: any;
+	timestamp: number;
+	source: 'electron' | 'boring-notch';
+	correlationId?: string;
+	retryCount?: number;
+}
+```
+
+#### 4. **Centralized State Management**
+
+```swift
+@MainActor
+class AppStateManager: ObservableObject {
+    @Published var authentication = AuthenticationState()
+    @Published var voice = VoiceState()
+    @Published var meeting = MeetingState()
+    @Published var ui = UIState()
+
+    func dispatch(_ action: AppAction) {
+        // Centralized state updates with validation
+    }
+}
+```
+
+### Clean Code Implementation Guidelines
+
+#### Swift Best Practices:
+
+-   **Extract Complex UI Logic**: Move business logic from views to dedicated view models
+-   **Implement Result Types**: Use proper error handling with Result<T, Error>
+-   **Dependency Injection**: Use protocols and dependency injection for better testability
+-   **Combine Publishers**: Implement proper memory management and cancellation
+-   **Unit Testing**: Add comprehensive unit tests for all business logic
+
+#### JavaScript Best Practices:
+
+-   **Function Decomposition**: Break large functions into smaller, focused ones
+-   **Error Boundaries**: Implement proper error handling and recovery
+-   **TypeScript Migration**: Add type safety for better development experience
+-   **Logging System**: Implement structured logging for debugging and monitoring
+-   **Service Layer**: Extract business logic into dedicated service classes
+
+### Implementation Roadmap
+
+#### Phase 1: Foundation (Week 1-2)
+
+1. **Extract Services from main.js**
+
+    - Create modular services (WindowService, IPCService, CommunicationService)
+    - Implement proper error handling and logging
+    - Add comprehensive unit tests
+
+2. **Standardize Communication Protocol**
+    - Design unified message format
+    - Implement message validation and serialization
+    - Add connection health monitoring
+
+#### Phase 2: State Management (Week 3-4)
+
+1. **Centralize State Management**
+
+    - Create AppStateManager in Swift
+    - Implement state persistence and recovery
+    - Add state change validation and logging
+
+2. **Event System Refactoring**
+    - Implement proper event sourcing
+    - Add event replay and debugging capabilities
+    - Create event correlation system
+
+#### Phase 3: UI/UX Improvements (Week 5-6)
+
+1. **SwiftUI Refactoring**
+
+    - Extract complex views into smaller components
+    - Implement proper view model separation
+    - Add comprehensive animation system
+
+2. **Performance Optimization**
+    - Implement lazy loading for heavy components
+    - Add memory leak detection and prevention
+    - Optimize WebSocket message handling
+
+#### Phase 4: Testing & Documentation (Week 7-8)
+
+1. **Comprehensive Testing**
+
+    - Add unit tests for all services
+    - Implement integration tests for communication
+    - Add UI automation tests
+
+2. **Documentation Updates**
+    - Update AGENTS.md with new architecture
+    - Create API documentation
+    - Add troubleshooting guides
+
+### Benefits of Proposed Changes
+
+1. **Maintainability**: Modular architecture makes code easier to understand and modify
+2. **Testability**: Separated concerns enable comprehensive unit testing
+3. **Performance**: Optimized communication reduces overhead and improves responsiveness
+4. **Reliability**: Proper error handling and state management prevent crashes
+5. **Scalability**: Clean architecture supports future feature additions
+6. **Developer Experience**: Better debugging, logging, and development tools
+
+---
+
+## 🎯 **Coding Best Practices for Future Development**
+
+### **JavaScript Best Practices (2024)**
+
+#### **Code Structure & Readability**
+
+-   **Consistent Naming**: Use camelCase for variables/functions, PascalCase for classes
+-   **Modularization**: Break code into smaller, reusable functions and modules
+-   **Avoid Deep Nesting**: Use early returns and guard clauses to reduce complexity
+-   **Meaningful Names**: Use descriptive variable and function names that explain intent
+-   **Consistent Formatting**: Use Prettier or similar tools for consistent code style
+
+#### **Error Handling & Robustness**
+
+-   **Try-Catch Blocks**: Always wrap async operations in proper error handling
+-   **Meaningful Errors**: Provide descriptive error messages with context
+-   **Error Boundaries**: Implement proper error boundaries for graceful degradation
+-   **Validation**: Validate inputs and handle edge cases explicitly
+-   **Logging**: Use structured logging for debugging and monitoring
+
+#### **Performance & Optimization**
+
+-   **Async/Await**: Prefer async/await over callbacks for better readability
+-   **Memory Management**: Avoid memory leaks with proper cleanup and weak references
+-   **DOM Optimization**: Cache DOM references and minimize DOM manipulations
+-   **Lazy Loading**: Implement lazy loading for heavy components and resources
+-   **Debouncing/Throttling**: Use for expensive operations like API calls or UI updates
+
+#### **Security & Best Practices**
+
+-   **Input Sanitization**: Always sanitize user inputs to prevent XSS attacks
+-   **HTTPS/WSS**: Use secure connections for data transmission
+-   **Authentication**: Implement proper token-based authentication
+-   **Environment Variables**: Use environment variables for sensitive configuration
+-   **Dependency Management**: Keep dependencies updated and audit for vulnerabilities
+
+### **Swift Best Practices (2024)**
+
+#### **Code Structure & Readability**
+
+-   **Swift API Guidelines**: Follow Apple's Swift API Design Guidelines
+-   **Meaningful Names**: Use descriptive names that explain purpose and intent
+-   **Extensions**: Use extensions to organize code logically and add functionality
+-   **Protocols**: Leverage protocols for code reuse and testability
+-   **Type Safety**: Use Swift's type system to prevent runtime errors
+
+#### **Memory Management**
+
+-   **Weak References**: Use `weak` and `unowned` to prevent retain cycles
+-   **Closure Capture**: Be mindful of `self` capture in closures
+-   **Combine Publishers**: Properly cancel subscriptions to prevent memory leaks
+-   **ARC Awareness**: Understand Automatic Reference Counting behavior
+-   **Memory Profiling**: Use Instruments to identify and fix memory issues
+
+#### **Error Handling & Robustness**
+
+-   **Result Types**: Use `Result<T, Error>` for operations that can fail
+-   **Custom Errors**: Define specific error types for better error handling
+-   **Do-Catch**: Use proper do-catch blocks for error-prone operations
+-   **Optional Handling**: Use safe unwrapping and nil-coalescing operators
+-   **Validation**: Validate data and handle edge cases explicitly
+
+#### **Concurrency & Performance**
+
+-   **Main Thread**: Always perform UI updates on the main thread
+-   **Async/Await**: Use Swift Concurrency for modern async programming
+-   **Grand Central Dispatch**: Use GCD for background tasks when appropriate
+-   **Combine**: Use Combine for reactive programming and data flow
+-   **Performance**: Profile and optimize critical paths
+
+#### **SwiftUI Specific**
+
+-   **View Composition**: Break complex views into smaller, reusable components
+-   **State Management**: Use `@State`, `@ObservedObject`, and `@StateObject` appropriately
+-   **Animation**: Use SwiftUI's animation system for smooth transitions
+-   **Accessibility**: Implement proper accessibility support
+-   **Preview**: Use SwiftUI previews for rapid development and testing
+
+### **WebSocket Best Practices (2024)**
+
+#### **Connection Management**
+
+-   **Automatic Reconnection**: Implement exponential backoff for reconnection attempts
+-   **Connection Health**: Use ping/pong frames to monitor connection status
+-   **Graceful Degradation**: Handle connection failures with fallback mechanisms
+-   **Connection Pooling**: Manage multiple connections efficiently
+-   **Resource Cleanup**: Properly close connections and clean up resources
+
+#### **Message Handling**
+
+-   **Message Format**: Use efficient formats like JSON or MessagePack
+-   **Message Size**: Keep messages concise to reduce latency
+-   **Batching**: Batch multiple updates to minimize message count
+-   **Serialization**: Use efficient serialization/deserialization
+-   **Message Queuing**: Implement message queuing for reliability
+
+#### **Error Handling & Resilience**
+
+-   **Connection Errors**: Handle network interruptions gracefully
+-   **Message Validation**: Validate incoming messages before processing
+-   **Retry Logic**: Implement smart retry mechanisms for failed messages
+-   **Circuit Breaker**: Use circuit breaker pattern for failing connections
+-   **Monitoring**: Log and monitor connection health and errors
+
+#### **Security & Authentication**
+
+-   **WSS Protocol**: Use secure WebSocket connections (wss://)
+-   **Authentication**: Implement token-based or certificate-based authentication
+-   **Authorization**: Validate user permissions for sensitive operations
+-   **Data Encryption**: Encrypt sensitive data in transit
+-   **Rate Limiting**: Implement rate limiting to prevent abuse
+
+#### **Performance Optimization**
+
+-   **Compression**: Use WebSocket compression when available
+-   **Binary Data**: Use binary frames for large data transfers
+-   **Connection Limits**: Manage connection limits and resource usage
+-   **Load Balancing**: Distribute connections across multiple servers
+-   **Monitoring**: Monitor performance metrics and optimize accordingly
+
+### **Implementation Guidelines**
+
+#### **For All Languages**
+
+-   **Code Reviews**: Always review code for adherence to best practices
+-   **Testing**: Write comprehensive unit and integration tests
+-   **Documentation**: Document complex logic and API interfaces
+-   **Version Control**: Use meaningful commit messages and branch strategies
+-   **Continuous Integration**: Automate testing and code quality checks
+
+#### **Cross-Platform Considerations**
+
+-   **Platform-Specific Code**: Isolate platform-specific implementations
+-   **Feature Detection**: Use feature detection for graceful degradation
+-   **Performance**: Optimize for the target platform's characteristics
+-   **Accessibility**: Ensure accessibility across all platforms
+-   **Internationalization**: Support multiple languages and locales
+
+These best practices will be applied to all future development tasks to ensure code quality, maintainability, and performance.
+
+---
+
 ## NotchDrop Integration Checklist
 
 -   [ ] Native module loads only on macOS, code guarded
@@ -445,12 +810,15 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
 -   electron/preload.js
 -   electron/helpers/windowHelper.js
 -   electron/services/notchDropService.js
+-   electron/services/boringNotchService.js
+-   electron/services/websocketService.js
 -   electron/galleryHelper.js
 -   electron/imageProcessWorker.js
 -   electron/notchDropVoiceIntegration.js
 -   src/notch/components/DynamicIslandUI.jsx
 -   notchdrop-addon/index.js
 -   notchdrop-addon/swift-js-bridge.js
+-   scripts/build-boring-notch.js
 -   scripts/validate-notchdrop.js
 -   vite.config.js
 -   package.json
@@ -463,6 +831,8 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
     `cd notchdrop-addon && sh build.sh`  
     If it still fails: `npx electron-rebuild -f -w notchdrop-addon`  
     Confirm `asarUnpack` includes native binary; verify it’s bundled.
+-   **Boring Notch `.app` missing/outdated:**  
+    Run `npm run build:boring-notch` (macOS). Use `npm run build:boring-notch:clean` to wipe `boring.notch/build/` + `DerivedData` before rebuilding; expected bundle is `boring.notch/build/boringNotch.app`.
 -   **Sharp/image processing errors:**  
     Run `npm run clean:sharp` then reinstall (`npm install`) so all platform-specific Sharp folders exist.
 -   **Hey Ve wake word setup issues:**  
@@ -484,4 +854,4 @@ I'm equipped to handle complex multi-language, multi-platform development tasks 
 
 ---
 
-**NEVER edit or add files in build/ or dist-electron/ directories. Source code changes only in files/directories listed above!**
+**NEVER edit or add files in build/, dist/, or dist-electron/ directories. Source code changes only in files/directories listed above!**

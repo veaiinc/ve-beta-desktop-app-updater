@@ -1,0 +1,101 @@
+//
+//  sizeMatters.swift
+//  boringNotch
+//
+//  Created by Harsh Vardhan  Goswami  on 05/08/24.
+//
+
+import Defaults
+import Foundation
+import SwiftUI
+
+let downloadSneakSize: CGSize = .init(width: 65, height: 1)
+let batterySneakSize: CGSize = .init(width: 160, height: 1)
+
+let openNotchSize: CGSize = .init(width: 860, height: 198)
+
+/// Returns the dynamic open notch size based on the current view
+func getOpenNotchSize() -> CGSize {
+    let coordinator = BoringViewCoordinator.shared
+    return CGSize(width: coordinator.currentViewWidth, height: 205)
+}
+let cornerRadiusInsets: (opened: (top: CGFloat, bottom: CGFloat), closed: (top: CGFloat, bottom: CGFloat)) = (opened: (top: 19, bottom: 24), closed: (top: 6, bottom: 14))
+
+enum MusicPlayerImageSizes {
+    static let cornerRadiusInset: (opened: CGFloat, closed: CGFloat) = (opened: 13.0, closed: 4.0)
+    static let size = (opened: CGSize(width: 90, height: 90), closed: CGSize(width: 20, height: 20))
+}
+
+func getScreenFrame(_ screen: String? = nil) -> CGRect? {
+    var selectedScreen = NSScreen.main
+
+    if let customScreen = screen {
+        selectedScreen = NSScreen.screens.first(where: { $0.localizedName == customScreen })
+    }
+    
+    if let screen = selectedScreen {
+        return screen.frame
+    }
+    
+    return nil
+}
+
+func getClosedNotchSize(screen: String? = nil) -> CGSize {
+    // Default notch size, to avoid using optionals
+    var notchHeight: CGFloat = Defaults[.nonNotchHeight]
+    var notchWidth: CGFloat = 360
+
+    var selectedScreen = NSScreen.main
+
+    if let customScreen = screen {
+        selectedScreen = NSScreen.screens.first(where: { $0.localizedName == customScreen })
+    }
+
+    // Check if the screen is available
+    if let screen = selectedScreen {
+        // Check if the Mac has a notch
+        if screen.safeAreaInsets.top > 0 {
+            // This is a display WITH a notch - use notch height and width settings
+            notchHeight = Defaults[.notchHeight]
+            if Defaults[.notchHeightMode] == .matchRealNotchSize {
+                notchHeight = screen.safeAreaInsets.top
+            } else if Defaults[.notchHeightMode] == .matchMenuBar {
+                notchHeight = screen.frame.maxY - screen.visibleFrame.maxY
+            }
+            
+            // Apply width settings for displays WITH a notch
+            notchWidth = Defaults[.notchWidth]
+            if Defaults[.notchWidthMode] == .matchRealNotchSize {
+                // Use actual notch width
+                if let topLeftNotchpadding: CGFloat = screen.auxiliaryTopLeftArea?.width,
+                   let topRightNotchpadding: CGFloat = screen.auxiliaryTopRightArea?.width
+                {
+                    notchWidth = screen.frame.width - topLeftNotchpadding - topRightNotchpadding + 4
+                }
+            } else if Defaults[.notchWidthMode] == .matchMenuBar {
+                // Use menubar width (full screen width minus safe area)
+                notchWidth = screen.frame.width - (screen.safeAreaInsets.left + screen.safeAreaInsets.right)
+            }
+            // For .custom mode, use the Defaults[.notchWidth] value directly
+        } else {
+            // This is a display WITHOUT a notch - use non-notch height and width settings
+            notchHeight = Defaults[.nonNotchHeight]
+            if Defaults[.nonNotchHeightMode] == .matchMenuBar {
+                notchHeight = screen.frame.maxY - screen.visibleFrame.maxY
+            }
+            
+            // Apply width settings for non-notch displays
+            notchWidth = Defaults[.nonNotchWidth]
+            if Defaults[.nonNotchWidthMode] == .matchMenuBar {
+                // Use menubar width (full screen width minus safe area)
+                notchWidth = screen.frame.width - (screen.safeAreaInsets.left + screen.safeAreaInsets.right)
+            } else if Defaults[.nonNotchWidthMode] == .matchRealNotchSize {
+                // Use a standard notch width for consistency
+                notchWidth = 360
+            }
+            // For .custom mode, use the Defaults[.nonNotchWidth] value directly
+        }
+    }
+
+    return .init(width: notchWidth, height: notchHeight)
+}

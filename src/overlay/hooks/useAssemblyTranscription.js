@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import getBaseUrl from '../../services/baseUrls';
 import Context from '../../context/context';
+import audioStorageService from '../../services/audioStorageService';
+import { useDispatch } from '@zubridge/electron';
+import { storeActions } from '../../store/store';
 
 const wsUrl = getBaseUrl({ region: 'us-east-1', type: 'meeting_ws_api' });
 
@@ -12,13 +15,13 @@ const useAssemblyTranscription = ({
 	const {
 		notes: { initializeMeetingSummary },
 	} = useContext(Context);
+	const dispatch = useDispatch();
 	const [isConnected, setIsConnected] = useState(false);
 	const [isRecording, setIsRecording] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
 	const [isPaused, setIsPaused] = useState(false);
 	const [timer, setTimer] = useState(0);
 	const [connectionStatus, setConnectionStatus] = useState('disconnected');
-
 	const websocketRef = useRef(null);
 	const audioContextRef = useRef(null);
 
@@ -45,6 +48,7 @@ const useAssemblyTranscription = ({
 	const muteRef = useRef(false);
 	const maxReconnectAttempts = 3;
 	const meetingIdRef = useRef(null);
+	const isCleaningUpRef = useRef(false);
 
 	useEffect(() => {
 		isMountedRef.current = true;
@@ -121,121 +125,168 @@ const useAssemblyTranscription = ({
 	}, []);
 
 	const cleanup = useCallback(async () => {
-		// Clear timers first and foremost
-		if (timerIntervalRef.current) {
-			clearInterval(timerIntervalRef.current);
-			timerIntervalRef.current = null;
-		}
-		if (reconnectTimeoutRef.current) {
-			clearTimeout(reconnectTimeoutRef.current);
-			reconnectTimeoutRef.current = null;
+		// Prevent concurrent cleanup calls
+		if (isCleaningUpRef.current) {
+			log('Cleanup already in progress, skipping duplicate call');
+			return;
 		}
 
-		// Cleanup mic audio resources
-		if (micProcessorRef.current) {
-			try {
-				micProcessorRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting mic processor: ${e.message}`);
+		isCleaningUpRef.current = true;
+		log('Starting cleanup...');
+
+		try {
+			// Clear timers first
+			if (timerIntervalRef.current) {
+				clearInterval(timerIntervalRef.current);
+				timerIntervalRef.current = null;
 			}
-			micProcessorRef.current = null;
-		}
-
-		if (micSourceRef.current) {
-			try {
-				micSourceRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting mic source: ${e.message}`);
+			if (reconnectTimeoutRef.current) {
+				clearTimeout(reconnectTimeoutRef.current);
+				reconnectTimeoutRef.current = null;
 			}
-			micSourceRef.current = null;
-		}
 
-		if (micStreamRef.current) {
-			try {
-				micStreamRef.current.getTracks().forEach((track) => track.stop());
-			} catch (e) {
-				log(`Error stopping mic stream tracks: ${e.message}`);
+			// Cleanup mic audio resources
+			if (micProcessorRef.current) {
+				try {
+					micProcessorRef.current.disconnect();
+					micProcessorRef.current.onaudioprocess = null;
+				} catch (e) {
+					log(`Error disconnecting mic processor: ${e.message}`);
+				}
+				micProcessorRef.current = null;
 			}
-			micStreamRef.current = null;
-		}
 
-		// Cleanup screen audio resources
-		if (screenProcessorRef.current) {
-			try {
-				screenProcessorRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting screen processor: ${e.message}`);
+			if (micSourceRef.current) {
+				try {
+					micSourceRef.current.disconnect();
+				} catch (e) {
+					log(`Error disconnecting mic source: ${e.message}`);
+				}
+				micSourceRef.current = null;
 			}
-			screenProcessorRef.current = null;
-		}
 
-		if (screenSourceRef.current) {
-			try {
-				screenSourceRef.current.disconnect();
-			} catch (e) {
-				log(`Error disconnecting screen source: ${e.message}`);
+			if (micStreamRef.current) {
+				try {
+					log('Stopping mic stream tracks...');
+					micStreamRef.current.getTracks().forEach((track) => {
+						track.stop();
+						log(`Mic track stopped: ${track.kind}, state: ${track.readyState}`);
+					});
+				} catch (e) {
+					log(`Error stopping mic stream tracks: ${e.message}`);
+				}
+				micStreamRef.current = null;
 			}
-			screenSourceRef.current = null;
-		}
 
-		if (screenStreamRef.current) {
-			try {
-				screenStreamRef.current.getTracks().forEach((track) => track.stop());
-			} catch (e) {
-				log(`Error stopping screen stream tracks: ${e.message}`);
+			// Cleanup screen audio resources
+			if (screenProcessorRef.current) {
+				try {
+					screenProcessorRef.current.disconnect();
+					screenProcessorRef.current.onaudioprocess = null;
+				} catch (e) {
+					log(`Error disconnecting screen processor: ${e.message}`);
+				}
+				screenProcessorRef.current = null;
 			}
-			screenStreamRef.current = null;
-		}
 
-		// Close audio context
-		if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-			try {
-				audioContextRef.current.close();
-			} catch (e) {
-				log(`Error closing audio context: ${e.message}`);
+			if (screenSourceRef.current) {
+				try {
+					screenSourceRef.current.disconnect();
+				} catch (e) {
+					log(`Error disconnecting screen source: ${e.message}`);
+				}
+				screenSourceRef.current = null;
 			}
-			audioContextRef.current = null;
-		}
 
-		// Close WebSocket
-		if (websocketRef.current && websocketRef.current.readyState !== WebSocket.CLOSED) {
-			try {
-				websocketRef.current.close();
-			} catch (e) {
-				log(`Error closing WebSocket: ${e.message}`);
+			if (screenStreamRef.current) {
+				try {
+					log('Stopping screen stream tracks...');
+					screenStreamRef.current.getTracks().forEach((track) => {
+						track.stop();
+						log(`Screen track stopped: ${track.kind}, state: ${track.readyState}`);
+					});
+				} catch (e) {
+					log(`Error stopping screen stream tracks: ${e.message}`);
+				}
+				screenStreamRef.current = null;
 			}
-			websocketRef.current = null;
-		}
 
-		// Reset buffers and state
-		micBufferRef.current = [];
-		micSampleCountRef.current = 0;
-		screenBufferRef.current = [];
-		screenSampleCountRef.current = 0;
-		connectionPromiseRef.current = null;
-		connectionParamsRef.current = null;
-		reconnectAttemptsRef.current = 0;
+			// Close audio context and AWAIT it
+			if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+				try {
+					log('Closing audio context...');
+					await audioContextRef.current.close(); // ✅ AWAIT
+					log('Audio context closed successfully');
+				} catch (e) {
+					log(`Error closing audio context: ${e.message}`);
+				}
+				audioContextRef.current = null;
+			}
 
-		if (meetingIdRef.current) {
-			const meetingId = meetingIdRef.current;
-			setTimeout(() => {
+			// Close WebSocket
+			if (websocketRef.current && websocketRef.current.readyState !== WebSocket.CLOSED) {
+				try {
+					websocketRef.current.close();
+				} catch (e) {
+					log(`Error closing WebSocket: ${e.message}`);
+				}
+				websocketRef.current = null;
+			}
+
+			// Reset buffers and state
+			micBufferRef.current = [];
+			micSampleCountRef.current = 0;
+			screenBufferRef.current = [];
+			screenSampleCountRef.current = 0;
+			connectionPromiseRef.current = null;
+			connectionParamsRef.current = null;
+			reconnectAttemptsRef.current = 0;
+
+			if (meetingIdRef.current) {
+				const meetingId = meetingIdRef.current;
+
+				// Set preparing summary state in store
+				dispatch({
+					type: storeActions.meeting.SET_PREPARING_SUMMARY,
+					payload: true,
+				});
+
+				try {
+					// Generate analytics before navigating to the Meet page
+					await audioStorageService.generateMeetingAnalytics(meetingId);
+				} catch (e) {
+					// Non-fatal; proceed to navigate and Meet page will handle fallback
+				}
+
 				if (window?.electronApi?.navigateMainWindow) {
 					window?.electronApi?.navigateMainWindow({
-						path: `/meet/${meetingId}?type=in_app_meeting&history=true`,
+						path: `/meet/${meetingId}?type=in_app_meeting&history=true&analyticsPreGenerated=true`,
 					});
 				}
-			}, 2000);
-			meetingIdRef.current = null;
-		}
 
-		// Reset all timer-related state
-		if (isMountedRef.current) {
-			setIsConnected(false);
-			setIsRecording(false);
-			setIsPaused(false);
-			setIsMuted(false);
-			setTimer(0);
-			updateStatus('Disconnected', 'disconnected');
+				// Clear preparing summary state after navigation
+				dispatch({
+					type: storeActions.meeting.SET_PREPARING_SUMMARY,
+					payload: false,
+				});
+
+				meetingIdRef.current = null;
+			}
+
+			// Reset all timer-related state
+			if (isMountedRef.current) {
+				setIsConnected(false);
+				setIsRecording(false);
+				setIsPaused(false);
+				setIsMuted(false);
+				setTimer(0);
+				updateStatus('Disconnected', 'disconnected');
+			}
+
+			log('Cleanup completed successfully');
+		} finally {
+			// Always reset guard flag
+			isCleaningUpRef.current = false;
 		}
 	}, [log, updateStatus, initializeMeetingSummary]);
 
@@ -267,7 +318,7 @@ const useAssemblyTranscription = ({
 	}, [isConnected]);
 
 	const stopRecording = useCallback(
-		({ meetingId } = {}) => {
+		async ({ meetingId } = {}) => {
 			if (!isMountedRef.current) return;
 
 			log('Stopping recording...');
@@ -275,85 +326,11 @@ const useAssemblyTranscription = ({
 			setIsRecording(false);
 			setIsPaused(false);
 
-			// Stop timer using new function
+			// Stop timer
 			stopTimer();
 
-			// Disconnect mic audio nodes
-			if (micProcessorRef.current) {
-				try {
-					micProcessorRef.current.disconnect();
-					micProcessorRef.current.onaudioprocess = null;
-				} catch (e) {
-					log(`Error disconnecting mic processor: ${e.message}`);
-				}
-				micProcessorRef.current = null;
-			}
-
-			if (micSourceRef.current) {
-				try {
-					micSourceRef.current.disconnect();
-				} catch (e) {
-					log(`Error disconnecting mic source: ${e.message}`);
-				}
-				micSourceRef.current = null;
-			}
-
-			// Disconnect screen audio nodes
-			if (screenProcessorRef.current) {
-				try {
-					screenProcessorRef.current.disconnect();
-					screenProcessorRef.current.onaudioprocess = null;
-				} catch (e) {
-					log(`Error disconnecting screen processor: ${e.message}`);
-				}
-				screenProcessorRef.current = null;
-			}
-
-			if (screenSourceRef.current) {
-				try {
-					screenSourceRef.current.disconnect();
-				} catch (e) {
-					log(`Error disconnecting screen source: ${e.message}`);
-				}
-				screenSourceRef.current = null;
-			}
-
-			// Stop mic stream tracks
-			if (micStreamRef.current) {
-				try {
-					micStreamRef.current.getTracks().forEach((track) => track.stop());
-				} catch (e) {
-					log(`Error stopping mic stream tracks: ${e.message}`);
-				}
-				micStreamRef.current = null;
-			}
-
-			// Stop screen stream tracks
-			if (screenStreamRef.current) {
-				try {
-					screenStreamRef.current.getTracks().forEach((track) => track.stop());
-				} catch (e) {
-					log(`Error stopping screen stream tracks: ${e.message}`);
-				}
-				screenStreamRef.current = null;
-			}
-
-			// Close audio context last
-			if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-				try {
-					audioContextRef.current.close();
-				} catch (e) {
-					log(`Error closing audio context: ${e.message}`);
-				}
-				audioContextRef.current = null;
-			}
-
-			// Reset buffers
-			micBufferRef.current = [];
-			micSampleCountRef.current = 0;
-			screenBufferRef.current = [];
-			screenSampleCountRef.current = 0;
-			cleanup();
+			// ✅ Delegate all cleanup to the cleanup function
+			await cleanup();
 
 			// Notify NotchDrop about the state change
 			if (window.electronApi?.notchDrop?.onOverlayStateChange) {
@@ -462,6 +439,18 @@ const useAssemblyTranscription = ({
 								log('Successfully authenticated and connected to STT service');
 								connectionPromiseRef.current = null;
 								resolve(true);
+							} else if (
+								data.event === 'ai.disabled.true' ||
+								data.event === 'ai.enabled.true'
+							) {
+								if (window.electronApi.sendMessageToNotch) {
+									window.electronApi.sendMessageToNotch({
+										type:
+											data.event === 'ai.enabled.true'
+												? 'ENABLED_AI_INTELLIGENCE'
+												: 'DISABLED_AI_INTELLIGENCE',
+									});
+								}
 							} else if (data.type === 'transcription') {
 								if (data.text && data.text.trim()) {
 									const transcriptionData = {
@@ -551,6 +540,7 @@ const useAssemblyTranscription = ({
 			stopRecording,
 			isRecording,
 			attemptReconnect,
+			window?.electronApi?.sendMessageToNotch,
 		],
 	);
 
@@ -1131,6 +1121,12 @@ const useAssemblyTranscription = ({
 					const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 					permissionGranted = true;
 					log('Microphone access granted', stream);
+
+					// ✅ STOP the permission test stream immediately to prevent macOS indicator leak
+					stream.getTracks().forEach((track) => {
+						track.stop();
+						log(`Permission test track stopped: ${track.kind}`);
+					});
 				} catch (err) {
 					log('Microphone permission denied or unavailable.', err);
 				}
@@ -1162,6 +1158,14 @@ const useAssemblyTranscription = ({
 				// Then start audio capture
 				// log('Starting audio capture...');
 				await startAudioCapture();
+				if (window.electronApi) {
+					window.electronApi.sendMessageToNotch({
+						type: 'MEETING_STARTED',
+						data: {
+							message: 'Microphone access granted',
+						},
+					});
+				}
 			} catch (error) {
 				log(`Failed to start recording: ${error.message}`);
 				stopRecording({ meetingId });
@@ -1190,6 +1194,25 @@ const useAssemblyTranscription = ({
 			}
 		}
 	}, [isMuted, isRecording, isPaused, log, pauseTimer, resumeTimer]);
+
+	const toggleAiIntelligence = useCallback(
+		(isEnabled) => {
+			if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) {
+				return;
+			}
+
+			try {
+				websocketRef.current.send(
+					JSON.stringify({
+						type: isEnabled ? 'ai.enable' : 'ai.disable',
+					}),
+				);
+			} catch (error) {
+				log(`Error sending AI Intelligence toggle: ${error.message}`);
+			}
+		},
+		[log],
+	);
 
 	const pauseRecording = useCallback(() => {
 		if (!isRecording || isPaused) return;
@@ -1303,6 +1326,7 @@ const useAssemblyTranscription = ({
 		resumeRecording,
 		formatTime,
 		disconnect,
+		toggleAiIntelligence,
 	};
 };
 

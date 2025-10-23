@@ -56,6 +56,9 @@ const OngoingMeeting = memo(() => {
 	// Use global NotchDrop sync hook
 	const { hasActiveMeeting } = useNotchDropSync();
 
+	// Get preparingSummary state from store
+	const { preparingSummary } = useStore((state) => state.meeting) || {};
+
 	const [info, setInfo] = useState({
 		showingTranscripts: false,
 		chatOpen: false,
@@ -114,6 +117,18 @@ const OngoingMeeting = memo(() => {
 			}));
 			window.electronApi.notchdrop.replaceTranscriptions(messages);
 			console.log('✅ OngoingMeeting: Initial transcription data sent to NotchDrop');
+		}
+
+		// Send initial live intelligence data to NotchDrop if available
+		const allThreads = liveIntelligenceData?.allThreads || [];
+		if (allThreads.length > 0 && window?.electronApi?.notchdrop?.replaceLiveIntelligenceData) {
+			console.log(
+				'🧠 OngoingMeeting: Sending initial live intelligence data to NotchDrop:',
+				allThreads.length,
+				'threads',
+			);
+			window.electronApi.notchdrop.replaceLiveIntelligenceData(allThreads);
+			console.log('✅ OngoingMeeting: Initial live intelligence data sent to NotchDrop');
 		}
 
 		const newState = { overlay: false, open: false };
@@ -228,28 +243,16 @@ const OngoingMeeting = memo(() => {
 					const allThreads = liveIntelligenceData?.allThreads || [];
 					if (
 						allThreads.length > 0 &&
-						window?.electronApi?.overlay?.sendLiveIntelligenceData
+						window?.electronApi?.notchdrop?.replaceLiveIntelligenceData
 					) {
 						console.log(
-							'🧠 OngoingMeeting: Sending live intelligence data to NotchDrop on toggle:',
+							'🧠 OngoingMeeting: Sending live intelligence data array to NotchDrop on toggle:',
 							allThreads.length,
 							'threads',
 						);
-						allThreads.forEach((thread) => {
-							const message = {
-								source: 'ai-agent',
-								text: thread.prompt || thread.name || thread.description || '',
-								timestamp:
-									thread.timestamp ||
-									thread.created_at ||
-									new Date().toISOString(),
-								confidence: thread.confidence,
-								metadata: thread,
-							};
-							window.electronApi.overlay.sendLiveIntelligenceData(message);
-						});
+						window.electronApi.notchdrop.replaceLiveIntelligenceData(allThreads);
 						console.log(
-							'✅ OngoingMeeting: Live intelligence data sent to NotchDrop on toggle',
+							'✅ OngoingMeeting: Live intelligence data array sent to NotchDrop on toggle',
 						);
 					}
 				} else {
@@ -312,7 +315,6 @@ const OngoingMeeting = memo(() => {
 	// }, [activeMeetingId]);
 
 	const toggleChat = (open) => {
-		console.log('toggleChat', open, info.chatOpen);
 		if (open === info.chatOpen) {
 			return;
 		}
@@ -320,8 +322,8 @@ const OngoingMeeting = memo(() => {
 		if (open) {
 			newWidth = info?.dimentions?.width + CHAT_WIDTH;
 		} else {
-			newWidth = info?.dimentions?.width - CHAT_WIDTH;
-			newWidth = newWidth < 522 ? 522 : newWidth;
+			// When closing chat, reset to original meeting dimensions (522px width)
+			newWidth = 522;
 		}
 		window?.electronApi?.resizeMainWindow({
 			dimensions: {
@@ -415,9 +417,12 @@ const OngoingMeeting = memo(() => {
 				{info.isResponseSelected && (
 					<button
 						className={s.ongoingMeetingHeaderButton}
-						onClick={() => handleOpenChatResponse(true)}
+						onClick={() =>
+							info.chatOpen ? toggleChat(false) : handleOpenChatResponse(true)
+						}
+						style={{ transform: info.chatOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
 					>
-						<ChevronRight size={16} />
+						<ChevronRight size={24} />
 					</button>
 				)}
 			</div>
@@ -497,21 +502,28 @@ const OngoingMeeting = memo(() => {
 						)}
 					</div>
 					<div className={s.ongoingMeetingFooter}>
-						<button className={s.newChatButton} onClick={() => navigate(`/new-chat`)}>
-							<Plus size={16} /> New Chat
-						</button>
+						{preparingSummary ? (
+							<ProgressBar />
+						) : (
+							<button
+								className={s.newChatButton}
+								onClick={() => navigate(`/new-chat`)}
+							>
+								<Plus size={16} /> New Chat
+							</button>
+						)}
 					</div>
 				</div>
 				{info.chatOpen && sessionId && (
 					<div className={s.recentChatWrapper}>
 						<div className={s.recentChatHeader}>
 							<div className={s.recentChatHeaderTitle}>AI Response</div>
-							<button
+							{/* <button
 								className={s.recentChatHeaderButton}
 								onClick={() => toggleChat(false)}
 							>
 								<X size={16} />
-							</button>
+							</button> */}
 						</div>
 						<div className={s.recentChatContent}>
 							<RecentChat
@@ -575,6 +587,85 @@ const TranscriptPanel = ({ transcripts = [] }) => {
 				</div>
 			)}
 			<div ref={bottomRef} />
+		</div>
+	);
+};
+
+/**
+ * ProgressBar Component
+ *
+ * Features:
+ * - Fills from 0% to 90% over 30 seconds
+ * - Completes to 100% when API response is received (preparingSummary becomes false)
+ * - Shows "Preparing meeting summary..." during progress
+ * - Shows "Meeting summary ready!" when complete
+ * - Uses primary color for the progress bar fill
+ */
+const ProgressBar = () => {
+	const [progress, setProgress] = useState(0);
+	const [isComplete, setIsComplete] = useState(false);
+	const intervalRef = useRef(null);
+	const startTimeRef = useRef(null);
+
+	// Get preparingSummary from store to detect API completion
+	const { preparingSummary } = useStore((state) => state.meeting) || {};
+
+	useEffect(() => {
+		// Start the progress animation
+		startTimeRef.current = Date.now();
+		const duration = 30000; // 30 seconds
+		const targetProgress = 90; // 90%
+
+		intervalRef.current = setInterval(() => {
+			const elapsed = Date.now() - startTimeRef.current;
+			const currentProgress = Math.min((elapsed / duration) * targetProgress, targetProgress);
+
+			setProgress(currentProgress);
+
+			if (currentProgress >= targetProgress) {
+				clearInterval(intervalRef.current);
+			}
+		}, 50); // Update every 50ms for smooth animation
+
+		return () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+			}
+		};
+	}, []);
+
+	// Listen for API response completion via store changes
+	useEffect(() => {
+		// When preparingSummary becomes false, complete the progress bar
+		if (!preparingSummary && progress >= 90 && !isComplete) {
+			setProgress(100);
+			setIsComplete(true);
+		}
+	}, [preparingSummary, progress, isComplete]);
+
+	// Fallback: Complete after 30 seconds if API doesn't respond
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			if (progress >= 90 && !isComplete) {
+				setProgress(100);
+				setIsComplete(true);
+			}
+		}, 30000);
+
+		return () => clearTimeout(timeout);
+	}, [progress, isComplete]);
+
+	// The progress bar will automatically complete when preparingSummary becomes false
+	// No additional integration needed - it listens to the store state
+
+	return (
+		<div className={s.progressBarContainer}>
+			<div className={s.progressBar}>
+				<div className={s.progressBarFill} style={{ width: `${progress}%` }} />
+			</div>
+			<div className={s.progressBarText}>
+				{isComplete ? 'Meeting summary ready!' : 'Preparing meeting summary...'}
+			</div>
 		</div>
 	);
 };

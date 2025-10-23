@@ -57,7 +57,8 @@ export default defineConfig({
 								galleryHelper: 'electron/galleryHelper.js',
 								overlayWindowHelper: 'electron/overlayWindowHelper.js',
 								windowsCompatibility: 'electron/windowsCompatibility.js',
-								notchDropService: 'electron/services/notchDropService.js',
+								boringNotchService: 'electron/services/boringNotchService.js',
+								websocketService: 'electron/services/websocketService.js',
 								ipcThrottleService: 'electron/services/ipcThrottleService.js',
 								idleTracker: 'electron/services/idleTracker.js',
 								meetingState: 'electron/services/meetingState.js',
@@ -80,7 +81,8 @@ export default defineConfig({
 										return 'helpers/[name].js';
 									}
 									if (
-										chunkInfo.name === 'notchDropService' ||
+										chunkInfo.name === 'boringNotchService' ||
+										chunkInfo.name === 'websocketService' ||
 										chunkInfo.name === 'ipcThrottleService' ||
 										chunkInfo.name === 'idleTracker' ||
 										chunkInfo.name === 'meetingState'
@@ -126,7 +128,6 @@ export default defineConfig({
 				askAI: './askAI.html',
 				areYouThere: './areYouThere.html',
 				dynamicIsland: './dynamic-island.html',
-				permission: './permission.html',
 				errorFallback: './error-fallback.html',
 			},
 			// ✅ REVERTED: Removed aggressive code splitting that broke production
