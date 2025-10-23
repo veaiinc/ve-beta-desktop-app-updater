@@ -333,11 +333,14 @@ class BoringNotchService {
 							messageData.data.data?.message,
 						);
 					}
-					// Handle custom events (like stealth mode)
+					// Handle custom events (like stealth mode and voice agent)
 					else if (messageData.data.type === 'CUSTOM' && messageData.data.data) {
 						const customData = messageData.data.data;
 						if (customData.type === 'electron_stealth_mode') {
 							this.handleDirectStealthMode(customData.isEnabled);
+						} else if (customData.type === 'activate_voice_agent') {
+							log.info('🎤 Received activate_voice_agent from boring.notch');
+							this.activateVoiceAgent();
 						}
 					}
 					// Handle legacy stdout format (if any)
