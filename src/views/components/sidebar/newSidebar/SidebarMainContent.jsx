@@ -91,12 +91,12 @@ const SidebarMainContent = ({
 		<div className={s.container}>
 			<div className={s.sidebarDummy}></div>
 			<div className={s.sidebarContent}>
-				<button className={s.referralBtn} onClick={handleReferralClick}>
+				{/* <button className={s.referralBtn} onClick={handleReferralClick}>
 					<div className={s.giftIcon}>
 						<GiftSvg />
 					</div>
 					<span>Invite Friends, Earn Credits</span>
-				</button>
+				</button> */}
 
 				<div className={s.navButtons}>
 					{options?.map((option, index) => (
@@ -126,7 +126,8 @@ const SidebarMainContent = ({
 				{aiChatSessions?.data?.length > 0 && (
 					<div className={s.chatList}>
 						<button
-							className={`${s.itemBtn} ${activeType === 'chats' ? s.active : ''}`}
+							// className={`${s.itemBtn} ${activeType === 'chats' ? s.active : ''}`}
+							className={`${s.itemBtn} ${s.chatItemBtn}`}
 							onClick={() => handleTypeChange('chats')}
 						>
 							Chats

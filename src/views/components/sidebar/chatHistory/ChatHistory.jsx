@@ -178,7 +178,16 @@ const ChatHistory = ({ onChatSelect, isClosed = false, showNewChatBtn = true }) 
 						dataLength={chats?.length || 0}
 						next={fetchMoreChats}
 						hasMore={hasNextPage || false}
-						loader={<FetchMoreLoaderComp wrapperStyle={{ width: '100%' }} />}
+						loader={
+							<div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+								<Spinner
+									width={'12px'}
+									height={'12px'}
+									style={{ margin: '0 auto' }}
+									color={'var(--primary-font)'}
+								/>
+							</div>
+						}
 						style={{
 							...infiniteScrollStyle,
 							marginBottom: !currentPlan?.totalAiCreditLimit === 0 ? '140px' : '70px',
