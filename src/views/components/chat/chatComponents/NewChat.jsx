@@ -34,10 +34,12 @@ const NewChat = () => {
 		<div className={s.newChatContainer}>
 			<div className={s.mainContent}>
 				<div className={s.userGreeting}>
-					<div className={s.userGreetingText}>
+					{/* <div className={s.userGreetingText}>
 						Hey {userName}! Welcome to <span className={s.companyName}>Ve</span>
 					</div>
-					<div className={s.description}>Unify your workflow across all platforms</div>
+					<div className={s.description}>Unify your workflow across all platforms</div> */}
+
+					<div className={s.newChatTitle}>Ask me anything on Meetings & Emails</div>
 				</div>
 				<div className={s.chatboxContainer}>
 					<ChatBox
@@ -48,7 +50,7 @@ const NewChat = () => {
 						showUpgradeSubscriptionBtn={false}
 					/>
 				</div>
-				<ProactiveCards />
+				{/* <ProactiveCards /> */}
 			</div>
 		</div>
 	);

@@ -354,7 +354,7 @@ const NewSidebar = () => {
 								<SettingSvg width={20} height={20} />
 							</button>
 
-							<button
+							{/* <button
 								ref={notificationsButtonRef}
 								className={`${s.notificationsIcon} ${
 									localState?.notificationsOpen ? s.active : ''
@@ -384,7 +384,7 @@ const NewSidebar = () => {
 										totalAiCreditUsed={currentPlan?.totalAiCreditUsed}
 									/>
 								</div>
-							</CreditsUpgradeTooltip>
+							</CreditsUpgradeTooltip> */}
 						</div>
 					</div>
 

@@ -1338,12 +1338,12 @@ const ChatBox = ({
 						return;
 					}
 					// For regular web app, show the global voice widget
-					updateAiSetupState({ showVoiceWidget: true });
+					// updateAiSetupState({ showVoiceWidget: true });
 				}
 			} catch (error) {
 				console.error('❌ Error activating voice agent:', error);
 				// Fallback to showing voice widget
-				updateAiSetupState({ showVoiceWidget: true });
+				// updateAiSetupState({ showVoiceWidget: true });
 			}
 		},
 		[updateAiSetupState, isDesktopApp, isTranscribing],
