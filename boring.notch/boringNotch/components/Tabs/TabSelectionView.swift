@@ -343,57 +343,100 @@ struct TabSelectionView: View, WebSocketEventListener {
     @Namespace var animation
     @State var meetingLoading: Bool = false
     @State private var wasMusicPlayingBeforeRecording: Bool = false
+    @State private var hasResumedMusic: Bool = false
     
     // MARK: - Universal Music Control Functions
+    /// Checks if music is actually playing and pauses it if so.
+    /// Only sets wasMusicPlayingBeforeRecording to true if music was actually detected and paused.
+    /// This prevents automatically resuming music that the user had manually paused before starting the meeting.
     private func checkAndPauseMusic() async {
+        print("🎵 ===== MUSIC DETECTION START =====")
         print("🎵 Checking for any music playing across all applications...")
+        
+        // Reset the resume flag for new meeting
+        hasResumedMusic = false
         
         var musicWasPlaying = false
         
         // Method 1: Check the current active music controller
+        print("🎵 Method 1 - Active controller check:")
+        print("🎵   - musicManager.isPlaying: \(musicManager.isPlaying)")
+        print("🎵   - musicManager.bundleIdentifier: \(musicManager.bundleIdentifier ?? "nil")")
+        
         if musicManager.isPlaying {
-            print("🎵 Music detected via active controller (\(musicManager.bundleIdentifier ?? "unknown")) - pausing")
+            print("🎵   ✅ Music detected via active controller - pausing")
             musicWasPlaying = true
             musicManager.pause()
+        } else {
+            print("🎵   ❌ No music detected via active controller")
         }
         
         // Method 2: Try universal NowPlaying controller for any app supporting Now Playing
+        print("🎵 Method 2 - NowPlaying controller check:")
         if let nowPlayingController = createUniversalNowPlayingController() {
-            // Use MediaRemote to pause any currently playing media
-            print("🎵 Attempting universal pause via NowPlaying/MediaRemote")
-            await nowPlayingController.pause()
+            let isNowPlayingActive = nowPlayingController.playbackState.isPlaying
+            print("🎵   - nowPlayingController.playbackState.isPlaying: \(isNowPlayingActive)")
+            print("🎵   - nowPlayingController.playbackState.bundleIdentifier: \(nowPlayingController.playbackState.bundleIdentifier)")
             
-            // If we didn't detect music via the active controller, assume something might be playing
-            // and was paused by the universal controller
-            if !musicWasPlaying {
-                // We can't easily detect if music was actually playing via NowPlaying
-                // but we'll assume it was and set the flag to be safe
+            if isNowPlayingActive {
+                print("🎵   ✅ Music detected via NowPlaying controller - pausing")
+                await nowPlayingController.pause()
                 musicWasPlaying = true
-                print("🎵 Universal pause applied (assuming music was playing)")
+            } else {
+                print("🎵   ❌ No music detected via NowPlaying controller")
             }
+        } else {
+            print("🎵   ❌ Could not create NowPlaying controller")
         }
         
         // Method 3: Try pausing common music apps directly via AppleScript
-        await pauseCommonMusicApps()
+        // DISABLED: AppleScript approach can cause unexpected behavior and might resume music
+        print("🎵 Method 3 - AppleScript pause check: DISABLED")
+        // let musicPausedViaApps = await pauseCommonMusicApps()
+        // print("🎵   - musicPausedViaApps: \(musicPausedViaApps)")
+        // if musicPausedViaApps {
+        //     musicWasPlaying = true
+        // }
+        print("🎵   - AppleScript approach disabled to prevent unexpected behavior")
         
         wasMusicPlayingBeforeRecording = musicWasPlaying
-        print("🎵 Music pause check complete. Was playing: \(musicWasPlaying)")
+        print("🎵 ===== MUSIC DETECTION COMPLETE =====")
+        print("🎵 Final result - wasMusicPlayingBeforeRecording: \(musicWasPlaying)")
+        print("🎵 ======================================")
     }
     
     private func resumeMusicIfNeeded() async {
+        print("🎵 ===== MUSIC RESUME CHECK =====")
+        print("🎵 wasMusicPlayingBeforeRecording: \(wasMusicPlayingBeforeRecording)")
+        print("🎵 hasResumedMusic: \(hasResumedMusic)")
+        
+        // Prevent multiple resume attempts
+        if hasResumedMusic {
+            print("🎵 ❌ Music already resumed, skipping duplicate call")
+            return
+        }
+        
         if wasMusicPlayingBeforeRecording {
-            print("🎵 Resuming music after recording stopped")
+            print("🎵 ✅ Resuming music after recording stopped (music was playing before meeting started)")
             
             // Try to resume using the active controller first
+            print("🎵   - Attempting resume via musicManager.play()")
             musicManager.play()
             
             // Also try universal NowPlaying controller
             if let nowPlayingController = createUniversalNowPlayingController() {
+                print("🎵   - Attempting resume via NowPlaying controller")
                 await nowPlayingController.play()
             }
             
+            hasResumedMusic = true
             wasMusicPlayingBeforeRecording = false
+            print("🎵 ✅ Music resume attempts completed")
+        } else {
+            print("🎵 ❌ Not resuming music - music was not playing before meeting started (user had paused it)")
+            hasResumedMusic = true // Mark as processed even if not resuming
         }
+        print("🎵 ==============================")
     }
     
     // MARK: - Universal Music Detection Helper
@@ -404,7 +447,9 @@ struct TabSelectionView: View, WebSocketEventListener {
     }
     
     // MARK: - Common Music Apps Pause
-    private func pauseCommonMusicApps() async {
+    private func pauseCommonMusicApps() async -> Bool {
+        print("🎵   - Checking for running music apps...")
+        
         // List of common music app bundle identifiers
         let commonMusicApps = [
             "com.apple.Music",
@@ -420,6 +465,8 @@ struct TabSelectionView: View, WebSocketEventListener {
             "com.pandora.desktop"
         ]
         
+        var musicWasPaused = false
+        
         // Check which apps are running and try to pause them
         let runningApps = NSWorkspace.shared.runningApplications
         let runningMusicApps = runningApps.filter { app in
@@ -427,15 +474,25 @@ struct TabSelectionView: View, WebSocketEventListener {
             return commonMusicApps.contains(bundleId)
         }
         
+        print("🎵   - Found \(runningMusicApps.count) running music apps")
+        
         for app in runningMusicApps {
             if let bundleId = app.bundleIdentifier {
-                print("🎵 Found running music app: \(bundleId)")
-                await pauseAppIfPlaying(bundleId)
+                print("🎵   - Found running music app: \(bundleId)")
+                let wasPaused = await pauseAppIfPlaying(bundleId)
+                if wasPaused {
+                    musicWasPaused = true
+                }
             }
         }
+        
+        print("🎵   - AppleScript pause result: \(musicWasPaused)")
+        return musicWasPaused
     }
     
-    private func pauseAppIfPlaying(_ bundleIdentifier: String) async {
+    private func pauseAppIfPlaying(_ bundleIdentifier: String) async -> Bool {
+        print("🎵     - Attempting to pause app: \(bundleIdentifier)")
+        
         // Use AppleScript to pause specific music apps
         let script: String
         
@@ -447,17 +504,22 @@ struct TabSelectionView: View, WebSocketEventListener {
         case "com.google.Chrome", "com.microsoft.edgemac", "org.mozilla.firefox", "com.apple.Safari":
             // For browser-based music, we can't easily pause without knowing the specific tab
             // This is a limitation, but the NowPlaying controller should handle most cases
-            return
+            print("🎵     - Skipping browser app (can't pause without specific tab)")
+            return false
         default:
             // For other apps, try a generic approach
             script = "tell application \"\(bundleIdentifier)\" to pause"
         }
         
+        print("🎵     - Executing AppleScript: \(script)")
+        
         do {
             try await AppleScriptHelper.executeVoid(script)
-            print("🎵 Successfully paused \(bundleIdentifier)")
+            print("🎵     ✅ Successfully paused \(bundleIdentifier)")
+            return true
         } catch {
-            print("🎵 Failed to pause \(bundleIdentifier): \(error)")
+            print("🎵     ❌ Failed to pause \(bundleIdentifier): \(error)")
+            return false
         }
     }
     
