@@ -8,7 +8,7 @@ const projectRoot = path.join(__dirname, '..');
 const boringNotchDir = path.join(projectRoot, 'boring.notch');
 const xcodeProject = path.join(boringNotchDir, 'boringNotch.xcodeproj');
 const buildDir = path.join(boringNotchDir, 'build');
-const builtAppPath = path.join(buildDir, 'Build', 'Products', 'Debug', 'Ve.Ai.app');
+const builtAppPath = path.join(buildDir, 'Build', 'Products', 'Release', 'Ve.Ai.app');
 const targetAppPath = path.join(buildDir, 'boringNotch.app');
 
 console.log('🚀 Building Boring Notch app...');
@@ -30,7 +30,7 @@ try {
 	// Build the Xcode project
 	console.log('🔨 Building Xcode project (this may take a few minutes)...');
 	execSync(
-		`xcodebuild -project boringNotch.xcodeproj -scheme boringNotch -configuration Debug -derivedDataPath build clean build CODE_SIGN_IDENTITY="" CODE_SIGN_STYLE=Automatic`,
+		`xcodebuild -project boringNotch.xcodeproj -scheme boringNotch -configuration Release -derivedDataPath build clean build CODE_SIGN_IDENTITY="Developer ID Application: VE AI PRIVATE LIMITED (47J296MPWB)" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=47J296MPWB OTHER_CODE_SIGN_FLAGS="--timestamp --options runtime"`,
 		{
 			cwd: boringNotchDir,
 			stdio: 'inherit',
