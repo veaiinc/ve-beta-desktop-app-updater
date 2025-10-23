@@ -275,7 +275,7 @@ class VoiceAssistantIntegration {
 					success: true,
 					token: data.token,
 					room_name: data.room_name || `voice-session-${Date.now()}`,
-					url: 'wss://ve-ai-voice-agent-ginreaey.livekit.cloud',
+					url: 'wss://ve-ai-voice-agent-9yzwlzsg.livekit.cloud',
 				};
 			} else {
 				throw new Error(data.error || 'Token generation failed');

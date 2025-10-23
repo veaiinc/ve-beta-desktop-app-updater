@@ -365,7 +365,7 @@ export const useVoiceIntegration = () => {
 			});
 
 			// ======= Connect to LiveKit Server =======
-			const connectUrl = liveKitUrl || 'wss://ve-ai-voice-agent-ginreaey.livekit.cloud';
+			const connectUrl = liveKitUrl || 'wss://ve-ai-voice-agent-9yzwlzsg.livekit.cloud';
 			console.log('🔌 Connecting to LiveKit server:', connectUrl);
 			await room.connect(connectUrl, token, { autoSubscribe: true });
 
