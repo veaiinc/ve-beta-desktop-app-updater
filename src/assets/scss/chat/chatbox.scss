@@ -260,7 +260,6 @@ $primary-font-family: 'GeneralSans';
 			overflow: hidden;
 			position: relative;
 
-
 			.recent-file-wrapper {
 				position: absolute;
 				width: 1px;
@@ -356,13 +355,22 @@ $primary-font-family: 'GeneralSans';
 						background-color: var(--stroke);
 					}
 				}
+
+				.leading-icon-container {
+					display: flex;
+					height: 32px;
+					width: 32px;
+					justify-content: center;
+					align-items: center;
+					border-radius: 100px;
+				}
 			}
 
 			.buttons-right-container {
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				gap: 8px;
+				gap: 4px;
 
 				.stop-button {
 					height: 32px;

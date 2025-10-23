@@ -6,6 +6,7 @@ import ChatBox from '../views/components/chat/ChatBox';
 import CustomToast from '../views/components/globalComponents/CustomToast';
 import { flushSync } from 'react-dom';
 import { GripVertical } from 'lucide-react';
+import { ReactComponent as SearchSparkleSvg } from './searchSparkle.svg';
 
 const AskAIApp = () => {
 	const {
@@ -203,6 +204,7 @@ const AskAIApp = () => {
 						showMoveHandle={true}
 						handleChatBoxHeight={null}
 						getChatBoxHeight={false}
+						leadingIcon={<SearchSparkleSvg />}
 					/>
 				</div>
 			</div>

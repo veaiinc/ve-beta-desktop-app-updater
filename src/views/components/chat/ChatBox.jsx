@@ -89,6 +89,7 @@ const ChatBox = ({
 	// below props are for desktop app
 	isDesktopApp = false,
 	handleDesktopAppPayload = null,
+	leadingIcon = null,
 }) => {
 	const location = useLocation();
 	const params = useParams();
@@ -1568,6 +1569,11 @@ const ChatBox = ({
 									<BulbSvg />
 								</div>
 							</RecentFileTooltip>
+						)}
+						{leadingIcon && (
+							<div className="leading-icon-container">
+								{leadingIcon}
+							</div>
 						)}
 					</div>
 					<div className="chat-input-container">
