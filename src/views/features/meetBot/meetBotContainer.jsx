@@ -425,7 +425,7 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 				setIsLoadingMeetingDetails(false);
 			});
 		}
-	}, [meetingId]);
+	}, []);
 
 	// Check if meeting was not found after loading
 	useEffect(() => {
@@ -436,15 +436,21 @@ const MeetBotContainer = ({ showTranscriptTabs = false }) => {
 
 	useEffect(() => {
 		if (createBotInfo && meetingId === createBotInfo?._id) {
-			if (!valuesInitializedRef.current) {
-				valuesInitializedRef.current = true;
-				setInfo((prev) => ({
-					...prev,
+			// Always update the title when createBotInfo changes, but only initialize other values once
+			setInfo((prev) => ({
+				...prev,
+				meetingTitle: createBotInfo?.title,
+				// Only set these values if they haven't been initialized yet
+				...(prev.meetingTitle === '' && {
 					botJoined: createBotInfo?.status === 'live',
 					botJoinedTime: createBotInfo?.botJoinedAt,
 					meetingPlatform: createBotInfo?.meetingPlatform,
-					meetingTitle: createBotInfo?.title,
-				}));
+				}),
+			}));
+
+			// Mark as initialized after first update
+			if (!valuesInitializedRef.current) {
+				valuesInitializedRef.current = true;
 			}
 		}
 	}, [createBotInfo]);
