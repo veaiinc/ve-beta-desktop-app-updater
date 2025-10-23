@@ -9,6 +9,7 @@
 	.mainContent {
 		align-items: center;
 		width: 100%;
+		max-width: 532px;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -16,7 +17,7 @@
 		height: calc(100vh - 200px);
 		padding: 0 16px;
 		@media (max-height: 768px) {
-			justify-content: flex-start;
+			// justify-content: flex-start;
 		}
 
 		.userGreeting {
@@ -26,7 +27,18 @@
 			align-items: center;
 			justify-content: center;
 			gap: 8px;
-			margin-bottom: 60px;
+			margin-bottom: 24px;
+
+			.newChatTitle {
+				color: var(--primary-font, #f2f2f3);
+				text-align: center;
+				font-family: var(--primary-font-family);
+				font-size: 20px;
+				font-style: normal;
+				font-weight: 500;
+				line-height: normal;
+				
+			}
 
 			.userGreetingText {
 				color: var(--primary-font, #f2f2f3);
