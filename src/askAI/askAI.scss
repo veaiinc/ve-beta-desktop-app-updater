@@ -30,58 +30,115 @@
 		background: transparent;
 	}
 
-	// Chat input wrapper
-	.ask-ai-chat-input-wrapper {
-		flex: 1;
-		padding: 0 0px 8px 4px;
+	.ask-ai-chat-input-wrapper-container {
 		display: flex;
-		flex-direction: column;
-		background: transparent;
-		position: relative;
+		width: 420px;
+		justify-content: center;
+		align-items: center;
+		gap: 10px;
+		width: 100%;
+		height: 100%;
+		padding: 4px 0px;
 
-		/* Compact ChatBox styles */
-		.chatBoxParentWrapper {
-			width: 95%;
+		.drag-handle {
+			display: flex;
+			width: 28px;
+			height: 28px;
+			justify-content: center;
+			align-items: center;
+			gap: 12px;
+			flex-shrink: 0;
+			border-radius: 100px;
+			background: var(--chat-box);
 		}
 
-		.chatInputContainer {
-			padding: 10px 9px;
-			min-height: 24px;
-			font-size: 10px;
-			font-family: var(--primary-font-family) !important;
-		}
+		.ask-ai-chat-input-wrapper {
+			flex-grow: 1;
+			// padding: 0 0px 8px 4px;
+			display: flex;
+			background: transparent;
+			position: relative;
+			height: 100%;
+			width: 100%;
+			align-items: center;
+			justify-content: center;
+			height: 44px;
 
-		/* Reduce button sizes for compact layout */
-		.buttons-left-container,
-		.buttons-right-container {
-			.click-btn,
-			.upload-file-btn-container,
-			.deep-search-btn-container,
-			.create-btn-container {
-				height: 24px !important;
-				width: 24px !important;
-				padding: 4px !important;
-				-webkit-app-region: no-drag;
-				app-region: no-drag;
-				cursor: pointer;
-				pointer-events: auto;
-				.hover {
-					cursor: pointer;
-					pointer-events: auto;
+			/* Compact ChatBox styles */
+			.chatBoxParentWrapper {
+				width: 95%;
+				height: 44px;
+			}
+
+			.chatInputContainer {
+				padding: 0 8px;
+				min-height: 44px;
+				font-size: 10px;
+				font-family: var(--primary-font-family) !important;
+				// background: rgba(0, 0, 0, 0.4);
+				// backdrop-filter: blur(10px);
+				display: flex !important;
+				align-items: center !important;
+				justify-content: center !important;
+
+				&:focus-within {
+					outline: none;
+					border: none;
+					box-shadow: none;
+					::placeholder {
+						color: var(--primary-font);
+						font-size: 14px;
+						font-family: var(--primary-font-family);
+						font-weight: 400;
+					}
+				}
+				.click-btn {
+					height: 28px !important;
+					width: 28px !important;
+
+					--svg-color: var(--primary-font);
+
+					&.voice-agent-btn {
+						border-radius: 100px;
+						background: rgba(255, 255, 255, 0.1);
+					}
 				}
 			}
-		}
 
-		/* Reduce textarea height */
-		.textArea {
-			position: absolute;
-			top: 1px;
-			min-height: 21px !important;
-			max-height: 22px !important;
-			line-height: 1.1 !important;
-			font-size: 14px !important;
-			padding: 2px 2px !important;
-			font-family: var(--primary-font-family) !important;
+			/* Reduce button sizes for compact layout */
+			.buttons-left-container,
+			.buttons-right-container {
+				.click-btn,
+				.upload-file-btn-container,
+				.deep-search-btn-container,
+				.create-btn-container {
+					height: 24px !important;
+					width: 24px !important;
+					padding: 4px !important;
+					-webkit-app-region: no-drag;
+					app-region: no-drag;
+					cursor: pointer;
+					pointer-events: auto;
+					.hover {
+						cursor: pointer;
+						pointer-events: auto;
+					}
+				}
+			}
+
+			/* Reduce textarea height */
+			.textArea {
+				position: absolute;
+				top: 1px;
+				min-height: 21px !important;
+				max-height: 22px !important;
+				line-height: 1.1 !important;
+				font-size: 14px !important;
+				padding: 2px 2px !important;
+				font-family: var(--primary-font-family) !important;
+			}
 		}
 	}
+
+	// Chat input wrapper
 }

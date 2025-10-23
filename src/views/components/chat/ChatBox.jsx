@@ -36,6 +36,7 @@ import useSpeechTranscription from '../../../hooks/useSpeechTranscripton';
 import SpeechToTextInactivity from './SpeechToTextInactivity';
 import SourcesTooltip from './SourcesTooltip';
 import { ReactComponent as MoveHandleSvg } from '../../../askAI/move.svg';
+import { Mic } from 'lucide-react';
 
 const moduleHelper = {
 	tasks: 'tasks',
@@ -88,7 +89,7 @@ const ChatBox = ({
 	// below props are for desktop app
 	isDesktopApp = false,
 	handleDesktopAppPayload = null,
-	showMoveHandle = false,
+	leadingIcon = null,
 }) => {
 	const location = useLocation();
 	const params = useParams();
@@ -1549,11 +1550,6 @@ const ChatBox = ({
 				)}
 
 				<div className="chatInputParentContainer">
-					{showMoveHandle && (
-						<div className="drag-handle" title="Move">
-							<MoveHandleSvg />
-						</div>
-					)}
 					<div className="buttons-left-container">
 						{showRecentFiles && (
 							<RecentFileTooltip
@@ -1573,6 +1569,11 @@ const ChatBox = ({
 									<BulbSvg />
 								</div>
 							</RecentFileTooltip>
+						)}
+						{leadingIcon && (
+							<div className="leading-icon-container">
+								{leadingIcon}
+							</div>
 						)}
 					</div>
 					<div className="chat-input-container">
@@ -1631,7 +1632,7 @@ const ChatBox = ({
 									{isTranscribing ? (
 										<StopIconSvg className="voice-icon" />
 									) : (
-										<SpeechMicSvg className="voice-icon" />
+										<Mic color="var(--svg-color)"/>
 									)}
 								</div>
 							)}

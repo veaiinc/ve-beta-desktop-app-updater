@@ -5,6 +5,8 @@ import Context from '../context/context';
 import ChatBox from '../views/components/chat/ChatBox';
 import CustomToast from '../views/components/globalComponents/CustomToast';
 import { flushSync } from 'react-dom';
+import { GripVertical } from 'lucide-react';
+import { ReactComponent as SearchSparkleSvg } from './searchSparkle.svg';
 
 const AskAIApp = () => {
 	const {
@@ -175,30 +177,36 @@ const AskAIApp = () => {
 	return (
 		<div className="ask-ai-app">
 			<div className="ask-ai-drag-handle" onMouseDown={handleDragMouseDown} />
-			<div className="ask-ai-chat-input-wrapper">
-				<ChatBox
-					key={info?.sessionId}
-					isPublicChat={false}
-					handleSendWebsocketMessage={handleSendWebsocketMessage}
-					hideDeepResearch={false}
-					autoFocus={true}
-					customChatBoxClick={null}
-					showScrollButton={false}
-					smoothScrollToBottom={null}
-					onChatQueryChange={null}
-					sessionId={info?.sessionId}
-					handleBrowserButtonClick={null}
-					showBrowserButton={false}
-					browserImage={null}
-					showBottomTools={false}
-					showMicBtn={true}
-					showRecentFiles={false}
-					isDesktopApp={true}
-					handleDesktopAppPayload={handleDesktopAppPayload}
-					showMoveHandle={true}
-					handleChatBoxHeight={null}
-					getChatBoxHeight={false}
-				/>
+			<div className="ask-ai-chat-input-wrapper-container">
+				<div className="drag-handle" title="Move">
+					<GripVertical color="white" size={15} />
+				</div>
+				<div className="ask-ai-chat-input-wrapper">
+					<ChatBox
+						key={info?.sessionId}
+						isPublicChat={false}
+						handleSendWebsocketMessage={handleSendWebsocketMessage}
+						hideDeepResearch={false}
+						autoFocus={true}
+						customChatBoxClick={null}
+						showScrollButton={false}
+						smoothScrollToBottom={null}
+						onChatQueryChange={null}
+						sessionId={info?.sessionId}
+						handleBrowserButtonClick={null}
+						showBrowserButton={false}
+						browserImage={null}
+						showBottomTools={false}
+						showMicBtn={true}
+						showRecentFiles={false}
+						isDesktopApp={true}
+						handleDesktopAppPayload={handleDesktopAppPayload}
+						showMoveHandle={true}
+						handleChatBoxHeight={null}
+						getChatBoxHeight={false}
+						leadingIcon={<SearchSparkleSvg />}
+					/>
+				</div>
 			</div>
 
 			<CustomToast />

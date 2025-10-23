@@ -31,7 +31,6 @@ class WindowHelper {
 		this.areYouThereWindowPosition = { x: 0, y: 0 };
 		this.areYouThereWindowSize = { width: 500, height: 400 };
 
-
 		this.screenWidth = 0;
 		this.screenHeight = 0;
 		this.step = 0;
@@ -536,7 +535,6 @@ class WindowHelper {
 		this.areYouThereWindowSize = { width: bounds.width, height: bounds.height };
 	}
 
-
 	setupWindowListeners() {
 		if (!this.overlayWindow) return;
 
@@ -931,7 +929,6 @@ class WindowHelper {
 		});
 	}
 
-
 	setupMainWindowListeners() {
 		if (!this.mainWindow) return;
 
@@ -980,7 +977,6 @@ class WindowHelper {
 		return this.areYouThereWindow;
 	}
 
-
 	// CRITICAL FIX: Send command to overlay with proper queuing if not ready
 	sendOverlayCommand(action) {
 		if (!this.overlayWindow || this.overlayWindow.isDestroyed()) {
@@ -1020,7 +1016,6 @@ class WindowHelper {
 			!this.areYouThereWindow.isDestroyed()
 		);
 	}
-
 
 	// CRITICAL FIX: Check if overlay is ready for commands
 	isOverlayReady() {
@@ -1332,7 +1327,6 @@ class WindowHelper {
 
 		this.isAreYouThereVisible = true;
 	}
-
 
 	toggleOverlayWindow() {
 		if (this.isOverlayVisible) {
