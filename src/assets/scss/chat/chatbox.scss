@@ -260,27 +260,6 @@ $primary-font-family: 'GeneralSans';
 			overflow: hidden;
 			position: relative;
 
-			/* Draggable handle inside chatbox */
-			.drag-handle {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 32px;
-				height: 32px;
-				border-radius: 999px;
-				background: transparent;
-				cursor: move;
-				-webkit-app-region: drag;
-				flex-shrink: 0;
-				transition: background 0.2s ease-in-out;
-				svg {
-					width: 18px;
-					height: 18px;
-				}
-				&:hover {
-					background: var(--stroke);
-				}
-			}
 
 			.recent-file-wrapper {
 				position: absolute;
