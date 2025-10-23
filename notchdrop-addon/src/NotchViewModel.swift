@@ -529,7 +529,7 @@ class NotchViewModel: NSObject, ObservableObject {
     // private let notificationDuration: TimeInterval = 10.0
     
     // Voice configuration (VE.AI settings)
-    private var voiceURL: String = "wss://ve-ai-voice-agent-ginreaey.livekit.cloud"
+    private var voiceURL: String = "wss://ve-ai-voice-agent-9yzwlzsg.livekit.cloud"
     private var voiceToken: String = ""
     
     // MARK: - Camera/Webcam State (Grouped for performance)

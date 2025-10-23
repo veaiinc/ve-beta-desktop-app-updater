@@ -678,6 +678,8 @@ struct NotchHomeView: View {
                             withAnimation(.smooth) {
                                 vm.showVoiceInterface = true
                             }
+                            // Send message to Electron to activate voice agent
+                            vm.activateVoiceAgent()
                         }) {
                             HStack(spacing: 8) {
                                 Text("Talk with AI")

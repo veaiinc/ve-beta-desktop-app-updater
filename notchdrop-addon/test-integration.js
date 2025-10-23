@@ -23,7 +23,7 @@ try {
 
 	// Test voice configuration
 	console.log('🎤 Testing voice configuration...');
-	notchDrop.configureVoice('wss://ve-ai-voice-agent-ginreaey.livekit.cloud', 'test-token');
+	notchDrop.configureVoice('wss://ve-ai-voice-agent-9yzwlzsg.livekit.cloud', 'test-token');
 
 	// Test voice connection
 	console.log('📞 Testing voice connection...');

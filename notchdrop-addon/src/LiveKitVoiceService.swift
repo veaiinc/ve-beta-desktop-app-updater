@@ -74,7 +74,7 @@ import AVFoundation
     /// Configure LiveKit connection parameters
     @objc public func configure(url: String, token: String, participantName: String = "User") {
         // Use VE.AI LiveKit server URL
-        self.liveKitURL = url.isEmpty ? "wss://ve-ai-voice-agent-ginreaey.livekit.cloud" : url
+        self.liveKitURL = url.isEmpty ? "wss://ve-ai-voice-agent-9yzwlzsg.livekit.cloud" : url
         self.accessToken = token
         self.participantName = participantName
         

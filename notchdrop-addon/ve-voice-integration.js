@@ -19,7 +19,7 @@ class VEVoiceIntegration {
 
 		// VE.AI Configuration
 		this.config = {
-			liveKitURL: 'wss://ve-ai-voice-agent-ginreaey.livekit.cloud',
+			liveKitURL: 'wss://ve-ai-voice-agent-9yzwlzsg.livekit.cloud',
 			tokenGenerationURL: 'https://voice.us-east-1.ve.ai',
 			currentToken: null,
 			roomName: null,

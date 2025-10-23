@@ -20,15 +20,18 @@
 			align-items: center;
 			gap: 8px;
 			border-radius: 100px;
-			background: var(--card, #1b1c1d);
-			border: 1px solid var(--card, #1b1c1d);
+			border-radius: 100px;
+			background: rgba(255, 255, 255, 0.1);
+			// background: var(--card, #1b1c1d);
+			// border: 1px solid var(--card, #1b1c1d);
 			cursor: pointer;
-			color: var(--secondary-font, #94989e);
+			color: var(--primary-font, #f2f2f3);
 			font-family: var(--primary-font-family);
-			font-size: 15px;
+			// font-family: 'General Sans Variable';
+			font-size: 13px;
 			font-style: normal;
 			font-weight: 500;
-			line-height: 26px;
+			line-height: normal;
 
 			&:has(.tabButtonCount) {
 				padding: 8px 10px 8px 16px;
@@ -45,7 +48,7 @@
 				gap: 10px;
 				border-radius: 20px;
 				border: 1px solid var(--card-over-card-hover);
-				background: var(--card-over-card-hover);
+				background: transparent;
 				color: var(--secondary-font, #94989e);
 				font-family: var(--primary-font-family);
 				font-size: 12px;
@@ -55,14 +58,11 @@
 			}
 
 			&.activeTab {
-				border: 1px solid var(--stroke, #2c2d2e);
-				background: var(--card-hover, #202122);
+				// border: 1px solid var(--stroke, #2c2d2e);
+				// background: var(--card-hover, #202122);
+				border: 0.5px solid var(--primary-button-h, #ffffff);
 				color: var(--primary-font, #f2f2f3);
 				font-family: var(--primary-font-family);
-				font-size: 15px;
-				font-style: normal;
-				font-weight: 500;
-				line-height: 24px; /* 160% */
 
 				.tabButtonCount {
 					border: 1px solid var(--stroke, #2c2d2e);

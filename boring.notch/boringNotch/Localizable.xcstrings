@@ -9728,6 +9728,9 @@
         }
       }
     },
+    "Disable stealth mode" : {
+
+    },
     "Disabled" : {
       "localizations" : {
         "af" : {
@@ -9905,9 +9908,6 @@
           }
         }
       }
-    },
-    "Do it later" : {
-
     },
     "Download" : {
       "localizations" : {
@@ -11758,6 +11758,9 @@
           }
         }
       }
+    },
+    "Enable stealth mode" : {
+
     },
     "Enhance your experience with HUDs" : {
       "localizations" : {
@@ -31617,6 +31620,9 @@
           }
         }
       }
+    },
+    "Widgets" : {
+
     },
     "You can now enjoy the app. If you want to tweak things further, you can always visit the settings." : {
       "localizations" : {

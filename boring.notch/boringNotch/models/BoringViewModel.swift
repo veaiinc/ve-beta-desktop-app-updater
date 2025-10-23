@@ -377,6 +377,21 @@ class BoringViewModel: NSObject, ObservableObject {
         }
     }
     
+    // MARK: - Voice Agent Activation
+    func activateVoiceAgent() {
+        print("🎤 Activating voice agent - sending message to Electron")
+        
+        // Send message to Electron to activate the voice agent
+        WebSocketManager.shared.sendEvent(type: .custom, data: [
+            "type": "activate_voice_agent",
+            "timestamp": Date().timeIntervalSince1970,
+            "source": "boring-notch"
+        ])
+        
+        // Also activate the voice interface locally
+        activateVoiceInterface()
+    }
+    
     // MARK: - Authentication Methods
     func updateAuthenticationStatus(_ isAuthenticated: Bool) {
         DispatchQueue.main.async {

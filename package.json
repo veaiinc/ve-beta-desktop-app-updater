@@ -361,7 +361,7 @@
     "@vitest/ui": "^3.2.4",
     "autoprefixer": "^10.4.21",
     "chokidar": "^4.0.3",
-    "cross-env": "^10.0.0",
+    "cross-env": "^10.1.0",
     "css-loader": "^7.1.2",
     "cssnano": "^7.0.7",
     "electron": "^37.2.0",
