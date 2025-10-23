@@ -672,7 +672,7 @@ struct NotchHomeView: View {
                     }
 
                     // Talk with AI - equal width
-                    VStack(spacing: 8) {
+                    VStack(spacing: 12) {
                         // Talk with AI button
                         Button(action: {
                             withAnimation(.smooth) {
@@ -688,17 +688,24 @@ struct NotchHomeView: View {
                                     .font(.system(size: 12, weight: .semibold))
                                     .foregroundColor(.white)
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
                           .frame(minWidth: 255, maxWidth: 255, maxHeight: .infinity, alignment: .center)
 .background(Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25))
 
 .cornerRadius(100)
+.overlay(
+RoundedRectangle(cornerRadius: 100)
+.inset(by: 0.3)
+.stroke(.white.opacity(0.1), lineWidth: 0.6)
+
+)
+// .blur(radius: 10)
                         }
                         .buttonStyle(PlainButtonStyle())
                         
                         // Stealth and Settings icons below
-                        HStack(spacing: 8) {
+                        HStack(alignment: .center, spacing: 8) {
                             // Stealth mode toggle
                             Button(action: {
                                 vm.toggleStealthMode()
@@ -711,7 +718,7 @@ struct NotchHomeView: View {
                                             Image(nsImage: eyeIcon)
                                                 .renderingMode(.template)
                                                 .foregroundColor(.white)
-                                                .frame(width: 13, height: 13)
+                                                .frame(width: 18, height: 18)
                                         }
                                     } else {
                                         // Hat with glasses icon when stealth mode is OFF (default)
@@ -719,16 +726,22 @@ struct NotchHomeView: View {
                                             Image(nsImage: hatGlassesIcon)
                                                 .renderingMode(.template)
                                                 .foregroundColor(.white)
-                                                .frame(width: 13, height: 13)
+                                                .frame(width: 18, height: 18)
                                         }
                                     }
                                     #endif
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
-                                .frame(width: 32, height: 32, alignment: .center)
+                                .frame(width: 42, height: 42, alignment: .center)
                                .background(Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25))
-                                .cornerRadius(16)
+                                .cornerRadius(21)
+                                .overlay(
+RoundedRectangle(cornerRadius: 100)
+.inset(by: 0.3)
+.stroke(.white.opacity(0.1), lineWidth: 0.6)
+
+)
                             }
                             .buttonStyle(PlainButtonStyle())
                             .overlay(alignment: .leading) {
@@ -762,15 +775,21 @@ struct NotchHomeView: View {
                                         Image(nsImage: settingsIcon)
                                             .renderingMode(.template)
                                             .foregroundColor(.white)
-                                            .frame(width: 13, height: 13)
+                                            .frame(width: 18, height: 18)
                                     }
                                     #endif
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
-                                .frame(width: 32, height: 32, alignment: .center)
+                                .frame(width: 42, height: 42, alignment: .center)
                                 .background(Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25))
-                                .cornerRadius(16)
+                                .cornerRadius(21)
+                            .overlay(
+RoundedRectangle(cornerRadius: 100)
+.inset(by: 0.3)
+.stroke(.white.opacity(0.1), lineWidth: 0.6)
+
+)
                             }
                             .buttonStyle(PlainButtonStyle())
                             .overlay(alignment: .trailing) {
@@ -793,6 +812,8 @@ struct NotchHomeView: View {
                                     isSettingsButtonHovered = hovering
                                 }
                             }
+                            
+                            Spacer()
                         }
                     }
                     .frame(maxWidth: .infinity)

@@ -117,7 +117,7 @@ struct WheelPicker: View {
             Circle()
                 .fill(
                     isToday
-                    ? Color(.sRGB, red: 121/255, green: 236/255, blue: 201/255, opacity: 0.40)
+                    ? Color(red: 0.14, green: 0.59, blue: 0.45).opacity(0.25)
                     : .clear
                 )
                 .frame(width: 20, height: 20)

@@ -415,7 +415,7 @@ struct NotchBehaviourOnboardingView: View {
             }
 
             Button { onContinue() } label: {
-                Text("Do it later")
+                Text("Continue")
                     .font(Font.custom("GeneralSans", size: 14).weight(.medium))
                     .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
             }
