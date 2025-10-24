@@ -154,11 +154,6 @@ final class EmailViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            // First, run debug to see what's happening
-            if let mailService = service as? AppleScriptMailService {
-                try await mailService.debugMessageCounts()
-            }
-            
             let labels = try await fetchLabelsInBackground()
             self.availableLabels = labels
             print("✅ [VIEWMODEL] Labels fetched: \(labels.count) labels")
@@ -341,4 +336,3 @@ extension Date {
         return formatter.localizedString(for: self, relativeTo: Date())
     }
 }
-

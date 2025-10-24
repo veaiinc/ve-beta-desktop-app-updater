@@ -118,7 +118,6 @@ private struct ProfilePictureView: View {
     
     var body: some View {
         Group {
-            // Priority 1: Use profile picture data from Contacts (via AppleScript)
             if let profilePictureData = email.profilePictureData,
                let nsImage = NSImage(data: profilePictureData) {
                 Image(nsImage: nsImage)
@@ -127,121 +126,14 @@ private struct ProfilePictureView: View {
                     .frame(width: size, height: size)
                     .clipShape(Circle())
                     .onAppear {
-                        print("📸 [UI] Using Contacts/AppleScript image (\(profilePictureData.count) bytes)")
+                        print("📸 [UI] Using Contacts image (\(profilePictureData.count) bytes)")
                     }
-            } else if let profilePictureData = email.profilePictureData {
-                // Data exists but failed to decode – fallback to URL or placeholder
-                if let photoURL = email.photoURL {
-                    FallbackAsyncProfileImage(email: email, primaryURL: photoURL, size: size)
-                        .onAppear {
-                            print("📸 [UI] Failed to decode Contacts image (\(profilePictureData.count) bytes) → URL fallback")
-                        }
-                } else {
-                    MonogramAvatar(name: email.senderName, address: email.senderAddress, size: size)
-                        .onAppear {
-                            print("📸 [UI] Failed to decode Contacts image and no URL → Monogram")
-                        }
-                }
-            }
-            // Priority 2: Use Gravatar/DiceBear URL fallback
-            else if let photoURL = email.photoURL {
-                FallbackAsyncProfileImage(email: email, primaryURL: photoURL, size: size)
-            }
-            // Priority 3: Final fallback → Monogram avatar (offline)
-            else {
+            } else {
                 MonogramAvatar(name: email.senderName, address: email.senderAddress, size: size)
             }
         }
-        .frame(width: size, height: size) // Ensure consistent sizing
-        .clipped() // Prevent any overflow
-    }
-}
-
-// Loads primaryURL (e.g., Gravatar). If it fails, falls back to DiceBear based on email/senderName.
-// If that fails too, shows a local monogram avatar.
-private struct FallbackAsyncProfileImage: View {
-    let email: EmailItem
-    let primaryURL: URL
-    let size: CGFloat
-    @State private var phase: Phase = .primary
-    
-    private enum Phase {
-        case primary
-        case fallbackURL
-        case monogram
-    }
-    
-    private var fallbackURL: URL? {
-        // Build DiceBear fallback deterministically
-        let seed: String
-        if let addr = email.senderAddress, !addr.isEmpty {
-            seed = addr
-        } else {
-            seed = email.senderName.isEmpty ? "user" : email.senderName
-        }
-        let safeSeed = seed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "user"
-        return URL(string: "https://api.dicebear.com/7.x/avataaars/svg?seed=\(safeSeed)")
-    }
-    
-    var body: some View {
-        Group {
-            switch phase {
-            case .primary:
-                AsyncImage(url: primaryURL) { result in
-                    switch result {
-                    case .success(let image):
-                             image
-                                 .resizable()
-                                 .aspectRatio(contentMode: .fill)
-                                 .frame(width: size, height: size)
-                                 .clipShape(Circle())
-                    case .failure:
-                        // Gravatar likely 404 → try DiceBear
-                        Color.clear
-                            .frame(width: size, height: size)
-                            .onAppear { phase = .fallbackURL }
-                    case .empty:
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: size, height: size)
-                    @unknown default:
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: size, height: size)
-                    }
-                }
-            case .fallbackURL:
-                if let url = fallbackURL {
-                    AsyncImage(url: url) { result in
-                        switch result {
-                        case .success(let image):
-                             image
-                                 .resizable()
-                                 .aspectRatio(contentMode: .fill)
-                                 .frame(width: size, height: size)
-                                 .clipShape(Circle())
-                        case .failure:
-                            // DiceBear failed or blocked → monogram
-                            Color.clear
-                                .frame(width: size, height: size)
-                                .onAppear { phase = .monogram }
-                        case .empty:
-                            Circle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: size, height: size)
-                        @unknown default:
-                            Circle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: size, height: size)
-                        }
-                    }
-                } else {
-                    MonogramAvatar(name: email.senderName, address: email.senderAddress, size: size)
-                }
-            case .monogram:
-                MonogramAvatar(name: email.senderName, address: email.senderAddress, size: size)
-            }
-        }
+        .frame(width: size, height: size)
+        .clipped()
     }
 }
 
