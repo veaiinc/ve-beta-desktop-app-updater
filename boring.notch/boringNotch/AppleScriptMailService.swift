@@ -482,49 +482,30 @@ final class AppleScriptMailService: MailService {
             }
             
             print("🏷️ [MAIL] Parsing label results...")
-            let labels = LabelParser.parseList(result)
+            let allLabels = LabelParser.parseList(result)
             
-            // Filter and log the labels we found (these are already filtered for non-empty mailboxes)
-            print("🏷️ [MAIL] Available mailboxes with emails:")
-            for (index, label) in labels.enumerated() {
-                print("   \(index + 1). '\(label)' (has emails)")
-            }
+            // Define your custom labels (in priority order)
+            let targetLabels = ["1: To Respond", "2: FYI", "3: Comment", "4: Notification", 
+                               "5: Meeting Update", "6: Awaiting Reply", "7: Actioned", "8: Marketing"]
             
-            // Check for the specific labels you want
-            let targetLabels = ["1: To Respond", "2: FYI", "3: Comment", "4: Notification", "5: Meeting Update", "6: Awaiting Reply", "7: Actioned", "8: Marketing"]
-            let foundTargetLabels = labels.filter { targetLabels.contains($0) }
+            // Filter to ONLY include your custom labels that have emails
+            let labels = allLabels.filter { targetLabels.contains($0) }
             
-            if !foundTargetLabels.isEmpty {
-                print("🏷️ [MAIL] Found your custom labels with emails:")
-                for label in foundTargetLabels {
-                    print("   ✅ '\(label)' (has emails)")
+            print("🏷️ [MAIL] Filtered to your custom labels with emails:")
+            if labels.isEmpty {
+                print("⚠️ [MAIL] None of your custom labels found with emails")
+                print("💡 Make sure these mailboxes exist in Mail.app and contain emails:")
+                for (index, label) in targetLabels.enumerated() {
+                    print("   \(index + 1). '\(label)'")
                 }
             } else {
-                print("⚠️ [MAIL] None of your custom labels found with emails. Available labels with emails:")
-                for label in labels {
-                    print("   - '\(label)' (has emails)")
+                for (index, label) in labels.enumerated() {
+                    print("   \(index + 1). '\(label)' ✓")
                 }
-                print("💡 This means either:")
-                print("   - Your custom labels don't exist in Mail.app")
-                print("   - Your custom labels exist but are empty (no emails)")
-                print("   - Your custom labels are in a different location")
             }
             
             let duration = Date().timeIntervalSince(startTime)
-            print("✅ [MAIL] Label fetch completed in \(String(format: "%.2f", duration))s with \(labels.count) labels")
-            
-            // Summary statistics
-            if labels.isEmpty {
-                print("📊 [MAIL] SUMMARY: No mailboxes with emails found")
-                print("   This could mean:")
-                print("   - All mailboxes are empty")
-                print("   - Mail.app has no mailboxes")
-                print("   - There was an error accessing mailboxes")
-            } else {
-                print("📊 [MAIL] SUMMARY: Found \(labels.count) mailboxes with emails")
-                print("   Performance: \(String(format: "%.2f", duration))s")
-                print("   Average time per mailbox: \(String(format: "%.3f", duration / Double(labels.count)))s")
-            }
+            print("✅ [MAIL] Label fetch completed in \(String(format: "%.2f", duration))s with \(labels.count) custom labels")
             
             return labels
             

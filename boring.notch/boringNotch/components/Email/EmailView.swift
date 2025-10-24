@@ -16,8 +16,8 @@ struct EmailView: View {
             // Email cards
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 10) { // a bit more gap between cards
-                    if viewModel.isLoading && viewModel.emails.isEmpty {
-                        // Loading placeholders
+                    if viewModel.isLoading || (viewModel.emails.isEmpty && viewModel.isLabelsLoading) {
+                        // Loading placeholders - show during email fetch OR initial label load
                         ForEach(0..<4, id: \.self) { _ in
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.white.opacity(0.1))
@@ -52,7 +52,11 @@ struct EmailView: View {
             // Record user activity and use smart fetch
             viewModel.recordUserActivity()
             Task { 
-                await viewModel.fetchIfNeeded()
+                // 🚫 INBOX FETCHING DISABLED - Only fetch labels, not emails
+                // Commented out inbox fetch:
+                // await viewModel.fetchIfNeeded()
+                
+                // Fetch labels so user can select one
                 await viewModel.fetchLabels()
             }
         }
@@ -94,7 +98,6 @@ private struct EmailRow: View {
                 
                 // Avatar container at bottom-right, still inside padded safe area
                 HStack {
-                    Spacer()
                     ProfilePictureView(email: email)
                         .frame(width: avatarSize, height: avatarSize)
                         .clipShape(Circle())
@@ -334,8 +337,9 @@ private struct LabelRow: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
-                // Inbox button (always available)
-                InboxButton(viewModel: viewModel)
+                // 🚫 INBOX BUTTON DISABLED - Only show labels
+                // Commented out inbox button:
+                // InboxButton(viewModel: viewModel)
                 
                 // Dynamic labels from Mail.app
                 if viewModel.isLabelsLoading {
@@ -409,29 +413,82 @@ private struct LabelButton: View {
     let isSelected: Bool
     @ObservedObject var viewModel: EmailViewModel
     
+    // Color mapping for label dots with exact design system colors
+    private var labelColor: Color {
+        let lowercased = label.lowercased()
+        
+        // Exact color matches from design system
+        if lowercased.contains("respond") || lowercased.contains("reply") {
+            return Color(red: 0.988, green: 0.871, blue: 0.910) // #FCDEE8
+        }
+        if lowercased == "fyi" || lowercased.contains("fyi") {
+            return Color(red: 1.0, green: 0.902, blue: 0.780) // #FFE6C7
+        }
+        if lowercased.contains("comment") || lowercased.contains("feedback") {
+            return Color(red: 0.988, green: 0.910, blue: 0.702) // #FCE8B3
+        }
+        if lowercased.contains("notif") || lowercased.contains("alert") {
+            return Color(red: 0.776, green: 0.953, blue: 0.871) // #C6F3DE
+        }
+        if lowercased.contains("meeting") || lowercased.contains("calendar") || lowercased.contains("event") {
+            return Color(red: 0.788, green: 0.855, blue: 0.973) // #C9DAF8
+        }
+        if lowercased.contains("await") || lowercased.contains("pending") {
+            return Color(red: 0.890, green: 0.843, blue: 1.0) // #E3D7FF
+        }
+        if lowercased.contains("action") || lowercased.contains("done") || lowercased.contains("complet") || lowercased.contains("archive") {
+            return Color(red: 0.894, green: 0.843, blue: 0.961) // #E4D7F5
+        }
+        if lowercased.contains("market") || lowercased.contains("promo") || lowercased.contains("campaign") {
+            return Color(red: 0.984, green: 0.784, blue: 0.851) // #FBC8D9
+        }
+        if lowercased.contains("risk") || lowercased.contains("urgent") || lowercased.contains("critical") {
+            return Color(red: 0.984, green: 0.298, blue: 0.184) // #FB4C2F
+        }
+        if lowercased.contains("opportun") || lowercased.contains("deal") || lowercased.contains("win") {
+            return Color(red: 0.086, green: 0.655, blue: 0.400) // #16A766
+        }
+        if lowercased.contains("suggest") || lowercased.contains("idea") {
+            return Color(red: 0.643, green: 0.475, blue: 0.886) // #A479E2
+        }
+        
+        // Default fallback - use the Awaiting Reply color as neutral option
+        return Color(red: 0.890, green: 0.843, blue: 1.0) // #E3D7FF
+    }
+    
     var body: some View {
         Button(action: {
             Task { await viewModel.selectLabel(label) }
         }) {
-            Text(label)
-                .font(.caption)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 7)
-                .background(
+            HStack(spacing: 6) {
+                // Colored dot indicator - only show when selected/active
+                if isSelected {
+                    Circle()
+                        .fill(labelColor)
+                        .frame(width: 6, height: 6)
+                        .shadow(color: labelColor.opacity(0.5), radius: 2, x: 0, y: 0)
+                }
+                
+                Text(label)
+                    .font(.caption)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(
+                isSelected 
+                    ? Color.white.opacity(0.25) 
+                    : Color.white.opacity(0.12)
+            )
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule().stroke(
                     isSelected 
-                        ? Color.white.opacity(0.25) 
-                        : Color.white.opacity(0.12)
+                        ? Color.white.opacity(0.4) 
+                        : Color.white.opacity(0.2), 
+                    lineWidth: isSelected ? 1.0 : 0.5
                 )
-                .foregroundColor(.white)
-                .clipShape(Capsule())
-                .overlay(
-                    Capsule().stroke(
-                        isSelected 
-                            ? Color.white.opacity(0.4) 
-                            : Color.white.opacity(0.2), 
-                        lineWidth: isSelected ? 1.0 : 0.5
-                    )
-                )
+            )
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -439,20 +496,29 @@ private struct LabelButton: View {
 
 private struct PlaceholderLabelButton: View {
     var body: some View {
-        HStack() {}
-            .frame(width: 60, height: 13)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
-            .background(Color.white.opacity(0.12))
-            .foregroundColor(.white)
-            .clipShape(Capsule())
-            .overlay(
-                Capsule().stroke(
-                    Color.white.opacity(0.2), 
-                    lineWidth: 0.5
-                )
+        HStack(spacing: 6) {
+            // Placeholder dot
+            Circle()
+                .fill(Color.white.opacity(0.3))
+                .frame(width: 6, height: 6)
+            
+            // Placeholder text
+            Rectangle()
+                .fill(Color.white.opacity(0.3))
+                .frame(width: 50, height: 10)
+                .cornerRadius(2)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .background(Color.white.opacity(0.12))
+        .clipShape(Capsule())
+        .overlay(
+            Capsule().stroke(
+                Color.white.opacity(0.2), 
+                lineWidth: 0.5
             )
-            .redacted(reason: .placeholder)
+        )
+        .redacted(reason: .placeholder)
     }
 }
 

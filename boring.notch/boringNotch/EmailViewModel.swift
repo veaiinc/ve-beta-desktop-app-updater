@@ -174,6 +174,15 @@ final class EmailViewModel: ObservableObject {
                 for label in labels {
                     print("   - '\(label)'")
                 }
+                
+                // ✅ HYBRID APPROACH: Auto-select first label only on initial load
+                // This keeps notch from looking empty while maintaining lazy loading for other labels
+                if selectedLabel == nil && !labels.isEmpty {
+                    let firstLabel = labels[0]
+                    print("🏷️ [VIEWMODEL] Auto-selecting first label to populate notch: '\(firstLabel)'")
+                    print("🏷️ [VIEWMODEL] Other labels will lazy load when clicked")
+                    await selectLabel(firstLabel)
+                }
             }
         } catch let e as MailServiceError {
             self.errorMessage = e.localizedDescription
@@ -220,9 +229,12 @@ final class EmailViewModel: ObservableObject {
         print("🏷️ [VIEWMODEL] Clearing label selection")
         selectedLabel = nil
         
-        // Clear current emails and fetch inbox emails
+        // 🚫 INBOX FETCHING DISABLED - Just clear emails, don't fetch inbox
         emails = []
-        await fetch(force: true)
+        print("🏷️ [VIEWMODEL] Inbox button clicked - cleared emails (inbox fetching disabled)")
+        
+        // Commented out inbox fetch:
+        // await fetch(force: true)
     }
     
     /// Check if a label is currently selected
@@ -294,8 +306,12 @@ final class EmailViewModel: ObservableObject {
                 // Fetch emails for specific label
                 return try await service.fetchEmailsForLabel(label, limit: limit)
             } else {
-                // Fetch emails from inbox
-                return try await service.fetchRecentEmails(limit: limit)
+                // 🚫 INBOX FETCHING DISABLED - Only fetch emails from labels
+                print("📧 [VIEWMODEL] Inbox fetching disabled - select a label to view emails")
+                return []
+                
+                // Commented out inbox fetch:
+                // return try await service.fetchRecentEmails(limit: limit)
             }
         }.value
     }
