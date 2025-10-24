@@ -304,48 +304,40 @@ private struct LabelButton: View {
     let label: String
     let isSelected: Bool
     @ObservedObject var viewModel: EmailViewModel
+    @State private var isHovered: Bool = false
     
-    // Color mapping for label dots with exact design system colors
+    // Color mapping for label backgrounds (active state)
     private var labelColor: Color {
         let lowercased = label.lowercased()
         
-        // Exact color matches from design system
+        // Color palette from design system
         if lowercased.contains("respond") || lowercased.contains("reply") {
-            return Color(red: 0.988, green: 0.871, blue: 0.910) // #FCDEE8
+            return Color(red: 0.890, green: 0.639, blue: 0.588) // #E3A396
         }
         if lowercased == "fyi" || lowercased.contains("fyi") {
-            return Color(red: 1.0, green: 0.902, blue: 0.780) // #FFE6C7
+            return Color(red: 0.961, green: 0.749, blue: 0.471) // #F5BF78
         }
         if lowercased.contains("comment") || lowercased.contains("feedback") {
-            return Color(red: 0.988, green: 0.910, blue: 0.702) // #FCE8B3
+            return Color(red: 0.973, green: 0.914, blue: 0.569) // #F8E991
         }
         if lowercased.contains("notif") || lowercased.contains("alert") {
-            return Color(red: 0.776, green: 0.953, blue: 0.871) // #C6F3DE
+            return Color(red: 0.529, green: 0.867, blue: 0.675) // #87DDAC
         }
-        if lowercased.contains("meeting") || lowercased.contains("calendar") || lowercased.contains("event") {
-            return Color(red: 0.788, green: 0.855, blue: 0.973) // #C9DAF8
+        if lowercased.contains("meeting") || lowercased.contains("calendar") || lowercased.contains("event") || lowercased.contains("update") {
+            return Color(red: 0.647, green: 0.835, blue: 0.882) // #A5D5E1
         }
         if lowercased.contains("await") || lowercased.contains("pending") {
-            return Color(red: 0.890, green: 0.843, blue: 1.0) // #E3D7FF
+            return Color(red: 0.663, green: 0.753, blue: 0.941) // #A9C0F0
         }
         if lowercased.contains("action") || lowercased.contains("done") || lowercased.contains("complet") || lowercased.contains("archive") {
-            return Color(red: 0.894, green: 0.843, blue: 0.961) // #E4D7F5
+            return Color(red: 0.800, green: 0.741, blue: 0.925) // #CCBDEC
         }
         if lowercased.contains("market") || lowercased.contains("promo") || lowercased.contains("campaign") {
-            return Color(red: 0.984, green: 0.784, blue: 0.851) // #FBC8D9
-        }
-        if lowercased.contains("risk") || lowercased.contains("urgent") || lowercased.contains("critical") {
-            return Color(red: 0.984, green: 0.298, blue: 0.184) // #FB4C2F
-        }
-        if lowercased.contains("opportun") || lowercased.contains("deal") || lowercased.contains("win") {
-            return Color(red: 0.086, green: 0.655, blue: 0.400) // #16A766
-        }
-        if lowercased.contains("suggest") || lowercased.contains("idea") {
-            return Color(red: 0.643, green: 0.475, blue: 0.886) // #A479E2
+            return Color(red: 0.961, green: 0.835, blue: 0.875) // #F5D5DF
         }
         
         // Default fallback - use the Awaiting Reply color as neutral option
-        return Color(red: 0.890, green: 0.843, blue: 1.0) // #E3D7FF
+        return Color(red: 0.663, green: 0.753, blue: 0.941) // #A9C0F0
     }
     
     var body: some View {
@@ -358,7 +350,6 @@ private struct LabelButton: View {
                     Circle()
                         .fill(labelColor)
                         .frame(width: 6, height: 6)
-                        .shadow(color: labelColor.opacity(0.5), radius: 2, x: 0, y: 0)
                 }
                 
                 Text(label)
@@ -367,50 +358,44 @@ private struct LabelButton: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
             .background(
-                isSelected 
-                    ? Color.white.opacity(0.25) 
-                    : Color.white.opacity(0.12)
+                Group {
+                    if isHovered || isSelected {
+                        Color.black.opacity(0.2)
+                    } else {
+                        Color.clear
+                    }
+                }
             )
             .foregroundColor(.white)
             .clipShape(Capsule())
             .overlay(
                 Capsule().stroke(
-                    isSelected 
-                        ? Color.white.opacity(0.4) 
-                        : Color.white.opacity(0.2), 
-                    lineWidth: isSelected ? 1.0 : 0.5
+                    isSelected
+                        ? Color.white.opacity(0.7)
+                        : (isHovered ? Color.white.opacity(0.3) : Color.clear), 
+                    lineWidth: 0.5
                 )
             )
         }
         .buttonStyle(PlainButtonStyle())
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 }
 
 private struct PlaceholderLabelButton: View {
     var body: some View {
-        HStack(spacing: 6) {
-            // Placeholder dot
-            Circle()
-                .fill(Color.white.opacity(0.3))
-                .frame(width: 6, height: 6)
-            
-            // Placeholder text
-            Rectangle()
-                .fill(Color.white.opacity(0.3))
-                .frame(width: 50, height: 10)
-                .cornerRadius(2)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 7)
-        .background(Color.white.opacity(0.12))
-        .clipShape(Capsule())
-        .overlay(
-            Capsule().stroke(
-                Color.white.opacity(0.2), 
-                lineWidth: 0.5
-            )
-        )
-        .redacted(reason: .placeholder)
+        // Placeholder text
+        Rectangle()
+            .fill(Color.white.opacity(0.3))
+            .frame(width: 50, height: 10)
+            .cornerRadius(2)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(Color.clear)
+            .clipShape(Capsule())
+            .redacted(reason: .placeholder)
     }
 }
 
