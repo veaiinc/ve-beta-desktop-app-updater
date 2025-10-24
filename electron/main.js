@@ -282,6 +282,86 @@ let windowHelper = null;
 let dynamicIslandHelper = null;
 let pendingNotificationAction = null;
 
+const OVERLAY_START_RETRY_LIMIT = 1;
+const overlayStartCommandTracker = {
+	pending: false,
+	timeoutId: null,
+	retryCount: 0,
+	source: null,
+};
+
+function clearOverlayStartTracker(reason) {
+	if (overlayStartCommandTracker.timeoutId) {
+		clearTimeout(overlayStartCommandTracker.timeoutId);
+		overlayStartCommandTracker.timeoutId = null;
+	}
+
+	if (!overlayStartCommandTracker.pending && !overlayStartCommandTracker.source) {
+		return;
+	}
+
+	const info = reason ? ` (${reason})` : '';
+	overlayStartCommandTracker.pending = false;
+	overlayStartCommandTracker.retryCount = 0;
+	overlayStartCommandTracker.source = null;
+	log.info(`Overlay start command acknowledged${info}`);
+}
+
+function scheduleOverlayStartFallback(overlayWindow) {
+	if (overlayStartCommandTracker.timeoutId) {
+		clearTimeout(overlayStartCommandTracker.timeoutId);
+	}
+
+	overlayStartCommandTracker.timeoutId = setTimeout(() => {
+		if (!overlayStartCommandTracker.pending) {
+			overlayStartCommandTracker.timeoutId = null;
+			return;
+		}
+
+		if (!overlayWindow || overlayWindow.isDestroyed()) {
+			clearOverlayStartTracker('overlay window destroyed before acknowledgement');
+			return;
+		}
+
+		if (overlayStartCommandTracker.retryCount >= OVERLAY_START_RETRY_LIMIT) {
+			log.warn(
+				'Overlay start command still pending after retry; skipping additional fallbacks to avoid duplicate audio processors.',
+			);
+			overlayStartCommandTracker.timeoutId = null;
+			return;
+		}
+
+		overlayStartCommandTracker.retryCount += 1;
+		log.info('Fallback: sending startRecording command after timeout');
+		overlayWindow.webContents.send('overlay-command', {
+			action: 'startRecording',
+		});
+		scheduleOverlayStartFallback(overlayWindow);
+	}, 3000);
+}
+
+function beginOverlayStartSequence(overlayWindow, source = 'initial') {
+	if (!overlayWindow || overlayWindow.isDestroyed()) {
+		log.warn('Cannot begin overlay start sequence; overlay window unavailable.');
+		return;
+	}
+
+	overlayStartCommandTracker.pending = true;
+	overlayStartCommandTracker.retryCount = 0;
+	overlayStartCommandTracker.source = source;
+
+	if (overlayStartCommandTracker.timeoutId) {
+		clearTimeout(overlayStartCommandTracker.timeoutId);
+		overlayStartCommandTracker.timeoutId = null;
+	}
+
+	log.info(`Sending startRecording command (${source})`);
+	overlayWindow.webContents.send('overlay-command', {
+		action: 'startRecording',
+	});
+	scheduleOverlayStartFallback(overlayWindow);
+}
+
 // Add these after your existing global variables
 let store = null;
 let bridge = null;
@@ -984,10 +1064,7 @@ function handleOverlayWindowReady(overlayWindow) {
 	overlayWindow.webContents.once('dom-ready', () => {
 		// Small delay to ensure React has mounted
 		setTimeout(() => {
-			// Send the startRecording command
-			overlayWindow.webContents.send('overlay-command', {
-				action: 'startRecording',
-			});
+			beginOverlayStartSequence(overlayWindow, 'dom-ready');
 		}, 500);
 	});
 
@@ -996,15 +1073,9 @@ function handleOverlayWindowReady(overlayWindow) {
 		log.info('Overlay window finished loading');
 	});
 
-	// Additional safety check - if DOM ready doesn't fire within 3 seconds, try sending anyway
-	setTimeout(() => {
-		if (overlayWindow && !overlayWindow.isDestroyed()) {
-			log.info('Fallback: sending startRecording command after timeout');
-			overlayWindow.webContents.send('overlay-command', {
-				action: 'startRecording',
-			});
-		}
-	}, 3000);
+	overlayWindow.once('closed', () => {
+		clearOverlayStartTracker('overlay window closed');
+	});
 }
 // IPC Handlers for updates
 ipcMain.handle('check-for-updates', async () => {
@@ -6565,9 +6636,18 @@ app.whenReady().then(async () => {
 		}
 	});
 
+	ipcMain.handle('overlay-start-recording-ack', async () => {
+		clearOverlayStartTracker('renderer acknowledgement');
+		return { success: true };
+	});
+
 	// Handle state updates from overlay to Dynamic Island
 	ipcMain.handle('overlay-state-update', async (event, state) => {
 		try {
+			if (state?.isRecording && overlayStartCommandTracker.pending) {
+				clearOverlayStartTracker('overlay state reported active recording');
+			}
+
 			// log.debug('Received overlay state update:', state);
 
 			// Validate state parameter

@@ -158,6 +158,8 @@ contextBridge.exposeInMainWorld('electronApi', {
 		},
 		// Send state updates to Dynamic Island
 		sendStateUpdate: (state) => ipcRenderer.invoke('overlay-state-update', state),
+		// Notify main process that recording pipeline is ready
+		notifyRecordingStarted: () => ipcRenderer.invoke('overlay-start-recording-ack'),
 		// Send transcription data to main process
 		sendTranscriptionData: (transcriptionData) =>
 			ipcRenderer.invoke('overlay-send-transcription-data', transcriptionData),
