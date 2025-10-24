@@ -130,7 +130,53 @@ final class AppleScriptMailService: MailService {
     func openEmail(_ email: EmailItem) async throws {
         print("📧 [MAIL] Opening email: \(email.subject) with ID: \(email.appleScriptID)")
         
-        // Extract index from "msg_1", "msg_2", etc.
+        // Try to open by message URL first (most reliable)
+        if !email.appleScriptID.hasPrefix("msg_") {
+            // This is a real message URL, use it directly
+            let script = """
+            tell application id "com.apple.mail"
+                activate
+                delay 0.5
+                
+                try
+                    -- Try to find message by URL
+                    set allMsgs to messages of inbox
+                    repeat with m in allMsgs
+                        try
+                            set msgUrl to url of m
+                            if msgUrl is "\(email.appleScriptID)" then
+                                open m
+                                try
+                                    tell message viewer 1 to set selected messages to {m}
+                                end try
+                                return true
+                            end if
+                        on error
+                            -- Skip messages without URL
+                        end try
+                    end repeat
+                    return false
+                on error err
+                    log "Open by URL failed: " & err
+                    return false
+                end try
+            end tell
+            """
+            
+            let result: NSAppleEventDescriptor? = try await executeOnBackgroundQueue {
+                return try AppleScriptHelper.execute(script)
+            }
+            
+            let ok = result?.booleanValue ?? false
+            if ok {
+                print("✅ [MAIL] Email opened successfully by URL")
+                return
+            } else {
+                print("⚠️ [MAIL] Failed to open by URL, trying fallback method")
+            }
+        }
+        
+        // Fallback: Extract index from "msg_1", "msg_2", etc.
         guard email.appleScriptID.hasPrefix("msg_"),
               let indexStr = email.appleScriptID.split(separator: "_").last,
               let index = Int(indexStr),
@@ -138,7 +184,8 @@ final class AppleScriptMailService: MailService {
             throw MailServiceError.messageNotFound
         }
         
-        let script = """
+        // Enhanced fallback: Try to match by subject and sender for better accuracy
+        let fallbackScript = """
         tell application id "com.apple.mail"
             activate
             delay 0.5
@@ -148,6 +195,24 @@ final class AppleScriptMailService: MailService {
                 set allMsgs to messages of inbox
                 set msgCount to count of allMsgs
                 
+                -- First try: Find by subject and sender (more reliable than index)
+                repeat with m in allMsgs
+                    try
+                        set msgSubject to subject of m
+                        set msgSender to sender of m
+                        if msgSubject is "\(email.subject.replacingOccurrences(of: "\"", with: "\\\""))" and msgSender contains "\(email.senderName.replacingOccurrences(of: "\"", with: "\\\""))" then
+                            open m
+                            try
+                                tell message viewer 1 to set selected messages to {m}
+                            end try
+                            return true
+                        end if
+                    on error
+                        -- Skip problematic messages
+                    end try
+                end repeat
+                
+                -- Second try: Use index as last resort
                 if msgCount ≥ \(index) then
                     set theMsg to item \(index) of allMsgs
                     open theMsg
@@ -160,22 +225,22 @@ final class AppleScriptMailService: MailService {
                     return false
                 end if
             on error err
-                log "Open by index failed: " & err
+                log "Open by fallback failed: " & err
                 return false
             end try
         end tell
         """
         
-        let result: NSAppleEventDescriptor? = try await executeOnBackgroundQueue {
-            return try AppleScriptHelper.execute(script)
+        let fallbackResult: NSAppleEventDescriptor? = try await executeOnBackgroundQueue {
+            return try AppleScriptHelper.execute(fallbackScript)
         }
         
-        let ok = result?.booleanValue ?? false
-        if !ok {
-            print("❌ [MAIL] Failed to open email")
+        let fallbackOk = fallbackResult?.booleanValue ?? false
+        if !fallbackOk {
+            print("❌ [MAIL] Failed to open email with all methods")
             throw MailServiceError.messageNotFound
         }
-        print("✅ [MAIL] Email opened successfully")
+        print("✅ [MAIL] Email opened successfully with fallback method")
     }
     
     private func executeOnBackgroundQueue<T>(_ work: @escaping () throws -> T) async throws -> T {
@@ -214,6 +279,10 @@ final class AppleScriptMailService: MailService {
                     
                     try
                         set msgId to url of m
+                        -- Validate that we got a real URL, not empty
+                        if msgId is "" then
+                            set msgId to "msg_" & i
+                        end if
                     on error
                         set msgId to "msg_" & i
                     end try
@@ -271,7 +340,7 @@ final class AppleScriptMailService: MailService {
                     
                     -- ✅ DELIMITED STRING WITH PROFILE PICTURE DATA (7 fields now)
                     set msgString to msgId & "|||" & msgSubject & "|||" & msgSender & "|||" & senderAddress & "|||" & msgDateISO & "|||" & (msgIsRead as string) & "|||" & profilePictureData
-                    log "Email " & i & ": " & msgSubject & " from " & senderAddress & " (profile data: " & (profilePictureData is not "") & ")"
+                    log "Email " & i & ": " & msgSubject & " from " & senderAddress & " (ID: " & msgId & ", profile data: " & (profilePictureData is not "") & ")"
                     copy msgString to end of outputList
                 end repeat
                 
@@ -745,6 +814,10 @@ final class AppleScriptMailService: MailService {
                     
                     try
                         set msgId to url of m
+                        -- Validate that we got a real URL, not empty
+                        if msgId is "" then
+                            set msgId to "msg_" & i
+                        end if
                     on error
                         set msgId to "msg_" & i
                     end try
@@ -801,7 +874,7 @@ final class AppleScriptMailService: MailService {
                     
                     -- DELIMITED STRING WITH PROFILE PICTURE DATA (7 fields)
                     set msgString to msgId & "|||" & msgSubject & "|||" & msgSender & "|||" & senderAddress & "|||" & msgDateISO & "|||" & (msgIsRead as string) & "|||" & profilePictureData
-                    log "Label Email " & i & ": " & msgSubject & " from " & senderAddress
+                    log "Label Email " & i & ": " & msgSubject & " from " & senderAddress & " (ID: " & msgId & ")"
                     copy msgString to end of outputList
                 end repeat
                 
