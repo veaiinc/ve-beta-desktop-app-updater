@@ -344,12 +344,22 @@ class BoringViewModel: NSObject, ObservableObject {
     
     func deactivateVoiceInterface() {
         print("🔌 Deactivating voice interface in boring.notch")
+        
+        // Send WebSocket event to Electron to disconnect voice agent (stdout doesn't work with 'open' command)
+        WebSocketManager.shared.sendEvent(type: .custom, data: [
+            "type": "electron_voice_disconnect",
+            "timestamp": Date().timeIntervalSince1970,
+            "source": "boring-notch"
+        ])
+        print("🔌 Sent electron_voice_disconnect event to Electron via WebSocket")
+        
         DispatchQueue.main.async {
             self.showVoiceInterface = false
             self.voiceConnectionStatus = .disconnected
             self.isVoiceActive = false
             self.isMicrophoneMuted = false
             self.voiceMessages.removeAll()
+            self.aiResponseIntensity = 0.0
         }
     }
     
