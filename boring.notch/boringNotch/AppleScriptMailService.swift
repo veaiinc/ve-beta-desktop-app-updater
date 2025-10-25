@@ -89,11 +89,7 @@ final class AppleScriptMailService: MailService {
             }
             
             print("📧 [MAIL] Parsing results...")
-            var items = EmailParser.parseList(result)
-            
-            // ✅ Fetch profile pictures separately to avoid AppleScript complexity
-            print("📧 [MAIL] Fetching profile pictures...")
-            items = await fetchProfilePictures(for: items)
+            let items = EmailParser.parseList(result)
             
             // ✅ Fixed: Use sorted(by:) with explicit property name
             let sortedItems = items.sorted { $0.receivedDate > $1.receivedDate }
@@ -303,90 +299,6 @@ final class AppleScriptMailService: MailService {
         }
     }
     
-    // MARK: - Profile Picture Fetching
-    
-    private func fetchProfilePictures(for emails: [EmailItem]) async -> [EmailItem] {
-        var updatedEmails: [EmailItem] = []
-        
-        for email in emails {
-            var updatedEmail = email
-            
-            if let address = email.senderAddress, !address.isEmpty {
-                do {
-                    let profilePictureData = try await fetchContactPhoto(for: address)
-                    if let data = profilePictureData {
-                        print("📸 [MAIL] Found profile picture for \(address) - \(data.count) bytes")
-                        updatedEmail = EmailItem(
-                            appleScriptID: email.appleScriptID,
-                            subject: email.subject,
-                            senderName: email.senderName,
-                            senderAddress: email.senderAddress,
-                            preview: email.preview,
-                            receivedDate: email.receivedDate,
-                            isRead: email.isRead,
-                            mailboxName: email.mailboxName,
-                            messageIDHeader: email.messageIDHeader,
-                            profilePictureData: data
-                        )
-                        print("📸 [MAIL] Successfully updated EmailItem with profile picture data")
-                    } else {
-                        print("📸 [MAIL] No profile picture data returned for \(address)")
-                    }
-                } catch {
-                    print("📸 [MAIL] No profile picture found for \(address): \(error.localizedDescription)")
-                }
-            }
-            
-            updatedEmails.append(updatedEmail)
-        }
-        
-        return updatedEmails
-    }
-    
-    private func fetchContactPhoto(for emailAddress: String) async throws -> Data? {
-        let script = """
-        tell application "Contacts"
-            try
-                set matchingContacts to people whose value of emails contains "\(emailAddress)"
-                if (count of matchingContacts) > 0 then
-                    set theContact to item 1 of matchingContacts
-                    if exists image of theContact then
-                        return image of theContact
-                    end if
-                end if
-            on error
-                return missing value
-            end try
-        end tell
-        """
-        
-        let result = try await executeOnBackgroundQueue {
-            return try AppleScriptHelper.execute(script)
-        }
-        
-        // ✅ Fix: Properly extract image data from NSAppleEventDescriptor
-        if let descriptor = result {
-            // Try different methods to extract image data
-            // Note: NSAppleEventDescriptor doesn't have a .data property
-            if let stringValue = descriptor.stringValue,
-                      let data = Data(base64Encoded: stringValue) {
-                print("📸 [MAIL] Extracted image data via base64 string: \(data.count) bytes")
-                return data
-            } else if let stringValue = descriptor.stringValue,
-                      let data = stringValue.data(using: .utf8) {
-                print("📸 [MAIL] Extracted image data via UTF8 string: \(data.count) bytes")
-                return data
-            } else {
-                print("📸 [MAIL] Failed to extract image data from descriptor")
-                print("   Descriptor type: \(descriptor.descriptorType)")
-                print("   String value: \(descriptor.stringValue ?? "nil")")
-                print("   Number of items: \(descriptor.numberOfItems)")
-            }
-        }
-        
-        return nil
-    }
-    
     // MARK: - Label Management
     
     /// Test method to debug message counting - call this to see what's happening
@@ -482,49 +394,30 @@ final class AppleScriptMailService: MailService {
             }
             
             print("🏷️ [MAIL] Parsing label results...")
-            let labels = LabelParser.parseList(result)
+            let allLabels = LabelParser.parseList(result)
             
-            // Filter and log the labels we found (these are already filtered for non-empty mailboxes)
-            print("🏷️ [MAIL] Available mailboxes with emails:")
-            for (index, label) in labels.enumerated() {
-                print("   \(index + 1). '\(label)' (has emails)")
-            }
+            // Define your custom labels (in priority order)
+            let targetLabels = ["1: To Respond", "2: FYI", "3: Comment", "4: Notification", 
+                               "5: Meeting Update", "6: Awaiting Reply", "7: Actioned", "8: Marketing"]
             
-            // Check for the specific labels you want
-            let targetLabels = ["1: To Respond", "2: FYI", "3: Comment", "4: Notification", "5: Meeting Update", "6: Awaiting Reply", "7: Actioned", "8: Marketing"]
-            let foundTargetLabels = labels.filter { targetLabels.contains($0) }
+            // Filter to ONLY include your custom labels that have emails
+            let labels = allLabels.filter { targetLabels.contains($0) }
             
-            if !foundTargetLabels.isEmpty {
-                print("🏷️ [MAIL] Found your custom labels with emails:")
-                for label in foundTargetLabels {
-                    print("   ✅ '\(label)' (has emails)")
+            print("🏷️ [MAIL] Filtered to your custom labels with emails:")
+            if labels.isEmpty {
+                print("⚠️ [MAIL] None of your custom labels found with emails")
+                print("💡 Make sure these mailboxes exist in Mail.app and contain emails:")
+                for (index, label) in targetLabels.enumerated() {
+                    print("   \(index + 1). '\(label)'")
                 }
             } else {
-                print("⚠️ [MAIL] None of your custom labels found with emails. Available labels with emails:")
-                for label in labels {
-                    print("   - '\(label)' (has emails)")
+                for (index, label) in labels.enumerated() {
+                    print("   \(index + 1). '\(label)' ✓")
                 }
-                print("💡 This means either:")
-                print("   - Your custom labels don't exist in Mail.app")
-                print("   - Your custom labels exist but are empty (no emails)")
-                print("   - Your custom labels are in a different location")
             }
             
             let duration = Date().timeIntervalSince(startTime)
-            print("✅ [MAIL] Label fetch completed in \(String(format: "%.2f", duration))s with \(labels.count) labels")
-            
-            // Summary statistics
-            if labels.isEmpty {
-                print("📊 [MAIL] SUMMARY: No mailboxes with emails found")
-                print("   This could mean:")
-                print("   - All mailboxes are empty")
-                print("   - Mail.app has no mailboxes")
-                print("   - There was an error accessing mailboxes")
-            } else {
-                print("📊 [MAIL] SUMMARY: Found \(labels.count) mailboxes with emails")
-                print("   Performance: \(String(format: "%.2f", duration))s")
-                print("   Average time per mailbox: \(String(format: "%.3f", duration / Double(labels.count)))s")
-            }
+            print("✅ [MAIL] Label fetch completed in \(String(format: "%.2f", duration))s with \(labels.count) custom labels")
             
             return labels
             
@@ -577,7 +470,7 @@ final class AppleScriptMailService: MailService {
             }
             
             print("📧 [MAIL] Parsing label email results...")
-            var items = EmailParser.parseList(result)
+            let items = EmailParser.parseList(result)
             
             if items.isEmpty {
                 print("⚠️ [MAIL] No emails found for label '\(label)'. This could mean:")
@@ -597,10 +490,6 @@ final class AppleScriptMailService: MailService {
                     print("   ⚠️ This is not one of your expected custom labels")
                 }
             }
-            
-            // Fetch profile pictures separately
-            print("📧 [MAIL] Fetching profile pictures for label emails...")
-            items = await fetchProfilePictures(for: items)
             
             // Sort by date
             let sortedItems = items.sorted { $0.receivedDate > $1.receivedDate }
