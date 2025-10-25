@@ -549,3 +549,95 @@
 		}
 	}
 }
+
+.summaryOverlayMask {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.7);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+	animation: fadeIn 0.3s ease-in-out;
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	.summaryOverlayContent {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 32px;
+		border-radius: 16px;
+		background: none;
+		backdrop-filter: blur(20px);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+		min-width: 320px;
+		animation: scaleIn 0.3s ease-in-out;
+
+		@keyframes scaleIn {
+			from {
+				transform: scale(0.9);
+				opacity: 0;
+			}
+			to {
+				transform: scale(1);
+				opacity: 1;
+			}
+		}
+
+		.progressBarContainer {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 16px;
+			width: 100%;
+			max-width: 280px;
+		}
+
+		.progressBar {
+			width: 100%;
+			height: 6px;
+			background-color: rgba(255, 255, 255, 0.15);
+			border-radius: 3px;
+			overflow: hidden;
+		}
+
+		.progressBarFill {
+			height: 100%;
+			background: linear-gradient(
+				90deg,
+				var(--primary-button) 0%,
+				var(--primary-button) 100%
+			);
+			border-radius: 3px;
+			transition: width 0.1s ease-out;
+			box-shadow: 0 0 10px var(--primary-button);
+		}
+
+		.progressBarText {
+			color: #fff;
+			font-family: var(--primary-font-family);
+			font-size: 14px;
+			font-style: normal;
+			font-weight: 600;
+			line-height: normal;
+			letter-spacing: -0.28px;
+			opacity: 0.95;
+			text-align: center;
+		}
+	}
+}
