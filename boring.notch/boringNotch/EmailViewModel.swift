@@ -165,8 +165,18 @@ final class EmailViewModel: ObservableObject {
     // MARK: - Label Management
     
     /// Fetch available labels/mailboxes from Mail.app
-    func fetchLabels() async {
-        print("🏷️ [VIEWMODEL] Fetching labels...")
+    func fetchLabels(force: Bool = false) async {
+        if !force && !availableLabels.isEmpty {
+            print("🏷️ [VIEWMODEL] Skipping label fetch — using cached labels (count: \(availableLabels.count))")
+            return
+        }
+
+        if isLabelsLoading {
+            print("🏷️ [VIEWMODEL] Label fetch already in progress, skipping additional request")
+            return
+        }
+
+        print("🏷️ [VIEWMODEL] Fetching labels (force: \(force))...")
         isLabelsLoading = true
         errorMessage = nil
         
@@ -240,13 +250,24 @@ final class EmailViewModel: ObservableObject {
     func clearLabelSelection() async {
         print("🏷️ [VIEWMODEL] Clearing label selection")
         selectedLabel = nil
-        
+
         // 🚫 INBOX FETCHING DISABLED - Just clear emails, don't fetch inbox
         emails = []
         print("🏷️ [VIEWMODEL] Inbox button clicked - cleared emails (inbox fetching disabled)")
-        
+
         // Commented out inbox fetch:
         // await fetch(force: true)
+    }
+
+    /// Rehydrate label state from a cached source so we can avoid redundant fetches when
+    /// the surrounding SwiftUI hierarchy is recreated.
+    /// - Parameters:
+    ///   - labels: Previously fetched labels that should be reused.
+    ///   - selectedLabel: The label that was selected when the cache was captured.
+    func applyCachedLabels(_ labels: [String], selectedLabel: String?) {
+        guard !labels.isEmpty else { return }
+        availableLabels = labels
+        self.selectedLabel = selectedLabel
     }
     
     /// Check if a label is currently selected
