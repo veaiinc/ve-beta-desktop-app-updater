@@ -196,8 +196,8 @@ struct ContentView: View {
                     }
                 }
                 .padding(.trailing, 3)
-                .padding(.bottom, -6)
-                .frame(maxWidth: openNotchSize.width, maxHeight: openNotchSize.height, alignment: .bottomTrailing)
+                .padding(.bottom, 0) // Align with bottom edge of notch
+                .frame(maxWidth: animatedWidth, maxHeight: animatedHeight, alignment: .bottomTrailing)
             }
         }
         .padding(.bottom, 8)
@@ -249,6 +249,16 @@ struct ContentView: View {
                         animatedTopCornerRadius = cornerRadiusInsets.closed.top
                         animatedBottomCornerRadius = cornerRadiusInsets.closed.bottom
                     }
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ResizeWindowForViewChange"))) { notification in
+            // Update animated width when window is resized
+            if let newSize = notification.userInfo?["newSize"] as? CGSize {
+                print("🔧 ContentView: Received resize notification, updating animated width to \(newSize.width)")
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    animatedWidth = newSize.width
+                    animatedHeight = newSize.height
                 }
             }
         }
