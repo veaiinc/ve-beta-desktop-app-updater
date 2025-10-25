@@ -66,7 +66,7 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var isRequestingAuthorization: Bool = false
     
     // MARK: - Authentication State
-    @Published var isAuthenticated: Bool = true
+    @Published var isAuthenticated: Bool = false
     
     // MARK: - Login Animation State
     @Published var showHelloAnimation: Bool = true
@@ -127,6 +127,11 @@ class BoringViewModel: NSObject, ObservableObject {
         
         // Start email auto refresh every 15 minutes
         emailViewModel.startAutoRefresh(intervalMinutes: 15)
+        
+        // Request initial authentication status from Electron
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.requestAuthenticationStatusFromElectron()
+        }
     }
     
     private func setupNotificationObservers() {
@@ -162,8 +167,13 @@ class BoringViewModel: NSObject, ObservableObject {
             print("🔐 BoringViewModel: Current authentication status before update: \(self.isAuthenticated)")
             updateAuthenticationStatus(isAuthenticated)
             print("🔐 BoringViewModel: Authentication status updated to: \(self.isAuthenticated)")
+            
+            // Force UI update by triggering a state change
+            DispatchQueue.main.async {
+                self.objectWillChange.send()
+            }
         } else {
-            print("⚠️ BoringViewModel: Received invalid authentication status notification")
+            print("⚠️ BoringViewModel: userInfo: \(notification.userInfo ?? [:])")
         }
     }
     
