@@ -16,8 +16,8 @@ struct EmailView: View {
             // Email cards
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 10) { // a bit more gap between cards
-                    if viewModel.isLoading && viewModel.emails.isEmpty {
-                        // Loading placeholders
+                    if viewModel.isLoading || (viewModel.emails.isEmpty && viewModel.isLabelsLoading) {
+                        // Loading placeholders - show during email fetch OR initial label load
                         ForEach(0..<4, id: \.self) { _ in
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.white.opacity(0.1))
@@ -52,7 +52,11 @@ struct EmailView: View {
             // Record user activity and use smart fetch
             viewModel.recordUserActivity()
             Task { 
-                await viewModel.fetchIfNeeded()
+                // 🚫 INBOX FETCHING DISABLED - Only fetch labels, not emails
+                // Commented out inbox fetch:
+                // await viewModel.fetchIfNeeded()
+                
+                // Fetch labels so user can select one
                 await viewModel.fetchLabels()
             }
         }
@@ -94,7 +98,6 @@ private struct EmailRow: View {
                 
                 // Avatar container at bottom-right, still inside padded safe area
                 HStack {
-                    Spacer()
                     ProfilePictureView(email: email)
                         .frame(width: avatarSize, height: avatarSize)
                         .clipShape(Circle())
@@ -115,7 +118,6 @@ private struct ProfilePictureView: View {
     
     var body: some View {
         Group {
-            // Priority 1: Use profile picture data from Contacts (via AppleScript)
             if let profilePictureData = email.profilePictureData,
                let nsImage = NSImage(data: profilePictureData) {
                 Image(nsImage: nsImage)
@@ -124,121 +126,14 @@ private struct ProfilePictureView: View {
                     .frame(width: size, height: size)
                     .clipShape(Circle())
                     .onAppear {
-                        print("📸 [UI] Using Contacts/AppleScript image (\(profilePictureData.count) bytes)")
+                        print("📸 [UI] Using Contacts image (\(profilePictureData.count) bytes)")
                     }
-            } else if let profilePictureData = email.profilePictureData {
-                // Data exists but failed to decode – fallback to URL or placeholder
-                if let photoURL = email.photoURL {
-                    FallbackAsyncProfileImage(email: email, primaryURL: photoURL, size: size)
-                        .onAppear {
-                            print("📸 [UI] Failed to decode Contacts image (\(profilePictureData.count) bytes) → URL fallback")
-                        }
-                } else {
-                    MonogramAvatar(name: email.senderName, address: email.senderAddress, size: size)
-                        .onAppear {
-                            print("📸 [UI] Failed to decode Contacts image and no URL → Monogram")
-                        }
-                }
-            }
-            // Priority 2: Use Gravatar/DiceBear URL fallback
-            else if let photoURL = email.photoURL {
-                FallbackAsyncProfileImage(email: email, primaryURL: photoURL, size: size)
-            }
-            // Priority 3: Final fallback → Monogram avatar (offline)
-            else {
+            } else {
                 MonogramAvatar(name: email.senderName, address: email.senderAddress, size: size)
             }
         }
-        .frame(width: size, height: size) // Ensure consistent sizing
-        .clipped() // Prevent any overflow
-    }
-}
-
-// Loads primaryURL (e.g., Gravatar). If it fails, falls back to DiceBear based on email/senderName.
-// If that fails too, shows a local monogram avatar.
-private struct FallbackAsyncProfileImage: View {
-    let email: EmailItem
-    let primaryURL: URL
-    let size: CGFloat
-    @State private var phase: Phase = .primary
-    
-    private enum Phase {
-        case primary
-        case fallbackURL
-        case monogram
-    }
-    
-    private var fallbackURL: URL? {
-        // Build DiceBear fallback deterministically
-        let seed: String
-        if let addr = email.senderAddress, !addr.isEmpty {
-            seed = addr
-        } else {
-            seed = email.senderName.isEmpty ? "user" : email.senderName
-        }
-        let safeSeed = seed.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "user"
-        return URL(string: "https://api.dicebear.com/7.x/avataaars/svg?seed=\(safeSeed)")
-    }
-    
-    var body: some View {
-        Group {
-            switch phase {
-            case .primary:
-                AsyncImage(url: primaryURL) { result in
-                    switch result {
-                    case .success(let image):
-                             image
-                                 .resizable()
-                                 .aspectRatio(contentMode: .fill)
-                                 .frame(width: size, height: size)
-                                 .clipShape(Circle())
-                    case .failure:
-                        // Gravatar likely 404 → try DiceBear
-                        Color.clear
-                            .frame(width: size, height: size)
-                            .onAppear { phase = .fallbackURL }
-                    case .empty:
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: size, height: size)
-                    @unknown default:
-                        Circle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: size, height: size)
-                    }
-                }
-            case .fallbackURL:
-                if let url = fallbackURL {
-                    AsyncImage(url: url) { result in
-                        switch result {
-                        case .success(let image):
-                             image
-                                 .resizable()
-                                 .aspectRatio(contentMode: .fill)
-                                 .frame(width: size, height: size)
-                                 .clipShape(Circle())
-                        case .failure:
-                            // DiceBear failed or blocked → monogram
-                            Color.clear
-                                .frame(width: size, height: size)
-                                .onAppear { phase = .monogram }
-                        case .empty:
-                            Circle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: size, height: size)
-                        @unknown default:
-                            Circle()
-                                .fill(Color.gray.opacity(0.3))
-                                .frame(width: size, height: size)
-                        }
-                    }
-                } else {
-                    MonogramAvatar(name: email.senderName, address: email.senderAddress, size: size)
-                }
-            case .monogram:
-                MonogramAvatar(name: email.senderName, address: email.senderAddress, size: size)
-            }
-        }
+        .frame(width: size, height: size)
+        .clipped()
     }
 }
 
@@ -334,8 +229,9 @@ private struct LabelRow: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
-                // Inbox button (always available)
-                InboxButton(viewModel: viewModel)
+                // 🚫 INBOX BUTTON DISABLED - Only show labels
+                // Commented out inbox button:
+                // InboxButton(viewModel: viewModel)
                 
                 // Dynamic labels from Mail.app
                 if viewModel.isLabelsLoading {
@@ -408,50 +304,97 @@ private struct LabelButton: View {
     let label: String
     let isSelected: Bool
     @ObservedObject var viewModel: EmailViewModel
+    @State private var isHovered: Bool = false
+    
+    // Color mapping for label backgrounds (active state)
+    private var labelColor: Color {
+        let lowercased = label.lowercased()
+        
+        // Color palette from design system
+        if lowercased.contains("respond") || lowercased.contains("reply") {
+            return Color(red: 0.890, green: 0.639, blue: 0.588) // #E3A396
+        }
+        if lowercased == "fyi" || lowercased.contains("fyi") {
+            return Color(red: 0.961, green: 0.749, blue: 0.471) // #F5BF78
+        }
+        if lowercased.contains("comment") || lowercased.contains("feedback") {
+            return Color(red: 0.973, green: 0.914, blue: 0.569) // #F8E991
+        }
+        if lowercased.contains("notif") || lowercased.contains("alert") {
+            return Color(red: 0.529, green: 0.867, blue: 0.675) // #87DDAC
+        }
+        if lowercased.contains("meeting") || lowercased.contains("calendar") || lowercased.contains("event") || lowercased.contains("update") {
+            return Color(red: 0.647, green: 0.835, blue: 0.882) // #A5D5E1
+        }
+        if lowercased.contains("await") || lowercased.contains("pending") {
+            return Color(red: 0.663, green: 0.753, blue: 0.941) // #A9C0F0
+        }
+        if lowercased.contains("action") || lowercased.contains("done") || lowercased.contains("complet") || lowercased.contains("archive") {
+            return Color(red: 0.800, green: 0.741, blue: 0.925) // #CCBDEC
+        }
+        if lowercased.contains("market") || lowercased.contains("promo") || lowercased.contains("campaign") {
+            return Color(red: 0.961, green: 0.835, blue: 0.875) // #F5D5DF
+        }
+        
+        // Default fallback - use the Awaiting Reply color as neutral option
+        return Color(red: 0.663, green: 0.753, blue: 0.941) // #A9C0F0
+    }
     
     var body: some View {
         Button(action: {
             Task { await viewModel.selectLabel(label) }
         }) {
-            Text(label)
-                .font(.caption)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 7)
-                .background(
-                    isSelected 
-                        ? Color.white.opacity(0.25) 
-                        : Color.white.opacity(0.12)
+            HStack(spacing: 6) {
+                // Colored dot indicator - only show when selected/active
+                if isSelected {
+                    Circle()
+                        .fill(labelColor)
+                        .frame(width: 6, height: 6)
+                }
+                
+                Text(label)
+                    .font(.caption)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(
+                Group {
+                    if isHovered || isSelected {
+                        Color.black.opacity(0.2)
+                    } else {
+                        Color.clear
+                    }
+                }
+            )
+            .foregroundColor(.white)
+            .clipShape(Capsule())
+            .overlay(
+                Capsule().stroke(
+                    isSelected
+                        ? Color.white.opacity(0.7)
+                        : (isHovered ? Color.white.opacity(0.3) : Color.clear), 
+                    lineWidth: 0.5
                 )
-                .foregroundColor(.white)
-                .clipShape(Capsule())
-                .overlay(
-                    Capsule().stroke(
-                        isSelected 
-                            ? Color.white.opacity(0.4) 
-                            : Color.white.opacity(0.2), 
-                        lineWidth: isSelected ? 1.0 : 0.5
-                    )
-                )
+            )
         }
         .buttonStyle(PlainButtonStyle())
+        .onHover { hovering in
+            isHovered = hovering
+        }
     }
 }
 
 private struct PlaceholderLabelButton: View {
     var body: some View {
-        HStack() {}
-            .frame(width: 60, height: 13)
+        // Placeholder text
+        Rectangle()
+            .fill(Color.white.opacity(0.3))
+            .frame(width: 50, height: 10)
+            .cornerRadius(2)
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
-            .background(Color.white.opacity(0.12))
-            .foregroundColor(.white)
+            .background(Color.clear)
             .clipShape(Capsule())
-            .overlay(
-                Capsule().stroke(
-                    Color.white.opacity(0.2), 
-                    lineWidth: 0.5
-                )
-            )
             .redacted(reason: .placeholder)
     }
 }

@@ -66,7 +66,7 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var isRequestingAuthorization: Bool = false
     
     // MARK: - Authentication State
-    @Published var isAuthenticated: Bool = false
+    @Published var isAuthenticated: Bool = true
     
     // MARK: - Login Animation State
     @Published var showHelloAnimation: Bool = true
