@@ -34,10 +34,15 @@ struct EmailView: View {
                             EmailRow(email: email)
                                 .contentShape(Rectangle())
                                 .onTapGesture {
+                                    // Prevent tapping if any email is already opening
+                                    guard !viewModel.isOpeningEmail else { return }
+                                    
                                     // Record user activity when interacting with emails
                                     viewModel.recordUserActivity()
                                     Task { await viewModel.open(email) }
                                 }
+                                .disabled(viewModel.isOpeningEmail)
+                                .opacity(viewModel.isOpeningEmail ? 0.6 : 1.0)
                         }
                     }
                 }
@@ -68,11 +73,16 @@ struct EmailView: View {
 
 private struct EmailRow: View {
     let email: EmailItem
+    @EnvironmentObject var viewModel: EmailViewModel
     private let cardSize = CGSize(width: 228, height: 92)
     private let cornerRadius: CGFloat = 12
     private let contentPadding: CGFloat = 12  // uniform inner padding to avoid clipping
     private let avatarSize: CGFloat = 20
     private let avatarInset: CGFloat = 10  // keep avatar comfortably inside
+    
+    private var isThisEmailOpening: Bool {
+        viewModel.isOpeningEmail && viewModel.openingEmailId == email.appleScriptID
+    }
     
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -92,7 +102,7 @@ private struct EmailRow: View {
                     .lineLimit(3)
                     .font(.system(size: 12))
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, 10) // tiny extra air so it doesn’t hug the ceiling
+                    .padding(.top, 10) // tiny extra air so it doesn't hug the ceiling
                 
                 Spacer() // Push avatar to bottom
                 
@@ -106,6 +116,25 @@ private struct EmailRow: View {
             }
             .padding(contentPadding - 5) // single source of truth for inner margins
             .frame(width: cardSize.width, height: cardSize.height, alignment: .topLeading)
+            
+            // Loading overlay
+            if isThisEmailOpening {
+                ZStack {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(Color.black.opacity(0.3))
+                    
+                    VStack(spacing: 8) {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .scaleEffect(0.8)
+                        
+                        Text("Opening...")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                }
+                .frame(width: cardSize.width, height: cardSize.height)
+            }
         }
         .frame(width: cardSize.width, height: cardSize.height)
         .cornerRadius(cornerRadius)

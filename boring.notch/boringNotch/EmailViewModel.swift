@@ -12,6 +12,10 @@ final class EmailViewModel: ObservableObject {
     @Published private(set) var selectedLabel: String? = nil
     @Published private(set) var isLabelsLoading: Bool = false
     
+    // MARK: - Email Opening State
+    @Published private(set) var isOpeningEmail: Bool = false
+    @Published private(set) var openingEmailId: String? = nil
+    
     // MARK: - Smart caching and refresh tracking
     @Published private(set) var lastFetchedAt: Date?
     @Published private(set) var lastUserActivityAt: Date?
@@ -131,11 +135,20 @@ final class EmailViewModel: ObservableObject {
     }
     
     func open(_ email: EmailItem) async {
-        print("📧 [VIEWMODEL] Opening email...")
+        // Prevent multiple simultaneous opens
+        guard !isOpeningEmail else {
+            print("📧 [VIEWMODEL] Email opening already in progress, ignoring click")
+            return
+        }
+        
+        print("📧 [VIEWMODEL] Opening email: \(email.subject)")
+        isOpeningEmail = true
+        openingEmailId = email.appleScriptID
+        errorMessage = nil
         
         do {
             try await openEmailInBackground(email)
-            print("✅ [VIEWMODEL] Email opened")
+            print("✅ [VIEWMODEL] Email opened successfully")
         } catch let e as MailServiceError {
             self.errorMessage = e.localizedDescription
             print("❌ [VIEWMODEL] Failed to open: \(e.localizedDescription)")
@@ -143,6 +156,10 @@ final class EmailViewModel: ObservableObject {
             self.errorMessage = MailServiceError.unknown.localizedDescription
             print("❌ [VIEWMODEL] Failed to open: Unknown error")
         }
+        
+        // Reset loading state
+        isOpeningEmail = false
+        openingEmailId = nil
     }
     
     // MARK: - Label Management

@@ -136,7 +136,18 @@ final class AppleScriptMailService: MailService {
             let script = """
             tell application id "com.apple.mail"
                 activate
-                delay 0.5
+                delay 0.1
+                
+                -- Close all specific message windows before opening new one
+                repeat with w in (every window)
+                    try
+                        if class of w is message viewer then
+                            -- leave main viewer open
+                        else
+                            close w
+                        end if
+                    end try
+                end repeat
                 
                 try
                     -- Try to find message by URL
@@ -188,7 +199,18 @@ final class AppleScriptMailService: MailService {
         let fallbackScript = """
         tell application id "com.apple.mail"
             activate
-            delay 0.5
+            delay 0.1
+            
+            -- Close all specific message windows before opening new one
+            repeat with w in (every window)
+                try
+                    if class of w is message viewer then
+                        -- leave main viewer open
+                    else
+                        close w
+                    end if
+                end try
+            end repeat
             
             try
                 -- Ensure inbox is loaded
