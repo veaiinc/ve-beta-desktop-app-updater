@@ -408,34 +408,58 @@ class BoringNotchService {
 			try {
 				log.info('🛑 Terminating Boring Notch app...');
 
-				// Try to find and terminate the boring.notch process
-				exec('pkill -f "boringNotch"', (error, stdout, stderr) => {
-					if (error && !error.message.includes('No matching processes')) {
-						log.warn('⚠️ Error terminating Boring Notch process:', error.message);
-					} else {
-						log.info('✅ Boring Notch process terminated');
-					}
+				// Try multiple termination methods for maximum reliability
+				let terminationCount = 0;
+				const maxAttempts = 3;
 
-					// Also try to quit the app gracefully using AppleScript
-					const quitScript = `
-						tell application "boringNotch"
-							quit
-						end tell
-					`;
+				const tryTermination = () => {
+					terminationCount++;
 
-					exec(`osascript -e '${quitScript}'`, (quitError) => {
-						if (quitError && !quitError.message.includes("Application isn't running")) {
-							log.warn(
-								'⚠️ Error gracefully quitting Boring Notch:',
-								quitError.message,
-							);
+					// Method 1: Try to find and terminate the boring.notch process
+					exec('pkill -f "boringNotch"', (error, stdout, stderr) => {
+						if (error && !error.message.includes('No matching processes')) {
+							log.warn('⚠️ Error terminating Boring Notch process:', error.message);
 						} else {
-							log.info('✅ Boring Notch app quit gracefully');
+							log.info('✅ Boring Notch process terminated');
 						}
 
-						resolve();
+						// Method 2: Try to quit the app gracefully using AppleScript
+						const quitScript = `
+							tell application "boringNotch"
+								quit
+							end tell
+						`;
+
+						exec(`osascript -e '${quitScript}'`, (quitError) => {
+							if (quitError && !quitError.message.includes("Application isn't running")) {
+								log.warn(
+									'⚠️ Error gracefully quitting Boring Notch:',
+									quitError.message,
+								);
+							} else {
+								log.info('✅ Boring Notch app quit gracefully');
+							}
+
+							// Method 3: Force kill if still running (aggressive fallback)
+							if (terminationCount < maxAttempts) {
+								setTimeout(() => {
+									exec('pkill -9 -f "boringNotch"', (forceError) => {
+										if (forceError && !forceError.message.includes('No matching processes')) {
+											log.warn('⚠️ Force kill also failed:', forceError.message);
+										} else {
+											log.info('✅ Boring Notch force killed');
+										}
+										resolve();
+									});
+								}, 1000);
+							} else {
+								resolve();
+							}
+						});
 					});
-				});
+				};
+
+				tryTermination();
 			} catch (error) {
 				log.error('❌ Error terminating Boring Notch:', error);
 				resolve();
