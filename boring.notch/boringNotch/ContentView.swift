@@ -196,8 +196,8 @@ struct ContentView: View {
                     }
                 }
                 .padding(.trailing, 3)
-                .padding(.bottom, -6)
-                .frame(maxWidth: openNotchSize.width, maxHeight: openNotchSize.height, alignment: .bottomTrailing)
+                .padding(.bottom, 0) // Align with bottom edge of notch
+                .frame(maxWidth: animatedWidth, maxHeight: animatedHeight, alignment: .bottomTrailing)
             }
         }
         .padding(.bottom, 8)
@@ -249,6 +249,16 @@ struct ContentView: View {
                         animatedTopCornerRadius = cornerRadiusInsets.closed.top
                         animatedBottomCornerRadius = cornerRadiusInsets.closed.bottom
                     }
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ResizeWindowForViewChange"))) { notification in
+            // Update animated width when window is resized
+            if let newSize = notification.userInfo?["newSize"] as? CGSize {
+                print("🔧 ContentView: Received resize notification, updating animated width to \(newSize.width)")
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    animatedWidth = newSize.width
+                    animatedHeight = newSize.height
                 }
             }
         }
@@ -616,7 +626,7 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 Spacer()
                 
-                VStack(spacing: 24) {
+                VStack(spacing: 6) {
                     // Hello Animation - shows first, then disappears
                     if vm.showHelloAnimation {
                         HelloAnimation()
@@ -629,10 +639,10 @@ struct ContentView: View {
                     
                     // Text content - animates from bottom to center
                     if vm.showLoginText {
-                        VStack(spacing: 12) { // Reduced gap from 20 to 12
+                        VStack(spacing: 0) { // Reduced gap from 20 to 12
                             // Main greeting text - with gradient foreground and individual animation
                             Text("Hey there! Ready when you are.")
-                                .font(.system(size: 18, weight: .regular, design: .default))
+                                .font(.system(size: 16, weight: .regular, design: .default))
                                 .foregroundStyle(
                                     LinearGradient(
                                         gradient: Gradient(colors: [
@@ -646,27 +656,34 @@ struct ContentView: View {
                                 )
                                 .multilineTextAlignment(.center)
                                 .lineLimit(2)
-                                .padding(.horizontal, 20)
+                                .frame(maxWidth: .infinity, alignment: .bottom)
+                                .padding(.horizontal, 6)
                                 .offset(y: vm.greetingTextOffset)
                                 .opacity(vm.greetingTextOpacity)
                             
                             // Login text - with gradient foreground and tap gesture (no hover animation)
                             Text("LOGIN")
-                                .font(.system(size: 16, weight: .semibold, design: .default))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            Color.purple.opacity(0.9),
-                                            Color.blue.opacity(0.8),
-                                            Color.cyan.opacity(0.7)
-                                        ]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .frame(maxWidth: .infinity)
+                                // .font(.system(size: 16, weight: .semibold, design: .default))
+                                // .foregroundStyle(
+                                //     LinearGradient(
+                                //         gradient: Gradient(colors: [
+                                //             Color.purple.opacity(0.9),
+                                //             Color.blue.opacity(0.8),
+                                //             Color.cyan.opacity(0.7)
+                                //         ]),
+                                //         startPoint: .leading,
+                                //         endPoint: .trailing
+                                //     )
+                                // )
+  .font(
+    Font.custom("Urbanist", size: 16)
+      .weight(.semibold)
+  )
+  .multilineTextAlignment(.center)
+  .foregroundColor(Color(red: 0.47, green: 0.93, blue: 0.79))
+                                .frame(maxWidth: .infinity,alignment: .top)
                                 .padding(.vertical, 14)
-                                .padding(.horizontal, 40) // Apply padding to the tappable area
+                                .padding(.horizontal, 20) // Apply padding to the tappable area
                                 .contentShape(Rectangle()) // Ensures the entire padded area is tappable
                                 .onTapGesture {
                                     vm.navigateToMainScreen(path: "/verify-user")
@@ -679,10 +696,10 @@ struct ContentView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .center) // Center the entire content
                 
-                Spacer()
+                // Spacer()
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: 470, maxHeight: 90)
         .allowsHitTesting(true)
         .onHover { _ in
             // Prevent hover events from bubbling up to parent views

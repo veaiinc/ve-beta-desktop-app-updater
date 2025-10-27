@@ -60,6 +60,9 @@ struct SettingsView: View {
                 NavigationLink(value: "Shortcuts") {
                     Label("Shortcuts", systemImage: "keyboard")
                 }
+                NavigationLink(value: "Widgets") {
+                    Label("Widgets", systemImage: "rectangle.3.group")
+                }
                 NavigationLink(value: "Extensions") {
                     Label("Extensions", systemImage: "puzzlepiece.extension")
                 }
@@ -89,6 +92,8 @@ struct SettingsView: View {
                     Shelf()
                 case "Shortcuts":
                     Shortcuts()
+                case "Widgets":
+                    Widgets()
                 case "Extensions":
                     Extensions()
                 case "About":
@@ -1234,6 +1239,59 @@ struct Shortcuts: View {
         .navigationTitle("Shortcuts")
     }
 }
+
+        struct Widgets: View {
+            @Default(.widgetMusicEnabled) var widgetMusicEnabled
+            @Default(.widgetCalendarEnabled) var widgetCalendarEnabled
+            @Default(.showShortcutView) var showShortcutView
+
+            // Computed property to count enabled widgets
+            private var enabledWidgetCount: Int {
+                var count = 0
+                if widgetMusicEnabled { count += 1 }
+                if widgetCalendarEnabled { count += 1 }
+                if showShortcutView { count += 1 }
+                return count
+            }
+
+            var body: some View {
+                Form {
+                    Section {
+                        Defaults.Toggle("Music", key: .widgetMusicEnabled)
+                            .disabled(widgetMusicEnabled && enabledWidgetCount <= 2) // Disable if turning off would leave only 1 widget
+                            .onChange(of: widgetMusicEnabled) { _, _ in
+                                NotificationCenter.default.post(name: NSNotification.Name("WidgetSettingsChanged"), object: nil)
+                            }
+                        Defaults.Toggle("Calendar", key: .widgetCalendarEnabled)
+                            .disabled(widgetCalendarEnabled && enabledWidgetCount <= 2) // Disable if turning off would leave only 1 widget
+                            .onChange(of: widgetCalendarEnabled) { _, _ in
+                                NotificationCenter.default.post(name: NSNotification.Name("WidgetSettingsChanged"), object: nil)
+                            }
+                        Defaults.Toggle("Shortcut View", key: .showShortcutView)
+                            .disabled(showShortcutView && enabledWidgetCount <= 2) // Disable if turning off would leave only 1 widget
+                            .onChange(of: showShortcutView) { _, _ in
+                                NotificationCenter.default.post(name: NSNotification.Name("WidgetSettingsChanged"), object: nil)
+                            }
+                    } header: {
+                        Text("Widget Settings")
+                    } footer: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Enable or disable widgets that appear in the notch area")
+                                .foregroundStyle(.secondary)
+                                .font(.caption)
+                            
+                            if enabledWidgetCount <= 2 {
+                                Text("⚠️ At least 2 widgets must remain enabled")
+                                    .foregroundStyle(.orange)
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                            }
+                        }
+                    }
+                }
+                .navigationTitle("Widgets")
+            }
+        }
 
 func proFeatureBadge() -> some View {
     Text("Upgrade to Pro")
