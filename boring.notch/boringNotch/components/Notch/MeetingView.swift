@@ -47,10 +47,10 @@ struct MeetingView: View, WebSocketEventListener {
     @State private var liveIntelligenceData: [LiveIntelligence] = []
     @State private var meetingError: String? = nil
     
-    // Webcam functionality
-    @StateObject private var webcamManager = WebcamManager.shared
-    @State private var isWebcamVisible: Bool = false
-    @State private var isRequestingAuthorization: Bool = false
+    // Webcam functionality - Commented out for now
+    // @StateObject private var webcamManager = WebcamManager.shared
+    // @State private var isWebcamVisible: Bool = false
+    // @State private var isRequestingAuthorization: Bool = false
     
     // Persistent storage for transcriptions and live intelligence
     @Default(.meetingTranscriptions) private var storedTranscriptions: [Transcription]
@@ -70,7 +70,7 @@ struct MeetingView: View, WebSocketEventListener {
         VStack(spacing: 12) {
             contentRow
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: 200) // Reduced height from infinity to 200
         .onAppear {
             // Register as event listener
             webSocketManager.addEventListener(self)
@@ -87,11 +87,11 @@ struct MeetingView: View, WebSocketEventListener {
             // Unregister event listener
             webSocketManager.removeEventListener(self)
             
-            // Stop webcam session when view disappears
-            if webcamManager.isSessionRunning {
-                webcamManager.stopSession()
-                isWebcamVisible = false
-            }
+            // Stop webcam session when view disappears - Commented out for now
+            // if webcamManager.isSessionRunning {
+            //     webcamManager.stopSession()
+            //     isWebcamVisible = false
+            // }
         }
     }
     
@@ -99,9 +99,9 @@ struct MeetingView: View, WebSocketEventListener {
     private var contentRow: some View {
         HStack(spacing: 0) {
             transcriptionScrollArea
-            webcamButton
+            // webcamButton // Commented out - webcam not required for now
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: 180) // Reduced height to match main content
     }
     
     @ViewBuilder
@@ -111,9 +111,11 @@ struct MeetingView: View, WebSocketEventListener {
                 transcriptionScrollContent(proxy: proxy)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: 180) // Reduced height to match content row
     }
     
+    // Webcam button - Commented out for now
+    /*
     @ViewBuilder
     private var webcamButton: some View {
         Button(action: {
@@ -133,7 +135,10 @@ struct MeetingView: View, WebSocketEventListener {
             
         )
     }
+    */
     
+    // Webcam square and icon - Commented out for now
+    /*
     @ViewBuilder
     private var webcamSquare: some View {
         ZStack {
@@ -170,6 +175,7 @@ struct MeetingView: View, WebSocketEventListener {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.black.opacity(0.2))
     }
+    */
     
     // MARK: - WebSocketEventListener
     
@@ -585,17 +591,15 @@ struct MeetingView: View, WebSocketEventListener {
     private var emptyStateView: some View {
         VStack(spacing: 8) {
             if coordinator.isMeetingLoading {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack() {
                     Text("Starting meet with")
                         .font(Font.custom("General Sans Variable", size: 20))
                         .foregroundColor(.white)
-                        .frame(width: 197, alignment: .leading)
 
                     Text("Live Intelligence")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(Color(red: 0.33, green: 0.44, blue: 0.97))
                 }
-                .frame(width: 300, height: 70, alignment: .bottomLeading)
             } else {
                 Text("Start talking I am listening")
                     .font(.system(size: 18))
@@ -662,8 +666,9 @@ struct MeetingView: View, WebSocketEventListener {
         }
     }
     
-    // MARK: - Webcam Methods
+    // MARK: - Webcam Methods - Commented out for now
     
+    /*
     private func toggleWebcam() {
         if isRequestingAuthorization {
             return
@@ -711,6 +716,7 @@ struct MeetingView: View, WebSocketEventListener {
             break
         }
     }
+    */
     
     // MARK: - Helper Methods
     

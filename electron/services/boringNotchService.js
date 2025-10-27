@@ -1246,6 +1246,77 @@ class BoringNotchService {
 			log.error('❌ Error handling show Ask AI window command:', error);
 		}
 	}
+
+	// Handle external recording state changes from main process
+	async handleExternalRecordingStateChange(isRecording, isPaused = false) {
+		try {
+			log.info('🎬 BoringNotchService: Handling external recording state change', {
+				isRecording,
+				isPaused,
+			});
+
+			// Send recording state to Boring Notch process if available
+			if (this.boringNotchProcess && this.boringNotchProcess.stdin) {
+				const message = {
+					type: 'RECORDING_STATE_CHANGE',
+					data: {
+						isRecording,
+						isPaused,
+					},
+				};
+
+				this.boringNotchProcess.stdin.write(JSON.stringify(message) + '\n');
+				log.info('📤 Sent recording state to Boring Notch process');
+			}
+
+			// Update main window if available
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				this.mainWindow.webContents.send('recording-state-changed', {
+					isRecording,
+					isPaused,
+				});
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error handling external recording state change:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
+	// Replace transcriptions in Boring Notch
+	async replaceTranscriptions(transcriptions) {
+		try {
+			log.info('📝 BoringNotchService: Replacing transcriptions', {
+				count: transcriptions.length,
+			});
+
+			// Send transcriptions to Boring Notch process if available
+			if (this.boringNotchProcess && this.boringNotchProcess.stdin) {
+				const message = {
+					type: 'REPLACE_TRANSCRIPTIONS',
+					data: {
+						transcriptions,
+					},
+				};
+
+				this.boringNotchProcess.stdin.write(JSON.stringify(message) + '\n');
+				log.info('📤 Sent transcriptions to Boring Notch process');
+			}
+
+			// Update main window if available
+			if (this.mainWindow && !this.mainWindow.isDestroyed()) {
+				this.mainWindow.webContents.send('transcriptions-replaced', {
+					transcriptions,
+				});
+			}
+
+			return { success: true };
+		} catch (error) {
+			log.error('❌ Error replacing transcriptions:', error);
+			return { success: false, error: error.message };
+		}
+	}
 }
 
 module.exports = BoringNotchService;
