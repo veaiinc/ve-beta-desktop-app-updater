@@ -15,7 +15,7 @@
 	app-region: drag;
 	-webkit-app-region: drag;
 
-	z-index: 27; /* Maximum z-index to ensure drag bar is above all other content */
+	z-index: 0; /* Maximum z-index to ensure drag bar is above all other content */
 }
 
 /* Simple drag bar at the top */
