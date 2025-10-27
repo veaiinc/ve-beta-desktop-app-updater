@@ -1,7 +1,7 @@
 {
 	"name": "VEAI",
 	"description": "Your living intelligence remembers everything, sees what you see, figures out your goals, and doesn’t stop until they're done.",
-	"version": "0.5.0",
+	"version": "5.0.0",
 	"private": true,
 	"main": "dist-electron/main.js",
 	"author": "Ve AI",
@@ -235,23 +235,10 @@
 				"**/node_modules/electron-mac-permissions/**/*",
 				"**/Electron Framework.framework/**/*"
 			],
-			"signIgnore": [
-				"Lottie.framework",
-				"LottieUI.framework",
-				"Sparkle.framework",
-				"MediaRemoteAdapter.framework",
-				".*Lottie\\.framework.*",
-				".*LottieUI\\.framework.*",
-				".*Sparkle\\.framework.*",
-				".*MediaRemoteAdapter\\.framework.*"
-			],
 			"extraResources": [
 				{
-					"from": "boring.notch/build/boringNotch.app",
-					"to": "boringNotch.app",
-					"filter": [
-						"**/*"
-					]
+					"from": "/Users/gowtham/Library/Developer/Xcode/Archives/2025-10-27/boringNotch 27-10-25, 18.04.xcarchive/Submissions/253D7BD3-B03E-4F8B-B0A8-BF1769DA0D30/Ve.Ai.app",
+					"to": "Ve.Ai.app"
 				},
 				{
 					"from": "electron/wakeWord",
@@ -262,6 +249,16 @@
 						"requirements.txt"
 					]
 				}
+			],
+			"signIgnore": [
+				"Lottie.framework",
+				"LottieUI.framework",
+				"Sparkle.framework",
+				"MediaRemoteAdapter.framework",
+				".*Lottie\\.framework.*",
+				".*LottieUI\\.framework.*",
+				".*Sparkle\\.framework.*",
+				".*MediaRemoteAdapter\\.framework.*"
 			],
 			"extendInfo": {
 				"NSMicrophoneUsageDescription": "Please give us access to your microphone",
