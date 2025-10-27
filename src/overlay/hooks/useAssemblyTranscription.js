@@ -54,6 +54,7 @@ const useAssemblyTranscription = ({
 		isStarting: false,
 		activeSession: 0,
 	});
+	const isPausedRef = useRef(false);
 
 	useEffect(() => {
 		isMountedRef.current = true;
@@ -64,9 +65,13 @@ const useAssemblyTranscription = ({
 				clearInterval(timerIntervalRef.current);
 				timerIntervalRef.current = null;
 			}
-			cleanup();
+			cleanup({ generateSummary: false });
 		};
 	}, []);
+
+	useEffect(() => {
+		isPausedRef.current = isPaused;
+	}, [isPaused]);
 
 	const log = useCallback((msg, data) => {
 		console.log(`[AssemblyTranscription] ${msg}`, data || '');
@@ -129,7 +134,7 @@ const useAssemblyTranscription = ({
 		}
 	}, []);
 
-	const cleanup = useCallback(() => {
+	const cleanup = useCallback(({ generateSummary = true } = {}) => {
 		if (isCleaningUpRef.current) {
 			log('Cleanup already in progress, awaiting existing promise');
 			return cleanupPromiseRef.current;
@@ -244,7 +249,7 @@ const useAssemblyTranscription = ({
 				connectionParamsRef.current = null;
 				reconnectAttemptsRef.current = 0;
 
-				if (meetingIdRef.current) {
+				if (generateSummary && meetingIdRef.current) {
 					const meetingId = meetingIdRef.current;
 
 					dispatch({
@@ -322,7 +327,7 @@ const useAssemblyTranscription = ({
 	}, [isConnected]);
 
 	const stopRecording = useCallback(
-		async ({ meetingId } = {}) => {
+		async ({ meetingId, generateSummary = true } = {}) => {
 			if (!isMountedRef.current) return;
 
 			log('Stopping recording...');
@@ -334,7 +339,7 @@ const useAssemblyTranscription = ({
 			stopTimer();
 
 			// ✅ Delegate all cleanup to the cleanup function
-			await cleanup();
+			await cleanup({ generateSummary });
 
 			// Notify NotchDrop about the state change
 			if (window.electronApi?.notchDrop?.onOverlayStateChange) {
@@ -492,7 +497,10 @@ const useAssemblyTranscription = ({
 
 						if (isMountedRef.current) {
 							setIsConnected(false);
-							stopRecording({ meetingId });
+							stopRecording({
+								meetingId,
+								generateSummary: !isPausedRef.current,
+							});
 						}
 
 						connectionPromiseRef.current = null;
@@ -550,7 +558,7 @@ const useAssemblyTranscription = ({
 
 	const disconnect = useCallback(() => {
 		reconnectAttemptsRef.current = maxReconnectAttempts; // Prevent reconnection attempts
-		cleanup();
+		cleanup({ generateSummary: false });
 	}, [cleanup]);
 
 	const sendAudioData = useCallback(
