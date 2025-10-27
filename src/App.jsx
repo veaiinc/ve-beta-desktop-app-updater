@@ -341,7 +341,6 @@ const AppContent = () => {
 
 			{showWindowChrome && <WindowChrome />}
 
-
 			{/* Update Notification - Commented out for auto restart */}
 			{/* {showUpdateNotification && updateStatus?.status === 'downloaded' && (
 				<div

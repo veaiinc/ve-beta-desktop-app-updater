@@ -69,10 +69,6 @@ const GlobalMeetingHelper = () => {
 		},
 	} = useContext(Context);
 
-	useEffect(() => {
-		console.log('activeMeetingDetails', activeMeetingDetails);
-	}, [activeMeetingDetails]);
-
 	// Keep local transcription ref in sync with context state
 	useEffect(() => {
 		if (activeMeetingDetails?.transcriptions) {
@@ -304,7 +300,6 @@ const GlobalMeetingHelper = () => {
 
 		// Use stored meeting ID from ref (more reliable than state)
 		const currentMeetingId = meetingIdRef.current;
-		console.log('GlobalMeetingHelper: Using meeting ID from ref:', currentMeetingId);
 
 		sessionIdRef.current = null;
 
@@ -325,28 +320,15 @@ const GlobalMeetingHelper = () => {
 		// Generate meeting analytics when meeting ends (only if not already exists)
 		if (currentMeetingId) {
 			try {
-				console.log(
-					'GlobalMeetingHelper: Checking if analytics already exist for ended meeting:',
-					currentMeetingId,
-				);
-
 				// First, check if analytics data already exists
 				const [success, data] = await getMeetingAnalytics(currentMeetingId);
 
 				if (success && data) {
-					console.log(
-						'GlobalMeetingHelper: Analytics data already exists, skipping generation',
-					);
 					return;
 				}
 
-				console.log(
-					'GlobalMeetingHelper: No analytics data found, generating analytics for ended meeting:',
-					currentMeetingId,
-				);
 				const result = await audioStorageService.generateMeetingAnalytics(currentMeetingId);
 				if (result.success) {
-					console.log('GlobalMeetingHelper: Successfully generated meeting analytics');
 				} else {
 					console.error(
 						'GlobalMeetingHelper: Failed to generate meeting analytics:',
@@ -365,13 +347,8 @@ const GlobalMeetingHelper = () => {
 
 		// Stop audio recording for local storage
 		try {
-			console.log(
-				'GlobalMeetingHelper: Stopping audio recording for meeting:',
-				currentMeetingId,
-			);
 			// Note: stopAudioRecording function would need to be available from useAssemblyTranscription
 			// stopAudioRecording();
-			console.log('GlobalMeetingHelper: Audio recording stopped successfully');
 		} catch (error) {
 			console.error('GlobalMeetingHelper: Error stopping audio recording:', error);
 		}
@@ -397,13 +374,11 @@ const GlobalMeetingHelper = () => {
 			// Clear transcriptions in notch
 			if (window.electronApi?.notchdrop?.replaceTranscriptions) {
 				window.electronApi.notchdrop.replaceTranscriptions([]);
-				console.log('✅ Sent empty transcription array to NotchDrop for cleanup');
 			}
 
 			// Clear live intelligence data in notch
 			if (window.electronApi?.notchdrop?.clearLiveIntelligenceData) {
 				window.electronApi.notchdrop.clearLiveIntelligenceData();
-				console.log('✅ Cleared live intelligence data in NotchDrop for cleanup');
 			}
 		} catch (e) {
 			console.error('Failed to clear data in NotchDrop during meeting cleanup:', e);
@@ -422,7 +397,6 @@ const GlobalMeetingHelper = () => {
 			isPaused: newIsPaused,
 		}));
 		toggleMute();
-		console.log('isMuted', isMuted);
 	};
 
 	const handleListenClick = async () => {
@@ -455,7 +429,6 @@ const GlobalMeetingHelper = () => {
 
 	const handleDynamicIslandListenClick = async (data = {}) => {
 		// Open live intelligence panel for Dynamic Island - NO ShortcutBar
-		console.log('🏝️ Dynamic Island Control: Opening Live Intelligence - ShortcutBar DISABLED');
 		setIsDynamicIslandControlled(true);
 		setShowShortcutBar(false);
 
@@ -481,7 +454,6 @@ const GlobalMeetingHelper = () => {
 		if (!isDynamicIslandControlled) {
 			setShowShortcutBar(true);
 		} else {
-			console.log('🏝️ Panel closed but keeping Dynamic Island control - NO ShortcutBar');
 		}
 	};
 
@@ -531,9 +503,7 @@ const GlobalMeetingHelper = () => {
 
 		// Listen for commands from Dynamic Island via main process
 		const handleOverlayCommand = (event) => {
-			console.log('🏝️ Dynamic Island Command Received:', event);
 			const { action, data } = event;
-			console.log('action', action);
 
 			// Mark as Dynamic Island controlled and hide ShortcutBar permanently
 			setIsDynamicIslandControlled(true);
@@ -541,40 +511,28 @@ const GlobalMeetingHelper = () => {
 
 			switch (action) {
 				case 'startRecording':
-					console.log(
-						'🚀 Dynamic Island START: Opening Live Intelligence without ShortcutBar...',
-					);
 					handleDynamicIslandListenClick(data);
 					break;
 				case 'stopRecording':
-					console.log('⏹️ Dynamic Island STOP: Stopping recording...');
 					handleStopTranscription();
 					break;
 				case 'pauseRecording':
-					console.log('⏸️ Dynamic Island PAUSE: Pausing recording...');
 					handleTogglePause();
 					break;
 				case 'resumeRecording':
-					console.log('▶️ Dynamic Island RESUME: Resuming recording...');
 					handleTogglePause();
 					break;
 				case 'toggleLiveIntelligence':
-					console.log(
-						'🧠 Dynamic Island: Opening Live Intelligence without ShortcutBar...',
-					);
 					handleDynamicIslandListenClick();
 					break;
 				case 'getRecordingState':
-					console.log('📊 Dynamic Island: Getting recording state...');
 					// Send current state back to Dynamic Island
 					sendRecordingStateUpdate();
 					break;
 				case 'enableAiIntelligence':
-					console.log('🔍 Dynamic Island: Enabling AI Intelligence...');
 					toggleAiIntelligence(true);
 					break;
 				case 'disableAiIntelligence':
-					console.log('🔍 Dynamic Island: Disabling AI Intelligence...');
 					toggleAiIntelligence(false);
 					break;
 				default:

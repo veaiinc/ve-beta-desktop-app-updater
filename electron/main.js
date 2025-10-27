@@ -205,8 +205,6 @@ const withTimeout = (handler, timeoutMs = 30000) => {
 
 // Startup diagnostic function - OPTIMIZED for performance
 const runStartupDiagnostics = async () => {
-	log.info('🔍 Running startup diagnostics...');
-
 	// PERFORMANCE FIX: Use async file operations to prevent main thread blocking
 	const criticalPaths = [
 		{ name: 'App path', path: app.getAppPath() },
@@ -239,22 +237,13 @@ const runStartupDiagnostics = async () => {
 		const buildPath = path.join(__dirname, '..', 'build');
 		const indexPath = path.join(buildPath, 'index.html');
 
-		log.info('🔍 Checking production build files...');
-		log.info(`📁 Build directory: ${buildPath}`);
-		log.info(`📄 Index file: ${indexPath}`);
-
 		// PERFORMANCE FIX: Use async operations to prevent blocking
 		try {
 			await fs.promises.access(buildPath);
 			const buildFiles = await fs.promises.readdir(buildPath);
-			log.info(
-				`📋 Build directory contains ${buildFiles.length} files:`,
-				buildFiles.slice(0, 10),
-			);
 
 			try {
 				const stats = await fs.promises.stat(indexPath);
-				log.info(`📄 index.html size: ${stats.size} bytes, modified: ${stats.mtime}`);
 			} catch (error) {
 				log.error('❌ index.html not found in build directory');
 			}
@@ -268,13 +257,6 @@ const runStartupDiagnostics = async () => {
 	}
 
 	// Check environment variables
-	log.info('🔍 Environment variables:');
-	log.info(`NODE_ENV: ${process.env.NODE_ENV || 'undefined'}`);
-	log.info(`VITE_DEV_SERVER_URL: ${process.env.VITE_DEV_SERVER_URL || 'undefined'}`);
-	log.info(`VE_FORCE_PLATFORM: ${process.env.VE_FORCE_PLATFORM || 'undefined'}`);
-	log.info(`VE_FORCE_ARCH: ${process.env.VE_FORCE_ARCH || 'undefined'}`);
-
-	log.info('✅ Startup diagnostics completed');
 };
 
 let mainWindow = null;
@@ -332,7 +314,7 @@ function scheduleOverlayStartFallback(overlayWindow) {
 		}
 
 		overlayStartCommandTracker.retryCount += 1;
-		log.info('Fallback: sending startRecording command after timeout');
+
 		overlayWindow.webContents.send('overlay-command', {
 			action: 'startRecording',
 		});
@@ -355,7 +337,6 @@ function beginOverlayStartSequence(overlayWindow, source = 'initial') {
 		overlayStartCommandTracker.timeoutId = null;
 	}
 
-	log.info(`Sending startRecording command (${source})`);
 	overlayWindow.webContents.send('overlay-command', {
 		action: 'startRecording',
 	});
@@ -531,7 +512,6 @@ const attemptBackgroundUpdateCheck = (reason = 'scheduled') => {
 	const { isAllowed, idleDurationMs, thresholdMs, inMeeting } = canPerformBackgroundUpdate();
 
 	if (getIsUpdateInProgress()) {
-		log.info(`⏳ Skipping background update check (${reason}) - update already in progress`);
 		logAutoUpdateEvent(
 			`Skipped background check (${reason}) because an update is already running`,
 		);
@@ -539,9 +519,6 @@ const attemptBackgroundUpdateCheck = (reason = 'scheduled') => {
 	}
 
 	if (!isAllowed) {
-		log.info(
-			`⏳ Deferring background update check (${reason}) - idle ${idleDurationMs}ms / threshold ${thresholdMs}ms, inMeeting=${inMeeting}`,
-		);
 		pendingBackgroundCheck = true;
 		logAutoUpdateEvent(
 			`Deferred background check (${reason}); idle ${idleDurationMs}ms / threshold ${thresholdMs}ms, inMeeting=${inMeeting}`,
@@ -552,9 +529,6 @@ const attemptBackgroundUpdateCheck = (reason = 'scheduled') => {
 	pendingBackgroundCheck = false;
 	setUpdateContext(UpdateTriggerContext.BACKGROUND);
 	shouldAutoRestartAfterDownload = true;
-	log.info(
-		`🔍 Starting background update check (${reason}) - idle ${idleDurationMs}ms / threshold ${thresholdMs}ms`,
-	);
 	logAutoUpdateEvent(
 		`Starting background update check (${reason}); idle ${idleDurationMs}ms / threshold ${thresholdMs}ms`,
 	);
@@ -608,9 +582,6 @@ const attemptAutoRestart = (reason = 'retry') => {
 	const { isAllowed, idleDurationMs, thresholdMs, inMeeting } = canPerformBackgroundUpdate();
 
 	if (!isAllowed) {
-		log.info(
-			`⏳ Auto-restart deferred (${reason}) - idle ${idleDurationMs}ms / threshold ${thresholdMs}ms, inMeeting=${inMeeting}`,
-		);
 		clearAutoRestartTimer();
 		autoRestartTimeoutId = setTimeout(
 			() => attemptAutoRestart('activity-check'),
@@ -624,8 +595,6 @@ const attemptAutoRestart = (reason = 'retry') => {
 
 	autoRestartPending = false;
 	clearAutoRestartTimer();
-
-	log.info('🚀 Proceeding with automatic restart to apply downloaded update');
 
 	try {
 		autoUpdater.quitAndInstall(true, true);
@@ -650,9 +619,6 @@ const handleIdleStateChangeForUpdates = ({ isIdle, idleDurationMs, thresholdMs }
 		typeof thresholdMs === 'number' ? thresholdMs : getAutoUpdateIdleThresholdMs();
 
 	if (isIdle && pendingBackgroundCheck) {
-		log.info(
-			`🕒 Idle threshold met (${idleDurationMs}ms >= ${effectiveThresholdMs}ms) - attempting deferred update check`,
-		);
 		logAutoUpdateEvent(
 			`Idle threshold met (${idleDurationMs}ms >= ${effectiveThresholdMs}ms); attempting deferred background check`,
 		);
@@ -660,7 +626,6 @@ const handleIdleStateChangeForUpdates = ({ isIdle, idleDurationMs, thresholdMs }
 	}
 
 	if (isIdle && autoRestartPending) {
-		log.info('🕒 Idle threshold met - attempting deferred auto-restart');
 		logAutoUpdateEvent('Idle threshold met; attempting deferred auto-restart');
 		attemptAutoRestart('idle-state-change');
 	}
@@ -668,13 +633,11 @@ const handleIdleStateChangeForUpdates = ({ isIdle, idleDurationMs, thresholdMs }
 
 const handleMeetingStateChangeForUpdates = ({ isInMeeting }) => {
 	if (!isInMeeting && pendingBackgroundCheck) {
-		log.info('📝 Meeting ended - attempting deferred update check');
 		logAutoUpdateEvent('Meeting ended; attempting deferred background check');
 		attemptBackgroundUpdateCheck('meeting-ended');
 	}
 
 	if (!isInMeeting && autoRestartPending) {
-		log.info('📝 Meeting ended - attempting deferred auto-restart');
 		logAutoUpdateEvent('Meeting ended; attempting deferred auto-restart');
 		attemptAutoRestart('meeting-ended');
 	}
@@ -705,11 +668,6 @@ const toggleContentProtection = async () => {
 	// Send stealth mode update to Boring Notch for synchronization
 	if (boringNotchService && boringNotchService.isInitialized) {
 		try {
-			log.info(
-				`🥷 Sending stealth mode update to Boring Notch: ${
-					isContentProtectionEnabled ? 'ENABLED' : 'DISABLED'
-				}`,
-			);
 			const stealthMessage = {
 				type: 'update_stealth_mode',
 				isEnabled: isContentProtectionEnabled,
@@ -717,7 +675,6 @@ const toggleContentProtection = async () => {
 				source: 'electron',
 			};
 			const result = await boringNotchService.sendMessageToSwiftUI(stealthMessage);
-			log.info('🥷 Stealth mode message result:', result);
 		} catch (error) {
 			log.error('❌ Error sending stealth mode update to Boring Notch:', error);
 		}
@@ -741,12 +698,6 @@ const setContentProtection = async (enabled) => {
 		}
 	});
 
-	log.info(
-		`🔒 Content protection set to: ${
-			isContentProtectionEnabled ? 'ON' : 'OFF'
-		} (all windows including main window)`,
-	);
-
 	if (boringNotchService && typeof boringNotchService.updateStealthModeState === 'function') {
 		boringNotchService.updateStealthModeState(isContentProtectionEnabled);
 	}
@@ -754,11 +705,6 @@ const setContentProtection = async (enabled) => {
 	// Send stealth mode update to Boring Notch for synchronization
 	if (boringNotchService && boringNotchService.isInitialized) {
 		try {
-			log.info(
-				`🥷 Sending stealth mode update to Boring Notch: ${
-					isContentProtectionEnabled ? 'ENABLED' : 'DISABLED'
-				}`,
-			);
 			const stealthMessage = {
 				type: 'update_stealth_mode',
 				isEnabled: isContentProtectionEnabled,
@@ -766,7 +712,6 @@ const setContentProtection = async (enabled) => {
 				source: 'electron',
 			};
 			const result = await boringNotchService.sendMessageToSwiftUI(stealthMessage);
-			log.info('🥷 Stealth mode message result:', result);
 		} catch (error) {
 			log.error('❌ Error sending stealth mode update to Boring Notch:', error);
 		}
@@ -831,7 +776,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 autoUpdater.on('checking-for-update', () => {
-	log.info('🔍 Checking for updates...');
 	if (currentUpdateContext === UpdateTriggerContext.BACKGROUND) {
 		logAutoUpdateEvent('Background update check requested (autoUpdater event)');
 	} else if (currentUpdateContext === UpdateTriggerContext.MANUAL) {
@@ -843,7 +787,6 @@ autoUpdater.on('checking-for-update', () => {
 });
 
 autoUpdater.on('update-available', (info) => {
-	log.info('🆕 Update available:', info);
 	updateAvailable({ info, mainWindow, setIsUpdateInProgress });
 	pendingBackgroundCheck = false;
 	if (currentUpdateContext === UpdateTriggerContext.BACKGROUND) {
@@ -866,7 +809,6 @@ autoUpdater.on('update-available', (info) => {
 });
 
 autoUpdater.on('update-not-available', (info) => {
-	log.info('✅ No updates available');
 	updateNotAvailable({ mainWindow, info, setIsUpdateInProgress });
 	resetUpdateContext();
 	shouldAutoRestartAfterDownload = false;
@@ -882,7 +824,6 @@ autoUpdater.on('update-not-available', (info) => {
 
 // Add download progress tracking
 autoUpdater.on('download-progress', (progressObj) => {
-	log.info('📥 Download progress:', Math.round(progressObj.percent), '%');
 	downloadProgress({ progressObj, mainWindow });
 });
 
@@ -904,7 +845,6 @@ autoUpdater.on('error', (err) => {
 });
 
 autoUpdater.on('update-downloaded', (info) => {
-	log.info('✅ Update downloaded successfully:', info);
 	const updateContext = currentUpdateContext;
 	const shouldAutoRestart =
 		shouldAutoRestartAfterDownload && updateContext === UpdateTriggerContext.BACKGROUND;
@@ -923,7 +863,6 @@ autoUpdater.on('update-downloaded', (info) => {
 	clearAutoRestartTimer();
 
 	if (shouldAutoRestart || backgroundEligibility.isAllowed) {
-		log.info('✅ Auto-update conditions satisfied - attempting automatic restart');
 		logAutoUpdateEvent(
 			`Update downloaded; idle ${backgroundEligibility.idleDurationMs}ms / threshold ${backgroundEligibility.thresholdMs}ms, inMeeting=${backgroundEligibility.inMeeting} — attempting automatic restart`,
 		);
@@ -949,7 +888,6 @@ async function showNotification(title, body) {
 
 	notification.on('action', (event, index) => {
 		if (index === 0) {
-			log.info('User clicked "Join Meet"');
 			handleNotificationAction('join-meet');
 		} else {
 			log.info('User clicked "Not Now"');
@@ -957,7 +895,6 @@ async function showNotification(title, body) {
 	});
 
 	notification.on('click', () => {
-		log.info('Notification clicked - treating as "Join Meet"');
 		handleNotificationAction('join-meet');
 		if (mainWindow) mainWindow.focus();
 	});
@@ -982,7 +919,6 @@ async function showNotification(title, body) {
 				'dynamic-island-notification',
 				dynamicIslandNotification,
 			);
-			log.info('Notification also sent to Dynamic Island');
 		}
 	}
 
@@ -1009,8 +945,6 @@ async function showNotification(title, body) {
 		} catch (error) {
 			log.error('❌ Error sending notification to SwiftUI:', error);
 		}
-	} else {
-		log.info('ℹ️ NotchDrop service not available, skipping SwiftUI notification');
 	}
 }
 
@@ -1019,7 +953,6 @@ function handleNotificationAction(action) {
 
 	if (action === 'join-meet') {
 		if (!windowHelper) {
-			log.info('windowHelper not ready — action queued');
 			return;
 		}
 
@@ -1149,8 +1082,6 @@ ipcMain.handle('download-update', async () => {
 
 ipcMain.handle('restart-app', async () => {
 	try {
-		log.info('🔄 Restart app requested...');
-
 		// Add timeout to prevent hanging
 		const timeoutPromise = new Promise((_, reject) =>
 			setTimeout(() => reject(new Error('Restart app timeout')), 30000),
@@ -1191,7 +1122,6 @@ ipcMain.handle('websocket-send-message', async (event, data) => {
 		}
 
 		websocketService.broadcast(data);
-		log.info('WebSocket message sent: ', data?.type);
 		return { success: true };
 	} catch (error) {
 		log.error('❌ Failed to send WebSocket message:', error);
@@ -1325,11 +1255,9 @@ ipcMain.handle('open-microphone-settings', async () => {
 
 	try {
 		if (platform === 'darwin') {
-			log.info('🎤 Opening Microphone privacy settings...');
 			await shell.openExternal(
 				'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone',
 			);
-			log.info('✅ Successfully opened Microphone privacy settings');
 			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
 			exec('start ms-settings:privacy-microphone', (error) => {
@@ -1353,11 +1281,9 @@ ipcMain.handle('open-screen-recording-settings', async () => {
 
 	try {
 		if (platform === 'darwin') {
-			log.info('🖥️ Opening Screen Recording privacy settings...');
 			await shell.openExternal(
 				'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture',
 			);
-			log.info('✅ Successfully opened Screen Recording privacy settings');
 			return { success: true, platform: 'macOS' };
 		} else if (platform === 'win32') {
 			exec('start ms-settings:privacy', (error) => {
@@ -1381,14 +1307,11 @@ ipcMain.handle('open-media-settings', async () => {
 
 	try {
 		if (platform === 'darwin') {
-			log.info('🎵 Opening Media Library privacy settings...');
-
 			try {
 				// First try Privacy_Media URL scheme
 				await shell.openExternal(
 					'x-apple.systempreferences:com.apple.preference.security?Privacy_Media',
 				);
-				log.info('✅ Successfully opened Media Library privacy settings');
 				return { success: true, platform: 'macOS', method: 'Privacy_Media' };
 			} catch (mediaError) {
 				log.warn('⚠️ Privacy_Media failed, trying Photos as fallback:', mediaError.message);
@@ -1398,7 +1321,6 @@ ipcMain.handle('open-media-settings', async () => {
 					await shell.openExternal(
 						'x-apple.systempreferences:com.apple.preference.security?Privacy_Photos',
 					);
-					log.info('✅ Successfully opened Photos privacy settings as fallback');
 					return { success: true, platform: 'macOS', method: 'Privacy_Photos' };
 				} catch (photosError) {
 					log.error('❌ Both Media and Photos settings failed:', photosError.message);
@@ -1427,13 +1349,10 @@ ipcMain.handle('open-calendar-settings', async () => {
 
 	try {
 		if (platform === 'darwin') {
-			log.info('📅 Opening Calendar privacy settings...');
-
 			try {
 				await shell.openExternal(
 					'x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars',
 				);
-				log.info('✅ Successfully opened Calendar privacy settings');
 				return { success: true, platform: 'macOS', method: 'shell.openExternal' };
 			} catch (calendarError) {
 				log.error('❌ Calendar settings failed:', calendarError.message);
@@ -1520,7 +1439,6 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 		if (permissions) {
 			// Use electron-mac-permissions for proper screen capture permission check
 			const screenStatus = permissions.getAuthStatus('screen');
-			log.info('🖥️ Screen recording permission check:', screenStatus);
 
 			return {
 				success: true,
@@ -1540,7 +1458,6 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 			};
 		} else {
 			// Fallback: test if we can actually capture screen sources
-			log.info('🖥️ Testing screen capture capability (fallback)...');
 
 			const sources = await desktopCapturer.getSources({
 				types: ['screen'],
@@ -1548,12 +1465,6 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 			});
 
 			const hasPermission = sources && sources.length > 0;
-			log.info(
-				'🖥️ Screen capture test result:',
-				hasPermission ? 'success' : 'failed',
-				'sources found:',
-				sources?.length || 0,
-			);
 
 			return {
 				success: true,
@@ -1565,7 +1476,6 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 			};
 		}
 	} catch (error) {
-		log.info('🖥️ Screen capture test failed (permission likely denied):', error.message);
 		return {
 			success: true,
 			permission: 'denied',
@@ -1577,7 +1487,6 @@ ipcMain.handle('check-screen-recording-permission', async () => {
 
 // Request screen sharing permission (replaces screen recording)
 ipcMain.handle('request-screen-recording-permission', async () => {
-	log.info('🖥️ Screen sharing permission request handler called');
 	try {
 		// Windows doesn't have the same permission system as macOS
 		if (process.platform !== 'darwin') {
@@ -1585,7 +1494,6 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 		}
 
 		// Test current capability
-		log.info('🖥️ Testing current screen capture capability...');
 		try {
 			const sources = await desktopCapturer.getSources({
 				types: ['screen'],
@@ -1593,7 +1501,6 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 			});
 
 			if (sources && sources.length > 0) {
-				log.info('🖥️ Screen sharing permission already granted');
 				return { success: true, granted: true, status: 'granted' };
 			}
 		} catch (testError) {
@@ -1601,7 +1508,6 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 		}
 
 		// If we can't capture, try to trigger the permission prompt
-		log.info('🖥️ Attempting to trigger screen sharing permission prompt...');
 		try {
 			// This will trigger the system permission popup for screen sharing
 			const sources = await desktopCapturer.getSources({
@@ -1610,7 +1516,6 @@ ipcMain.handle('request-screen-recording-permission', async () => {
 			});
 
 			const granted = sources && sources.length > 0;
-			log.info('🖥️ Screen sharing permission request result:', granted);
 
 			return {
 				success: true,
@@ -4243,13 +4148,10 @@ app.whenReady().then(async () => {
 				}
 
 				mainWindow.webContents.send('navigate-to', data);
-				log.info('Main window navigated to:', data?.path);
+
 				// }
 				return { success: true };
 			} else {
-				// Main window doesn't exist or is destroyed, recreate it
-				log.info('Main window not available, recreating it...');
-
 				// Recreate the main window with state restoration
 				createWindow(true);
 
@@ -4266,15 +4168,8 @@ app.whenReady().then(async () => {
 							const compactWidth = Math.min(workArea.width, 571);
 							const compactHeight = Math.min(workArea.height, 626);
 							mainWindow.setBounds({ width: compactWidth, height: compactHeight });
-							log.info(
-								'📐 NotchDrop: Resized recreated main window to compact chat view (571x626)',
-							);
 
 							mainWindow.webContents.send('navigate-to', data);
-							log.info(
-								'Main window recreated and shown successfully with state restoration and navigated to:',
-								data?.path,
-							);
 
 							resolve();
 						});
@@ -4313,7 +4208,6 @@ app.whenReady().then(async () => {
 				}
 
 				await shell.openExternal(settingsUrl);
-				log.info(`🔧 Opened ${permissionType} settings in System Preferences`);
 				return { success: true, platform: 'macOS' };
 			} else if (platform === 'win32') {
 				let settingsCommand = '';
@@ -4346,28 +4240,21 @@ app.whenReady().then(async () => {
 
 	async function checkPermissions() {
 		try {
-			log.info('🔍 Starting permission checks...');
-
 			// Check microphone permission and request if needed
-			log.info('🔍 Checking microphone permission...');
+
 			const micStatus = systemPreferences.getMediaAccessStatus('microphone');
-			log.info('🔍 Microphone permission status:', micStatus);
 
 			let micPermission = micStatus === 'granted';
 
 			if (micStatus !== 'granted') {
-				log.info('🔍 Requesting microphone permission...');
 				try {
 					micPermission = await systemPreferences.askForMediaAccess('microphone');
-					log.info('🔍 Microphone permission request result:', micPermission);
 
 					// If still not granted, open system settings
 					if (!micPermission) {
-						log.info('🔧 Opening microphone settings in System Preferences...');
 						await openSystemSettingsForPermission('microphone');
 					}
 				} catch (error) {
-					log.error('🔍 Error requesting microphone permission:', error);
 					micPermission = false;
 					// Open system settings as fallback
 					await openSystemSettingsForPermission('microphone');
@@ -4384,21 +4271,17 @@ app.whenReady().then(async () => {
 			}
 
 			// Check screen permission and request if needed
-			log.info('🔍 Checking screen permission...');
+
 			const screenStatus = systemPreferences.getMediaAccessStatus('screen');
-			log.info('🔍 Screen permission status:', screenStatus);
 
 			let screenPermission = screenStatus === 'granted';
 
 			if (screenStatus !== 'granted') {
-				log.info('🔍 Requesting screen permission...');
 				try {
 					screenPermission = await systemPreferences.askForMediaAccess('screen');
-					log.info('🔍 Screen permission request result:', screenPermission);
 
 					// If still not granted, open system settings
 					if (!screenPermission) {
-						log.info('🔧 Opening screen recording settings in System Preferences...');
 						await openSystemSettingsForPermission('screen');
 					}
 				} catch (error) {
@@ -4418,7 +4301,6 @@ app.whenReady().then(async () => {
 				};
 			}
 
-			log.info('🔍 All permissions granted successfully');
 			return {
 				status: 'success',
 				microphone: micPermission,
@@ -4435,14 +4317,11 @@ app.whenReady().then(async () => {
 	}
 
 	async function checkPermissionsAndStartMeeting(ws) {
-		log.info('🚀 checkPermissionsAndStartMeeting function called');
 		const result = await checkPermissions();
-		log.info('checkPermissionsAndStartMeeting result', result);
 
 		let message = '';
 
 		if (result.status === 'success') {
-			log.info('All permissions granted - starting meeting');
 			await handleNotchToMainWindowEvents({ action: 'startRecording' });
 			return { success: true };
 		}
@@ -4454,8 +4333,6 @@ app.whenReady().then(async () => {
 		} else if (result.status === 'error') {
 			message = 'Error checking permissions: ' + result.message;
 		}
-
-		log.info('checkPermissionsAndStartMeeting message', message);
 
 		websocketService.sendToClient(ws, { type: 'MEETING_START_ERROR', data: { message } });
 		return { success: false, error: message };
@@ -4481,9 +4358,6 @@ app.whenReady().then(async () => {
 
 		switch (data.type) {
 			case 'START_MEETING':
-				log.info(
-					'🎯 START_MEETING message received, scheduling MEETING_STARTED response...',
-				);
 				try {
 					await checkPermissionsAndStartMeeting(ws);
 				} catch (error) {
@@ -4496,9 +4370,6 @@ app.whenReady().then(async () => {
 				break;
 
 			case 'PAUSE_MEETING':
-				log.info(
-					'🎯 PAUSE_MEETING message received, scheduling MEETING_PAUSED response...',
-				);
 				// Send response back to the client that sent the PAUSE_MEETING message
 				await handleNotchToMainWindowEvents({ action: 'pauseRecording' });
 
@@ -4506,9 +4377,6 @@ app.whenReady().then(async () => {
 				break;
 
 			case 'RESUME_MEETING':
-				log.info(
-					'🎯 RESUME_MEETING message received, scheduling MEETING_RESUMED response...',
-				);
 				await handleNotchToMainWindowEvents({ action: 'resumeRecording' });
 
 				// Send response back to the client that sent the RESUME_MEETING message
@@ -4516,16 +4384,12 @@ app.whenReady().then(async () => {
 				break;
 
 			case 'STOP_MEETING':
-				log.info(
-					'🎯 STOP_MEETING message received, scheduling MEETING_STOPPED response...',
-				);
 				await handleNotchToMainWindowEvents({ action: 'stopRecording' });
 				// Send response back to the client that sent the STOP_MEETING message
 				websocketService.sendToClient(ws, { type: 'MEETING_STOPPED', data: {} });
 				break;
 
 			case 'REQUEST_AUTHENTICATION_STATUS':
-				log.info('🔐 REQUEST_AUTHENTICATION_STATUS message received from Boring Notch');
 				// Check authentication status and send response
 				const token = await getAuthToken();
 				const isAuthenticated = token && token.trim() !== '';
@@ -4534,26 +4398,22 @@ app.whenReady().then(async () => {
 					type: 'AUTHENTICATION_STATUS',
 					data: { isAuthenticated: isAuthenticated },
 				});
-				log.info(`✅ Authentication status sent to Boring Notch: ${isAuthenticated}`);
+
 				break;
 
 			case 'NAVIGATE_TO_MAIN_SCREEN':
-				log.info('🎯 NAVIGATE_TO_MAIN_SCREEN message received from BoringNotch');
 				// Show and focus main window, optionally navigate to specific path
 				await handleNotchToMainWindowEvents({ path: data.path || null });
-				log.info('✅ Main window opened/restored from BoringNotch VE logo click');
 				break;
 
 			case 'ENABLE_AI_INTELLIGENCE':
-				log.info('🎯 ENABLE_AI_INTELLIGENCE message received from BoringNotch');
 				await handleNotchToMainWindowEvents({ action: 'enableAiIntelligence' });
-				log.info('✅ AI Intelligence enabled');
+
 				break;
 
 			case 'DISABLE_AI_INTELLIGENCE':
-				log.info('🎯 DISABLE_AI_INTELLIGENCE message received from BoringNotch');
 				await handleNotchToMainWindowEvents({ action: 'disableAiIntelligence' });
-				log.info('✅ AI Intelligence disabled');
+
 				break;
 			default:
 				log.info('🎯 Unknown message received, skipping...');
@@ -4572,10 +4432,6 @@ app.whenReady().then(async () => {
 				type: 'TRANSCRIPTION_UPDATE',
 				data: { transcriptions: transcriptionsArray },
 			});
-
-			log.info(
-				`📝 Sent ${transcriptionsArray.length} transcriptions to BoringNotch via WebSocket`,
-			);
 			return { success: true };
 		} catch (error) {
 			log.error('Error sending transcription data to Notch:', error);
@@ -4592,16 +4448,12 @@ app.whenReady().then(async () => {
 					type: 'LIVE_INTELLIGENCE_UPDATE',
 					data: { liveIntelligenceArray: liveIntelligenceData },
 				});
-				log.info(
-					`🧠 Sent ${liveIntelligenceData.length} live intelligence items to BoringNotch via WebSocket (array replacement)`,
-				);
 			} else {
 				// Send individual item (legacy support)
 				websocketService.broadcast({
 					type: 'LIVE_INTELLIGENCE_UPDATE',
 					data: liveIntelligenceData,
 				});
-				log.info('🧠 Sent individual live intelligence item to BoringNotch via WebSocket');
 			}
 			return { success: true };
 		} catch (error) {
@@ -4630,13 +4482,11 @@ app.whenReady().then(async () => {
 				mainWindow.show();
 				mainWindow.focus();
 				mainWindow.webContents.send('notchdrop-to-main-window-event', data);
-				log.info('Main window navigated to:', data?.path);
+
 				// }
 				return { success: true };
 			} else {
 				// Main window doesn't exist or is destroyed, recreate it
-				log.info('Main window not available, recreating it...');
-
 				// Recreate the main window with state restoration
 				createWindow(true);
 
@@ -4653,10 +4503,6 @@ app.whenReady().then(async () => {
 								mainWindow.webContents.send('notchdrop-to-main-window-event', {
 									path: data?.path,
 								});
-								log.info(
-									'Main window recreated in background mode and navigated to:',
-									data?.path,
-								);
 							} else {
 								// Normal mode - show and focus the window
 								mainWindow.show();
@@ -4664,10 +4510,6 @@ app.whenReady().then(async () => {
 								mainWindow.webContents.send('notchdrop-to-main-window-event', {
 									path: data?.path,
 								});
-								log.info(
-									'Main window recreated and shown successfully with state restoration and navigated to:',
-									data?.path,
-								);
 							}
 							resolve();
 						});
@@ -4760,14 +4602,12 @@ app.whenReady().then(async () => {
 	// macOS dock icon click handler to reopen main window
 	if (isMacRuntime) {
 		app.on('activate', () => {
-			log.info('🍎 Dock icon clicked - reopening main window');
 			if (mainWindow && !mainWindow.isDestroyed()) {
 				// Window exists, just show and focus it
 				mainWindow.show();
 				mainWindow.focus();
 			} else {
 				// Window doesn't exist, recreate it
-				log.info('Main window not available, recreating from dock click');
 				createWindow(true); // Pass true to restore state
 			}
 		});
@@ -4865,9 +4705,8 @@ app.whenReady().then(async () => {
 
 					const checkWindowReady = () => {
 						const isReady = windowHelper.isAskAIWindowReady();
-						log.info(`🎯 IPC: Window ready check: ${isReady}`);
+
 						if (isReady) {
-							log.info('🎯 IPC: Window is ready!');
 							clearTimeout(timeout);
 							resolve();
 						} else {
@@ -4881,7 +4720,7 @@ app.whenReady().then(async () => {
 
 				// Send the chat message to Ask AI window
 				askAIWindow.webContents.send('receive-chat-message', chatMessage);
-				log.info('Successfully sent chat message to Ask AI window');
+
 				return { success: true };
 			} else {
 				log.error('Ask AI window not available after creation attempts');
@@ -4941,51 +4780,88 @@ app.whenReady().then(async () => {
 				duration = 300,
 				easing = 'easeInOutSmooth',
 			} = data;
-			const workArea = screen.getPrimaryDisplay().workAreaSize;
-			const screenWidth = workArea.width,
-				screenHeight = workArea.height;
 
-			// Create sanitized dimensions object
+			// Enhanced logging for debugging
+
+			// Validate main window exists
+			if (!mainWindow || mainWindow.isDestroyed()) {
+				log.error('❌ Main window not available for resize');
+				return { success: false, error: 'Main window not available' };
+			}
+
+			// Get current window bounds for validation
+			const currentBounds = mainWindow.getBounds();
+
+			const workArea = screen.getPrimaryDisplay().workAreaSize;
+			const screenWidth = workArea.width;
+			const screenHeight = workArea.height;
+
+			// Create sanitized dimensions object with enhanced validation
 			const targetDimensions = {};
 
 			if (dimensions?.width) {
-				const width = Math.min(screenWidth, dimensions.width);
+				const requestedWidth = dimensions.width;
+				const maxWidth = Math.floor(screenWidth * 0.95); // Allow up to 95% of screen width
+				const minWidth = 300; // Minimum window width
+
+				const width = Math.max(minWidth, Math.min(maxWidth, requestedWidth));
 				targetDimensions.width = width;
+
+				// Log width adjustments
+				if (requestedWidth !== width) {
+					log.warn(
+						`📐 Width adjusted: ${requestedWidth}px → ${width}px (screen: ${screenWidth}px)`,
+					);
+				}
 			}
+
 			if (dimensions?.height) {
-				const height = Math.min(screenHeight, dimensions.height);
+				const requestedHeight = dimensions.height;
+				const maxHeight = Math.floor(screenHeight * 0.95); // Allow up to 95% of screen height
+				const minHeight = 200; // Minimum window height
+
+				const height = Math.max(minHeight, Math.min(maxHeight, requestedHeight));
 				targetDimensions.height = height;
+
+				// Log height adjustments
+				if (requestedHeight !== height) {
+					log.warn(
+						`📐 Height adjusted: ${requestedHeight}px → ${height}px (screen: ${screenHeight}px)`,
+					);
+				}
 			}
+
 			if (dimensions?.x !== undefined) {
 				// Ensure window stays within screen bounds
-				const x = Math.max(
-					0,
-					Math.min(
-						screenWidth - (targetDimensions.width || mainWindow.getBounds().width),
-						dimensions.x,
-					),
-				);
+				const currentWidth = targetDimensions.width || currentBounds.width;
+				const x = Math.max(0, Math.min(screenWidth - currentWidth, dimensions.x));
 				targetDimensions.x = x;
+
+				// Log position adjustments
+				if (dimensions.x !== x) {
+					log.warn(`📐 X position adjusted: ${dimensions.x}px → ${x}px`);
+				}
 			}
+
 			if (dimensions?.y !== undefined) {
 				// Ensure window stays within screen bounds
-				const y = Math.max(
-					0,
-					Math.min(
-						screenHeight - (targetDimensions.height || mainWindow.getBounds().height),
-						dimensions.y,
-					),
-				);
+				const currentHeight = targetDimensions.height || currentBounds.height;
+				const y = Math.max(0, Math.min(screenHeight - currentHeight, dimensions.y));
 				targetDimensions.y = y;
+
+				// Log position adjustments
+				if (dimensions.y !== y) {
+					log.warn(`📐 Y position adjusted: ${dimensions.y}px → ${y}px`);
+				}
 			}
 
-			if (mainWindow && !mainWindow.isDestroyed()) {
-				// Handle fullscreen exit
-				if (exitFullScreen && mainWindow.isFullScreen()) {
-					mainWindow.setFullScreen(false);
+			// Handle fullscreen exit
+			if (exitFullScreen && mainWindow.isFullScreen()) {
+				mainWindow.setFullScreen(false);
 
-					// Wait for fullscreen exit, then animate resize
-					mainWindow.once('leave-full-screen', async () => {
+				// Wait for fullscreen exit, then animate resize
+				mainWindow.once('leave-full-screen', async () => {
+					try {
 						if (animate) {
 							await resizeWindowAnimated(mainWindow, targetDimensions, {
 								duration,
@@ -4994,30 +4870,47 @@ app.whenReady().then(async () => {
 						} else {
 							mainWindow.setBounds(targetDimensions);
 						}
-					});
-				} else {
-					// Animate resize (or instant if animate: false)
-					if (animate) {
+					} catch (error) {
+						log.error('❌ Error resizing after fullscreen exit:', error);
+					}
+				});
+			} else {
+				// Animate resize (or instant if animate: false)
+				if (animate) {
+					try {
 						await resizeWindowAnimated(mainWindow, targetDimensions, {
 							duration,
 							easing,
 						});
-					} else {
+					} catch (error) {
+						log.error(
+							'❌ Error during animated resize, falling back to instant:',
+							error,
+						);
+						// Fallback to instant resize
 						mainWindow.setBounds(targetDimensions);
 					}
+				} else {
+					mainWindow.setBounds(targetDimensions);
 				}
-
-				log.info(
-					`✅ Window resized ${animate ? 'with animation' : 'instantly'}:`,
-					targetDimensions,
-				);
-				return { success: true, bounds: mainWindow.getBounds() };
 			}
 
-			return { success: false, error: 'Main window not available' };
+			// Get final bounds for verification
+			const finalBounds = mainWindow.getBounds();
+
+			return {
+				success: true,
+				bounds: finalBounds,
+				requestedDimensions: dimensions,
+				targetDimensions: targetDimensions,
+			};
 		} catch (error) {
 			log.error('❌ Error resizing main window:', error);
-			return { success: false, error: error.message };
+			return {
+				success: false,
+				error: error.message,
+				stack: error.stack,
+			};
 		}
 	});
 
@@ -5052,7 +4945,6 @@ app.whenReady().then(async () => {
 						}
 					});
 
-					log.info('🖥️ Exited fullscreen mode');
 					return { success: true, isFullscreen: false };
 				} else {
 					// Save current window state before entering fullscreen
@@ -5061,7 +4953,6 @@ app.whenReady().then(async () => {
 					// Enter fullscreen
 					mainWindow.setFullScreen(true);
 
-					log.info('🖥️ Entered fullscreen mode');
 					return { success: true, isFullscreen: true };
 				}
 			}
@@ -5087,7 +4978,6 @@ app.whenReady().then(async () => {
 					mainWindow.hide();
 				}
 
-				log.info('🪟 Window hidden via chrome close button');
 				return { success: true };
 			}
 			return { success: false, error: 'Main window not available' };
@@ -5126,13 +5016,10 @@ app.whenReady().then(async () => {
 				mainWindow.show();
 				mainWindow.focus();
 				mainWindow.webContents.send('navigate-to', data);
-				log.info('Main window navigated to:', data?.path);
-				log.info('🧭 [DEBUG] Sent navigate-to event with data:', data);
 				// }
 				return { success: true };
 			} else {
 				// Main window doesn't exist or is destroyed, recreate it
-				log.info('Main window not available, recreating it...');
 
 				// Recreate the main window with state restoration
 				createWindow(true);
@@ -5148,19 +5035,11 @@ app.whenReady().then(async () => {
 							if (dockHidden) {
 								// In background mode, just navigate without showing/focusing the window
 								mainWindow.webContents.send('navigate-to', { path: data?.path });
-								log.info(
-									'Main window recreated in background mode and navigated to:',
-									data?.path,
-								);
 							} else {
 								// Normal mode - show and focus the window
 								mainWindow.show();
 								mainWindow.focus();
 								mainWindow.webContents.send('navigate-to', { path: data?.path });
-								log.info(
-									'Main window recreated and shown successfully with state restoration and navigated to:',
-									data?.path,
-								);
 							}
 							resolve();
 						});
@@ -5340,8 +5219,6 @@ app.whenReady().then(async () => {
 	// Combined Dynamic Island show/expand and recording trigger for Windows
 	ipcMain.handle('dynamic-island-start-recording-from-modal', async () => {
 		try {
-			log.info('🏝️ Starting recording from CreateMeetingModal via Dynamic Island');
-
 			// Only proceed if platform/architecture supports Dynamic Island
 			const shouldForceShowDynamicIsland = (() => {
 				const value = String(process.env.VITE_ELECTRON_SHOW_DYNAMIC_ISLAND || '')
@@ -5351,9 +5228,6 @@ app.whenReady().then(async () => {
 			})();
 
 			if (!shouldForceShowDynamicIsland && isAppleSiliconMac) {
-				// log.info(
-				// 	'🍎 Skipping Dynamic Island recording on Apple Silicon Mac (using NotchDrop)',
-				// );
 				return { success: false, error: 'Use NotchDrop on Apple Silicon Mac' };
 			}
 
@@ -5363,7 +5237,7 @@ app.whenReady().then(async () => {
 			}
 
 			// Step 1: Force show Dynamic Island
-			log.info('🏝️ Step 1: Force showing Dynamic Island');
+
 			const showResult = dynamicIslandHelper.forceShow();
 			if (!showResult) {
 				log.error('❌ Failed to show Dynamic Island');
@@ -5371,8 +5245,6 @@ app.whenReady().then(async () => {
 			}
 
 			// Step 2: Start overlay recording (keeping Dynamic Island in closed state)
-			log.info('🏝️ Step 2: Starting overlay recording (Dynamic Island remains closed)');
-
 			// Get or create overlay window
 			let overlayWindow = windowHelper?.getOverlayWindow();
 			if (!overlayWindow) {
@@ -5394,22 +5266,12 @@ app.whenReady().then(async () => {
 					action: 'startRecording',
 				});
 
-				log.info(
-					`✅ Recording command ${
-						commandSent ? 'sent immediately' : 'queued'
-					} from Dynamic Island`,
-				);
-
 				// Focus overlay and bring to front
 				overlayWindow.focus();
 				overlayWindow.moveTop();
 
 				// Start the Are You There timer for 30-minute intervals
 				startAreYouThereTimer();
-
-				log.info(
-					'🎉 Successfully started recording from CreateMeetingModal via Dynamic Island',
-				);
 				return { success: true };
 			} else {
 				log.error('❌ Overlay window not available after creating');
@@ -5598,7 +5460,6 @@ app.whenReady().then(async () => {
 				if (!boringNotchService) {
 					return { success: false, error: 'NotchDrop service not initialized' };
 				}
-				// log.info('🎯 Swift action received in main.js:', action, data);
 				const result = await boringNotchService.handleSwiftAction(action, data);
 				return result;
 			} catch (error) {
@@ -5697,7 +5558,6 @@ app.whenReady().then(async () => {
 	// New NotchDropLatest IPC handlers
 	ipcMain.handle('notchdrop-open-airdrop', async () => {
 		try {
-			// log.info('Opening AirDrop from NotchDropLatest');
 			// Open AirDrop sharing dialog
 			exec('open -a AirDrop', (error) => {
 				if (error) {
@@ -5713,7 +5573,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-open-share', async () => {
 		try {
-			// log.info('Opening share dialog from NotchDropLatest');
 			// Open file picker for sharing
 			const result = await dialog.showOpenDialog(mainWindow, {
 				properties: ['openFile', 'multiSelections'],
@@ -5728,7 +5587,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-open-file', async (event, filePath) => {
 		try {
-			// log.info('Opening file from NotchDropLatest:', filePath);
 			await shell.openPath(filePath);
 			return { success: true };
 		} catch (error) {
@@ -5739,7 +5597,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop-delete-file', async (event, fileId) => {
 		try {
-			// log.info('Deleting file from NotchDropLatest:', fileId);
 			// This would integrate with the file storage system
 			// For now, just return success
 			return { success: true };
@@ -5752,7 +5609,6 @@ app.whenReady().then(async () => {
 	// Update voice status in NotchDrop
 	ipcMain.handle('notchdrop-update-voice-status', async (event, status) => {
 		try {
-			// log.info('Updating NotchDrop voice status:', status);
 			if (boringNotchService) {
 				await boringNotchService.updateVoiceStatus(status);
 				return { success: true };
@@ -5767,7 +5623,6 @@ app.whenReady().then(async () => {
 	// Update voice connection state in NotchDrop
 	ipcMain.handle('notchdrop-update-voice-connection-state', async (event, status) => {
 		try {
-			// log.info('Updating NotchDrop voice connection state:', status);
 			if (boringNotchService) {
 				await boringNotchService.updateVoiceConnectionStatus(status);
 				return { success: true };
@@ -5796,8 +5651,6 @@ app.whenReady().then(async () => {
 	// GENERAL PURPOSE MESSAGE SYSTEM - Send any data to NotchDrop
 	ipcMain.handle('notchdrop-send-message', async (event, messageData) => {
 		try {
-			log.info('📤 Sending general message to NotchDrop:', messageData.type || 'unknown');
-
 			if (!boringNotchService) {
 				return { success: false, error: 'NotchDrop service not available' };
 			}
@@ -5818,7 +5671,6 @@ app.whenReady().then(async () => {
 	// Update voice mute state in NotchDrop
 	ipcMain.handle('notchdrop-update-voice-mute-state', async (event, isMuted) => {
 		try {
-			// log.info('Updating NotchDrop voice mute state:', isMuted);
 			if (boringNotchService) {
 				await boringNotchService.updateVoiceMuteState(isMuted);
 				return { success: true };
@@ -5833,7 +5685,6 @@ app.whenReady().then(async () => {
 	// Voice agent activation handler for Ask AI
 	ipcMain.handle('notchdrop-activate-voice-agent', async (event, data) => {
 		try {
-			log.info('🎤 Activating voice agent from Ask AI');
 			if (boringNotchService) {
 				await boringNotchService.activateVoiceAgent();
 				return { success: true };
@@ -5848,7 +5699,6 @@ app.whenReady().then(async () => {
 	// Direct voice control handlers from boring.notch
 	ipcMain.handle('boring-notch-voice-mute', async (event, isMuted) => {
 		try {
-			log.info('🎤 Direct voice mute command from boring.notch:', isMuted);
 			if (boringNotchService) {
 				await boringNotchService.handleDirectVoiceMute(isMuted);
 				return { success: true };
@@ -5862,7 +5712,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('boring-notch-voice-disconnect', async (event) => {
 		try {
-			log.info('🔌 Direct voice disconnect command from boring.notch');
 			if (boringNotchService) {
 				await boringNotchService.handleDirectVoiceDisconnect();
 				return { success: true };
@@ -5877,7 +5726,6 @@ app.whenReady().then(async () => {
 	// Voice agent disconnect handler
 	ipcMain.handle('notchdrop-disconnect-voice-agent', async (event, data) => {
 		try {
-			log.info('🔌 Disconnecting voice agent from Ask AI');
 			if (boringNotchService) {
 				await boringNotchService.disconnectVoiceAgent();
 				return { success: true };
@@ -5892,7 +5740,6 @@ app.whenReady().then(async () => {
 	// Voice agent mute toggle handler
 	ipcMain.handle('notchdrop-toggle-voice-mute', async (event, isMuted) => {
 		try {
-			log.info('🎤 Toggling voice mute from Ask AI:', isMuted);
 			if (boringNotchService) {
 				await boringNotchService.toggleVoiceMute(isMuted);
 				return { success: true };
@@ -5924,18 +5771,15 @@ app.whenReady().then(async () => {
 	async function handleBoringNotchNotification(userInfo) {
 		try {
 			const action = userInfo.action;
-			log.info('📱 Received boring.notch notification:', action);
 
 			switch (action) {
 				case 'disconnect_voice_agent':
-					log.info('🔌 Disconnecting voice agent from boring.notch notification');
 					// Call the actual voice agent disconnect
 					await disconnectVoiceAgentFromMainWindow();
 					break;
 
 				case 'toggle_voice_mute':
 					const isMuted = userInfo.isMuted;
-					log.info('🎤 Toggling voice mute from boring.notch notification:', isMuted);
 					// Call the actual voice agent mute toggle
 					await toggleVoiceMuteInMainWindow(isMuted);
 					break;
@@ -5986,7 +5830,6 @@ app.whenReady().then(async () => {
                 
                 '{ "success": true, "method": "boring-notch disconnect" }';
             `);
-				log.info('🔌 Voice agent disconnect triggered from main window');
 			} else {
 				log.warn('⚠️ Main window not found for voice agent disconnect');
 			}
@@ -6028,7 +5871,6 @@ app.whenReady().then(async () => {
                 
                 '{ "success": true, "method": "boring-notch mute toggle" }';
             `);
-				log.info('🎤 Voice mute toggle triggered from main window:', isMuted);
 			} else {
 				log.warn('⚠️ Main window not found for voice mute toggle');
 			}
@@ -6155,7 +5997,6 @@ app.whenReady().then(async () => {
 				return { success: false, error: 'Dynamic Island Helper not initialized' };
 			}
 			// For now, just log the request - this could be extended to control microphone access
-			// log.info(`Dynamic Island microphone access ${enabled ? 'enabled' : 'disabled'}`);
 			return {
 				success: true,
 				message: `Microphone access ${enabled ? 'enabled' : 'disabled'}`,
@@ -6169,7 +6010,6 @@ app.whenReady().then(async () => {
 	// Voice integration handlers for Dynamic Island
 	ipcMain.handle('dynamic-island-voice-connect', async () => {
 		try {
-			// log.info('Dynamic Island voice connect requested');
 			// In the future, this could trigger specific voice setup for Dynamic Island
 			return { success: true, message: 'Voice connection initiated from Dynamic Island' };
 		} catch (error) {
@@ -6180,7 +6020,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('dynamic-island-voice-disconnect', async () => {
 		try {
-			// log.info('Dynamic Island voice disconnect requested');
 			// In the future, this could trigger specific voice cleanup for Dynamic Island
 			return { success: true, message: 'Voice disconnection initiated from Dynamic Island' };
 		} catch (error) {
@@ -6213,7 +6052,6 @@ app.whenReady().then(async () => {
 			// Send notification to Dynamic Island window
 			dynamicIslandWindow.webContents.send('dynamic-island-notification', notification);
 
-			// log.info('Notification sent to Dynamic Island:', notification);
 			return { success: true, message: 'Notification sent to Dynamic Island' };
 		} catch (error) {
 			log.error('Error showing notification in Dynamic Island:', error);
@@ -6251,16 +6089,11 @@ app.whenReady().then(async () => {
 	// CRITICAL FIX: Enhanced NotchDrop overlay integration handlers with immediate response
 	ipcMain.handle('notchdrop:triggerOverlayRecording', async () => {
 		try {
-			// log.info('⚡ SWIFT UI START BUTTON: Immediate overlay recording - ZERO DELAY MODE');
-
 			// CRITICAL FIX: Try immediate response method first
 			const immediateResult = await handleSwiftOverlayRequestImmediate('startRecording');
 			if (immediateResult.success) {
-				// 	log.info('🚀 SUCCESS: Immediate overlay recording triggered instantly!');
 				return immediateResult;
 			}
-
-			// log.info('🔄 Immediate failed, using fallback method...');
 
 			// CRITICAL FIX: Verify windowHelper is available
 			if (!windowHelper) {
@@ -6274,7 +6107,6 @@ app.whenReady().then(async () => {
 			const maxRetries = 3;
 
 			while (!overlayWindow && retryCount < maxRetries) {
-				// log.info(`🔧 Attempt ${retryCount + 1}: Creating overlay window...`);
 				windowHelper.createOverlayWindow();
 
 				// Progressive wait times: 100ms, 200ms, 300ms
@@ -6296,7 +6128,6 @@ app.whenReady().then(async () => {
 
 				// CRITICAL FIX: Enhanced window visibility handling
 				if (!overlayWindow.isVisible()) {
-					// log.info('👁️ Showing overlay window...');
 					windowHelper.showOverlayWindow();
 
 					// Wait for window to be properly visible
@@ -6319,11 +6150,6 @@ app.whenReady().then(async () => {
 					commandSent = windowHelper.sendOverlayCommand({
 						action: 'startRecording',
 					});
-					// log.info(
-					// 	`✅ SMART QUEUE: StartRecording command ${
-					// 		commandSent ? 'sent immediately' : 'queued'
-					// 	} from Swift UI`,
-					// );
 				}
 
 				// Fallback: Direct webContents send if queuing failed
@@ -6336,9 +6162,7 @@ app.whenReady().then(async () => {
 						overlayWindow.webContents.send('overlay-command', {
 							action: 'startRecording',
 						});
-						// log.info(
-						// 	'✅ FALLBACK: StartRecording command sent directly to webContents',
-						// );
+
 						commandSent = true;
 					} catch (fallbackError) {
 						log.error('❌ Fallback command sending failed:', fallbackError);
@@ -6353,8 +6177,6 @@ app.whenReady().then(async () => {
 
 					// Force window to be interactive
 					overlayWindow.setIgnoreMouseEvents(false);
-
-					// log.info('✅ Overlay window focused and brought to front');
 				} catch (focusError) {
 					log.warn('⚠️ Could not focus overlay window:', focusError);
 				}
@@ -6382,14 +6204,7 @@ app.whenReady().then(async () => {
 			console.log('notchdrop:triggerOverlayStopRecording');
 
 			handleNotchToMainWindowEvents({ action: 'stopRecording' });
-			// if (overlayWindow) {
-			// 	overlayWindow.webContents.send('overlay-command', {
-			// 		action: 'stopRecording',
-			// 	});
-			// 	// // log.info('Sent stopRecording command to overlay window from NotchDrop');
-			// } else {
-			// 	log.warn('Overlay window not available for stopRecording');
-			// }
+
 			return { success: true };
 		} catch (error) {
 			log.error('Error handling NotchDrop overlay stop recording:', error);
@@ -6399,13 +6214,11 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop:triggerOverlayPauseRecording', async () => {
 		try {
-			// log.info('⏸️ NotchDrop requested overlay pause recording');
 			const overlayWindow = windowHelper?.getOverlayWindow();
 			if (overlayWindow) {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'pauseRecording',
 				});
-				// log.info('Sent pauseRecording command to overlay window from NotchDrop');
 			} else {
 				log.warn('Overlay window not available for pauseRecording');
 			}
@@ -6423,7 +6236,6 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'resumeRecording',
 				});
-				// log.info('Sent resumeRecording command to overlay window from NotchDrop');
 			} else {
 				log.warn('Overlay window not available for resumeRecording');
 			}
@@ -6436,7 +6248,6 @@ app.whenReady().then(async () => {
 
 	ipcMain.handle('notchdrop:triggerOverlayToggleLiveIntelligence', async () => {
 		try {
-			// log.info('🧠 NotchDrop requested overlay toggle live intelligence');
 			let overlayWindow = windowHelper?.getOverlayWindow();
 			if (!overlayWindow) {
 				// Create overlay window if it doesn't exist
@@ -6455,7 +6266,6 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'toggleLiveIntelligence',
 				});
-				// log.info('Sent toggleLiveIntelligence command to overlay window from NotchDrop');
 			} else {
 				log.error('Overlay window not available after creating');
 				return { success: false, error: 'Overlay window not available' };
@@ -6764,7 +6574,6 @@ app.whenReady().then(async () => {
 		try {
 			if (boringNotchService) {
 				const debugInfo = boringNotchService.getDebugInfo();
-				log.info('🔍 Boring Notch debug info requested:', debugInfo);
 				return { success: true, debugInfo };
 			}
 			return {
@@ -6955,9 +6764,6 @@ app.whenReady().then(async () => {
 
 			// Stop the recording by sending stop command to main window (GlobalMeetingHelper)
 			await handleNotchToMainWindowEvents({ action: 'stopRecording' });
-			log.info(
-				'✅ Sent stopRecording command to main window from Are You There auto-timeout',
-			);
 
 			// Send MEETING_STOPPED to Boring Notch via WebSocket
 			if (websocketService && websocketService.isServerRunning()) {
@@ -6965,7 +6771,6 @@ app.whenReady().then(async () => {
 					type: 'MEETING_STOPPED',
 					data: {},
 				});
-				log.info('✅ Sent MEETING_STOPPED to Boring Notch from Are You There auto-timeout');
 			} else {
 				log.warn('⚠️ WebSocket service not available for MEETING_STOPPED broadcast');
 			}
@@ -6990,7 +6795,6 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'pauseRecording',
 				});
-				log.info('Sent pauseRecording command to overlay window');
 			}
 
 			// Close the Are You There window
@@ -7015,7 +6819,6 @@ app.whenReady().then(async () => {
 
 			// Stop the recording by sending stop command to main window (GlobalMeetingHelper)
 			await handleNotchToMainWindowEvents({ action: 'stopRecording' });
-			log.info('✅ Sent stopRecording command to main window from Are You There');
 
 			// Send MEETING_STOPPED to Boring Notch via WebSocket
 			if (websocketService && websocketService.isServerRunning()) {
@@ -7023,7 +6826,6 @@ app.whenReady().then(async () => {
 					type: 'MEETING_STOPPED',
 					data: {},
 				});
-				log.info('✅ Sent MEETING_STOPPED to Boring Notch from Are You There end session');
 			} else {
 				log.warn('⚠️ WebSocket service not available for MEETING_STOPPED broadcast');
 			}
@@ -7080,9 +6882,6 @@ app.whenReady().then(async () => {
 
 			// Stop the recording by sending stop command to main window (GlobalMeetingHelper)
 			await handleNotchToMainWindowEvents({ action: 'stopRecording' });
-			log.info(
-				'✅ Sent stopRecording command to main window from Are You There transcription auto-timeout',
-			);
 
 			// Send MEETING_STOPPED to Boring Notch via WebSocket
 			if (websocketService && websocketService.isServerRunning()) {
@@ -7090,9 +6889,6 @@ app.whenReady().then(async () => {
 					type: 'MEETING_STOPPED',
 					data: {},
 				});
-				log.info(
-					'✅ Sent MEETING_STOPPED to Boring Notch from Are You There transcription auto-timeout',
-				);
 			} else {
 				log.warn('⚠️ WebSocket service not available for MEETING_STOPPED broadcast');
 			}
@@ -7117,7 +6913,6 @@ app.whenReady().then(async () => {
 				overlayWindow.webContents.send('overlay-command', {
 					action: 'pauseRecording',
 				});
-				log.info('Sent pauseRecording command to overlay window');
 			}
 
 			// Close the Are You There window
@@ -7142,9 +6937,6 @@ app.whenReady().then(async () => {
 
 			// Stop the recording by sending stop command to main window (GlobalMeetingHelper)
 			await handleNotchToMainWindowEvents({ action: 'stopRecording' });
-			log.info(
-				'✅ Sent stopRecording command to main window from Are You There transcription end',
-			);
 
 			// Send MEETING_STOPPED to Boring Notch via WebSocket
 			if (websocketService && websocketService.isServerRunning()) {
@@ -7152,9 +6944,6 @@ app.whenReady().then(async () => {
 					type: 'MEETING_STOPPED',
 					data: {},
 				});
-				log.info(
-					'✅ Sent MEETING_STOPPED to Boring Notch from Are You There transcription end',
-				);
 			} else {
 				log.warn('⚠️ WebSocket service not available for MEETING_STOPPED broadcast');
 			}
@@ -7199,7 +6988,6 @@ app.whenReady().then(async () => {
 		try {
 			lastWindowState.route = route;
 			lastWindowState.timestamp = Date.now();
-			log.info('Current route saved:', route);
 			return { success: true };
 		} catch (error) {
 			log.error('Error saving current route:', error);
@@ -7374,20 +7162,16 @@ app.whenReady().then(async () => {
 
 	// Request camera permission handler
 	ipcMain.handle('request-camera-permission', async () => {
-		log.info('📷 Camera permission request handler called');
 		try {
 			if (isMacRuntime) {
 				// Check current status first
 				const currentStatus = systemPreferences.getMediaAccessStatus('camera');
-				log.info('📷 Current camera permission status:', currentStatus);
 
 				if (currentStatus === 'granted') {
-					log.info('📷 Camera permission already granted');
 					return { success: true, granted: true, status: currentStatus };
 				}
 
 				if (currentStatus === 'denied') {
-					log.info('📷 Camera permission previously denied');
 					return {
 						success: false,
 						granted: false,
@@ -7397,9 +7181,7 @@ app.whenReady().then(async () => {
 				}
 
 				// Request camera access (this will show the system dialog)
-				log.info('📷 Requesting camera permission...');
 				const granted = await systemPreferences.askForMediaAccess('camera');
-				log.info('📷 Camera permission request result:', granted);
 
 				return {
 					success: true,
@@ -7428,7 +7210,6 @@ app.whenReady().then(async () => {
 	// Show camera permission help dialog
 	ipcMain.handle('show-camera-permission-help', async () => {
 		try {
-			log.info('🔧 show-camera-permission-help handler called');
 			if (isMacRuntime) {
 				const result = await dialog.showMessageBox(mainWindow, {
 					type: 'info',
@@ -7498,20 +7279,16 @@ app.whenReady().then(async () => {
 
 	// Request microphone permission handler
 	ipcMain.handle('request-microphone-permission', async () => {
-		log.info('🎤 Microphone permission request handler called');
 		try {
 			if (isMacRuntime) {
 				// Check current status first
 				const currentStatus = systemPreferences.getMediaAccessStatus('microphone');
-				log.info('🎤 Current microphone permission status:', currentStatus);
 
 				if (currentStatus === 'granted') {
-					log.info('🎤 Microphone permission already granted');
 					return { success: true, granted: true, status: currentStatus };
 				}
 
 				if (currentStatus === 'denied') {
-					log.info('🎤 Microphone permission previously denied');
 					return {
 						success: false,
 						granted: false,
@@ -7521,9 +7298,7 @@ app.whenReady().then(async () => {
 				}
 
 				// Request microphone access (this will show the system dialog)
-				log.info('🎤 Requesting microphone permission...');
 				const granted = await systemPreferences.askForMediaAccess('microphone');
-				log.info('🎤 Microphone permission request result:', granted);
 
 				return {
 					success: true,
@@ -7663,8 +7438,6 @@ app.whenReady().then(async () => {
 	// Screen capture IPC handler
 	ipcMain.handle('start-screen-capture', async () => {
 		try {
-			log.info('Starting screen capture...');
-
 			// Get screen sources using desktopCapturer
 			const sources = await desktopCapturer.getSources({
 				types: ['screen'],
@@ -7678,7 +7451,6 @@ app.whenReady().then(async () => {
 
 			// Return the first (primary) screen source
 			const primaryScreen = sources[0];
-			log.info(`Screen capture source selected: ${primaryScreen.name}`);
 
 			return {
 				success: true,
@@ -7785,7 +7557,6 @@ app.on('before-quit', async (event) => {
 		// Terminate boring.notch app before cleanup
 		if (boringNotchService) {
 			try {
-				log.info('🛑 Terminating boring.notch app before Electron quit...');
 				await boringNotchService.terminate();
 			} catch (error) {
 				log.error('❌ Error terminating boring.notch app:', error);
@@ -7840,8 +7611,6 @@ app.on('will-quit', async (event) => {
 				boringNotchService.cleanup();
 			}
 		}
-
-		log.info('🧹 App cleanup completed');
 	} catch (error) {
 		log.error('❌ Error during app cleanup:', error);
 	}
@@ -7851,7 +7620,6 @@ app.on('will-quit', async (event) => {
 app.on('quit', (event, exitCode) => {
 	// Only cleanup if update is not in progress
 	if (!isUpdateInProgress && (dynamicIslandHelper || windowHelper)) {
-		log.info('🔄 Force cleanup on quit event...');
 		handleCleanupAndQuit();
 	}
 });
@@ -7903,7 +7671,6 @@ const handleCleanupAndQuit = () => {
 	// Cleanup WebSocket service
 	try {
 		if (websocketService.isServerRunning()) {
-			log.info('🔄 Stopping WebSocket service...');
 			websocketService
 				.stop()
 				.then(() => {
@@ -8084,7 +7851,6 @@ function updateTranscriptionActivity() {
 
 	// If the Are You There window is shown due to no transcriptions, hide it
 	if (isTranscriptionBasedAreYouThereShown) {
-		log.info('🎤 Transcription detected - hiding transcription-based Are You There window');
 		hideTranscriptionBasedAreYouThereWindow();
 	}
 
