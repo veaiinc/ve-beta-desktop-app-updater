@@ -1,0 +1,6 @@
+[0;34m[14:23:51][0m Current version: 0.4.65
+[0;34m[14:23:51][0m Auto-incremented version: 0.4.66
+[0;34m[14:23:51][0m Starting automated release process for version 0.4.66...
+[0;34m[14:23:51][0m Log file: auto-release-20251027-142351.log
+[0;34m[14:23:51][0m Running pre-flight checks...
+[0;31m[ERROR][0m Notary profile 'veai-profile-2' not found in keychain. Please set it up first.
