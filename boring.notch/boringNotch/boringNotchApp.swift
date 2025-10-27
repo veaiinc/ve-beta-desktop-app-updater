@@ -156,15 +156,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             guard let window = window else { return }
             let screenFrame = screen.frame
             
-            // Position like a real MacBook notch - at the top edge, not centered
-            let xPosition: CGFloat
-            if screen.safeAreaInsets.top > 0 {
-                // This is a display WITH a notch - position at the top edge
-                xPosition = screenFrame.origin.x + (screen.safeAreaInsets.left)
-            } else {
-                // This is a display WITHOUT a notch - center it
-                xPosition = screenFrame.origin.x + (screenFrame.width / 2) - window.frame.width / 2
-            }
+            // Center the notch horizontally on the screen (like the real MacBook notch)
+            let xPosition = screenFrame.origin.x + (screenFrame.width / 2) - window.frame.width / 2
             
             window.setFrameOrigin(
                 NSPoint(
@@ -186,16 +179,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         for (screen, window) in windows {
             let screenFrame = screen.frame
             
-            // Position like a real MacBook notch - at the top edge, not centered
-            let newX: CGFloat
-            if screen.safeAreaInsets.top > 0 {
-                // This is a display WITH a notch - position at the top edge
-                newX = screenFrame.origin.x + (screen.safeAreaInsets.left)
-            } else {
-                // This is a display WITHOUT a notch - center it
-                newX = screenFrame.origin.x + (screenFrame.width / 2) - (newSize.width / 2)
-            }
-            
+            // Center the notch horizontally on the screen (like the real MacBook notch)
+            let newX = screenFrame.origin.x + (screenFrame.width / 2) - (newSize.width / 2)
             let newY = screenFrame.origin.y + screenFrame.height - newSize.height
             
             let newFrame = NSRect(
@@ -218,16 +203,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let screen = window.screen ?? NSScreen.main!
             let screenFrame = screen.frame
             
-            // Position like a real MacBook notch - at the top edge, not centered
-            let newX: CGFloat
-            if screen.safeAreaInsets.top > 0 {
-                // This is a display WITH a notch - position at the top edge
-                newX = screenFrame.origin.x + (screen.safeAreaInsets.left)
-            } else {
-                // This is a display WITHOUT a notch - center it
-                newX = screenFrame.origin.x + (screenFrame.width / 2) - (newSize.width / 2)
-            }
-            
+            // Center the notch horizontally on the screen (like the real MacBook notch)
+            let newX = screenFrame.origin.x + (screenFrame.width / 2) - (newSize.width / 2)
             let newY = screenFrame.origin.y + screenFrame.height - newSize.height
             
             let newFrame = NSRect(
