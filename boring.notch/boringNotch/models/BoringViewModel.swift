@@ -15,6 +15,7 @@ enum VoiceConnectionStatus: String, CaseIterable {
     case disconnected, connecting, connected, error
 }
 
+
 struct VoiceMessage: Identifiable, Codable {
     let id = UUID()
     let content: String
@@ -34,6 +35,10 @@ class BoringViewModel: NSObject, ObservableObject {
 
     let animationLibrary: BoringAnimations = .init()
     let animation: Animation?
+
+    // Static in-memory cache that survives BoringViewModel re-creations (multiple displays, window rebuilds, etc.)
+    private static var persistedEmailLabels: [String] = []
+    private static var persistedSelectedEmailLabel: String?
 
     @Published var contentType: ContentType = .normal
     @Published private(set) var notchState: NotchState = .closed
@@ -87,9 +92,11 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var isVoiceActive: Bool = false
     @Published var aiResponseIntensity: CGFloat = 0.0 // Wave animation intensity (0.0 → 1.0)
     @Published var effectiveAnimationIntensity: CGFloat = 0.0 // Combined AI + real-time audio intensity
-    
+
     // MARK: - New: Shared Email State
     let emailViewModel = EmailViewModel()
+    @Published var cachedEmailLabels: [String] = []
+    @Published var cachedSelectedEmailLabel: String?
     
     deinit {
         destroy()
@@ -114,6 +121,31 @@ class BoringViewModel: NSObject, ObservableObject {
         self.screen = screen
         notchSize = getClosedNotchSize(screen: screen)
         closedNotchSize = notchSize
+
+        // Restore cached email labels immediately so the UI has data before any fresh fetch runs.
+        cachedEmailLabels = Self.persistedEmailLabels
+        cachedSelectedEmailLabel = Self.persistedSelectedEmailLabel
+        if !Self.persistedEmailLabels.isEmpty {
+            emailViewModel.applyCachedLabels(Self.persistedEmailLabels, selectedLabel: Self.persistedSelectedEmailLabel)
+        }
+
+        emailViewModel.$availableLabels
+            .receive(on: RunLoop.main)
+            .sink { [weak self] labels in
+                guard let self else { return }
+                self.cachedEmailLabels = labels
+                Self.persistedEmailLabels = labels
+            }
+            .store(in: &cancellables)
+
+        emailViewModel.$selectedLabel
+            .receive(on: RunLoop.main)
+            .sink { [weak self] label in
+                guard let self else { return }
+                self.cachedSelectedEmailLabel = label
+                Self.persistedSelectedEmailLabel = label
+            }
+            .store(in: &cancellables)
 
         Publishers.CombineLatest($dropZoneTargeting, $dragDetectorTargeting)
             .map { value1, value2 in
@@ -596,4 +628,3 @@ class BoringViewModel: NSObject, ObservableObject {
         }
     }
 }
-
