@@ -49,6 +49,9 @@ class SettingsWindowController: NSWindowController {
         // Make it behave like a regular app window with proper Spaces support
         window.collectionBehavior = [.managed, .participatesInCycle, .fullScreenAuxiliary]
         
+        // Set window level to stay below notch area (notch is .mainMenu + 3)
+        window.level = .floating
+        
         // Ensure proper window behavior
         window.hidesOnDeactivate = false
         window.isExcludedFromWindowsMenu = false
@@ -70,25 +73,27 @@ class SettingsWindowController: NSWindowController {
         // Set app to regular mode first
         NSApp.setActivationPolicy(.regular)
         
-        // If window is already visible, bring it to front properly
+        // Set window level to be below notch area BEFORE any ordering
+        window?.level = .floating  // This is below .mainMenu + 3 (notch level)
+        
+        // If window is already visible, just ensure it's at the right level
         if window?.isVisible == true {
+            window?.level = .floating
             NSApp.activate(ignoringOtherApps: true)
-            window?.orderFrontRegardless()
-            window?.makeKeyAndOrderFront(nil)
+            window?.makeKey()
             return
         }
         
-        // Show the window with proper ordering
-        window?.orderFrontRegardless()
+        // Show the window without aggressive front-ordering
         window?.makeKeyAndOrderFront(nil)
         window?.center()
         
-        // Activate the app and ensure window gets focus
+        // Activate the app
         NSApp.activate(ignoringOtherApps: true)
         
-        // Force window to front after activation
+        // Ensure window level persists after activation
         DispatchQueue.main.async { [weak self] in
-            self?.window?.makeKeyAndOrderFront(nil)
+            self?.window?.level = .floating
         }
     }
     
@@ -117,6 +122,9 @@ extension SettingsWindowController: NSWindowDelegate {
     func windowDidBecomeKey(_ notification: Notification) {
         // Ensure app is in regular mode when window becomes key
         NSApp.setActivationPolicy(.regular)
+        
+        // Ensure window level stays below notch
+        window?.level = .floating
     }
     
     func windowDidResignKey(_ notification: Notification) {

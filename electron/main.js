@@ -7793,7 +7793,7 @@ app.on('before-quit', async (event) => {
 		}
 
 		// Clean up all windows and processes
-		handleCleanupAndQuit();
+		await handleCleanupAndQuit();
 	} else {
 		// Allow quit for updates
 		log.info('🔄 Allowing quit for update installation...');
@@ -7852,14 +7852,14 @@ app.on('quit', (event, exitCode) => {
 	// Only cleanup if update is not in progress
 	if (!isUpdateInProgress && (dynamicIslandHelper || windowHelper)) {
 		log.info('🔄 Force cleanup on quit event...');
-		handleCleanupAndQuit();
+		await handleCleanupAndQuit();
 	}
 });
 
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
 	// Only cleanup if update is not in progress
 	if (!isUpdateInProgress) {
-		handleCleanupAndQuit();
+		await handleCleanupAndQuit();
 	}
 });
 
@@ -7888,8 +7888,25 @@ ipcMain.handle('update-overlay-dimensions', async (event, { width, height }) => 
 	}
 });
 
-const handleCleanupAndQuit = () => {
+const handleCleanupAndQuit = async () => {
 	isQuitting = true;
+
+	// CRITICAL: Terminate Boring Notch app FIRST
+	if (boringNotchService) {
+		try {
+			log.info('🛑 Force terminating boring.notch app during cleanup...');
+			await boringNotchService.terminate();
+			log.info('✅ Boring Notch app terminated successfully');
+		} catch (error) {
+			log.error('❌ Error terminating boring.notch app during cleanup:', error);
+			// Try cleanup as fallback
+			try {
+				boringNotchService.cleanup();
+			} catch (cleanupError) {
+				log.error('❌ Error cleaning up boring.notch service:', cleanupError);
+			}
+		}
+	}
 
 	// Cleanup bridge (ADD THIS)
 	if (bridge) {
@@ -8162,23 +8179,57 @@ function hideTranscriptionBasedAreYouThereWindow() {
 // Handle process exit to ensure cleanup
 process.on('exit', (code) => {
 	log.info(`Process exiting with code: ${code}`);
+	
+	// Force terminate Boring Notch on process exit
+	if (boringNotchService) {
+		try {
+			log.info('🛑 Force terminating Boring Notch on process exit...');
+			// Use synchronous termination for process exit
+			require('child_process').execSync('pkill -9 -f "boringNotch"', { timeout: 2000 });
+			log.info('✅ Boring Notch terminated on process exit');
+		} catch (error) {
+			log.warn('⚠️ Could not terminate Boring Notch on process exit:', error.message);
+		}
+	}
 });
 
-process.on('SIGINT', () => {
-	handleCleanupAndQuit();
+process.on('SIGINT', async () => {
+	log.info('🛑 Received SIGINT, cleaning up...');
+	await handleCleanupAndQuit();
 });
 
-process.on('SIGTERM', () => {
-	handleCleanupAndQuit();
+process.on('SIGTERM', async () => {
+	log.info('🛑 Received SIGTERM, cleaning up...');
+	await handleCleanupAndQuit();
 });
 
 // Add global error handler to prevent crashes
 process.on('uncaughtException', (error) => {
 	log.error('Uncaught Exception:', error);
+	
+	// Try to terminate Boring Notch before crashing
+	if (boringNotchService) {
+		try {
+			require('child_process').execSync('pkill -9 -f "boringNotch"', { timeout: 2000 });
+		} catch (terminateError) {
+			log.warn('Could not terminate Boring Notch on crash:', terminateError.message);
+		}
+	}
+	
 	// Don't exit the process, just log the error
 });
 
 process.on('unhandledRejection', (reason, promise) => {
 	log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+	
+	// Try to terminate Boring Notch before crashing
+	if (boringNotchService) {
+		try {
+			require('child_process').execSync('pkill -9 -f "boringNotch"', { timeout: 2000 });
+		} catch (terminateError) {
+			log.warn('Could not terminate Boring Notch on rejection:', terminateError.message);
+		}
+	}
+	
 	// Don't exit the process, just log the error
 });
