@@ -620,8 +620,12 @@ struct NotchHomeView: View {
     @EnvironmentObject var vm: BoringViewModel
     @ObservedObject var webcamManager = WebcamManager.shared
     @ObservedObject var coordinator = BoringViewCoordinator.shared
-    @Default(.showCalendar) var showCalendar: Bool
     let albumArtNamespace: Namespace.ID
+    
+    // Widget settings with automatic UI updates
+    @Default(.widgetMusicEnabled) var widgetMusicEnabled
+    @Default(.widgetCalendarEnabled) var widgetCalendarEnabled
+    @Default(.showShortcutView) var showShortcutView
     
     // Hover states for tooltips
     @State private var isStealthButtonHovered: Bool = false
@@ -634,6 +638,13 @@ struct NotchHomeView: View {
             }
         }
         .transition(.opacity.combined(with: .blurReplace))
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("WidgetSettingsChanged"))) { _ in
+            // Trigger window resize when widget settings change
+            // This ensures the window resizes even when switching between tabs
+            DispatchQueue.main.async {
+                coordinator.resizeWindowForWidgetChange()
+            }
+        }
     }
 
     private var shouldShowCamera: Bool {
@@ -641,7 +652,24 @@ struct NotchHomeView: View {
     }
     
     private var showShuffleAndRepeat: Bool {
-        !(shouldShowCamera && showCalendar) && Defaults[.showShuffleAndRepeat]
+        !(shouldShowCamera && Defaults[.showCalendar]) && Defaults[.showShuffleAndRepeat]
+    }
+    
+    // MARK: - Widget Visibility Computed Properties
+    private var isMusicWidgetEnabled: Bool {
+        widgetMusicEnabled
+    }
+    
+    private var isCalendarWidgetEnabled: Bool {
+        widgetCalendarEnabled
+    }
+    
+    private var enabledWidgetCount: Int {
+        var count = 1 // Talk with AI is always visible
+        if isMusicWidgetEnabled { count += 1 }
+        if isCalendarWidgetEnabled { count += 1 }
+        if showShortcutView { count += 1 }
+        return count
     }
 
     private var mainContent: some View {
@@ -651,19 +679,19 @@ struct NotchHomeView: View {
                 VoiceInterfaceView(vm: vm)
                     .transition(.opacity.combined(with: .scale))
             } else {
-                // Show normal content (music | calendar | talk with ai - all equal width)
+                // Show normal content with dynamic layout based on widget settings
                 HStack(alignment: .center, spacing: 12) {
-                    // Music Player - equal width
-                    MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 108)
+                    // Music Player - conditional based on widget settings
+                    if isMusicWidgetEnabled {
+                        MusicPlayerView(albumArtNamespace: albumArtNamespace, showShuffleAndRepeat: showShuffleAndRepeat)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 108)
+                    }
 
-                    // Calendar - equal width
-                    if Defaults[.showCalendar] {
+                    // Calendar - conditional based on widget settings
+                    if isCalendarWidgetEnabled {
                         CalendarView()
                             .frame(maxWidth: .infinity)
-                            // .frame(height: 108)
-                            // .background(.ultraThinMaterial)
                             .cornerRadius(12)
                             .onHover { isHovering in
                                 vm.isHoveringCalendar = isHovering
@@ -671,8 +699,8 @@ struct NotchHomeView: View {
                             .environmentObject(vm)
                     }
 
-                    // Talk with AI - equal width
-                    VStack(spacing: 12) {
+                    // Talk with AI - always visible
+                    VStack(spacing: 8) {
                         // Talk with AI button
                         Button(action: {
                             withAnimation(.smooth) {
@@ -712,7 +740,7 @@ RoundedRectangle(cornerRadius: 100)
                             Button(action: {
                                 vm.toggleStealthMode()
                             }) {
-                                HStack(alignment: .center, spacing: 4) {
+                                HStack( spacing: 4) {
                                     #if canImport(AppKit)
                                     if vm.isStealthModeEnabled {
                                         // Eye icon when stealth mode is ON
@@ -820,6 +848,13 @@ RoundedRectangle(cornerRadius: 100)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 108)
+                    
+                    // Shortcut View - conditional based on widget settings
+                    if showShortcutView {
+                        ShortcutViewComponent()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 108)
+                    }
                 }
                 .transition(.opacity.combined(with: .scale))
             }
@@ -1214,5 +1249,73 @@ struct VoiceUnderlineBulge: Shape {
             control: CGPoint(x: rect.width / 2, y: baselineY - max(bulge, 0))
         )
         return path
+    }
+}
+
+// MARK: - Shortcut View Component
+
+private struct ShortcutViewComponent: View {
+    @Default(.showShortcutView) var showShortcutView
+    
+    // Shortcut data structure
+    struct ShortcutItem: Identifiable {
+        let id = UUID()
+        let title: String
+        let shortcut: String
+    }
+    
+    // Define the shortcuts based on the image description
+    private let shortcuts: [ShortcutItem] = [
+        ShortcutItem(title: "Open VE", shortcut: "⌘ ."),
+        ShortcutItem(title: "Notch", shortcut: "⌘ E"),
+        ShortcutItem(title: "Ask Ve", shortcut: "⌘ ⏎")
+    ]
+    
+    var body: some View {
+        if showShortcutView {
+            VStack(spacing: 8) {
+                ForEach(shortcuts) { shortcut in
+                    ShortcutRowView(shortcut: shortcut)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(red: 0.05, green: 0.36, blue: 0.26).opacity(0.24))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .inset(by: 0.3)
+                    .stroke(.white.opacity(0.1), lineWidth: 0.6)
+            )
+            // .blur(radius: 10)
+            .frame(width: 200) // Fixed width for shortcut view
+        }
+    }
+}
+
+private struct ShortcutRowView: View {
+    let shortcut: ShortcutViewComponent.ShortcutItem
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Title
+            Text(shortcut.title)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.white)
+            
+            Spacer()
+            
+            // Shortcut key
+            Text(shortcut.shortcut)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.white.opacity(0.7))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(.white.opacity(0.15))
+                )
+        }
+        .frame(minHeight: 20, maxHeight: .infinity)
     }
 }

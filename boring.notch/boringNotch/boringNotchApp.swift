@@ -155,9 +155,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.async { [weak window] in
             guard let window = window else { return }
             let screenFrame = screen.frame
+            
+            // Center the notch horizontally on the screen (like the real MacBook notch)
+            let xPosition = screenFrame.origin.x + (screenFrame.width / 2) - window.frame.width / 2
+            
             window.setFrameOrigin(
                 NSPoint(
-                    x: screenFrame.origin.x + (screenFrame.width / 2) - window.frame.width / 2,
+                    x: xPosition,
                     y: screenFrame.origin.y + screenFrame.height - window.frame.height
                 ))
             window.alphaValue = 1
@@ -165,13 +169,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @objc private func handleWindowResizeNotification(_ notification: Notification) {
-        guard let newSize = notification.userInfo?["newSize"] as? CGSize else { return }
+        guard let newSize = notification.userInfo?["newSize"] as? CGSize else { 
+            print("❌ Window resize notification received but no newSize in userInfo")
+            return 
+        }
+        
         
         // Resize all existing windows
         for (screen, window) in windows {
             let screenFrame = screen.frame
             
-            // Calculate centered position at the top of the screen
+            // Center the notch horizontally on the screen (like the real MacBook notch)
             let newX = screenFrame.origin.x + (screenFrame.width / 2) - (newSize.width / 2)
             let newY = screenFrame.origin.y + screenFrame.height - newSize.height
             
@@ -195,7 +203,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let screen = window.screen ?? NSScreen.main!
             let screenFrame = screen.frame
             
-            // Calculate centered position at the top of the screen
+            // Center the notch horizontally on the screen (like the real MacBook notch)
             let newX = screenFrame.origin.x + (screenFrame.width / 2) - (newSize.width / 2)
             let newY = screenFrame.origin.y + screenFrame.height - newSize.height
             

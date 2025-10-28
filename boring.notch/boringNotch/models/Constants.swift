@@ -129,6 +129,9 @@ extension Defaults.Keys {
     static let waitInterval = Key<Double>("waitInterval", default: 3)
     static let showShuffleAndRepeat = Key<Bool>("showShuffleAndRepeat", default: false)
     
+        // MARK: Shortcut View
+    static let showShortcutView = Key<Bool>("showShortcutView", default: false)
+    
         // MARK: Battery
     static let showPowerStatusNotifications = Key<Bool>("showPowerStatusNotifications", default: true)
     static let showBatteryIndicator = Key<Bool>("showBatteryIndicator", default: true)
@@ -162,6 +165,10 @@ extension Defaults.Keys {
     
     // MARK: Media Controller
     static let mediaController = Key<MediaControllerType>("mediaController", default: defaultMediaController)
+    
+    // MARK: Widget Settings
+    static let widgetMusicEnabled = Key<Bool>("widgetMusicEnabled", default: true)
+    static let widgetCalendarEnabled = Key<Bool>("widgetCalendarEnabled", default: true)
     
     // Helper to determine the default media controller based on macOS version
     static var defaultMediaController: MediaControllerType {

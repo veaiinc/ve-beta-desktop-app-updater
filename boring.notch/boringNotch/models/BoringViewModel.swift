@@ -15,6 +15,7 @@ enum VoiceConnectionStatus: String, CaseIterable {
     case disconnected, connecting, connected, error
 }
 
+
 struct VoiceMessage: Identifiable, Codable {
     let id = UUID()
     let content: String
@@ -34,6 +35,10 @@ class BoringViewModel: NSObject, ObservableObject {
 
     let animationLibrary: BoringAnimations = .init()
     let animation: Animation?
+
+    // Static in-memory cache that survives BoringViewModel re-creations (multiple displays, window rebuilds, etc.)
+    private static var persistedEmailLabels: [String] = []
+    private static var persistedSelectedEmailLabel: String?
 
     @Published var contentType: ContentType = .normal
     @Published private(set) var notchState: NotchState = .closed
@@ -66,7 +71,7 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var isRequestingAuthorization: Bool = false
     
     // MARK: - Authentication State
-    @Published var isAuthenticated: Bool = true
+    @Published var isAuthenticated: Bool = false
     
     // MARK: - Login Animation State
     @Published var showHelloAnimation: Bool = true
@@ -87,9 +92,11 @@ class BoringViewModel: NSObject, ObservableObject {
     @Published var isVoiceActive: Bool = false
     @Published var aiResponseIntensity: CGFloat = 0.0 // Wave animation intensity (0.0 → 1.0)
     @Published var effectiveAnimationIntensity: CGFloat = 0.0 // Combined AI + real-time audio intensity
-    
+
     // MARK: - New: Shared Email State
     let emailViewModel = EmailViewModel()
+    @Published var cachedEmailLabels: [String] = []
+    @Published var cachedSelectedEmailLabel: String?
     
     deinit {
         destroy()
@@ -115,6 +122,31 @@ class BoringViewModel: NSObject, ObservableObject {
         notchSize = getClosedNotchSize(screen: screen)
         closedNotchSize = notchSize
 
+        // Restore cached email labels immediately so the UI has data before any fresh fetch runs.
+        cachedEmailLabels = Self.persistedEmailLabels
+        cachedSelectedEmailLabel = Self.persistedSelectedEmailLabel
+        if !Self.persistedEmailLabels.isEmpty {
+            emailViewModel.applyCachedLabels(Self.persistedEmailLabels, selectedLabel: Self.persistedSelectedEmailLabel)
+        }
+
+        emailViewModel.$availableLabels
+            .receive(on: RunLoop.main)
+            .sink { [weak self] labels in
+                guard let self else { return }
+                self.cachedEmailLabels = labels
+                Self.persistedEmailLabels = labels
+            }
+            .store(in: &cancellables)
+
+        emailViewModel.$selectedLabel
+            .receive(on: RunLoop.main)
+            .sink { [weak self] label in
+                guard let self else { return }
+                self.cachedSelectedEmailLabel = label
+                Self.persistedSelectedEmailLabel = label
+            }
+            .store(in: &cancellables)
+
         Publishers.CombineLatest($dropZoneTargeting, $dragDetectorTargeting)
             .map { value1, value2 in
                 value1 || value2
@@ -127,6 +159,11 @@ class BoringViewModel: NSObject, ObservableObject {
         
         // Start email auto refresh every 15 minutes
         emailViewModel.startAutoRefresh(intervalMinutes: 15)
+        
+        // Request initial authentication status from Electron
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.requestAuthenticationStatusFromElectron()
+        }
     }
     
     private func setupNotificationObservers() {
@@ -162,8 +199,13 @@ class BoringViewModel: NSObject, ObservableObject {
             print("🔐 BoringViewModel: Current authentication status before update: \(self.isAuthenticated)")
             updateAuthenticationStatus(isAuthenticated)
             print("🔐 BoringViewModel: Authentication status updated to: \(self.isAuthenticated)")
+            
+            // Force UI update by triggering a state change
+            DispatchQueue.main.async {
+                self.objectWillChange.send()
+            }
         } else {
-            print("⚠️ BoringViewModel: Received invalid authentication status notification")
+            print("⚠️ BoringViewModel: userInfo: \(notification.userInfo ?? [:])")
         }
     }
     
@@ -606,4 +648,3 @@ class BoringViewModel: NSObject, ObservableObject {
         }
     }
 }
-

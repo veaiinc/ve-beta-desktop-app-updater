@@ -115,9 +115,39 @@ class BoringViewCoordinator: ObservableObject {
             return 600  // Smaller width for meeting view
         case .email:
             return 750
-        case .home, .shelf, .ask:
-            return 800  // Original width for home and shelf views
+        case .shelf:
+            return 800  // Fixed width for shelf view (AirDrop functionality)
+        case .home, .ask:
+            return calculateHomeViewWidth()  // Dynamic width based on enabled widgets
         }
+    }
+    
+    /// Calculates the width for home/ask views based on enabled widgets
+    private func calculateHomeViewWidth() -> CGFloat {
+        let baseWidth: CGFloat = 255  // Talk with AI widget width (fixed)
+        let musicWidgetWidth: CGFloat = Defaults[.widgetMusicEnabled] ? 255 : 0
+        let calendarWidgetWidth: CGFloat = Defaults[.widgetCalendarEnabled] ? 255 : 0
+        let shortcutViewWidth: CGFloat = Defaults[.showShortcutView] ? 200 : 0
+        let spacing: CGFloat = 12  // Spacing between widgets
+        let padding: CGFloat = 24  // Outer padding
+        
+        // Calculate total width based on enabled widgets
+        let totalWidgetWidth = baseWidth + musicWidgetWidth + calendarWidgetWidth + shortcutViewWidth
+        
+        // Count enabled widgets to calculate proper spacing
+        var enabledWidgetCount = 1 // Talk with AI is always enabled
+        if musicWidgetWidth > 0 { enabledWidgetCount += 1 }
+        if calendarWidgetWidth > 0 { enabledWidgetCount += 1 }
+        if shortcutViewWidth > 0 { enabledWidgetCount += 1 }
+        
+        // Spacing is between widgets, so if we have N widgets, we need (N-1) spaces
+        let totalSpacing = CGFloat(max(0, enabledWidgetCount - 1)) * spacing
+        let totalWidth = totalWidgetWidth + totalSpacing + padding
+        
+        
+        // Minimum width is just the Talk with AI widget (baseWidth + padding)
+        // No restriction on how many widgets can be disabled
+        return max(totalWidth, baseWidth + padding)
     }
     
     /// Resizes the window when the view changes
@@ -128,6 +158,23 @@ class BoringViewCoordinator: ObservableObject {
             object: nil,
             userInfo: ["newSize": newSize]
         )
+    }
+    
+    /// Resizes the window when widget settings change
+    func resizeWindowForWidgetChange() {
+        // Only resize if we're on views that show widgets (home and ask)
+        guard currentView == .home || currentView == .ask else { return }
+        
+        let newSize = getOpenNotchSize()
+    
+        // Add smooth animation for widget changes
+        withAnimation(.easeInOut(duration: 0.4)) {
+            NotificationCenter.default.post(
+                name: NSNotification.Name("ResizeWindowForViewChange"),
+                object: nil,
+                userInfo: ["newSize": newSize]
+            )
+        }
     }
 
     private init() {
@@ -154,6 +201,14 @@ class BoringViewCoordinator: ObservableObject {
             name: NSNotification.Name("MeetingStoppedNavigateHome"),
             object: nil
         )
+        
+        // Listen for widget settings changes
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleWidgetSettingsChanged),
+            name: NSNotification.Name("WidgetSettingsChanged"),
+            object: nil
+        )
     }
     
     @objc private func handleMeetingStoppedNavigation() {
@@ -167,6 +222,15 @@ class BoringViewCoordinator: ObservableObject {
         // Ensure notch shrinks when not in meeting
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.shrinkNotchIfNeeded()
+        }
+    }
+    
+    @objc private func handleWidgetSettingsChanged() {
+        print("🔧 BoringViewCoordinator: Handling widget settings change")
+        
+        // Resize window to accommodate new widget configuration
+        DispatchQueue.main.async {
+            self.resizeWindowForWidgetChange()
         }
     }
     
