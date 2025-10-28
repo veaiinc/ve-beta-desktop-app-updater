@@ -62,7 +62,7 @@ const useAssemblyTranscription = ({
 	const cleanup = useCallback(() => {
 		// 🚨 CRITICAL FIX: Mark as unmounted first
 		isMountedRef.current = false;
-		
+
 		// Clear timers
 		if (timerIntervalRef.current) {
 			clearInterval(timerIntervalRef.current);
@@ -600,6 +600,28 @@ const useAssemblyTranscription = ({
 			document.removeEventListener('visibilitychange', handleVisibilityChange);
 		};
 	}, [isRecording, log]);
+
+	// Listen for disconnect-transcription event from boring.notch
+	useEffect(() => {
+		const handleDisconnectTranscription = (event) => {
+			log('🔌 Received disconnect-transcription event from boring.notch');
+
+			// Disconnect the transcription WebSocket
+			if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+				log('🔌 Disconnecting transcription WebSocket...');
+				disconnect();
+				log('✅ Transcription WebSocket disconnected successfully');
+			} else {
+				log('⚠️ Transcription WebSocket already disconnected or not open');
+			}
+		};
+
+		window.addEventListener('disconnect-transcription', handleDisconnectTranscription);
+
+		return () => {
+			window.removeEventListener('disconnect-transcription', handleDisconnectTranscription);
+		};
+	}, [disconnect, log]);
 
 	return {
 		isConnected,
