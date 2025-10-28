@@ -74,9 +74,6 @@ const useWorkspaceMode = () => {
 		: routeMap[workspaceMode];
 	const routes = routesInfo[routeType] ?? routesInfo['fallbackRoute'];
 
-	console.log('🧭 [DEBUG] useWorkspaceMode - workspaceMode:', workspaceMode);
-	console.log('🧭 [DEBUG] useWorkspaceMode - routeType:', routeType);
-	console.log('🧭 [DEBUG] useWorkspaceMode - routes:', routes);
 	const workspaceModeLoading =
 		isPublicRoute || workspaceNotFound ? false : workspaceMode === null;
 	const workspaceId = localStorage.getItem('workspaceId');
