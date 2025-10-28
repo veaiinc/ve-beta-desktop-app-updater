@@ -502,16 +502,9 @@ const OngoingMeeting = memo(() => {
 						)}
 					</div>
 					<div className={s.ongoingMeetingFooter}>
-						{preparingSummary ? (
-							<ProgressBar />
-						) : (
-							<button
-								className={s.newChatButton}
-								onClick={() => navigate(`/new-chat`)}
-							>
-								<Plus size={16} /> New Chat
-							</button>
-						)}
+						<button className={s.newChatButton} onClick={() => navigate(`/new-chat`)}>
+							<Plus size={16} /> New Chat
+						</button>
 					</div>
 				</div>
 				{info.chatOpen && sessionId && (
@@ -536,6 +529,15 @@ const OngoingMeeting = memo(() => {
 					</div>
 				)}
 			</div>
+
+			{/* Full-screen overlay mask when preparing summary */}
+			{preparingSummary && (
+				<div className={s.summaryOverlayMask}>
+					<div className={s.summaryOverlayContent}>
+						<ProgressBar />
+					</div>
+				</div>
+			)}
 		</div>
 	);
 });

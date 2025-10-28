@@ -341,6 +341,11 @@ class BoringNotchService {
 						} else if (customData.type === 'activate_voice_agent') {
 							log.info('🎤 Received activate_voice_agent from boring.notch');
 							this.activateVoiceAgent();
+						} else if (customData.type === 'electron_voice_disconnect') {
+							log.info(
+								'🔌 Received electron_voice_disconnect from boring.notch via WebSocket',
+							);
+							this.handleDirectVoiceDisconnect();
 						}
 					}
 					// Handle legacy stdout format (if any)
@@ -1042,69 +1047,142 @@ class BoringNotchService {
 			// Dispatch disconnect event to main window to control the actual voice agent
 			if (this.mainWindow) {
 				const result = await this.mainWindow.webContents.executeJavaScript(`
-					console.log('🔌 Boring Notch: Handling voice disconnect command');
-					
-					// Method 1: Directly call the voice integration disconnect function
-					console.log('🔌 Checking voice integration availability:', {
-						hasVoiceIntegration: !!window.voiceIntegration,
-						hasDisconnect: !!(window.voiceIntegration && window.voiceIntegration.disconnect),
-						voiceIntegrationKeys: window.voiceIntegration ? Object.keys(window.voiceIntegration) : 'N/A'
-					});
-					
-					if (window.voiceIntegration && window.voiceIntegration.disconnect) {
-						console.log('🔌 Calling voice integration disconnect directly...');
-						try {
-							await window.voiceIntegration.disconnect();
-							console.log('🔌 Voice integration disconnect completed successfully');
-						} catch (error) {
-							console.error('🔌 Error calling voice integration disconnect:', error);
-						}
-					} else {
-						console.log('🔌 Voice integration not available, trying alternative methods...');
+					(async function() {
+						console.log('🔌 Boring Notch: Handling voice disconnect command');
 						
-						// Method 2: Try to find and control the actual voice agent
-						const voiceContainers = document.querySelectorAll('.voiceContainer');
-						if (voiceContainers.length > 0) {
-							console.log('🔌 Found voice container, controlling disconnect...');
-							const voiceContainer = voiceContainers[0];
-							
-							// Try to find disconnect buttons in the voice container - target specific classes
-							const disconnectButtons = voiceContainer.querySelectorAll('.cancel-button, .voice-stop-btn, [class*="disconnect"], [class*="close"], button[title*="disconnect"], button[title*="Disconnect"], button[title*="stop"], button[title*="Stop"]');
-							if (disconnectButtons.length > 0) {
-								console.log('🔌 Found disconnect button in voice container, clicking...');
-								disconnectButtons[0].click();
-							} else {
-								console.log('🔌 No disconnect button found in voice container');
+						// Method 1: Directly call the voice integration disconnect function
+						console.log('🔌 Checking voice integration availability:', {
+							hasVoiceIntegration: !!window.voiceIntegration,
+							hasDisconnect: !!(window.voiceIntegration && window.voiceIntegration.disconnect),
+							voiceIntegrationKeys: window.voiceIntegration ? Object.keys(window.voiceIntegration) : 'N/A'
+						});
+						
+						if (window.voiceIntegration && window.voiceIntegration.disconnect) {
+							console.log('🔌 Calling voice integration disconnect directly...');
+							try {
+								await window.voiceIntegration.disconnect();
+								console.log('🔌 Voice integration disconnect completed successfully');
+							} catch (error) {
+								console.error('🔌 Error calling voice integration disconnect:', error);
 							}
 						} else {
-							console.log('🔌 No voice container found');
+							console.log('🔌 Voice integration not available, trying alternative methods...');
+							
+							// Method 2: Try to find and control the actual voice agent
+							const voiceContainers = document.querySelectorAll('.voiceContainer');
+							if (voiceContainers.length > 0) {
+								console.log('🔌 Found voice container, controlling disconnect...');
+								const voiceContainer = voiceContainers[0];
+								
+								// Try to find disconnect buttons in the voice container - target specific classes
+								const disconnectButtons = voiceContainer.querySelectorAll('.cancel-button, .voice-stop-btn, [class*="disconnect"], [class*="close"], button[title*="disconnect"], button[title*="Disconnect"], button[title*="stop"], button[title*="Stop"]');
+								if (disconnectButtons.length > 0) {
+									console.log('🔌 Found disconnect button in voice container, clicking...');
+									disconnectButtons[0].click();
+								} else {
+									console.log('🔌 No disconnect button found in voice container');
+								}
+							} else {
+								console.log('🔌 No voice container found');
+							}
+							
+							// Method 3: Try to find DynamicIslandUI voice interface specifically
+							const dynamicIslandVoiceStop = document.querySelector('.voice-stop-btn');
+							if (dynamicIslandVoiceStop) {
+								console.log('🔌 Found DynamicIsland voice stop button, clicking...');
+								dynamicIslandVoiceStop.click();
+							}
 						}
 						
-						// Method 3: Try to find DynamicIslandUI voice interface specifically
-						const dynamicIslandVoiceStop = document.querySelector('.voice-stop-btn');
-						if (dynamicIslandVoiceStop) {
-							console.log('🔌 Found DynamicIsland voice stop button, clicking...');
-							dynamicIslandVoiceStop.click();
+						// Method 4: Dispatch disconnect event for voice integration hooks
+						const disconnectEvent = new CustomEvent('voice-agent-disconnect', {
+							detail: {
+								source: 'boring-notch-direct',
+								timestamp: Date.now(),
+								action: 'direct_voice_disconnect'
+							}
+						});
+						window.dispatchEvent(disconnectEvent);
+						
+						// Method 5: CRITICAL FIX - Dispatch transcription disconnect event
+						console.log('🔌 Disconnecting transcription WebSocket...');
+						const transcriptionDisconnectEvent = new CustomEvent('disconnect-transcription', {
+							detail: {
+								source: 'boring-notch',
+								timestamp: Date.now()
+							}
+						});
+						window.dispatchEvent(transcriptionDisconnectEvent);
+						console.log('✅ Transcription disconnect event dispatched');
+						
+						// Method 6: Force disconnect voice agent by dispatching notchdrop-voice-disconnect event
+						console.log('🔌 Force disconnecting voice agent via notchdrop-voice-disconnect event...');
+						const notchdropDisconnectEvent = new CustomEvent('notchdrop-voice-disconnect', {
+							detail: {
+								source: 'boring-notch',
+								timestamp: Date.now(),
+								action: 'disconnect_voice_agent'
+							}
+						});
+						window.dispatchEvent(notchdropDisconnectEvent);
+						console.log('✅ NotchDrop voice disconnect event dispatched');
+						
+						// Method 7: Forcefully stop ALL audio tracks and streams
+						console.log('🎤 Forcefully stopping ALL audio tracks and streams...');
+						try {
+							// Get all media stream tracks from the window
+							let stoppedTracksCount = 0;
+							
+							// Method 7a: Stop tracks from MediaStream global references
+							if (window.MediaStream && MediaStream.prototype) {
+								console.log('🎤 Checking for active MediaStream instances...');
+							}
+							
+							// Method 7b: Stop any audio contexts
+							if (window.AudioContext || window.webkitAudioContext) {
+								console.log('🎤 Checking for active AudioContext instances...');
+							}
+							
+							// Method 7c: Explicitly stop microphone by closing all audio tracks
+							// This is a nuclear option - stop ALL audio tracks in the page
+							const audioElements = document.querySelectorAll('audio');
+							audioElements.forEach(audio => {
+								if (audio.srcObject && audio.srcObject.getTracks) {
+									audio.srcObject.getTracks().forEach(track => {
+										console.log('🛑 Stopping audio element track:', track.kind, track.label);
+										track.stop();
+										stoppedTracksCount++;
+									});
+									audio.srcObject = null;
+								}
+							});
+							
+							// Method 7d: Stop tracks from any video elements (might have audio)
+							const videoElements = document.querySelectorAll('video');
+							videoElements.forEach(video => {
+								if (video.srcObject && video.srcObject.getTracks) {
+									video.srcObject.getTracks().forEach(track => {
+										console.log('🛑 Stopping video element track:', track.kind, track.label);
+										track.stop();
+										stoppedTracksCount++;
+									});
+									video.srcObject = null;
+								}
+							});
+							
+							console.log(\`✅ Forcefully stopped \${stoppedTracksCount} media tracks\`);
+						} catch (error) {
+							console.error('❌ Error forcefully stopping media tracks:', error);
 						}
-					}
-					
-					// Method 4: Dispatch disconnect event for voice integration hooks
-					const disconnectEvent = new CustomEvent('voice-agent-disconnect', {
-						detail: {
-							source: 'boring-notch-direct',
-							timestamp: Date.now(),
-							action: 'direct_voice_disconnect'
-						}
-					});
-					window.dispatchEvent(disconnectEvent);
-					
-					// Method 5: Hide voice agent UI
-					const voiceContainers = document.querySelectorAll('.voiceContainer');
-					voiceContainers.forEach(container => {
-						container.style.display = 'none';
-					});
-					
-					'{ "success": true, "method": "direct voice disconnect" }';
+						
+						// Method 8: Hide voice agent UI
+						const voiceContainers = document.querySelectorAll('.voiceContainer');
+						voiceContainers.forEach(container => {
+							container.style.display = 'none';
+						});
+						
+						return { success: true, method: 'direct voice disconnect with force stop' };
+					})();
 				`);
 				log.info('🔌 Direct voice disconnect event dispatched to main window:', result);
 			}

@@ -168,15 +168,47 @@ const AppContent = () => {
 	// Handle NotchDrop voice disconnect
 	useEffect(() => {
 		const handleNotchDropVoiceDisconnect = async (event) => {
-			// console.log(`🔌 NotchDrop voice disconnect: ${event.type}`);
+			// Method 1: Try voice integration disconnect first
 			if (voiceIntegration && voiceIntegration.disconnect) {
 				try {
-					// console.log('🔌 Disconnecting voice agent from NotchDrop X button...');
 					await voiceIntegration.disconnect();
-					console.log('✅ Voice agent disconnected successfully from NotchDrop!');
 				} catch (error) {
-					console.error(`❌ NotchDrop voice disconnect failed: ${error.message}`);
+					console.error(`❌ voiceIntegration.disconnect() failed: ${error.message}`);
 				}
+			} else {
+				console.warn('⚠️ voiceIntegration.disconnect() not available');
+			}
+
+			// Method 2: Force stop ALL audio tracks as nuclear fallback
+
+			try {
+				let stoppedCount = 0;
+
+				// Stop all audio elements
+				const audioElements = document.querySelectorAll('audio');
+				audioElements.forEach((audio) => {
+					if (audio.srcObject && audio.srcObject.getTracks) {
+						audio.srcObject.getTracks().forEach((track) => {
+							track.stop();
+							stoppedCount++;
+						});
+						audio.srcObject = null;
+					}
+				});
+
+				// Stop all video elements (might have audio tracks)
+				const videoElements = document.querySelectorAll('video');
+				videoElements.forEach((video) => {
+					if (video.srcObject && video.srcObject.getTracks) {
+						video.srcObject.getTracks().forEach((track) => {
+							track.stop();
+							stoppedCount++;
+						});
+						video.srcObject = null;
+					}
+				});
+			} catch (error) {
+				console.error('❌ Error force stopping media tracks:', error);
 			}
 		};
 
