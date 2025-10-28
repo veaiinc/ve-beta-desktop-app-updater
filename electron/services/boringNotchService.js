@@ -31,6 +31,11 @@ class BoringNotchService {
 		try {
 			log.info('🚀 Initializing Boring Notch service...');
 
+			// First, terminate any existing instances to ensure clean start
+			log.info('🧹 Cleaning up any existing Boring Notch instances...');
+			await this.terminateBoringNotch();
+			await new Promise(resolve => setTimeout(resolve, 500)); // Wait for termination to complete
+
 			// Get the path to the boring.notch app
 			let boringNotchPath = this.getBoringNotchPath();
 
@@ -50,6 +55,17 @@ class BoringNotchService {
 
 			// Launch the boring.notch app
 			await this.launchBoringNotch(boringNotchPath);
+
+			// Wait for WebSocket connection with retries (up to 15 seconds)
+			log.info('⏳ Waiting for Boring Notch WebSocket connection...');
+			const connectionEstablished = await this.waitForWebSocketConnection(15000);
+			
+			if (!connectionEstablished) {
+				log.warn('⚠️ Boring Notch launched but WebSocket connection not established within timeout');
+				log.warn('⚠️ The app may still be starting up. WebSocket will connect when ready.');
+			} else {
+				log.info('✅ Boring Notch WebSocket connection established');
+			}
 
 			// Set up WebSocket message listening
 			this.setupWebSocketMessageListening();
@@ -249,18 +265,50 @@ class BoringNotchService {
 						return;
 					}
 
-					log.info('✅ Boring Notch app launched successfully');
+					log.info('✅ Boring Notch app launch command executed');
 
-					// Wait a moment for the app to start, then establish stdin communication
+					// Wait briefly for the app to start launching, then establish stdin communication
 					setTimeout(() => {
 						this.establishStdinCommunication(appPath);
 						resolve();
-					}, 2000);
+					}, 1000);
 				});
 			} catch (error) {
 				log.error('❌ Failed to launch built app:', error);
 				reject(error);
 			}
+		});
+	}
+
+	// Wait for WebSocket connection to be established with retries
+	async waitForWebSocketConnection(timeoutMs = 15000) {
+		const websocketService = require('./websocketService');
+		const startTime = Date.now();
+		const checkInterval = 500; // Check every 500ms
+
+		return new Promise((resolve) => {
+			const checkConnection = () => {
+				const elapsed = Date.now() - startTime;
+				
+				if (elapsed >= timeoutMs) {
+					log.warn('⚠️ WebSocket connection timeout after', elapsed, 'ms');
+					resolve(false);
+					return;
+				}
+
+				const clientCount = websocketService.getClientCount();
+				
+				if (clientCount > 0) {
+					log.info('✅ WebSocket connection established with', clientCount, 'client(s) after', elapsed, 'ms');
+					resolve(true);
+					return;
+				}
+
+				// Continue checking
+				setTimeout(checkConnection, checkInterval);
+			};
+
+			checkConnection();
 		});
 	}
 
@@ -420,46 +468,54 @@ class BoringNotchService {
 				const tryTermination = () => {
 					terminationCount++;
 
-					// Method 1: Try to find and terminate the boring.notch process
-					exec('pkill -f "boringNotch"', (error, stdout, stderr) => {
+					// Method 1: Try to find and terminate the Ve.Ai process (the actual executable name)
+					exec('pkill -f "Ve.Ai"', (error, stdout, stderr) => {
 						if (error && !error.message.includes('No matching processes')) {
-							log.warn('⚠️ Error terminating Boring Notch process:', error.message);
+							log.warn('⚠️ Error terminating Ve.Ai process:', error.message);
 						} else {
-							log.info('✅ Boring Notch process terminated');
+							log.info('✅ Ve.Ai process terminated');
 						}
 
-						// Method 2: Try to quit the app gracefully using AppleScript
-						const quitScript = `
-							tell application "boringNotch"
-								quit
-							end tell
-						`;
+						// Also try to kill boringNotch processes in case there are any
+						exec('pkill -f "boringNotch"', (error2) => {
+							// Silently handle this as it's a fallback
 
-						exec(`osascript -e '${quitScript}'`, (quitError) => {
-							if (quitError && !quitError.message.includes("Application isn't running")) {
-								log.warn(
-									'⚠️ Error gracefully quitting Boring Notch:',
-									quitError.message,
-								);
-							} else {
-								log.info('✅ Boring Notch app quit gracefully');
-							}
+							// Method 2: Try to quit the app gracefully using AppleScript with correct app name
+							const quitScript = `
+								tell application "Ve.Ai"
+									quit
+								end tell
+							`;
 
-							// Method 3: Force kill if still running (aggressive fallback)
-							if (terminationCount < maxAttempts) {
-								setTimeout(() => {
-									exec('pkill -9 -f "boringNotch"', (forceError) => {
-										if (forceError && !forceError.message.includes('No matching processes')) {
-											log.warn('⚠️ Force kill also failed:', forceError.message);
-										} else {
-											log.info('✅ Boring Notch force killed');
-										}
-										resolve();
-									});
-								}, 1000);
-							} else {
-								resolve();
-							}
+							exec(`osascript -e '${quitScript}'`, (quitError) => {
+								if (quitError && !quitError.message.includes("Application isn't running")) {
+									log.warn(
+										'⚠️ Error gracefully quitting Ve.Ai:',
+										quitError.message,
+									);
+								} else {
+									log.info('✅ Ve.Ai app quit gracefully');
+								}
+
+								// Method 3: Force kill if still running (aggressive fallback)
+								if (terminationCount < maxAttempts) {
+									setTimeout(() => {
+										exec('pkill -9 -f "Ve.Ai"', (forceError) => {
+											if (forceError && !forceError.message.includes('No matching processes')) {
+												log.warn('⚠️ Force kill also failed:', forceError.message);
+											} else {
+												log.info('✅ Ve.Ai force killed');
+											}
+											// Also try force killing boringNotch as fallback
+											exec('pkill -9 -f "boringNotch"', () => {
+												resolve();
+											});
+										});
+									}, 1000);
+								} else {
+									resolve();
+								}
+							});
 						});
 					});
 				};
