@@ -7848,7 +7848,7 @@ app.on('will-quit', async (event) => {
 });
 
 // Handle macOS dock quit
-app.on('quit', (event, exitCode) => {
+app.on('quit', async (event, exitCode) => {
 	// Only cleanup if update is not in progress
 	if (!isUpdateInProgress && (dynamicIslandHelper || windowHelper)) {
 		log.info('🔄 Force cleanup on quit event...');
