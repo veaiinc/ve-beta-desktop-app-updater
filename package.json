@@ -237,7 +237,7 @@
 			],
 			"extraResources": [
 				{
-					"from": "/Users/gowtham/Library/Developer/Xcode/Archives/2025-10-27/boringNotch 27-10-25, 18.04.xcarchive/Submissions/253D7BD3-B03E-4F8B-B0A8-BF1769DA0D30/Ve.Ai.app",
+					"from": "boring-notch-build/Ve.Ai.app",
 					"to": "Ve.Ai.app"
 				},
 				{

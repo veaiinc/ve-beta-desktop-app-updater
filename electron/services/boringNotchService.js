@@ -118,10 +118,14 @@ class BoringNotchService {
 			// In production, extraResources are copied to the app bundle
 			const appPath = process.resourcesPath || path.join(__dirname, '..', '..', '..');
 			possiblePaths.push(
-				// Primary production path (extraResources location)
+				// Primary production path (extraResources location) - Ve.Ai.app is the actual name
+				path.join(appPath, 'Ve.Ai.app'),
+				// Also check for old naming convention as fallback
 				path.join(appPath, 'boringNotch.app'),
 				// Alternative production paths
+				path.join(__dirname, '..', '..', '..', 'Ve.Ai.app'),
 				path.join(__dirname, '..', '..', '..', 'boringNotch.app'),
+				path.join(__dirname, '..', '..', 'Ve.Ai.app'),
 				path.join(__dirname, '..', '..', 'boringNotch.app'),
 				// Fallback to development paths in case of edge cases
 				path.join(__dirname, '..', '..', 'boring.notch', 'build', 'boringNotch.app'),
@@ -1349,12 +1353,18 @@ class BoringNotchService {
 				'boringNotch.app',
 			),
 			path.join(__dirname, '..', '..', 'boring.notch', 'boringNotch.app'),
-			// Production paths
+			// Production paths - check both Ve.Ai.app and boringNotch.app
+			path.join(
+				process.resourcesPath || path.join(__dirname, '..', '..', '..'),
+				'Ve.Ai.app',
+			),
 			path.join(
 				process.resourcesPath || path.join(__dirname, '..', '..', '..'),
 				'boringNotch.app',
 			),
+			path.join(__dirname, '..', '..', '..', 'Ve.Ai.app'),
 			path.join(__dirname, '..', '..', '..', 'boringNotch.app'),
+			path.join(__dirname, '..', '..', 'Ve.Ai.app'),
 			path.join(__dirname, '..', '..', 'boringNotch.app'),
 		];
 
